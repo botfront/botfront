@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Meteor: Chrome",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Meteor: Debug",
+            "restart": true,
+            "port": 9229,
+            "timeout": 60000,
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Meteor: Node",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "debug"],
+          
+            "timeout": 30000,
+            "env": {
+                
+            },
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Meteor: All",
+            "configurations": ["Meteor: Debug"]
+        }
+    ]
+}

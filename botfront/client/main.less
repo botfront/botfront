@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css?family=Hind:600|Raleway:500');
+@import 'variables.less';
+@import '../imports/ui/layouts/project.import.less';
+@import '../imports/ui/layouts/setup.import.less';
+@import '../imports/ui/components/admin/settings.import.less';
+@import '../imports/ui/components/nlu/models/style/NLUModel.import.less';
+
+@sidebar-bg: rgb(45, 47, 74);
+@sidebar-size: 190px;
+@small-sidebar-size: 46px;
+@sidebar-offset:~"calc(@{sidebar-size} - @{small-sidebar-size})";
+@top-menu-height: 49px;
+
+:global {
+    @import 'react-select/dist/react-select.css';
+   
+}
+@font-face {
+    font-family: 'Icons';
+    src: url("./fonts/icons.eot");
+    src: url("./fonts/icons.eot?#iefix") format('embedded-opentype'), url("./fonts/icons.woff2") format('woff2'), url("./fonts/icons.woff") format('woff'), url("./fonts/icons.ttf") format('truetype'), url("./fonts/icons.svg#icons") format('svg');
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-decoration: inherit;
+    text-transform: none;
+  }
+
+
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
+#render-target {
+    height: 100%;
+    overflow: auto;
+}
+
+.error_text {
+    width:200px;
+    word-wrap: normal;
+    white-space: normal;
+}
+
+.ui.stackable.cards > .card{
+    margin-right: 0;
+    margin-left: 0;
+    width: 100% !important;
+}
+
+.ui.menu {
+    border-radius:0;
+}
+
+/* remove margin in comments/dialogue */
+.ui.comments .comment .example-editor .text {
+    margin: 0;
+    color: #fff;
+}
+
+.ui.comments .comment .example-editor .item .text{
+    color: rgba(0, 0, 0, 0.87);
+}
+
+/* configure popup border*/
+
+.ui.popup.fill_contents {
+    border: 0;
+    padding: 0;
+    width:13rem;
+}
+
+/* configure input padding */
+
+.ui.label {
+    display: inline-flex;
+    width: max-content;
+    max-width: 100%;
+    overflow: hidden;
+
+    .ui.input {
+        color: inherit;
+        font-weight: inherit;
+
+        input {
+            border: 0;
+            color: inherit;
+            font-weight: inherit;
+        }
+    }
+
+    p {
+        display: inline-block;
+    }
+}
+
+/* reduce top margin NLU examples */
+.ui.top.attached.label:first-child + :not(.attached), .ui.top.attached.label + [class*="right floated"] + * {
+    margin-top: 1rem !important;
+}
+
+.rt-td .ui.segment {
+    background: #ffffff;
+    box-shadow: 0 0 0 0 rgba(34, 36, 38, 0.15);
+    margin: 0rem 0em;
+    padding: 1em 1em;
+    border-radius: 0;
+    border: 0 solid rgba(34, 36, 38, 0.15);
+}
+
+
+
+.overflow {
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height:28px;
+}
+
+.overflow::-webkit-scrollbar {
+    width: 0;  /* remove scrollbar space */
+    display: none;
+}
+
+.example_edit_save {
+    float: left;
+    width: 100%;
+}
+
+.tester .ellipsis {
+    overflow-x: auto;
+}
+
+.warning_container {
+    display:inline;
+    padding-right: 6px;
+}
+
+.model_header {
+    a {
+        color: black;
+    }
+}
+
+.ReactTable .rt-thead [role="columnheader"] {
+    outline: 0;
+}
+
+.center {
+    text-align: center;
+}
+
+.right {
+    text-align: right;
+}
+
+.left {
+    text-align: left;
+}
+
+.with_margin {
+    margin-bottom: 10px;
+}
+
+p.overflow {
+    padding-top: 6px;
+    height: 33px;
+}
+
+#playground .ui.form textarea {
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    /*padding: 0.24em;*/
+    background: transparent;
+}
+
+#test_set_buttons {
+    margin-bottom: 10px;
+}
+
+.example-editor .ui.search.selection.dropdown > input.search {
+    line-height: 1.2142em;
+    color: white;
+    padding-left: inherit;
+}
+
+.example-editor .ui.active.search.dropdown input.search:focus + .text {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.ui.segment {
+    box-shadow: none !important;
+}
+  

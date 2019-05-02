@@ -1,0 +1,34 @@
+import '../imports/api/setup';
+import '../imports/api/activity';
+import '../imports/lib/aggregate';
+import '../imports/api/globalSettings/globalSettings.collection';
+import '../imports/api/globalSettings/globalSettings.methods';
+import '../imports/api/conversations';
+import '../imports/api/credentials';
+import '../imports/api/deployment/deployment.collection';
+import '../imports/api/deployment/deployment.methods';
+import '../imports/api/deployment/deployment.schema';
+import '../imports/api/endpoints/endpoints.methods';
+import '../imports/api/endpoints/endpoints.schema';
+import '../imports/api/endpoints/endpoints.collection';
+import '../imports/api/instances/instances.collection';
+import '../imports/api/instances/instances.methods';
+import '../imports/api/instances/instances.schema';
+import '../imports/lib/nlu_methods';
+import '../imports/api/nlu_model/nlu_model.collection';
+import '../imports/api/nlu_model/nlu_model.schema';
+import '../imports/api/nlu_model/nlu_model.methods';
+import '../imports/api/nlu_model/nlu_model.utils';
+import '../imports/api/project/project.collection';
+import '../imports/api/project/project.methods';
+import '../imports/api/project/response.schema';
+import '../imports/api/project/response.methods';
+import '../imports/api/rules';
+import '../imports/api/user/user.methods';
+import '../imports/api/user/user.schema';
+import '../imports/api/user/user.collection';
+import '../imports/api/orchestration/orchestration.methods.js';
+import '../imports/lib/scopes';
+
+
+import './migrations';

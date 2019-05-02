@@ -1,0 +1,17 @@
+#nlu-model {
+  overflow-x: hidden;
+  height: 100vh;
+  .menu:not(.right) {
+    background: '#fff';
+    .menu.right {
+      padding: '0.64em 0em';
+    }
+  }
+  input:focus + .text {
+    color: hsl(288, 50%, 90%) !important;
+  }
+}
+
+.project-children #nlu-model .ui.pointing.secondary.menu {
+  height: @top-menu-height;
+}

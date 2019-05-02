@@ -1,0 +1,74 @@
+.highlight {
+    color: transparent;
+    pointer-events: none;
+    font-family: sans-serif;
+    padding: 5px 8px;
+    white-space: pre;
+    position: absolute;
+    top: 7px;
+    left: 7px;
+}
+
+.tester div.ui.segment div.overflow {
+  height: fit-content;
+  white-space: normal;
+}
+
+.intent-text {
+  display: inline;
+}
+
+.intent-text.empty {
+  text-align: center;
+}
+
+@heightSmall: 11px;
+@paddingSmall: 7px;
+
+@heightMini: 9px;
+@paddingMini: 5.25px;
+
+.ui.label.small-entity {
+  .detail {
+    height: @heightSmall + @paddingSmall * 2;
+  }
+
+  .input-container {
+    height: @heightSmall;
+
+    .ui.input {
+      height: @heightSmall;
+    }
+  }
+
+  .entity-text {
+    height: @heightSmall;
+  }
+}
+
+.ui.label.mini-entity {
+  .detail {
+    height: @heightMini + @paddingMini * 2;
+  }
+
+  .ui.input {
+    height: @heightMini;
+  }
+
+  .entity-text {
+    height: @heightMini;
+  }
+}
+
+.ui.label.entity {
+  display: inline-flex;
+}
+
+.entity-text {
+  display: inline;
+}
+
+.entities-viewer {
+  float: left;
+  margin: 0 10px 10px 0;
+}

@@ -1,0 +1,67 @@
+public:
+  coreModelUploadEnabled: true
+  deploymentEnabled: true
+private:
+  gcpBucketNLU: bf_eu_nlu_models
+  gcpBucketCore: bf_eu_core_models
+  bfApiHost: 'http://localhost:8081'
+  imagesTag: 0.6.5
+  dockerRegistry: gcr.io/botfront-project
+  defaultDeployment:
+    namespace: '{PROJECT_NAMESPACE}'
+    domain: '{PROJECT_NAMESPACE}.bots.botfront.io'
+    config:
+      bf_url: '{BF_API_HOST}'
+      bf_api_key: '{BF_API_KEY}'
+      bf_project_id: '{BF_PROJECT_ID}'
+      nlu_models_bucket: '{GCP_BUCKET_NLU}'
+      core_models_bucket: '{GCP_BUCKET_CORE}'
+      debug: true
+      do_not_persist_conversations: 'false'
+    images:
+      core: '{DOCKER_REGISTRY}/simple-core:{IMAGES_TAG}'
+      actions: '{DOCKER_REGISTRY}/simple-actions:{IMAGES_TAG}'
+      nlu: '{DOCKER_REGISTRY}/simple-nlu:{IMAGES_TAG}'
+      webchat: '{DOCKER_REGISTRY}/simple-webchat:{IMAGES_TAG}'
+  defaultEndpoints:
+    nlu:
+      url: 'http://nlu.{PROJECT_NAMESPACE}'
+    action_endpoint:
+      url: 'http://actions.{PROJECT_NAMESPACE}/webhook'
+    models:
+      url: >-
+        https://storage.googleapis.com/{GCP_BUCKET_CORE}/prod-{BF_PROJECT_ID}.zip
+    nlu_models_info:
+      url: '{BF_API_HOST}/project/{BF_PROJECT_ID}/models/published'
+    rules:
+      url: '{BF_API_HOST}/project/{BF_PROJECT_ID}/rules'
+  defaultCredentials:
+    bot\u002Esocketio\u002ESocketIOInput:
+      session_persistence: true
+  defaultRules:
+    intent_substitutions:
+      - intent: chitchat\.(.*)
+        with: chitchat
+        entities:
+          add:
+            - name: intent
+              value: '{intent}'
+      - intent: chitchat\.(.*)
+        with: faq
+        entities:
+          add:
+            - name: intent
+              value: '{intent}'
+    disambiguation_policy:
+      trigger: $0 > 1
+      max_suggestions: 2
+      display:
+        text_template: utter_disamb_text
+        button_title_template_prefix: utter_disamb
+        fallback_button:
+          title: utter_fallback_yes
+          payload: /fallback
+        exclude:
+          - chitchat\..*
+          - basics\..*
+          - cancel
