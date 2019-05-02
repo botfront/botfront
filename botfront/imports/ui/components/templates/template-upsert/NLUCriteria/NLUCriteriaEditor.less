@@ -1,0 +1,109 @@
+@import "../../../../../../client/variables.less";
+
+// .nlu-criteria-editor .ui.search.selection.dropdown > input.search {
+//   line-height: 1.2142em;
+//   color: white;
+//   padding-left: inherit;
+// }
+
+// .nlu-criteria-editor .ui.labeled.icon.button>.icon, .ui.labeled.icon.buttons>.button>.icon {
+//   background-color: transparent;
+// }
+
+
+.criteria-editor .intent .ui.selection.dropdown {
+  border-color: fade(@purple, 50%);
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-radius: 0;
+}
+
+.intent .ui.labeled.icon.button>.icon, .ui.labeled.icon.buttons>.button>.icon {
+  background-color: fade(@purple, 5%);
+  color: @purple
+}
+
+.intent .ui.search.dropdown>.text {
+  color: fade(@purple, 90%);
+}
+
+.criteria-editor .entity .ui.selection.dropdown, .follow-up-editor .follow-up .ui.selection.dropdown {
+  border-color: fade(@blue, 50%);
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-radius: 0;
+}
+
+.follow-up .ui.labeled.icon.button>.icon {
+  background-color: fade(@blue, 5%);
+  color: @blue;
+}
+
+.entity .ui.search.dropdown>.text, .follow-up .ui.search.dropdown>.text {
+  color: fade(@blue, 90%);
+}
+
+.criteria-editor .ui.labeled.icon.button, .ui.labeled.icon.buttons .button {
+  padding-left: 3em!important;
+}
+
+.criteria-editor .ui.grid>.row {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.criteria-editor .ui.grid>.column {
+  padding-left: 0.3rem;
+  padding-right: 0.3rem;
+}
+
+.criteria-editor .ui.compact.button, .ui.compact.buttons .button {
+  padding-left: 2px;
+  padding-right: 0;
+}
+
+.criteria-editor .ui.divider {
+  margin-top: 0;
+}
+
+.criteria-editor .ui.search.dropdown>input.search, .follow-up-editor .ui.search.dropdown>input.search {
+  padding-left: 3em
+}
+
+.criteria-editor .ui.header, .follow-up-editor .ui.header  {
+  font-weight: 300;
+}
+
+.bot-response-sequence .ui.segment {
+  margin-bottom: 1em;
+}
+
+.nlu-criteria-editor .ui.segment {
+  padding-bottom: 2em;
+}
+
+.follow-up-editor.ui.segment {
+  margin-top: 2.2em;
+}
+
+.criteria-editor .ui.form input:not([type]), .ui.form input[type=date], .ui.form input[type=datetime-local], .ui.form input[type=email], .ui.form input[type=file], .ui.form input[type=number], .ui.form input[type=password], .ui.form input[type=search], .ui.form input[type=tel], .ui.form input[type=text], .ui.form input[type=time], .ui.form input[type=url] {
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-radius: 0;
+}
+
+.condition-separator {
+  padding-top: 0.3em;
+  padding-bottom: 0.9em;
+}
+
+.add-criterium-ellipsis {
+  margin-top: 0.6em!important;
+}
+
+.bot-response-form .steps {
+  margin-top: 2em; 
+}

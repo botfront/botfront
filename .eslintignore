@@ -1,0 +1,5 @@
+.deploy
+.meteor
+.migrations
+build
+node_modules

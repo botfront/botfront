@@ -1,0 +1,19 @@
+{
+    "fixturesFolder": "cypress/fixtures",
+    "integrationFolder": "cypress/integration",
+    "pluginsFile": "cypress/plugins/index.js",
+    "screenshotsFolder": "cypress/screenshots",
+    "supportFile": "cypress/support/index.js",
+    "videoUploadOnPasses": false,
+    "videosFolder": "cypress/videos",
+    "baseUrl": "http://localhost:3000",
+    "defaultCommandTimeout": 10000,
+    "watchForFileChanges": false,
+    "numTestsKeptInMemory": 2 ,
+    "env": {
+      "bf_project_id": "HmSwboMcCCq8T273A",
+      "default_user_email": "test@test.com",
+      "default_user_password": "aaaaaaaa"
+    }
+  }
+  
