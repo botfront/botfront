@@ -114,6 +114,14 @@ if (Meteor.isServer) {
                 },
             });
 
+            // ee-start //
+            const { setUpRoles } = await import('./roles/roles');
+            const { Roles } = await import('meteor/modweb:roles');
+            setUpRoles();
+            Roles.createRole('global-admin', { unlessExists: true });
+            Roles.addUsersToRoles(userId, ['global-admin'], null);
+            // ee-end //
+
             if (consent) {
                 await requestMailSubscription(accountData.email, accountData.firstName, accountData.lastName);
             }

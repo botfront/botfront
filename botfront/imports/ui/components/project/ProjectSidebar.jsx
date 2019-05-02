@@ -2,12 +2,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import DocumentTitle from 'react-document-title';
-import { Menu, Divider } from 'semantic-ui-react';
+import { Menu, Divider, Icon } from 'semantic-ui-react';
 import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 
 import { Projects } from '../../../api/project/project.collection';
 import ProjectsDropdown from './ProjectsDropdown';
+import { can } from '../../../lib/scopes';
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 class ProjectSidebar extends React.Component {
@@ -39,6 +40,11 @@ class ProjectSidebar extends React.Component {
                         <Menu.Item name='Settings' icon='setting' />
                     </Link>
                     <Divider inverted />
+                    {can('global-admin') && (
+                        <Link to='/admin/'>
+                            <Menu.Item name='Admin' icon='key' />
+                        </Link>
+                    )}
                     <Link to='/login'>
                         <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
                     </Link>

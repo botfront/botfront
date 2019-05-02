@@ -65,6 +65,63 @@ class Settings extends React.Component {
         </Tab.Pane>
     );
 
+    renderDefaultEndpoints = () => (
+        <Tab.Pane>
+            <Message
+                info
+                icon='question circle'
+                content={
+                    <>
+                        Default Rasa Core (see{' '}
+                        <a target='_blank' rel='noopener noreferrer' href='https://rasa.com/docs/core/server/#endpoint-configuration'>
+                            Rasa documentation
+                        </a>
+                        ) &nbsp;endpoints for new projects
+                    </>
+                }
+            />
+            <AceField name='settings.private.defaultEndpoints' label='' fontSize={12} />
+        </Tab.Pane>
+    );
+
+    renderDefaultCredentials = () => (
+        <Tab.Pane>
+            <Message
+                info
+                icon='question circle'
+                content={
+                    <>
+                        Default Rasa Core (see{' '}
+                        <a target='_blank' rel='noopener noreferrer' href='https://rasa.com/docs/core/connectors/'>
+                            Rasa documentation
+                        </a>
+                        ) &nbsp;channel credentials for new projects
+                    </>
+                }
+            />
+            <AceField name='settings.private.defaultCredentials' label='' fontSize={12} />
+        </Tab.Pane>
+    );
+
+    renderDefaultRules = () => (
+        <Tab.Pane>
+            <Message
+                info
+                icon='question circle'
+                content={
+                    <>
+                        Default Rules (see{' '}
+                        <a target='_blank' rel='noopener noreferrer' href='https://github.com/mrbot-ai/rasa-addons'>
+                            Rasa addons
+                        </a>
+                        ) &nbsp;for new projects
+                    </>
+                }
+            />
+            <AceField name='settings.private.defaultRules' label='' fontSize={12} />
+        </Tab.Pane>
+    );
+
     renderAppearance = () => (
         <Tab.Pane>
             <Message info icon='question circle' content='Login page background images URLs' />
@@ -84,6 +141,9 @@ class Settings extends React.Component {
         const { orchestratorSettingsComponent: OrchestratorSettingsComponent, orchestrator } = this.state;
         let panes = [
             { menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
+            { menuItem: 'Default credentials', render: this.renderDefaultCredentials },
+            { menuItem: 'Default endpoints', render: this.renderDefaultEndpoints },
+            { menuItem: 'Default rules', render: this.renderDefaultRules },
             { menuItem: 'Security', render: this.renderSecurityPane },
             { menuItem: 'Appearance', render: this.renderAppearance },
             { menuItem: 'Misc', render: this.renderMisc },

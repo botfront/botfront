@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { can, getScopesForUser, areScopeReady } from '../../lib/scopes';
 
-class Index extends React.Component {
+ class Index extends React.Component {
     componentDidMount() {
         this.route();
     }
@@ -21,11 +21,14 @@ class Index extends React.Component {
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    const projects = getScopesForUser(Meteor.userId(), 'owner');
-                    if (projects.length === 0) {
-                        router.push('/404');
-                    } else {
-                        router.push(`/project/${projects[0]}/nlu/models`);
+                    if (can('global-admin', Meteor.userId())) router.push('/admin/projects');
+                    else {
+                        const projects = getScopesForUser(Meteor.userId(), 'owner');
+                        if (projects.length === 0) {
+                            router.push('/404');
+                        } else {
+                            router.push(`/project/${projects[0]}/nlu/models`);
+                        }
                     }
                 }
             });

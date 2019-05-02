@@ -16,6 +16,38 @@ let CanExport = props => (
     </>
 );
 
+// ee start
+// eslint-disable-next-line import/first
+import { can as canEE, checkIfCan as checkIfCanEE } from '../api/roles/roles';
+// eslint-disable-next-line import/first
+import { Roles } from 'meteor/modweb:roles';
+// eslint-disable-next-line import/first
+import { connect } from 'react-redux';
+// eslint-disable-next-line import/first
+import { Children } from 'react';
+
+
+canExport = canEE;
+checkIfCanExport = checkIfCanEE;
+getScopesForUserExport = (userId, permission) => Roles.getScopesForUser(userId, permission);
+areScopeReadyExport = () => Roles.subscription.ready();
+setScopesExport = (user, userId) => {
+    user.roles.forEach((role) => {
+        const project = role.project === 'GLOBAL' ? null : role.project;
+        Roles.addUsersToRoles(userId, role.roles, project);
+    });
+};
+CanExport = ({ children, I, projectId }) => (canExport(I, projectId) ? Children.only(children) : null);
+
+const mapStateToProps = state => ({
+    projectId: state.get('projectId'),
+});
+
+CanExport = connect(
+    mapStateToProps,
+)(CanExport);
+// ee end
+
 
 export const getScopesForUser = getScopesForUserExport;
 export const can = canExport;

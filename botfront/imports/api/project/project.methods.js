@@ -61,6 +61,9 @@ if (Meteor.isServer) {
                 Endpoints.remove({ projectId: project._id }); // Delete endpoints
                 Projects.remove({ _id: projectId }); // Delete project
                 Deployments.remove({ projectId }); // Delete deployment
+                // Delete project related permissions for users (note: the role package does not provide
+                const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
+                projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
             } catch (e) {
                 throw e;
             }

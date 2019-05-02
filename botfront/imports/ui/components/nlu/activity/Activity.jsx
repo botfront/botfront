@@ -52,14 +52,13 @@ class Activity extends React.Component {
                 Cell: (props) => {
                     const {
                         value: utterance,
-                        value: { validated, intent, warning = null } = {},
+                        value: { validated, intent } = {},
                     } = props;
                     const colour = deletableUtteranceIds.some(id => id === utterance._id) ? 'yellow' : 'green';
                     const size = 'mini';
                     const text = <strong>{validated ? 'Validated' : 'Validate'}</strong>;
                     return (
                         <div>
-                            {!validated && warning && <Tip title={warning.title} iconName='tag' description={warning.description} />}
                             {this.renderDeleteTip(utterance, deletableUtteranceIds) }
                             {!!validated ? (
                                 <Button size={size} onClick={() => this.onValidateExamples([utterance])} color='green' icon='check' />
@@ -203,7 +202,7 @@ class Activity extends React.Component {
         }
         return <div />;
     }
-
+    
     addToTrainingData = () => {
         const { model: { _id: modelId } } = this.props;
         Meteor.call('activity.addValidatedToTraining', modelId, wrapMeteorCallback());

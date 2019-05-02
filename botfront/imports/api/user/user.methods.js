@@ -13,7 +13,7 @@ export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W]
 if (Meteor.isServer) {
     Meteor.publish('userData', function() {
         if (can('global-admin')) {
-            return Meteor.users.find({}, { fields: { emails: 1, profile: 1 } });
+            return Meteor.users.find({}, { fields: { emails: 1, profile: 1, roles: 1 } });
         }
         return [];
     });
@@ -52,7 +52,8 @@ if (Meteor.isServer) {
                             profile: user.profile,
                             'emails.0.address': user.emails[0].address,
                             'emails.0.verified': true,
-                        },
+                            roles: [], // re-added after
+                        }
                     },
                 );
                 setScopes(user, user._id);

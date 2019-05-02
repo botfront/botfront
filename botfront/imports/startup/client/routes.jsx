@@ -27,6 +27,12 @@ import Project from '../../ui/layouts/project';
 import Index from '../../ui/components/index';
 import store from '../../ui/store/store';
 
+import ProjectsListContainer from '../../ui/components/admin/Projects';
+import ProjectContainer from '../../ui/components/admin/Project';
+import UsersListContainer from '../../ui/components/admin/Users';
+import UserContainer from '../../ui/components/admin/User';
+import AdminLayout from '../../ui/layouts/admin';
+
 const authenticateProject = (nextState, replace, callback) => {
     Tracker.autorun(() => {
         if (areScopeReady()) {
@@ -92,6 +98,16 @@ Meteor.startup(() => {
                         <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
+                        <Route path='*' component={NotFound} />
+                    </Route>
+                    <Route exact path='/admin' component={AdminLayout}>
+                        <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticateAdmin} />
+                        <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
+                        <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
+                        <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticateAdmin} />
+                        <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticateAdmin} />
+                        <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticateAdmin} />
+                        <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticateAdmin} />
                         <Route path='*' component={NotFound} />
                     </Route>
                     <Route path='*' exact component={NotFound} />

@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { cloneDeep, reduce, find } from 'lodash';
 import {
-    Button, Confirm, Container, Header, Segment, Tab,
+    Button, Confirm, Container, Header, Segment, Grid, Tab,
 } from 'semantic-ui-react';
 import React from 'react';
 import {
@@ -12,6 +12,9 @@ import {
     AutoField,
     ErrorsField,
     SubmitField,
+    ListField,
+    ListItemField,
+    NestField,
 } from 'uniforms-semantic';
 import { browserHistory } from 'react-router';
 
@@ -20,6 +23,11 @@ import { can } from '../../../lib/scopes';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangePassword from './ChangePassword';
 import { PageMenu } from '../utils/Utils';
+
+//ee
+import { Projects } from '../../../api/project/project.collection';
+import SelectField from '../form_fields/SelectField';
+//ee
 
 class User extends React.Component {
     constructor(props) {
@@ -50,6 +58,32 @@ class User extends React.Component {
 
     removeUser = userId => Meteor.call('user.remove', userId, this.methodCallback());
 
+    renderRoles = () => {
+        const { projectOptions } = this.props;
+        return (
+            <ListField name='roles'>
+                <ListItemField name='$'>
+                    <NestField>
+                        <Grid columns='equal'>
+                            <Grid.Row>
+                                <Grid.Column>
+                                    <SelectField
+                                        name='project'
+                                        placeholder='Select a project'
+                                        options={projectOptions}
+                                    />
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <SelectField name='roles' placeholder='Select roles' />
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </NestField>
+                </ListItemField>
+            </ListField>
+        );
+    };
+
     getPanes = () => {
         const { confirmOpen } = this.state;
         const { user } = this.props;
@@ -74,6 +108,7 @@ class User extends React.Component {
                             <AutoField name='emails.0.verified' />
                             <AutoField name='profile.firstName' />
                             <AutoField name='profile.lastName' />
+                            {this.renderRoles()}
                             <ErrorsField />
                             <SubmitField />
                         </AutoForm>
@@ -142,6 +177,7 @@ class User extends React.Component {
                                     <AutoField name='profile.firstName' />
                                     <AutoField name='profile.lastName' />
                                     <AutoField name='email' />
+                                    {this.renderRoles()}
                                     <AutoField name='sendEmail' />
                                     <ErrorsField />
                                     <SubmitField label='Create user' className='primary' />
@@ -165,16 +201,44 @@ User.propTypes = {
     projectOptions: PropTypes.array.isRequired,
 };
 
+// TODO test
+function prepareRoles(user) {
+    if (!user) return null;
+    const roles = reduce(
+        user.roles,
+        function(result, value) {
+            if (!value.assigned) return result;
+            
+            let rbac = find(result, { project: value.scope });
+            
+            if (!rbac) {
+                rbac = { project: value.scope ? value.scope : 'GLOBAL', roles: [] };
+                result.push(rbac);
+            }
+            if (value.assigned) rbac.roles.push(value._id);
+            return result;
+        },
+        [],
+    );
+    return Object.assign(user, { roles });
+}
+
 const UserContainer = withTracker(({ params }) => {
     const userDataHandler = Meteor.subscribe('userData');
     const projectsHandler = Meteor.subscribe('projects.names');
-    const ready = [userDataHandler, projectsHandler].every(h => h.ready());
-    const user = Meteor.users.findOne({ _id: params.user_id });
+    const rolesHandler = Meteor.subscribe('roles');
+    const ready = [userDataHandler, projectsHandler, rolesHandler].every(h => h.ready());
+    const user = prepareRoles(Meteor.users.findOne({ _id: params.user_id }));
+    const projectOptions = Projects.find({}, { fields: { _id: 1, name: 1 } })
+        .fetch()
+        .map(p => ({ text: p.name, value: p._id }));
 
+    projectOptions.push({ text: 'GLOBAL', value: 'GLOBAL' }); // global role
 
     return {
         ready,
         user,
+        projectOptions,
     };
 })(User);
 

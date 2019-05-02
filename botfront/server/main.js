@@ -32,3 +32,7 @@ import '../imports/lib/scopes';
 
 
 import './migrations';
+
+import '../imports/api/roles/roles.publication';
+import '../imports/api/roles/roles';
+import '../imports/api/images';
