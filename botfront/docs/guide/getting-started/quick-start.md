@@ -30,14 +30,14 @@ First, it's going to download all the Docker images required (it's going to take
 
 Open [http://localhost:8888](http://localhost:8888) and follow the steps to create your first project
 
+::: tip If you're following the tutorial
+Name your project "My First Project" and choose the English language if you want to follow the rest of this tutorial
+:::
+
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/setup.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
-
-::: tip If you're following the tutorial
-Name your project "My First Project" and choose the English language if you want to follow the rest of this tutorial
-:::
 
 Congratulations, Botfront is installed. In the next section we'll create and train a simple NLU model.
 

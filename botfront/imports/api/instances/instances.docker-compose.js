@@ -8,7 +8,7 @@ export const getDefaultInstance = ({ _id }) => {
         type: ['nlu'],
     }, {
         name: 'Core Default',
-        host: 'http://host.docker.internal:5005',
+        host: 'http://localhost:5005',
         projectId: _id,
         type: ['core'],
     }];
