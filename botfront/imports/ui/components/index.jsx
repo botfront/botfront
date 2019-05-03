@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { can, getScopesForUser, areScopeReady } from '../../lib/scopes';
 
- class Index extends React.Component {
+class Index extends React.Component {
     componentDidMount() {
         this.route();
     }

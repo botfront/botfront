@@ -5,6 +5,7 @@ import fs from 'fs';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { checkIfCan } from '../api/roles/roles';
+
 import { Projects } from '../api/project/project.collection';
 
 export const formatAxiosError = (method, error) => {
