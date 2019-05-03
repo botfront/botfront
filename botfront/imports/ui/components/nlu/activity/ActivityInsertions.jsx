@@ -61,7 +61,7 @@ class ActivityInsertions extends React.Component {
                     />
                     <br />
                     <br />
-                    <Button loading={loading} onClick={this.saveExamples}>Add Utterances</Button>
+                    <Button loading={loading} onClick={this.saveExamples} disabled={!text}>Add Utterances</Button>
                 </Form>
             </Tab.Pane>
         );

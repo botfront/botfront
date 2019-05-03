@@ -10,19 +10,19 @@ steps:
   entrypoint: 'bash'
   args:
   - '-c'
-  - docker pull botfront/botfront-ce:latest || exit 0
+  - docker pull botfront/botfront:latest || exit 0
 
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",
-          "-t", "botfront/botfront-ce:$TAG_NAME",
-          "-t", "botfront/botfront-ce:latest",
-          "--cache-from", "botfront/botfront-ce:latest",
+          "-t", "botfront/botfront:$TAG_NAME",
+          "-t", "botfront/botfront:latest",
+          "--cache-from", "botfront/botfront:latest",
           "."]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "push", "botfront/botfront-ce:$TAG_NAME"]
+  args: [ "push", "botfront/botfront:$TAG_NAME"]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "push", "botfront/botfront-ce:latest"]
+  args: [ "push", "botfront/botfront:latest"]
 
 timeout: 30m
