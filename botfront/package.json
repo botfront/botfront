@@ -87,8 +87,9 @@
     "eslint-plugin-meteor": "^5.1.0",
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
+    "license-checker": "^25.0.1",
     "vuepress": "^0.14.11",
-    "license-checker": "^25.0.1"
+    "webpack": "^4.28.4"
   },
   "postcss": {
     "plugins": {
