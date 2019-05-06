@@ -44,8 +44,6 @@ If you are an [iTerm2](https://www.iterm2.com/) user you could setup your wokspa
 
 ![](../../images/dev_iterm_setup.png)
 
-
-
 ## Stories
 
 Our end goal is a conversation like this:
@@ -87,7 +85,7 @@ intents:
 
 actions:
   - action_faq
-  - utter_ok # Declare the action
+  - utter_ok# Declare the action
 ```
 
 ### 3. Train Core on your story
@@ -118,6 +116,10 @@ A room for 2 adults
 ```
 
 And train it.
+
+::: tip
+Make sure to add at least 2 intents if you are missing one, you can go on the Chit Chat tab and select any intent along with the already selected `inform_guest`.
+:::
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/nlu_insert_many.mp4" type="video/mp4">
@@ -169,7 +171,7 @@ We need the following changes:
 
 ```
 - name: "components.botfront.duckling_http_extractor.DucklingHTTPExtractor"
-  url: "http://host.docker.internal:7400"
+  url: "http://host.docker.internal:8000"
   dimensions:
   - "number"
 ```
@@ -224,6 +226,33 @@ class GuestsAction(Action):
         
         dispatcher.utter_message(message)
         return []
+```
+
+Now add the following in stories.md, make sure to remove `utter_ok` and add `guests_action`
+
+```{7}
+## faq
+* faq OR faq{"intent":"any"}
+  - action_faq
+    
+## Inform guests 
+* inform_guests
+  - guests_action
+
+```
+
+and modify the following in domain.yml, again make sure to remove `utter_ok` and add `guests_action`
+
+```yaml{9}
+intents:
+  - faq
+  - inform_guests 
+
+...
+
+actions:
+  - action_faq
+  - guests_action
 ```
 
 The `actions` service should be rebuilding (in your terminal) and you should see this:
