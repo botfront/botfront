@@ -1,4 +1,4 @@
-# Botfront, Stories, and Custom Actions
+# Advanced Rasa usage
 
 Botfront has a deep Rasa Core integration, however not everything happens in Botfront.
 This tutorial is primarily for developers.
@@ -7,32 +7,6 @@ You will learn:
 - How to write and train stories
 - How to write custom actions
 - How to assign Duckling entities to roles in the sentence 
-
-## Project structure
-
-Your project is organized as follows:
-
-```
-botfront-project
-|- actions
-|- db
-|- models
-|- project
-|- domains
-|-- domain.yml
-|- stories
-|-- stories.md
-```
-
-
-| Folder | Description |
-| ------ | ------------- |
-| `actions` |  Custom actions for the actions server |
-| `db`      |  MongoDB persisted files |
-| `models`  |  Persisted NLU and Core models |
-| `domains` |  Core Domain files. Name must start with `domain` and you can have several files. They will be merged at training) |
-| `stories` | Rasa Core stories |
-
 
 ## Prepare your environment
 You should have a terminal window open showing `docker-compose` logs. Open another window or tab (`Cmd+T`) and run `./watch.sh` from the project root. This will restart containers when you train Rasa Core or save your actions
@@ -186,7 +160,6 @@ We need the following changes:
 </video> 
 
 ### 2. Create a custom action
-
 
 Open the `actions/custom_actions/` and add a new file called `my_actions.py` and paste the following content:
 
