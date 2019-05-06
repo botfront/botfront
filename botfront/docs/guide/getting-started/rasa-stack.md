@@ -1,4 +1,4 @@
-# Botfront, Stories, and Custom Actions
+# Advanced Rasa usage
 
 Botfront has a deep Rasa Core integration, however not everything happens in Botfront.
 This tutorial is primarily for developers.
@@ -7,32 +7,6 @@ You will learn:
 - How to write and train stories
 - How to write custom actions
 - How to assign Duckling entities to roles in the sentence 
-
-## Project structure
-
-Your project is organized as follows:
-
-```
-botfront-project
-|- actions
-|- db
-|- models
-|- project
-|- domains
-|-- domain.yml
-|- stories
-|-- stories.md
-```
-
-
-| Folder | Description |
-| ------ | ------------- |
-| `actions` |  Custom actions for the actions server |
-| `db`      |  MongoDB persisted files |
-| `models`  |  Persisted NLU and Core models |
-| `domains` |  Core Domain files. Name must start with `domain` and you can have several files. They will be merged at training) |
-| `stories` | Rasa Core stories |
-
 
 ## Prepare your environment
 You should have a terminal window open showing `docker-compose` logs. Open another window or tab (`Cmd+T`) and run `./watch.sh` from the project root. This will restart containers when you train Rasa Core or save your actions
@@ -43,8 +17,6 @@ If you are an [iTerm2](https://www.iterm2.com/) user you could setup your wokspa
 - One window to run the `watch.sh`script that rebuilds the action server on every change
 
 ![](../../images/dev_iterm_setup.png)
-
-
 
 ## Stories
 
@@ -87,7 +59,7 @@ intents:
 
 actions:
   - action_faq
-  - utter_ok # Declare the action
+  - utter_ok# Declare the action
 ```
 
 ### 3. Train Core on your story
@@ -118,6 +90,10 @@ A room for 2 adults
 ```
 
 And train it.
+
+::: tip
+Make sure to add at least 2 intents if you are missing one, you can go on the Chit Chat tab and select any intent along with the already selected `inform_guest`.
+:::
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/nlu_insert_many.mp4" type="video/mp4">
@@ -169,7 +145,7 @@ We need the following changes:
 
 ```
 - name: "components.botfront.duckling_http_extractor.DucklingHTTPExtractor"
-  url: "http://host.docker.internal:7400"
+  url: "http://host.docker.internal:8000"
   dimensions:
   - "number"
 ```
@@ -184,7 +160,6 @@ We need the following changes:
 </video> 
 
 ### 2. Create a custom action
-
 
 Open the `actions/custom_actions/` and add a new file called `my_actions.py` and paste the following content:
 
@@ -224,6 +199,33 @@ class GuestsAction(Action):
         
         dispatcher.utter_message(message)
         return []
+```
+
+Now add the following in stories.md, make sure to remove `utter_ok` and add `guests_action`
+
+```{7}
+## faq
+* faq OR faq{"intent":"any"}
+  - action_faq
+    
+## Inform guests 
+* inform_guests
+  - guests_action
+
+```
+
+and modify the following in domain.yml, again make sure to remove `utter_ok` and add `guests_action`
+
+```yaml{9}
+intents:
+  - faq
+  - inform_guests 
+
+...
+
+actions:
+  - action_faq
+  - guests_action
 ```
 
 The `actions` service should be rebuilding (in your terminal) and you should see this:
