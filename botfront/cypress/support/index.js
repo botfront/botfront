@@ -115,6 +115,17 @@ Cypress.Commands.add('createResponse', (projectId, responseName) => {
     cy.get('.response-save-button').click();
 });
 
+Cypress.Commands.add('createResponseFast', (projectId, responseName) => {
+    cy.window().then(({ Meteor }) => Meteor.call(
+        'project.insertTemplate',
+        projectId,
+        {
+            key: responseName,
+            values: [{ sequence: [], lang: 'en' }, { sequence: [], lang: 'fr' }],
+        },
+    ));
+});
+
 Cypress.Commands.add('openResponse', (projectId, responseName) => {
     cy.visit(`/project/${projectId}/dialogue/templates`);
     // Type bot response name in filter
@@ -129,6 +140,14 @@ Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);
     cy.get('[data-cy=remove-response-0]').click();
+});
+
+Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
+    cy.window().then(({ Meteor }) => Meteor.call(
+        'project.deleteTemplate',
+        projectId,
+        key,
+    ));
 });
 
 Cypress.Commands.add(
