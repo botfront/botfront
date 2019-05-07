@@ -123,7 +123,7 @@ We're assuming you still have the training data from the Quick Start guide. If n
   Your browser does not support the video tag.
 </video> 
 
-### 5. Add a bot response
+### 5. Add a bot response and test your bot
 
 The last thing to associate a bot response to the `utter_ok` we put in the story.
 
@@ -135,15 +135,6 @@ The last thing to associate a bot response to the `utter_ok` we put in the story
 ::: tip
 You just created a sequence of messages. The bot will utter 2 messages even if your story only had one action following `* inform_guests`
 :::
-
-### 6. Chat with your bot
-
-Finally, let's chat with our bot and see the final result.
-
-<video autoplay muted loop width="740" controls>
-  <source src="../../videos/core_chat_with_response.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video> 
 
 ## Custom Actions
 
