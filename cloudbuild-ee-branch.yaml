@@ -1,19 +1,17 @@
 steps:
-
 - name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
   args:
   - '-c'
-  - docker pull gcr.io/botfront-project/botfront:$BRANCH_NAME || exit 0
-
+  - |
+    docker pull gcr.io/$PROJECT_ID/botfront:latest || exit 0
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",
-          "-t", "gcr.io/botfront-project/botfront:$BRANCH_NAME",
-          "--cache-from", "gcr.io/botfront-project/botfront:$BRANCH_NAME",
+          "-t", "gcr.io/${PROJECT_ID}/botfront:$BRANCH_NAME",
+          "--cache-from", "gcr.io/$PROJECT_ID/botfront:$BRANCH_NAME",
           "."]
 
-- name: 'gcr.io/cloud-builders/docker'
-  args: [ "push", "gcr.io/botfront-project/botfront:$BRANCH_NAME"]
+images:
+- "gcr.io/${PROJECT_ID}/botfront:$BRANCH_NAME"
 
-
-timeout: 30m
+timeout: 30m    
