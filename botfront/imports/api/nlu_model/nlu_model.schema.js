@@ -91,7 +91,7 @@ export const NLUModelSchema = new SimpleSchema({
     'training.startTime': { type: Date, optional: true },
     'training.endTime': { type: Date, optional: true },
     'training.message': { type: String, optional: true },
-    logActivity: { type: Boolean, defaultValue: false },
+    logActivity: { type: Boolean, defaultValue: true },
     training_data: {
         type: TrainingDataSchema,
         defaultValue: {
