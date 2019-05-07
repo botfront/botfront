@@ -24,7 +24,6 @@ botfront-project
 |-- stories.md
 ```
 
-
 | Folder | Description |
 | ------ | ------------- |
 | `actions` |  Custom actions for the actions server |
@@ -50,7 +49,7 @@ Our end goal is a conversation like this:
 
 ```
 - User: We want to book a room for 2 adults and 2 kids
-- Bot: You are 2 kids and 2 adults, four in total and that is an even number
+- Bot: You are 4 in total and that is an even number
 ```
 
 But let's start with a simple version:
@@ -150,12 +149,6 @@ Finally, let's chat with our bot and see the final result.
 
 Let's just remind ourselves our end goal:
 
-```
-- User: We want to book a room for 2 adults and 2 kids
-- Bot: You are 2 kids and 2 adults, 4 in total and that is an even number
-```
-
-Here, we're going to add another intermediate step:
 ```
 - User: We want to book a room for 2 adults and 2 kids
 - Bot: You are 4 in total and that is an even number
@@ -275,31 +268,6 @@ The you can test the result:
   <source src="../../videos/dev_custom_action_bot.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
-
-### 5. Associate Duckling entities with trainable entities
-
-Duckling is great to extract [stuctured entities of all sorts](https://github.com/facebook/duckling#supported-dimensions). However if you have several entities of the same type you cannot associate them to a position in the sentence.
-
-And that's exactly what we want to do: we want to distinguish the number of adults from the number of children. Here is how we're going to proceed:
-
-#### Annotate our example with new entities
-
-#### Add a special component to our pipeline
-
-Add this component to the pipeline **after** the `ner_crf` and the `components.botfront.duckling_http_extractor.DucklingHTTPExtractor`.
-
-```yaml
-- name: components.botfront.duckling_crf_merger.DucklingCrfMerger
-  entities:
-    kids_count: ["number"] 
-    adults_count: ["number"]
-```
-
-<video autoplay muted loop width="740" controls>
-  <source src="../../videos/add_crf_merger.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video> 
-
 
 ## Next steps
 Congratulations, you've learned how to use Rasa with Botfront. You can do everything you love in Rasa with Botfront, everything you read on the official [Rasa documentation](https://rasa.com/docs]) should apply with a few exceptions such as voice and messaging platforms.
