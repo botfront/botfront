@@ -3,9 +3,24 @@ import classnames from 'classnames';
 import connectField from 'uniforms/connectField';
 import filterDOMProps from 'uniforms/filterDOMProps';
 import AceEditor from 'react-ace';
+import yaml from 'js-yaml';
 import brace from 'brace';
 import 'brace/mode/yaml';
 import 'brace/theme/xcode';
+
+function getValue(value, convertYaml = false, onChange = () => {}) {
+    if (convertYaml) {
+        // If value is an object we want to convert it to yaml
+        // so that it can be displayed in AceEditor and then saved to that format
+        if (value === Object(value)) {
+            const stringValue = yaml.safeDump(value);
+            // We call onChange here to be sure that the new value is saved
+            onChange(stringValue);
+            return stringValue;
+        }
+    }
+    return value || '';
+}
 
 const AceField = ({
     className,
@@ -21,6 +36,7 @@ const AceField = ({
     required,
     showInlineError,
     value,
+    convertYaml,
     ...props
 }) => (
     <div className={classnames(className, { disabled, error, required }, 'field')} {...filterDOMProps(props)}>
@@ -40,7 +56,7 @@ const AceField = ({
             showPrintMargin={false}
             showGutter
             highlightActiveLine
-            value={value || ''}
+            value={getValue(value, convertYaml, onChange)}
             editorsProps={{ $blockScrolling: true }}
             setOptions={{
                 enableBasicAutocompletion: false,

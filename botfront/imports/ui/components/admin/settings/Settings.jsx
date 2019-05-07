@@ -61,7 +61,7 @@ class Settings extends React.Component {
     renderDefaultNLUPipeline = () => (
         <Tab.Pane>
             <Message info icon='question circle' content='Default NLU pipeline for new NLU models' />
-            <AceField name='settings.public.defaultNLUConfig' label='' fontSize={12} />
+            <AceField name='settings.public.defaultNLUConfig' label='' fontSize={12} convertYaml />
         </Tab.Pane>
     );
 
