@@ -1,4 +1,4 @@
-# Advanced Rasa usage
+# Using Rasa with Botfront
 
 Botfront has a deep Rasa Core integration, however not everything happens in Botfront.
 This tutorial is primarily for developers.
@@ -8,12 +8,38 @@ You will learn:
 - How to write custom actions
 - How to assign Duckling entities to roles in the sentence 
 
+## Project structure
+
+Let's first have a look to the project structure
+
+```
+botfront-project
+|- actions
+|- db
+|- models
+|- project
+|- domains
+|-- domain.yml
+|- stories
+|-- stories.md
+```
+
+
+| Folder | Description |
+| ------ | ------------- |
+| `actions` |  Custom actions for the actions server |
+| `db`      |  MongoDB persisted files |
+| `models`  |  Persisted NLU and Core models |
+| `domains` |  Core Domain files. Name must start with `domain` and you can have several files. They will be merged at training) |
+| `stories` | Rasa Core stories |
+
+
 ## Prepare your environment
 You should have a terminal window open showing `docker-compose` logs. Open another window or tab (`Cmd+T`) and run `./watch.sh` from the project root. This will restart containers when you train Rasa Core or save your actions
 
 If you are an [iTerm2](https://www.iterm2.com/) user you could setup your wokspace like that:
 - One window with the `docker-compose up` logs
-- One window to execute various commands (`docker-compose restart ...`)
+- One window to execute various commands (`./train_core.sh`, `docker-compose restart ...`)
 - One window to run the `watch.sh`script that rebuilds the action server on every change
 
 ![](../../images/dev_iterm_setup.png)
@@ -35,7 +61,7 @@ But let's start with a simple version:
 
 ### 1. Add a story
 
-Open `stories/stories.md` in your favorite editor. It already contain a story. Add the second one.
+Open `project/stories/stories.md` in your favorite editor. It already contain a story. Add the second one.
 
 ```{5,6,7}
 ## faq
@@ -48,7 +74,7 @@ Open `stories/stories.md` in your favorite editor. It already contain a story. A
 ```
 
 ### 2. Update the domain
-Open `domains/domain.yml` and add `inform_guests` to the **intents** section and `utter_guests` to the **actions** section.
+Open `project/domains/domain.yml` and add `inform_guests` to the **intents** section and `utter_guests` to the **actions** section.
 
 ```yaml{3,9}
 intents:
@@ -81,7 +107,7 @@ In the next sections we'll make the interaction more natural.
 
 ### 4. Add training data to `inform_guests`
 
-Add the following examples to the `inform_guests` intent of your NLU model:
+Add the following examples to the `inform_guests` intent of your NLU model **and re-train it**:
 
 ```
 We need a room for 2 adults and 2 children
@@ -89,10 +115,8 @@ A room tonight for 2 adults and 3 kids
 A room for 2 adults
 ```
 
-And train it.
-
-::: tip
-Make sure to add at least 2 intents if you are missing one, you can go on the Chit Chat tab and select any intent along with the already selected `inform_guest`.
+::: tip Note
+We're assuming you still have the training data from the Quick Start guide. If not, make sure you have at least data for 2 intents. You can always add some from the Chit Chat.
 :::
 
 <video autoplay muted loop width="740" controls>
@@ -175,7 +199,7 @@ logger = logging.getLogger()
 class GuestsAction(Action):
 
     def name(self):
-        return 'guests_action'
+        return 'action_guests'
 
     def run(self, dispatcher, tracker, domain):
         entities = tracker.latest_message.get('entities', [])
@@ -201,7 +225,18 @@ class GuestsAction(Action):
         return []
 ```
 
-Now add the following in stories.md, make sure to remove `utter_ok` and add `guests_action`
+
+Save your file. The `actions` service should be rebuilding (in your terminal) and you should see this in your terminal window:
+
+```
+INFO:rasa_core_sdk.executor:Registered function for 'action_faq'.
+INFO:rasa_core_sdk.executor:Registered function for 'action_guests'.
+```
+
+### 3. Update your story and your domain
+
+Now let's change the story (in `stories.md`) we created just earlier: replace the action `utter_ok` with `action_guests`
+
 
 ```{7}
 ## faq
@@ -210,11 +245,14 @@ Now add the following in stories.md, make sure to remove `utter_ok` and add `gue
     
 ## Inform guests 
 * inform_guests
-  - guests_action
+  - action_guests
 
 ```
+::: tip
+The action name `action_guests` comes from the `name()` method of the `GuestsAction` class.
+:::
 
-and modify the following in domain.yml, again make sure to remove `utter_ok` and add `guests_action`
+We also need to replicate that change in the `domain.yml` file: substitute `utter_ok` with `action_guests`
 
 ```yaml{9}
 intents:
@@ -225,24 +263,20 @@ intents:
 
 actions:
   - action_faq
-  - guests_action
+  - action_guests
 ```
 
-The `actions` service should be rebuilding (in your terminal) and you should see this:
+### 4. Retrain your policy and test your bot
 
-```
-INFO:rasa_core_sdk.executor:Registered function for 'action_faq'.
-INFO:rasa_core_sdk.executor:Registered function for 'guests_action'.
-```
-
-Then you can talk with your bot:
+Run `./train_core.sh`. The core server will be unavailable for a minute (you'll see the _Waiting for server..._ message in Botfront).
+The you can test the result:
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/dev_custom_action_bot.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
 
-### 3. Associate Duckling entities with trainable entities
+### 5. Associate Duckling entities with trainable entities
 
 Duckling is great to extract [stuctured entities of all sorts](https://github.com/facebook/duckling#supported-dimensions). However if you have several entities of the same type you cannot associate them to a position in the sentence.
 
@@ -265,6 +299,11 @@ Add this component to the pipeline **after** the `ner_crf` and the `components.b
   <source src="../../videos/add_crf_merger.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
+
+
+## Next steps
+Congratulations, you've learned how to use Rasa with Botfront. You can do everything you love in Rasa with Botfront, everything you read on the official [Rasa documentation](https://rasa.com/docs]) should apply with a few exceptions such as voice and messaging platforms.
+Feel free give your feedback or ask questions on the [Spectrum community](https://spectrum.chat/botfront)
 
 
 
