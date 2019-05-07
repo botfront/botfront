@@ -60,8 +60,6 @@ Now that our bot can understand a few things, let's see how we can get it to res
 </video> 
 
 
-## 6. Chat with your bot
-
 ## What you learned and what's next
 You learned:
 
@@ -71,11 +69,36 @@ You learned:
 
 There's a lot you can do with this already, but there's way more. You could read the NLU guide and build a more advanced NLU model
 
-If you are a developer (or a very techsavvy person), see how to write your first Rasa Core story
+## Project structure
+
+For reference, here is more information about the project structure
+
+```
+botfront-project
+|- actions
+|- db
+|- models
+|- project
+|- domains
+|-- domain.yml
+|- stories
+|-- stories.md
+```
+
+
+| Folder | Description |
+| ------ | ------------- |
+| `actions` |  Custom actions for the actions server |
+| `db`      |  MongoDB persisted files |
+| `models`  |  Persisted NLU and Core models |
+| `domains` |  Core Domain files. Name must start with `domain` and you can have several files. They will be merged at training) |
+| `stories` | Rasa Core stories |
 
 
 
-## 7. Create your first Rasa Core story
+
+
+
 
 
 

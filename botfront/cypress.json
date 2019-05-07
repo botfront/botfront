@@ -10,6 +10,8 @@
     "defaultCommandTimeout": 10000,
     "watchForFileChanges": false,
     "numTestsKeptInMemory": 2 ,
+    "viewportHeight": 660,
+    "viewportWidth": 1000,
     "env": {
       "bf_project_id": "HmSwboMcCCq8T273A",
       "default_user_email": "test@test.com",

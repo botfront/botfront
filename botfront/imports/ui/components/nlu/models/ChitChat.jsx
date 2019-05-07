@@ -76,7 +76,7 @@ export default class ChitChat extends React.Component {
                 {chitChatIntents && chitChatIntents.length > 0 && (
                     <div className='chitchat' style={{ minHeight: 600 }}>
                         {/* minHeight to make sure there is enough space for the dropdown */}
-                        <Message info>
+                        <Message info data-cy='chit-chat-message'>
                             <Icon name='lightbulb' size='small' />
                             Chit chat intents are general conversation pre-trained intents. Select those you want to integrate in your model, add and re-train.
                         </Message>
@@ -93,7 +93,13 @@ export default class ChitChat extends React.Component {
                         />
                         <br />
                         <br />
-                        <Button primary disabled={selectedIntents.length === 0} content='Add to training data' onClick={this.open} />
+                        <Button
+                            primary
+                            disabled={selectedIntents.length === 0}
+                            content='Add to training data'
+                            onClick={this.open}
+                            data-cy='add-chit-chat'
+                        />
                         <Confirm
                             header='Add to training data?'
                             content={`This will add chitchat examples to your training data matching the following intents: ${selectedIntents.join(' ')}`}

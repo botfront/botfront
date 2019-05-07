@@ -134,15 +134,15 @@ class Project extends React.Component {
                         onDragFinished={() => this.setState({ resizingChatPane: false })}
                     >
                         {loading && (
-                            <>
+                            <div>
                                 <Menu pointing secondary style={{ background: '#fff' }} />
                                 <Container className='content-placeholder'>
                                     {this.renderPlaceholder(false, true)}
                                 </Container>
-                            </>
+                            </div>
                         )}
                         {!loading && (
-                            <>
+                            <div data-cy='left-pane'>
                                 {children}
                                 {!showChatPane
                                     && credentials
@@ -162,7 +162,7 @@ class Project extends React.Component {
                                         content='Try out your chatbot'
                                     />
                                 )}
-                            </>
+                            </div>
                         )}
                         {showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
