@@ -74,7 +74,8 @@ For more information, see [Q&A and FAQ Bots](/guide/bot-responses/#q-a-faq-bots)
 
 ## Monitor your conversation and improve your NLU Model
 
-You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model.
+You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model. 
+**Make sure to check _Log utterances to activity_** in your `Model > Settings > Pipeline`
 
 ## What you learned and what's next
 You learned:
