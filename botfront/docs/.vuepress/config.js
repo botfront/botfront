@@ -1,6 +1,7 @@
 const version = require("../../package.json").version;
 
 module.exports = {
+    ga: 'UA-110157233-2',
     title: 'Documentation',
     themeConfig: {
         lastUpdated: 'Last Updated',
@@ -49,7 +50,16 @@ module.exports = {
                     '/guide/nlu/activity',
                 ]
             },
-
+            // {
+            //     title: 'Developers Guide',   // required
+            //     // path: '/guide',
+            //     collapsable: false,
+            //     sidebarDepth: 5,
+            //     children: [
+            //         '/guide/nlu/instances-models',
+            //         '/guide/developers/README.md',
+            //     ]
+            // },
         ],
         serviceWorker: {
             updatePopup: true // Boolean | Object, default to undefined.

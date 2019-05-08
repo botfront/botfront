@@ -1,7 +1,32 @@
 
-# Advanced
+# Developers guide
 
 ## Develop
+
+
+#### Install
+
+
+1. Botfront is a Meteor app, so the first step is to [install Meteor](https://www.meteor.com/install)
+2. Then clone this repo and install the dependencies
+```bash
+git clone https://github.com/botfront/botfront
+cd botfront
+meteor npm install
+```
+
+#### Run
+
+- With default settings: `meteor npm start`
+- With `docker-compose` settings: `meteor npm run start:docker-compose`
+
+
+#### Documentation
+- Run the documentation locally: `npm run docs:dev`
+- Build the documentation : `npm run docs:build`
+
+The docs are built with [Vuepress](https://vuepress.vuejs.org)
+
 
 Botfront is built with Meteor, you must install it first. Then:
 
@@ -12,7 +37,15 @@ meteor npm install
 meteor npm start
 ```
 
-## Production mode
+
+#### Running and writing tests
+You can run our integration test suite with `npx cypress run` or interactively with `npx cypress open`
+
+::: danger
+The test suite starts by testing the setup process **and will wipe the database**. 
+:::
+
+## Production deployment
 
 A few things you should pay attention to when deploying Botfront.
 
@@ -29,15 +62,3 @@ We strongly recommend using a very short database name (e.g `bf`) and not too lo
 - `MONGO_URL`: to MongoDB connection string
 - `MAIL_URL`: An SMTP url if you want to use the password reset feature
 
-
-## Documentation
-Documention is made with [Vuepress](https://vuepress.vuejs.org/)
-Run `vuepress docs dev` from the botfront/botfront folder to serve and edit the docs locally .
-Run `vuepress docs build` to build a static site containing the documentation. 
-
-## Running and writing tests
-You can run our integration test suite with `npx cypress run` or interactively with `npx cypress open`
-
-::: danger
-The test suite starts by testing the setup process **and will wipe the database**. 
-:::
