@@ -1,6 +1,6 @@
 # Using Rasa with Botfront
 
-Botfront has a deep Rasa Core integration, however not everything happens in Botfront.
+Botfront has a deep Rasa integration, however not everything happens in Botfront.
 This tutorial is primarily for developers.
 
 You will learn:
@@ -10,7 +10,7 @@ You will learn:
 
 ## Project structure
 
-Let's first have a look to the project structure
+Go to the `botfront-starter` project you cloned earlier and let's have a quick look at the project structure.
 
 ```
 botfront-project
@@ -22,6 +22,7 @@ botfront-project
 |-- domain.yml
 |- stories
 |-- stories.md
+|- policies.yml
 ```
 
 | Folder | Description |
@@ -31,17 +32,14 @@ botfront-project
 | `models`  |  Persisted NLU and Core models |
 | `domains` |  Core Domain files. Name must start with `domain` and you can have several files. They will be merged at training) |
 | `stories` | Rasa Core stories |
+| `policies.yml` | Rasa Core training policies |
 
 
 ## Prepare your environment
-You should have a terminal window open showing `docker-compose` logs. Open another window or tab (`Cmd+T`) and run `./watch.sh` from the project root. This will restart containers when you train Rasa Core or save your actions
+- You should have still have the terminal window where you ran `docker-compose up` open. 
+- Open another window/tab (`Cmd+T`), install Watchdog (`pip install watchdog`) and run `./watch.sh`. This will take care of restarting/rebuilding containers when when needed.
+- Optional: run `docker stats` in a third tab/window to monitor resources usage
 
-If you are an [iTerm2](https://www.iterm2.com/) user you could setup your wokspace like that:
-- One window with the `docker-compose up` logs
-- One window to execute various commands (`./train_core.sh`, `docker-compose restart ...`)
-- One window to run the `watch.sh`script that rebuilds the action server on every change
-
-![](../../images/dev_iterm_setup.png)
 
 ## Stories
 
@@ -88,8 +86,8 @@ actions:
 ```
 
 ### 3. Train Core on your story
-Open a third tab in your terminal and run `./train_core.sh`.
-When Core has restarted after the training, verify that the story works by typing `/inform_guests` in the [chat window](http://localhost:8080). 
+Open a new tab in your terminal and run `./train_core.sh` from the root project folder.
+When Core has restarted after the training (it may take a minute), verify that the story works by typing `/inform_guests`
 
 ::: tip
 Note that we prefixed the intent with `/`. Since there is no training data for that intent, we can't use natural language yet. The `/` allows us to invoke the intent directly.
@@ -125,7 +123,7 @@ We're assuming you still have the training data from the Quick Start guide. If n
 
 ### 5. Add a bot response and test your bot
 
-The last thing to associate a bot response to the `utter_ok` we put in the story.
+Finally, let's create a bot response for the `utter_ok` template we put in the story.
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/core_bot_response.mp4" type="video/mp4">
@@ -260,6 +258,9 @@ The you can test the result:
   Your browser does not support the video tag.
 </video> 
 
+### 5. Shutting down
+
+You can safely shut down your project with `Cmd/Ctrl+C` and run `docker-compose down` to free all resources. Your data is still persisted in the `db` folder and will be accessible from Botfront the next time you turn it on.
 ## Next steps
 Congratulations, you've learned how to use Rasa with Botfront. You can do everything you love in Rasa with Botfront, everything you read on the official [Rasa documentation](https://rasa.com/docs]) should apply with a few exceptions such as voice and messaging platforms.
 Feel free give your feedback or ask questions on the [Spectrum community](https://spectrum.chat/botfront)
