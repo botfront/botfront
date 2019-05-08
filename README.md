@@ -1,10 +1,11 @@
 # Botfront.
 
 
-[![Release](https://img.shields.io/badge/botfront-v0.14.0-blue.svg)]()
+[![Release](https://img.shields.io/badge/botfront-0.14.1-blue.svg)]()
 
 
 A visual and intuitive platform to build chatbots with Rasa
+![Botfront screenshot](botfront/docs/images/botfront-screenshot-shadow.png)
 
 ## Version Control
 
