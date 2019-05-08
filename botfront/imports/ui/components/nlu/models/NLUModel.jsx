@@ -39,6 +39,7 @@ import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
+import { can } from '../../../../lib/scopes';
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -166,14 +167,34 @@ class NLUModel extends React.Component {
     };
 
     getSettingsSecondaryPanes = () => {
-        const { model, instances, intents } = this.props;
-        return [
-            { menuItem: 'General', render: () => <NLUParams model={model} instances={instances} /> },
-            { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
-            { menuItem: 'Import', render: () => <DataImport model={model} /> },
-            { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
-            { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> },
-        ];
+        const {
+            model, instances, intents, projectId,
+        } = this.props;
+        
+        const tabs = [];
+        
+        if (can('nlu-meta:r', projectId)) {
+            tabs.push({ menuItem: 'General', render: () => <NLUParams model={model} instances={instances} projectId={projectId} /> });
+        }
+        if (can('nlu-config:r', projectId)) {
+            tabs.push({ menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} projectId={projectId} /> });
+        }
+        if (can('nlu-data:w', projectId)) {
+            tabs.push({ menuItem: 'Import', render: () => <DataImport model={model} /> });
+        }
+        if (can('nlu-admin', projectId)) {
+            tabs.push({ menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> });
+            tabs.push({ menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> });
+        }
+
+        // return [
+        //     { menuItem: 'General', render: () => <NLUParams model={model} instances={instances} /> },
+        //     { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
+        //     { menuItem: 'Import', render: () => <DataImport model={model} /> },
+        //     { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
+        //     { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> },
+        // ];
+        return tabs;
     };
 
     getHeader = () => {

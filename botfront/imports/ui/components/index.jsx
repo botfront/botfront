@@ -23,7 +23,8 @@ class Index extends React.Component {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
                     if (can('global-admin', Meteor.userId())) router.push('/admin/projects');
                     else {
-                        const projects = getScopesForUser(Meteor.userId(), 'owner');
+                        const projects = getScopesForUser(Meteor.userId(), 'nlu-viewer');
+                        console.log(projects)
                         if (projects.length === 0) {
                             router.push('/404');
                         } else {

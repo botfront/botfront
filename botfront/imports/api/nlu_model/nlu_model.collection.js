@@ -25,7 +25,8 @@ if (Meteor.isServer) {
         check(modelId, String);
         const isAllowed = () => {
             if (can('global-admin')) return true;
-            const projectIds = getScopesForUser(this.userId, 'owner');
+            const projectIds = getScopesForUser(this.userId, 'nlu-viewer');
+            console.log(projectIds)
             const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
             const modelIdArrays = models.map(m => m.nlu_models);
             const modelIds = [].concat(...modelIdArrays);
@@ -51,7 +52,7 @@ if (Meteor.isServer) {
             });
         }
 
-        const projectIds = getScopesForUser(this.userId, 'owner');
+        const projectIds = getScopesForUser(this.userId, 'nlu-viewer');
         const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
         const modelIdArrays = models.map(m => m.nlu_models);
         const modelIds = [].concat(...modelIdArrays);

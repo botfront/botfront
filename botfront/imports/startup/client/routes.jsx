@@ -33,7 +33,7 @@ import UsersListContainer from '../../ui/components/admin/Users';
 import UserContainer from '../../ui/components/admin/User';
 import AdminLayout from '../../ui/layouts/admin';
 
-const authenticateProject = (nextState, replace, callback) => {
+const authenticate = role => (nextState, replace, callback) => {
     Tracker.autorun(() => {
         if (areScopeReady()) {
             if (!Meteor.loggingIn() && !Meteor.userId()) {
@@ -41,7 +41,7 @@ const authenticateProject = (nextState, replace, callback) => {
                     pathname: '/login',
                     state: { nextPathname: nextState.location.pathname },
                 });
-            } else if (!can('project-viewer', nextState.params.project_id) && !can('global-admin')) {
+            } else if (!can(role, nextState.params.project_id) && !can('global-admin')) {
                 replace({
                     pathname: '/404',
                     state: { nextPathname: nextState.location.pathname },
@@ -85,29 +85,29 @@ Meteor.startup(() => {
                         <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
                     </Route>
                     <Route exact path='/project' component={Project}>
-                        <Route path='/project/:project_id/nlu/models' component={NLUModels} name='NLU Models' onEnter={authenticateProject} />
-                        <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
+                        <Route path='/project/:project_id/nlu/models' component={NLUModels} name='NLU Models' onEnter={authenticate('nlu-viewer')} />
+                        <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-viewer')} />
                         <Route
                             path='/project/:project_id/dialogue/conversations(/p)(/:page)(/c)(/:conversation_id)'
                             component={ConversationsBrowser}
                             name='Conversations'
-                            onEnter={authenticateProject}
+                            onEnter={authenticate('conversations-viewer')}
                         />
-                        <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
-                        <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticateProject} />
-                        <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticateProject} />
-                        <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
-                        <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
+                        <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('copy-viewer')} />
+                        <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate('copy-editor')} />
+                        <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate('copy-editor')} />
+                        <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('project-viewer')} />
+                        <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-admin')} />
                         <Route path='*' component={NotFound} />
                     </Route>
                     <Route exact path='/admin' component={AdminLayout}>
-                        <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticateAdmin} />
-                        <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
-                        <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
-                        <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticateAdmin} />
-                        <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticateAdmin} />
-                        <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticateAdmin} />
-                        <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticateAdmin} />
+                        <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticate('global-admin')} />
+                        <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticate('global-admin')} />
+                        <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticate('global-admin')} />
+                        <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticate('global-admin')} />
+                        <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticate('global-admin')} />
+                        <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticate('global-admin')} />
+                        <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticate('global-admin')} />
                         <Route path='*' component={NotFound} />
                     </Route>
                     <Route path='*' exact component={NotFound} />
