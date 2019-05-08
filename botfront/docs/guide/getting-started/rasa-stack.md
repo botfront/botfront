@@ -6,7 +6,6 @@ This tutorial is primarily for developers.
 You will learn:
 - How to write and train stories
 - How to write custom actions
-- How to assign Duckling entities to roles in the sentence 
 
 ## Project structure
 
