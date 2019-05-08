@@ -123,7 +123,7 @@ We're assuming you still have the training data from the Quick Start guide. If n
 
 ### 5. Add a bot response and test your bot
 
-The last thing to associate a bot response to the `utter_ok` we put in the story.
+Finally, let's create a bot response for the `utter_ok` template we put in the story.
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/core_bot_response.mp4" type="video/mp4">
