@@ -35,7 +35,7 @@
     "prop-types": "^15.6.1",
     "query-string": "^5.1.0",
     "random-seed": "^0.3.0",
-    "rasa-webchat": "mrbot-ai/rasa-webchat",
+    "rasa-webchat": "mrbot-ai/rasa-webchat#0.5.8",
     "react": "^16.4.1",
     "react-ace": "^6.1.4",
     "react-debounce-input": "^3.2.0",
