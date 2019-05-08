@@ -149,6 +149,12 @@ We need the following changes:
 
 ### 1. Add Duckling to the NLU pipeline
 
+[Duckling](https://github.com/facebook/duckling) is an open source package by Facebook to extract structured entities such as numbers, dates, amounts of money, weights, volumes and so on.
+
+Duckling is integrated in your project as a container (see the `docker-compose.yml` file in the project's root folder).
+
+_Adding Duckling to the NLU pipeline_ means that we are going to use Duckling to extract numbers from user utterances ("2 adults and 2 kids").
+
 ```
 - name: "components.botfront.duckling_http_extractor.DucklingHTTPExtractor"
   url: "http://host.docker.internal:8000"
@@ -208,7 +214,7 @@ class GuestsAction(Action):
 ```
 
 
-Save your file. The `actions` service should be rebuilding (in your terminal) and you should see this in your terminal window:
+Save your file. The `actions` service should be rebuilding and you should see this in the terminal window showing logs:
 
 ```
 INFO:rasa_core_sdk.executor:Registered function for 'action_faq'.
@@ -251,7 +257,7 @@ actions:
 ### 4. Retrain your policy and test your bot
 
 Run `./train_core.sh`. The core server will be unavailable for a minute (you'll see the _Waiting for server..._ message in Botfront).
-The you can test the result:
+Then you can test the result:
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/dev_custom_action_bot.mp4" type="video/mp4">
@@ -262,8 +268,9 @@ The you can test the result:
 
 You can safely shut down your project with `Cmd/Ctrl+C` and run `docker-compose down` to free all resources. Your data is still persisted in the `db` folder and will be accessible from Botfront the next time you turn it on.
 ## Next steps
-Congratulations, you've learned how to use Rasa with Botfront. You can do everything you love in Rasa with Botfront, everything you read on the official [Rasa documentation](https://rasa.com/docs]) should apply with a few exceptions such as voice and messaging platforms.
-Feel free give your feedback or ask questions on the [Spectrum community](https://spectrum.chat/botfront)
+Congratulations, you've learned how to use Rasa with Botfront. Everything you read on the official [Rasa documentation](https://rasa.com/docs]) should apply with a few exceptions such as voice and messaging platforms.
+
+Feel free to give your feedback and ask questions on the [Spectrum community](https://spectrum.chat/botfront)
 
 
 
