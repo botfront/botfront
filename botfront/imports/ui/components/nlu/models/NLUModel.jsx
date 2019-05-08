@@ -266,7 +266,7 @@ class NLUModel extends React.Component {
                         <Icon size='small' name='percent' />
                         {'Evaluation'}
                     </Menu.Item>
-                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings'>
+                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
                         <Icon size='small' name='setting' />
                         {'Settings'}
                     </Menu.Item>
