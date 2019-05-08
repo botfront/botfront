@@ -23,7 +23,7 @@ export default [
         menuItem: <Menu.Item content='GKE Deployment' />,
         render: () => (
             <Tab.Pane>
-                <AceField name='settings.private.defaultDeployment' label='' fontSize={12} />
+                <AceField name='settings.private.defaultDeployment' label='' fontSize={12} convertYaml />
             </Tab.Pane>
         ),
     },

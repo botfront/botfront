@@ -80,7 +80,7 @@ class Settings extends React.Component {
                     </>
                 }
             />
-            <AceField name='settings.private.defaultEndpoints' label='' fontSize={12} />
+            <AceField name='settings.private.defaultEndpoints' label='' fontSize={12} convertYaml />
         </Tab.Pane>
     );
 
@@ -99,7 +99,7 @@ class Settings extends React.Component {
                     </>
                 }
             />
-            <AceField name='settings.private.defaultCredentials' label='' fontSize={12} />
+            <AceField name='settings.private.defaultCredentials' label='' fontSize={12} convertYaml />
         </Tab.Pane>
     );
 
@@ -118,7 +118,7 @@ class Settings extends React.Component {
                     </>
                 }
             />
-            <AceField name='settings.private.defaultRules' label='' fontSize={12} />
+            <AceField name='settings.private.defaultRules' label='' fontSize={12} convertYaml />
         </Tab.Pane>
     );
 
