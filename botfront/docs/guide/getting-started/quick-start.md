@@ -72,6 +72,11 @@ You might be wondering why you didn't have to write stories or train Rasa Core. 
 For more information, see [Q&A and FAQ Bots](/guide/bot-responses/#q-a-faq-bots) or [Rules](/guide/users/rules.html)
 :::
 
+## Monitor your conversation and improve your NLU Model
+
+You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model. 
+**Make sure to check _Log utterances to activity_** in your `Model > Settings > Pipeline`
+
 ## What you learned and what's next
 You learned:
 
@@ -80,10 +85,3 @@ You learned:
 3. How to create a simple Q&A bot without coding.
 
 There's a lot you can do with this already, but there's way more. You could read the NLU guide and build a more advanced NLU model
-
-
-
-
-
-
-
