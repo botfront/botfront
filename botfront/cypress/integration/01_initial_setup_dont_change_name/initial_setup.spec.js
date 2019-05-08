@@ -57,5 +57,11 @@ describe('intial setup', function() {
             const id = url.match(/project\/(.*?)\/nlu/i)[1];
             cy.writeFile('cypress/fixtures/bf_project_id.txt', id);
         });
+        
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('[data-cy=settings-in-model]').click();
+        cy.contains('Pipeline').click();
+        cy.get(':checkbox').should('be.checked');
     });
 });
