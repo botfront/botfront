@@ -7,7 +7,6 @@ export const InstanceSchema = new SimpleSchema(
         'type.$': { type: String, allowedValues: ['nlu', 'core'] },
         host: { type: String, regEx: /^(http|https):\/\// },
         token: { type: String, optional: true },
-        adminOnly: { type: Boolean, defaultValue: false },
         projectId: { type: String },
     },
     {
