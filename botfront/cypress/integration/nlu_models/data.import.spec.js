@@ -33,7 +33,7 @@ describe('training data import', function() {
         cy.get('.s-alert-success').should('be.visible');
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains(modelLang).click();
-        cy.get(`#model-${modelName} .open-model-button`)
+        cy.get(`#model-${modelName} [data-cy=open-model]`)
             .first()
             .click();
         cy.contains('Training Data').click();

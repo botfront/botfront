@@ -93,7 +93,7 @@ Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, des
 Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.visit(`/project/${projectId}/nlu/models`);
     cy.contains(language).click();
-    cy.get(`#model-${name} .open-model-button`)
+    cy.get(`#model-${name} [data-cy=open-model]`)
         .first()
         .click();
     cy.get('.nlu-menu-settings').click();
