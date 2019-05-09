@@ -18,7 +18,8 @@ import {
     Icon,
     Label,
     Menu,
-    Popup, Confirm, Tab,
+    Segment,
+    Popup, Confirm, Tab, Header,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
@@ -45,6 +46,12 @@ class NLUModels extends React.Component {
             confirmOpen: false,
             modelToPublish: null,
             loading: false,
+            // those states will take the id of the model on which
+            // the popup must be displayed
+            popupDuplicateModel: false,
+            popupTurnOnModel: false,
+            popupTurnOffModel: false,
+            tipDuplicateModel: false,
         };
         this.fixLanguage();
     }
@@ -74,7 +81,7 @@ class NLUModels extends React.Component {
         }));
     };
 
-    onDuplicateModel = (model) => {
+    handleDuplicateModel = (model) => {
         const copy = cloneDeep(model);
         copy.name = `Copy of ${model.name}`;
         copy.evaluations = [];
@@ -82,7 +89,15 @@ class NLUModels extends React.Component {
         delete copy._id;
         copy.published = false;
         this.createOrUpdateModel(copy);
+        this.resetPopups();
     };
+
+    resetPopups = () => this.setState({
+        popupDuplicateModel: false,
+        popupTurnOffModel: false,
+        popupTurnOnModel: false,
+        tipDuplicateModel: false,
+    })
 
     renderMenu = () => {
         const { loading, editing } = this.state;
@@ -125,8 +140,42 @@ class NLUModels extends React.Component {
 
     renderModels = (models) => {
         const { projectId } = this.props;
-        const { loading, confirmOpen, modelToPublish } = this.state;
+        const {
+            loading, confirmOpen, modelToPublish, popupDuplicateModel, popupTurnOffModel, popupTurnOnModel, tipDuplicateModel,
+        } = this.state;
         const langs = uniq(models.map(m => m.language));
+
+        const renderDuplicateButton = (disabled, onClick = () => {}) => (
+            <Button
+                className='duplicate-model-button'
+                disabled={disabled}
+                secondary
+                onClick={onClick}
+                icon='copy'
+            />
+        );
+
+        const ConfirmPopup = ({ title, onYes = () => {} }) => (
+            <Segment basic className='model-popup'>
+                <Header as='h4'>{title}</Header>
+                <div>
+                    <Button
+                        negative
+                        onClick={this.resetPopups}
+                        size='tiny'
+                    >
+                    No
+                    </Button>
+                    <Button
+                        primary
+                        onClick={onYes}
+                        size='tiny'
+                    >
+                    Yes
+                    </Button>
+                </div>
+            </Segment>
+        );
 
         return models.map((model) => {
             const {
@@ -138,6 +187,12 @@ class NLUModels extends React.Component {
                     endTime,
                 } = {},
             } = model;
+
+            const duplicatePopup = popupDuplicateModel === model._id;
+            const turnOffPopup = popupTurnOffModel === model._id;
+            const turnOnPopup = popupTurnOnModel === model._id;
+            const duplicateTip = tipDuplicateModel === model._id;
+
             return (
                 <Card
                     key={model._id}
@@ -186,18 +241,23 @@ class NLUModels extends React.Component {
                                 )}
                                 content='Open model'
                             />
-                            <Popup
-                                trigger={(
-                                    <Button
-                                        className='duplicate-model-button'
-                                        disabled={loading}
-                                        secondary
-                                        icon='copy'
-                                        onClick={() => this.onDuplicateModel(model)}
-                                    />
-                                )}
-                                content='Create a copy'
-                            />
+                            {popupDuplicateModel === model._id ? (
+                                <Popup
+                                    on='click'
+                                    open={duplicatePopup}
+                                    onClose={this.resetPopups}
+                                    trigger={renderDuplicateButton(loading, this.resetPopups)}
+                                    content={<ConfirmPopup title='Duplicate model ?' onYes={() => this.handleDuplicateModel(model)} />}
+                                />
+                            ) : (
+                                <Popup
+                                    trigger={renderDuplicateButton(loading, () => this.setState({ popupDuplicateModel: model._id }))}
+                                    open={duplicateTip}
+                                    onOpen={() => this.setState({ tipDuplicateModel: model._id })}
+                                    onClose={() => this.setState({ tipDuplicateModel: false })}
+                                    content='Create a copy'
+                                />
+                            )}
                         </Button.Group>
                     </Card.Content>
                 </Card>
