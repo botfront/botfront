@@ -1,6 +1,5 @@
 <div align="center">
 
-[![Release](https://img.shields.io/badge/botfront-v0.14.1-blue.svg)]()
 [![License](https://img.shields.io/badge/license-AGPLv3-blue.svg?style=flat)](https://github.com/botfront/botfront/blob/master/LICENSE)
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/botfront)
 
