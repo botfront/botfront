@@ -141,7 +141,7 @@ class NLUModels extends React.Component {
 
         const renderDuplicateButton = (disabled, onClick = () => {}) => (
             <Button
-                className='duplicate-model-button'
+                data-cy='duplicate-button'
                 disabled={disabled}
                 secondary
                 onClick={onClick}
@@ -150,7 +150,7 @@ class NLUModels extends React.Component {
         );
 
         const ConfirmPopup = ({ title, onYes = () => {}, description = '' }) => (
-            <Segment basic className='model-popup'>
+            <Segment basic className='model-popup' data-cy='confirm-popup'>
                 <Header as='h4'>{title}</Header>
                 {description}
                 <div>
@@ -194,10 +194,20 @@ class NLUModels extends React.Component {
                     key={model._id}
                     color={getColor(langs.indexOf(model.language), true)}
                     id={`model-${model.name}`}
+                    data-cy='nlu-model-card'
                 >
                     <Card.Content>
                         {model.published ? (
-                            <Button icon='wifi' basic compact size='mini' color='green' floated='right' content='ONLINE' />
+                            <Button
+                                icon='wifi'
+                                basic
+                                compact
+                                size='mini'
+                                color='green'
+                                floated='right'
+                                content='ONLINE'
+                                data-cy='online-model'
+                            />
                         ) : (
                             <Popup
                                 on='click'
@@ -211,7 +221,7 @@ class NLUModels extends React.Component {
                                         description={`Your bot will use this model for ${languageString}`}
                                     />
                                 )}
-                                trigger={<Button compact size='mini' basic floated='right' content='OFFLINE' />}
+                                trigger={<Button compact size='mini' basic floated='right' content='OFFLINE' data-cy='offline-model' />}
                             />
                         )}
                         <Card.Header>{name}</Card.Header>
@@ -234,7 +244,7 @@ class NLUModels extends React.Component {
                             <Popup
                                 trigger={(
                                     <Button
-                                        className='open-model-button'
+                                        data-cy='open-model'
                                         disabled={loading}
                                         primary
                                         icon='folder open'
