@@ -43,14 +43,11 @@ class NLUModels extends React.Component {
         super(props);
         this.state = {
             editing: NONE,
-            confirmOpen: false,
-            modelToPublish: null,
             loading: false,
             // those states will take the id of the model on which
             // the popup must be displayed
             popupDuplicateModel: false,
             popupTurnOnModel: false,
-            popupTurnOffModel: false,
             tipDuplicateModel: false,
         };
         this.fixLanguage();
@@ -94,7 +91,6 @@ class NLUModels extends React.Component {
 
     resetPopups = () => this.setState({
         popupDuplicateModel: false,
-        popupTurnOffModel: false,
         popupTurnOnModel: false,
         tipDuplicateModel: false,
     })
@@ -134,14 +130,12 @@ class NLUModels extends React.Component {
         browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelId}` });
     };
 
-    publishModel = (modelId, projectId) => Meteor.call('nlu.publish', modelId, projectId, wrapMeteorCallback(() => {
-        this.setState({ confirmOpen: false });
-    }));
+    publishModel = (modelId, projectId) => Meteor.call('nlu.publish', modelId, projectId, wrapMeteorCallback());
 
     renderModels = (models) => {
         const { projectId } = this.props;
         const {
-            loading, confirmOpen, modelToPublish, popupDuplicateModel, popupTurnOffModel, popupTurnOnModel, tipDuplicateModel,
+            loading, popupDuplicateModel, popupTurnOnModel, tipDuplicateModel,
         } = this.state;
         const langs = uniq(models.map(m => m.language));
 
@@ -155,9 +149,10 @@ class NLUModels extends React.Component {
             />
         );
 
-        const ConfirmPopup = ({ title, onYes = () => {} }) => (
+        const ConfirmPopup = ({ title, onYes = () => {}, description = '' }) => (
             <Segment basic className='model-popup'>
                 <Header as='h4'>{title}</Header>
+                {description}
                 <div>
                     <Button
                         negative
@@ -189,9 +184,10 @@ class NLUModels extends React.Component {
             } = model;
 
             const duplicatePopup = popupDuplicateModel === model._id;
-            const turnOffPopup = popupTurnOffModel === model._id;
             const turnOnPopup = popupTurnOnModel === model._id;
             const duplicateTip = tipDuplicateModel === model._id;
+
+            const languageString = languages[language].name;
 
             return (
                 <Card
@@ -199,21 +195,27 @@ class NLUModels extends React.Component {
                     color={getColor(langs.indexOf(model.language), true)}
                     id={`model-${model.name}`}
                 >
-                    {modelToPublish && (
-                        <Confirm
-                            open={confirmOpen}
-                            header={`Publish model ${modelToPublish.name}?`}
-                            icon='warning'
-                            content='Do not forget to train your model if you recently modified your training data!'
-                            onCancel={() => this.setState({ confirmOpen: false })}
-                            onConfirm={() => this.publishModel(modelToPublish._id, projectId)}
-                        />
-                    )}
                     <Card.Content>
-                        {model.published && <Button icon='wifi' basic compact size='mini' color='green' floated='right' content='ONLINE' />}
-                        {!model.published && <Button compact size='mini' basic floated='right' content='OFFLINE' onClick={() => this.setState({ confirmOpen: true, modelToPublish: model })} />}
+                        {model.published ? (
+                            <Button icon='wifi' basic compact size='mini' color='green' floated='right' content='ONLINE' />
+                        ) : (
+                            <Popup
+                                on='click'
+                                open={turnOnPopup}
+                                onOpen={() => this.setState({ popupTurnOnModel: model._id })}
+                                onClose={this.resetPopups}
+                                content={(
+                                    <ConfirmPopup
+                                        title='Publish ?'
+                                        onYes={() => this.publishModel(model._id, projectId)}
+                                        description={`Your bot will use this model for ${languageString}`}
+                                    />
+                                )}
+                                trigger={<Button compact size='mini' basic floated='right' content='OFFLINE' />}
+                            />
+                        )}
                         <Card.Header>{name}</Card.Header>
-                        <Card.Meta>{languages[language].name}</Card.Meta>
+                        <Card.Meta>{languageString}</Card.Meta>
                         <Card.Description>
                             {description && <div style={{ marginBottom: '10px' }}>{description}</div>}
                             {!isTraining(model) && status === 'success' && (
@@ -282,7 +284,7 @@ class NLUModels extends React.Component {
 
     getPanes = models => getNluModelLanguages(models.map(m => m._id)).map(lang => ({
         menuItem: languages[lang].name,
-        render: () => <Card.Group style={{ margin: 0 }}>{this.renderModels(models.filter(m => m.language === lang))}</Card.Group>,
+        render: () => <Card.Group style={{ margin: 'auto', maxWidth: '912px' }}>{this.renderModels(models.filter(m => m.language === lang))}</Card.Group>,
     }));
 
     onTabChange = (e, { activeIndex }) => {
