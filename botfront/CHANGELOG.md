@@ -1,0 +1,39 @@
+# Changelog
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### 0.14.2 (2019-05-09)
+
+
+### Bug Fixes
+
+* object in ace field ([b1156a9](https://github.com/botfront/botfront/commit/b1156a9))
+* **bot responses:** import fails ([38a9d99](https://github.com/botfront/botfront/commit/38a9d99))
+* removed useles instance property ([a8c9d58](https://github.com/botfront/botfront/commit/a8c9d58))
+
+
+### Features
+
+* better confirmation for publish model ([8ecf500](https://github.com/botfront/botfront/commit/8ecf500))
+* confirmation for model duplication ([45e9bb0](https://github.com/botfront/botfront/commit/45e9bb0))
+* pull request template ([2c9f554](https://github.com/botfront/botfront/commit/2c9f554))
+
+
+### Tests
+
+* duplicate and publish models ([bbc863b](https://github.com/botfront/botfront/commit/bbc863b))
+
+
+
+## 0.14.0 (2019-05-06)
+
+
+### Bug Fixes
+
+* corrected instances ([c949333](https://github.com/botfront/botfront/commit/c949333))
+* scroll in bot responses ([3ca4928](https://github.com/botfront/botfront/commit/3ca4928))
+
+
+### Features
+
+* disabled activity button in Populate ([5d60c61](https://github.com/botfront/botfront/commit/5d60c61))

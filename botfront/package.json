@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "private": true,
   "scripts": {
     "start": "meteor run",
@@ -12,7 +12,8 @@
     "test-watch": "TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
     "postinstall": "cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./public/",
     "licenses:summary": "license-checker --summary",
-    "licenses:csv": "license-checker --csv --out botfront-licenses.csv"
+    "licenses:csv": "license-checker --csv --out botfront-licenses.csv",
+    "release": "standard-version"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
@@ -62,6 +63,7 @@
     "shortid": "^2.2.8",
     "simpl-schema": "^1.5.5",
     "slugify": "^1.3.4",
+    "standard-version": "^6.0.1",
     "uniforms": "^1.31.1",
     "uniforms-semantic": "^1.31.0",
     "uuid": "^3.2.1"
