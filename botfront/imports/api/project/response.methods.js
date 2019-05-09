@@ -1,5 +1,5 @@
 import { find, intersectionBy, sortBy } from 'lodash';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
 import { formatError } from '../../lib/utils';
 import { checkIfCan } from '../../lib/scopes';
