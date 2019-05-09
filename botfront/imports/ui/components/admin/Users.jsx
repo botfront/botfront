@@ -11,7 +11,7 @@ import { PageMenu } from '../utils/Utils';
 
 class UsersList extends React.Component {
     renderListItems = ({ users } = this.props) => users.map(user => (
-        <Table.Row key={user._id}>
+        <Table.Row key={user._id} data-cy={user.profile.lastName}>
             <Table.Cell>
                 <Link to={`/admin/user/${user._id}`}>{user.emails[0].address}</Link>
             </Table.Cell>

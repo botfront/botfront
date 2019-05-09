@@ -169,3 +169,23 @@ Cypress.Commands.add(
         });
     },
 );
+
+Cypress.Commands.add('loginViewer', (email = 'viewer@test.com', password = 'Aaaaaaaa00') => {
+    cy.visit('/');
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.logout((err) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        }),
+    ).then(
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+        }),
+    );
+
+    // cy.window();
+});

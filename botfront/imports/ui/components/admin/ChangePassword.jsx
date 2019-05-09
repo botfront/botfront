@@ -86,7 +86,7 @@ export default class ChangePassword extends React.Component {
                 <Header>Change Password</Header>
                 <AutoField name='password' placeholder='password' type='password' label={null} />
                 <AutoField name='passwordVerify' placeholder='password' type='password' label={null} />
-                <Button>Change</Button>
+                <Button data-cy='change-password'>Change</Button>
                 <ErrorsField />
             </AutoForm>
         );
