@@ -21,6 +21,32 @@ describe('chat side panel handling', function() {
         cy.get('[data-cy=chat-pane]').should('not.exist');
     });
 
+    it('should display a message when no language are set', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.get('[data-cy=duplicate-button]').click();
+        cy.get('[data-cy=confirm-popup]').contains('Yes').click();
+        cy.get('[data-cy=offline-model]').click();
+        cy.get('[data-cy=confirm-popup]').contains('Yes').click();
+        cy.get('[data-cy=open-model]')
+            .eq(1)
+            .click();
+        cy.get('.nlu-menu-settings').click();
+        cy.contains('Delete').click();
+        cy.get('.nlu-menu-settings').click();
+        cy.get('.dowload-model-backup-button').click();
+        cy.get('.delete-model-button').click();
+        cy.get('.ui.page.modals .primary').click();
+
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.get('[data-cy=open-chat]').click();
+        cy.get('[data-cy=no-language]');
+        cy.get('[data-cy=chat-language-option]').should('not.exist');
+        cy.get('[data-cy=close-chat]').click();
+
+        cy.get('[data-cy=offline-model]').click();
+        cy.get('[data-cy=confirm-popup]').contains('Yes').click();
+    });
+
     it('should remove the core instance and the chat should display a message', function() {
         cy.visit(`/project/${this.bf_project_id}/settings`);
 

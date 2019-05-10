@@ -32,7 +32,11 @@ class Chat extends React.Component {
 Chat.propTypes = {
     socketUrl: PropTypes.string.isRequired,
     path: PropTypes.string.isRequired,
-    language: PropTypes.string.isRequired,
+    language: PropTypes.string,
+};
+
+Chat.defaultProps = {
+    language: '',
 };
 
 export default Chat;
