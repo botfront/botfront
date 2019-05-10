@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.14.3](https://github.com/botfront/botfront/compare/v0.14.2...v0.14.3) (2019-05-10)
+
+
+### Bug Fixes
+
+* entities not saving ([26b96a1](https://github.com/botfront/botfront/commit/26b96a1))
+* login background size ([489388f](https://github.com/botfront/botfront/commit/489388f))
+
+
+### Tests
+
+* entities saving ([3b901e2](https://github.com/botfront/botfront/commit/3b901e2))
+
+
+
 ### 0.14.2 (2019-05-09)
 
 
