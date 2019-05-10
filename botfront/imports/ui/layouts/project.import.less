@@ -104,11 +104,6 @@
     right: 16px;
 }
 
-.chat-pane-container {
-    background-color: white;
-    
-}
-
 .project-children .ui.container {
     max-width: 1200px !important;
     width: ~"calc(100% - 80px)";
@@ -172,43 +167,60 @@
     transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
 }
   
-.chat-pane-container .menu.pointing {
-    padding: 0;
-    margin: 0;
-    height: @top-menu-height;
-}
+.chat-pane-container {
+    background-color: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 
-.chat-pane-container .conversation-container {
-    box-shadow: none;
-    height: calc(~"100% - " @top-menu-height) !important;
-}
+    .menu.pointing {
+        padding: 0;
+        margin: 0;
+        min-height: @top-menu-height;
+        height: @top-menu-height;
 
-.chat-pane-container .ui.selection.dropdown {
-    position: relative;
-    min-width: 120px;
-    min-height: 2.4em;
-    top: 6px;
-    padding: 0.65em 1em;
-}
+        .ui.selection.dropdown {
+            position: relative;
+            min-width: 120px;
+            min-height: 2.4em;
+            top: 6px;
+            padding: 0.65em 1em;
 
-.chat-pane-container .ui.selection.dropdown .menu .active.item {
-    border-color: transparent;
-}
+            .menu .active.item {
+                border-color: transparent;
+            }
 
-.chat-pane-container .ui.menu .right.menu {
-    margin-bottom: 3px;
-}
+            .menu .active.item:hover {
+                border-color: transparent;
+            }
+        }
 
-.chat-pane-container .ui.selection.dropdown .menu .active.item:hover {
-    border-color: transparent;
+        .right.menu {
+            margin-bottom: 3px;
+        }
+    }
+
+    .ui.message.no-language {
+        margin: 1em;
+        min-height: auto;
+    }
+
+    .ui.message.no-core-message {
+        margin: 1em;
+    }
+
+    .conversation-container {
+        box-shadow: none;
+        height: 100%;
+    }
+
+    .widget-embedded {
+        position: unset;
+    }
 }
 
 .ui.bottom.right.popup.redo-chat-popup {
     margin-right: -12px;
-}
-
-.chat-pane-container .ui.message.no-core-message {
-    margin: 1em;
 }
 
 .Pane.vertical.Pane1 > div {
