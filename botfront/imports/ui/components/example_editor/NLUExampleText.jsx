@@ -125,7 +125,7 @@ class NLUExampleText extends React.Component {
                     jsx.push(
                         <EntityPopup
                             entity={e}
-                            onAddOrChange={(event, data) => this.handleChangeOrAddEntity(event, data, e)
+                            onAddOrChange={(event, data) => this.handleSaveEntity(e, data)
                             }
                             onDelete={() => this.handleDeleteEntity(e)}
                             options={options}
@@ -188,24 +188,6 @@ class NLUExampleText extends React.Component {
         return offset;
     };
 
-    handleChangeOrAddEntity = (e, { value }, entity = null) => {
-        const { example } = this.props;
-        const { selectedEntity } = this.state;
-        // if e.temp means we have to edit an entity
-        this.setState({
-            stateEntity: {
-                entity: value,
-                start: entity ? entity.start : selectedEntity.start,
-                end: entity ? entity.end : selectedEntity.end,
-                value: entity
-                    ? entity.value
-                    : example.text.slice(selectedEntity.start, selectedEntity.end),
-                temp: true,
-            },
-            selectedEntity: null,
-        });
-    };
-
     handleSaveEntity = (entity, { value }) => {
         const { onSave, example } = this.props;
         let { entities } = example;
@@ -215,7 +197,7 @@ class NLUExampleText extends React.Component {
                 newEntity = false;
                 return {
                     ...ent,
-                    entity: entity.entity,
+                    entity: value,
                 };
             }
             return ent;
@@ -239,8 +221,6 @@ class NLUExampleText extends React.Component {
                 ])
                 : entities,
         };
-
-        // console.log(toSave);
 
         onSave(newExample, () => {});
     };
