@@ -186,6 +186,40 @@ Cypress.Commands.add('loginViewer', (email = 'viewer@test.com', password = 'Aaaa
             Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
         }),
     );
+});
 
-    // cy.window();
+Cypress.Commands.add('loginEditor', (email = 'editor@test.com', password = 'Aaaaaaaa00') => {
+    cy.visit('/');
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.logout((err) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        }),
+    ).then(
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+        }),
+    );
+});
+
+Cypress.Commands.add('loginAdmin', (email = 'admin@test.com', password = 'Aaaaaaaa00') => {
+    cy.visit('/');
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.logout((err) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        }),
+    ).then(
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+        }),
+    );
 });
