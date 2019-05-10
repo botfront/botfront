@@ -20,7 +20,7 @@ class AccountLayout extends React.Component {
         } = this.props;
 
         const bgStyle = {
-            height: '100vh',
+            height: '101vh',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
         };
