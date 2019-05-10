@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 
-describe('nlu-viewer test', function() {
+describe('role accebility tests', function() {
     before(function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');

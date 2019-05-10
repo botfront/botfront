@@ -161,6 +161,15 @@ if (Meteor.isServer) {
             return modelId;
         },
 
+        'nlu.update.pipeline'(modelId, item) {
+            check(item, Object);
+            check(modelId, String);
+            checkIfCan('nlu-config:w', getProjectIdFromModelId(modelId));
+
+            NLUModels.update({ _id: modelId }, { $set: item });
+            return modelId;
+        },
+
         'nlu.remove'(modelId, projectId) {
             check(modelId, String);
             check(projectId, String);

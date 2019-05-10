@@ -1,9 +1,9 @@
 /* eslint-disable no-undef */
 
 describe('Create the users with respective roles', function() {
-
     beforeEach(function() {
         cy.login();
+        cy.visit('admin/users');
     });
 
     afterEach(function() {
@@ -11,7 +11,6 @@ describe('Create the users with respective roles', function() {
     });
 
     it('creating a nlu-viewer', function() {
-        cy.visit('admin/users');
         cy.get('[data-cy=new-user]').click();
         cy.get('#uniforms-0000-0001').type('test');
         cy.get('#uniforms-0000-0003').type('viewer');
@@ -24,7 +23,6 @@ describe('Create the users with respective roles', function() {
     });
 
     it('Adding password for viewer', function() {
-        cy.visit('admin/users');
         cy.contains('viewer').click();
         cy.contains('Password change').click();
         cy.get('#uniforms-0001-0001').type('Aaaaaaaa00');
@@ -33,7 +31,6 @@ describe('Create the users with respective roles', function() {
     });
 
     it('creating a nlu-editor', function() {
-        cy.visit('admin/users');
         cy.get('[data-cy=new-user]').click();
         cy.get('#uniforms-0000-0001').type('test');
         cy.get('#uniforms-0000-0003').type('editor');
@@ -47,7 +44,6 @@ describe('Create the users with respective roles', function() {
     });
 
     it('Adding password for editor', function() {
-        cy.visit('admin/users');
         cy.contains('editor').click();
         cy.contains('Password change').click();
         cy.get('#uniforms-0001-0001').type('Aaaaaaaa00');
@@ -56,7 +52,6 @@ describe('Create the users with respective roles', function() {
     });
 
     it('creating a nlu-admin', function() {
-        cy.visit('admin/users');
         cy.get('[data-cy=new-user]').click();
         cy.get('#uniforms-0000-0001').type('test');
         cy.get('#uniforms-0000-0003').type('admin');
@@ -70,13 +65,10 @@ describe('Create the users with respective roles', function() {
     });
 
     it('Adding password for admin', function() {
-        cy.visit('admin/users');
         cy.contains('admin').click();
         cy.contains('Password change').click();
         cy.get('#uniforms-0001-0001').type('Aaaaaaaa00');
         cy.get('#uniforms-0001-0003').type('Aaaaaaaa00');
         cy.get('[data-cy=change-password]').click();
     });
-
-    
 });

@@ -12,7 +12,7 @@ import ChangesSaved from '../../../utils/ChangesSaved';
 import AceField from '../../../utils/AceField';
 import SaveButton from '../../../utils/SaveButton';
 import { can } from '../../../../../lib/scopes';
-
+ 
 export default class NLUPipeline extends React.Component {
     constructor(props) {
         super(props);
@@ -32,7 +32,7 @@ export default class NLUPipeline extends React.Component {
         const { model } = this.props;
         clearTimeout(this.successTimeout);
         Meteor.call(
-            'nlu.update',
+            'nlu.update.pipeline',
             model._id,
             newModel,
             wrapMeteorCallback((err) => {
@@ -80,7 +80,6 @@ export default class NLUPipeline extends React.Component {
                         <SaveButton saved={saved} />
                     </AutoForm>
                 </fieldset>
-               
             </Tab.Pane>
         );
     }

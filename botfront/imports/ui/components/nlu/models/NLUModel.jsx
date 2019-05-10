@@ -186,14 +186,6 @@ class NLUModel extends React.Component {
             tabs.push({ menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> });
             tabs.push({ menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> });
         }
-
-        // return [
-        //     { menuItem: 'General', render: () => <NLUParams model={model} instances={instances} /> },
-        //     { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
-        //     { menuItem: 'Import', render: () => <DataImport model={model} /> },
-        //     { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
-        //     { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> },
-        // ];
         return tabs;
     };
 
