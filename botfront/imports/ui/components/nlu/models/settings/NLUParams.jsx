@@ -46,27 +46,25 @@ class NLUParams extends React.Component {
         const isDisabled = (can('nlu-meta:w', projectId)) ? '' : 'disabled';
         return (
             <Tab.Pane>
-                <fieldset disabled={isDisabled}>
-                    <AutoForm schema={NLUModelSchema} model={model} onSubmit={m => this.handleSave(m)}>
-                        <AutoField name='name' />
-                        <SelectLanguage name='language' disable={isDisabled} />
-                        <AutoField name='description' />
-                        <SelectInstanceField
-                            name='instance'
-                            label='NLU Instance'
-                            instances={instances}
-                            disable={isDisabled}
+                <AutoForm schema={NLUModelSchema} model={model} onSubmit={m => this.handleSave(m)} disabled={isDisabled}>
+                    <AutoField name='name' />
+                    <SelectLanguage name='language' disable={isDisabled} />
+                    <AutoField name='description' />
+                    <SelectInstanceField
+                        name='instance'
+                        label='NLU Instance'
+                        instances={instances}
+                        disable={isDisabled}
+                    />
+                    <ErrorsField />
+                    {showConfirmation && (
+                        <ChangesSaved
+                            dismissable
+                            onDismiss={() => this.setState({ showConfirmation: false, saved: false })}
                         />
-                        <ErrorsField />
-                        {showConfirmation && (
-                            <ChangesSaved
-                                dismissable
-                                onDismiss={() => this.setState({ showConfirmation: false, saved: false })}
-                            />
-                        )}
-                        <SaveButton saved={saved} />
-                    </AutoForm>
-                </fieldset>
+                    )}
+                    <SaveButton saved={saved} disabled={isDisabled} />
+                </AutoForm>
             </Tab.Pane>
         );
     }

@@ -140,6 +140,7 @@ if (Meteor.isServer) {
         'nlu.insert'(item, projectId) {
             check(item, Object);
             check(projectId, String);
+            checkIfCan('nlu-model:w', projectId);
 
             const {
                 settings: {

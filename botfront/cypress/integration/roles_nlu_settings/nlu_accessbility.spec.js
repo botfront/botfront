@@ -17,9 +17,18 @@ describe('role accebility tests', function() {
         cy.get('.cards>:first-child button.primary').click();
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('General').click();
-        cy.get('fieldset').should('be.disabled');
+        cy.get('form').within(($form) => {
+            cy.get('input[name="name"]').should('be.disabled');
+            cy.get('#uniforms-0000-0002').parent().should('have.class', 'disabled');
+            cy.get('input[name="description"]').should('be.disabled');
+            cy.get('[data-cy=save-button]').should('be.disabled');
+            cy.get('#uniforms-0000-0005').parent().should('have.class', 'disabled');
+        });
         cy.contains('Pipeline').click();
-        cy.get('fieldset').should('be.disabled');
+        cy.get('form').within(() => {
+            cy.get('#config').parent().should('have.class', 'disabled');
+            cy.get('[data-cy=save-button]').should('be.disabled');
+        });
     });
 
     it('Test editor role', function() {
@@ -29,10 +38,18 @@ describe('role accebility tests', function() {
         cy.get('.cards>:first-child button.primary').click();
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('General').click();
-        cy.get('fieldset').should('be.disabled');
+        cy.get('form').within(() => {
+            cy.get('input[name="name"]').should('be.disabled');
+            cy.get('#uniforms-0000-0002').parent().should('have.class', 'disabled');
+            cy.get('input[name="description"]').should('be.disabled');
+            cy.get('[data-cy=save-button]').should('be.disabled');
+            cy.get('#uniforms-0000-0005').parent().should('have.class', 'disabled');
+        });
         cy.contains('Pipeline').click();
-        cy.get('fieldset').should('not.be.disabled');
-        cy.contains('Import').click();
+        cy.get('form').within(() => {
+            cy.get('#config').parent().should('not.have.class', 'disabled');
+            cy.get('[data-cy=save-button]').should('not.be.disabled');
+        });
     });
 
     it('Test admin role', function() {
@@ -42,11 +59,17 @@ describe('role accebility tests', function() {
         cy.get('.cards>:first-child button.primary').click();
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('General').click();
-        cy.get('fieldset').should('not.be.disabled');
+        cy.get('form').within(() => {
+            cy.get('input[name="name"]').should('not.be.disabled');
+            cy.get('#uniforms-0000-0002').parent().should('not.have.class', 'disabled');
+            cy.get('input[name="description"]').should('not.be.disabled');
+            cy.get('[data-cy=save-button]').should('not.be.disabled');
+            cy.get('#uniforms-0000-0005').parent().should('not.have.class', 'disabled');
+        });
         cy.contains('Pipeline').click();
-        cy.get('fieldset').should('not.be.disabled');
-        cy.contains('Import').click();
-        cy.contains('Export').click();
-        cy.contains('Delete').click();
+        cy.get('form').within(() => {
+            cy.get('#config').parent().should('not.have.class', 'disabled');
+            cy.get('[data-cy=save-button]').should('not.be.disabled');
+        });
     });
 });

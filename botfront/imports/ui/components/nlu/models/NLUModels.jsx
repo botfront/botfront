@@ -33,6 +33,7 @@ import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_
 import { wrapMeteorCallback } from '../../utils/Errors';
 import getColor from '../../../../lib/getColors';
 import { setWorkingLanguage } from '../../../store/actions/actions';
+import { can } from '../../../../lib/scopes';
 
 const NONE = -2;
 const NEW_MODEL = -1;
@@ -86,8 +87,8 @@ class NLUModels extends React.Component {
 
     renderMenu = () => {
         const { loading, editing } = this.state;
-        const { ready } = this.props;
-
+        const { ready, projectId } = this.props;
+        const disable = can('nlu-model:w', projectId);
         return (
             <Menu pointing secondary style={{ background: '#fff' }}>
                 <Menu.Item>
@@ -102,7 +103,7 @@ class NLUModels extends React.Component {
                             className='new-model'
                             onClick={() => this.setState({ editing: NEW_MODEL })}
                             primary
-                            disabled={!ready || loading || editing !== NONE}
+                            disabled={!ready || loading || editing !== NONE || !disable}
                             icon='add'
                             content='New model'
                             labelPosition='left'
@@ -127,7 +128,7 @@ class NLUModels extends React.Component {
         const { projectId } = this.props;
         const { loading, confirmOpen, modelToPublish } = this.state;
         const langs = uniq(models.map(m => m.language));
-
+        const disable = can('nlu-model:w', projectId);
         return models.map((model) => {
             const {
                 name,
@@ -190,7 +191,7 @@ class NLUModels extends React.Component {
                                 trigger={(
                                     <Button
                                         className='duplicate-model-button'
-                                        disabled={loading}
+                                        disabled={loading || !disable}
                                         secondary
                                         icon='copy'
                                         onClick={() => this.onDuplicateModel(model)}
