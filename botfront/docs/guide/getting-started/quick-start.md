@@ -1,5 +1,17 @@
 # Quick Start
 
+## What is it?
+
+Botfront is an open source platform to build chatbots with Rasa. With Botfront you can:
+- Build, train and evaluate NLU models
+- Edit and store bot responses
+- Do simple Q&A (no code) and mix them with more complex stories (in code)
+- Monitor conversations
+- Review and annotate incoming NLU utterances
+- Build multilingual chatbots
+
+ 
+![Botfront screenshot](../../images/botfront-screenshot-shadow.png)
 This tutorial will guide you through the installation and the development of your first chatbot with Botfront/Rasa. You will run Botfront with `docker-compose` which makes running all the applications needed for your project (Botfront, Rasa, Mongo) very easy.
 
 ## Install Docker
