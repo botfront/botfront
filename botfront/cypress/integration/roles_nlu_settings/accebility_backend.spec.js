@@ -84,7 +84,7 @@ describe('roles backend method tests', function() {
                     'nlu.update.pipeline',
                     this.bf_model_id,
                     {
-                        config: 'pipeline:  - name: components.botfront.language_setter.LanguageSetter  name: intent_classifier_tensorflow_embedding',
+                        config: 'pipeline:  - name: components.botfront.language_setter.LanguageSetter  - name: tokenizer_whitespace ',
                     },
                     (err, result) => {
                         resolve(result);

@@ -17,7 +17,7 @@ describe('role accebility tests', function() {
         cy.get('.cards>:first-child button.primary').click();
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('General').click();
-        cy.get('form').within(($form) => {
+        cy.get('form').within(() => {
             cy.get('input[name="name"]').should('be.disabled');
             cy.get('#uniforms-0000-0002').parent().should('have.class', 'disabled');
             cy.get('input[name="description"]').should('be.disabled');
@@ -71,5 +71,54 @@ describe('role accebility tests', function() {
             cy.get('#config').parent().should('not.have.class', 'disabled');
             cy.get('[data-cy=save-button]').should('not.be.disabled');
         });
+    });
+
+    it('Test New Model button, should be disabled for nlu-model:w', function() {
+        cy.loginEditor();
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.right>:first-child button.primary').should('have.class', 'disabled');
+    });
+
+    it('Test New Model button, should be disabled for nlu-model:w', function() {
+        cy.loginAdmin();
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.right>:first-child button.primary').should('not.have.class', 'disabled');
+    });
+
+    it('Test New Model button, should not be disabled for nlu-model:w', function() {
+        cy.loginAdmin();
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.secondary').should('not.have.class', 'disabled');
+    });
+
+    it('Test Duplicate Model button, should be disabled for nlu-model:w', function() {
+        cy.loginEditor();
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.secondary').should('have.class', 'disabled');
+    });
+
+    it('Test Duplicate Model button, should not be disabled for nlu-model:w', function() {
+        cy.loginAdmin();
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.secondary').should('not.have.class', 'disabled');
+    });
+
+    it('Test online/offline button, should be disabled for non admins', function() {
+        cy.loginEditor();
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.right.floated').should('have.class', 'disabled');
+    });
+
+    it('Test online/offline button, should be not disabled for admins', function() {
+        cy.loginAdmin();
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.right.floated').should('not.have.class', 'disabled');
     });
 });

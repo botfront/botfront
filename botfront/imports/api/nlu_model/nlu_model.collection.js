@@ -25,8 +25,7 @@ if (Meteor.isServer) {
         check(modelId, String);
         const isAllowed = () => {
             if (can('global-admin')) return true;
-            const projectIds = getScopesForUser(this.userId, 'nlu-viewer');
-            console.log(projectIds)
+            const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-meta:r']);
             const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
             const modelIdArrays = models.map(m => m.nlu_models);
             const modelIds = [].concat(...modelIdArrays);
@@ -36,7 +35,7 @@ if (Meteor.isServer) {
         return isAllowed() ? NLUModels.find({ _id: modelId }) : this.ready();
     });
 
-    // This publication is here to get a list of accessible models
+    // his publication is here to get a lTist of accessible models
     // without having to download all the training data.
     // Thus greatly reducing the load times
     Meteor.publish('nlu_models.lite', function () {
@@ -52,7 +51,7 @@ if (Meteor.isServer) {
             });
         }
 
-        const projectIds = getScopesForUser(this.userId, 'nlu-viewer');
+        const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-meta:r']);
         const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
         const modelIdArrays = models.map(m => m.nlu_models);
         const modelIds = [].concat(...modelIdArrays);

@@ -72,6 +72,21 @@ if (Meteor.isServer) {
             }
         },
 
+        'user.removeByEmail'(email) {
+            checkIfCan('global-admin');
+            check(email, String);
+            try {
+                return Meteor.users.remove({
+                    emails: [{
+                        address: email,
+                        verified: false,
+                    }],
+                });
+            } catch (e) {
+                throw e;
+            }
+        },
+
         'user.changePassword'(userId, newPassword) {
             checkIfCan('global-admin');
             check(userId, String);

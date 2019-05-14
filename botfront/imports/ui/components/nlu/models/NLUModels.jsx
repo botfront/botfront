@@ -129,6 +129,7 @@ class NLUModels extends React.Component {
         const { loading, confirmOpen, modelToPublish } = this.state;
         const langs = uniq(models.map(m => m.language));
         const disable = can('nlu-model:w', projectId);
+        const disableOnlineOffline = can('nlu-admin', projectId);
         return models.map((model) => {
             const {
                 name,
@@ -156,8 +157,8 @@ class NLUModels extends React.Component {
                         />
                     )}
                     <Card.Content>
-                        {model.published && <Button icon='wifi' basic compact size='mini' color='green' floated='right' content='ONLINE' />}
-                        {!model.published && <Button compact size='mini' basic floated='right' content='OFFLINE' onClick={() => this.setState({ confirmOpen: true, modelToPublish: model })} />}
+                        {model.published && <Button icon='wifi' basic compact size='mini' color='green' floated='right' content='ONLINE' disabled={!disableOnlineOffline} />}
+                        {!model.published && <Button compact size='mini' basic floated='right' content='OFFLINE' onClick={() => this.setState({ confirmOpen: true, modelToPublish: model })} disabled={!disableOnlineOffline} />}
                         <Card.Header>{name}</Card.Header>
                         <Card.Meta>{languages[language].name}</Card.Meta>
                         <Card.Description>

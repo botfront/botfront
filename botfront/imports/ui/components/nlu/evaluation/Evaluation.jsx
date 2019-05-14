@@ -190,21 +190,21 @@ class Evaluation extends React.Component {
 
         return (
             <Tab.Pane textAlign='center'>
-                <div id='test_set_buttons'>
-                    <InputButtons
-                        labels={['Use training set', 'Upload test set', 'Use validated examples']}
-                        operations={[this.useTrainingSet.bind(this), this.useTestSet.bind(this), this.useValidatedSet.bind(this)]}
-                        defaultSelection={defaultSelection}
-                        onDefaultLoad={defaultSelection === 2 ? this.evaluate : () => {}}
-                    />
-                </div>
-                {exampleSet === 'test' && (
-                    <TestImport isLoaded={!!data} model={model} loadData={this.loadData} />
-                )}
                 <Loading loading={reportLoading}>
                     {errorMessage}
                     <br />
                     <Form>
+                        <div id='test_set_buttons'>
+                            <InputButtons
+                                labels={['Use training set', 'Upload test set', 'Use validated examples']}
+                                operations={[this.useTrainingSet.bind(this), this.useTestSet.bind(this), this.useValidatedSet.bind(this)]}
+                                defaultSelection={defaultSelection}
+                                onDefaultLoad={defaultSelection === 2 ? this.evaluate : () => {}}
+                            />
+                        </div>
+                        {exampleSet === 'test' && (
+                            <TestImport isLoaded={!!data} model={model} loadData={this.loadData} />
+                        )}
                         {!dataLoading && !errorMessage && (
                             <div>
                                 <Button type='submit' basic fluid color='green' loading={evaluating} onClick={this.evaluate}>

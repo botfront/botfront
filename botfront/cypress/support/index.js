@@ -22,20 +22,22 @@ import './commands';
 
 Cypress.Commands.add('login', (email = 'test@test.com', password = 'Aaaaaaaa00') => {
     cy.visit('/');
-    cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.logout((err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        }),
-    ).then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-        }),
-    );
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.logout((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }),
+        )
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            }),
+        );
 
     // cy.window();
 });
@@ -116,14 +118,10 @@ Cypress.Commands.add('createResponse', (projectId, responseName) => {
 });
 
 Cypress.Commands.add('createResponseFast', (projectId, responseName) => {
-    cy.window().then(({ Meteor }) => Meteor.call(
-        'project.insertTemplate',
-        projectId,
-        {
-            key: responseName,
-            values: [{ sequence: [], lang: 'en' }, { sequence: [], lang: 'fr' }],
-        },
-    ));
+    cy.window().then(({ Meteor }) => Meteor.call('project.insertTemplate', projectId, {
+        key: responseName,
+        values: [{ sequence: [], lang: 'en' }, { sequence: [], lang: 'fr' }],
+    }));
 });
 
 Cypress.Commands.add('openResponse', (projectId, responseName) => {
@@ -143,11 +141,7 @@ Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
 });
 
 Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
-    cy.window().then(({ Meteor }) => Meteor.call(
-        'project.deleteTemplate',
-        projectId,
-        key,
-    ));
+    cy.window().then(({ Meteor }) => Meteor.call('project.deleteTemplate', projectId, key));
 });
 
 Cypress.Commands.add(
@@ -170,56 +164,143 @@ Cypress.Commands.add(
     },
 );
 
-Cypress.Commands.add('loginViewer', (email = 'viewer@test.com', password = 'Aaaaaaaa00') => {
+Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
+    cy.visit('/');
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.call(
+                    'user.create',
+                    {
+                        profile: {
+                            firstName: 'test',
+                            lastName,
+                        },
+                        email,
+                        roles: [
+                            {
+                                project: projectId,
+                                roles,
+                            },
+                        ],
+                        sendEmail: false,
+                    },
+                    true,
+                    (err, result) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        resolve({ Meteor, result });
+                    },
+                );
+            }),
+        )
+        .then(
+            ({ Meteor, result }) => new Cypress.Promise((resolve) => {
+                Meteor.call('user.changePassword', result, 'Aaaaaaaa00', (err) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    resolve({ Meteor, result });
+                });
+            }),
+        );
+});
+
+Cypress.Commands.add('deleteUser', (email) => {
     cy.visit('/');
     cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.logout((err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        }),
-    ).then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
+            try {
+                Meteor.call('user.removeByEmail', email, (err, result) => {
+                    if (err) {
+                        throw err;
+                    }
+                    resolve(result);
+                });
+            } catch (e) {
+                throw err;
+            }
         }),
     );
+});
+
+Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = 'Aaaaaaaa00') => {
+    cy.visit('/');
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.logout((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }),
+        )
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            }),
+        );
+});
+
+Cypress.Commands.add('loginViewer', (email = 'viewer@test.com', password = 'Aaaaaaaa00') => {
+    cy.visit('/');
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.logout((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }),
+        )
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            }),
+        );
 });
 
 Cypress.Commands.add('loginEditor', (email = 'editor@test.com', password = 'Aaaaaaaa00') => {
     cy.visit('/');
-    cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.logout((err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        }),
-    ).then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-        }),
-    );
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.logout((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }),
+        )
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            }),
+        );
 });
 
 Cypress.Commands.add('loginAdmin', (email = 'admin@test.com', password = 'Aaaaaaaa00') => {
     cy.visit('/');
-    cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.logout((err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        }),
-    ).then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-        }),
-    );
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.logout((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }),
+        )
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            }),
+        );
 });

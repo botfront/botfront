@@ -85,18 +85,18 @@ Meteor.startup(() => {
                         <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
                     </Route>
                     <Route exact path='/project' component={Project}>
-                        <Route path='/project/:project_id/nlu/models' component={NLUModels} name='NLU Models' onEnter={authenticate('nlu-viewer')} />
-                        <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-viewer')} />
+                        <Route path='/project/:project_id/nlu/models' component={NLUModels} name='NLU Models' onEnter={authenticate(['nlu-data:r', 'nlu-meta:r'])} />
+                        <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate(['nlu-data:r', 'nlu-meta:r'])} />
                         <Route
                             path='/project/:project_id/dialogue/conversations(/p)(/:page)(/c)(/:conversation_id)'
                             component={ConversationsBrowser}
                             name='Conversations'
                             onEnter={authenticate('conversations-viewer')}
                         />
-                        <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('copy-viewer')} />
-                        <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate('copy-editor')} />
-                        <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate('copy-editor')} />
-                        <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('project-viewer')} />
+                        <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
+                        <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
+                        <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
+                        <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('responses:w')} />
                         <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-admin')} />
                         <Route path='*' component={NotFound} />
                     </Route>
