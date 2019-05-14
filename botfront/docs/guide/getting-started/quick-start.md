@@ -14,7 +14,9 @@ Botfront is an open source platform to build chatbots with Rasa. With Botfront y
 ![Botfront screenshot](../../images/botfront-screenshot-shadow.png)
 This tutorial will guide you through the installation and the development of your first chatbot with Botfront/Rasa. You will run Botfront with `docker-compose` which makes running all the applications needed for your project (Botfront, Rasa, Mongo) very easy.
 
-## Install Docker
+## Setup
+
+### Install Docker
 
 - [Install Docker for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac)
 - [Install Docker for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows) 
@@ -25,7 +27,7 @@ If you already have Docker installed, make sure it's up to date.
 `host.docker.internal` does not resolve on Docker for linux, see [this issue](https://github.com/docker/for-linux/issues/264) for possible solutions.
 :::
 
-## Install Botfront
+### Install Botfront
 
 Open your terminal 
 ::: tip Beginner tip
@@ -45,7 +47,7 @@ First, it's going to download all the Docker images required (it's going to take
 You can safely ignore the errors in the logs: we just need to setup Botfront and it's all going to be fixed. 
 :::
 
-## Start Botfront
+### Start Botfront
 
 Open [http://localhost:8888](http://localhost:8888) and follow the steps to create your first project. (If it doesn't work just wait a few more seconds for the service to be ready)
 
@@ -60,7 +62,7 @@ Name your project "My First Project" and choose the English language if you want
 
 Congratulations, Botfront is installed. You should see a screen with your _First NLU Model_.
 
-## Add data to your NLU model
+## Add training data
 
 Let's just teach our NLU model to recognize simple things like "Hi", "Thanks", "Bye". We'll do more advanced stuff later.
 Botfront comes with pre-trained intents for general conversation (Chit Chat). The following video shows how to:
@@ -73,9 +75,14 @@ Botfront comes with pre-trained intents for general conversation (Chit Chat). Th
 </video> 
 
 
-## Create your first Bot response
+## Create a Bot response
 
 Now that our bot can understand a few things, let's see how we can get it to respond. The following video shows how to apply create a bot response and to assign it to an intent.
+
+::: tip Botfront adds a special behaviour to intents prefixed with <code>chitchat.</code> or <code>faq.</code>
+This allows to map a response without having to retrain Rasa on stories. We are using this feature here. \
+For more information, see [Q&A and FAQ Bots](/guide/bot-responses/#q-a-faq-bots) or [Rules](/guide/users/rules.html)
+:::
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/bot_responses_quickstart.mp4" type="video/mp4">
@@ -84,17 +91,13 @@ Now that our bot can understand a few things, let's see how we can get it to res
 
 This example is minimal, but you can do more advanced assignments such as combinations of intent and entities.
 
-::: tip Note
-You might be wondering why you didn't have to write stories or train Rasa Core. Botfront adds a special behaviour to intents prefixed with `chitchat.` or `faq.` allowing to map a response without having to retrain the whole model.
-For more information, see [Q&A and FAQ Bots](/guide/bot-responses/#q-a-faq-bots) or [Rules](/guide/users/rules.html)
-:::
 
-## Monitoring and improving
+## Monitor and improve
 
 You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model. 
 **Make sure to check _Log utterances to activity_** in your `Model > Settings > Pipeline`
 
-## What you learned and what's next
+## What's next
 You learned:
 
 1. How to setup Botfront on your machine

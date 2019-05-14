@@ -17,11 +17,11 @@ botfront-project
 |- db
 |- models
 |- project
-|- domains
-|-- domain.yml
-|- stories
-|-- stories.md
-|- policies.yml
+|-- domains
+|--- domain.yml
+|-- stories
+|--- stories.md
+|-- policies.yml
 ```
 
 | Folder | Description |
