@@ -33,6 +33,15 @@ module.exports = {
                 children: ['/guide/users/settings', '/guide/users/endpoints', '/guide/users/credentials', '/guide/users/rules', '/guide/bot-responses/'],
             },
             {
+                title: 'Admin Guide', // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/admin/users'
+                ],
+            },
+            {
                 title: 'NLU Guide', // required
                 // path: '/guide',
                 collapsable: false,
