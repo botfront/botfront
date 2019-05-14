@@ -41,8 +41,9 @@ docker-compose up
 ```
 
 First, it's going to download all the Docker images required (it's going to take a while, be patient). Then it's going to start all the services. 
-
+::: tip Note
 You can safely ignore the errors in the logs: we just need to setup Botfront and it's all going to be fixed. 
+:::
 
 ## Start Botfront
 
@@ -88,7 +89,7 @@ You might be wondering why you didn't have to write stories or train Rasa Core. 
 For more information, see [Q&A and FAQ Bots](/guide/bot-responses/#q-a-faq-bots) or [Rules](/guide/users/rules.html)
 :::
 
-## Monitor your conversation and improve your NLU Model
+## Monitoring and improving
 
 You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model. 
 **Make sure to check _Log utterances to activity_** in your `Model > Settings > Pipeline`
