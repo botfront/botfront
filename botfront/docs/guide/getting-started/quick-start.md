@@ -23,10 +23,6 @@ This tutorial will guide you through the installation and the development of you
 
 If you already have Docker installed, make sure it's up to date.
 
-::: warning Linux users
-`host.docker.internal` does not resolve on Docker for linux, see [this issue](https://github.com/docker/for-linux/issues/264) for possible solutions.
-:::
-
 ### Install Botfront
 
 Open your terminal 
