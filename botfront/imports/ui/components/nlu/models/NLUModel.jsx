@@ -200,16 +200,6 @@ class NLUModel extends React.Component {
         );
     };
 
-    renderTrainButton = (model, instance, projectId) => {
-        if (can('nlu-model:x', projectId)) {
-            return (
-                <Menu.Item>
-                    <NLUTrainButton model={model} instance={instance} data-cy='train-button' />
-                </Menu.Item>
-            );
-        }
-    }
-
     renderMenuItems = (activeItem, model, status, endTime, instance) => {
         const { projectId } = this.props;
         const isVisible = can('nlu-data:r', projectId);
@@ -229,10 +219,12 @@ class NLUModel extends React.Component {
                         <Icon size='small' name='percent' />
                         {'Evaluation'}
                     </Menu.Item>
-                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
-                        <Icon size='small' name='setting' />
-                        {'Settings'}
-                    </Menu.Item>
+                    { can('nlu-model:r', projectId) && (
+                        <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
+                            <Icon size='small' name='setting' />
+                            {'Settings'}
+                        </Menu.Item>
+                    )}
                     <Menu.Menu position='right'>
                         <Menu.Item>
                             {!isTraining(model) && status === 'success' && (
@@ -252,7 +244,11 @@ class NLUModel extends React.Component {
                                 />
                             )}
                         </Menu.Item>
-                        {this.renderTrainButton(model, instance, projectId)}
+                        { can('nlu-model:x', projectId) && (
+                            <Menu.Item>
+                                <NLUTrainButton model={model} instance={instance} data-cy='train-button' />
+                            </Menu.Item>
+                        )}
                     </Menu.Menu>
                 </Menu>
             );
@@ -263,24 +259,26 @@ class NLUModel extends React.Component {
 
     renderWarningMessage = () => {
         const { projectId } = this.props;
-        return (
-            <Message
-                header='The model has no NLU instance set'
-                icon='warning'
-                content={(
-                    <div>
-                        {'Go to the '}
-                        <Icon name='setting' />
-                        {' Settings > General to assign an instance to this model to enable training and other NLU features. If you don\'t have instances you can '}
-                        <Link to={`/project/${projectId}/settings`}>
-                            {'create one '}
-                        </Link>
-                        in the <Icon name='server' />Instances menu.
-                    </div>
-                )}
-                warning
-            />
-        );
+        if (can('nlu-data:r', projectId)) {
+            return (
+                <Message
+                    header='The model has no NLU instance set'
+                    icon='warning'
+                    content={(
+                        <div>
+                            {'Go to the '}
+                            <Icon name='setting' />
+                            {' Settings > General to assign an instance to this model to enable training and other NLU features. If you don\'t have instances you can '}
+                            <Link to={`/project/${projectId}/settings`}>
+                                {'create one '}
+                            </Link>
+                            in the <Icon name='server' />Instances menu.
+                        </div>
+                    )}
+                    warning
+                />
+            );
+        }
     };
 
     render() {
@@ -327,7 +325,7 @@ class NLUModel extends React.Component {
                 {this.renderMenuItems(activeItem, model, status, endTime, instance)}
                 <Container>
                     <br />
-                    {instance ? (
+                    {instance && can('nlu-data:r', projectId) ? (
                         <div id='playground'>
                             <NLUPlayground
                                 testMode

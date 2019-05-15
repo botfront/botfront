@@ -96,14 +96,14 @@ Meteor.methods({
     'nlu.deleteEntityGazette'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
 
     'nlu.markTrainingStarted'(modelId) {
         check(modelId, String);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-model:x', getProjectIdFromModelId(modelId));
 
         try {
             return NLUModels.update({ _id: modelId }, { $set: { training: { status: 'training', startTime: new Date() } } });
@@ -116,7 +116,7 @@ Meteor.methods({
         check(modelId, String);
         check(status, String);
         check(error, Match.Optional(String));
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-model:x', getProjectIdFromModelId(modelId));
 
         try {
             const set = { training: { status, endTime: new Date() } };
