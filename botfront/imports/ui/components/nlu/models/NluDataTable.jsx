@@ -112,7 +112,7 @@ export default class NluDataTable extends React.Component {
                 sortable: true,
                 accessor: e => e,
                 Header: 'Example',
-                Cell: props => <NLUExampleText example={props.value} entities={this.props.entities} showLabels={this.state.showLabels || this.props.showLabels} onSave={this.onEditExample} editable />,
+                Cell: props => <NLUExampleText example={props.value} entities={this.props.entities} showLabels={this.state.showLabels || this.props.showLabels} onSave={this.onEditExample} editable projectId={projectId} />,
                 style: { overflow: 'visible' },
                 filterMethod: (filter, rows) => {
                     let matchCriteria = { keys: ['text'] };

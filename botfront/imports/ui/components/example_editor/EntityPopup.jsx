@@ -6,6 +6,7 @@ import React from 'react';
 
 import EntityDropdown from '../nlu/common/EntityDropdown';
 import { entityPropType } from '../utils/EntityUtils';
+import { can } from '../../../lib/scopes';
 
 class EntityPopup extends React.Component {
     constructor(props) {
@@ -132,8 +133,9 @@ class EntityPopup extends React.Component {
     };
 
     render() {
-        const { trigger, selection, length } = this.props;
+        const { trigger, selection, length, projectId } = this.props;
         const { open } = this.state;
+        const hasAddEntityPermission = can('nlu-data:w', projectId);
         return (
             <span
                 onMouseEnter={this.handleMouseEnter}
@@ -154,6 +156,7 @@ class EntityPopup extends React.Component {
                     )}
                     position='top center'
                     open={selection || open}
+                    disabled={!hasAddEntityPermission}
                 />
             </span>
         );
@@ -170,6 +173,7 @@ EntityPopup.propTypes = {
     selection: PropTypes.bool,
     onSelectionReset: PropTypes.func,
     length: PropTypes.number.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 EntityPopup.defaultProps = {
