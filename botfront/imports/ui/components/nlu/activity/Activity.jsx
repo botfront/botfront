@@ -24,6 +24,7 @@ import './style.less';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { getPureIntents } from '../../../../api/nlu_model/nlu_model.utils';
 import IntentViewer from '../models/IntentViewer';
+import { can } from '../../../../api/roles/roles';
 
 class Activity extends React.Component {
     constructor(props) {
@@ -43,7 +44,7 @@ class Activity extends React.Component {
     };
 
     getExtraColumns() {
-        const { deletableUtteranceIds, outDatedUtteranceIds } = this.props;
+        const { deletableUtteranceIds, outDatedUtteranceIds, projectId } = this.props;
         return [
             {
                 id: 'validate',
@@ -61,8 +62,8 @@ class Activity extends React.Component {
                         <div>
                             {this.renderDeleteTip(utterance, deletableUtteranceIds) }
                             {!!validated ? (
-                                <Button size={size} onClick={() => this.onValidateExamples([utterance])} color='green' icon='check' />
-                            ) : (
+                                can('nlu-data:w', projectId) && <Button size={size} onClick={() => this.onValidateExamples([utterance])} color='green' icon='check' data-cy='validate-button' />
+                            ) : (can('nlu-data:w', projectId) && (
                                 <Button
                                     basic
                                     size={size}
@@ -70,7 +71,8 @@ class Activity extends React.Component {
                                     onClick={() => this.onValidateExamples([utterance])}
                                     color={colour}
                                     content={text}
-                                />
+                                    data-cy='validate-button'
+                                />)
                             )}
                         </div>
                     );
@@ -83,7 +85,7 @@ class Activity extends React.Component {
     }
 
     getIntentColumns() {
-        const { model: { _id: modelId, training: { endTime } = {} }, outDatedUtteranceIds } = this.props;
+        const { model: { _id: modelId, training: { endTime } = {} }, outDatedUtteranceIds, projectId } = this.props;
         return [{
             id: 'confidence',
             Header: '%',
@@ -155,6 +157,7 @@ class Activity extends React.Component {
                         example={example}
                         intent={example.intent ? example.intent : ''}
                         onSave={onUpdateText}
+                        projectId={projectId}
                     />
                 );
             },
@@ -257,7 +260,7 @@ class Activity extends React.Component {
                     examples={filteredExamples}
                     entities={entities}
                     intents={intents}
-                    extraColumns={this.getExtraColumns()}
+                    extraColumns={can('nlu-data:w', projectId) && this.getExtraColumns()}
                     intentColumns={this.getIntentColumns()}
                     showLabels
                     hideHeader
