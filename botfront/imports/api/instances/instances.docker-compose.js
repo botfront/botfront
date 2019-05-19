@@ -3,7 +3,7 @@ export const getDefaultInstance = ({ _id }) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
     return [{
         name: 'NLU Default',
-        host: 'http://host.docker.internal:5000',
+        host: 'http://nlu:5000',
         projectId: _id,
         type: ['nlu'],
     }, {

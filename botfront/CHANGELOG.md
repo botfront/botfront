@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.14.5](https://github.com/botfront/botfront/compare/v0.14.4...v0.14.5) (2019-05-16)
+
+
+### Bug Fixes
+
+* docker compose ([753c157](https://github.com/botfront/botfront/commit/753c157))
+
+
+
+### [0.14.4](https://github.com/botfront/botfront/compare/v0.14.3...v0.14.4) (2019-05-16)
+
+
+### Bug Fixes
+
+* linux compatibility ([0e991f6](https://github.com/botfront/botfront/commit/0e991f6))
+* README.md ([834c0fa](https://github.com/botfront/botfront/commit/834c0fa))
+* subscription email ([6989e38](https://github.com/botfront/botfront/commit/6989e38))
+
+
+### Features
+
+* side chat now supports no language ([6f39945](https://github.com/botfront/botfront/commit/6f39945))
+
+
+### Tests
+
+* testing no language in chat ([6a71e06](https://github.com/botfront/botfront/commit/6a71e06))
+
+
+
 ### [0.14.3](https://github.com/botfront/botfront/compare/v0.14.2...v0.14.3) (2019-05-10)
 
 

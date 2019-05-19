@@ -4,6 +4,8 @@ FROM geoffreybooth/meteor-base:1.8.0.2
 # Copy app package.json and package-lock.json into container
 COPY ./botfront/package*.json $APP_SOURCE_FOLDER/
 
+ENV NODE_ENV production
+
 RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
 
 # Copy app source into container
@@ -30,6 +32,7 @@ RUN apk --no-cache --virtual .node-gyp-compilation-dependencies add \
 
 # Copy in entrypoint
 COPY --from=0 $SCRIPTS_FOLDER $SCRIPTS_FOLDER/
+COPY ./entrypoint.sh $SCRIPTS_FOLDER
 
 # Copy in app bundle
 COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
