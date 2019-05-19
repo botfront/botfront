@@ -24,6 +24,7 @@ module.exports = {
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
+                    '/guide/getting-started/setup',
                     '/guide/getting-started/quick-start',
                     '/guide/getting-started/rasa-stack',
                     // '/guide/getting-started/advanced',
