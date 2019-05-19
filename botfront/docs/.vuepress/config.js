@@ -50,16 +50,15 @@ module.exports = {
                     '/guide/nlu/activity',
                 ],
             },
-            // {
-            //     title: 'Developers Guide',   // required
-            //     // path: '/guide',
-            //     collapsable: false,
-            //     sidebarDepth: 5,
-            //     children: [
-            //         '/guide/nlu/instances-models',
-            //         '/guide/developers/README.md',
-            //     ]
-            // },
+            {
+                title: 'Deployment Guide',   // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/deployment/',
+                ]
+            },
         ],
         serviceWorker: {
             updatePopup: true, // Boolean | Object, default to undefined.
