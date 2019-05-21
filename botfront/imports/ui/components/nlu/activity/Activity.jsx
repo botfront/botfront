@@ -115,12 +115,15 @@ class Activity extends React.Component {
                                         The model was trained since this utterance was logged.
                                         <br />
                                         <br />
-                                        <Button
-                                            icon='sync'
-                                            color='green'
-                                            content={`Re-interpret ${Math.min(outDatedUtteranceIds.length, 20)} utterances like this`}
-                                            onClick={() => this.reInterpretUtterances(outDatedUtteranceIds.slice(0, 20))}
-                                        />
+                                        {
+                                            this.hasDataReadPermission() && (
+                                                <Button
+                                                    icon='sync'
+                                                    color='green'
+                                                    content={`Re-interpret ${Math.min(outDatedUtteranceIds.length, 20)} utterances like this`}
+                                                    onClick={() => this.reInterpretUtterances(outDatedUtteranceIds.slice(0, 20))}
+                                                />)
+                                        }
                                     </div>)
                                 }
                             />
@@ -163,6 +166,18 @@ class Activity extends React.Component {
             },
             filterAll: true,
         }];
+    }
+
+    hasDataWritePermission = () => {
+        const { projectId } = this.props;
+        const hasPermission = can('nlu-data:w', projectId);
+        return hasPermission;
+    }
+
+    hasDataReadPermission = () => {
+        const { projectId } = this.props;
+        const hasPermission = can('nlu-data:r', projectId);
+        return hasPermission;
     }
 
     reInterpretUtterances = (outDatedUtteranceIds) => {
@@ -275,17 +290,23 @@ class Activity extends React.Component {
         );
     }
 
-    render() {
-        const { model: { _id: modelId }, ready, instance } = this.props;
+    getActivityPanes = () => {
+        const { model: { _id: modelId }, instance } = this.props;
+        const panes = [];
+        panes.push({ menuItem: 'New Utterances', render: this.primaryRender });
+        if (this.hasDataWritePermission()) {
+            panes.push({ menuItem: 'Populate', render: () => <ActivityInsertions modelId={modelId} instance={instance} /> });
+        }
+        return panes;
+    }
 
+    render() {
+        const { ready } = this.props;
         return (
             <Loading loading={!ready}>
                 <Tab
                     menu={{ pointing: true, secondary: true }}
-                    panes={[
-                        { menuItem: 'New Utterances', render: this.primaryRender },
-                        { menuItem: 'Populate', render: () => <ActivityInsertions modelId={modelId} instance={instance} /> },
-                    ]}
+                    panes={this.getActivityPanes()}
                 />
             </Loading>
         );

@@ -347,7 +347,7 @@ class NLUModel extends React.Component {
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && can('nlu-data:r', projectId) && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} />}
                     {activeItem === 'settings' && can('nlu-model:r', projectId) && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
-                    {activeItem === 'activity' && can('nlu-data:r', projectId) && <Activity modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} projectId={projectId} />}
+                    {activeItem === 'activity' && can(['nlu-meta:r', 'nlu-data:r'], projectId) && <Activity modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} projectId={projectId} />}
                 </Container>
             </div>
         );

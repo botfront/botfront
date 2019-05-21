@@ -176,6 +176,7 @@ export class ExampleTextEditor extends React.Component {
             if (i < sortedEntities.length - 1) spans.push(<span>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
             if (i === sortedEntities.length - 1) spans.push(<span>{text.substr(e.end, e.value.length - e.end)}</span>);
         });
+        
         return (
             <div className='highlight'>
                 {spans}
@@ -193,6 +194,7 @@ export class ExampleTextEditor extends React.Component {
         const { example: { text = '', entities = [] } = {} } = this.state;
         const { highlightEntities, projectId } = this.props;
         const hasPermission = can('nlu-data:w', projectId);
+        
         return (
             <div ref={node => this.selectionAnchorNode = node}>
                 <TextArea

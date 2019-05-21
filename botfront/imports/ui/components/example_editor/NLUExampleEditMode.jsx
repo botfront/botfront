@@ -188,8 +188,12 @@ export default class NLUExampleEditMode extends React.Component {
                             onAddItem={this.handleChangeOrAddEntity}
                             onChange={this.handleChangeOrAddEntity}
                             options={this.state.entities.map(e => ({ text: e, value: e }))}
+                            disabled={!this.hasWritePermission()}
                         />
-                        <Button basic entity={e} icon='delete' onClick={this.deleteEntity} />
+                        {
+                            this.hasWritePermission() && <Button basic entity={e} icon='delete' onClick={this.deleteEntity} />
+                        }
+                        
                     </Button.Group>
                 </div>
             ));
@@ -250,7 +254,7 @@ export default class NLUExampleEditMode extends React.Component {
                 {this.props.onCancel && <Label attached='top right' content='&nbsp;close' as='a' icon='close' size='mini' onClick={this.onCancel} />}
                 {this.renderIntentLabel()}
                 <Form>
-                    <ExampleTextEditor style={styleTextArea} example={this.state.example} onChange={this.onTextChanged.bind(this)} projectId={projectId} />
+                    <ExampleTextEditor highlightEntities={this.hasWritePermission()} style={styleTextArea} example={this.state.example} onChange={this.onTextChanged.bind(this)} projectId={projectId} />
                     {this.props.testMode && <NLUExampleTester text={this.state.example.text} projectId={this.props.projectId} entities={this.props.entities} onDone={this.handleExampleTested} />}
                     <br />
                     <Label size='medium' basic pointing='below' color='purple' style={labelStyle}>

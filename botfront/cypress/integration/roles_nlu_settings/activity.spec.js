@@ -65,7 +65,7 @@ describe('Test for permissions', function() {
     it('A user can only change intent, validate and save only if the user has nlu-data:w permission', function() {
         emailHasPermission = 'nludataw@test.com';
         emailwithoutPermission = 'nludatar@test.com';
-        cy.createUser('nlu-data:w', emailHasPermission, ['nlu-data:r', 'nlu-data:w'], `${this.bf_project_id}`);
+        cy.createUser('nlu-data:w', emailHasPermission, 'nlu-data:w', `${this.bf_project_id}`);
         cy.createUser('nlu-data:r', emailwithoutPermission, 'nlu-data:r', `${this.bf_project_id}`);
         cy.logout();
         // For valid user
@@ -75,12 +75,15 @@ describe('Test for permissions', function() {
         cy.get('.cards>:first-child button.primary').click();
         cy.get('[data-cy=validate-button]').should('exist');
         cy.get('.nlu-delete-example').should('exist');
+        // TODO: Add test for change entity, currently cypress doen not allow to select text
         cy.get('[data-cy=intent-label]').trigger('mouseover');
         cy.get('[data-cy=intent-popup]').should('exist');
         cy.get('div.rt-td.rt-expandable').click();
         cy.get('[data-cy=example-text-editor-input]').eq(1).should('not.be.disabled');
         cy.get('[data-cy=intent-dropdown]').eq(0).should('not.have.class', 'disabled');
         cy.contains('Save').should('not.have.class', 'disabled');
+        cy.contains('New Utterances').should('exist');
+        cy.contains('Populate').should('exist');
         cy.logout();
         // For invalid user
         cy.loginTestUser(emailwithoutPermission);
@@ -95,5 +98,47 @@ describe('Test for permissions', function() {
         cy.get('[data-cy=example-text-editor-input]').eq(1).should('be.disabled');
         cy.get('[data-cy=intent-dropdown]').should('have.class', 'disabled');
         cy.contains('Save').should('not.exist');
+        cy.contains('New Utterances').should('exist');
+        cy.contains('Populate').should('not.exist');
+    });
+
+    it('A user can only re-interpret with nlu-data:r permission', function() {
+        emailHasPermission = 'nludataw@test.com';
+        emailwithoutPermission = 'nlumetar@test.com';
+        cy.createUser('nlu-data:r', emailHasPermission, 'nlu-data:r', `${this.bf_project_id}`);
+        cy.createUser('nlu-meta:r', emailwithoutPermission, 'nlu-meta:r', `${this.bf_project_id}`);
+        cy.logout();
+        // For valid user
+        cy.loginTestUser(emailHasPermission);
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('[data-cy=validate-button]').should('exist');
+        cy.get('.nlu-delete-example').should('exist');
+        // TODO: Add test for change entity, currently cypress does not allow to select text
+        cy.get('[data-cy=intent-label]').trigger('mouseover');
+        cy.get('[data-cy=intent-popup]').should('exist');
+        cy.get('div.rt-td.rt-expandable').click();
+        cy.get('[data-cy=example-text-editor-input]').eq(1).should('not.be.disabled');
+        cy.get('[data-cy=intent-dropdown]').eq(0).should('not.have.class', 'disabled');
+        cy.contains('Save').should('not.have.class', 'disabled');
+        cy.contains('New Utterances').should('exist');
+        cy.contains('Populate').should('exist');
+        cy.logout();
+        // For invalid user
+        cy.loginTestUser(emailwithoutPermission);
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('[data-cy=validate-button]').should('not.exist');
+        cy.get('.nlu-delete-example').should('not.exist');
+        cy.get('[data-cy=intent-label]').trigger('mouseover');
+        cy.get('[data-cy=intent-popup]').should('not.exist');
+        cy.get('div.rt-td.rt-expandable').click();
+        cy.get('[data-cy=example-text-editor-input]').should('be.disabled');
+        cy.get('[data-cy=intent-dropdown]').should('have.class', 'disabled');
+        cy.contains('Save').should('not.exist');
+        cy.contains('New Utterances').should('exist');
+        cy.contains('Populate').should('not.exist');
     });
 });
