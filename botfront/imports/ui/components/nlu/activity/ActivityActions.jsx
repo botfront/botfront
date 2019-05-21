@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Confirm, Dropdown, Button } from 'semantic-ui-react';
+import { can } from '../../../../api/roles/roles';
 
 const confirmations = {
     ADD_TO_TRAINING: 'The selected utterances will be added to the training data',
@@ -123,7 +124,7 @@ export default class ActivityActions extends React.Component {
         const {
             dataFilter, actionOptions, action, confirmOpen, confirmation, intent,
         } = this.state;
-        const { intents } = this.props;
+        const { intents, projectId } = this.props;
         const options = intents.map(i => ({ text: i, value: i }));
         const noBorder = { border: 0 };
         return (
@@ -135,19 +136,21 @@ export default class ActivityActions extends React.Component {
                     onCancel={() => { this.resetState(); }}
                     onConfirm={() => { this.executeAction(); }}
                 />
-                <Button.Group size='small' color='teal' basic style={noBorder}>
-                    <Dropdown
-                        button
-                        className='icon'
-                        icon='filter'
-                        floating
-                        labeled
-                        placeholder='Process in bulk'
-                        value={dataFilter}
-                        options={this.getFilterOptions()}
-                        onChange={this.handleDataChanged}
-                    />
-                </Button.Group>
+                { can('nlu-data:w', projectId) && (
+                    <Button.Group size='small' color='teal' basic style={noBorder}>
+                        <Dropdown
+                            button
+                            className='icon'
+                            icon='filter'
+                            floating
+                            labeled
+                            placeholder='Process in bulk'
+                            value={dataFilter}
+                            options={this.getFilterOptions()}
+                            onChange={this.handleDataChanged}
+                        />
+                    </Button.Group>)
+                }
                 &nbsp;
                 &nbsp;
                 {dataFilter && (
@@ -215,4 +218,5 @@ ActivityActions.propTypes = {
     onFilterChange: PropTypes.func.isRequired,
     onDone: PropTypes.func.isRequired,
     intents: PropTypes.array.isRequired,
+    projectId: PropTypes.string.isRequired,
 };

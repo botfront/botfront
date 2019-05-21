@@ -254,7 +254,6 @@ class Activity extends React.Component {
         const noExamples = (
             <Message success icon='check' header='Congratulations!' content='You are up to date' />
         );
-
         return utterances && utterances.length > 0 ? (
             <div>
                 <ActivityActions
@@ -268,6 +267,7 @@ class Activity extends React.Component {
                     numValidated={numValidated}
                     // eslint-disable-next-line no-shadow
                     onFilterChange={filterFn => this.setState({ filterFn })}
+                    projectId={projectId}
                 />
                 
                 <br />
