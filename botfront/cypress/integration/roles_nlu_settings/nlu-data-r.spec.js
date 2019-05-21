@@ -6,7 +6,9 @@ describe('nlu-data:r role permissions', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.login();
-        cy.createUser('nlu-data:r', email, ['nlu-data:r'], `${this.bf_project_id}`);
+        cy.get('@bf_project_id').then((id) => {
+            cy.createUser('nlu-data:r', email, ['nlu-data:r'], id);
+        });
         cy.fixture('bf_model_id.txt').then((modelId) => {
             cy.addTestActivity(modelId);
         });

@@ -6,7 +6,9 @@ describe('nlu-viewer role permissions', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.login();
-        cy.createUser('nlu-viewer', email, ['nlu-viewer'], `${this.bf_project_id}`);
+        cy.get('@bf_project_id').then((id) => {
+            cy.createUser('nlu-viewer', email, ['nlu-viewer'], id);
+        });
         cy.logout();
     });
 

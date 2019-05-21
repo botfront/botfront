@@ -6,7 +6,9 @@ describe('nlu-editor role permissions', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.login();
-        cy.createUser('nlu-editor', email, ['nlu-editor'], `${this.bf_project_id}`);
+        cy.get('@bf_project_id').then((id) => {
+            cy.createUser('nlu-editor', email, ['nlu-editor'], id);
+        });
         cy.logout();
     });
 
