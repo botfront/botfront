@@ -3,16 +3,6 @@
 describe('roles backend method tests', function() {
     before(function() {
         cy.login();
-        cy.fixture('bf_project_id.txt').as('bf_project_id').then((projectId) => {
-            cy.visit(`/project/${projectId}/nlu/models`);
-            cy.contains('English').click();
-            cy.get('.cards>:first-child button.primary').click();
-            cy.url().then((url) => {
-                // This gets the model id
-                const id = url.split('/')[7];
-                cy.writeFile('cypress/fixtures/bf_model_id.txt', id);
-            });
-        });
     });
 
     afterEach(function() {
