@@ -61,7 +61,16 @@ export default class LookupTable extends React.Component {
                 filterable: false,
                 width: 35,
                 className: 'center',
-                Cell: ({ value }) => <Icon link className='delete-entity-synonym' size='tiny' name='remove' color='grey' onClick={() => onItemDeleted(value)} />,
+                Cell: ({ value }) => (
+                    <Icon
+                        link
+                        className='delete-entity-synonym'
+                        size='tiny'
+                        name='remove'
+                        color='grey'
+                        onClick={() => onItemDeleted(value)}
+                    />
+                ),
             });
         }
 
@@ -74,7 +83,15 @@ export default class LookupTable extends React.Component {
         } = this.props;
         return (
             <Tab.Pane>
-                {can('nlu-data:w', projectId) && <AddLookupTableRow listAttribute={listAttribute} onAdd={onItemChanged} valuePlaceholder={valuePlaceholder} listPlaceholder={listPlaceholder} /> }
+                {can('nlu-data:w', projectId)
+                && (
+                    <AddLookupTableRow
+                        listAttribute={listAttribute}
+                        onAdd={onItemChanged}
+                        valuePlaceholder={valuePlaceholder}
+                        listPlaceholder={listPlaceholder}
+                    />)
+                }
                 {can('nlu-data:w', projectId) && <Divider />}
                 <ReactTable filterable data={data} columns={this.getColumns()} />
             </Tab.Pane>
