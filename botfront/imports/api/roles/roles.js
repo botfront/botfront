@@ -25,11 +25,14 @@ if (Meteor.isServer) {
         Roles.createRole('nlu-model:w', ue);
         Roles.addRolesToParent('nlu-model:r', 'nlu-model:w');
     
-        Roles.createRole('nlu-model:x', ue);
-    
+        
         Roles.createRole('nlu-viewer', ue);
         Roles.addRolesToParent(['nlu-data:r', 'nlu-model:r', 'nlu-meta:r', 'nlu-config:r'], 'nlu-viewer');
+        
+        Roles.createRole('nlu-model:x', ue);
     
+        Roles.addRolesToParent('nlu-viewer', 'nlu-model:x');
+
         Roles.createRole('nlu-editor', ue);
         Roles.addRolesToParent(['nlu-data:w', 'nlu-model:x', 'nlu-config:w', 'nlu-meta:r'], 'nlu-editor');
     
