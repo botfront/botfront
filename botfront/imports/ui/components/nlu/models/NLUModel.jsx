@@ -141,28 +141,41 @@ class NLUModel extends React.Component {
         const {
             examples, entities, intents, instance,
         } = this.state;
-        const tabs = [
-            {
-                menuItem: 'Examples',
-                render: () => (
-                    <NluDataTable
-                        onEditExample={this.onEditExample}
-                        onDeleteExample={this.onDeleteExample}
-                        onRenameIntent={this.onRenameIntent}
-                        examples={examples}
-                        entities={entities}
-                        intents={intents}
-                        projectId={projectId}
-                    />
-                ),
-            },
-            { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} /> },
-            { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
-            { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
-            { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
-        ];
-        if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
-        if (instance) tabs.push({ menuItem: 'API', render: () => <API model={model} instance={instance} /> });
+
+        const tabs = [];
+
+        if (can('nlu-data:r', projectId)) {
+            tabs.push(
+                {
+                    menuItem: 'Examples',
+                    render: () => (
+                        <NluDataTable
+                            onEditExample={this.onEditExample}
+                            onDeleteExample={this.onDeleteExample}
+                            onRenameIntent={this.onRenameIntent}
+                            examples={examples}
+                            entities={entities}
+                            intents={intents}
+                            projectId={projectId}
+                        />
+                    ),
+                },
+            );
+            if (can('nlu-data:w', projectId)) {
+                tabs.push(
+                    { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
+                );
+            }
+            tabs.push(
+                { menuItem: 'Synonyms', render: () => <Synonyms model={model} projectId={projectId} /> },
+                { menuItem: 'Gazette', render: () => <Gazette model={model} projectId={projectId} /> },
+                { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
+            );
+            if (can('nlu-data:w', projectId)) {
+                if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
+            }
+            if (instance) tabs.push({ menuItem: 'API', render: () => <API model={model} instance={instance} /> });
+        }
         return tabs;
     };
 

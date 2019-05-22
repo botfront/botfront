@@ -29,7 +29,7 @@ if (Meteor.isServer) {
         check(modelId, String);
 
         try {
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:r', getProjectIdFromModelId(modelId));
             return Evaluations.find({ modelId });
         } catch (e) {
             return [];

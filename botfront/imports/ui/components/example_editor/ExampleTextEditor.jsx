@@ -193,7 +193,7 @@ export class ExampleTextEditor extends React.Component {
     render() {
         const { example: { text = '', entities = [] } = {} } = this.state;
         const { highlightEntities, projectId } = this.props;
-        const hasPermission = can('nlu-data:w', projectId);
+        const hasPermission = can('nlu-data:r', projectId);
         
         return (
             <div ref={node => this.selectionAnchorNode = node}>

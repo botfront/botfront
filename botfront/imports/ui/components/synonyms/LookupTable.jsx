@@ -8,11 +8,12 @@ import matchSorter from 'match-sorter';
 import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
 import LookupTableEditorViewer from './LookupTableListEditorViewer';
+import { can } from '../../../lib/scopes';
 
 export default class LookupTable extends React.Component {
     getColumns() {
         const {
-            listAttribute, header, onItemChanged, extraColumns, onItemDeleted,
+            listAttribute, header, onItemChanged, extraColumns, onItemDeleted, projectId,
         } = this.props;
         let columns = [
             {
@@ -22,7 +23,7 @@ export default class LookupTable extends React.Component {
                 className: 'lookup-value',
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['value.value'] }),
                 sortMethod: (rowA, rowB) => rowA.value.localeCompare(rowB.value),
-                Cell: props => <LookupTableValueEditorViewer listAttribute={listAttribute} entitySynonym={props.value} onEdit={onItemChanged} />,
+                Cell: props => <LookupTableValueEditorViewer listAttribute={listAttribute} entitySynonym={props.value} onEdit={onItemChanged} projectId={projectId} />,
                 width: 200,
                 filterAll: true,
             },
@@ -38,7 +39,7 @@ export default class LookupTable extends React.Component {
                     value[listAttribute] = sortBy(value[listAttribute]);
                     return (
                         <div>
-                            <LookupTableEditorViewer listAttribute={listAttribute} entitySynonym={value} onEdit={onItemChanged} />
+                            <LookupTableEditorViewer listAttribute={listAttribute} entitySynonym={value} onEdit={onItemChanged} projectId={projectId} />
                         </div>
                     );
                 },
@@ -53,40 +54,28 @@ export default class LookupTable extends React.Component {
 
         if (extraColumns) columns = columns.concat(extraColumns);
 
-        columns.push({
-            id: 'delete',
-            accessor: s => s,
-            filterable: false,
-            width: 35,
-            className: 'center',
-            Cell: ({ value }) => (
-                <Icon
-                    link
-                    className='delete-entity-synonym'
-                    size='tiny'
-                    name='remove'
-                    color='grey'
-                    onClick={() => onItemDeleted(value)}
-                />
-            ),
-        });
+        if (can('nlu-data:w', projectId)) {
+            columns.push({
+                id: 'delete',
+                accessor: s => s,
+                filterable: false,
+                width: 35,
+                className: 'center',
+                Cell: ({ value }) => <Icon link className='delete-entity-synonym' size='tiny' name='remove' color='grey' onClick={() => onItemDeleted(value)} />,
+            });
+        }
 
         return columns;
     }
 
     render() {
         const {
-            listAttribute, data, onItemChanged, valuePlaceholder, listPlaceholder,
+            listAttribute, data, onItemChanged, valuePlaceholder, listPlaceholder, projectId,
         } = this.props;
         return (
             <Tab.Pane>
-                <AddLookupTableRow
-                    listAttribute={listAttribute}
-                    onAdd={onItemChanged}
-                    valuePlaceholder={valuePlaceholder}
-                    listPlaceholder={listPlaceholder}
-                />
-                <Divider />
+                {can('nlu-data:w', projectId) && <AddLookupTableRow listAttribute={listAttribute} onAdd={onItemChanged} valuePlaceholder={valuePlaceholder} listPlaceholder={listPlaceholder} /> }
+                {can('nlu-data:w', projectId) && <Divider />}
                 <ReactTable filterable data={data} columns={this.getColumns()} />
             </Tab.Pane>
         );
@@ -102,6 +91,7 @@ LookupTable.propTypes = {
     onItemDeleted: PropTypes.func.isRequired,
     valuePlaceholder: PropTypes.string.isRequired,
     listPlaceholder: PropTypes.string.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 LookupTable.defaultProps = {

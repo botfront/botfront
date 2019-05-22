@@ -4,6 +4,7 @@ import { Segment } from 'semantic-ui-react';
 import { debounce } from 'lodash';
 import NLUExampleText from './NLUExampleText';
 import { wrapMeteorCallback } from '../utils/Errors';
+import { can } from '../../../lib/scopes';
 
 export default class NLUExampleTester extends React.Component {
     constructor(props) {
@@ -47,7 +48,7 @@ export default class NLUExampleTester extends React.Component {
         Meteor.call('nlu.parse', projectId, modelId, instance, [{ q: text, nolog: 'true' }], true, wrapMeteorCallback((err, example) => {
             if (err) return this.setState({ example: { text: err.error }, clickable: false });
             Object.assign(example, { intent: example.intent ? example.intent.name : null });
-            return this.setState({ example, clickable: true });
+            return this.setState({ example, clickable: can('nlu-data:w', projectId) });
         }));
     };
 

@@ -58,6 +58,7 @@ export default class NLUPlayground extends React.Component {
                                 style={styleTextArea}
                                 example={example}
                                 onChange={this.onTextChanged}
+                                projectId={projectId}
                             />
                         </Form>
                         {testMode && (

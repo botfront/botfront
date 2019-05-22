@@ -122,6 +122,7 @@ class Activity extends React.Component {
                                                     color='green'
                                                     content={`Re-interpret ${Math.min(outDatedUtteranceIds.length, 20)} utterances like this`}
                                                     onClick={() => this.reInterpretUtterances(outDatedUtteranceIds.slice(0, 20))}
+                                                    data-cy='re-interpret-button'
                                                 />)
                                         }
                                     </div>)
