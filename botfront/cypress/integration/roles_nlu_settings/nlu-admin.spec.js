@@ -42,13 +42,13 @@ describe('nlu-admin role permissions', function() {
 
     it('should show NEW MODEL button', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.get('.right>:first-child button.primary');
+        cy.get('[data-cy=new-model]').should('exist');
     });
 
     it('should show DUPLICATE button', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains('English').click();
-        cy.get('.cards>:first-child button.secondary').should('not.have.class', 'disabled');
+        cy.get('.cards>:first-child button.secondary').should('exist');
     });
 
     it('should NOT disable online button', function() {

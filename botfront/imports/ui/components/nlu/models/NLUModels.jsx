@@ -88,7 +88,6 @@ class NLUModels extends React.Component {
     renderMenu = () => {
         const { loading, editing } = this.state;
         const { ready, projectId } = this.props;
-        const disable = can('nlu-model:w', projectId);
         return (
             <Menu pointing secondary style={{ background: '#fff' }}>
                 <Menu.Item>
@@ -97,19 +96,22 @@ class NLUModels extends React.Component {
                         {' NLU Models'}
                     </Menu.Header>
                 </Menu.Item>
-                <Menu.Menu position='right'>
-                    <Menu.Item>
-                        <Button
-                            className='new-model'
-                            onClick={() => this.setState({ editing: NEW_MODEL })}
-                            primary
-                            disabled={!ready || loading || editing !== NONE || !disable}
-                            icon='add'
-                            content='New model'
-                            labelPosition='left'
-                        />
-                    </Menu.Item>
-                </Menu.Menu>
+                { can('nlu-model:w', projectId) && (
+                    <Menu.Menu position='right'>
+                        <Menu.Item>
+                            <Button
+                                className='new-model'
+                                onClick={() => this.setState({ editing: NEW_MODEL })}
+                                primary
+                                disabled={!ready || loading || editing !== NONE}
+                                icon='add'
+                                content='New model'
+                                labelPosition='left'
+                                data-cy='new-model'
+                            />
+                        </Menu.Item>
+                    </Menu.Menu>
+                )}
             </Menu>
         );
     };
@@ -128,7 +130,6 @@ class NLUModels extends React.Component {
         const { projectId } = this.props;
         const { loading, confirmOpen, modelToPublish } = this.state;
         const langs = uniq(models.map(m => m.language));
-        const disable = can('nlu-model:w', projectId);
         const disableOnlineOffline = can('nlu-admin', projectId);
         return models.map((model) => {
             const {
@@ -188,18 +189,20 @@ class NLUModels extends React.Component {
                                 )}
                                 content='Open model'
                             />
-                            <Popup
-                                trigger={(
-                                    <Button
-                                        className='duplicate-model-button'
-                                        disabled={loading || !disable}
-                                        secondary
-                                        icon='copy'
-                                        onClick={() => this.onDuplicateModel(model)}
-                                    />
-                                )}
-                                content='Create a copy'
-                            />
+                            {can('nlu-model:w', projectId) && (
+                                <Popup
+                                    trigger={(
+                                        <Button
+                                            className='duplicate-model-button'
+                                            disabled={loading}
+                                            secondary
+                                            icon='copy'
+                                            onClick={() => this.onDuplicateModel(model)}
+                                        />
+                                    )}
+                                    content='Create a copy'
+                                />)
+                            }
                         </Button.Group>
                     </Card.Content>
                 </Card>
