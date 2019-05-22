@@ -26,7 +26,7 @@ describe('nlu-data:r role permissions', function() {
         cy.deleteUser(email);
     });
 
-    it('should be able to access nlu model menu tabs, activity, training-data and evaluation', function() {
+    it('should be able to access nlu model menu tabs -> activity, training-data and evaluation', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains('English').click();
         cy.get('.cards>:first-child button.primary').click();
@@ -47,7 +47,7 @@ describe('nlu-data:r role permissions', function() {
         cy.get('.ReactTable').should('exist');
     });
 
-    it('should not be able to change intent, validate or save', function () {
+    it('should not be able to change intent, validate or expand entries', function () {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains('English').click();
         cy.get('.cards>:first-child button.primary').click();
@@ -82,25 +82,23 @@ describe('nlu-data:r role permissions', function() {
         cy.contains('English').click();
         cy.get('.cards>:first-child button.primary').click();
         cy.get('.nlu-menu-training-data').click();
-        cy.get('#intent-bulk-insert').should('not.exist');
+        cy.contains('Insert many').should('not.exist');
         cy.contains('Chit Chat').should('not.exist');
     });
 
-    it('should not be able to expand rows in the Examples, delete button not present and should not be able to add synonyms and Gazatte', function() {
+    it('should not be able to expand rows in the Examples, delete button, add synonyms and add Gazette should not be present', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains('English').click();
         cy.get('.cards>:first-child button.primary').click();
         cy.get('.nlu-menu-training-data').click();
-        cy.get('#intent-bulk-insert').should('not.exist');
-        cy.contains('Chit Chat').should('not.exist');
         cy.get('div.rt-td.rt-expandable').should('not.exist');
         cy.get('.nlu-delete-example').should('not.exist');
         cy.contains('Synonyms').click();
         cy.get('[data-cy=add-entity]').should('not.exist');
-        cy.get('[data-cy=add-synonym]').should('not.exist');
+        cy.get('[data-cy=add-value]').should('not.exist');
         cy.contains('Gazette').click();
         cy.get('[data-cy=add-entity]').should('not.exist');
-        cy.get('[data-cy=add-synonym]').should('not.exist');
+        cy.get('[data-cy=add-value]').should('not.exist');
     });
 
     // For Evaluation

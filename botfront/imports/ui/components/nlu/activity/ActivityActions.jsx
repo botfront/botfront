@@ -148,6 +148,7 @@ export default class ActivityActions extends React.Component {
                             value={dataFilter}
                             options={this.getFilterOptions()}
                             onChange={this.handleDataChanged}
+                            data-cy='process-in-bulk'
                         />
                     </Button.Group>)
                 }
