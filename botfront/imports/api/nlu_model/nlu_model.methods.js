@@ -170,7 +170,7 @@ if (Meteor.isServer) {
             const newItem = {};
             newItem.config = item && item.config;
 
-            NLUModels.update({ _id: modelId }, { $set: newItem });
+            if (newItem.config) NLUModels.update({ _id: modelId }, { $set: newItem });
             return modelId;
         },
 
