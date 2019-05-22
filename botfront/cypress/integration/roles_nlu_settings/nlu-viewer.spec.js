@@ -5,6 +5,7 @@ const email = 'nluviewer@test.ia';
 describe('nlu-viewer role permissions', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
+        cy.fixture('bf_model_id.txt').as('bf_model_id');
         cy.login();
         cy.get('@bf_project_id').then((id) => {
             cy.createUser('nlu-viewer', email, ['nlu-viewer'], id);
@@ -38,5 +39,15 @@ describe('nlu-viewer role permissions', function() {
             cy.get('#config').parent().should('have.class', 'disabled');
             cy.get('[data-cy=save-button]').should('be.disabled');
         });
+    });
+
+    it('should not be able to call nlu.update', function() {
+        cy.MeteorCall('nlu.update', [
+            this.bf_model_id,
+            {
+                name: 'New Test Model',
+                language: 'en',
+            },
+        ]).then(err => expect(err.error).to.equal('401'));
     });
 });

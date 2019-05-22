@@ -167,7 +167,10 @@ if (Meteor.isServer) {
             check(modelId, String);
             checkIfCan('nlu-config:w', getProjectIdFromModelId(modelId));
 
-            NLUModels.update({ _id: modelId }, { $set: item });
+            const newItem = {};
+            newItem.config = item && item.config;
+
+            NLUModels.update({ _id: modelId }, { $set: newItem });
             return modelId;
         },
 

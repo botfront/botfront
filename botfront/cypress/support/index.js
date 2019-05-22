@@ -58,14 +58,25 @@ Cypress.Commands.add('logout', () => {
 Cypress.Commands.add('MeteorCallAdmin', (method, args) => {
     cy.login();
     cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
             Meteor.call(method, ...args, (err, res) => {
-                if (err) reject(err);
+                if (err) resolve(err);
                 resolve(res);
             });
         }),
     );
     cy.logout();
+});
+
+Cypress.Commands.add('MeteorCall', (method, args) => {
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
+            Meteor.call(method, ...args, (err, res) => {
+                if (err) resolve(err);
+                resolve(res);
+            });
+        }),
+    );
 });
 
 Cypress.Commands.add('createNLUModel', (projectId, name, language, description, instance = false) => {
