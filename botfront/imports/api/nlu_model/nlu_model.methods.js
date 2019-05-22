@@ -18,7 +18,7 @@ Meteor.methods({
     'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
         check(items, Array);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         if (items.length === 0) {
             return 0;
@@ -40,7 +40,7 @@ Meteor.methods({
     'nlu.updateExample'(modelId, item) {
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         const cleanItem = ExampleUtils.stripBare(item);
         try {
@@ -53,7 +53,7 @@ Meteor.methods({
     'nlu.deleteExample'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: itemId } } });
     },
@@ -61,7 +61,7 @@ Meteor.methods({
     'nlu.upsertEntitySynonym'(modelId, item) {
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         if (item._id) {
             return NLUModels.update({ _id: modelId, 'training_data.entity_synonyms._id': item._id }, { $set: { 'training_data.entity_synonyms.$': item } });
@@ -73,7 +73,7 @@ Meteor.methods({
     'nlu.deleteEntitySynonym'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.entity_synonyms': { _id: itemId } } });
     },
@@ -81,7 +81,7 @@ Meteor.methods({
     'nlu.upsertEntityGazette'(modelId, item) {
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         if (item._id) {
             return NLUModels.update({ _id: modelId, 'training_data.fuzzy_gazette._id': item._id }, { $set: { 'training_data.fuzzy_gazette.$': item } });
@@ -205,7 +205,7 @@ if (Meteor.isServer) {
             check(modelId, String);
             check(language, String);
             check(intents, [String]);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
             const chitChatProjectId = getChitChatProjectid();
             if (!chitChatProjectId) {
@@ -231,7 +231,7 @@ if (Meteor.isServer) {
             check(nluData, Object);
             check(modelId, String);
             check(overwrite, Boolean);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
             try {
                 const command = overwrite ? '$set' : '$push';
@@ -282,7 +282,7 @@ if (Meteor.isServer) {
             check(oldIntent, String);
             check(newIntent, String);
             check(renameBotResponses, Boolean);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
             try {
                 const rawCollection = NLUModels.rawCollection();
