@@ -59,7 +59,7 @@ if (Meteor.isServer) {
     Meteor.publish('activity', function(modelId) { // eslint-disable-line
         check(modelId, String);
         try {
-            checkIfCan(['nlu-data:r', 'nlu-meta:r'], getProjectIdFromModelId(modelId));
+            checkIfCan(['nlu-data:r'], getProjectIdFromModelId(modelId));
             
             return ActivityCollection.find({ modelId });
         } catch (e) {

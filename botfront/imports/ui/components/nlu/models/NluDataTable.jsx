@@ -91,6 +91,7 @@ export default class NluDataTable extends React.Component {
                         onSave={this.onEditExample}
                         example={props.original}
                         enableRenaming={can('nlu-data:w', projectId)}
+                        projectId={projectId}
                     />
                 ),
                 filterAll: true,
@@ -106,7 +107,13 @@ export default class NluDataTable extends React.Component {
             {
                 id: 'example',
                 Filter: ({ filter, onChange }) => (
-                    <DebounceInput minLength={1} debounceTimeout={300} style={{ width: '100%' }} value={filter ? filter.value : ''} onChange={event => onChange(event.target.value)} />
+                    <DebounceInput
+                        minLength={1}
+                        debounceTimeout={300}
+                        style={{ width: '100%' }}
+                        value={filter ? filter.value : ''}
+                        onChange={event => onChange(event.target.value)}
+                    />
                 ),
                 sortMethod: (a, b) => a.text.localeCompare(b.text),
                 sortable: true,

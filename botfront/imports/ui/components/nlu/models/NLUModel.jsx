@@ -272,26 +272,24 @@ class NLUModel extends React.Component {
 
     renderWarningMessage = () => {
         const { projectId } = this.props;
-        if (can('nlu-data:r', projectId)) {
-            return (
-                <Message
-                    header='The model has no NLU instance set'
-                    icon='warning'
-                    content={(
-                        <div>
-                            {'Go to the '}
-                            <Icon name='setting' />
-                            {' Settings > General to assign an instance to this model to enable training and other NLU features. If you don\'t have instances you can '}
-                            <Link to={`/project/${projectId}/settings`}>
-                                {'create one '}
-                            </Link>
-                            in the <Icon name='server' />Instances menu.
-                        </div>
-                    )}
-                    warning
-                />
-            );
-        }
+        return (
+            <Message
+                header='The model has no NLU instance set'
+                icon='warning'
+                content={(
+                    <div>
+                        {'Go to the '}
+                        <Icon name='setting' />
+                        {' Settings > General to assign an instance to this model to enable training and other NLU features. If you don\'t have instances you can '}
+                        <Link to={`/project/${projectId}/settings`}>
+                            {'create one '}
+                        </Link>
+                        in the <Icon name='server' />Instances menu.
+                    </div>
+                )}
+                warning
+            />
+        );
     };
 
     render() {
@@ -338,7 +336,7 @@ class NLUModel extends React.Component {
                 {this.renderMenuItems(activeItem, model, status, endTime, instance)}
                 <Container>
                     <br />
-                    {instance && can('nlu-data:r', projectId) ? (
+                    {can('nlu-data:r', projectId) && (instance ? (
                         <div id='playground'>
                             <NLUPlayground
                                 testMode
@@ -354,7 +352,7 @@ class NLUModel extends React.Component {
                         </div>
                     ) : (
                         this.renderWarningMessage()
-                    )}
+                    ))}
                     <br />
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}

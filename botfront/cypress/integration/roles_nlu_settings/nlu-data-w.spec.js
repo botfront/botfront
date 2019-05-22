@@ -20,9 +20,9 @@ describe('nlu-data:w role permissions', function() {
     });
 
     after(function() {
-        // cy.fixture('bf_model_id.txt').then((modelId) => {
-        //     cy.removeTestActivity(modelId);
-        // });
+        cy.fixture('bf_model_id.txt').then((modelId) => {
+            cy.removeTestActivity(modelId);
+        });
         cy.deleteUser(email);
     });
 
