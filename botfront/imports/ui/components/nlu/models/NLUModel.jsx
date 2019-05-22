@@ -259,7 +259,7 @@ class NLUModel extends React.Component {
                         </Menu.Item>
                         { can('nlu-model:x', projectId) && (
                             <Menu.Item>
-                                <NLUTrainButton model={model} instance={instance} data-cy='train-button' />
+                                <NLUTrainButton model={model} instance={instance} />
                             </Menu.Item>
                         )}
                     </Menu.Menu>

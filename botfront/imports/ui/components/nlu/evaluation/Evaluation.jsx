@@ -176,7 +176,7 @@ class Evaluation extends React.Component {
                         {exampleSet === 'test' && <TestImport isLoaded={!!data} model={model} loadData={this.loadData} />}
                         {!dataLoading && !errorMessage && can('nlu-model:x', projectId) && (
                             <div>
-                                <Button type='submit' basic fluid color='green' loading={evaluating} onClick={this.evaluate}>
+                                <Button type='submit' basic fluid color='green' loading={evaluating} onClick={this.evaluate} data-cy='start-evaluation'>
                                     <Icon name='percent' />
                                     {'Start evaluation'}
                                 </Button>

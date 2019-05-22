@@ -35,6 +35,7 @@ class NLUTrainButton extends React.Component {
                     loading={isTraining(model)}
                     onClick={this.train}
                     compact
+                    data-cy='train-button'
                 />
             </Can>
         );

@@ -66,7 +66,7 @@ export default class LookupTableListEditor extends React.Component {
         const { entitySynonym } = this.state;
         const { autoFocus, placeholder, listAttribute } = this.props;
         return (
-            <Form>
+            <Form data-cy='add-synonym'>
                 <TextArea
                     className='entity-synonym-values'
                     rows={1}

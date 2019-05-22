@@ -26,7 +26,19 @@ describe('nlu-data:r role permissions', function() {
         cy.deleteUser(email);
     });
 
-    it('should render activities', function() {
+    it('should be able to access nlu model menu tabs, activity, training-data and evaluation', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('.nlu-menu-activity').should('exist');
+        cy.get('.nlu-menu-training-data').should('exist');
+        cy.get('.nlu-menu-evaluation').should('exist');
+        cy.get('.nlu-menu-settings').should('not.exist');
+        cy.get('[data-cy=train-button]').should('not.exist');
+    });
+
+    // For the Activity tab
+    it('should render activities and playground', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains('English').click();
         cy.get('.cards>:first-child button.primary').click();
@@ -43,27 +55,61 @@ describe('nlu-data:r role permissions', function() {
         cy.get('.nlu-delete-example').should('not.exist');
         cy.get('[data-cy=intent-label]').trigger('mouseover');
         cy.get('[data-cy=intent-popup]').should('not.exist');
-        cy.get('div.rt-td.rt-expandable').click();
-        cy.get('[data-cy=example-text-editor-input]').eq(1).should('be.disabled');
-        cy.get('[data-cy=intent-dropdown]').should('have.class', 'disabled');
-        cy.contains('Save').should('not.exist');
+        cy.get('div.rt-td.rt-expandable').should('not.exist');
         cy.contains('New Utterances').should('exist');
         cy.contains('Populate').should('not.exist');
     });
 
-    it('should be able to access nlu model menu tabs', function() {
+    it('should be able to reinterpet intents', function() {
+        cy.logout();
+        cy.login();
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains('English').click();
         cy.get('.cards>:first-child button.primary').click();
-        cy.get('.nlu-menu-activity').should('exist');
-        cy.get('.nlu-menu-training-data').should('exist');
-        cy.get('.nlu-menu-evaluation').should('exist');
-        cy.get('.nlu-menu-settings').should('not.exist');
-        cy.get('[data-cy=train-button]').should('not.exist');
-        cy.get('#playground').should('exist');
+        cy.get('[data-cy=train-button]').click();
+        cy.logout();
+        cy.loginTestUser(email);
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('.rt-td.right').first().click();
+        cy.get('[data-cy=re-interpret-button]').should('exist');
     });
 
-    it('should be able to reinterpet intents', function() {
-        
+    // For the training tab
+    it('should render training and playground, Chit Chat and Insert many should not be present', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('.nlu-menu-training-data').click();
+        cy.get('#intent-bulk-insert').should('not.exist');
+        cy.contains('Chit Chat').should('not.exist');
+    });
+
+    it('should not be able to expand rows in the Examples, delete button not present and should not be able to add synonyms and Gazatte', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('.nlu-menu-training-data').click();
+        cy.get('#intent-bulk-insert').should('not.exist');
+        cy.contains('Chit Chat').should('not.exist');
+        cy.get('div.rt-td.rt-expandable').should('not.exist');
+        cy.get('.nlu-delete-example').should('not.exist');
+        cy.contains('Synonyms').click();
+        cy.get('[data-cy=add-entity]').should('not.exist');
+        cy.get('[data-cy=add-synonym]').should('not.exist');
+        cy.contains('Gazette').click();
+        cy.get('[data-cy=add-entity]').should('not.exist');
+        cy.get('[data-cy=add-synonym]').should('not.exist');
+    });
+
+    // For Evaluation
+    it('buttons for evaluation should not be rendered', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('.nlu-menu-evaluation').click();
+        cy.get('[data-cy=select-training-button]').should('not.exist');
+        cy.get('[data-cy=start-evaluation]').should('not.exist');
     });
 });
