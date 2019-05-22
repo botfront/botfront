@@ -55,6 +55,30 @@ Cypress.Commands.add('logout', () => {
     );
 });
 
+Cypress.Commands.add('MeteorCallAdmin', (method, args) => {
+    cy.login();
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
+            Meteor.call(method, ...args, (err, res) => {
+                if (err) resolve(err);
+                resolve(res);
+            });
+        }),
+    );
+    cy.logout();
+});
+
+Cypress.Commands.add('MeteorCall', (method, args) => {
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
+            Meteor.call(method, ...args, (err, res) => {
+                if (err) resolve(err);
+                resolve(res);
+            });
+        }),
+    );
+});
+
 Cypress.Commands.add('createNLUModel', (projectId, name, language, description, instance = false) => {
     cy.visit(`/project/${projectId}/nlu/models`);
     cy.get('.new-model').click();
@@ -208,6 +232,7 @@ Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
 });
 
 Cypress.Commands.add('deleteUser', (email) => {
+    cy.login();
     cy.visit('/');
     cy.window().then(
         ({ Meteor }) => new Cypress.Promise((resolve) => {
@@ -303,4 +328,38 @@ Cypress.Commands.add('loginAdmin', (email = 'admin@test.com', password = 'Aaaaaa
                 Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
             }),
         );
+});
+
+Cypress.Commands.add('addTestActivity', (modelId) => {
+    const commandToAddActivity = `mongo meteor --host localhost:3001 --eval "db.activity.insert({ 
+        _id:'TestActivity',
+        text: 'bonjour , avez vous un f1 à lyon autour de l apardieu ?',
+        intent: 'faq.find_hotel',
+        entities:[
+    
+        ],
+        confidence:{
+        '$numberDouble' :'0.7438368201255798'
+        },
+        modelId: '${modelId}',
+        createdAt:{
+        '$date' :{
+            numberLong: '1557323537346'
+        }
+        },
+        updatedAt:{
+        '$date':{
+            '$numberLong': '1557323537346'
+        }
+        },
+        __v:{
+        '$numberInt': '0'
+        }
+    });"`;
+    cy.exec(commandToAddActivity);
+    // cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.update({ _id: '${modelId}'}, { $set: { "training.endTime": "123" } });"`); TODO fix this statement
+});
+
+Cypress.Commands.add('removeTestActivity', (modelId) => {
+    cy.MeteorCallAdmin('activity.deleteExamples', [modelId, ['TestActivity']]);
 });

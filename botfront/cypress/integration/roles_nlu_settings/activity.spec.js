@@ -7,33 +7,7 @@ describe('Test for permissions', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.fixture('bf_model_id.txt').then((modelId) => {
-            const commandToAddActivity = `mongo meteor --host localhost:3001 --eval "db.activity.insert({ 
-                _id:'TestActivity',
-                text: 'bonjour , avez vous un f1 à lyon autour de l apardieu ?',
-                intent: 'faq.find_hotel',
-                entities:[
-            
-                ],
-                confidence:{
-                '$numberDouble' :'0.7438368201255798'
-                },
-                modelId: '${modelId}',
-                createdAt:{
-                '$date' :{
-                    numberLong: '1557323537346'
-                }
-                },
-                updatedAt:{
-                '$date':{
-                    '$numberLong': '1557323537346'
-                }
-                },
-                __v:{
-                '$numberInt': '0'
-                }
-            });"`;
-            cy.exec(commandToAddActivity);
-            // cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.update({ _id: '${modelId}'}, { $set: { "training.endTime": "123" } });"`); TODO fix this statement
+            cy.addTestActivity(modelId);
         });
     });
 
