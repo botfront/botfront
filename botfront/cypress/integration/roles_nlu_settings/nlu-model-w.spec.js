@@ -38,7 +38,7 @@ describe('nlu-model:w role permissions', function() {
     });
 
     it('should be able to delete a model through Meteor.call', function() {
-        // First a mdoel needs to be created which would then be deleted by nlu-model:w
+        // First a model needs to be created which would then be deleted by nlu-model:w
         cy.MeteorCall('nlu.insert', [
             {
                 evaluations: [],
@@ -62,11 +62,17 @@ describe('nlu-model:w role permissions', function() {
     it('should be able to delete a model though UI', function () {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        // Create a duplicate model
+        cy.get('.cards>:first-child button.secondary').click();
+        cy.reload();
+        cy.get('#model-Copy\\ of\\ My\\ First\\ Model > .extra > .basic > .primary').click();
         cy.get('.nlu-menu-settings').click();
         cy.contains('Delete').click();
         cy.get('[data-cy=download-backup]').click();
-        cy.get('[data-cy=delete-model]').should('not.have.class', 'disabled');
-        cy.get('[data-cy=delete-model]').should('not.have.class', 'disabled');
+        cy.get('[data-cy=delete-model]').click();
+        cy.get('.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('#model-Copy\\ of\\ My\\ First\\ Model > .extra > .basic > .primary').should('not.exist');
     });
 });

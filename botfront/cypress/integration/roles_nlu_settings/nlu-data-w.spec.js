@@ -33,7 +33,7 @@ describe('nlu-data:w role permissions', function() {
         cy.get('.nlu-menu-activity').should('exist');
         cy.get('.nlu-menu-training-data').should('exist');
         cy.get('.nlu-menu-evaluation').should('exist');
-        cy.get('.nlu-menu-settings').should('not.exist');
+        cy.get('.nlu-menu-settings').should('exist');
         cy.get('[data-cy=train-button]').should('not.exist');
     });
 
