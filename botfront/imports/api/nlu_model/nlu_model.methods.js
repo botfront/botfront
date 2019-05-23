@@ -162,22 +162,27 @@ if (Meteor.isServer) {
             return modelId;
         },
 
-        'nlu.update.pipeline'(modelId, item) {
+        'nlu.update.general'(modelId, item) {
             check(item, Object);
             check(modelId, String);
-            checkIfCan('nlu-config:w', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-model:x', getProjectIdFromModelId(modelId));
 
             const newItem = {};
-            newItem.config = item && item.config;
+            newItem.config = item.config;
+            newItem.name = item.name;
+            newItem.language = item.language;
+            newItem.logActivity = item.logActivity;
+            newItem.instance = item.instance;
+            newItem.description = item.description;
 
-            if (newItem.config) NLUModels.update({ _id: modelId }, { $set: newItem });
+            NLUModels.update({ _id: modelId }, { $set: newItem });
             return modelId;
         },
 
         'nlu.remove'(modelId, projectId) {
             check(modelId, String);
             check(projectId, String);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
 
             try {
                 NLUModels.remove({ _id: modelId });

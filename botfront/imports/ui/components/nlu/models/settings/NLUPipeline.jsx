@@ -32,7 +32,7 @@ export default class NLUPipeline extends React.Component {
         const { model } = this.props;
         clearTimeout(this.successTimeout);
         Meteor.call(
-            'nlu.update.pipeline',
+            'nlu.update.general',
             model._id,
             newModel,
             wrapMeteorCallback((err) => {
@@ -58,7 +58,7 @@ export default class NLUPipeline extends React.Component {
     render() {
         const { saved, showConfirmation } = this.state;
         const { projectId } = this.props;
-        const isDisabled = (can('nlu-config:w', projectId)) ? '' : 'disabled';
+        const isDisabled = !(can('nlu-model:x', projectId));
         return (
             <Tab.Pane>
                 <AutoForm schema={new SimpleSchema(this.schema)} model={this.sparseModel()} onSubmit={this.handleSave} disabled={isDisabled}>

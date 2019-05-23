@@ -26,7 +26,7 @@ class NLUParams extends React.Component {
         const { model } = this.props;
         clearTimeout(this.successTimeout);
         Meteor.call(
-            'nlu.update',
+            'nlu.update.general',
             model._id,
             newModel,
             wrapMeteorCallback((err) => {
@@ -43,7 +43,7 @@ class NLUParams extends React.Component {
     render() {
         const { model, instances, projectId } = this.props;
         const { saved, showConfirmation } = this.state;
-        const isDisabled = (can('nlu-meta:w', projectId)) ? '' : 'disabled';
+        const isDisabled = !(can('nlu-model:x', projectId));
         return (
             <Tab.Pane>
                 <AutoForm schema={NLUModelSchema} model={model} onSubmit={m => this.handleSave(m)} disabled={isDisabled}>

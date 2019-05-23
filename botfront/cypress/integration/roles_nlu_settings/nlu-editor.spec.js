@@ -68,8 +68,8 @@ describe('nlu-editor role permissions', function() {
         ]).then(err => expect(err.error).to.equal('401'));
     });
 
-    it('should be able to call nlu.update.pipeline', function() {
-        cy.MeteorCall('nlu.update.pipeline', [
+    it('should be able to call nlu.update.general', function() {
+        cy.MeteorCall('nlu.update.general', [
             this.bf_model_id,
             {
                 config:

@@ -29,29 +29,9 @@ if (Meteor.isServer) {
 
         const projectId = getProjectIdFromModelId(modelId);
 
-        const baseModelInfos = {
-            name: 1, language: 1, instance: 1, published: 1, training_data: 1,
-        };
+        checkIfCan('nlu-data:r', projectId);
 
-        if (can(['nlu-viewer'], projectId)) return NLUModels.find({ _id: modelId });
-        
-        if (can(['nlu-data:r'], projectId)) {
-            return NLUModels.find({ _id: modelId }, {
-                fields: {
-                    ...baseModelInfos, training_data: 1, intents: 1, chitchat_intents: 1,
-                },
-            });
-        }
-
-        if (can(['nlu-meta:r'], projectId)) {
-            return NLUModels.find({ _id: modelId }, {
-                fields: {
-                    ...baseModelInfos, config: 1,
-                },
-            });
-        }
-
-        throw new Meteor.Error('401', 'Not authorized');
+        return NLUModels.find({ _id: modelId });
     });
 
     // his publication is here to get a lTist of accessible models
@@ -70,7 +50,7 @@ if (Meteor.isServer) {
             });
         }
 
-        const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-meta:r', 'nlu-model:r', 'nlu-model:x']);
+        const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-model:r']);
         const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
         const modelIdArrays = models.map(m => m.nlu_models);
         const modelIds = [].concat(...modelIdArrays);
