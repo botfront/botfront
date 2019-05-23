@@ -7,9 +7,9 @@
 </div>
 
 
-# Botfront
-
 🎉🎉🎉 **Rasa 1.0 is here and we'll support it very soon in Botfront while keeping our unique features. Stay tuned**
+
+# Botfront
 
 **TL;DR: [Get started](https://docs.botfront.io/guide/getting-started/quick-start.html)** 
 
