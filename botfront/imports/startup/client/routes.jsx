@@ -85,7 +85,7 @@ Meteor.startup(() => {
                         <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
                     </Route>
                     <Route exact path='/project' component={Project}>
-                        <Route path='/project/:project_id/nlu/models' component={NLUModels} name='NLU Models' onEnter={authenticate(['nlu-data:r', 'nlu-meta:r', 'nlu-model:x'])} />
+                        <Route path='/project/:project_id/nlu/models' component={NLUModels} name='NLU Models' onEnter={authenticate(['nlu-data:r', 'nlu-meta:r', 'nlu-model:r', 'nlu-model:x'])} />
                         <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate(['nlu-data:r', 'nlu-meta:r', 'nlu-model:x'])} />
                         <Route
                             path='/project/:project_id/dialogue/conversations(/p)(/:page)(/c)(/:conversation_id)'

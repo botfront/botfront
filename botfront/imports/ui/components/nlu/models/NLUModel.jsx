@@ -232,7 +232,7 @@ class NLUModel extends React.Component {
                         <Icon size='small' name='percent' />
                         {'Evaluation'}
                     </Menu.Item>
-                    { can(['nlu-meta:r', 'nlu-config:r', 'nlu-data:w', 'nlu-admin'], projectId) && (
+                    { can(['nlu-data:r'], projectId) && (
                         <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
                             <Icon size='small' name='setting' />
                             {'Settings'}
@@ -357,7 +357,7 @@ class NLUModel extends React.Component {
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && can('nlu-data:r', projectId) && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} />}
-                    {activeItem === 'settings' && can('nlu-model:r', projectId) && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
+                    {activeItem === 'settings' && can('nlu-data:r', projectId) && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
                     {activeItem === 'activity' && can(['nlu-meta:r', 'nlu-data:r'], projectId) && <Activity modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} projectId={projectId} />}
                 </Container>
             </div>

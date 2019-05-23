@@ -130,7 +130,7 @@ class NLUModels extends React.Component {
         const { projectId } = this.props;
         const { loading, confirmOpen, modelToPublish } = this.state;
         const langs = uniq(models.map(m => m.language));
-        const disableOnlineOffline = can('nlu-admin', projectId);
+        const disableOnlineOffline = can('nlu-model:w', projectId);
         return models.map((model) => {
             const {
                 name,

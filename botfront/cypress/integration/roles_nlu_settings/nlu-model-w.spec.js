@@ -30,4 +30,10 @@ describe('nlu-model:w role permissions', function() {
         cy.contains('English').click();
         cy.get('.cards>:first-child button.secondary').should('exist');
     });
+
+    it('should NOT disable online button', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.right.floated').should('not.have.class', 'disabled');
+    });
 });

@@ -70,7 +70,7 @@ if (Meteor.isServer) {
             });
         }
 
-        const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-meta:r', 'nlu-model:x']);
+        const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-meta:r', 'nlu-model:r', 'nlu-model:x']);
         const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
         const modelIdArrays = models.map(m => m.nlu_models);
         const modelIds = [].concat(...modelIdArrays);

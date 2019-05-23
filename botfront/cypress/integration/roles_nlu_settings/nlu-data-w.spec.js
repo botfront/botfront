@@ -79,8 +79,15 @@ describe('nlu-data:w role permissions', function() {
         cy.contains('English').click();
         cy.get('.cards>:first-child button.primary').click();
         cy.get('.nlu-menu-training-data').click();
+        // Add and intent
+        cy.contains('Insert many').click();
+        cy.get('.batch-insert-input').type('An intent');
+        cy.get('[data-cy=intent-dropdown]').click();
+        cy.get('input').type('TestIntent{enter}');
+        cy.get('[data-cy=save-button]').click();
+        cy.contains('Examples').click();
         cy.get('[data-cy=intent-label]').first().trigger('mouseover');
-        cy.get('[data-cy=intent-popup]').should('not.exist');
+        cy.get('[data-cy=intent-popup]').should('exist');
         cy.get('.nlu-delete-example').should('exist');
         cy.get('div.rt-td.rt-expandable').first().click();
         cy.get('[data-cy=intent-dropdown]').eq(0).should('not.have.class', 'disabled');
