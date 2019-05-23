@@ -8,7 +8,7 @@ import matchSorter from 'match-sorter';
 import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
 import LookupTableEditorViewer from './LookupTableListEditorViewer';
-import { can } from '../../../lib/scopes';
+import { can, Can } from '../../../lib/scopes';
 
 export default class LookupTable extends React.Component {
     getColumns() {
@@ -83,15 +83,14 @@ export default class LookupTable extends React.Component {
         } = this.props;
         return (
             <Tab.Pane>
-                {can('nlu-data:w', projectId)
-                && (
+                <Can I='nlu-data:w' projectId={projectId}>
                     <AddLookupTableRow
                         listAttribute={listAttribute}
                         onAdd={onItemChanged}
                         valuePlaceholder={valuePlaceholder}
                         listPlaceholder={listPlaceholder}
-                    />)
-                }
+                    />
+                </Can>
                 {can('nlu-data:w', projectId) && <Divider />}
                 <ReactTable filterable data={data} columns={this.getColumns()} />
             </Tab.Pane>

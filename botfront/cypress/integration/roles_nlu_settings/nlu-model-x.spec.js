@@ -41,9 +41,9 @@ describe('nlu-model:x role permissions', function() {
         cy.MeteorCall('nlu.remove', [
             this.bf_model_id,
             this.bf_project_id,
-        ])// returns error code of 401 when resolves
+        ])// returns error code of 403 when resolves
             .then((result) => {
-                expect(result.error).to.equal('401');
+                expect(result.error).to.equal('403');
             });
     });
 

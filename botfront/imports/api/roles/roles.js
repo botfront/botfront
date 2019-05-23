@@ -3,7 +3,7 @@ import { Roles } from 'meteor/modweb:roles';
 export const can = (permission, projectId, userId) => Roles.userIsInRole(userId || Meteor.userId(), permission, projectId);
 
 export const checkIfCan = (permission, projectId, userId) => {
-    if (!can(permission, projectId, userId)) throw new Meteor.Error('401', 'Not Authorized');
+    if (!can(permission, projectId, userId)) throw new Meteor.Error('403', 'Forbidden');
 };
 
 if (Meteor.isServer) {

@@ -48,12 +48,10 @@ describe('nlu-model:w role permissions', function() {
             },
             this.bf_project_id,
         ]) // returns modelId when resolved
-            .then((modelId) => {
-                cy.MeteorCall('nlu.remove', [
-                    modelId,
-                    this.bf_project_id,
-                ]);
-            }) // returns string 'Model Deleted' when resolved
+            .then(modelId => cy.MeteorCall('nlu.remove', [
+                modelId,
+                this.bf_project_id,
+            ])) // returns string 'Model Deleted' when resolved
             .then((result) => {
                 expect(result).to.equal('Model Deleted');
             });
@@ -65,7 +63,7 @@ describe('nlu-model:w role permissions', function() {
         // Create a duplicate model
         cy.get('.cards>:first-child button.secondary').click();
         cy.reload();
-        cy.get('#model-Copy\\ of\\ My\\ First\\ Model > .extra > .basic > .primary').click();
+        cy.get('.card .primary').eq(1).click();
         cy.get('.nlu-menu-settings').click();
         cy.contains('Delete').click();
         cy.get('[data-cy=download-backup]').click();
@@ -73,6 +71,6 @@ describe('nlu-model:w role permissions', function() {
         cy.get('.primary').click();
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains('English').click();
-        cy.get('#model-Copy\\ of\\ My\\ First\\ Model > .extra > .basic > .primary').should('not.exist');
+        cy.get('.card').eq(1).should('not.exist');
     });
 });

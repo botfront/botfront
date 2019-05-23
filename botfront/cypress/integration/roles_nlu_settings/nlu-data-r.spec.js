@@ -5,11 +5,12 @@ const email = 'nludatar@test.ia';
 describe('nlu-data:r role permissions', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
+        cy.fixture('bf_model_id.txt').as('bf_model_id');
         cy.login();
         cy.get('@bf_project_id').then((id) => {
             cy.createUser('nlu-data:r', email, ['nlu-data:r'], id);
         });
-        cy.fixture('bf_model_id.txt').then((modelId) => {
+        cy.get('@bf_model_id.txt').then((modelId) => {
             cy.addTestActivity(modelId);
         });
         cy.logout();
@@ -27,30 +28,23 @@ describe('nlu-data:r role permissions', function() {
     });
 
     it('should be able to access nlu model menu tabs -> activity, training-data and evaluation', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-activity').should('exist');
         cy.get('.nlu-menu-training-data').should('exist');
         cy.get('.nlu-menu-evaluation').should('exist');
-        cy.get('.nlu-menu-settings').should('not.exist');
         cy.get('[data-cy=train-button]').should('not.exist');
     });
 
     // For the Activity tab
     it('should render activities and playground', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-activity').should('exist');
         cy.get('#playground').should('exist');
         cy.get('.ReactTable').should('exist');
     });
 
     it('should not be able to change intent, validate or expand entries', function () {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('[data-cy=validate-button]').should('not.exist');
         cy.get('.nlu-delete-example').should('not.exist');
         cy.get('[data-cy=intent-label]').trigger('mouseover');
@@ -63,33 +57,25 @@ describe('nlu-data:r role permissions', function() {
     it('should be able to reinterpet intents', function() {
         cy.logout();
         cy.login();
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('[data-cy=train-button]').click();
         cy.logout();
         cy.loginTestUser(email);
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.rt-td.right').first().click();
         cy.get('[data-cy=re-interpret-button]').should('exist');
     });
 
     // For the training tab
     it('should render training and playground, Chit Chat and Insert many should not be present', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Insert many').should('not.exist');
         cy.contains('Chit Chat').should('not.exist');
     });
 
     it('should not be able to expand rows in the Examples, delete button, add synonyms and add Gazette should not be present', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-training-data').click();
         cy.get('div.rt-td.rt-expandable').should('not.exist');
         cy.get('.nlu-delete-example').should('not.exist');
@@ -103,11 +89,40 @@ describe('nlu-data:r role permissions', function() {
 
     // For Evaluation
     it('buttons for evaluation should not be rendered', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-evaluation').click();
         cy.get('[data-cy=select-training-button]').should('not.exist');
         cy.get('[data-cy=start-evaluation]').should('not.exist');
+    });
+
+    it('should not show the add gazette and add synonyms rows', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.contains('Training Data').click();
+        cy.contains('Gazette').click();
+        cy.get('[data-cy=add-item-row]').should('not.exist');
+        cy.contains('Synonyms').click();
+        cy.get('[data-cy=add-item-row]').should('not.exist');
+    });
+
+    it('should not be able to call methods for synonyms and gazette', function() {
+        cy.MeteorCall('nlu.upsertEntityGazette', [
+            this.bf_model_id,
+            { what: 'ever' },
+        ]).then(err => expect(err.error).to.equal('403'));
+
+        cy.MeteorCall('nlu.deleteEntitySynonym', [
+            this.bf_model_id,
+            'whatever',
+        ]).then(err => expect(err.error).to.equal('403'));
+
+        cy.MeteorCall('nlu.deleteEntityGazette', [
+            this.bf_model_id,
+            'whatever',
+        ]).then(err => expect(err.error).to.equal('403'));
+
+        cy.MeteorCall('nlu.upsertEntitySynonym', [
+            this.bf_model_id,
+            { what: 'ever' },
+        ]).then(err => expect(err.error).to.equal('403'));
     });
 });

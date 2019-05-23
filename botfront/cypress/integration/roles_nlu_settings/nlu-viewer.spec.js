@@ -48,6 +48,19 @@ describe('nlu-viewer role permissions', function() {
                 name: 'New Test Model',
                 language: 'en',
             },
-        ]).then(err => expect(err.error).to.equal('401'));
+        ]).then(err => expect(err.error).to.equal('403'));
+    });
+
+    it('should NOT show the train model button', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.get('[data-cy=train-button]').should('not.exist');
+    });
+
+    it('should not be able to call nlu.train', function() {
+        cy.MeteorCall('nlu.train', [
+            this.bf_model_id,
+            this.bf_project_id,
+            { test: 1 },
+        ]).then(err => expect(err.error).to.equal('403'));
     });
 });
