@@ -36,4 +36,37 @@ describe('nlu-model:w role permissions', function() {
         cy.contains('English').click();
         cy.get('.cards>:first-child button.right.floated').should('not.have.class', 'disabled');
     });
+
+    it('should be able to delete a model through Meteor.call', function() {
+        // First a mdoel needs to be created which would then be deleted by nlu-model:w
+        cy.MeteorCall('nlu.insert', [
+            {
+                evaluations: [],
+                language: 'en',
+                name: 'To be deleted by model:w',
+                published: false,
+            },
+            this.bf_project_id,
+        ]) // returns modelId when resolved
+            .then((modelId) => {
+                cy.MeteorCall('nlu.remove', [
+                    modelId,
+                    this.bf_project_id,
+                ]);
+            }) // returns string 'Model Deleted' when resolved
+            .then((result) => {
+                expect(result).to.equal('Model Deleted');
+            });
+    });
+
+    it('should be able to delete a model though UI', function () {
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains('English').click();
+        cy.get('.cards>:first-child button.primary').click();
+        cy.get('.nlu-menu-settings').click();
+        cy.contains('Delete').click();
+        cy.get('[data-cy=download-backup]').click();
+        cy.get('[data-cy=delete-model]').should('not.have.class', 'disabled');
+        cy.get('[data-cy=delete-model]').should('not.have.class', 'disabled');
+    });
 });
