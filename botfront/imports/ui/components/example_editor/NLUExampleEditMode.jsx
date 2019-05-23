@@ -18,7 +18,6 @@ import NLUExampleTester from './NLUExampleTester';
 import { ExampleTextEditor } from './ExampleTextEditor';
 import { examplePropType } from '../utils/ExampleUtils';
 import './style.less';
-import { can } from '../../../lib/scopes';
 
 const styleEditMode = {
     backgroundColor: 'rgb(247, 247, 247)',
@@ -48,7 +47,7 @@ export default class NLUExampleEditMode extends React.Component {
     }
 
     getEmptyExample() {
-        return { text: '', intent: '', entities: [] };
+        return {text: '', intent: '', entities: []}
     }
 
     getIntents() {
@@ -65,6 +64,7 @@ export default class NLUExampleEditMode extends React.Component {
         return false;
     }
 
+
     onTextChanged(example) {
         this.setState({ example });
     }
@@ -78,7 +78,7 @@ export default class NLUExampleEditMode extends React.Component {
             intents: this.state.intents,
             example: this.state.example,
             saveDisabled: this.shouldDisableSaveButton(),
-    });
+        });
     };
 
     handleChangeOrAddEntity = (e, { entity, value }) => {
@@ -94,12 +94,6 @@ export default class NLUExampleEditMode extends React.Component {
             example: this.state.example,
         });
     };
-
-    hasWritePermission() {
-        const { projectId } = this.props;
-        const hasPermission = can('nlu-data:w', projectId);
-        return hasPermission;
-    }
 
     onSaveExample() {
         this.setState({ saving: true });
@@ -131,37 +125,29 @@ export default class NLUExampleEditMode extends React.Component {
             example: this.state.example,
         });
     };
+    
 
     renterIntentDropDown() {
         return (
-            <Grid>
-                <Grid.Row>
-                    <Grid.Column width={4}>
-                        <Button.Group fluid size='mini' color='purple'>
-                            <Dropdown
-                                className='icon'
-                                icon='tag'
-                                name='intent'
-                                button
-                                placeholder='Select an intent'
-                                labeled
-                                search
-                                value={this.state.example && this.state.example.intent}
-                                allowAdditions
-                                selection
-                                additionLabel='Create intent: '
-                                onAddItem={this.handleChangeOrAddIntent}
-                                onChange={this.handleChangeOrAddIntent}
-                                data-cy='intent-dropdown'
-                                options={this.state.intents}
-                                disabled={!this.hasWritePermission()}
-                            />
-                        </Button.Group>
-                    </Grid.Column>
-                    <Grid.Column width={10}> </Grid.Column>
-                </Grid.Row>
-            </Grid>
-        );
+<Grid><Grid.Row><Grid.Column width={4}><Button.Group fluid size='mini' color='purple'>
+            <Dropdown
+                className='icon'
+                icon='tag'
+                name='intent'
+                button
+                placeholder='Select an intent'
+                labeled
+                search
+                value={this.state.example && this.state.example.intent}
+                allowAdditions
+                selection
+                additionLabel='Create intent: '
+                onAddItem={this.handleChangeOrAddIntent}
+                onChange={this.handleChangeOrAddIntent}
+                data-cy='intent-dropdown'
+                options={this.state.intents}/></Button.Group></Grid.Column><Grid.Column
+            width={10}> </Grid.Column></Grid.Row></Grid>
+);
     }
 
     renderEntities() {
@@ -169,34 +155,28 @@ export default class NLUExampleEditMode extends React.Component {
             const entityNames = sortBy(this.state.example.entities, 'start').map(e => e.entity);
             // exclude entities not extracted by ner_crf
             return this.filterNonEditableEntities().map((e, index) => (
-                <div className='entities-viewer' key={index}>
-                    <Button.Group size='mini' color={getColor(entityNames.indexOf(e.entity), true)}>
-                        <Dropdown
-                            searchInput={{ autoFocus: !e.entity }}
-                            openOnFocus
-                            icon='code'
-                            button
-                            labeled
-                            className='icon'
-                            entity={e}
-                            placeholder='Select or add entity '
-                            search
-                            value={e.entity}
-                            allowAdditions
-                            selection
-                            additionLabel='Add entity: '
-                            onAddItem={this.handleChangeOrAddEntity}
-                            onChange={this.handleChangeOrAddEntity}
-                            options={this.state.entities.map(e => ({ text: e, value: e }))}
-                            disabled={!this.hasWritePermission()}
-                        />
-                        {
-                            this.hasWritePermission() && <Button basic entity={e} icon='delete' onClick={this.deleteEntity} />
-                        }
-                        
-                    </Button.Group>
-                </div>
-            ));
+                <div className={'entities-viewer'} key={index}><Button.Group size='mini' color={getColor(entityNames.indexOf(e.entity), true)}>
+                    <Dropdown
+                        searchInput={{ autoFocus: !e.entity}}
+                        openOnFocus
+                        icon='code'
+                        button
+                        labeled
+                        className='icon'
+                        entity={e}
+                        placeholder='Select or add entity '
+                        search
+                        value={e.entity}
+                        allowAdditions
+                        selection
+                        additionLabel='Add entity: '
+                        onAddItem={this.handleChangeOrAddEntity}
+                        onChange={this.handleChangeOrAddEntity}
+                        options={this.state.entities.map((e) => {
+                            return {text: e, value: e}
+                        })}/><Button basic entity={e} icon='delete' onClick={this.deleteEntity}/></Button.Group>
+                    </div>
+));
         }
         return <div />;
     }
@@ -208,31 +188,34 @@ export default class NLUExampleEditMode extends React.Component {
         };
         if (this.state.example && Object.keys(colors).includes(this.state.example.status)) {
             return (
-                <div>
-                    <Label color={colors[this.state.example.status]} style={labelStyle} ribbon>
-                        {this.state.example.status}
-                    </Label>
-                    <br />
-                    <br />
-                </div>
-            );
+<div><Label color={colors[this.state.example.status]} style={labelStyle}
+                ribbon>{this.state.example.status}</Label><br/><br/></div>
+);
         }
     }
 
     hasEntities = () => this.state.example && this.state.example.entities && this.state.example.entities.filter(e => e.extractor == null || e.extractor === 'ner_crf').length > 0;
 
     renderButtons() {
-        return ( 
+        return (
             <Button.Group size='mini' floated='right'>
-                {this.hasWritePermission() && (
-                    <Button loading={this.state.saving} color='green' type='button' disabled={this.state.saveDisabled || this.state.saving} onClick={this.onSaveExample.bind(this)}>
-                        <Icon name='check' />
-                        Save
-                    </Button>
-                )}
+                <Button
+loading={this.state.saving}
+color='green'
+type='button'
+                    disabled={this.state.saveDisabled || this.state.saving}
+onClick={this.onSaveExample.bind(this)}
+                ><Icon
+                        name='check' 
+                        />Save
+                </Button>
                 {this.props.onDelete && (
-                    <Button color='red' type='button' disabled={this.state.saving} onClick={this.onDeleteExample.bind(this)}>
-                        <Icon name='trash' />
+                    <Button
+color='red'
+type='button'
+disabled={this.state.saving}
+                        onClick={this.onDeleteExample.bind(this)}
+                    ><Icon name='trash' />
                     </Button>
                 )}
             </Button.Group>
@@ -244,34 +227,53 @@ export default class NLUExampleEditMode extends React.Component {
     };
 
     render() {
-        const { projectId } = this.props;
         const styleTextArea = {
             marginBottom: '10px',
         };
-        // const hasNluDataWrite = this.hasWritePermission();
         return (
-            <Segment className='example-editor' clearing style={styleEditMode} data-cy='nlu-example-edit-mode'>
-                {this.props.onCancel && <Label attached='top right' content='&nbsp;close' as='a' icon='close' size='mini' onClick={this.onCancel} />}
+            <Segment
+                className='example-editor'
+                clearing
+                style={styleEditMode}
+                data-cy='nlu-example-edit-mode'
+            >
+
+                {this.props.onCancel
+                && <Label
+attached='top right'
+content='&nbsp;close'
+as='a'
+icon='close'
+size='mini'
+                    onClick={this.onCancel} 
+                />}
                 {this.renderIntentLabel()}
                 <Form>
-                    <ExampleTextEditor highlightEntities={this.hasWritePermission()} style={styleTextArea} example={this.state.example} onChange={this.onTextChanged.bind(this)} projectId={projectId} />
-                    {this.props.testMode && <NLUExampleTester text={this.state.example.text} projectId={this.props.projectId} entities={this.props.entities} onDone={this.handleExampleTested} />}
+                    <ExampleTextEditor
+style={styleTextArea}
+example={this.state.example}
+                        onChange={this.onTextChanged.bind(this)} 
+                    />
+
+                    {this.props.testMode && (
+<NLUExampleTester
+                        text={this.state.example.text}
+                        projectId={this.props.projectId}
+                        entities={this.props.entities}
+                        onDone={this.handleExampleTested}
+                    />
+)}
                     <br />
-                    <Label size='medium' basic pointing='below' color='purple' style={labelStyle}>
-                        Intent
-                    </Label>
+                    <Label size='medium' basic pointing='below' color='purple' style={labelStyle}>Intent</Label>
                     <br />
-                    {this.renterIntentDropDown()} <br /> {!this.hasEntities() && this.renderButtons()}
+                    {this.renterIntentDropDown()} <br /> {!this.hasEntities() && this.renderButtons() }
                     <br />
-                    {this.hasEntities() && (
-                        <div>
-                            <Label size='medium' basic pointing='below' color='pink' style={labelStyle}>
-                                Entities
-                            </Label>
-                            <div>{this.renderEntities()}</div>
-                            <div className='example_edit_save'>{this.hasEntities() && this.renderButtons()}</div>
-                        </div>
-                    )}
+                    {this.hasEntities()
+                    && <div><Label size='medium' basic pointing='below' color='pink' style={labelStyle}>Entities</Label>
+                        <div>{this.renderEntities()}</div><div className='example_edit_save'>{this.hasEntities() && this.renderButtons()}</div>
+                    </div>
+                    }
+
                 </Form>
             </Segment>
         );
