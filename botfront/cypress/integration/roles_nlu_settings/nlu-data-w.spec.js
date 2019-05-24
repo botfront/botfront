@@ -210,4 +210,12 @@ describe('nlu-data:w role permissions', function() {
             },
         ]).then(err => expect(err.error).to.equal('403'));
     });
+
+    it('should NOT be able to call nlu.train and should get an error 403', function() {
+        cy.MeteorCall('nlu.train', [
+            this.bf_model_id,
+            this.bf_project_id,
+            { test: 1 },
+        ]).then(err => expect(err.error).equal('403'));
+    });
 });

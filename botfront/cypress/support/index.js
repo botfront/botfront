@@ -357,7 +357,7 @@ Cypress.Commands.add('addTestActivity', (modelId) => {
         }
     });"`;
     cy.exec(commandToAddActivity);
-    // cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.update({ _id: '${modelId}'}, { $set: { "training.endTime": "123" } });"`); TODO fix this statement
+    cy.exec(`mongo meteor --host localhost:3001 --eval 'db.nlu_models.update({ _id: "${modelId}"}, { $set: { "training.endTime": "123" } });'`);
 });
 
 Cypress.Commands.add('removeTestActivity', (modelId) => {
