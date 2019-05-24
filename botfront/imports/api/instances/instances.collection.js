@@ -49,7 +49,7 @@ if (Meteor.isServer) {
         'instance.findByType'(projectId, type) {
             check(type, String);
             check(projectId, String);
-            checkIfCan('project-admin', projectId);
+            checkIfCan(['nlu-data:r', 'responses:r', 'conversations:r'], projectId);
             if (type !== 'core' && type !== 'nlu') throw new Meteor.Error('400', 'unknown type');
             return Instances.findOne({ projectId, type: { $in: [type] } });
         },
