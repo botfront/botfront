@@ -100,6 +100,25 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
     cy.get('[data-cy=model-save-button]').click();
 });
 
+Cypress.Commands.add('insertGenericNLUModel', (modelId, projectId) => {
+    cy.MeteorCall('instance.findByType', [
+        projectId,
+        'nlu',
+    ]).then((instance) => {
+        cy.MeteorCall('nlu.insert', [
+            {
+                _id: modelId,
+                evaluations: [],
+                language: 'en',
+                name: 'My First Model',
+                published: true,
+                instance: instance._id,
+            },
+            projectId,
+        ]);
+    });
+});
+
 Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, description, instance) => {
     cy.createNLUModel(projectId, name, language, description, instance);
     cy.fixture('bf_project_id.txt').then((id) => {

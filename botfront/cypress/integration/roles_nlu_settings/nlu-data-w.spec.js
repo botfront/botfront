@@ -198,7 +198,7 @@ describe('nlu-data:w role permissions', function() {
         cy.contains('Delete').should('not.exist');
     });
 
-    it('should NOT be able to call nlu.update.general', function() {
+    it('should NOT be able to call forbidden methods', function() {
         cy.MeteorCall('nlu.update.general', [
             this.bf_model_id,
             {
@@ -209,9 +209,23 @@ describe('nlu-data:w role permissions', function() {
                     + '      - [low, title, upper]  - name: components.botfront.fuzzy_gazette.FuzzyGazette  - name: ner_synonyms',
             },
         ]).then(err => expect(err.error).to.equal('403'));
-    });
 
-    it('should NOT be able to call nlu.train and should get an error 403', function() {
+        // this tests inserting and duplicating since they use the same method
+        cy.MeteorCall('nlu.insert', [
+            {
+                evaluations: [],
+                language: 'en',
+                name: 'To be deleted by model:w',
+                published: false,
+            },
+            this.bf_project_id,
+        ]).then(err => expect(err.error).to.equal('403'));
+
+        cy.MeteorCall('nlu.publish', [
+            this.bf_model_id,
+            this.bf_project_id,
+        ]).then(err => expect(err.error).to.equal('403'));
+        
         cy.MeteorCall('nlu.train', [
             this.bf_model_id,
             this.bf_project_id,

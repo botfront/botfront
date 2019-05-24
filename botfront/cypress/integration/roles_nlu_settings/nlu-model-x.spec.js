@@ -28,13 +28,15 @@ describe('nlu-model:x role permissions', function() {
     });
 
     it('should be able to access buttons in Evaluation', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-evaluation').click();
-        cy.get('[data-cy=select-training-button]').should('exist');
         cy.get('[data-cy=start-evaluation]').should('exist');
     });
+
+    it('should be able to train the model', function () {
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.get('[data-cy=train-button]').should('exist');
+    })
 
     it('should NOT be able to delete a model through Meteor.call', function() {
         // First a model needs to be created which would then be deleted by nlu-model:w
@@ -48,9 +50,7 @@ describe('nlu-model:x role permissions', function() {
     });
 
     it('should NOT be able to delete a model through UI', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-settings').click();
         cy.contains('Delete').should('not.exist');
     });

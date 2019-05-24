@@ -325,7 +325,7 @@ if (Meteor.isServer) {
         'nlu.publish'(modelId, projectId) {
             check(modelId, String);
             check(projectId, String);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
             try {
                 const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
                 const models = NLUModels.find({ _id: { $in: project.nlu_models } }, { fields: { published: 1, language: 1, name: 1 } }).fetch();
