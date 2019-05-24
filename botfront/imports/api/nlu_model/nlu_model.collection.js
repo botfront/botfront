@@ -70,7 +70,7 @@ if (Meteor.isServer) {
 
     Meteor.publish('nlu_models.project.training_data', function (projectId) {
         check(projectId, String);
-        checkIfCan('[nlu-data:r]', projectId);
+        checkIfCan(['nlu-data:r', 'responses:w'], projectId);
         const project = Projects.find({ _id: projectId }, { fields: { nlu_models: 1 } }).fetch();
         const modelIds = project[0].nlu_models;
         return NLUModels.find({ _id: { $in: modelIds } }, { fields: { 'training_data.common_examples': 1 } });
