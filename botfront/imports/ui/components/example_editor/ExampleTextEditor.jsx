@@ -6,7 +6,6 @@ import _, { find, sortBy } from 'lodash';
 
 import { examplePropType } from '../utils/ExampleUtils';
 import getColor from '../../../lib/getColors';
-import { can } from '../../../lib/scopes';
 
 const emptyExample = () => ({ text: '', intent: '', entities: [] });
 
@@ -176,7 +175,6 @@ export class ExampleTextEditor extends React.Component {
             if (i < sortedEntities.length - 1) spans.push(<span>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
             if (i === sortedEntities.length - 1) spans.push(<span>{text.substr(e.end, e.value.length - e.end)}</span>);
         });
-        
         return (
             <div className='highlight'>
                 {spans}
@@ -192,9 +190,8 @@ export class ExampleTextEditor extends React.Component {
 
     render() {
         const { example: { text = '', entities = [] } = {} } = this.state;
-        const { highlightEntities, projectId } = this.props;
-        const hasPermission = can('nlu-data:r', projectId);
-        
+        const { highlightEntities } = this.props;
+
         return (
             <div ref={node => this.selectionAnchorNode = node}>
                 <TextArea
@@ -207,7 +204,6 @@ export class ExampleTextEditor extends React.Component {
                     onKeyPress={this.handleKeyPress}
                     onChange={this.handleTextChange}
                     data-cy='example-text-editor-input'
-                    disabled={!hasPermission}
                 />
                 {highlightEntities && this.highLightEntitiesInText()}
             </div>
@@ -220,7 +216,6 @@ ExampleTextEditor.propTypes = {
     onChange: PropTypes.func,
     onEnter: PropTypes.func,
     highlightEntities: PropTypes.bool,
-    projectId: PropTypes.string.isRequired,
 };
 
 ExampleTextEditor.defaultProps = {

@@ -10,7 +10,7 @@ describe('nlu-data:r role permissions', function() {
         cy.get('@bf_project_id').then((id) => {
             cy.createUser('nlu-data:r', email, ['nlu-data:r'], id);
         });
-        cy.get('@bf_model_id.txt').then((modelId) => {
+        cy.get('@bf_model_id').then((modelId) => {
             cy.addTestActivity(modelId);
         });
         cy.logout();
@@ -55,11 +55,11 @@ describe('nlu-data:r role permissions', function() {
     });
 
     it('should be able to reinterpet intents', function() {
-        cy.logout();
+        // Logs the admin
         cy.login();
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('[data-cy=train-button]').click();
-        cy.logout();
+        // logs back our test user
         cy.loginTestUser(email);
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.rt-td.right').first().click();
@@ -144,5 +144,11 @@ describe('nlu-data:r role permissions', function() {
         });
         cy.contains('Export').click();
         cy.contains('Export Training Data').should('not.have.class', 'disabled');
+    });
+
+    it('should not display import tab in settings', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.get('[data-cy=settings-in-model]').click();
+        cy.contains('Import').should('not.exist');
     });
 });
