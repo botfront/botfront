@@ -125,9 +125,9 @@ Meteor.methods({
                 ...exampleBody
             } = example;
 
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(example, Object);
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
             // unsetProperties are the props that were left out (set to undefined) when editing the utterance
             // TODO maybe set the confidence to 1.0 when manually updating to avoid this?

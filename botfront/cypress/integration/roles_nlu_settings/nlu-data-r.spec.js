@@ -107,7 +107,7 @@ describe('nlu-data:r role permissions', function() {
         cy.get('[data-cy=add-item-row]').should('not.exist');
     });
 
-    it('should not be able to call methods for synonyms and gazette', function() {
+    it('should not be able to call forbidden methods', function() {
         cy.MeteorCall('nlu.upsertEntityGazette', [
             this.bf_model_id,
             { what: 'ever' },
@@ -127,6 +127,38 @@ describe('nlu-data:r role permissions', function() {
             this.bf_model_id,
             { what: 'ever' },
         ]).then(err => expect(err.error).to.equal('403'));
+
+        cy.MeteorCall('nlu.updateExample', [
+            this.bf_model_id,
+            {
+                entities: [],
+                intent: 'Test Intent',
+                text: 'An intent will not be pushed',
+            },
+        ]).then((err) => {
+            expect(err.error).equal('403');
+        });
+
+        cy.MeteorCall('activity.updateExamples', [
+            [{ modelId: this.bf_model_id, _id: 'will not be added' }],
+        ]).then(err => expect(err.error).to.equal('403'));
+
+        cy.MeteorCall('nlu.insertExamples', [
+            this.bf_model_id,
+            [],
+        ]).then(err => expect(err.error).to.equal('403'));
+
+        cy.MeteorCall('nlu.deleteExample', [
+            this.bf_model_id,
+            'whatever',
+        ]).then(err => expect(err.error).to.equal('403'));
+
+        cy.MeteorCall('activity.deleteExamples', [
+            this.bf_model_id,
+            ['TestActivity'],
+        ]).then((err) => {
+            expect(err.error).to.equal('403');
+        });
     });
 
     it('should display a model settings (but not change them)', function() {
@@ -153,27 +185,5 @@ describe('nlu-data:r role permissions', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('Import').should('not.exist');
-    });
-
-    it('should NOT be able to call nlu.updateExample, should end up with error code 403', function() {
-        cy.MeteorCall('nlu.updateExample', [
-            this.bf_model_id,
-            {
-                entities: [],
-                intent: 'Test Intent',
-                text: 'An intent will not be pushed',
-            },
-        ]).then((err) => {
-            expect(err.error).equal('403');
-        });
-    });
-
-    it('should NOT be able to call activity.deleteExamples', function() {
-        cy.MeteorCall('activity.deleteExamples', [
-            this.bf_model_id,
-            ['TestActivity'],
-        ]).then((err) => {
-            expect(err.error).to.equal('403');
-        });
     });
 });

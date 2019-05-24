@@ -124,21 +124,74 @@ describe('nlu-data:w role permissions', function() {
         cy.contains('Examples').click();
         cy.get('[data-cy=intent-label]').first().trigger('mouseover');
         cy.get('[data-cy=intent-popup]').should('exist');
-        cy.get('.nlu-delete-example').should('exist');
         cy.get('div.rt-td.rt-expandable').first().click();
         cy.get('[data-cy=intent-dropdown]').eq(0).should('not.have.class', 'disabled');
         cy.contains('Save').should('not.have.class', 'disabled');
+        cy.get('.nlu-delete-example').click();
     });
 
-    it('should be able to add Synonym and Gazette', function() {
+    it('should be able to add, edit and delete Synonym and Gazette', function() {
+        const synonymName = 'test';
+        const editedValues = 'foo';
+        const synonymValues = 'bar, foo';
+        const getSynonymRow = (v = synonymValues) => cy.contains(v).closest('.rt-tr');
+
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Synonyms').click();
-        cy.get('[data-cy=add-entity]').should('exist');
-        cy.get('[data-cy=add-value]').should('exist');
+        cy.get('.input.entity-synonym input').type(synonymName);
+        cy.get('textarea.entity-synonym-values').type(synonymValues);
+        cy.contains('Add').click();
+        cy.wait(200);
+        getSynonymRow()
+            .children()
+            .first()
+            .should('contain', synonymName);
+        getSynonymRow()
+            .children()
+            .eq(1)
+            .should('contain', synonymValues);
+        getSynonymRow()
+            .children()
+            .eq(1)
+            .click();
+        getSynonymRow()
+            .children()
+            .eq(1)
+            .find('textarea')
+            .type(`{selectall}{del}${editedValues}`);
+        cy.contains('Synonyms').click();
+        getSynonymRow(editedValues)
+            .find('i.remove')
+            .click();
+        cy.contains(editedValues).should('not.exist');
         cy.contains('Gazette').click();
-        cy.get('[data-cy=add-entity]').should('exist');
-        cy.get('[data-cy=add-value]').should('exist');
+        cy.get('.input.entity-synonym input').type(synonymName);
+        cy.get('textarea.entity-synonym-values').type(synonymValues);
+        cy.contains('Add').click();
+        cy.wait(200);
+        getSynonymRow()
+            .children()
+            .first()
+            .should('contain', synonymName);
+        getSynonymRow()
+            .children()
+            .eq(1)
+            .should('contain', synonymValues);
+        getSynonymRow()
+            .children()
+            .eq(1)
+            .click();
+        getSynonymRow()
+            .children()
+            .eq(1)
+            .find('textarea')
+            .type(`{selectall}{del}${editedValues}`);
+        cy.contains('Gazette').click();
+        getSynonymRow(editedValues)
+            .find('i.remove')
+            .click();
+        cy.contains(editedValues).should('not.exist');
     });
 
     // For Evaluation
@@ -195,6 +248,61 @@ describe('nlu-data:w role permissions', function() {
         cy.contains('Delete').should('not.exist');
     });
 
+    it('should be able to call allowed methods', function() {
+        cy.MeteorCall('activity.updateExamples', [
+            [{ modelId: this.bf_model_id, _id: 'will not be added' }],
+        ]).then(err => expect(err.error).not.to.equal('403'));
+
+        cy.MeteorCall('nlu.updateExample', [
+            this.bf_model_id,
+            {
+                entities: [],
+                intent: 'Test Intent',
+                text: 'An intent will not be pushed',
+            },
+        ]).then((err) => {
+            // Should give a mongo error, not unauthorized
+            expect(err.error).not.to.equal('403');
+        });
+
+        cy.MeteorCall('nlu.insertExamples', [
+            this.bf_model_id,
+            [],
+        ]).then(err => expect(err.error).not.to.equal('403'));
+
+        cy.MeteorCall('nlu.deleteExample', [
+            this.bf_model_id,
+            'whatever',
+        ]).then(err => expect(err.error).not.to.equal('403'));
+
+        cy.MeteorCall('nlu.upsertEntityGazette', [
+            this.bf_model_id,
+            { what: 'ever' },
+        ]).then(err => expect(err.error).not.to.equal('403'));
+
+        cy.MeteorCall('nlu.deleteEntitySynonym', [
+            this.bf_model_id,
+            'whatever',
+        ]).then(err => expect(err.error).not.to.equal('403'));
+
+        cy.MeteorCall('nlu.deleteEntityGazette', [
+            this.bf_model_id,
+            'whatever',
+        ]).then(err => expect(err.error).not.to.equal('403'));
+
+        cy.MeteorCall('nlu.upsertEntitySynonym', [
+            this.bf_model_id,
+            { what: 'ever' },
+        ]).then(err => expect(err.error).not.to.equal('403'));
+
+        cy.MeteorCall('activity.deleteExamples', [
+            this.bf_model_id,
+            ['TestActivity'],
+        ]).then((result) => {
+            expect(result).to.equal(1);
+        });
+    });
+
     it('should NOT be able to call forbidden methods', function() {
         cy.MeteorCall('nlu.update.general', [
             this.bf_model_id,
@@ -228,29 +336,5 @@ describe('nlu-data:w role permissions', function() {
             this.bf_project_id,
             { test: 1 },
         ]).then(err => expect(err.error).equal('403'));
-    });
-
-    it('should be able to call nlu.updateExample, should NOT end up with error code 403', function() {
-        cy.MeteorCall('nlu.updateExample', [
-            this.bf_model_id,
-            {
-                entities: [],
-                intent: 'Test Intent',
-                text: 'An intent will not be pushed',
-            },
-        ]).then((err) => {
-            // Should give a mongo error, not unauthorized
-            expect(err.error).not.to.equal('403');
-        });
-    });
-
-    it('should be able to call activity.deleteExamples', function() {
-        // This test is also responsible for deleting the activity created in the before block
-        cy.MeteorCall('activity.deleteExamples', [
-            this.bf_model_id,
-            ['TestActivity'],
-        ]).then((result) => {
-            expect(result).not.to.equal(0);
-        });
     });
 });

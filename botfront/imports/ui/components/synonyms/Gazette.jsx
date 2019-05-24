@@ -7,6 +7,7 @@ import LookupTable from './LookupTable';
 import { wrapMeteorCallback } from '../utils/Errors';
 import TextInput from '../utils/TextInput';
 import InlineSearch from '../utils/InlineSearch';
+import { can } from '../../../lib/scopes';
 
 function ModeEdit({ gazette, onEdit }) {
     function onUpdateText(value, callback) {
@@ -75,16 +76,22 @@ class GazetteEditor extends React.Component {
     }
 
     extraColumns() {
+        const { projectId } = this.props;
         return [
             {
                 id: 'mode',
                 accessor: e => e,
                 Header: 'Mode',
-                Cell: props => (
-                    <div>
-                        <ModeEdit gazette={props.value} onEdit={this.onItemChanged} />
-                    </div>
-                ),
+                Cell: props => {
+                    if (can('nlu-data:w', projectId)) {
+                        return (
+                            <div>
+                                <ModeEdit gazette={props.value} onEdit={this.onItemChanged} />
+                            </div>
+                        );
+                    }
+                    return <span>{props.value.mode}</span>
+                },
                 width: 130,
                 filterable: false,
             },
@@ -92,7 +99,12 @@ class GazetteEditor extends React.Component {
                 id: 'min_score',
                 accessor: e => e,
                 Header: 'Min Score',
-                Cell: props => <MinScoreEdit gazette={props.value} onEdit={this.onItemChanged} />,
+                Cell: (props) => {
+                    if (can('nlu-data:w', projectId)) {
+                        return <MinScoreEdit gazette={props.value} onEdit={this.onItemChanged} />;
+                    }
+                    return <span>{props.value.min_score}</span>;
+                },
                 width: 100,
                 filterable: false,
                 className: 'right',
@@ -103,6 +115,7 @@ class GazetteEditor extends React.Component {
 
 GazetteEditor.propTypes = {
     model: PropTypes.object.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 export default (GazetteEditorContainer = withTracker(props => ({
