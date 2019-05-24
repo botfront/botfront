@@ -106,9 +106,23 @@ describe('nlu-data:w role permissions', function() {
         cy.get('[data-cy=start-evaluation]').should('not.exist');
     });
 
-    it('should display import tab in settings', function() {
+    it('should display import tab in settings but NOT delete tab', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('Import').click();
+        cy.contains('Delete').should('not.exist');
+    });
+
+    it('should NOT be able to call nlu.update.general', function() {
+        cy.MeteorCall('nlu.update.general', [
+            this.bf_model_id,
+            {
+                config:
+                    'pipeline:  - name: components.botfront.language_setter.LanguageSetter  - name: tokenizer_whitespace  - name: intent_featurizer_count_vectors'
+                    + '  - name: intent_classifier_tensorflow_embedding  - BILOU_flag: true    name: ner_crf    features:      - [low, title, upper]'
+                    + '      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]'
+                    + '      - [low, title, upper]  - name: components.botfront.fuzzy_gazette.FuzzyGazette  - name: ner_synonyms',
+            },
+        ]).then(err => expect(err.error).to.equal('403'));
     });
 });
