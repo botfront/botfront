@@ -31,7 +31,7 @@ describe('nlu-data:r role permissions', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-activity').should('exist');
         cy.get('.nlu-menu-training-data').should('exist');
-        cy.get('.nlu-menu-evaluation').should('exist');    
+        cy.get('.nlu-menu-evaluation').should('exist');
         cy.get('[data-cy=train-button]').should('not.exist');
     });
 

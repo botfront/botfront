@@ -98,7 +98,7 @@ describe('nlu-data:w role permissions', function() {
         cy.get('[data-cy=intent-label]').trigger('mouseover');
         cy.get('[data-cy=intent-popup]').should('exist');
         cy.get('div.rt-td.rt-expandable').click();
-        cy.get('[data-cy=example-text-editor-input]').eq(1).should('be.disabled');
+        cy.get('[data-cy=example-text-editor-input]').eq(1).should('not.be.disabled');
         cy.get('[data-cy=intent-dropdown]').eq(0).should('not.have.class', 'disabled');
         cy.contains('Save').should('not.have.class', 'disabled');
         cy.contains('New Utterances').should('exist');
