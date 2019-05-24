@@ -58,9 +58,6 @@ describe('nlu-data:w role permissions', function() {
     });
 
     after(function() {
-        cy.fixture('bf_model_id.txt').then((modelId) => {
-            cy.removeTestActivity(modelId);
-        });
         cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.remove({ name: '${nameOfModelForCall}'});"`);
         cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.remove({ name: '${modelNameForUI}'});"`);
         cy.deleteUser(email);
@@ -232,7 +229,7 @@ describe('nlu-data:w role permissions', function() {
             { test: 1 },
         ]).then(err => expect(err.error).equal('403'));
     });
-    
+
     it('should be able to call nlu.updateExample, should NOT end up with error code 403', function() {
         cy.MeteorCall('nlu.updateExample', [
             this.bf_model_id,
@@ -244,6 +241,16 @@ describe('nlu-data:w role permissions', function() {
         ]).then((err) => {
             // Should give a mongo error, not unauthorized
             expect(err.error).not.to.equal('403');
+        });
+    });
+
+    it('should be able to call activity.deleteExamples', function() {
+        // This test is also responsible for deleting the activity created in the before block
+        cy.MeteorCall('activity.deleteExamples', [
+            this.bf_model_id,
+            ['TestActivity'],
+        ]).then((result) => {
+            expect(result).not.to.equal(0);
         });
     });
 });

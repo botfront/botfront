@@ -167,4 +167,13 @@ describe('nlu-data:r role permissions', function() {
             expect(err.error).equal('403');
         });
     });
+
+    it('should NOT be able to call activity.deleteExamples', function() {
+        cy.MeteorCall('activity.deleteExamples', [
+            this.bf_model_id,
+            ['TestActivity'],
+        ]).then((err) => {
+            expect(err.error).to.equal('403');
+        });
+    });
 });
