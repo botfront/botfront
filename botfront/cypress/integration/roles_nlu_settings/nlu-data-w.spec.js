@@ -218,4 +218,18 @@ describe('nlu-data:w role permissions', function() {
             { test: 1 },
         ]).then(err => expect(err.error).equal('403'));
     });
+    
+    it('should be able to call nlu.updateExample, should NOT end up with error code 403', function() {
+        cy.MeteorCall('nlu.updateExample', [
+            this.bf_model_id,
+            {
+                entities: [],
+                intent: 'Test Intent',
+                text: 'An intent will not be pushed',
+            },
+        ]).then((err) => {
+            // Should give a mongo error, not unauthorized
+            expect(err.error).not.to.equal('403');
+        });
+    });
 });

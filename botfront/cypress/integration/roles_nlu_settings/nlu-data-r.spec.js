@@ -68,9 +68,11 @@ describe('nlu-data:r role permissions', function() {
     });
 
     // For the training tab
-    it('should render training and playground, Chit Chat and Insert many should not be present', function() {
+    it('should render training tab, Statistics and API || Chit Chat and Insert many should not be present', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-training-data').click();
+        cy.contains('Statistics').should('exist');
+        cy.contains('API').should('exist');
         cy.contains('Insert many').should('not.exist');
         cy.contains('Chit Chat').should('not.exist');
     });
@@ -151,5 +153,18 @@ describe('nlu-data:r role permissions', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('Import').should('not.exist');
+    });
+
+    it('should NOT be able to call nlu.updateExample, should end up with error code 403', function() {
+        cy.MeteorCall('nlu.updateExample', [
+            this.bf_model_id,
+            {
+                entities: [],
+                intent: 'Test Intent',
+                text: 'An intent will not be pushed',
+            },
+        ]).then((err) => {
+            expect(err.error).equal('403');
+        });
     });
 });
