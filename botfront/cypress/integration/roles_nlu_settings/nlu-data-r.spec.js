@@ -10,7 +10,7 @@ describe('nlu-data:r role permissions', function() {
         cy.get('@bf_project_id').then((id) => {
             cy.createUser('nlu-data:r', email, ['nlu-data:r'], id);
         });
-        cy.get('@bf_model_id.txt').then((modelId) => {
+        cy.get('@bf_model_id').then((modelId) => {
             cy.addTestActivity(modelId);
         });
         cy.logout();
@@ -56,11 +56,11 @@ describe('nlu-data:r role permissions', function() {
     });
 
     it('should be able to reinterpet intents', function() {
-        cy.logout();
+        // Logs the admin
         cy.login();
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('[data-cy=train-button]').click();
-        cy.logout();
+        // logs back our test user
         cy.loginTestUser(email);
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.rt-td.right').first().click();
@@ -125,5 +125,31 @@ describe('nlu-data:r role permissions', function() {
             this.bf_model_id,
             { what: 'ever' },
         ]).then(err => expect(err.error).to.equal('403'));
+    });
+
+    it('should display a model settings (but not change them)', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.get('[data-cy=settings-in-model]').click();
+        cy.contains('General').click();
+        cy.get('form').within(() => {
+            cy.get('input[name="name"]').should('be.disabled');
+            cy.get('#uniforms-0000-0002').parent().should('have.class', 'disabled');
+            cy.get('input[name="description"]').should('be.disabled');
+            cy.get('[data-cy=save-button]').should('be.disabled');
+            cy.get('#uniforms-0000-0005').parent().should('have.class', 'disabled');
+        });
+        cy.contains('Pipeline').click();
+        cy.get('form').within(() => {
+            cy.get('#config').parent().should('have.class', 'disabled');
+            cy.get('[data-cy=save-button]').should('be.disabled');
+        });
+        cy.contains('Export').click();
+        cy.contains('Export Training Data').should('not.have.class', 'disabled');
+    });
+
+    it('should not display import tab in settings', function() {
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.get('[data-cy=settings-in-model]').click();
+        cy.contains('Import').should('not.exist');
     });
 });

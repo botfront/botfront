@@ -54,4 +54,17 @@ describe('nlu-model:x role permissions', function() {
         cy.get('.nlu-menu-settings').click();
         cy.contains('Delete').should('not.exist');
     });
+
+    it('should be able to call nlu.update.general', function() {
+        cy.MeteorCall('nlu.update.general', [
+            this.bf_model_id,
+            {
+                config:
+                    'pipeline:  - name: components.botfront.language_setter.LanguageSetter  - name: tokenizer_whitespace  - name: intent_featurizer_count_vectors'
+                    + '  - name: intent_classifier_tensorflow_embedding  - BILOU_flag: true    name: ner_crf    features:      - [low, title, upper]'
+                    + '      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]'
+                    + '      - [low, title, upper]  - name: components.botfront.fuzzy_gazette.FuzzyGazette  - name: ner_synonyms',
+            },
+        ]).then(res => expect(res).to.equal(this.bf_model_id));
+    });
 });

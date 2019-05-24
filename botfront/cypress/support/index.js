@@ -251,7 +251,7 @@ Cypress.Commands.add('deleteUser', (email) => {
 });
 
 Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = 'Aaaaaaaa00') => {
-    cy.visit('/');
+    // cy.visit('/');
     cy.window()
         .then(
             ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
