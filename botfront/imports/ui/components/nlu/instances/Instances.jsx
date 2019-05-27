@@ -48,6 +48,7 @@ class Instances extends React.Component {
     
     renderInstance = (instance, index) => {
         const { confirmOpen } = this.state;
+        const { projectId } = this.props;
         return (
             <Card key={index}>
                 <Confirm
@@ -64,8 +65,12 @@ class Instances extends React.Component {
                 </Card.Content>
                 <Card.Content extra>
                     <Button.Group basic floated='right'>
-                        <Button primary onClick={() => this.setState({ editing: index })} icon='edit' data-cy='edit-instance' />
-                        <Button color='red' onClick={() => this.setState({ confirmOpen: true })} icon='trash' />
+                        {can('project-settings:w', projectId) && (
+                            <React.Fragment>
+                                <Button primary onClick={() => this.setState({ editing: index })} icon='edit' data-cy='edit-instance' />
+                                <Button color='red' onClick={() => this.setState({ confirmOpen: true })} icon='trash' />
+                            </React.Fragment>
+                        )}
                     </Button.Group>
                 </Card.Content>
             </Card>
@@ -92,9 +97,9 @@ class Instances extends React.Component {
                         onValidate={this.onValidate}
                     >
                         <HiddenField name='projectId' value={projectId} />
-                        <AutoField name='name' label='Instance name' />
+                        <AutoField name='name' label='Instance name' data-cy='name' />
                         <SelectField name='type' label='Type' data-cy='type-selector' />
-                        <AutoField name='host' />
+                        <AutoField name='host' data-cy='host' />
                         {can('global-admin') && <AutoField name='adminOnly' />}
                         <AutoField name='token' label='Token' />
 
@@ -116,12 +121,12 @@ class Instances extends React.Component {
         return instances.map((instance, index) => (editing === index ? this.renderAddOrEditInstance(instance, index) : this.renderInstance(instance, index)));
     }
 
-    renderReady = (editing, instances) => (
+    renderReady = (editing, instances, projectId) => (
         <Card.Group>
             {this.renderInstances(editing, instances)}
             {editing === NEW_INSTANCE && this.renderAddOrEditInstance({})}
 
-            {editing === NONE && (
+            {editing === NONE && can('project-settings:w', projectId) && (
                 <Card key='new-instance'>
                     <Card.Content />
                     <Card.Content extra>
@@ -133,11 +138,11 @@ class Instances extends React.Component {
     );
 
     render() {
-        const { instances, ready } = this.props;
+        const { instances, ready, projectId } = this.props;
         const { editing } = this.state;
         return (
             <>
-                {ready && this.renderReady(editing, instances)}
+                {ready && this.renderReady(editing, instances, projectId)}
                 {!ready && this.renderLoading()}
             </>
         );

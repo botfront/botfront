@@ -30,4 +30,93 @@ describe('project-settings:r role permissions', function() {
             cy.wrap(sidebar).contains('Settings');
         });
     });
+
+    it('should NOT be able to change project info', function() {
+        cy.visit(`/project/${this.bf_project_id}/settings`);
+        cy.contains('Project Info').click();
+        cy.get('.project-name').should('have.class', 'disabled');
+        cy.get('.project-default-language').should('have.class', 'disabled');
+        cy.contains('More Settings').should('not.exist');
+
+        // For meteor call
+        cy.MeteorCall('project.update', [
+            {
+                name: 'My First Model',
+                _id: this.bf_project_id,
+                defaultLanguage: 'en',
+            },
+        ]).then((result) => {
+            expect(result.error).to.be.equals('403');
+        });
+    });
+
+    it('should NOT be able to change rules', function() {
+        cy.visit(`/project/${this.bf_project_id}/settings`);
+        cy.contains('Credentials').click();
+        cy.get('[data-cy=ace-field]').should('have.class', 'disabled');
+        cy.get('[data-cy=save-button]').should('be.disabled');
+
+        // For meteor call
+        cy.MeteorCall('rules.save', [
+            {
+                projectId: this.bf_project_id,
+                rules: 'RULE',
+            },
+        ]).then((result) => {
+            expect(result.error).to.be.equals('403');
+        });
+    });
+
+    it('should NOT be able to change credentials', function() {
+        cy.visit(`/project/${this.bf_project_id}/settings`);
+        cy.contains('Credentials').click();
+        cy.get('[data-cy=ace-field]').should('have.class', 'disabled');
+        cy.get('[data-cy=save-button]').should('be.disabled');
+
+        // For meteor call
+        cy.MeteorCall('credentials.save', [
+            {
+                projectId: this.bf_project_id,
+                credentials: 'Credential',
+            },
+        ]).then((result) => {
+            expect(result.error).to.be.equals('403');
+        });
+    });
+
+    it('should NOT be able to change Endpoints', function() {
+        cy.visit(`/project/${this.bf_project_id}/settings`);
+        cy.contains('Endpoints').click();
+        cy.get('[data-cy=ace-field]').should('have.class', 'disabled');
+        cy.get('[data-cy=save-button]').should('be.disabled');
+
+        // For meteor call
+        cy.MeteorCall('endpoints.save', [
+            {
+                projectId: this.bf_project_id,
+                endpoints: 'Endpoint',
+            },
+        ]).then((result) => {
+            expect(result.error).to.be.equals('403');
+        });
+    });
+
+    it('should NOT be able to create new instances', function() {
+        cy.visit(`/project/${this.bf_project_id}/settings`);
+        cy.contains('Instances').click();
+        cy.contains('New instance').should('not.exist');
+
+        // For meteor call
+        cy.MeteorCall('instance.insert', [
+            {
+                _id: 'TODELETE',
+                projectId: this.bf_project_id,
+                host: 'http://host.docker.internal:5000',
+                type: ['core'],
+                name: 'Test Name',
+            },
+        ]).then((result) => {
+            expect(result.error).to.be.equals('403');
+        });
+    });
 });

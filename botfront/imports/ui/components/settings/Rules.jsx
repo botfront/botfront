@@ -22,19 +22,9 @@ class Rules extends React.Component {
         Meteor.call('rules.save', rules, wrapMeteorCallback(() => this.setState({ saving: false }), 'Rules saved'));
     };
 
-    disableAutoForm = (permission, saving) => {
-        if (saving) {
-            return true;
-        }
-        if (permission) {
-            return false;
-        }
-        return true;
-    }
-
     renderRules = (saving, rules, projectId) => (
         <AutoForm
-            disabled={this.disableAutoForm(can('project-settings:w', projectId), saving)}
+            disabled={!!saving || !can('project-settings:w', projectId)}
             schema={RulesSchema}
             model={rules}
             onSubmit={this.onSave}

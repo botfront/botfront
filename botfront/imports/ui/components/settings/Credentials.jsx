@@ -11,6 +11,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import ChangesSaved from '../utils/ChangesSaved';
 import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
+import { can } from '../../../lib/scopes';
 
 class Credentials extends React.Component {
     constructor(props) {
@@ -45,7 +46,7 @@ class Credentials extends React.Component {
         const { orchestrator } = this.props;
         return (
             <AutoForm
-                disabled={saving}
+                disabled={!!saving || !can('project-settings:w', projectId)}
                 schema={CredentialsSchema}
                 model={credentials}
                 onSubmit={this.onSave}
@@ -58,7 +59,7 @@ class Credentials extends React.Component {
                     return newModel;
                 }}
             >
-                <AceField name='credentials' label='Credentials' fontSize={12} mode='yaml' />
+                <AceField name='credentials' label='Credentials' fontSize={12} mode='yaml' data-cy='ace-field' />
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved
@@ -76,7 +77,7 @@ class Credentials extends React.Component {
                         )}
                     />
                 )}
-                <SaveButton saved={saved} saving={saving} />
+                <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('project-settings:w', projectId)} />
             </AutoForm>
         );
     };

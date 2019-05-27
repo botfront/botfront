@@ -27,16 +27,6 @@ class ProjectInfo extends React.Component {
             wrapMeteorCallback(() => this.setState({ saving: false }), 'Changes saved'));
     };
 
-    disableAutoForm = (permission, saving) => {
-        if (saving) {
-            return true;
-        }
-        if (permission) {
-            return false;
-        }
-        return true;
-    }
-
     render() {
         const { project, languages, ready } = this.props;
         const { saving } = this.state;
@@ -44,7 +34,7 @@ class ProjectInfo extends React.Component {
         return (
             <>
                 {ready && (
-                    <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={this.onSave} disabled={this.disableAutoForm(can('project-settings:w', project._id), saving)}>
+                    <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={this.onSave} disabled={!!saving || !can('project-settings:w', project._id)}>
                         <InfoField name='name' label='Name' className='project-name' />
                         {projectsSchema && projectsSchema.allowsKey('namespace') && (
                             <InfoField name='namespace' label='Namespace' disabled />
