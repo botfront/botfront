@@ -11,7 +11,6 @@ import ChangesSaved from '../../../utils/ChangesSaved';
 import SaveButton from '../../../utils/SaveButton';
 import { can } from '../../../../../lib/scopes';
 
-
 class NLUParams extends React.Component {
     constructor(props) {
         super(props);

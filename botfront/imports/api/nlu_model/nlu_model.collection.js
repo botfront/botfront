@@ -34,7 +34,7 @@ if (Meteor.isServer) {
         return NLUModels.find({ _id: modelId });
     });
 
-    // his publication is here to get a lTist of accessible models
+    // This publication is here to get a list of accessible models
     // without having to download all the training data.
     // Thus greatly reducing the load times
     Meteor.publish('nlu_models.lite', function () {

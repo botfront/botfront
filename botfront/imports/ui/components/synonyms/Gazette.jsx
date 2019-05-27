@@ -17,7 +17,9 @@ function ModeEdit({ gazette, onEdit }) {
 
     const data = ['ratio', 'partial_ratio', 'token_sort_ratio', 'token_set_ratio'];
 
-    return <InlineSearch text={gazette.mode} data={data} onUpdateText={onUpdateText} />;
+    return (
+        <InlineSearch text={gazette.mode} data={data} onUpdateText={onUpdateText} />
+    );
 }
 
 class MinScoreEdit extends React.Component {
@@ -25,17 +27,17 @@ class MinScoreEdit extends React.Component {
         super(props);
         this.state = {
             value: this.props.gazette.min_score,
-        };
+        }
     }
 
     onDone() {
-        const copy = this.props.gazette.min_score;
+        let copy = this.props.gazette.min_score;
 
         this.props.gazette.min_score = this.state.value;
         this.props.onEdit(this.props.gazette, (error) => {
             if (error) {
                 this.props.gazette.min_score = copy;
-                this.setState({ value: copy });
+                this.setState({value: copy})
             }
         });
     }
@@ -45,7 +47,13 @@ class MinScoreEdit extends React.Component {
     }
 
     render() {
-        return <TextInput text={this.state.value.toString(10)} onBlur={this.onDone.bind(this)} onTextChange={this.handleTextChange.bind(this)} />;
+        return (
+            <TextInput
+                text={this.state.value.toString(10)}
+                onBlur={this.onDone.bind(this)}
+                onTextChange={this.handleTextChange.bind(this)}
+            />
+        );
     }
 }
 
@@ -118,6 +126,8 @@ GazetteEditor.propTypes = {
     projectId: PropTypes.string.isRequired,
 };
 
-export default (GazetteEditorContainer = withTracker(props => ({
-    model: props.model,
-}))(GazetteEditor));
+export default GazetteEditorContainer = withTracker((props) => {
+    return {
+        model: props.model,
+    };
+})(GazetteEditor);

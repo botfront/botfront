@@ -5,7 +5,11 @@ import requiredIf from 'react-required-if';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-    Button, Form, Icon, Message, Tab,
+    Button,
+    Form,
+    Icon,
+    Message,
+    Tab,
 } from 'semantic-ui-react';
 
 import IntentReport from './IntentReport';
@@ -20,6 +24,7 @@ import { Loading } from '../../utils/Utils';
 import { can } from '../../../../lib/scopes';
 
 import 'react-select/dist/react-select.css';
+
 
 class Evaluation extends React.Component {
     constructor(props) {
@@ -48,24 +53,36 @@ class Evaluation extends React.Component {
         const {
             evaluation: {
                 results: {
-                    intent_evaluation: intentEvaluation, intent_evaluation: {
-                        report, predictions, accuracy, f1_score: f1Score, precision,
+                    intent_evaluation: intentEvaluation,
+                    intent_evaluation: {
+                        report,
+                        predictions,
+                        accuracy,
+                        f1_score: f1Score,
+                        precision,
                     } = {},
                 } = {},
             } = {},
         } = this.state;
 
         if (intentEvaluation) {
-            return [
-                {
-                    menuItem: 'Intents',
-                    render: () => <IntentReport report={report} precision={precision} accuracy={accuracy} f1_score={f1Score} predictions={predictions} />,
-                },
-                {
-                    menuItem: 'Entities',
-                    render: () => <EntityReport predictions={predictions} />,
-                },
-            ];
+            return [{
+                menuItem: 'Intents',
+                render: () => (
+                    <IntentReport
+                        report={report}
+                        precision={precision}
+                        accuracy={accuracy}
+                        f1_score={f1Score}
+                        predictions={predictions}
+                    />
+                ),
+            }, {
+                menuItem: 'Entities',
+                render: () => (
+                    <EntityReport predictions={predictions} />
+                ),
+            }];
         }
 
         return [];
@@ -73,7 +90,13 @@ class Evaluation extends React.Component {
 
     evaluate() {
         this.setState({ evaluating: true });
-        const { projectId, model: { _id: modelId, instance: instanceId } = {} } = this.props;
+        const {
+            projectId,
+            model: {
+                _id: modelId,
+                instance: instanceId,
+            } = {},
+        } = this.props;
 
         const { data } = this.state;
         const instance = Instances.findOne({ _id: instanceId });
@@ -99,23 +122,25 @@ class Evaluation extends React.Component {
 
     useValidatedSet(callback) {
         this.changeExampleSet('validation', true);
-        const { model: { _id: modelId } = {} } = this.props;
+        const {
+            model: {
+                _id: modelId,
+            } = {},
+        } = this.props;
         const { loading } = this.state;
         Meteor.subscribe('activity', modelId, () => {
             const examples = ActivityCollection.find({ modelId }).fetch() || [];
-            const validExamples = examples.filter(({ validated }) => validated).map(example => ExampleUtils.stripBare(example, false));
+            const validExamples = examples.filter(({ validated }) => validated)
+                .map(example => ExampleUtils.stripBare(example, false));
 
             // Check that there are nonzero validated examples
             if (validExamples.length > 0) {
                 // Check that component is waiting for data before setting state
                 if (loading) {
-                    this.setState(
-                        {
-                            data: { rasa_nlu_data: { common_examples: validExamples } },
-                            loading: false,
-                        },
-                        callback,
-                    );
+                    this.setState({
+                        data: { rasa_nlu_data: { common_examples: validExamples } },
+                        loading: false,
+                    }, callback);
                 }
             } else {
                 const message = (
@@ -145,11 +170,19 @@ class Evaluation extends React.Component {
 
     render() {
         const {
-            model, validationRender, evaluation, loading: reportLoading, projectId,
+            model,
+            validationRender,
+            evaluation,
+            loading: reportLoading,
+            projectId,
         } = this.props;
 
         const {
-            data, exampleSet, errorMessage, evaluating, loading: dataLoading,
+            data,
+            exampleSet,
+            errorMessage,
+            evaluating,
+            loading: dataLoading,
         } = this.state;
 
         let defaultSelection = 0;
@@ -184,7 +217,9 @@ class Evaluation extends React.Component {
                             </div>
                         )}
 
-                        {!!evaluation && !evaluating && <Tab menu={{ pointing: true, secondary: true }} panes={this.getPrimaryPanes()} />}
+                        {!!evaluation && !evaluating && (
+                            <Tab menu={{ pointing: true, secondary: true }} panes={this.getPrimaryPanes()} />
+                        )}
                     </Form>
                 </Loading>
             </Tab.Pane>
@@ -207,7 +242,12 @@ Evaluation.defaultProps = {
 
 const EvaluationContainer = withTracker((props) => {
     const {
-        model, model: { _id: modelId } = {}, projectId, validationRender,
+        model,
+        model: {
+            _id: modelId,
+        } = {},
+        projectId,
+        validationRender,
     } = props;
 
     const evalsHandler = Meteor.subscribe('nlu_evaluations', props.model._id);

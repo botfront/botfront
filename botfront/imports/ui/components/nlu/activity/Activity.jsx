@@ -255,6 +255,7 @@ class Activity extends React.Component {
         const noExamples = (
             <Message success icon='check' header='Congratulations!' content='You are up to date' />
         );
+
         return utterances && utterances.length > 0 ? (
             <div>
                 <ActivityActions
