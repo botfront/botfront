@@ -16,18 +16,31 @@ class Index extends React.Component {
         }
     }
 
+    roleRouting = (pId) => {
+        if (can('nlu-data:r', pId)) {
+            return `/project/${pId}/nlu/models`;
+        } if (can('responses:r', pId)) {
+            return `/project/${pId}/dialogue/templates`;
+        } if (can('conversations:r', pId)) {
+            return `/project/${pId}/dialogue/conversations/p/1`;
+        } if (can('project-settings:r', pId)) {
+            return `/project/${pId}/settings`;
+        }
+        return ('/404');
+    };
+
     route = () => {
         const { router, projectsReady } = this.props;
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    if (can('global-admin', Meteor.userId())) router.push('/admin/projects');
+                    if (can('global-admin', undefined, Meteor.userId())) router.push('/admin/projects');
                     else {
                         const projects = getScopesForUser(Meteor.userId(), '');
                         if (projects.length === 0) {
                             router.push('/404');
                         } else {
-                            router.push(`/project/${projects[0]}/nlu/models`);
+                            router.push(this.roleRouting(projects[0]));
                         }
                     }
                 }
