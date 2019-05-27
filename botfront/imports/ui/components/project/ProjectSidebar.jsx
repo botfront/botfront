@@ -8,7 +8,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 
 import { Projects } from '../../../api/project/project.collection';
 import ProjectsDropdown from './ProjectsDropdown';
-import { can } from '../../../lib/scopes';
+import { can, Can } from '../../../lib/scopes';
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 class ProjectSidebar extends React.Component {
@@ -21,24 +21,31 @@ class ProjectSidebar extends React.Component {
 
         return (
             <DocumentTitle title={projectName}>
-                <Menu vertical inverted pointing className='project-menu'>
+                <Menu vertical inverted pointing className='project-menu' data-cy='project-menu'>
                     <Menu.Item>
                         <Menu.Header style={{ marginBottom: '20px' }}>Project</Menu.Header>
                         <ProjectsDropdown currentProjectId={projectId} onProjectChange={handleChangeProject} />
                     </Menu.Item>
-                    <Link to={`/project/${projectId}/nlu/models`}>
-                        <Menu.Item name='NLU' icon='grid layout' />
-                    </Link>
-                    <Link to={`/project/${projectId}/dialogue/templates`}>
-                        <Menu.Item name='Responses' icon='comment' />
-                    </Link>
-                    <Link to={`/project/${projectId}/dialogue/conversations/p/1`}>
-                        <Menu.Item name='Conversations' icon='comments' />
-                    </Link>
-                    
-                    <Link to={`/project/${projectId}/settings`}>
-                        <Menu.Item name='Settings' icon='setting' />
-                    </Link>
+                    <Can I='nlu-data:r' projectId={projectId}>
+                        <Link to={`/project/${projectId}/nlu/models`}>
+                            <Menu.Item name='NLU' icon='grid layout' />
+                        </Link>
+                    </Can>
+                    <Can I='responses:r' projectId={projectId}>
+                        <Link to={`/project/${projectId}/dialogue/templates`}>
+                            <Menu.Item name='Responses' icon='comment' />
+                        </Link>
+                    </Can>
+                    <Can I='conversations:r' projectId={projectId}>
+                        <Link to={`/project/${projectId}/dialogue/conversations/p/1`}>
+                            <Menu.Item name='Conversations' icon='comments' />
+                        </Link>
+                    </Can>
+                    <Can I='project-settings:r' projectId={projectId}>
+                        <Link to={`/project/${projectId}/settings`}>
+                            <Menu.Item name='Settings' icon='setting' />
+                        </Link>
+                    </Can>
                     <Divider inverted />
                     {can('global-admin') && (
                         <Link to='/admin/'>
