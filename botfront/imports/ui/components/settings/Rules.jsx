@@ -9,6 +9,7 @@ import { cloneDeep } from 'lodash';
 import { RulesSchema, Rules as RulesCollection } from '../../../api/rules';
 import AceField from '../utils/AceField';
 import { wrapMeteorCallback } from '../utils/Errors';
+import { can } from '../../../lib/scopes';
 
 class Rules extends React.Component {
     constructor(props) {
@@ -21,9 +22,19 @@ class Rules extends React.Component {
         Meteor.call('rules.save', rules, wrapMeteorCallback(() => this.setState({ saving: false }), 'Rules saved'));
     };
 
+    disableAutoForm = (permission, saving) => {
+        if (saving) {
+            return true;
+        }
+        if (permission) {
+            return false;
+        }
+        return true;
+    }
+
     renderRules = (saving, rules, projectId) => (
         <AutoForm
-            disabled={saving}
+            disabled={this.disableAutoForm(can('project-settings:w', projectId), saving)}
             schema={RulesSchema}
             model={rules}
             onSubmit={this.onSave}
@@ -36,7 +47,7 @@ class Rules extends React.Component {
                 return newModel;
             }}
         >
-            <AceField name='rules' label='Rules' fontSize={12} />
+            <AceField name='rules' label='Rules' fontSize={12} data-cy='ace-field' />
             <ErrorsField />
             <SubmitField data-cy='save-button' value='Save' className='primary' />
         </AutoForm>

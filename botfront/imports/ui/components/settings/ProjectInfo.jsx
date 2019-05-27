@@ -12,6 +12,7 @@ import InfoField from '../utils/InfoField';
 import { wrapMeteorCallback } from '../utils/Errors';
 import SelectField from '../form_fields/SelectField';
 import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+import { can } from '../../../lib/scopes';
 
 class ProjectInfo extends React.Component {
     constructor(props) {
@@ -26,6 +27,16 @@ class ProjectInfo extends React.Component {
             wrapMeteorCallback(() => this.setState({ saving: false }), 'Changes saved'));
     };
 
+    disableAutoForm = (permission, saving) => {
+        if (saving) {
+            return true;
+        }
+        if (permission) {
+            return false;
+        }
+        return true;
+    }
+
     render() {
         const { project, languages, ready } = this.props;
         const { saving } = this.state;
@@ -33,7 +44,7 @@ class ProjectInfo extends React.Component {
         return (
             <>
                 {ready && (
-                    <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={this.onSave} disabled={saving}>
+                    <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={this.onSave} disabled={this.disableAutoForm(can('project-settings:w', project._id), saving)}>
                         <InfoField name='name' label='Name' className='project-name' />
                         {projectsSchema && projectsSchema.allowsKey('namespace') && (
                             <InfoField name='namespace' label='Namespace' disabled />

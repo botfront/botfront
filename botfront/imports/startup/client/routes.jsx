@@ -96,7 +96,7 @@ Meteor.startup(() => {
                         <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate()} />
                         <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate()} />
                         <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate()} />
-                        <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate()} />
+                        <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('project-settings:r')} />
                         <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-admin')} />
                         <Route path='*' component={NotFound} />
                     </Route>
