@@ -12,7 +12,7 @@ class NLUTrainButton extends React.Component {
     train = () => {
         const { model, instance, projectId } = this.props;
         Meteor.call('nlu.markTrainingStarted', model._id);
-        Meteor.call('nlu.train', model._id, projectId, instance, (err) => {
+        Meteor.call('rasa.train', model._id, projectId, instance, (err) => {
             if (err) {
                 Alert.error(`Training failed: ${JSON.stringify(err.reason)}`, {
                     position: 'top-right',

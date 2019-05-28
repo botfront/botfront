@@ -5,7 +5,7 @@
   "scripts": {
     "start": "meteor run",
     "start:docker-compose": "ORCHESTRATOR=docker-compose meteor run",
-    "debug": "meteor run --inspect",
+    "debug": "meteor run --inspect-brk=9229",
     "cy:run": "npx cypress run",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
@@ -13,7 +13,9 @@
     "postinstall": "cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./public/",
     "licenses:summary": "license-checker --summary",
     "licenses:csv": "license-checker --csv --out botfront-licenses.csv",
-    "release": "standard-version"
+    "release": "standard-version",
+    "test": "meteor test --driver-package=practicalmeteor:mocha --port 3010",
+    "test-debug": "meteor test --inspect --driver-package=practicalmeteor:mocha --port 3010"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
