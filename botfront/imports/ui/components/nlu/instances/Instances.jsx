@@ -97,9 +97,9 @@ class Instances extends React.Component {
                         onValidate={this.onValidate}
                     >
                         <HiddenField name='projectId' value={projectId} />
-                        <AutoField name='name' label='Instance name' data-cy='name' />
+                        <AutoField name='name' label='Instance name' />
                         <SelectField name='type' label='Type' data-cy='type-selector' />
-                        <AutoField name='host' data-cy='host' />
+                        <AutoField name='host' />
                         {can('global-admin') && <AutoField name='adminOnly' />}
                         <AutoField name='token' label='Token' />
 

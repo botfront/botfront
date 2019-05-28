@@ -113,7 +113,6 @@ describe('project writer role permissions', function() {
                 name: 'Test Name',
             },
         ]).then((result) => {
-            console.log(result);
             expect(result).to.be.equals('TODELETE');
         });
     });
