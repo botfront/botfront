@@ -47,6 +47,26 @@ export const formatError = (error) => {
     return new Meteor.Error('unknown', 'Something went wrong');
 };
 
+export const getAxiosError = (e) => {
+    console.log(e);
+    // TODO identify all possible error object structure and create an external function to derive code and message consistently
+    let error = null;
+    if (e.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        error = new Meteor.Error(e.response.status, e.response.data.error);
+    } else if (e.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        error = new Meteor.Error('399', 'timeout');
+    } else {
+        // Something happened in setting up the request that triggered an Error
+        error = new Meteor.Error('500', e.message);
+    }
+    return error;
+};
+
 export const getBackgroundImageUrl = () => {
     const result = GlobalSettings.findOne({}, { fields: { 'settings.public.backgroundImages': 1 } });
     const { settings: { public: { backgroundImages = [] } = {} } = {} } = (result || {});
