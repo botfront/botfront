@@ -55,20 +55,28 @@ Meteor.startup(() => {
 });
 
 if (Meteor.isServer) {
+    const findConversationProject = (senderId) => {
+        const conversation = Conversations.findOne({ _id: senderId });
+        if (!conversation) throw Meteor.Error('404', 'Not Found');
+        return conversation.projectId;
+    };
     Meteor.methods({
         'conversations.markAsRead'(senderId) {
             check(senderId, String);
+            checkIfCan('conversations:r', findConversationProject(senderId));
             return Conversations.update({ _id: senderId }, { $set: { status: 'read' } });
         },
 
         'conversations.updateStatus'(senderId, status) {
             check(senderId, String);
             check(status, String);
+            checkIfCan('conversations:w', findConversationProject(senderId));
             return Conversations.update({ _id: senderId }, { $set: { status } });
         },
 
         'conversations.delete'(senderId) {
             check(senderId, String);
+            checkIfCan('conversations:w', findConversationProject(senderId));
             return Conversations.remove({ _id: senderId });
         },
     });

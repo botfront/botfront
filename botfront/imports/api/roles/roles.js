@@ -45,6 +45,11 @@ if (Meteor.isServer) {
         Roles.createRole('conversations:r', ue);
         Roles.createRole('conversations-viewer', ue);
         Roles.addRolesToParent('conversations:r', 'conversations-viewer');
+
+        Roles.createRole('conversations:w', ue);
+        Roles.addRolesToParent('conversations:r', 'conversations:w');
+        Roles.createRole('conversations-editor', ue);
+        Roles.addRolesToParent('conversations:w', 'conversations-editor');
     
         Roles.createRole('project-settings:r', ue);
         Roles.createRole('project-settings:w', ue);
@@ -54,7 +59,7 @@ if (Meteor.isServer) {
         Roles.addRolesToParent(['nlu-viewer', 'copy-viewer', 'conversations-viewer', 'project-settings:r'], 'project-viewer');
     
         Roles.createRole('project-admin', ue);
-        Roles.addRolesToParent(['nlu-admin', 'copy-editor', 'conversations-viewer', 'project-settings:w', 'project-viewer'], 'project-admin');
+        Roles.addRolesToParent(['nlu-admin', 'copy-editor', 'conversations-editor', 'project-settings:w', 'project-viewer'], 'project-admin');
     
         // Legacy owner role
         Roles.createRole('owner', ue);

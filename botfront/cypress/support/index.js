@@ -289,46 +289,6 @@ Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = '
         );
 });
 
-Cypress.Commands.add('loginViewer', (email = 'viewer@test.com', password = 'Aaaaaaaa00') => {
-    cy.visit('/');
-    cy.window()
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.logout((err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            }),
-        )
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-            }),
-        );
-});
-
-Cypress.Commands.add('loginEditor', (email = 'editor@test.com', password = 'Aaaaaaaa00') => {
-    cy.visit('/');
-    cy.window()
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.logout((err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            }),
-        )
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-            }),
-        );
-});
-
 Cypress.Commands.add('loginAdmin', (email = 'admin@test.com', password = 'Aaaaaaaa00') => {
     cy.visit('/');
     cy.window()
@@ -381,4 +341,65 @@ Cypress.Commands.add('addTestActivity', (modelId) => {
 
 Cypress.Commands.add('removeTestActivity', (modelId) => {
     cy.MeteorCallAdmin('activity.deleteExamples', [modelId, ['TestActivity']]);
+});
+
+Cypress.Commands.add('addTestConversation', (projectId) => {
+    const commandToAddConversation = `mongo meteor --host localhost:3001 --eval "db.conversations.insert({
+        _id:'6f1800deea7f469b8dafd928f092a280',
+        tracker:{
+           events:[
+
+           ],
+           slots:{
+              latest_response_name:null,
+              followup_response_name:null,
+              parse_data:null
+           },
+           latest_input_channel:'socketio',
+           paused:false,
+           followup_action:null,
+           latest_message:{
+              text:'/get_started',
+              entities:[
+     
+              ],
+              intent_ranking:[
+                 {
+                    name:'get_started',
+                    confidence:{
+                       '$numberInt':'1'
+                    }
+                 }
+              ],
+              intent:{
+                 name:'get_started',
+                 confidence:{
+                    '$numberInt':'1'
+                 }
+              }
+           },
+           sender_id:'6f1800deea7f469b8dafd928f092a280',
+           latest_event_time:{
+              '$numberDouble':'1551194858.7705371'
+           },
+           latest_action_name:'action_listen'
+        },
+        status:'read',
+        projectId:'${projectId}',
+        createdAt:{
+           '$date':{
+              '$numberLong':'1551194858732'
+           }
+        },
+        updatedAt:{
+           '$date':{
+              '$numberLong':'1551194858788'
+           }
+        }
+    });"`;
+    cy.exec(commandToAddConversation);
+});
+
+Cypress.Commands.add('removeTestConversation', () => {
+    cy.MeteorCallAdmin('conversations.delete', ['6f1800deea7f469b8dafd928f092a280']);
 });

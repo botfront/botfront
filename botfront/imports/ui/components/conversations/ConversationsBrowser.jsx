@@ -140,7 +140,7 @@ class ConversationsBrowser extends React.Component {
         const { trackers, activeConversationId } = this.props;
 
         return (
-            <div>
+            <div data-cy='conversations-browser'>
                 {trackers.length > 0 ? (
                     <Grid>
                         <Grid.Column width={4}>
