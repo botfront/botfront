@@ -12,6 +12,7 @@ import Credentials from './Credentials';
 import Endpoints from './Endpoints';
 import ProjectInfo from './ProjectInfo';
 import Instances from '../nlu/instances/Instances';
+import CorePolicy from './CorePolicy';
 
 class Settings extends React.Component {
     constructor(props) {
@@ -61,6 +62,10 @@ class Settings extends React.Component {
             {
                 menuItem: <Menu.Item className='project-settings-menu-instances' icon='server' content='Instances' key='Instances' />,
                 render: () => <Tab.Pane as='div'><Instances /></Tab.Pane>,
+            },
+            {
+                menuItem: <Menu.Item className='project-settings-menu-core-policy' icon='server' content='Core Policy' key='Core Policy' />,
+                render: () => <Tab.Pane as='div'><CorePolicy /></Tab.Pane>,
             },
             {
                 menuItem: (
