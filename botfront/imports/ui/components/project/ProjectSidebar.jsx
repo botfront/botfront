@@ -61,7 +61,7 @@ class ProjectSidebar extends React.Component {
                     </a>
                     {intercomId && (
                         <span>
-                            <Menu.Item name='Support' onClick={() => triggerIntercom(intercomId)} icon='help' />
+                            <Menu.Item name='Support' onClick={() => triggerIntercom(intercomId)} icon='bell' />
                         </span>
                     )}
                 </Menu>

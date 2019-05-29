@@ -14,6 +14,7 @@ import {
     Tab,
     Popup,
     Placeholder,
+    Loader,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
@@ -37,9 +38,10 @@ import DeleteModel from '../import-export/DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
-import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import { can } from '../../../../lib/scopes';
+
+const API = React.lazy(() => import('./API'));
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -142,39 +144,41 @@ class NLUModel extends React.Component {
             examples, entities, intents, instance,
         } = this.state;
 
-        const tabs = [];
+        const tabs = [
+            {
+                menuItem: 'Examples',
+                render: () => (
+                    <NluDataTable
+                        onEditExample={this.onEditExample}
+                        onDeleteExample={this.onDeleteExample}
+                        onRenameIntent={this.onRenameIntent}
+                        examples={examples}
+                        entities={entities}
+                        intents={intents}
+                        projectId={projectId}
+                    />
+                ),
+            },
+            { menuItem: 'Synonyms', render: () => <Synonyms model={model} projectId={projectId} /> },
+            { menuItem: 'Gazette', render: () => <Gazette model={model} projectId={projectId} /> },
+            { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
+        ];
 
-        if (can('nlu-data:r', projectId)) {
+        if (can('nlu-data:w', projectId)) {
             tabs.push(
-                {
-                    menuItem: 'Examples',
-                    render: () => (
-                        <NluDataTable
-                            onEditExample={this.onEditExample}
-                            onDeleteExample={this.onDeleteExample}
-                            onRenameIntent={this.onRenameIntent}
-                            examples={examples}
-                            entities={entities}
-                            intents={intents}
-                            projectId={projectId}
-                        />
-                    ),
-                },
+                { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
             );
-            if (can('nlu-data:w', projectId)) {
-                tabs.push(
-                    { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
-                );
-            }
-            tabs.push(
-                { menuItem: 'Synonyms', render: () => <Synonyms model={model} projectId={projectId} /> },
-                { menuItem: 'Gazette', render: () => <Gazette model={model} projectId={projectId} /> },
-                { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
-            );
-            if (can('nlu-data:w', projectId)) {
-                if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
-            }
-            if (instance) tabs.push({ menuItem: 'API', render: () => <API model={model} instance={instance} /> });
+            if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
+        }
+        if (instance) {
+            tabs.push({
+                menuItem: 'API',
+                render: () => (
+                    <React.Suspense fallback={<Loader active />}>
+                        <API model={model} instance={instance} />
+                    </React.Suspense>
+                ),
+            });
         }
         return tabs;
     };

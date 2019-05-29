@@ -36,7 +36,7 @@ Another issue is that memory requirements grows with the number of conversations
 ```yaml
 tracker_store:
   store_type: botfront.tracker_stores.analytics.AnalyticsTrackerStore
-  url: http://host.docker.internal:8081
+  url: http://botfront-api:8080
   project_id: < Botfront project ID >
   chatbase_api_key: < Chatbase API key >
   chatbase_version: < Chatbase version >

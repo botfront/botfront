@@ -1,19 +1,26 @@
 # Bot responses
 
-In Botfront, a bot response is a **sequence** of messages (or bubbles). For example, a bot response could include a intro message, an image, and then quick replies. The benefit of sequences is that if you decide to add or insert another message in the sequence, it is still the same bot response so you shouldn't have to make changes anywhere else.
+In Botfront, a bot response is a **sequence** of messages: in the example below, the three messages belong to the same `utter_equipment_price_volatility` sequence. 
 
-Use the **Add bot response** button to create a new sequence
+If you decide this response should have more or less messages, you can make your changes in Botfront without altering your story and domain, avoiding the need to retrain.
 
-![](../../images/bot_responses_1.png)
+![](../../images/bot_response_sequence_example.png)
+
 
 ## Create a sequence
 
-Choose a unique name for your bot response, then click the <i class="fas fa-plus"></i> icon.
+1. Use the **Add bot response** button to create a new sequence
+
+![](../../images/bot_responses_1.png)
+
+2. Choose a unique name for your bot response, then click the <i class="fas fa-plus"></i> icon.
+   
 ![](../../images/bot_responses_2.png)
 
 ::: tip NOTE
 The response name must start with `utter_`
 :::
+
 Let's choose **Text with buttons (quick replies)**. It fills the message with a template. 
 
 ![](../../images/bot_responses_3.png)
@@ -28,13 +35,13 @@ Text messages are supported by all platforms and can be formatted as follows:
 text: "Hello"
 ```
 
-::: tip
-> Although the YAML specification does not require quotes ( i.e `text: Hello` works too), we recommend to use them all the time. Without quotes, some sentences with `:` or special characters such as `\n` could fail at validation time or even at runtime
+::: tip TIP: always use quotes
+Although the YAML specification does not require quotes ( i.e `text: Hello` works too), we recommend to use them all the time. Without quotes, some sentences with `:` or special characters such as `\n` could fail at validation time or even at runtime
 :::
 
 ### Markdown support
 
-Some channels, such as the [Webchat](https://github.com/mrbot-ai/rasa-webchat) with `bot.socketio.SocketIOInput`.
+Some channels, such as the [Webchat](https://github.com/mrbot-ai/rasa-webchat) with `bot.socketio.SocketIOInput` have built-in markdown support
 
 ```yaml
 text: "Hello from [Botfront](https://botfront.io)"
@@ -85,12 +92,11 @@ You can use bot responses in your Rasa Core stories
 You can utter the whole sequence of messages of a bot response with a single `utter_...` action.
 :::
 
-### From the API
-See our [API documentation](https://eu.api.botfront.io/api-docs)
-
 ## Q&A / FAQ bots
 
-Botfront lets you build rich Q&A systems by mapping responses to various combinations of intents and entities. Suppose you want to answer questions related to flight tickets exchange conditions. It's always the same intent (`faq.exchange`) but the answer may vary according to the `class` entity:
+Botfront lets you build rich Q&A systems by mapping responses to various combinations of intents and entities without having to re-train your dialogue models.
+
+Suppose you want to answer questions related to flight tickets exchange conditions. It's always the same intent (`faq.exchange`) but the answer may vary according to the `class` entity:
 
 ![](../../images/faq_1.png)
 
@@ -102,6 +108,10 @@ Then determine the NLU criteria that should trigger your response.
 
 ![](../../images/faq_2.png)
 
+::: tip Q&A feature requires intents prefixed with <code>chitchat.</code> or <code>faq.</code>
+Botfront adds a special behaviour to intents prefixed with `chitchat.` or `faq.` allowing to map a response without having to retrain the whole model. In the above example, `faq.exchange` will be handled by the Q&A feature only because it starts with `faq.`. If the name was `exchange` Rasa would just try to find a corresponding story.
+For more information, see [Q&A and FAQ Bots](/guide/bot-responses/#q-a-faq-bots) or [Rules](/guide/users/rules.html)
+:::
 
 ::: warning
 If several responses can be triggered by a NLU criterium, only ONE response will be sent (the first that matches). Be very careful when using the `is detected` clause for entities. Suppose you have a trigger `intent:book, entity:city(is detected)` and another trigger `intent:book, entity:city(has value Paris)`. Any response could be triggered by _I want to book in Paris_

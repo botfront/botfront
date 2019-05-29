@@ -4,6 +4,10 @@ module.exports = {
     ga: 'UA-110157233-2',
     title: 'Documentation',
     themeConfig: {
+        algolia: {
+            apiKey: '8b60ee4c0486b30ef1cd92220831bc34',
+            indexName: 'botfront'
+          },
         docsRepo: 'botfront/botfront',
         docsDir: 'botfront/docs',
         docsBranch: 'master',
@@ -20,6 +24,7 @@ module.exports = {
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
+                    '/guide/getting-started/setup',
                     '/guide/getting-started/quick-start',
                     '/guide/getting-started/rasa-stack',
                     // '/guide/getting-started/advanced',
@@ -55,16 +60,15 @@ module.exports = {
                     '/guide/nlu/activity',
                 ],
             },
-            // {
-            //     title: 'Developers Guide',   // required
-            //     // path: '/guide',
-            //     collapsable: false,
-            //     sidebarDepth: 5,
-            //     children: [
-            //         '/guide/nlu/instances-models',
-            //         '/guide/developers/README.md',
-            //     ]
-            // },
+            {
+                title: 'Deployment Guide',   // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/deployment/',
+                ]
+            },
         ],
         serviceWorker: {
             updatePopup: true, // Boolean | Object, default to undefined.

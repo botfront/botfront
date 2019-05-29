@@ -62,3 +62,14 @@ We strongly recommend using a very short database name (e.g `bf`) and not too lo
 - `MONGO_URL`: to MongoDB connection string
 - `MAIL_URL`: An SMTP url if you want to use the password reset feature
 
+### Technical requirements
+
+Those are the miminal requirements:
+
+| Service  | RAM   | CPU  |
+|---|---:|---:|
+| botfront |  1 Gb | 1  | 
+| botfront-api  |  512 Mb | 0.5  |
+| duckling  |  512 Mb | 0.5  |
+| rasa-nlu  | 1 Gb  |  1 |
+| rasa-core  |  512 Mb | 1  |

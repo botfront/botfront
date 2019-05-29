@@ -61,7 +61,7 @@ class ProjectChat extends React.Component {
                         text: model.language,
                         value: model.language,
                     })),
-                    selectedLanguage: res[0].language,
+                    selectedLanguage: res.length ? res[0].language : '',
                 });
             }),
         );
@@ -97,13 +97,15 @@ class ProjectChat extends React.Component {
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
                     <Menu.Item>
-                        <Dropdown
-                            options={languageOptions}
-                            selection
-                            onChange={this.handleLangChange}
-                            value={selectedLanguage}
-                            data-cy='chat-language-option'
-                        />
+                        {selectedLanguage && (
+                            <Dropdown
+                                options={languageOptions}
+                                selection
+                                onChange={this.handleLangChange}
+                                value={selectedLanguage}
+                                data-cy='chat-language-option'
+                            />
+                        )}
                     </Menu.Item>
                     <Menu.Menu position='right'>
                         <Menu.Item>
@@ -142,37 +144,45 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                <div>
-                    {socketUrl && selectedLanguage && path && (
-                        <Chat
-                            socketUrl={socketUrl}
-                            key={key}
-                            language={selectedLanguage}
-                            path={path}
-                        />
-                    )}
-                    {noCore && (
-                        <Message
-                            content={(
-                                <div>
-                                    Go to <Icon name='setting' />Settings &gt;{' '}
-                                    <Icon name='server' />Instances to{' '}
-                                    <Link
-                                        to={`/project/${projectId}/settings`}
-                                        onClick={triggerChatPane}
-                                        data-cy='settings-link'
-                                    >
-                                        create{' '}
-                                    </Link>
-                                    an instance of type <b>core</b> to enable the chat window.
-                                </div>
-                            )}
-                            className='no-core-message'
-                            warning
-                            data-cy='no-core-instance-message'
-                        />
-                    )}
-                </div>
+                {selectedLanguage === '' && (
+                    <Message warning className='no-language' data-cy='no-language'>
+                        There is no <Icon name='wifi' /><b>online</b> NLU model, so your chatbot cannot understand natural
+                        language. However you can use dialog acts like <code>/intent</code> or{' '}
+                        <code>
+                            /intent{'{'}&quot;entity&quot;:&quot;value&quot;{'}'}
+                        </code>
+                    </Message>
+                )}
+                {socketUrl && (selectedLanguage || selectedLanguage === '') && path && (
+                    <Chat
+                        socketUrl={socketUrl}
+                        key={key}
+                        language={selectedLanguage}
+                        path={path}
+                    />
+                )}
+                {noCore && (
+                    <Message
+                        content={(
+                            <div>
+                                Go to <Icon name='setting' />
+                                Settings &gt; <Icon name='server' />
+                                Instances to{' '}
+                                <Link
+                                    to={`/project/${projectId}/settings`}
+                                    onClick={triggerChatPane}
+                                    data-cy='settings-link'
+                                >
+                                    create{' '}
+                                </Link>
+                                an instance of type <b>core</b> to enable the chat window.
+                            </div>
+                        )}
+                        className='no-core-message'
+                        warning
+                        data-cy='no-core-instance-message'
+                    />
+                )}
             </div>
         );
     }

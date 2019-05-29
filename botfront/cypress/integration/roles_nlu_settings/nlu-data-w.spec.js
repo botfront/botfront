@@ -4,7 +4,8 @@ const email = 'nludataw@test.ia';
 
 const modelNameForUI = 'myModel';
 const modelLangForUI = 'French';
-const nameOfModelForCall = 'deleteModel';
+const modelNameForCall = 'deleteModel';
+const modelLangForCall = 'English';
 let modelIdForCall = '';
 const dataImport = `
 { 
@@ -58,7 +59,7 @@ describe('nlu-data:w role permissions', function() {
     });
 
     after(function() {
-        cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.remove({ name: '${nameOfModelForCall}'});"`);
+        cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.remove({ name: '${modelNameForCall}'});"`);
         cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.remove({ name: '${modelNameForUI}'});"`);
         cy.deleteUser(email);
     });
@@ -215,7 +216,7 @@ describe('nlu-data:w role permissions', function() {
         cy.get('.s-alert-success').should('be.visible');
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         cy.contains(modelLangForUI).click();
-        cy.get(`#model-${modelNameForUI} .open-model-button`)
+        cy.get(`#model-${modelNameForUI} [data-cy=open-model]`)
             .first()
             .click();
         cy.contains('Training Data').click();
@@ -232,8 +233,8 @@ describe('nlu-data:w role permissions', function() {
             true,
         ]).then(() => {
             cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-            cy.contains('English').click();
-            cy.get(`#model-${nameOfModelForCall} .open-model-button`).click();
+            cy.contains(modelLangForCall).click();
+            cy.get(`#model-${modelNameForCall} [data-cy=open-model]`).click();
             cy.contains('Training Data').click();
             cy.contains('Statistics').click();
             cy.contains('1').siblings('.label').should('contain', 'Examples');

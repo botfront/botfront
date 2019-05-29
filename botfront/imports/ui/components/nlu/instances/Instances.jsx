@@ -79,7 +79,6 @@ class Instances extends React.Component {
 
     onValidate = (model, error, callback) => {
         InstancesCollection.simpleSchema().clean(model);
-        console.log(model);
         callback();
     };
 
@@ -93,22 +92,16 @@ class Instances extends React.Component {
                         schema={InstancesCollection.simpleSchema()}
                         model={instance}
                         onSubmit={i => this.createOrUpdateInstance(i)}
-                        disabled={instance.adminOnly && !can('global-admin')}
                         onValidate={this.onValidate}
                     >
                         <HiddenField name='projectId' value={projectId} />
                         <AutoField name='name' label='Instance name' />
                         <SelectField name='type' label='Type' data-cy='type-selector' />
                         <AutoField name='host' />
-                        {can('global-admin') && <AutoField name='adminOnly' />}
                         <AutoField name='token' label='Token' />
 
                         <ErrorsField />
-                        {(can('global-admin') || !instance.adminOnly) && (
-                            <>
-                                <SubmitField value='Save instance' className='primary' data-cy='save-instance' />
-                            </>
-                        )}
+                        <SubmitField value='Save instance' className='primary' data-cy='save-instance' />
                     </AutoForm>
                 </Card.Content>
             </Card>

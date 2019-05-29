@@ -17,11 +17,11 @@ botfront-project
 |- db
 |- models
 |- project
-|- domains
-|-- domain.yml
-|- stories
-|-- stories.md
-|- policies.yml
+|-- domains
+|--- domain.yml
+|-- stories
+|--- stories.md
+|-- policies.yml
 ```
 
 | Folder | Description |
@@ -156,7 +156,7 @@ _Adding Duckling to the NLU pipeline_ means that we are going to use Duckling to
 
 ```
 - name: "components.botfront.duckling_http_extractor.DucklingHTTPExtractor"
-  url: "http://host.docker.internal:8000"
+  url: "http://duckling:8000"
   dimensions:
   - "number"
 ```

@@ -18,7 +18,8 @@ import {
     Icon,
     Label,
     Menu,
-    Popup, Confirm, Tab,
+    Segment,
+    Popup, Confirm, Tab, Header,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
@@ -33,7 +34,7 @@ import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_
 import { wrapMeteorCallback } from '../../utils/Errors';
 import getColor from '../../../../lib/getColors';
 import { setWorkingLanguage } from '../../../store/actions/actions';
-import { can } from '../../../../lib/scopes';
+import { can, Can } from '../../../../lib/scopes';
 
 const NONE = -2;
 const NEW_MODEL = -1;
@@ -43,9 +44,12 @@ class NLUModels extends React.Component {
         super(props);
         this.state = {
             editing: NONE,
-            confirmOpen: false,
-            modelToPublish: null,
             loading: false,
+            // those states will take the id of the model on which
+            // the popup must be displayed
+            popupDuplicateModel: false,
+            popupTurnOnModel: false,
+            tipDuplicateModel: false,
         };
         this.fixLanguage();
     }
@@ -75,7 +79,7 @@ class NLUModels extends React.Component {
         }));
     };
 
-    onDuplicateModel = (model) => {
+    handleDuplicateModel = (model) => {
         const copy = cloneDeep(model);
         copy.name = `Copy of ${model.name}`;
         copy.evaluations = [];
@@ -83,7 +87,14 @@ class NLUModels extends React.Component {
         delete copy._id;
         copy.published = false;
         this.createOrUpdateModel(copy);
+        this.resetPopups();
     };
+
+    resetPopups = () => this.setState({
+        popupDuplicateModel: false,
+        popupTurnOnModel: false,
+        tipDuplicateModel: false,
+    })
 
     renderMenu = () => {
         const { loading, editing } = this.state;
@@ -122,15 +133,49 @@ class NLUModels extends React.Component {
         browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelId}` });
     };
 
-    publishModel = (modelId, projectId) => Meteor.call('nlu.publish', modelId, projectId, wrapMeteorCallback(() => {
-        this.setState({ confirmOpen: false });
-    }));
+    publishModel = (modelId, projectId) => Meteor.call('nlu.publish', modelId, projectId, wrapMeteorCallback());
 
     renderModels = (models) => {
         const { projectId } = this.props;
-        const { loading, confirmOpen, modelToPublish } = this.state;
+        const {
+            loading, popupDuplicateModel, popupTurnOnModel, tipDuplicateModel,
+        } = this.state;
         const langs = uniq(models.map(m => m.language));
-        const disableOnlineOffline = can('nlu-model:w', projectId);
+        const disableOnlineOffline = !can('nlu-model:w', projectId);
+
+        const renderDuplicateButton = (disabled, onClick = () => {}) => (
+            <Button
+                data-cy='duplicate-button'
+                disabled={disabled}
+                secondary
+                onClick={onClick}
+                icon='copy'
+            />
+        );
+
+        const ConfirmPopup = ({ title, onYes = () => {}, description = '' }) => (
+            <Segment basic className='model-popup' data-cy='confirm-popup'>
+                <Header as='h4'>{title}</Header>
+                {description}
+                <div>
+                    <Button
+                        negative
+                        onClick={this.resetPopups}
+                        size='tiny'
+                    >
+                    No
+                    </Button>
+                    <Button
+                        primary
+                        onClick={onYes}
+                        size='tiny'
+                    >
+                    Yes
+                    </Button>
+                </div>
+            </Segment>
+        );
+
         return models.map((model) => {
             const {
                 name,
@@ -141,27 +186,52 @@ class NLUModels extends React.Component {
                     endTime,
                 } = {},
             } = model;
+
+            const duplicatePopup = popupDuplicateModel === model._id;
+            const turnOnPopup = popupTurnOnModel === model._id;
+            const duplicateTip = tipDuplicateModel === model._id;
+
+            const languageString = languages[language].name;
+
             return (
                 <Card
                     key={model._id}
                     color={getColor(langs.indexOf(model.language), true)}
                     id={`model-${model.name}`}
+                    data-cy='nlu-model-card'
                 >
-                    {modelToPublish && (
-                        <Confirm
-                            open={confirmOpen}
-                            header={`Publish model ${modelToPublish.name}?`}
-                            icon='warning'
-                            content='Do not forget to train your model if you recently modified your training data!'
-                            onCancel={() => this.setState({ confirmOpen: false })}
-                            onConfirm={() => this.publishModel(modelToPublish._id, projectId)}
-                        />
-                    )}
                     <Card.Content>
-                        {model.published && <Button icon='wifi' basic compact size='mini' color='green' floated='right' content='ONLINE' disabled={!disableOnlineOffline} />}
-                        {!model.published && <Button compact size='mini' basic floated='right' content='OFFLINE' onClick={() => this.setState({ confirmOpen: true, modelToPublish: model })} disabled={!disableOnlineOffline} />}
+                        {model.published ? (
+                            <Button
+                                icon='wifi'
+                                basic
+                                compact
+                                size='mini'
+                                color='green'
+                                floated='right'
+                                content='ONLINE'
+                                data-cy='online-model'
+                                disabled={disableOnlineOffline}
+                            />
+                        ) : (
+                            <Popup
+                                on='click'
+                                open={turnOnPopup}
+                                onOpen={() => this.setState({ popupTurnOnModel: model._id })}
+                                onClose={this.resetPopups}
+                                disabled={disableOnlineOffline}
+                                content={(
+                                    <ConfirmPopup
+                                        title='Publish ?'
+                                        onYes={() => this.publishModel(model._id, projectId)}
+                                        description={`Your bot will use this model for ${languageString}`}
+                                    />
+                                )}
+                                trigger={<Button compact size='mini' basic floated='right' content='OFFLINE' disabled={disableOnlineOffline} data-cy='offline-model' />}
+                            />
+                        )}
                         <Card.Header>{name}</Card.Header>
-                        <Card.Meta>{languages[language].name}</Card.Meta>
+                        <Card.Meta>{languageString}</Card.Meta>
                         <Card.Description>
                             {description && <div style={{ marginBottom: '10px' }}>{description}</div>}
                             {!isTraining(model) && status === 'success' && (
@@ -180,7 +250,7 @@ class NLUModels extends React.Component {
                             <Popup
                                 trigger={(
                                     <Button
-                                        className='open-model-button'
+                                        data-cy='open-model'
                                         disabled={loading}
                                         primary
                                         icon='folder open'
@@ -189,20 +259,25 @@ class NLUModels extends React.Component {
                                 )}
                                 content='Open model'
                             />
-                            {can('nlu-model:w', projectId) && (
-                                <Popup
-                                    trigger={(
-                                        <Button
-                                            className='duplicate-model-button'
-                                            disabled={loading}
-                                            secondary
-                                            icon='copy'
-                                            onClick={() => this.onDuplicateModel(model)}
-                                        />
-                                    )}
-                                    content='Create a copy'
-                                />)
-                            }
+                            <Can I='nlu-model:w' projectId={projectId}>
+                                {popupDuplicateModel === model._id ? (
+                                    <Popup
+                                        on='click'
+                                        open={duplicatePopup}
+                                        onClose={this.resetPopups}
+                                        trigger={renderDuplicateButton(loading, this.resetPopups)}
+                                        content={<ConfirmPopup title='Duplicate model ?' onYes={() => this.handleDuplicateModel(model)} />}
+                                    />
+                                ) : (
+                                    <Popup
+                                        trigger={renderDuplicateButton(loading, () => this.setState({ popupDuplicateModel: model._id }))}
+                                        open={duplicateTip}
+                                        onOpen={() => this.setState({ tipDuplicateModel: model._id })}
+                                        onClose={() => this.setState({ tipDuplicateModel: false })}
+                                        content='Create a copy'
+                                    />
+                                )}
+                            </Can>
                         </Button.Group>
                     </Card.Content>
                 </Card>
@@ -227,7 +302,7 @@ class NLUModels extends React.Component {
 
     getPanes = models => getNluModelLanguages(models.map(m => m._id)).map(lang => ({
         menuItem: languages[lang].name,
-        render: () => <Card.Group style={{ margin: 0 }}>{this.renderModels(models.filter(m => m.language === lang))}</Card.Group>,
+        render: () => <Card.Group style={{ margin: 'auto', maxWidth: '912px' }}>{this.renderModels(models.filter(m => m.language === lang))}</Card.Group>,
     }));
 
     onTabChange = (e, { activeIndex }) => {

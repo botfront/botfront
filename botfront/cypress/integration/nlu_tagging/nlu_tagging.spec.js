@@ -220,6 +220,14 @@ describe('nlu tagging in training data', function() {
         cy.get('[data-cy=trigger-entity-names]').click();
 
         cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
+
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains(modelLang).click();
+        cy.get('.card:first button.primary', { timeout: 10000 }).click();
+        cy.contains('Training Data').click();
+        cy.get('[data-cy=trigger-entity-names]').click();
+
+        cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
     });
 
     it('should be able to change an entity with a popup to a new entity', function() {
@@ -230,6 +238,14 @@ describe('nlu tagging in training data', function() {
         cy.get('[data-cy=entity-dropdown]').click();
         cy.get('[data-cy=entity-dropdown] input').type(`${newEntity}{enter}`);
 
+        cy.get('[data-cy=trigger-entity-names]').click();
+
+        cy.get('.rt-tbody .rt-tr:first').contains(newEntity);
+
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.contains(modelLang).click();
+        cy.get('.card:first button.primary', { timeout: 10000 }).click();
+        cy.contains('Training Data').click();
         cy.get('[data-cy=trigger-entity-names]').click();
 
         cy.get('.rt-tbody .rt-tr:first').contains(newEntity);

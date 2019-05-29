@@ -1,52 +1,10 @@
 # Quick Start
 
-This tutorial will guide you through the installation and the development of your first chatbot with Botfront/Rasa. You will run Botfront with `docker-compose` which makes running all the applications needed for your project (Botfront, Rasa, Mongo) very easy.
-
-## Install Docker
-
-- [Install Docker for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac)
-- [Install Docker for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows) 
-
-If you already have Docker installed, make sure it's up to date.
-
-## Install Botfront
-
-Open your terminal 
-::: tip Beginner tip
-On a Mac, press `Cmd+Space`, look up **_terminal_** and select **_Terminal.app_**
-:::
-
-Copy the following lines, paste them in your terminal window and type `Enter`.
-
-```bash
-git clone https://github.com/botfront/botfront-starter
-cd botfront-starter
-docker-compose up
-```
-
-First, it's going to download all the Docker images required (it's going to take a while, be patient). Then it's going to start all the services. 
-
-You can safely ignore the errors in the logs: we just need to setup Botfront and it's all going to be fixed. 
-
-## Start Botfront
-
-Open [http://localhost:8888](http://localhost:8888) and follow the steps to create your first project. (If it doesn't work just wait a few more seconds for the service to be ready)
-
-::: tip If you're following the tutorial
-Name your project "My First Project" and choose the English language if you want to follow the rest of this tutorial
-:::
-
-<video autoplay muted loop width="740" controls>
-  <source src="../../videos/setup.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video> 
-
-Congratulations, Botfront is installed. You should see a screen with your _First NLU Model_.
-
-## Add data to your NLU model
+## Add NLU training data
 
 Let's just teach our NLU model to recognize simple things like "Hi", "Thanks", "Bye". We'll do more advanced stuff later.
-Botfront comes with pre-trained intents for general conversation (Chit Chat). The following video shows how to:
+
+Botfront comes with pre-trained intents for general conversation (Chit Chat). We'll just use those for now. The video shows how to:
 1. Import Chit Chat intents to your model
 2. train and test your model
 
@@ -56,9 +14,14 @@ Botfront comes with pre-trained intents for general conversation (Chit Chat). Th
 </video> 
 
 
-## Create your first Bot response
+## Create a Bot response
 
 Now that our bot can understand a few things, let's see how we can get it to respond. The following video shows how to apply create a bot response and to assign it to an intent.
+
+::: tip Botfront adds a special behaviour to intents prefixed with <code>chitchat.</code> or <code>faq.</code>
+This allows to map a response without having to retrain Rasa on stories. We are using this feature here. \
+For more information, see [Q&A and FAQ Bots](/guide/bot-responses/#q-a-faq-bots) or [Rules](/guide/users/rules.html)
+:::
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/bot_responses_quickstart.mp4" type="video/mp4">
@@ -67,17 +30,19 @@ Now that our bot can understand a few things, let's see how we can get it to res
 
 This example is minimal, but you can do more advanced assignments such as combinations of intent and entities.
 
-::: tip Note
-You might be wondering why you didn't have to write stories or train Rasa Core. Botfront adds a special behaviour to intents prefixed with `chitchat.` or `faq.` allowing to map a response without having to retrain the whole model.
-For more information, see [Q&A and FAQ Bots](/guide/bot-responses/#q-a-faq-bots) or [Rules](/guide/users/rules.html)
+::: tip How is this different from the Rasa <code>MappingPolicy</code>?
+- The `MappingPolicy` lets you map one intent to one action. The Botfront behaviour lets you map any combination of intent and entities to a bot response.
+- Adding/changing questions doesn't require training, as all Q&A are handled with a single story. 
+- A nice corollar is that you can use this single story to handle all chitchat or Q&A inside your contextual stories.
 :::
 
-## Monitor your conversation and improve your NLU Model
+
+## Monitor and improve
 
 You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model. 
 **Make sure to check _Log utterances to activity_** in your `Model > Settings > Pipeline`
 
-## What you learned and what's next
+## What's next
 You learned:
 
 1. How to setup Botfront on your machine

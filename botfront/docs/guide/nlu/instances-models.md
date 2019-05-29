@@ -11,7 +11,7 @@ They can either be of type `nlu`, `core`, or both.
 ![](../../images/instances_models_1.png)
 
 ::: tip Host value
-Here the nlu instance uses `host.docker.internal` because it will be used internally by docker containers.
+Here the nlu instance uses `nlu` because it will be used internally by docker containers.
 
 The core instance uses `localhost` because it will be used by your browser to connect to the chat.
 
