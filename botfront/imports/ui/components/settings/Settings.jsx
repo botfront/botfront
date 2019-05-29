@@ -64,7 +64,7 @@ class Settings extends React.Component {
                 render: () => <Tab.Pane as='div'><Instances /></Tab.Pane>,
             },
             {
-                menuItem: <Menu.Item className='project-settings-menu-core-policy' icon='server' content='Core Policy' key='Core Policy' />,
+                menuItem: <Menu.Item className='project-settings-menu-core-policy' icon='newspaper' content='Core Policy' key='Core Policy' />,
                 render: () => <Tab.Pane as='div'><CorePolicy /></Tab.Pane>,
             },
             {
