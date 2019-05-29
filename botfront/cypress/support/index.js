@@ -53,6 +53,17 @@ Cypress.Commands.add('logout', () => {
     );
 });
 
+Cypress.Commands.add('MeteorCall', (method, args) => {
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
+            Meteor.call(method, ...args, (err, res) => {
+                if (err) resolve(err);
+                resolve(res);
+            });
+        }),
+    );
+});
+
 Cypress.Commands.add('createNLUModel', (projectId, name, language, description, instance = false) => {
     cy.visit(`/project/${projectId}/nlu/models`);
     cy.get('.new-model').click();
