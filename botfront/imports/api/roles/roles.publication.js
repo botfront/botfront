@@ -1,5 +1,9 @@
 import { Meteor } from 'meteor/meteor';
+import { checkIfCan } from '../../lib/scopes';
 
-Meteor.publish('roles', function () {
-    return Meteor.roles.find({});
-});
+if (Meteor.isServer) {
+    Meteor.publish('roles', function () {
+        checkIfCan('nlu-admin');
+        return Meteor.roles.find({});
+    });
+}

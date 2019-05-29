@@ -39,6 +39,7 @@ import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
+import { can } from '../../../../lib/scopes';
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -140,40 +141,62 @@ class NLUModel extends React.Component {
         const {
             examples, entities, intents, instance,
         } = this.state;
-        const tabs = [
-            {
-                menuItem: 'Examples',
-                render: () => (
-                    <NluDataTable
-                        onEditExample={this.onEditExample}
-                        onDeleteExample={this.onDeleteExample}
-                        onRenameIntent={this.onRenameIntent}
-                        examples={examples}
-                        entities={entities}
-                        intents={intents}
-                        projectId={projectId}
-                    />
-                ),
-            },
-            { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} /> },
-            { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
-            { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
-            { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
-        ];
-        if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
-        if (instance) tabs.push({ menuItem: 'API', render: () => <API model={model} instance={instance} /> });
+
+        const tabs = [];
+
+        if (can('nlu-data:r', projectId)) {
+            tabs.push(
+                {
+                    menuItem: 'Examples',
+                    render: () => (
+                        <NluDataTable
+                            onEditExample={this.onEditExample}
+                            onDeleteExample={this.onDeleteExample}
+                            onRenameIntent={this.onRenameIntent}
+                            examples={examples}
+                            entities={entities}
+                            intents={intents}
+                            projectId={projectId}
+                        />
+                    ),
+                },
+            );
+            if (can('nlu-data:w', projectId)) {
+                tabs.push(
+                    { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
+                );
+            }
+            tabs.push(
+                { menuItem: 'Synonyms', render: () => <Synonyms model={model} projectId={projectId} /> },
+                { menuItem: 'Gazette', render: () => <Gazette model={model} projectId={projectId} /> },
+                { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
+            );
+            if (can('nlu-data:w', projectId)) {
+                if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
+            }
+            if (instance) tabs.push({ menuItem: 'API', render: () => <API model={model} instance={instance} /> });
+        }
         return tabs;
     };
 
     getSettingsSecondaryPanes = () => {
-        const { model, instances, intents } = this.props;
-        return [
-            { menuItem: 'General', render: () => <NLUParams model={model} instances={instances} /> },
-            { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
-            { menuItem: 'Import', render: () => <DataImport model={model} /> },
+        const {
+            model, instances, intents, projectId,
+        } = this.props;
+        
+        const tabs = [
+            { menuItem: 'General', render: () => <NLUParams model={model} instances={instances} projectId={projectId} /> },
+            { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} projectId={projectId} /> },
             { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
-            { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> },
         ];
+        
+        if (can('nlu-data:w', projectId)) {
+            tabs.push({ menuItem: 'Import', render: () => <DataImport model={model} /> });
+        }
+        if (can('nlu-model:w', projectId)) {
+            tabs.push({ menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> });
+        }
+        return tabs;
     };
 
     getHeader = () => {
@@ -186,6 +209,56 @@ class NLUModel extends React.Component {
             </div>
         );
     };
+
+    renderMenuItems = (activeItem, model, status, endTime, instance) => {
+        const { projectId } = this.props;
+        return (
+            <Menu pointing secondary>
+                <Menu.Item>{this.getHeader()}</Menu.Item>
+                <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
+                    <Icon size='small' name='history' />
+                    {'Activity'}
+                </Menu.Item>
+                <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
+                    <Icon size='small' name='database' />
+                    {'Training Data'}
+                </Menu.Item>
+                <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
+                    <Icon size='small' name='percent' />
+                    {'Evaluation'}
+                </Menu.Item>
+                <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
+                    <Icon size='small' name='setting' />
+                    {'Settings'}
+                </Menu.Item>
+                <Menu.Menu position='right'>
+                    <Menu.Item>
+                        {!isTraining(model) && status === 'success' && (
+                            <Popup
+                                trigger={(
+                                    <Icon size='small' name='check' fitted circular style={{ color: '#2c662d' }} />
+                                )}
+                                content={<Label basic content={<div>{`Trained ${moment(endTime).fromNow()}`}</div>} style={{ borderColor: '#2c662d', color: '#2c662d' }} />}
+                            />
+                        )}
+                        {!isTraining(model) && status === 'failure' && (
+                            <Popup
+                                trigger={(
+                                    <Icon size='small' name='warning' color='red' fitted circular />
+                                )}
+                                content={<Label basic color='red' content={<div>{`Training failed ${moment(endTime).fromNow()}`}</div>} />}
+                            />
+                        )}
+                    </Menu.Item>
+                    {can('nlu-model:x', projectId) && (
+                        <Menu.Item>
+                            <NLUTrainButton model={model} instance={instance} />
+                        </Menu.Item>
+                    )}
+                </Menu.Menu>
+            </Menu>
+        );
+    }
 
     handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
 
@@ -252,52 +325,10 @@ class NLUModel extends React.Component {
         }
         return (
             <div id='nlu-model'>
-                <Menu pointing secondary>
-                    <Menu.Item>{this.getHeader()}</Menu.Item>
-                    <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
-                        <Icon size='small' name='history' />
-                        {'Activity'}
-                    </Menu.Item>
-                    <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
-                        <Icon size='small' name='database' />
-                        {'Training Data'}
-                    </Menu.Item>
-                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
-                        <Icon size='small' name='percent' />
-                        {'Evaluation'}
-                    </Menu.Item>
-                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
-                        <Icon size='small' name='setting' />
-                        {'Settings'}
-                    </Menu.Item>
-                    <Menu.Menu position='right'>
-                        <Menu.Item>
-                            {!isTraining(model) && status === 'success' && (
-                                <Popup
-                                    trigger={(
-                                        <Icon size='small' name='check' fitted circular style={{ color: '#2c662d' }} />
-                                    )}
-                                    content={<Label basic content={<div>{`Trained ${moment(endTime).fromNow()}`}</div>} style={{ borderColor: '#2c662d', color: '#2c662d' }} />}
-                                />
-                            )}
-                            {!isTraining(model) && status === 'failure' && (
-                                <Popup
-                                    trigger={(
-                                        <Icon size='small' name='warning' color='red' fitted circular />
-                                    )}
-                                    content={<Label basic color='red' content={<div>{`Training failed ${moment(endTime).fromNow()}`}</div>} />}
-                                />
-                            )}
-                        </Menu.Item>
-                        <Menu.Item>
-                            <NLUTrainButton model={model} instance={instance} />
-                        </Menu.Item>
-                    </Menu.Menu>
-                </Menu>
-
+                {this.renderMenuItems(activeItem, model, status, endTime, instance)}
                 <Container>
                     <br />
-                    {instance ? (
+                    {can('nlu-data:r', projectId) && (instance ? (
                         <div id='playground'>
                             <NLUPlayground
                                 testMode
@@ -313,13 +344,15 @@ class NLUModel extends React.Component {
                         </div>
                     ) : (
                         this.renderWarningMessage()
-                    )}
+                    ))}
                     <br />
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
-                    {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} />}
+                    {activeItem === 'evaluation' && can('nlu-data:r', projectId) && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} />}
                     {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
-                    {activeItem === 'activity' && <Activity modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} />}
+                    {activeItem === 'activity' && can('nlu-data:r', projectId) && (
+                        <Activity modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} projectId={projectId} />
+                    )}
                 </Container>
             </div>
         );

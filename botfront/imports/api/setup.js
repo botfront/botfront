@@ -9,6 +9,7 @@ import { GlobalSettings } from './globalSettings/globalSettings.collection';
 import { passwordComplexityRegex } from './user/user.methods';
 import { Instances } from './instances/instances.collection';
 import { languages } from '../lib/languages';
+import { checkIfCan } from '../lib/scopes';
 
 const accountSetupSchema = new SimpleSchema(
     {
@@ -88,6 +89,11 @@ if (Meteor.isServer) {
 
             const spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '';
 
+            const empty = await Meteor.callWithPromise('users.checkEmpty');
+            if (!empty) {
+                throw new Meteor.Error('403', 'Not authorized');
+            }
+
             let globalSettings = null;
 
             try {
@@ -98,10 +104,6 @@ if (Meteor.isServer) {
             
             GlobalSettings.insert({ _id: 'SETTINGS', ...globalSettings });
 
-            const empty = await Meteor.callWithPromise('users.checkEmpty');
-            if (!empty) {
-                throw new Meteor.Error('403', 'Not authorized');
-            }
             const {
                 email, password, firstName, lastName,
             } = accountData;
@@ -129,6 +131,9 @@ if (Meteor.isServer) {
 
         async 'initialSetup.secondStep'(projectData) {
             check(projectData, Object);
+
+            checkIfCan('global-admin');
+
             const project = {
                 name: projectData.project,
                 namespace: slugify(projectData.project, { lower: true }),

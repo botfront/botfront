@@ -60,6 +60,13 @@ describe('intial setup', function() {
         
         cy.contains('English').click();
         cy.get('.cards>:first-child button.primary').click();
+
+        cy.url().then((url) => {
+            // This gets the model id
+            const id = url.split('/')[7];
+            cy.writeFile('cypress/fixtures/bf_model_id.txt', id);
+        });
+        
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('Pipeline').click();
         cy.get(':checkbox').should('be.checked');

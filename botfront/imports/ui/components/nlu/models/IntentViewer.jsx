@@ -9,6 +9,7 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import IntentDropdown from '../common/IntentDropdown';
 import IntentEditor from './IntentEditor';
 import { examplePropType } from '../../utils/ExampleUtils';
+import { can } from '../../../../api/roles/roles';
 
 class IntentNameEditor extends React.Component {
     constructor(props) {
@@ -141,12 +142,13 @@ class IntentNameEditor extends React.Component {
     }
 
     renderViewer() {
-        const { intents, intent } = this.props;
+        const { intents, intent, projectId } = this.props;
         const { hovering, confirmOpen } = this.state;
         const style = {
             borderRadius: '0.15rem',
             cursor: 'default',
         };
+        const disableChangeIntent = !can('nlu-data:w', projectId);
         return (
             <Popup
                 content={(
@@ -168,10 +170,11 @@ class IntentNameEditor extends React.Component {
                     </div>
                 )}
                 trigger={(
-                    <Label basic style={style}>
+                    <Label basic style={style} data-cy='intent-label'>
                         {intent || '-'}
                     </Label>
                 )}
+                disabled={disableChangeIntent}
                 hoverable
                 position='top center'
                 // if we don't check confirmOpen then the popup appears on top of the confirm modal

@@ -15,6 +15,7 @@ import EntityUtils from '../../utils/EntityUtils';
 import IntentNameEditor from './IntentViewer';
 import 'react-select/dist/react-select.css';
 import Filters from './Filters';
+import { can } from '../../../../lib/scopes';
 
 export default class NluDataTable extends React.Component {
     constructor(props) {
@@ -66,15 +67,16 @@ export default class NluDataTable extends React.Component {
         return examples.filter((e) => {
             if (!e.entities) e.entities = [];
             const intentOk = filter.intents.length === 0 || difference([e.intent], filter.intents).length === 0;
-            const entitiesOk = !!e.entities
-                && difference(filter.entities, e.entities.map(ent => ent.entity)).length === 0;
+            const entitiesOk = !!e.entities && difference(filter.entities, e.entities.map(ent => ent.entity)).length === 0;
             return intentOk && entitiesOk;
         });
     };
 
     getColumns() {
-        const { onRenameIntent, examples, projectId } = this.props;
-        const intentColumns = this.props.intentColumns || [
+        const {
+            onRenameIntent, examples, projectId, intentColumns: intentColumnsProp,
+        } = this.props;
+        const intentColumns = intentColumnsProp || [
             {
                 accessor: 'intent',
                 Header: 'Intent',
@@ -88,7 +90,7 @@ export default class NluDataTable extends React.Component {
                         intents={this.getIntentForDropdown(false)}
                         onSave={this.onEditExample}
                         example={props.original}
-                        enableRenaming
+                        enableRenaming={can('nlu-data:w', projectId)}
                         projectId={projectId}
                     />
                 ),
@@ -124,6 +126,7 @@ export default class NluDataTable extends React.Component {
                         showLabels={this.state.showLabels || this.props.showLabels}
                         onSave={this.onEditExample}
                         editable
+                        projectId={projectId}
                     />
                 ),
                 style: { overflow: 'visible' },
@@ -137,21 +140,20 @@ export default class NluDataTable extends React.Component {
         ];
 
         firstColumns = intentColumns.concat(firstColumns.concat(this.props.extraColumns || []));
-        firstColumns.push({
-            accessor: '_id',
-            filterable: false,
-            Cell: props => (
-                <div
-                    className='center'
-                    onClick={() => this.props.onDeleteExample(props.value)}
-                    className='nlu-delete-example'
-                >
-                    <Icon link name='delete' size='tiny' color='grey' />
-                </div>
-            ),
-            Header: '',
-            width: 30,
-        });
+
+        if (can('nlu-data:w', projectId)) {
+            firstColumns.push({
+                accessor: '_id',
+                filterable: false,
+                Cell: props => (
+                    <div className='center' onClick={() => this.props.onDeleteExample(props.value)} className='nlu-delete-example'>
+                        <Icon link name='delete' size='tiny' color='grey' />
+                    </div>
+                ),
+                Header: '',
+                width: 30,
+            });
+        }
 
         return firstColumns;
     }
@@ -165,24 +167,38 @@ export default class NluDataTable extends React.Component {
         };
     }
 
+    renderSubComponent(row) {
+        const { projectId } = this.props;
+        if (can('nlu-data:w', projectId)) {
+            return (
+                <NLUExampleEditMode
+                    floated='right'
+                    example={row.original}
+                    entities={this.props.entities}
+                    intents={this.getIntentForDropdown(false)}
+                    onSave={this.onEditExample}
+                    onCancel={() => this.setState({ expanded: {} })}
+                    postSaveAction='close'
+                    projectId={projectId}
+                />
+            );
+        }
+        return null;
+    }
+
     render() {
         const columns = this.getColumns();
+        const { projectId } = this.props;
         return (
             <Tab.Pane as='div'>
                 {!this.props.hideHeader && (
                     <Grid style={{ paddingBottom: '12px' }}>
                         <Grid.Row>
                             <Grid.Column width={13} textAlign='left' verticalAlign='middle'>
-                                <Filters
-                                    intents={this.props.intents}
-                                    entities={this.props.entities}
-                                    filter={this.scrapFilter()}
-                                    onChange={filter => this.setState({ filter })}
-                                />
+                                <Filters intents={this.props.intents} entities={this.props.entities} filter={this.scrapFilter()} onChange={filter => this.setState({ filter })} />
                             </Grid.Column>
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
-                                {this.props.entities.length > 0
-                                    && this.props.showLabels === undefined && (
+                                {this.props.entities.length > 0 && this.props.showLabels === undefined && (
                                     <Checkbox
                                         checked={this.state.showLabels}
                                         onChange={() => this.setState({
@@ -240,17 +256,7 @@ export default class NluDataTable extends React.Component {
                             },
                         })}
                         className=''
-                        SubComponent={row => (
-                            <NLUExampleEditMode
-                                floated='right'
-                                example={row.original}
-                                entities={this.props.entities}
-                                intents={this.getIntentForDropdown(false)}
-                                onSave={this.onEditExample}
-                                onCancel={() => this.setState({ expanded: {} })}
-                                postSaveAction='close'
-                            />
-                        )}
+                        SubComponent={can('nlu-data:w', projectId) && (row => this.renderSubComponent(row))}
                     />
                 </div>
             </Tab.Pane>

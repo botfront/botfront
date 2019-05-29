@@ -59,7 +59,7 @@ if (Meteor.isServer) {
     Meteor.publish('activity', function(modelId) { // eslint-disable-line
         check(modelId, String);
         try {
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan(['nlu-data:r'], getProjectIdFromModelId(modelId));
             
             return ActivityCollection.find({ modelId });
         } catch (e) {
@@ -69,7 +69,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'activity.reinterpret'(projectId, modelId, itemIds) {
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:r', getProjectIdFromModelId(modelId));
             check(itemIds, Array);
             check(modelId, String);
             check(projectId, String);
@@ -97,14 +97,14 @@ ActivityCollection.attachSchema(ActivitySchema);
 
 Meteor.methods({
     'activity.deleteExamples'(modelId, itemIds) {
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(itemIds, Array);
         check(modelId, String);
         return ActivityCollection.remove({ _id: { $in: itemIds } });
     },
 
     'activity.onChangeIntent'(examplesIds, intent, modelId) {
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(examplesIds, Array);
         check(intent, String);
         check(modelId, String);
@@ -125,9 +125,9 @@ Meteor.methods({
                 ...exampleBody
             } = example;
 
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(example, Object);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
             // unsetProperties are the props that were left out (set to undefined) when editing the utterance
             // TODO maybe set the confidence to 1.0 when manually updating to avoid this?
@@ -148,7 +148,7 @@ Meteor.methods({
 
     'activity.addValidatedToTraining'(modelId) {
         check(modelId, String);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         const validatedExamples = ActivityCollection.find({ modelId, validated: true }).fetch();
 

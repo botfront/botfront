@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import ConversationJsonViewer from './ConversationJsonViewer';
 import ConversationDialogueViewer from './ConversationDialogueViewer';
 import { Conversations } from '../../../api/conversations';
+import { Can } from '../../../lib/scopes';
 
 class ConversationViewer extends React.Component {
     constructor(props) {
@@ -99,9 +100,11 @@ class ConversationViewer extends React.Component {
                     <Menu.Item name='flagged' disabled={!ready} active={ready && tracker.status === 'flagged'} onClick={this.handleItemStatus}>
                         <Icon name='flag' />
                     </Menu.Item> */}
-                    <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={this.handleItemDelete}>
-                        <Icon name='trash' />
-                    </Menu.Item>
+                    <Can I='conversations:w'>
+                        <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={this.handleItemDelete}>
+                            <Icon name='trash' data-cy='conversation-delete' />
+                        </Menu.Item>
+                    </Can>
                     <Menu.Menu position='right'>
                         <Menu.Item name='Text' disabled={!ready} active={ready && active === 'Text'} onClick={this.handleItemClick}>
                             <Icon name='comments' />

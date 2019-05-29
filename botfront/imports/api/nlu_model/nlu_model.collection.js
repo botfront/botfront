@@ -1,9 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Mongo } from 'meteor/mongo';
-import { can, getScopesForUser } from '../../lib/scopes';
+
+import { can, getScopesForUser, checkIfCan } from '../../lib/scopes';
 import { Projects } from '../project/project.collection';
 import { NLUModelSchema } from './nlu_model.schema';
+import { getProjectIdFromModelId } from '../../lib/utils';
 
 export const NLUModels = new Mongo.Collection('nlu_models');
 
@@ -23,23 +25,21 @@ Meteor.startup(() => {
 if (Meteor.isServer) {
     Meteor.publish('nlu_models', function (modelId) {
         check(modelId, String);
-        const isAllowed = () => {
-            if (can('global-admin')) return true;
-            const projectIds = getScopesForUser(this.userId, 'owner');
-            const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
-            const modelIdArrays = models.map(m => m.nlu_models);
-            const modelIds = [].concat(...modelIdArrays);
-            return modelIds.includes(modelId);
-        };
-        
-        return isAllowed() ? NLUModels.find({ _id: modelId }) : this.ready();
+        if (can('global-admin')) return NLUModels.find({ _id: modelId });
+
+        const projectId = getProjectIdFromModelId(modelId);
+
+        checkIfCan('nlu-data:r', projectId);
+
+        return NLUModels.find({ _id: modelId });
     });
 
     // This publication is here to get a list of accessible models
     // without having to download all the training data.
     // Thus greatly reducing the load times
-    Meteor.publish('nlu_models.lite', function () {
-        if (can('global-admin')) {
+    Meteor.publish('nlu_models.lite', function (projectId) {
+        check(projectId, String);
+        if (can(['nlu-data:r', 'responses:r', 'project-settings:r'], projectId)) {
             return NLUModels.find({}, {
                 fields: {
                     language: 1,
@@ -51,7 +51,7 @@ if (Meteor.isServer) {
             });
         }
 
-        const projectIds = getScopesForUser(this.userId, 'owner');
+        const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-model:r']);
         const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
         const modelIdArrays = models.map(m => m.nlu_models);
         const modelIds = [].concat(...modelIdArrays);
@@ -71,20 +71,9 @@ if (Meteor.isServer) {
 
     Meteor.publish('nlu_models.project.training_data', function (projectId) {
         check(projectId, String);
-
-        if (can('global-admin')) {
-            const project = Projects.find({ _id: projectId }, { fields: { nlu_models: 1 } }).fetch();
-            const modelIds = project[0].nlu_models;
-            return NLUModels.find({ _id: { $in: modelIds } }, { fields: { 'training_data.common_examples': 1 } });
-        }
-
-        const projectIds = getScopesForUser(this.userId, 'owner');
-        const models = Projects.find(
-            { $and: [{ _id: { $in: projectIds } }, { _id: projectId }] },
-            { fields: { nlu_models: 1 } },
-        ).fetch();
-        const modelIdArrays = models.map(m => m.nlu_models);
-        const modelIds = [].concat(...modelIdArrays);
+        checkIfCan(['nlu-data:r', 'responses:w'], projectId);
+        const project = Projects.find({ _id: projectId }, { fields: { nlu_models: 1 } }).fetch();
+        const modelIds = project[0].nlu_models;
         return NLUModels.find({ _id: { $in: modelIds } }, { fields: { 'training_data.common_examples': 1 } });
     });
 }

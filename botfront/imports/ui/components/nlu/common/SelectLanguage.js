@@ -18,6 +18,7 @@ const renderCheckboxes = ({
     onChange,
     transform,
     value,
+    disable,
 }) => (
     <Dropdown
         placeholder='Select languages'
@@ -30,12 +31,13 @@ const renderCheckboxes = ({
         value={value}
         onChange={(e, { value }) => onChange(value)}
         options={allowedValues.map(code => ({ text: languages[code].name, key: code, value: code }))}
+        disabled={disable}
     />
 );
 
 const renderSelect = ({
     allowedValues,
-    disabled,
+    disable,
     id,
     inputRef,
     label,
@@ -56,6 +58,7 @@ const renderSelect = ({
         value={value}
         onChange={(e, { value }) => onChange(value)}
         options={allowedValues.map(code => ({ text: languages[code].name, key: code, value: code }))}
+        disabled={disable}
     />
 );
 const Select = ({
@@ -76,6 +79,7 @@ const Select = ({
     showInlineError,
     transform,
     value,
+    disable,
     ...props
 }) => (
     <div
@@ -89,7 +93,7 @@ const Select = ({
         {checkboxes || fieldType === Array
             ? renderCheckboxes({
                 allowedValues,
-                disabled,
+                disable,
                 id,
                 name,
                 onChange,
@@ -99,7 +103,7 @@ const Select = ({
             })
             : renderSelect({
                 allowedValues,
-                disabled,
+                disable,
                 id,
                 name,
                 onChange,

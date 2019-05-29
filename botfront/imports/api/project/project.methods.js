@@ -36,7 +36,7 @@ if (Meteor.isServer) {
 
         'project.update'(item) {
             check(item, Match.ObjectIncluding({ _id: String }));
-            checkIfCan('global-admin');
+            checkIfCan('project-settings:w', item._id);
             try {
                 // eslint-disable-next-line no-param-reassign
                 delete item.createdAt;

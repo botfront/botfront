@@ -65,7 +65,7 @@ export default class DeleteModel extends React.Component {
                             content='Please use the button below to download a backup of your data before proceeding.'
                         />
                         <br />
-                        <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button'>
+                        <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button' data-cy='download-backup'>
                             <Icon name='download' />
                             Backup Model Data
                         </Button>
@@ -80,6 +80,7 @@ export default class DeleteModel extends React.Component {
                     onClick={() => this.setState({ confirmOpen: true })}
                     negative
                     disabled={!backupDownloaded}
+                    data-cy='delete-model'
                 >
                     <Icon name='trash' />
                     Delete model <strong>{model.name}</strong>

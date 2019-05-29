@@ -12,6 +12,7 @@ import Credentials from './Credentials';
 import Endpoints from './Endpoints';
 import ProjectInfo from './ProjectInfo';
 import Instances from '../nlu/instances/Instances';
+import { can } from '../../../api/roles/roles';
 
 class Settings extends React.Component {
     constructor(props) {
@@ -41,6 +42,7 @@ class Settings extends React.Component {
 
     getSettingsPanes = () => {
         const { orchestratorMenuItems, orchestrator } = this.state;
+        const { projectId } = this.props;
         let panes = [
             {
                 menuItem: <Menu.Item className='project-settings-menu-info' icon='info' content='Project Info' key='Project Info' />,
@@ -62,18 +64,23 @@ class Settings extends React.Component {
                 menuItem: <Menu.Item className='project-settings-menu-instances' icon='server' content='Instances' key='Instances' />,
                 render: () => <Tab.Pane as='div'><Instances /></Tab.Pane>,
             },
-            {
-                menuItem: (
-                    <Menu.Item
-                        data-cy='project-settings-more'
-                        icon='ellipsis horizontal'
-                        content='More Settings'
-                        key='More Settings'
-                        onClick={this.handleMoreSettings}
-                    />
-                ),
-            },
         ];
+
+        if (can('global-admin', projectId)) {
+            panes.push(
+                {
+                    menuItem: (
+                        <Menu.Item
+                            data-cy='project-settings-more'
+                            icon='ellipsis horizontal'
+                            content='More Settings'
+                            key='More Settings'
+                            onClick={this.handleMoreSettings}
+                        />
+                    ),
+                },
+            );
+        }
 
         if (orchestratorMenuItems) {
             panes = panes.concat(orchestratorMenuItems);

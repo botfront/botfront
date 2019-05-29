@@ -12,6 +12,7 @@ import InfoField from '../utils/InfoField';
 import { wrapMeteorCallback } from '../utils/Errors';
 import SelectField from '../form_fields/SelectField';
 import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+import { can } from '../../../lib/scopes';
 
 class ProjectInfo extends React.Component {
     constructor(props) {
@@ -33,7 +34,7 @@ class ProjectInfo extends React.Component {
         return (
             <>
                 {ready && (
-                    <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={this.onSave} disabled={saving}>
+                    <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={this.onSave} disabled={!!saving || !can('project-settings:w', project._id)}>
                         <InfoField name='name' label='Name' className='project-name' />
                         {projectsSchema && projectsSchema.allowsKey('namespace') && (
                             <InfoField name='namespace' label='Namespace' disabled />
@@ -59,7 +60,7 @@ ProjectInfo.propTypes = {
 };
 
 const ProjectInfoContainer = withTracker(({ projectId }) => {
-    const modelsHanlder = Meteor.subscribe('nlu_models.lite');
+    const modelsHanlder = Meteor.subscribe('nlu_models.lite', projectId);
     const project = Projects.findOne({ _id: projectId }, {
         fields: {
             name: 1, namespace: 1, apiKey: 1, nlu_models: 1, defaultLanguage: 1,

@@ -40,7 +40,7 @@ export default class AddLookupTableRow extends React.Component {
         const { listAttribute, valuePlaceholder, listPlaceholder } = this.props;
         const { item } = this.state;
         return (
-            <Grid>
+            <Grid data-cy='add-item-row'>
                 <Grid.Row>
                     <Grid.Column width={4}>
                         <LookupTableValueEditor

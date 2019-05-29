@@ -9,6 +9,7 @@ import SelectLanguage from '../../common/SelectLanguage';
 import SelectInstanceField from './SelectInstanceField';
 import ChangesSaved from '../../../utils/ChangesSaved';
 import SaveButton from '../../../utils/SaveButton';
+import { can } from '../../../../../lib/scopes';
 
 class NLUParams extends React.Component {
     constructor(props) {
@@ -24,7 +25,7 @@ class NLUParams extends React.Component {
         const { model } = this.props;
         clearTimeout(this.successTimeout);
         Meteor.call(
-            'nlu.update',
+            'nlu.update.general',
             model._id,
             newModel,
             wrapMeteorCallback((err) => {
@@ -39,18 +40,20 @@ class NLUParams extends React.Component {
     };
 
     render() {
-        const { model, instances } = this.props;
+        const { model, instances, projectId } = this.props;
         const { saved, showConfirmation } = this.state;
+        const isDisabled = !(can('nlu-model:x', projectId));
         return (
             <Tab.Pane>
-                <AutoForm schema={NLUModelSchema} model={model} onSubmit={m => this.handleSave(m)}>
+                <AutoForm schema={NLUModelSchema} model={model} onSubmit={m => this.handleSave(m)} disabled={isDisabled}>
                     <AutoField name='name' />
-                    <SelectLanguage name='language' />
+                    <SelectLanguage name='language' disable={isDisabled} />
                     <AutoField name='description' />
                     <SelectInstanceField
                         name='instance'
                         label='NLU Instance'
                         instances={instances}
+                        disable={isDisabled}
                     />
                     <ErrorsField />
                     {showConfirmation && (
@@ -59,7 +62,7 @@ class NLUParams extends React.Component {
                             onDismiss={() => this.setState({ showConfirmation: false, saved: false })}
                         />
                     )}
-                    <SaveButton saved={saved} />
+                    <SaveButton saved={saved} disabled={isDisabled} />
                 </AutoForm>
             </Tab.Pane>
         );
@@ -69,6 +72,7 @@ class NLUParams extends React.Component {
 NLUParams.propTypes = {
     model: PropTypes.object.isRequired,
     instances: PropTypes.array.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 export default NLUParams;

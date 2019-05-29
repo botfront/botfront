@@ -17,7 +17,7 @@ class SynonymsEditor extends React.Component {
     };
 
     render() {
-        const { model } = this.props;
+        const { model, projectId } = this.props;
         return (
             <LookupTable
                 data={model.training_data.entity_synonyms}
@@ -27,6 +27,7 @@ class SynonymsEditor extends React.Component {
                 onItemDeleted={this.onItemDeleted}
                 valuePlaceholder='entity value'
                 listPlaceholder='synonym1, synonym2, ...'
+                projectId={projectId}
             />
         );
     }
@@ -34,6 +35,7 @@ class SynonymsEditor extends React.Component {
 
 SynonymsEditor.propTypes = {
     model: PropTypes.object.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 export default withTracker(props => ({

@@ -50,6 +50,7 @@ export default class IntentDropdown extends React.Component {
                     onAddItem={this.handleChangeOrAddIntent}
                     onChange={this.handleChangeOrAddIntent}
                     options={intents.map(i => ({ text: i, value: i }))}
+                    data-cy='intent-dropdown'
                 />
             </Button.Group>
         );

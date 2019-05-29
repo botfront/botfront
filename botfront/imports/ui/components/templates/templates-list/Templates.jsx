@@ -11,6 +11,7 @@ import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
 import ImportExport from '../import-export/ImportExport';
 import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
+import { Can } from '../../../../lib/scopes';
 
 class Templates extends React.Component {
     constructor(props) {
@@ -32,22 +33,27 @@ class Templates extends React.Component {
                 <Icon size='small' name='table' />
                 Content
             </Menu.Item>
-            <Menu.Item name='import-export' active={activeItem === 'import-export'} onClick={this.handleMenuItemClick}>
-                <Icon size='small' name='retweet' />
-                Import/Export
-            </Menu.Item>
-            <Menu.Menu position='right'>
-                <Menu.Item>
-                    <Button
-                        primary
-                        disabled={!nluLanguages.length}
-                        content='Add bot response'
-                        icon='add'
-                        labelPosition='left'
-                        onClick={() => browserHistory.push(`/project/${projectId}/dialogue/templates/add`)}
-                    />
+            <Can I='responses:w' projectId={projectId}>
+                <Menu.Item name='import-export' active={activeItem === 'import-export'} onClick={this.handleMenuItemClick}>
+                    <Icon size='small' name='retweet' />
+                    Import/Export
                 </Menu.Item>
-            </Menu.Menu>
+            </Can>
+            <Can I='responses:w' projectId={projectId}>
+                <Menu.Menu position='right'>
+                    <Menu.Item>
+                        <Button
+                            primary
+                            disabled={!nluLanguages.length}
+                            content='Add bot response'
+                            icon='add'
+                            labelPosition='left'
+                            onClick={() => browserHistory.push(`/project/${projectId}/dialogue/templates/add`)}
+                            data-cy='add-bot-response'
+                        />
+                    </Menu.Item>
+                </Menu.Menu>
+            </Can>
         </Menu>
     );
 
@@ -55,7 +61,7 @@ class Templates extends React.Component {
         const { activeItem } = this.state;
         const { templates, projectId, nluLanguages } = this.props;
         return (
-            <div>
+            <div data-cy='responses-screen'>
                 {this.renderMenu(projectId, activeItem, nluLanguages)}
                 <Container>
                     {activeItem === 'content' && <div><TemplatesTable templates={templates} nluLanguages={nluLanguages} /></div>}

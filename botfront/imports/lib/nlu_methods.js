@@ -112,7 +112,7 @@ if (Meteor.isServer) {
             check(instance, Object);
             check(params, Array);
             check(nolog, Boolean);
-            checkIfCan('nlu-model:x', projectId);
+            checkIfCan('nlu-data:r', projectId);
             this.unblock();
             return parseNlu(projectId, modelId, instance, params, nolog);
         },

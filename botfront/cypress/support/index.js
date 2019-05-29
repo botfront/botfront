@@ -22,20 +22,22 @@ import './commands';
 
 Cypress.Commands.add('login', (email = 'test@test.com', password = 'Aaaaaaaa00') => {
     cy.visit('/');
-    cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.logout((err) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve();
-            });
-        }),
-    ).then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-        }),
-    );
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.logout((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }),
+        )
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            }),
+        );
 
     // cy.window();
 });
@@ -48,6 +50,30 @@ Cypress.Commands.add('logout', () => {
                     return reject(err);
                 }
                 resolve();
+            });
+        }),
+    );
+});
+
+Cypress.Commands.add('MeteorCallAdmin', (method, args) => {
+    cy.login();
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
+            Meteor.call(method, ...args, (err, res) => {
+                if (err) resolve(err);
+                resolve(res);
+            });
+        }),
+    );
+    cy.logout();
+});
+
+Cypress.Commands.add('MeteorCall', (method, args) => {
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
+            Meteor.call(method, ...args, (err, res) => {
+                if (err) resolve(err);
+                resolve(res);
             });
         }),
     );
@@ -72,6 +98,25 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
         // Save
     }
     cy.get('[data-cy=model-save-button]').click();
+});
+
+Cypress.Commands.add('insertGenericNLUModel', (modelId, projectId) => {
+    cy.MeteorCall('instance.findByType', [
+        projectId,
+        'nlu',
+    ]).then((instance) => {
+        cy.MeteorCall('nlu.insert', [
+            {
+                _id: modelId,
+                evaluations: [],
+                language: 'en',
+                name: 'My First Model',
+                published: true,
+                instance: instance._id,
+            },
+            projectId,
+        ]);
+    });
 });
 
 Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, description, instance) => {
@@ -116,14 +161,10 @@ Cypress.Commands.add('createResponse', (projectId, responseName) => {
 });
 
 Cypress.Commands.add('createResponseFast', (projectId, responseName) => {
-    cy.window().then(({ Meteor }) => Meteor.call(
-        'project.insertTemplate',
-        projectId,
-        {
-            key: responseName,
-            values: [{ sequence: [], lang: 'en' }, { sequence: [], lang: 'fr' }],
-        },
-    ));
+    cy.window().then(({ Meteor }) => Meteor.call('project.insertTemplate', projectId, {
+        key: responseName,
+        values: [{ sequence: [], lang: 'en' }, { sequence: [], lang: 'fr' }],
+    }));
 });
 
 Cypress.Commands.add('openResponse', (projectId, responseName) => {
@@ -143,11 +184,7 @@ Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
 });
 
 Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
-    cy.window().then(({ Meteor }) => Meteor.call(
-        'project.deleteTemplate',
-        projectId,
-        key,
-    ));
+    cy.window().then(({ Meteor }) => Meteor.call('project.deleteTemplate', projectId, key));
 });
 
 Cypress.Commands.add(
@@ -169,3 +206,247 @@ Cypress.Commands.add(
         });
     },
 );
+
+Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
+    cy.visit('/');
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.call(
+                    'user.create',
+                    {
+                        profile: {
+                            firstName: 'test',
+                            lastName,
+                        },
+                        email,
+                        roles: [
+                            {
+                                project: projectId,
+                                roles,
+                            },
+                        ],
+                        sendEmail: false,
+                    },
+                    true,
+                    (err, result) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        resolve({ Meteor, result });
+                    },
+                );
+            }),
+        )
+        .then(
+            ({ Meteor, result }) => new Cypress.Promise((resolve) => {
+                Meteor.call('user.changePassword', result, 'Aaaaaaaa00', (err) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    resolve({ Meteor, result });
+                });
+            }),
+        );
+});
+
+Cypress.Commands.add('deleteUser', (email) => {
+    cy.login();
+    cy.visit('/');
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve) => {
+            try {
+                Meteor.call('user.removeByEmail', email, (err, result) => {
+                    if (err) {
+                        throw err;
+                    }
+                    resolve(result);
+                });
+            } catch (e) {
+                throw err;
+            }
+        }),
+    );
+});
+
+Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = 'Aaaaaaaa00') => {
+    // cy.visit('/');
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.logout((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }),
+        )
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            }),
+        );
+});
+
+Cypress.Commands.add('loginAdmin', (email = 'admin@test.com', password = 'Aaaaaaaa00') => {
+    cy.visit('/');
+    cy.window()
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.logout((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve();
+                });
+            }),
+        )
+        .then(
+            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            }),
+        );
+});
+
+Cypress.Commands.add('addTestActivity', (modelId) => {
+    const commandToAddActivity = `mongo meteor --host localhost:3001 --eval "db.activity.insert({ 
+        _id:'TestActivity',
+        text: 'bonjour , avez vous un f1 à lyon autour de l apardieu ?',
+        intent: 'faq.find_hotel',
+        entities:[
+    
+        ],
+        confidence:{
+        '$numberDouble' :'0.7438368201255798'
+        },
+        modelId: '${modelId}',
+        createdAt:{
+        '$date' :{
+            numberLong: '1557323537346'
+        }
+        },
+        updatedAt:{
+        '$date':{
+            '$numberLong': '1557323537346'
+        }
+        },
+        __v:{
+        '$numberInt': '0'
+        }
+    });"`;
+    cy.exec(commandToAddActivity);
+    cy.exec(`mongo meteor --host localhost:3001 --eval 'db.nlu_models.update({ _id: "${modelId}"}, { $set: { "training.endTime": "123" } });'`);
+});
+
+Cypress.Commands.add('removeTestActivity', (modelId) => {
+    cy.MeteorCallAdmin('activity.deleteExamples', [modelId, ['TestActivity']]);
+});
+
+Cypress.Commands.add('addTestConversation', (projectId) => {
+    const commandToAddConversation = `mongo meteor --host localhost:3001 --eval "db.conversations.insert({
+        _id:'6f1800deea7f469b8dafd928f092a280',
+        tracker:{
+           events:[
+
+           ],
+           slots:{
+              latest_response_name:null,
+              followup_response_name:null,
+              parse_data:null
+           },
+           latest_input_channel:'socketio',
+           paused:false,
+           followup_action:null,
+           latest_message:{
+              text:'/get_started',
+              entities:[
+     
+              ],
+              intent_ranking:[
+                 {
+                    name:'get_started',
+                    confidence:{
+                       '$numberInt':'1'
+                    }
+                 }
+              ],
+              intent:{
+                 name:'get_started',
+                 confidence:{
+                    '$numberInt':'1'
+                 }
+              }
+           },
+           sender_id:'6f1800deea7f469b8dafd928f092a280',
+           latest_event_time:{
+              '$numberDouble':'1551194858.7705371'
+           },
+           latest_action_name:'action_listen'
+        },
+        status:'read',
+        projectId:'${projectId}',
+        createdAt:{
+           '$date':{
+              '$numberLong':'1551194858732'
+           }
+        },
+        updatedAt:{
+           '$date':{
+              '$numberLong':'1551194858788'
+           }
+        }
+    });"`;
+    cy.exec(commandToAddConversation);
+});
+
+Cypress.Commands.add('removeTestConversation', () => {
+    cy.MeteorCallAdmin('conversations.delete', ['6f1800deea7f469b8dafd928f092a280']);
+});
+
+Cypress.Commands.add('addTestResponse', (id) => {
+    const commandToAddResponse = `mongo meteor --host localhost:3001 --eval 'db.projects.update({
+        _id: "${id}"
+    }, {
+        $set: {
+            templates: [
+                {
+                    values:[
+                        {
+                            sequence:[
+                                {
+                                    content:"text: Test"
+                                }
+                            ],
+                            lang:"en"
+                        }
+                    ],
+                    key:"utter_greet",
+                    match:{
+                        nlu:[
+                            {
+                                intent:"chitchat.greet",
+                                entities:[
+        
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });'`;
+    cy.exec(commandToAddResponse);
+});
+
+Cypress.Commands.add('removeTestResponse', (id) => {
+    const commandToRemoveResponse = `mongo meteor --host localhost:3001 --eval 'db.projects.update({
+        _id: "${id}"
+    }, {
+        $set: {
+            templates: [
+            ]
+        }
+    });'`;
+    cy.exec(commandToRemoveResponse);
+});

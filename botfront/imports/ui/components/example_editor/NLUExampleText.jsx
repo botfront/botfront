@@ -29,7 +29,7 @@ class NLUExampleText extends React.Component {
     };
 
     renderText = () => {
-        const { example, entities, showLabels } = this.props;
+        const { example, entities, showLabels, projectId } = this.props;
         const { stateEntity, selectedEntity } = this.state;
 
         let concatenatedEntities = example.entities;
@@ -119,6 +119,7 @@ class NLUExampleText extends React.Component {
                             )}
                             key={`${e.start}${e.end}`}
                             selection
+                            projectId={projectId}
                         />,
                     );
                 } else {
@@ -140,6 +141,7 @@ class NLUExampleText extends React.Component {
                                 />
                             )}
                             key={`${e.start}${e.end}`}
+                            projectId={projectId}
                         />,
                     );
                 }
@@ -411,6 +413,7 @@ NLUExampleText.propTypes = {
     withMargin: PropTypes.bool,
     onSave: PropTypes.func.isRequired,
     editable: PropTypes.bool,
+    projectId: PropTypes.string.isRequired,
 };
 
 NLUExampleText.defaultProps = {
