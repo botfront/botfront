@@ -15,6 +15,7 @@ export const getTemplateLanguages = (templates) => {
 Meteor.methods({
     'project.updateTemplate'(projectId, key, item) {
         check(projectId, String);
+        checkIfCan('responses:w', projectId);
         check(key, String);
         check(item, Object);
 
@@ -29,8 +30,9 @@ Meteor.methods({
     },
 
     'project.deleteTemplate'(projectId, key, lang = 'en') {
-        check(lang, String);
         check(projectId, String);
+        checkIfCan('responses:w', projectId);
+        check(lang, String);
         check(key, String);
         
         try {
@@ -48,6 +50,7 @@ if (Meteor.isServer) {
     Meteor.methods({
         'project.findTemplate'(projectId, key, lang = 'en') {
             check(projectId, String);
+            checkIfCan('responses:r', projectId);
             check(key, String);
             check(lang, String);
 
@@ -74,6 +77,7 @@ if (Meteor.isServer) {
 
         'project.insertTemplate'(projectId, item) {
             check(projectId, String);
+            checkIfCan('responses:w', projectId);
             check(item, Object);
 
             const { key } = item;
@@ -104,8 +108,8 @@ if (Meteor.isServer) {
 
         'templates.import'(projectId, templates) {
             check(projectId, String);
-            check(templates, Match.OneOf(String, [Object]));
             checkIfCan('responses:w', projectId);
+            check(templates, Match.OneOf(String, [Object]));
 
             const newTemplates = (typeof templates === 'string') ? JSON.parse(templates) : templates;
             const { templates: oldTemplates } = Projects.findOne({ _id: projectId }, { fields: { templates: 1 } });
@@ -124,8 +128,8 @@ if (Meteor.isServer) {
 
         'templates.removeByKey'(projectId, arg) {
             check(projectId, String);
-            check(arg, Match.OneOf(String, [String]));
             checkIfCan('responses:w', projectId);
+            check(arg, Match.OneOf(String, [String]));
 
             const templateKeys = (typeof arg === 'string') ? [arg] : arg;
 
@@ -141,6 +145,7 @@ if (Meteor.isServer) {
 
         'templates.countWithIntent'(projectId, intent) {
             check(projectId, String);
+            checkIfCan(['nlu-data:r', 'responses:r', 'conversations:r'], projectId);
             check(intent, String);
             
             const project = Projects.find(

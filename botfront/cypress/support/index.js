@@ -403,3 +403,50 @@ Cypress.Commands.add('addTestConversation', (projectId) => {
 Cypress.Commands.add('removeTestConversation', () => {
     cy.MeteorCallAdmin('conversations.delete', ['6f1800deea7f469b8dafd928f092a280']);
 });
+
+Cypress.Commands.add('addTestResponse', (id) => {
+    const commandToAddResponse = `mongo meteor --host localhost:3001 --eval 'db.projects.update({
+        _id: "${id}"
+    }, {
+        $set: {
+            templates: [
+                {
+                    values:[
+                        {
+                            sequence:[
+                                {
+                                    content:"text: Test"
+                                }
+                            ],
+                            lang:"en"
+                        }
+                    ],
+                    key:"utter_greet",
+                    match:{
+                        nlu:[
+                            {
+                                intent:"chitchat.greet",
+                                entities:[
+        
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });'`;
+    cy.exec(commandToAddResponse);
+});
+
+Cypress.Commands.add('removeTestResponse', (id) => {
+    const commandToRemoveResponse = `mongo meteor --host localhost:3001 --eval 'db.projects.update({
+        _id: "${id}"
+    }, {
+        $set: {
+            templates: [
+            ]
+        }
+    });'`;
+    cy.exec(commandToRemoveResponse);
+});

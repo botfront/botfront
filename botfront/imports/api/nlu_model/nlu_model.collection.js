@@ -37,8 +37,9 @@ if (Meteor.isServer) {
     // This publication is here to get a list of accessible models
     // without having to download all the training data.
     // Thus greatly reducing the load times
-    Meteor.publish('nlu_models.lite', function () {
-        if (can('global-admin')) {
+    Meteor.publish('nlu_models.lite', function (projectId) {
+        check(projectId, String);
+        if (can(['nlu-data:r', 'responses:r', 'project-settings:r'], projectId)) {
             return NLUModels.find({}, {
                 fields: {
                     language: 1,

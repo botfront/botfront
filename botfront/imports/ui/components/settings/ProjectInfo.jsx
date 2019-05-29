@@ -60,7 +60,7 @@ ProjectInfo.propTypes = {
 };
 
 const ProjectInfoContainer = withTracker(({ projectId }) => {
-    const modelsHanlder = Meteor.subscribe('nlu_models.lite');
+    const modelsHanlder = Meteor.subscribe('nlu_models.lite', projectId);
     const project = Projects.findOne({ _id: projectId }, {
         fields: {
             name: 1, namespace: 1, apiKey: 1, nlu_models: 1, defaultLanguage: 1,

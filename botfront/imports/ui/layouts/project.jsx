@@ -199,7 +199,7 @@ const ProjectContainer = withTracker((props) => {
     let projectHandler = null;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     projectHandler = Meteor.subscribe('projects', projectId);
-    const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
+    const nluModelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const ready = Meteor.user()
         && credentialsHandler.ready()

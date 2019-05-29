@@ -19,6 +19,7 @@ import {
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { getTemplateLanguages } from '../../../../api/project/response.methods';
 import { languages } from '../../../../lib/languages';
+import { can } from '../../../../lib/scopes';
 
 const cellIntentStyle = {
     marginLeft: '0',
@@ -88,7 +89,10 @@ class TemplatesTable extends React.Component {
                 Header: () => languages[lang].name,
                 filterAll: true,
             },
-            {
+        ];
+
+        if (can('responses:w', projectId)) {
+            columns.push({
                 id: 'edit',
                 accessor: 'key',
                 className: 'center',
@@ -119,8 +123,8 @@ class TemplatesTable extends React.Component {
                     />
                 ),
                 width: 25,
-            },
-        ];
+            });
+        }
 
         if (matching) {
             columns.unshift({
