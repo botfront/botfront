@@ -167,11 +167,9 @@ class NLUModel extends React.Component {
             tabs.push({
                 menuItem: 'API',
                 render: () => (
-                    <div>
-                        <React.Suspense fallback={<Loader active />}>
-                            <API model={model} instance={instance} />
-                        </React.Suspense>
-                    </div>
+                    <React.Suspense fallback={<Loader active />}>
+                        <API model={model} instance={instance} />
+                    </React.Suspense>
                 ),
             });
         }
