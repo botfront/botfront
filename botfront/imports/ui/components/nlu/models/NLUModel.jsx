@@ -14,6 +14,7 @@ import {
     Tab,
     Popup,
     Placeholder,
+    Loader,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
@@ -37,8 +38,9 @@ import DeleteModel from '../import-export/DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
-import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
+
+const API = React.lazy(() => import('./API'));
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -161,7 +163,16 @@ class NLUModel extends React.Component {
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
         ];
         if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
-        if (instance) tabs.push({ menuItem: 'API', render: () => <API model={model} instance={instance} /> });
+        if (instance) {
+            tabs.push({
+                menuItem: 'API',
+                render: () => (
+                    <React.Suspense fallback={<Loader active />}>
+                        <API model={model} instance={instance} />
+                    </React.Suspense>
+                ),
+            });
+        }
         return tabs;
     };
 
