@@ -70,7 +70,7 @@ Credentials.attachSchema(CredentialsSchema);
 if (Meteor.isServer) {
     Meteor.publish('credentials', function(projectId) {
         check(projectId, String);
-        if (can('project-settings:r', projectId, this.userId)) return Credentials.find({ projectId });
+        if (can(['project-settings:r', 'nlu-data:r', 'responses:r', 'conversations:r'], projectId, this.userId)) return Credentials.find({ projectId });
         return this.ready();
     });
 

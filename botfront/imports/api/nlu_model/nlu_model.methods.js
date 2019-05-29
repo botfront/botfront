@@ -312,6 +312,7 @@ if (Meteor.isServer) {
 
         'nlu.removeExamplesByIntent'(modelId, arg) {
             check(modelId, String);
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(arg, Match.OneOf(String, [String]));
             const intents = typeof arg === 'string' ? [arg] : arg;
 
@@ -346,7 +347,7 @@ if (Meteor.isServer) {
 
         'nlu.getPublishedModelsLanguages'(projectId) {
             check(projectId, String);
-            checkIfCan('nlu-admin', projectId);
+            checkIfCan(['nlu-data:r', 'responses:r', 'conversations:r', 'project-settings:r'], projectId);
             try {
                 const project = Projects.findOne(
                     { _id: projectId },
@@ -372,6 +373,7 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.chitChatSetup'() {
+            checkIfCan('global-admin');
             try {
                 const data = {
                     fr: JSON.parse(Assets.getText('nlu/nlu-chitchat-fr.json')),

@@ -87,8 +87,9 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'images.uploadToGCS'(fileBinaryString, projectId, imageId, extension) {
-            check(fileBinaryString, String);
             check(projectId, String);
+            checkIfCan('project-admin', projectId);
+            check(fileBinaryString, String);
             check(imageId, String);
             check(extension, String);
             checkImageRights(projectId);
@@ -142,8 +143,9 @@ if (Meteor.isServer) {
         },
 
         'images.addImage'(fileBinaryString, projectId, extension) {
-            check(fileBinaryString, String);
             check(projectId, String);
+            checkIfCan('project-admin', projectId);
+            check(fileBinaryString, String);
             check(extension, String);
             checkImageRights(projectId);
             this.unblock();
@@ -162,8 +164,9 @@ if (Meteor.isServer) {
         },
 
         'images.updateImage'(fileBinaryString, projectId, imageId, extension) {
-            check(fileBinaryString, String);
             check(projectId, String);
+            checkIfCan('project-admin', projectId);
+            check(fileBinaryString, String);
             check(imageId, String);
             check(extension, String);
             checkImageRights(projectId);

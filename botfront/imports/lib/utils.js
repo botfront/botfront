@@ -118,8 +118,9 @@ function uploadModel(bytes, path, bucket, makePublic) {
 if (Meteor.isServer) {
     Meteor.methods({
         'upload.gcs'(fileBinaryString, projectId, bucket, fileName, options) {
-            check(fileBinaryString, String);
             check(projectId, String);
+            checkIfCan('global-admin');
+            check(fileBinaryString, String);
             check(bucket, String);
             check(fileName, String);
             check(options, Match.Maybe(Object));
@@ -142,8 +143,9 @@ if (Meteor.isServer) {
         },
 
         'upload.modelToGCS'(fileBinaryString, projectId) {
-            check(fileBinaryString, String);
             check(projectId, String);
+            checkIfCan('global-admin');
+            check(fileBinaryString, String);
             this.unblock();
             const { settings: { private: { gcpBucketCore } } } = GlobalSettings.findOne({}, { fields: { 'settings.private.gcpBucketCore': 1 } });
             return Meteor.call('upload.gcs', fileBinaryString, projectId, gcpBucketCore, `prod-${projectId}.zip`);
