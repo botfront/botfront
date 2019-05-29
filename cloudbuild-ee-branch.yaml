@@ -4,14 +4,14 @@ steps:
   args:
   - '-c'
   - |
-    docker pull gcr.io/$PROJECT_ID/botfront:latest || exit 0
+    docker pull gcr.io/$PROJECT_ID/botfront-ee:latest || exit 0
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",
-          "-t", "gcr.io/${PROJECT_ID}/botfront:$BRANCH_NAME",
-          "--cache-from", "gcr.io/$PROJECT_ID/botfront:$BRANCH_NAME",
+          "-t", "gcr.io/${PROJECT_ID}/botfront-ee:$BRANCH_NAME",
+          "--cache-from", "gcr.io/$PROJECT_ID/botfront-ee:$BRANCH_NAME",
           "."]
 
 images:
-- "gcr.io/${PROJECT_ID}/botfront:$BRANCH_NAME"
+- "gcr.io/${PROJECT_ID}/botfront-ee:$BRANCH_NAME"
 
 timeout: 30m    

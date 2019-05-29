@@ -4,12 +4,12 @@ steps:
   args:
   - '-c'
   - |
-    docker pull gcr.io/$PROJECT_ID/botfront:latest || exit 0
+    docker pull gcr.io/$PROJECT_ID/botfront-ee:latest || exit 0
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",
-          "-t", "gcr.io/${PROJECT_ID}/botfront:$TAG_NAME",
-          "-t", "gcr.io/${PROJECT_ID}/botfront:latest",
-          "--cache-from", "gcr.io/$PROJECT_ID/botfront:latest",
+          "-t", "gcr.io/${PROJECT_ID}/botfront-ee:$TAG_NAME",
+          "-t", "gcr.io/${PROJECT_ID}/botfront-ee:latest",
+          "--cache-from", "gcr.io/$PROJECT_ID/botfront-ee:latest",
           "."]
 - name: 'gcr.io/cloud-builders/kubectl'
   args:
@@ -17,7 +17,7 @@ steps:
   - image
   - deployment
   - botfront
-  - botfront=gcr.io/${PROJECT_ID}/botfront:$TAG_NAME
+  - botfront=gcr.io/${PROJECT_ID}/botfront-ee:$TAG_NAME
   - --namespace
   - ${_NAMESPACE}
   env:
@@ -25,7 +25,7 @@ steps:
   - 'CLOUDSDK_CONTAINER_CLUSTER=${_CONTAINER_CLUSTER}'
 
 images:
-- "gcr.io/${PROJECT_ID}/botfront:latest"
-- "gcr.io/${PROJECT_ID}/botfront:$TAG_NAME"
+- "gcr.io/${PROJECT_ID}/botfront-ee:latest"
+- "gcr.io/${PROJECT_ID}/botfront-ee:$TAG_NAME"
 
 timeout: 30m    
