@@ -14,7 +14,6 @@ import {
     Tab,
     Popup,
     Placeholder,
-    Loader,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
@@ -38,9 +37,8 @@ import DeleteModel from '../import-export/DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
+import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
-
-const API = React.lazy(() => import('./API'));
 
 class NLUModel extends React.Component {
     constructor(props) {

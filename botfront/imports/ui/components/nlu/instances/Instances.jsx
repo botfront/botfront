@@ -12,7 +12,6 @@ import Alert from 'react-s-alert';
 
 import { Instances as InstancesCollection } from '../../../../api/instances/instances.collection';
 import SelectField from '../../form_fields/SelectField';
-import { can } from '../../../../lib/scopes';
 
 const NONE = -2;
 const NEW_INSTANCE = -1;
@@ -51,7 +50,7 @@ class Instances extends React.Component {
         return (
             <Card key={index}>
                 <Confirm
-                    open={confirmOpen}
+                    open={confirmOpen === index}
                     header={`Delete instance ${instance.name}?`}
                     content='This cannot be undone!'
                     onCancel={() => this.setState({ editing: NONE, confirmOpen: false })}
@@ -65,7 +64,7 @@ class Instances extends React.Component {
                 <Card.Content extra>
                     <Button.Group basic floated='right'>
                         <Button primary onClick={() => this.setState({ editing: index })} icon='edit' data-cy='edit-instance' />
-                        <Button color='red' onClick={() => this.setState({ confirmOpen: true })} icon='trash' />
+                        <Button color='red' onClick={() => this.setState({ confirmOpen: index })} icon='trash' data-cy='delete-instance' />
                     </Button.Group>
                 </Card.Content>
             </Card>
