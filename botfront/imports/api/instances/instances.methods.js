@@ -1,9 +1,12 @@
 import axios from 'axios';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
+import queryString from 'query-string';
+import axiosRetry from 'axios-retry';
 import { Instances } from './instances.collection';
 import { getTrainingDataInRasaFormat } from '../../lib/nlu_methods';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { getAxiosError } from '../../lib/utils';
+import { Evaluations } from '../nlu_evaluation';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -57,7 +60,7 @@ Meteor.methods({
                 domain,
                 // domain: '',
                 stories,
-                // nlu,
+                nlu,
                 config,
                 out: '../_project/models',
                 // force: true,
@@ -70,6 +73,64 @@ Meteor.methods({
         } catch (e) {
             Meteor.call('nlu.markTrainingStopped', nluModelId, 'failure', e.reason);
             throw getAxiosError(e);
+        }
+    },
+
+    'rasa.evaluate.nlu'(modelId, projectId, instance, testData) {
+        check(projectId, String);
+        check(modelId, String);
+        check(instance, Object);
+        check(testData, Match.Maybe(Object));
+        try {
+            this.unblock();
+            const model = NLUModels.findOne({ _id: modelId });
+            check(model, Object);
+            const examples = testData || getTrainingDataInRasaFormat(model, false);
+            const params = { language: model.language };
+            if (instance.token) Object.assign(params, { token: instance.token });
+            const qs = queryString.stringify(params);
+            const client = axios.create({
+                baseURL: instance.host,
+                timeout: 60 * 60 * 1000,
+            });
+
+            axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+            const url = `${instance.host}/model/test/intents?${qs}`;
+            const results = Promise.await(client.post(url, examples));
+            console.log(results)
+            if (results.data.entity_evaluation) {
+                const ee = results.data.entity_evaluation;
+                Object.keys(ee).forEach((key) => {
+                    const newKeyName = key.replace(/\./g, '_');
+                    ee[newKeyName] = ee[key];
+                    delete ee[key];
+                });
+            }
+            const evaluations = Evaluations.find({ modelId }, { field: { _id: 1 } }).fetch();
+            if (evaluations.length > 0) {
+                Evaluations.update({ _id: evaluations[0]._id }, { $set: { results: results.data } });
+            } else {
+                Evaluations.insert({ results: results.data, modelId });
+            }
+            return 'ok';
+        } catch (e) {
+            let error = null;
+            if (e.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                error = new Meteor.Error(e.response.status, e.response.data);
+            } else if (e.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                error = new Meteor.Error('399', 'timeout');
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                error = new Meteor.Error('500', e);
+            }
+
+            console.log(error);
+            throw error;
         }
     },
 });
