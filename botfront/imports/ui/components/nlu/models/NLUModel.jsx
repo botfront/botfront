@@ -161,7 +161,16 @@ class NLUModel extends React.Component {
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
         ];
         if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
-        if (instance) tabs.push({ menuItem: 'API', render: () => <API model={model} instance={instance} /> });
+        if (instance) {
+            tabs.push({
+                menuItem: 'API',
+                render: () => (
+                    <React.Suspense fallback={<Loader active />}>
+                        <API model={model} instance={instance} />
+                    </React.Suspense>
+                ),
+            });
+        }
         return tabs;
     };
 
