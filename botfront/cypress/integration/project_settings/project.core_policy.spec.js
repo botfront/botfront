@@ -18,7 +18,7 @@ describe('Project Core Policy', function() {
             cy.visit(`/project/${this.bf_project_id}/settings`);
             cy.contains('Core Policy').click();
             cy.get('[data-cy=save-button]').click();
-            cy.get('.s-alert-success').should('be.visible');
+            cy.get('[data-cy=changes-saved]').should('be.visible');
         });
     });
 });
