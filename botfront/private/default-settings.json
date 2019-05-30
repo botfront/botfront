@@ -11,6 +11,6 @@
           "defaultRules": "intent_substitutions:\n  - intent: chitchat\\.(.*)\n    with: faq\n    entities:\n      add:\n        - name: intent\n          value: '{intent}'\n  - intent: faq\\.(.*)\n    with: faq\n    entities:\n      add:\n        - name: intent\n          value: '{intent}'\ndisambiguation_policy:\n  trigger: $0 > 1\n  max_suggestions: 2\n  display:\n    text_template: utter_disamb_text\n    button_title_template_prefix: utter_disamb\n    fallback_button:\n      title: utter_fallback_yes\n      payload: /fallback\n    exclude:\n      - chitchat\\..*\n      - basics\\..*\n      - cancel",
           "defaultCredentials": "bot.socketio.SocketIOInput:\n  session_persistence: true",
           "defaultPolicies": "policies:\n  - name: AugmentedMemoizationPolicy\n  - name: KerasPolicy\n  - name: MappingPolicy"
-        }
+      }
   }
 }

@@ -5,7 +5,6 @@ import { check } from 'meteor/check';
 import yaml from 'js-yaml';
 import { formatError } from '../lib/utils';
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
-import { checkIfCan, can } from '../lib/scopes';
 
 export const CorePolicies = new Mongo.Collection('core_policies');
 // Deny all client-side updates on the CorePolicies collection
@@ -62,14 +61,12 @@ CorePolicies.attachSchema(CorePolicySchema);
 if (Meteor.isServer) {
     Meteor.publish('policies', function (projectId) {
         check(projectId, String);
-        if (can('project-settings:r', projectId, this.userId)) return CorePolicies.find({ projectId });
-        return this.ready();
+        return CorePolicies.find({ projectId });
     });
 
     Meteor.methods({
         'policies.save'(policies) {
             check(policies, Object);
-            checkIfCan('project-settings:w', policies.projectId);
             try {
                 return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });
             } catch (e) {
