@@ -4,6 +4,7 @@ import '../imports/lib/aggregate';
 import '../imports/api/globalSettings/globalSettings.collection';
 import '../imports/api/globalSettings/globalSettings.methods';
 import '../imports/api/conversations';
+import '../imports/api/core_policies';
 import '../imports/api/credentials';
 import '../imports/api/deployment/deployment.collection';
 import '../imports/api/deployment/deployment.methods';
