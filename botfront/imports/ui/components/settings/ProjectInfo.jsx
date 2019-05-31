@@ -31,10 +31,7 @@ class ProjectInfo extends React.Component {
         return renderOptions;
     };
 
-    diffArray = (array1, array2) => {
-        const diffArray = array1.filter(elementArray1 => (array2.indexOf(elementArray1)) < 0);
-        return diffArray;
-    }
+    diffArray = (array1, array2) => (array1.filter(elementArray1 => (array2.indexOf(elementArray1)) < 0));
 
     renderLabel = (language, languageCodes) => {
         const isModelExist = languageCodes.includes(language.value);
@@ -56,7 +53,7 @@ class ProjectInfo extends React.Component {
             Meteor.callWithPromise('nlu.insert', {
                 name: 'Default Model',
                 language,
-                description: 'To be modified',
+                description: 'Default description',
             },
             projectId)
         ));
@@ -74,20 +71,26 @@ class ProjectInfo extends React.Component {
             wrapMeteorCallback(() => this.createNLUModels(differenceArray, _id), 'Changes saved'));
     };
 
+    renderDeleteModelMessage = () => (
+        <Message
+            info
+            icon='info'
+            header='Deleting a model'
+            content={(
+                <div>
+                    To remove a language from the project, go to <strong> NLU Model &gt;  Settings &gt;  Delete </strong>.
+                </div>
+            )}
+        />
+    );
+
     render() {
         const { project, modelLanguages, ready } = this.props;
         const { saving, value } = this.state;
         const projectsSchema = Projects.simpleSchema();
         return (
             <>
-                {!!modelLanguages && (
-                    <Message info>
-                        <Message.Content>
-                            <Message.Header>Removing a language</Message.Header>
-                                To remove a language from the project, go to NLU Model > Settings > Delete.
-                        </Message.Content>
-                    </Message>)
-                }
+                {!!modelLanguages.length && this.renderDeleteModelMessage() }
                 {ready && (
                     <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={() => this.onSave(project, modelLanguages)} disabled={saving}>
                         <InfoField name='name' label='Name' className='project-name' />
@@ -112,7 +115,7 @@ class ProjectInfo extends React.Component {
                                 renderLabel={language => this.renderLabel(language, modelLanguages.map(lang => (lang.value)))}
                             />
                         </Form.Field>
-                        { !!modelLanguages && <SelectField name='defaultLanguage' options={modelLanguages} className='project-default-language' />}
+                        { !!modelLanguages.length && <SelectField name='defaultLanguage' options={modelLanguages} className='project-default-language' />}
                         <br />
                         <ErrorsField />
                         <SubmitField className='primary save-project-info-button' value='Save Changes' />
