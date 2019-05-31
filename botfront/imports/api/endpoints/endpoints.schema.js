@@ -1,17 +1,11 @@
 import SimpleSchema from 'simpl-schema';
-import yaml from 'js-yaml';
+
+import { validateYaml } from '../../lib/utils';
 
 export const EndpointsSchema = new SimpleSchema({
     endpoints: {
         type: String,
-        custom() {
-            try {
-                yaml.safeLoad(this.value);
-                return null;
-            } catch (e) {
-                return e.reason;
-            }
-        },
+        custom: validateYaml,
         optional: true,
     },
 

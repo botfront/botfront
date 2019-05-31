@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { sample } from 'lodash';
+import yaml from 'js-yaml';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { Projects } from '../api/project/project.collection';
@@ -76,3 +77,12 @@ export const getBackgroundImageUrl = () => {
 export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProperty.call(e, 'value') || e.value.length > 0);
 
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
+
+export const validateYaml = function() {
+    try {
+        yaml.safeLoad(this.value);
+        return null;
+    } catch (e) {
+        return e.reason;
+    }
+};
