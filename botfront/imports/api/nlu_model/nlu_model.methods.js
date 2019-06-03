@@ -8,7 +8,7 @@ import { formatError, getProjectIdFromModelId } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
-import { checkNoEmojisInExamples, checkNoDuplicatesInExamples, renameIntentsInTemplates } from './nlu_model.utils';
+import { checkNoEmojisInExamples, checkNoDuplicatesInExamples, renameIntentsInTemplates, getNluModelLanguages } from './nlu_model.utils';
 import { setGazetteDefaults } from '../../ui/components/synonyms/GazetteConfig';
 import { Projects } from '../project/project.collection';
 import { Instances } from '../instances/instances.collection';
@@ -140,7 +140,12 @@ if (Meteor.isServer) {
         'nlu.insert'(item, projectId) {
             check(item, Object);
             check(projectId, String);
-
+            // Check if the model with the langauge already exists in project
+            const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
+            const nluModelLanguages = getNluModelLanguages(project.nlu_models, true);
+            if (nluModelLanguages.map(lang => (lang.value)).includes(item.language)) {
+                return `Model with langauge ${item.language} already exists`;
+            }
             const {
                 settings: {
                     public: { defaultNLUConfig },
@@ -165,14 +170,17 @@ if (Meteor.isServer) {
             check(modelId, String);
             check(projectId, String);
             checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
-
-            try {
-                NLUModels.remove({ _id: modelId });
-                Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
-            } catch (e) {
-                throw e;
+            // check the default language of project and the language of model
+            const modelLanguage = NLUModels.findOne({ _id: modelId }, { fields: { languague: 1 } });
+            const projectDefaultLanguage = Projects.findOne({ _id: projectId }, { fields: { defaultLanguage: 1 } });
+            if (modelLanguage !== projectDefaultLanguage) {
+                try {
+                    NLUModels.remove({ _id: modelId });
+                    Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
+                } catch (e) {
+                    throw e;
+                }
             }
-
             return 'Model Deleted';
         },
 

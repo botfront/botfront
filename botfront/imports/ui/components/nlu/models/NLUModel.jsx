@@ -15,10 +15,11 @@ import {
     Popup,
     Placeholder,
     Loader,
+    Dropdown,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
+import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
 import NluDataTable from './NluDataTable';
 import NLUPlayground from '../../example_editor/NLUPlayground';
@@ -40,12 +41,13 @@ import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
+import { Projects } from '../../../../api/project/project.collection';
 
 class NLUModel extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { activeItem: 'activity', ...NLUModel.getDerivedStateFromProps(props) };
+        this.state = { activeItem: 'activity', ...NLUModel.getDerivedStateFromProps(props), modelId: '' };
         this.activityLinkRender = false;
     }
 
@@ -176,24 +178,37 @@ class NLUModel extends React.Component {
     };
 
     getSettingsSecondaryPanes = () => {
-        const { model, instances, intents } = this.props;
+        const { model, instances, intents, projectDefaultLanguage } = this.props;
+        const cannotDelete = model.language !== projectDefaultLanguage;
         return [
             { menuItem: 'General', render: () => <NLUParams model={model} instances={instances} /> },
             { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
             { menuItem: 'Import', render: () => <DataImport model={model} /> },
             { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
-            { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> },
+            { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} cannotDelete={cannotDelete} /> },
         ];
     };
 
+    onChange = (e, data) => {
+        const { models, projectId } = this.props;
+        // Fetch the model Id for data.value
+        const modelToRender = models.find(model => (model.language === data.value));
+        this.setState({ modelId: modelToRender.language }, browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelToRender._id}` }));
+    }
+
     getHeader = () => {
-        const { projectId, model: { name, language } = {} } = this.props;
+        const { nluModelLanguages, model } = this.props;
+        let { modelId } = this.state;
+        modelId = model.language;
         return (
-            <div className='model_header'>
-                <Link to={`/project/${projectId}/nlu/models`}>
-                    <strong>{`NLU Models > ${name} (${language})`}</strong>
-                </Link>
-            </div>
+            <Dropdown
+                placeholder='Select Model'
+                search
+                selection
+                value={modelId}
+                options={nluModelLanguages}
+                onChange={this.onChange}
+            />
         );
     };
 
@@ -263,7 +278,7 @@ class NLUModel extends React.Component {
         return (
             <div id='nlu-model'>
                 <Menu pointing secondary>
-                    <Menu.Item>{this.getHeader()}</Menu.Item>
+                    <Menu.Item style={{ paddingBottom: '0.3rem', paddingLeft: '2.4rem' }} header>{this.getHeader()}</Menu.Item>
                     <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
                         <Icon size='small' name='history' />
                         {'Activity'}
@@ -338,26 +353,48 @@ class NLUModel extends React.Component {
 
 NLUModel.propTypes = {
     model: PropTypes.object.isRequired,
-    projectId: PropTypes.string.isRequired,
+    projectId: PropTypes.string,
     instances: PropTypes.arrayOf(PropTypes.object),
     entities: PropTypes.array,
     intents: PropTypes.array,
     settings: PropTypes.object.isRequired,
-    ready: PropTypes.bool.isRequired,
+    ready: PropTypes.bool,
+    nluModelLanguages: PropTypes.array,
+    models: PropTypes.array,
+    projectDefaultLanguage: PropTypes.string,
 };
 
 NLUModel.defaultProps = {
     instances: [],
     entities: [],
     intents: [],
+    ready: false,
+    nluModelLanguages: [],
+    models: [],
+    projectDefaultLanguage: '',
+    projectId: '',
 };
 
 const NLUDataLoaderContainer = withTracker((props) => {
     const { params: { model_id: modelId, project_id: projectId } = {} } = props;
+    // For handling '/project/:project_id/nlu/models'
+    if (!modelId) {
+        const { nlu_models: modelIds = [], defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, defaultLanguage: 1 } }) || {};
+        const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
+
+        try {
+            const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
+            browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${defaultModelId}` });
+        } catch (e) {
+            browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelIds[0]}` });
+        }
+    }
+    // for handling '/project/:project_id/nlu/model/:model_id'
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const settingsHandler = Meteor.subscribe('settings');
     const modelHandler = Meteor.subscribe('nlu_models', modelId);
-    const ready = instancesHandler.ready() && settingsHandler.ready() && modelHandler.ready();
+    const projectsHandler = Meteor.subscribe('projects', projectId);
+    const ready = instancesHandler.ready() && settingsHandler.ready() && modelHandler.ready() && projectsHandler.ready();
     const model = NLUModels.findOne({ _id: modelId });
     if (!model) {
         return {};
@@ -376,15 +413,27 @@ const NLUDataLoaderContainer = withTracker((props) => {
             });
         }
     });
-
+    const project = Projects.findOne({ _id: projectId }, {
+        fields: {
+            name: 1, namespace: 1, apiKey: 1, nlu_models: 1, defaultLanguage: 1,
+        },
+    });
+    if (!project) return browserHistory.replace({ pathname: '/404' });
+    const nluModelLanguages = getNluModelLanguages(project.nlu_models, true);
+    const { nlu_models: modelIds = [] } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {};
+    const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
+    const projectDefaultLanguage = project.defaultLanguage;
     return {
         ready,
+        models,
         model,
         instances,
         intents,
         entities,
         projectId,
         settings,
+        nluModelLanguages,
+        projectDefaultLanguage,
     };
 })(NLUModel);
 

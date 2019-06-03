@@ -46,7 +46,7 @@ export default class DeleteModel extends React.Component {
 
     render() {
         const { backupDownloaded, confirmOpen } = this.state;
-        const { model } = this.props;
+        const { model, cannotDelete } = this.props;
         return (
             <Tab.Pane>
                 <Confirm
@@ -79,7 +79,7 @@ export default class DeleteModel extends React.Component {
                     type='submit'
                     onClick={() => this.setState({ confirmOpen: true })}
                     negative
-                    disabled={!backupDownloaded}
+                    disabled={!backupDownloaded || !cannotDelete}
                 >
                     <Icon name='trash' />
                     Delete model <strong>{model.name}</strong>
@@ -92,4 +92,5 @@ export default class DeleteModel extends React.Component {
 DeleteModel.propTypes = {
     model: PropTypes.object.isRequired,
     onDeleteModel: PropTypes.func.isRequired,
+    cannotDelete: PropTypes.bool.isRequired,
 };
