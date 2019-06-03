@@ -4,10 +4,10 @@ import { check } from 'meteor/check';
 
 import { StorySchema } from './storyGroups.schema';
 
-export const storyGroups = new Mongo.Collection('stories');
+export const StoryGroups = new Mongo.Collection('stories');
 
 // Deny all client-side updates on the Projects collection
-storyGroups.deny({
+StoryGroups.deny({
     insert() { return true; },
     update() { return true; },
     remove() { return true; },
@@ -16,8 +16,9 @@ storyGroups.deny({
 if (Meteor.isServer) {
     Meteor.publish('storiesGroup', function(projectId) {
         check(projectId, String);
-        return storyGroups.find({ projectId });
+        StoryGroups.find({ projectId });
+        return StoryGroups.find({ projectId });
     });
 }
 
-storyGroups.attachSchema(StorySchema);
+StoryGroups.attachSchema(StorySchema);
