@@ -5,9 +5,8 @@ const entityNames = ['ENT1', 'ENT2'];
 const newEntityNames = ['NEW ENT1', 'NEW ENT2'];
 const entityValues = ['VAL1', 'VAL2'];
 const searchTerm = 'KPI ENT1';
-
 const modelName = 'myModel';
-const modelLang = 'French';
+const modelLang = 'fr';
 
 
 describe('NLU Criteria ', function() {
@@ -174,7 +173,7 @@ describe('NLU Criteria ', function() {
 
     after(function() {
         cy.login();
-        cy.deleteNLUModel(this.bf_project_id, modelName, modelLang);
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, modelLang);
         cy.logout();
     });
 });

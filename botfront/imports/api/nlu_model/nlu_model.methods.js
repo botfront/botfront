@@ -184,6 +184,21 @@ if (Meteor.isServer) {
             return 'Model Deleted';
         },
 
+        'nlu.removelanguage'(projectId, language) {
+            check(projectId, String);
+            check(language, String);
+            checkIfCan('nlu-admin', projectId);
+            const modelIds = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+            const { _id: modelId } = NLUModels.findOne({ _id: { $in: modelIds }, language });
+            try {
+                NLUModels.remove({ _id: modelId });
+                Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
+            } catch (e) {
+                throw e;
+            }
+            return `Model with language ${language} deleted.`;
+        },
+
         'nlu.getChitChatIntents'(language) {
             check(language, String);
             const chitChatProjectId = getChitChatProjectid();

@@ -1,8 +1,16 @@
 /* eslint-disable no-undef */
+let modelId = '';
 
 describe('chat side panel handling', function() {
     before(function() {
+        cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
+        cy.get('@bf_project_id').then((id) => {
+            cy.createNLUModelProgramatically(id, 'MyModel', 'fr', 'my description')
+                .then((result) => {
+                    modelId = result;
+                });
+        });
     });
 
     beforeEach(function() {
@@ -13,16 +21,21 @@ describe('chat side panel handling', function() {
         cy.logout();
     });
 
+    after(function() {
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+    });
+
     it('opens and close the chat', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.get('[data-cy=open-chat]').click();
         cy.get('[data-cy=chat-pane]');
         cy.get('[data-cy=close-chat]').click();
         cy.get('[data-cy=chat-pane]').should('not.exist');
     });
 
+    // TODO Need to find and fix the issue here, this test fails
     it('should display a message when no language are set', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.get('[data-cy=duplicate-button]').click();
         cy.get('[data-cy=confirm-popup]').contains('Yes').click();
         cy.get('[data-cy=offline-model]').click();
@@ -56,7 +69,7 @@ describe('chat side panel handling', function() {
         cy.get('[data-cy=type-selector] input').type('nlu{enter}');
         cy.get('[data-cy=save-instance]').click();
 
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.get('[data-cy=open-chat]').click();
         cy.get('[data-cy=no-core-instance-message]');
         cy.get('[data-cy=settings-link]').click();

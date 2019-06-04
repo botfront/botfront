@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-
+let modelId = ''
 
 describe('NLU Batch Insert', function() {
     before(function() {
@@ -7,7 +7,10 @@ describe('NLU Batch Insert', function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModel(id, 'MyModel', 'English');
+            cy.createNLUModelProgramatically(id, 'MyModel', 'fr', 'My Description')
+                .then((result) => {
+                    modelId = result;
+                });
         });
     });
 
@@ -16,9 +19,12 @@ describe('NLU Batch Insert', function() {
         cy.login();
     });
 
+    after(function() {
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+    });
+
     it('Should add and delete multiple examples', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.get('#model-MyModel [data-cy=open-model]').first().click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\ncoucou\nsalut');
@@ -49,17 +55,21 @@ describe('NLU Batch Insert', function() {
 
 describe('NLU Synonyms', function() {
     beforeEach(function() {
-        cy.visit('/login');
         cy.login();
     });
 
     before(function() {
+        cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
+        cy.get('@bf_project_id').then((id) => {
+            cy.createNLUModelProgramatically(id, 'MyModel', 'fr', 'My Description')
+                .then((result) => {
+                    modelId = result;
+                });
+        });
     });
-    
     it('Should add, edit, delete synonyms', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.get('#model-MyModel [data-cy=open-model]').first().click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Synonyms').click();
         // Add a synonym
@@ -117,8 +127,6 @@ describe('NLU Synonyms', function() {
     });
 
     after(function() {
-        cy.visit('/login');
-        cy.login();
-        cy.deleteNLUModel(this.bf_project_id, 'MyModel', 'English');
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
     });
 });
