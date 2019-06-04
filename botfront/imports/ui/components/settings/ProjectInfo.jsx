@@ -92,7 +92,7 @@ class ProjectInfo extends React.Component {
             <>
                 {!!modelLanguages.length && this.renderDeleteModelMessage() }
                 {ready && (
-                    <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={() => this.onSave(project, modelLanguages)} disabled={saving}>
+                    <AutoForm schema={projectsSchema || projectsSchemaDefault} model={project} onSubmit={updateProject => this.onSave(updateProject, modelLanguages)} disabled={saving}>
                         <InfoField name='name' label='Name' className='project-name' />
                         {projectsSchema && projectsSchema.allowsKey('namespace') && (
                             <InfoField name='namespace' label='Namespace' disabled />
