@@ -33,14 +33,15 @@ This example is minimal, but you can do more advanced assignments such as combin
 ::: tip How is this different from the Rasa <code>MappingPolicy</code>?
 - The `MappingPolicy` lets you map one intent to one action. The Botfront behaviour lets you map any combination of intent and entities to a bot response.
 - Adding/changing questions doesn't require training, as all Q&A are handled with a single story. 
-- A nice corollar is that you can use this single story to handle all chitchat or Q&A inside your contextual stories.
+- A nice corollary is that you can use this single story to handle all chitchat or Q&A inside your contextual stories.
 :::
 
 
 ## Monitor and improve
 
 You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model. 
-**Make sure to check _Log utterances to activity_** in your `Model > Settings > Pipeline`
+**Make sure to check _Log utterances to activity_** in your `NLU > Model > Settings > Pipeline`.
+Also note that if you are running Botfront on a system other than your localhost, you must change the core instance hostname under `Settings > Instances > Core Default`.
 
 ## What's next
 You learned:
