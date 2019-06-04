@@ -171,17 +171,18 @@ if (Meteor.isServer) {
             check(projectId, String);
             checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
             // check the default language of project and the language of model
-            const modelLanguage = NLUModels.findOne({ _id: modelId }, { fields: { languague: 1 } });
-            const projectDefaultLanguage = Projects.findOne({ _id: projectId }, { fields: { defaultLanguage: 1 } });
-            if (modelLanguage !== projectDefaultLanguage) {
+            const modelLanguage = NLUModels.findOne({ _id: modelId });
+            const projectDefaultLanguage = Projects.findOne({ _id: projectId });
+            if (modelLanguage.language !== projectDefaultLanguage.defaultLanguage) {
                 try {
                     NLUModels.remove({ _id: modelId });
                     Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
+                    return 'Model Deleted';
                 } catch (e) {
                     throw e;
                 }
             }
-            return 'Model Deleted';
+            return 'Model Not Deleted';
         },
 
         'nlu.removelanguage'(projectId, language) {

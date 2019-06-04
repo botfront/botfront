@@ -208,6 +208,7 @@ class NLUModel extends React.Component {
                 value={modelId}
                 options={nluModelLanguages}
                 onChange={this.onChange}
+                data-cy='model-selector'
             />
         );
     };

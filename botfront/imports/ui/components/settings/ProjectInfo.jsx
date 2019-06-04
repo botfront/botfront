@@ -113,6 +113,7 @@ class ProjectInfo extends React.Component {
                                 onChange={this.onChange}
                                 options={this.getOptions()}
                                 renderLabel={language => this.renderLabel(language, modelLanguages.map(lang => (lang.value)))}
+                                data-cy='language-selector'
                             />
                         </Form.Field>
                         { !!modelLanguages.length && <SelectField name='defaultLanguage' options={modelLanguages} className='project-default-language' />}
