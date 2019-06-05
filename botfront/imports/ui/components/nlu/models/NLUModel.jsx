@@ -14,6 +14,7 @@ import {
     Tab,
     Popup,
     Placeholder,
+    Loader,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
@@ -310,7 +311,7 @@ class NLUModel extends React.Component {
                         <div id='playground'>
                             <NLUPlayground
                                 testMode
-                                modelId={modelId}
+                                model={model}
                                 projectId={projectId}
                                 instance={instance}
                                 floated='right'
