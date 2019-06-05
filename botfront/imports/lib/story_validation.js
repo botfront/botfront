@@ -4,10 +4,11 @@ const trimStart = str => str.replace(/^\s+/, '');
 const trimEnd = str => str.replace(/\s+$/, '');
 
 class StoryException {
-    constructor(type, line, message) {
+    constructor(type, message, line, code) {
         this.type = type;
         this.line = line;
         this.message = message;
+        this.code = code;
     }
 }
 
@@ -34,8 +35,8 @@ export class StoryValidator {
         if (str.match(/[ /]/)) this.raiseStoryException('error', 'Found invalid character');
     }
 
-    raiseStoryException = (type, message) => {
-        this.exceptions.push(new StoryException(type, this.line + 1, `${message}.`));
+    raiseStoryException = (code) => {
+        this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.line + 1, code));
     }
 
     validateUtter = () => {
@@ -56,9 +57,21 @@ export class StoryValidator {
 
     }
 
+    exceptionMessages = {
+        prefix: ['error', 'Lines should start with `## `, `* ` or `- `'],
+        title: ['error', 'Stories should have a title: `## MyStory`'],
+        intent: ['error', 'User utterances (intents) should look like this: `* MyIntent` or `* MyIntent{"entity": "value"}`'],
+        form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`'],
+        have_intent: ['warning', 'Bot actions should usually found in a user utterance (intent) block.'],
+        empty_story: ['warning', 'Story block closed without defining any interactions.'],
+        empty_intent: ['warning', 'User utterance (intent) block closed without defining any bot action.'],
+        action_name: ['warning', 'Actions should look like this: `- action_...`, `- utter_...`, `- slot{...}` or `- form{...}`.'],
+        declare_form: ['warning', 'Form calls (`- form{"name": "MyForm"}`) should be preceded by matching `- MyForm`.'],
+    }
+
     validateIntent = () => {
-        if (!this.story) this.raiseStoryException('error', 'Intent not part of a story');
-        if (this.intent && !this.response) this.raiseStoryException('warning', 'Previous intent empty');
+        if (!this.story) this.raiseStoryException('title');
+        if (this.intent && !this.response) this.raiseStoryException('have_intent');
         this.intent = this.content.split(' OR ').map(disj => trimStart(disj));
         this.response = null;
         this.form = null;
@@ -73,14 +86,14 @@ export class StoryValidator {
                 this.extracted.intents.add(intent);
                 entities.forEach(entity => this.extracted.entities.add(entity));
             } catch (e) {
-                this.raiseStoryException('error', 'Intent could not be parsed');
+                this.raiseStoryException('intent');
             }
         });
     }
 
     validateResponse = () => {
-        if (!this.story) this.raiseStoryException('error', 'Response not part of a story');
-        if (this.story && !this.intent) this.raiseStoryException('warning', 'Response not part of an intent');
+        if (!this.story) this.raiseStoryException('title');
+        if (this.story && !this.intent) this.raiseStoryException('have_intent');
         this.response = trimEnd(trimStart(this.content));
         if (this.response.match(/^utter_/)) {
             this.validateUtter();
@@ -95,17 +108,17 @@ export class StoryValidator {
             try {
                 props = JSON.parse(/([^{]*) *({.*}|)/.exec(this.response).slice(2, 3));
             } catch (e) {
-                this.raiseStoryException('error', 'Form could not be parsed');
+                this.raiseStoryException('form');
             }
             if (!{}.hasOwnProperty.call(props, 'name')) {
-                this.raiseStoryException('warning', 'Form has no name property');
+                this.raiseStoryException('form');
             } else if (this.form === props.name) {
                 this.form = null;
             } else {
-                this.raiseStoryException('warning', 'Form is not preceded by valid form declaration');
+                this.raiseStoryException('declare_form');
             }
         } else {
-            this.raiseStoryException('warning', 'Response does not follow naming convention (action, utter, slot, form)');
+            this.raiseStoryException('action_name');
         }
     }
 
@@ -118,19 +131,19 @@ export class StoryValidator {
                     this.prefix = trimStart(this.prefix);
 
                     if (this.prefix === '## ') { // new story
-                        if (this.story && !this.intent && !this.response) this.raiseStoryException('warning', 'Previous story empty');
-                        if (this.story && this.intent && !this.response) this.raiseStoryException('warning', 'Previous intent empty');
+                        if (this.story && !this.intent && !this.response) this.raiseStoryException('empty_story');
+                        if (this.story && this.intent && !this.response) this.raiseStoryException('empty_intent');
                         this.story = this.content;
                         this.intent = null;
                         this.response = null;
                         this.form = null;
                     } else if (this.prefix === '* ') { // new intent
                         this.validateIntent();
-                    } else if (this.prefix === '- ') { // new response)
+                    } else if (this.prefix === '- ') { // new response
                         this.validateResponse();
                     }
                 } catch (e) {
-                    this.raiseStoryException('error', 'Invalid prefix');
+                    this.raiseStoryException('prefix');
                 }
             }
         }
@@ -139,7 +152,7 @@ export class StoryValidator {
     extractDomain = () => {
         const errors = this.exceptions.filter(exception => exception.type === 'error');
         if (errors.length > 0) {
-            throw new Error(`Error! ${errors[0].message} at line ${errors[0].line}.`);
+            throw new Error(`Error at line ${errors[0].line}: ${errors[0].message}`);
         }
         return {
             ...this.extracted,
