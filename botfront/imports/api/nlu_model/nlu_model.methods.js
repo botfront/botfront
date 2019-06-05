@@ -141,6 +141,8 @@ if (Meteor.isServer) {
             check(item, Object);
             check(projectId, String);
             // Check if the model with the langauge already exists in project
+            // eslint-disable-next-line no-param-reassign
+            item.published = true; // a model should be publushed as soon as it is created
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
             const nluModelLanguages = getNluModelLanguages(project.nlu_models, true);
             if (nluModelLanguages.map(lang => (lang.value)).includes(item.language)) {

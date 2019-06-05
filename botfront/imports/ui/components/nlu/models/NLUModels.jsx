@@ -19,7 +19,7 @@ import {
     Label,
     Menu,
     Segment,
-    Popup, Confirm, Tab, Header,
+    Popup, Tab, Header,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
@@ -46,9 +46,7 @@ class NLUModels extends React.Component {
             loading: false,
             // those states will take the id of the model on which
             // the popup must be displayed
-            popupDuplicateModel: false,
             popupTurnOnModel: false,
-            tipDuplicateModel: false,
         };
         this.fixLanguage();
     }
@@ -90,39 +88,19 @@ class NLUModels extends React.Component {
     };
 
     resetPopups = () => this.setState({
-        popupDuplicateModel: false,
         popupTurnOnModel: false,
-        tipDuplicateModel: false,
     })
 
-    renderMenu = () => {
-        const { loading, editing } = this.state;
-        const { ready } = this.props;
-
-        return (
-            <Menu pointing secondary style={{ background: '#fff' }}>
-                <Menu.Item>
-                    <Menu.Header as='h3'>
-                        <Icon name='database' />
-                        {' NLU Models'}
-                    </Menu.Header>
-                </Menu.Item>
-                <Menu.Menu position='right'>
-                    <Menu.Item>
-                        <Button
-                            className='new-model'
-                            onClick={() => this.setState({ editing: NEW_MODEL })}
-                            primary
-                            disabled={!ready || loading || editing !== NONE}
-                            icon='add'
-                            content='New model'
-                            labelPosition='left'
-                        />
-                    </Menu.Item>
-                </Menu.Menu>
-            </Menu>
-        );
-    };
+    renderMenu = () => (
+        <Menu pointing secondary style={{ background: '#fff' }}>
+            <Menu.Item>
+                <Menu.Header as='h3'>
+                    <Icon name='database' />
+                    {' NLU Models'}
+                </Menu.Header>
+            </Menu.Item>
+        </Menu>
+    )
 
     onOpen = (model) => {
         const { projectId } = this.props;
@@ -135,19 +113,9 @@ class NLUModels extends React.Component {
     renderModels = (models) => {
         const { projectId } = this.props;
         const {
-            loading, popupDuplicateModel, popupTurnOnModel, tipDuplicateModel,
+            loading, popupTurnOnModel,
         } = this.state;
         const langs = uniq(models.map(m => m.language));
-
-        const renderDuplicateButton = (disabled, onClick = () => {}) => (
-            <Button
-                data-cy='duplicate-button'
-                disabled={disabled}
-                secondary
-                onClick={onClick}
-                icon='copy'
-            />
-        );
 
         const ConfirmPopup = ({ title, onYes = () => {}, description = '' }) => (
             <Segment basic className='model-popup' data-cy='confirm-popup'>
@@ -183,10 +151,7 @@ class NLUModels extends React.Component {
                 } = {},
             } = model;
 
-            const duplicatePopup = popupDuplicateModel === model._id;
             const turnOnPopup = popupTurnOnModel === model._id;
-            const duplicateTip = tipDuplicateModel === model._id;
-
             const languageString = languages[language].name;
 
             return (
@@ -253,23 +218,6 @@ class NLUModels extends React.Component {
                                 )}
                                 content='Open model'
                             />
-                            {popupDuplicateModel === model._id ? (
-                                <Popup
-                                    on='click'
-                                    open={duplicatePopup}
-                                    onClose={this.resetPopups}
-                                    trigger={renderDuplicateButton(loading, this.resetPopups)}
-                                    content={<ConfirmPopup title='Duplicate model ?' onYes={() => this.handleDuplicateModel(model)} />}
-                                />
-                            ) : (
-                                <Popup
-                                    trigger={renderDuplicateButton(loading, () => this.setState({ popupDuplicateModel: model._id }))}
-                                    open={duplicateTip}
-                                    onOpen={() => this.setState({ tipDuplicateModel: model._id })}
-                                    onClose={() => this.setState({ tipDuplicateModel: false })}
-                                    content='Create a copy'
-                                />
-                            )}
                         </Button.Group>
                     </Card.Content>
                 </Card>
@@ -324,6 +272,15 @@ class NLUModels extends React.Component {
         );
     }
 
+    renderMessage = () => (
+        <Message
+            header='Botfront does not support several NLU models per language.'
+            icon='info'
+            content={'Please delete all the models except the one you want to use in this project. In the meantime, only \'online\' models will be trainable'}
+            info
+        />
+    );
+
     render() {
         const { editing } = this.state;
         const { models, workingLanguage } = this.props;
@@ -334,6 +291,7 @@ class NLUModels extends React.Component {
                 {this.renderMenu()}
                 <br />
                 <Container>
+                    {this.renderMessage()}
                     {editing === NEW_MODEL && this.renderAddOrEditModel({})}
                     {nluLanguages.length === 0 && editing === NONE && this.renderNoModel()}
                     {nluLanguages.length > 0 && (

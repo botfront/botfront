@@ -40,7 +40,7 @@ class ProjectInfo extends React.Component {
             content: `${language.text}`,
         };
         if (!isModelExist) return label;
-        label.removeIcon = true;
+        label.removeIcon = '';
         return label;
     };
 

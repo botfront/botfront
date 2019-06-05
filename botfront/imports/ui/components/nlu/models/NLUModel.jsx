@@ -19,7 +19,7 @@ import {
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
+import { isTraining, getPublishedNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
 import NluDataTable from './NluDataTable';
 import NLUPlayground from '../../example_editor/NLUPlayground';
@@ -353,7 +353,7 @@ class NLUModel extends React.Component {
 }
 
 NLUModel.propTypes = {
-    model: PropTypes.object.isRequired,
+    model: PropTypes.object,
     projectId: PropTypes.string,
     instances: PropTypes.arrayOf(PropTypes.object),
     entities: PropTypes.array,
@@ -374,6 +374,7 @@ NLUModel.defaultProps = {
     models: [],
     projectDefaultLanguage: '',
     projectId: '',
+    model: [],
 };
 
 const NLUDataLoaderContainer = withTracker((props) => {
@@ -414,16 +415,17 @@ const NLUDataLoaderContainer = withTracker((props) => {
             });
         }
     });
+
     const project = Projects.findOne({ _id: projectId }, {
         fields: {
             name: 1, namespace: 1, apiKey: 1, nlu_models: 1, defaultLanguage: 1,
         },
     });
     if (!project) return browserHistory.replace({ pathname: '/404' });
-    const nluModelLanguages = getNluModelLanguages(project.nlu_models, true);
-    const { nlu_models: modelIds = [] } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {};
-    const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
+    const nluModelLanguages = getPublishedNluModelLanguages(project.nlu_models, true);
+    const models = NLUModels.find({ _id: { $in: project.nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     const projectDefaultLanguage = project.defaultLanguage;
+
     return {
         ready,
         models,
