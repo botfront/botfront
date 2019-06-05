@@ -3,7 +3,7 @@ import { check, Match } from 'meteor/check';
 import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
 import { Instances } from './instances.collection';
-import { getTrainingDataInRasaFormat } from '../../lib/nlu_methods';
+import { getTrainingDataInRasaFormat, getConfig } from '../../lib/nlu_methods';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { getAxiosError } from '../../lib/utils';
 import { Evaluations } from '../nlu_evaluation';
@@ -58,7 +58,7 @@ if (Meteor.isServer) {
 
             throw new Meteor.Error('Error when parsing NLU');
         } catch (e) {
-            console.log(e)
+            console.log(e);
             if (e instanceof Meteor.Error) {
                 throw e;
             } else {
@@ -81,7 +81,11 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(instance, Object);
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
-            const nluModels = NLUModels.find({ _id: { $in: publishedModels.map(m => m._id) } }, { fields: { config: 1, training_data: 1, language: 1 } }).fetch();
+            const nluModels = NLUModels.find({ _id: { $in: publishedModels.map(m => m._id) } }, {
+                fields: {
+                    config: 1, training_data: 1, language: 1, logActivity: 1,
+                },
+            }).fetch();
             const nlu = {};
             const config = {};
             const client = axios.create({
@@ -98,7 +102,7 @@ if (Meteor.isServer) {
                         language: nluModels[i].language,
                     });
                     nlu[nluModels[i].language] = data;
-                    config[nluModels[i].language] = nluModels[i].config;
+                    config[nluModels[i].language] = getConfig(nluModels[i], instance);
                 }
 
                 const domain = 'intents:\n- basics.yes\nactions:\n- utter_yes\ntemplates:\n  utter_yes:\n  - text: "yes"';
@@ -114,9 +118,7 @@ if (Meteor.isServer) {
                     // force: true,
                 };
 
-                console.log(JSON.stringify(payload, null, 2));
-                const model = await client.post('/model/train', payload);
-                // console.log(model.data)
+                await client.post('/model/train', payload);
                 Meteor.call('nlu.markTrainingStopped', nluModelId, 'success');
             } catch (e) {
                 Meteor.call('nlu.markTrainingStopped', nluModelId, 'failure', e.reason);
