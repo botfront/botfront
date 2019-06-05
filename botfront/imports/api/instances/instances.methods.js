@@ -6,6 +6,8 @@ import { Instances } from './instances.collection';
 import { getTrainingDataInRasaFormat, getConfig } from '../../lib/nlu_methods';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { getAxiosError } from '../../lib/utils';
+import { extractDomain } from '../../lib/story_validation.js';
+import { StorySchema } from '../storyGroups/storyGroups.schema.js';
 import { Evaluations } from '../nlu_evaluation';
 
 export const createInstance = async (project) => {
@@ -183,6 +185,11 @@ if (Meteor.isServer) {
                 console.log(error);
                 throw error;
             }
+        },
+        'extractDomainFromStories'(storyGroup) {
+        //        check(storyGroup, StorySchema); // can't get it to work this way...
+            check(storyGroup, { name: String, projectId: String, stories: [String] });
+            return extractDomain(storyGroup);
         },
     });
 }
