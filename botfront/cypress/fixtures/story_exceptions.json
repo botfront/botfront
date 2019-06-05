@@ -1,102 +1,82 @@
 [
     {
-        "type": "error",
         "line": 1,
-        "message": "Response not part of a story."
+        "code": "title"
     },
     {
-        "type": "warning",
         "line": 1,
-        "message": "Response does not follow naming convention (action, utter, slot, form)."
+        "code": "action_name"
     },
     {
-        "type": "error",
         "line": 3,
-        "message": "Intent not part of a story."
+        "code": "title"
     },
     {
-        "type": "error",
         "line": 5,
-        "message": "Invalid prefix."
+        "code": "prefix"
     },
     {
-        "type": "error",
         "line": 7,
-        "message": "Invalid prefix."
+        "code": "prefix"
     },
     {
-        "type": "error",
         "line": 9,
-        "message": "Invalid prefix."
+        "code": "prefix"
     },
     {
-        "type": "warning",
         "line": 13,
-        "message": "Response not part of an intent."
+        "code": "have_intent"
     },
     {
-        "type": "warning",
         "line": 17,
-        "message": "Response does not follow naming convention (action, utter, slot, form)."
+        "code": "action_name"
     },
     {
-        "type": "error",
         "line": 18,
-        "message": "Found invalid character."
+        "code": "prefix"
     },
     {
-        "type": "warning",
         "line": 22,
-        "message": "Previous story empty."
+        "code": "empty_story"
     },
     {
-        "type": "warning",
         "line": 26,
-        "message": "Previous intent empty."
+        "code": "have_intent"
     },
     {
-        "type": "warning",
         "line": 28,
-        "message": "Previous intent empty."
+        "code": "empty_intent"
     },
     {
-        "type": "error",
         "line": 30,
-        "message": "Intent could not be parsed."
+        "code": "intent"
     },
     {
-        "type": "error",
         "line": 36,
-        "message": "Found invalid character."
+        "code": "intent"
     },
     {
-        "type": "error",
         "line": 39,
-        "message": "Found invalid character."
+        "code": "intent"
     },
     {
-        "type": "warning",
         "line": 41,
-        "message": "Previous intent empty."
+        "code": "have_intent"
     },
     {
-        "type": "warning",
         "line": 43,
-        "message": "Form has no name property."
+        "code": "form"
     },
     {
-        "type": "warning",
         "line": 47,
-        "message": "Form is not preceded by valid form declaration."
+        "code": "declare_form"
     },
     {
-        "type": "warning",
         "line": 48,
-        "message": "Form is not preceded by valid form declaration."
+        "code": "declare_form"
     },
     {
-        "type": "error",
         "line": 50,
-        "message": "Intent could not be parsed."
+        "code": "intent"
     }
 ]

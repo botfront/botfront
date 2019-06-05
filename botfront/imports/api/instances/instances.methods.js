@@ -190,7 +190,10 @@ if (Meteor.isServer) {
             check(story, String);
             const val = new StoryValidator(story);
             val.validateStories();
-            return val.exceptions;
+            return val.exceptions.map(exception => ({
+                line: exception.line,
+                code: exception.code
+            }));
         },
         // eslint-disable-next-line meteor/audit-argument-checks
         'extractDomainFromStories'(storyGroup) {
