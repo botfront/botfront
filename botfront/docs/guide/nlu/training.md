@@ -50,6 +50,38 @@ All you have to do is specify the list of allowed (or commonly) expected values 
 When the entity extractor picks up _citi of lite_, it compares it with every element of the Gazette list and computes a fuzziness score for each element. The highest score is for _the city of light_, which is then mapped to _CDG_ by the synonyms processor. If the highest score is below the minimum score, it means the value is out of scope and the entity is removed.
 :::
 
+## _Sorta_ composite entities
+
+Duckling offers an easy way to extract structured entities such as numbers, amounts of money, emails, dates, ... But consider the following sentence:
+
+> I want *2* beers and *3* cokes
+
+If you need to know the count for both beers and cokes, the `number` entities returned by Duckling won't be enough. Luckily we have a component for that.
+
+Annotate *2* as a `beers_count` entity and *3* as a `cokes_count` entity.
+
+Then in the pipeline:
+
+```yaml
+- name: ner_crf
+  ...
+- name: components.botfront.duckling_http_extractor.DucklingHTTPExtractor
+  url: http://duckling
+  dimensions:
+  - "number"
+  
+- name: components.botfront.duckling_crf_merger.DucklingCrfMerger
+  entities:
+    beers_count: ["number"]
+    cokes_count: ["number"]
+```
+
+::: tip The order is important
+- The entities are first extracted by the `ner_crf` component. 
+- Duckling extracts numbers
+- `DucklingCrfMerger` merges them. The value of `beers_count` will be 2
+:::
+
 ## Configuring the pipeline
 
 For the above to work we need to make sure things happen in the right order:
