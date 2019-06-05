@@ -11,9 +11,6 @@ const templateFormats = [
     { menu: 'Messenger Handoff', label: 'Messenger Handoff' },
 ];
 
-const modelName = 'aModel';
-const modelLang = 'fr';
-
 describe('Bot responses', function() {
     beforeEach(function () {
         cy.login();
@@ -26,15 +23,6 @@ describe('Bot responses', function() {
     before(function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
-        cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModelProgramatically(id, modelName, modelLang, 'my description');
-        });
-    });
-
-    after(function() {
-        cy.login();
-        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
-        cy.logout();
     });
 
     it('Should create a bot response', function() {
