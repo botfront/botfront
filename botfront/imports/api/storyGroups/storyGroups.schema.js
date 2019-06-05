@@ -1,7 +1,5 @@
 import SimpleSchema from 'simpl-schema';
 
-import { validateYaml } from '../../lib/utils';
-
 export const StorySchema = new SimpleSchema(
     {
         name: { type: String },
@@ -11,7 +9,6 @@ export const StorySchema = new SimpleSchema(
         },
         'stories.$': {
             type: String,
-            custom: validateYaml,
         },
         createdAt: {
             type: Date,

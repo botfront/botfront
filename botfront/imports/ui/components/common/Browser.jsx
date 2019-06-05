@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { Menu, Icon, Input } from 'semantic-ui-react';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 class Browser extends React.Component {
     constructor(props) {
@@ -14,7 +14,7 @@ class Browser extends React.Component {
 
     handleChangeNewItemName = (_, data) => {
         this.setState({ newItemName: data.value });
-    }
+    };
 
     handleKeyDownInput = (event) => {
         if (event.key === 'Enter') {
@@ -25,15 +25,28 @@ class Browser extends React.Component {
             onAdd(newItemName);
             this.resetAddItem();
         }
-    }
+    };
+
+    handleClickMenuItem = (index) => {
+        const { index: indexProp, onChange } = this.props;
+        if (index !== indexProp) {
+            onChange(index);
+        }
+    };
 
     resetAddItem = () => {
         this.setState({ addMode: false, newItemName: '' });
-    }
+    };
 
     render() {
         const {
-            data, index: indexProp, pageSize, onChange, allowAddition, nameAccessor,
+            data,
+            index: indexProp,
+            pageSize,
+            allowAddition,
+            nameAccessor,
+            saveMode,
+            onSave,
         } = this.props;
 
         const { addMode, newItemName, page } = this.state;
@@ -43,39 +56,39 @@ class Browser extends React.Component {
                 key={index.toString()}
                 name={item[nameAccessor]}
                 active={indexProp === index}
-                onClick={() => onChange(index)}
-                link
+                onClick={() => this.handleClickMenuItem(index)}
+                link={indexProp !== index}
             >
-                <span>
-                    {item[nameAccessor]}
-                </span>
+                <span>{item[nameAccessor]}</span>
+                {indexProp === index && saveMode && (
+                    <Icon link name='save' color='grey' onClick={onSave} />
+                )}
             </Menu.Item>
         ));
-        
 
         if (allowAddition) {
-            items.push(!addMode ? (
-                <Menu.Item
-                    key='newItem'
-                    onClick={() => this.setState({ addMode: true })}
-                    link
-                >
-                    <Icon name='add' />
-                    <span>Add</span>
-                </Menu.Item>
-            ) : (
-                <Menu.Item
-                    key='newItem'
-                >
-                    <Input
-                        onChange={this.handleChangeNewItemName}
-                        value={newItemName}
-                        onKeyDown={this.handleKeyDownInput}
-                        autoFocus
-                        onBlur={this.resetAddItem}
-                    />
-                </Menu.Item>
-            ));
+            items.unshift(
+                !addMode ? (
+                    <Menu.Item
+                        key='newItem'
+                        onClick={() => this.setState({ addMode: true })}
+                        link
+                    >
+                        <Icon name='add' />
+                        <span>Add</span>
+                    </Menu.Item>
+                ) : (
+                    <Menu.Item key='newItem'>
+                        <Input
+                            onChange={this.handleChangeNewItemName}
+                            value={newItemName}
+                            onKeyDown={this.handleKeyDownInput}
+                            autoFocus
+                            onBlur={this.resetAddItem}
+                        />
+                    </Menu.Item>
+                ),
+            );
         }
 
         return (
@@ -94,6 +107,8 @@ Browser.propTypes = {
     allowAddition: PropTypes.bool,
     onAdd: PropTypes.func,
     nameAccessor: PropTypes.string,
+    saveMode: PropTypes.bool,
+    onSave: PropTypes.func,
 };
 
 Browser.defaultProps = {
@@ -103,6 +118,8 @@ Browser.defaultProps = {
     allowAddition: false,
     onAdd: () => {},
     nameAccessor: '_id',
+    saveMode: false,
+    onSave: () => {},
 };
 
 export default Browser;
