@@ -19,6 +19,24 @@
             position: absolute;
             right: 15px;
             top: 13px;
+            animation-name: pulsation;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
+            cursor: pointer;
+        }
+    }
+
+    .segment {
+        .icon.trash {
+            position: absolute;
+            right: 10px;
+            top:15px;
+        }
+        
+        .warning.message {
+            p {
+                margin: 4px;
+            }
         }
     }
 
@@ -29,3 +47,20 @@
         text-overflow: ellipsis;
     }
 }
+
+@keyframes pulsation {
+    from {
+      -webkit-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1);
+    }
+  
+    50% {
+      -webkit-transform: scale3d(1.5, 1.5, 1.5);
+      transform: scale3d(1.5, 1.5, 1.5);
+    }
+  
+    to {
+      -webkit-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1);
+    }
+  }
