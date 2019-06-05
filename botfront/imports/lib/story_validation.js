@@ -64,7 +64,8 @@ export class StoryValidator {
         this.form = null;
         this.intent.forEach((disj) => {
             try {
-                let [intent, entities] = /([^{]*) *({.*}|)/.exec(disj).slice(1, 3);
+                const intent = /([^{]*) *({.*}|)/.exec(disj)[1];
+                let entities = /([^{]*) *({.*}|)/.exec(disj)[2];
                 entities = entities && entities !== ''
                     ? Object.keys(JSON.parse(entities))
                     : [];
@@ -96,10 +97,11 @@ export class StoryValidator {
             } catch (e) {
                 this.raiseStoryException('error', 'Form could not be parsed');
             }
-            if (!props.hasOwnProperty('name')) this.raiseStoryException('warning', 'Form has no name property');
-            if (this.form === props.name) {
+            if (!{}.hasOwnProperty.call(props, 'name')) {
+                this.raiseStoryException('warning', 'Form has no name property');
+            } else if (this.form === props.name) {
                 this.form = null;
-            } else if (!this.form) {
+            } else {
                 this.raiseStoryException('warning', 'Form is not preceded by valid form declaration');
             }
         } else {
@@ -109,27 +111,27 @@ export class StoryValidator {
 
     validateStories = () => {
         for (this.line; this.line < this.stories.length; this.line += 1) {
-            const line = this.stories[this.line];
-            if (trimStart(line).length === 0) continue;
-            try {
-                [this.prefix, this.content] = /(^ *## |^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
-                this.prefix = trimStart(this.prefix);
-            } catch (e) {
-                this.raiseStoryException('error', 'Invalid prefix');
-                continue;
-            }
-            if (this.prefix === '## ') { // new story
-                if (this.story && !this.intent && !this.response) this.raiseStoryException('warning', 'Previous story empty');
-                if (this.story && this.intent && !this.response) this.raiseStoryException('warning', 'Previous intent empty');
-                this.story = this.content;
-                this.intent = null;
-                this.response = null;
-                this.form = null;
-                continue;
-            } else if (this.prefix === '* ') { // new intent
-                this.validateIntent();
-            } else if (this.prefix === '- ') { // new response)
-                this.validateResponse();
+            const line = this.stories[this.line].replace(/ *<!--.*--> */g, '');
+            if (trimStart(line).length !== 0) {
+                try {
+                    [this.prefix, this.content] = /(^ *## |^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
+                    this.prefix = trimStart(this.prefix);
+
+                    if (this.prefix === '## ') { // new story
+                        if (this.story && !this.intent && !this.response) this.raiseStoryException('warning', 'Previous story empty');
+                        if (this.story && this.intent && !this.response) this.raiseStoryException('warning', 'Previous intent empty');
+                        this.story = this.content;
+                        this.intent = null;
+                        this.response = null;
+                        this.form = null;
+                    } else if (this.prefix === '* ') { // new intent
+                        this.validateIntent();
+                    } else if (this.prefix === '- ') { // new response)
+                        this.validateResponse();
+                    }
+                } catch (e) {
+                    this.raiseStoryException('error', 'Invalid prefix');
+                }
             }
         }
     }
