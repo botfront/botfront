@@ -9,6 +9,7 @@ import {
 import { Dropdown, Form, Message } from 'semantic-ui-react';
 import { ProjectsSchema as projectsSchemaDefault } from '../../../api/project/project.schema.default';
 import { Projects } from '../../../api/project/project.collection';
+import { NLUModels } from '../../../api/nlu_model/nlu_model.collection';
 import InfoField from '../utils/InfoField';
 import { wrapMeteorCallback } from '../utils/Errors';
 import SelectField from '../form_fields/SelectField';
@@ -49,11 +50,13 @@ class ProjectInfo extends React.Component {
     }
 
     createNLUModels = (languageArray, projectId) => {
+        const { instanceId } = this.props;
         const nluInsertArray = languageArray.map(language => (
             Meteor.callWithPromise('nlu.insert', {
                 name: 'Default Model',
                 language,
                 description: 'Default description',
+                instance: instanceId,
             },
             projectId)
         ));
@@ -131,6 +134,7 @@ ProjectInfo.propTypes = {
     project: PropTypes.object.isRequired,
     modelLanguages: PropTypes.array.isRequired,
     ready: PropTypes.bool.isRequired,
+    instanceId: PropTypes.string.isRequired,
 };
 
 const ProjectInfoContainer = withTracker(({ projectId }) => {
@@ -144,10 +148,13 @@ const ProjectInfoContainer = withTracker(({ projectId }) => {
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const ready = modelsHanlder.ready() && projectsHandler.ready();
     const modelLanguages = getNluModelLanguages(project.nlu_models, true);
+    // Get the instance associated with the default model
+    const { instance } = NLUModels.findOne({ _id: { $in: project.nlu_models }, language: project.defaultLanguage }, { sort: { language: 1 } }, { fields: { instance: 1 } });
     return {
         ready,
         project,
         modelLanguages,
+        instanceId: instance,
     };
 })(ProjectInfo);
 

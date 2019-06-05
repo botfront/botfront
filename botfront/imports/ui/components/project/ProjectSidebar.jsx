@@ -29,7 +29,7 @@ class ProjectSidebar extends React.Component {
                         <Menu.Item name='NLU' icon='grid layout' />
                     </Link>
                     <Link to={`/project/${projectId}/nlu/legacy-models`}>
-                        <Menu.Item name='Legacy Models' icon='history' />
+                        <Menu.Item name='Legacy NLU' icon='history' />
                     </Link>
                     <Link to={`/project/${projectId}/dialogue/templates`}>
                         <Menu.Item name='Responses' icon='comment' />

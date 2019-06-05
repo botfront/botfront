@@ -275,9 +275,9 @@ class NLUModels extends React.Component {
     renderMessage = () => (
         <Message
             header='Botfront does not support several NLU models per language.'
-            icon='info'
+            icon='warning'
             content={'Please delete all the models except the one you want to use in this project. In the meantime, only \'online\' models will be trainable'}
-            info
+            warning
         />
     );
 

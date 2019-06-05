@@ -44,6 +44,28 @@ export default class DeleteModel extends React.Component {
         this.setState({ backupDownloaded: true });
     };
 
+    renderCannotDeleteMessage = (cannotDelete) => {
+        if (!cannotDelete) {
+            return (
+                <Message
+                    header='Default language cannot be deleted'
+                    icon='warning'
+                    content={'You can\'t delete the default language, to delete this langauge change the default langauge of hte project.'}
+                    warning
+                />
+            );
+        }
+        return (
+            <Message
+                negative
+                header="All your model's data will be deleted!"
+                icon='warning circle'
+                content='Please use the button below to download a backup of your data before proceeding.'
+            />
+        );
+    }
+    
+
     render() {
         const { backupDownloaded, confirmOpen } = this.state;
         const { model, cannotDelete } = this.props;
@@ -58,12 +80,7 @@ export default class DeleteModel extends React.Component {
                 />
                 {!backupDownloaded && (
                     <div>
-                        <Message
-                            negative
-                            header="All your model's data will be deleted!"
-                            icon='warning circle'
-                            content='Please use the button below to download a backup of your data before proceeding.'
-                        />
+                        {this.renderCannotDeleteMessage(cannotDelete)}
                         <br />
                         <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button'>
                             <Icon name='download' />

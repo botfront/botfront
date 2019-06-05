@@ -25,6 +25,8 @@ describe('NLU Models ', function() {
         cy.get('.project-settings-menu-info').click();
         cy.contains('Save Changes').click();
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        // Instance should also be added to the model that is created.
+        cy.get('[data-cy=example-text-editor-input]').should('exist');
         cy.get('[data-cy=model-selector]').click();
         cy.get('[data-cy=model-selector] input').type('French{enter}');
         cy.get('.nlu-menu-settings').click();
