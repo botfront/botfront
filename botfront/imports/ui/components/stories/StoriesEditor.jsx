@@ -1,5 +1,5 @@
 import {
-    Icon, Container, Label, Popup,
+    Icon, Container, Label, Popup, Segment,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
@@ -21,23 +21,26 @@ function StoriesEditor(props) {
     const { stories, disabled } = props;
     const editors = stories.map((story, index) => (
         <React.Fragment key={index}>
-            <AceEditor
-                readOnly={disabled}
-                width='100%'
-                mode='markdown'
-                name='story'
-                theme='xcode'
-                minLines={5}
-                maxLines={Infinity}
-                fontSize={12}
-                showPrintMargin={false}
-                onChange={data => handleStoryChange(data, index)}
-                value={story}
-                setOptions={{
-                    showLineNumbers: false,
-                    tabSize: 2,
-                }}
-            />
+            <Segment>
+                <AceEditor
+                    readOnly={disabled}
+                    width='100%'
+                    mode='markdown'
+                    name='story'
+                    theme='xcode'
+                    minLines={5}
+                    maxLines={Infinity}
+                    fontSize={12}
+                    onChange={data => handleStoryChange(data, index)}
+                    value={story}
+                    showPrintMargin={false}
+                    showGutter={false}
+                    setOptions={{
+                        showLineNumbers: false,
+                        tabSize: 2,
+                    }}
+                />
+            </Segment>
             {index !== stories.length - 1 && (
                 <Container textAlign='center'>
                     <Label content='AND' color='teal' basic />

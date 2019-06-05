@@ -33,6 +33,7 @@ class Stories extends React.Component {
         if (
             saved
             && ready
+            && stories[storyIndex]
             && !isEqual(selectedStories, stories[storyIndex].stories)
         ) {
             // We can use setstate if its in a condition, to prevent a neverending loop
