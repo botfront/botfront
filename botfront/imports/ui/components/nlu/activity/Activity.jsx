@@ -233,7 +233,7 @@ class Activity extends React.Component {
     }
 
     render() {
-        const { model: { _id: modelId }, ready, instance } = this.props;
+        const { model, ready, instance } = this.props;
 
         return (
             <Loading loading={!ready}>
@@ -241,7 +241,7 @@ class Activity extends React.Component {
                     menu={{ pointing: true, secondary: true }}
                     panes={[
                         { menuItem: 'New Utterances', render: this.primaryRender },
-                        { menuItem: 'Populate', render: () => <ActivityInsertions modelId={modelId} instance={instance} /> },
+                        { menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> },
                     ]}
                 />
             </Loading>

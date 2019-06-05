@@ -90,7 +90,8 @@ class Instances extends React.Component {
                     >
                         <HiddenField name='projectId' value={projectId} />
                         <AutoField name='name' label='Instance name' />
-                        <SelectField name='type' label='Type' data-cy='type-selector' />
+
+                        { instance.type && instance.type.length && <SelectField name='type' label='Type' data-cy='type-selector' /> }
                         <AutoField name='host' />
                         <AutoField name='token' label='Token' />
 

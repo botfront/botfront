@@ -31,24 +31,50 @@ export default class NLUExampleTester extends React.Component {
             this.debouncedFunction();
         }
     }
-    
+
     componentWillUnmount() {
         this._ismounted = false;
     }
 
     parseNlu = () => {
         const { text } = this.state;
-        const { instance, modelId, projectId } = this.props;
+        const {
+            instance,
+            model: { language: lang, _id: modelId },
+            projectId,
+        } = this.props;
         if (text == null || text.length === 0) {
             this.setState({ text: '', example: null, clickable: false });
             return;
         }
 
-        Meteor.call('nlu.parse', projectId, modelId, instance, [{ q: text, nolog: 'true' }], true, wrapMeteorCallback((err, example) => {
-            if (err) return this.setState({ example: { text: err.error }, clickable: false });
-            Object.assign(example, { intent: example.intent ? example.intent.name : null });
-            return this.setState({ example, clickable: true });
-        }));
+        if (instance.type === 'nlu') {
+            Meteor.call(
+                'nlu.parse',
+                projectId,
+                modelId,
+                instance,
+                [{ q: text, nolog: 'true' }],
+                true,
+                wrapMeteorCallback((err, example) => {
+                    if (err) return this.setState({ example: { text: err.error }, clickable: false });
+                    Object.assign(example, { intent: example.intent ? example.intent.name : null });
+                    return this.setState({ example, clickable: true });
+                }),
+            );
+        } else {
+            Meteor.call(
+                'rasa.parse',
+                instance,
+                [{ text, lang }],
+                true,
+                wrapMeteorCallback((err, example) => {
+                    if (err) return this.setState({ example: { text: err.error }, clickable: false });
+                    Object.assign(example, { intent: example.intent ? example.intent.name : null });
+                    return this.setState({ example, clickable: true });
+                }),
+            );
+        }
     };
 
     onDone = () => {
@@ -66,13 +92,7 @@ export default class NLUExampleTester extends React.Component {
             <div className='tester' {...optionalProps} data-cy='nlu-example-tester'>
                 {example && (
                     <Segment>
-                        <NLUExampleText
-                            onEnter={this.onDone}
-                            example={example}
-                            entities={entities}
-                            showIntent
-                            showLabels
-                        />
+                        <NLUExampleText onEnter={this.onDone} example={example} entities={entities} showIntent showLabels />
                     </Segment>
                 )}
             </div>
@@ -83,7 +103,7 @@ export default class NLUExampleTester extends React.Component {
 NLUExampleTester.propTypes = {
     text: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
-    modelId: PropTypes.string.isRequired,
+    model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
     entities: PropTypes.array.isRequired,
     onDone: PropTypes.func,
