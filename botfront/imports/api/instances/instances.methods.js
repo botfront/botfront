@@ -6,8 +6,8 @@ import { Instances } from './instances.collection';
 import { getTrainingDataInRasaFormat, getConfig } from '../../lib/nlu_methods';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { getAxiosError } from '../../lib/utils';
-import { extractDomain } from '../../lib/story_validation.js';
-import { StorySchema } from '../storyGroups/storyGroups.schema.js';
+import { extractDomain, StoryValidator } from '../../lib/story_validation.js';
+import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
 import { Evaluations } from '../nlu_evaluation';
 
 export const createInstance = async (project) => {
@@ -186,9 +186,15 @@ if (Meteor.isServer) {
                 throw error;
             }
         },
+        'viewStoryExceptions'(story) {
+            check(story, String);
+            const val = new StoryValidator(story);
+            val.validateStories();
+            return val.exceptions;
+        },
+        // eslint-disable-next-line meteor/audit-argument-checks
         'extractDomainFromStories'(storyGroup) {
-        //        check(storyGroup, StorySchema); // can't get it to work this way...
-            check(storyGroup, { name: String, projectId: String, stories: [String] });
+            StoryGroups.simpleSchema().validate(storyGroup, { check });
             return extractDomain(storyGroup);
         },
     });

@@ -1,0 +1,102 @@
+[
+    {
+        "type": "error",
+        "line": 1,
+        "message": "Response not part of a story."
+    },
+    {
+        "type": "warning",
+        "line": 1,
+        "message": "Response does not follow naming convention (action, utter, slot, form)."
+    },
+    {
+        "type": "error",
+        "line": 3,
+        "message": "Intent not part of a story."
+    },
+    {
+        "type": "error",
+        "line": 5,
+        "message": "Invalid prefix."
+    },
+    {
+        "type": "error",
+        "line": 7,
+        "message": "Invalid prefix."
+    },
+    {
+        "type": "error",
+        "line": 9,
+        "message": "Invalid prefix."
+    },
+    {
+        "type": "warning",
+        "line": 13,
+        "message": "Response not part of an intent."
+    },
+    {
+        "type": "warning",
+        "line": 17,
+        "message": "Response does not follow naming convention (action, utter, slot, form)."
+    },
+    {
+        "type": "error",
+        "line": 18,
+        "message": "Found invalid character."
+    },
+    {
+        "type": "warning",
+        "line": 22,
+        "message": "Previous story empty."
+    },
+    {
+        "type": "warning",
+        "line": 26,
+        "message": "Previous intent empty."
+    },
+    {
+        "type": "warning",
+        "line": 28,
+        "message": "Previous intent empty."
+    },
+    {
+        "type": "error",
+        "line": 30,
+        "message": "Intent could not be parsed."
+    },
+    {
+        "type": "error",
+        "line": 36,
+        "message": "Found invalid character."
+    },
+    {
+        "type": "error",
+        "line": 39,
+        "message": "Found invalid character."
+    },
+    {
+        "type": "warning",
+        "line": 41,
+        "message": "Previous intent empty."
+    },
+    {
+        "type": "warning",
+        "line": 43,
+        "message": "Form has no name property."
+    },
+    {
+        "type": "warning",
+        "line": 47,
+        "message": "Form is not preceded by valid form declaration."
+    },
+    {
+        "type": "warning",
+        "line": 48,
+        "message": "Form is not preceded by valid form declaration."
+    },
+    {
+        "type": "error",
+        "line": 50,
+        "message": "Intent could not be parsed."
+    }
+]
