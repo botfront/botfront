@@ -13,6 +13,7 @@ Running botfront requires deploying different services. The recommended way is t
 | botfront-api  |  `botfront/botfront-api`  |
 | nlu  |  `botfront/rasa-nlu-bf`  |
 | core  |  `botfront/rasa-core-bf`  |
+| duckling  |  `botfront/duckling`  |
 | actions | Build your own or `botfront/simple-actions` for simple FAQs | 
 | mongo | `mongo` or hosted service (mLab, Mongo Atlas, Compose, ...)  |
 
