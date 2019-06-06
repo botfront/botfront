@@ -63,7 +63,7 @@ describe('intial setup', function() {
             const id = url.split('/')[7];
             cy.writeFile('cypress/fixtures/bf_model_id.txt', id);
         });
-        
+        cy.get('[data-cy=example-text-editor-input]').should('exist'); // Test if a default instance is added
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('Pipeline').click();
         cy.get(':checkbox').should('be.checked');

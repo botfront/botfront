@@ -91,16 +91,18 @@ export default class DeleteModel extends React.Component {
                 {backupDownloaded && <Message success icon='check circle' content='Backup downloaded' />}
                 <br />
                 <br />
-                <Button
-                    className='delete-model-button'
-                    type='submit'
-                    onClick={() => this.setState({ confirmOpen: true })}
-                    negative
-                    disabled={!backupDownloaded || !cannotDelete}
-                >
-                    <Icon name='trash' />
-                    Delete model <strong>{model.name}</strong>
-                </Button>
+                {cannotDelete && (
+                    <Button
+                        className='delete-model-button'
+                        type='submit'
+                        onClick={() => this.setState({ confirmOpen: true })}
+                        negative
+                        disabled={!backupDownloaded || !cannotDelete}
+                    >
+                        <Icon name='trash' />
+                        Delete model <strong>{model.name}</strong>
+                    </Button>
+                )}
             </Tab.Pane>
         );
     }
