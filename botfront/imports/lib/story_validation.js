@@ -165,9 +165,9 @@ export class StoryValidator {
     }
 }
 
-export const extractDomain = (storyGroup) => {
-    let domains = storyGroup.stories.map((story) => {
-        const val = new StoryValidator(story.story);
+export const extractDomain = (stories) => {
+    let domains = stories.map((story) => {
+        const val = new StoryValidator(story);
         val.validateStories();
         return val.extractDomain();
     });
@@ -183,7 +183,7 @@ export const extractDomain = (storyGroup) => {
         intents: Array.from(domains.intents),
         actions: Array.from(domains.actions),
         forms: Array.from(domains.forms),
-        templates: Array.from(domains.templates),
+        templates: { blank: '' },
     });
     return domains;
 };

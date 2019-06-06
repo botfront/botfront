@@ -14,11 +14,7 @@ describe('extract domain from storyfile fixtures', function() {
 
     it('should output yaml matching the gold', function() {
         const { gold } = this;
-        const storyGroup = {
-            name: 'test',
-            projectId: 'test',
-            stories: [{ story: this.stories }],
-        };
+        const storyGroup = [this.stories];
         cy.MeteorCall('extractDomainFromStories', [storyGroup])
             .then((res) => {
                 expect(isEqual(safeLoad(res), safeLoad(gold))).to.be.equal(true);

@@ -1,10 +1,15 @@
+/* eslint-disable camelcase */
 import axios from 'axios';
 import { check, Match } from 'meteor/check';
 import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
+import yaml from 'js-yaml';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { Instances } from './instances.collection';
-import { getTrainingDataInRasaFormat, getConfig } from '../../lib/nlu_methods';
+import ExampleUtils from '../../ui/components/utils/ExampleUtils';
+// import { getTrainingDataInRasaFormat } from '../../lib/nlu_methods';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
+import { CorePolicies } from '../core_policies';
 import { getAxiosError } from '../../lib/utils';
 import { extractDomain, StoryValidator } from '../../lib/story_validation.js';
 import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
@@ -30,6 +35,70 @@ export const createInstance = async (project) => {
     }
 };
 
+const getConfig = (model) => {
+    const config = yaml.safeLoad(model.config);
+    if (!config.pipeline) {
+        throw new Meteor.Error('Please set a configuration');
+    }
+    config.pipeline.forEach((item) => {
+        if (item.name.includes('fuzzy_gazette')) {
+            if (model.training_data.fuzzy_gazette) {
+                // eslint-disable-next-line no-param-reassign
+                item.entities = model.training_data.fuzzy_gazette.map(({ value, mode, min_score }) => ({ name: value, mode, min_score }));
+            }
+        }
+    });
+
+    config.language = model.language;
+    const apiHost = GlobalSettings.findOne({ _id: 'SETTINGS' }).settings.private.bfApiHost;
+    if (model.logActivity && apiHost) {
+        config.pipeline.push({
+            name: 'components.botfront.activity_logger.ActivityLogger',
+            url: `${apiHost}/log-utterance`,
+        });
+    }
+    return yaml.dump(config);
+};
+
+const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withChitChat = true, chitChatFunc = () => [], withGazette = true) => {
+    if (!model.training_data) {
+        throw Error('Property training_data of model argument is required');
+    }
+
+    function copyAndFilter(obj) {
+        const copy = JSON.parse(JSON.stringify(obj));
+        delete copy._id;
+        delete copy.mode;
+        delete copy.min_score;
+        return copy;
+    }
+
+    // Load examples
+    let common_examples = model.training_data.common_examples.map(e => ExampleUtils.stripBare(e, false));
+    if (intents.length > 0) {
+        // filter by intent if specified
+        common_examples = common_examples.filter(e => intents.indexOf(e.intent) >= 0);
+    }
+
+    const entity_synonyms = withSynonyms && model.training_data.entity_synonyms ? model.training_data.entity_synonyms.map(copyAndFilter) : [];
+    const fuzzy_gazette = withGazette && model.training_data.fuzzy_gazette ? model.training_data.fuzzy_gazette.map(copyAndFilter) : [];
+
+    return { rasa_nlu_data: { common_examples, entity_synonyms, fuzzy_gazette } };
+};
+
+const getStoriesAndDomain = (projectId) => {
+    const storyGroups = StoryGroups.find(
+        { projectId },
+        { stories: 1 }
+    ).fetch().map(group => group.stories.join('\n'));
+    console.log(storyGroups)
+    // console.log(StoryGroups.find({ }).fetch())
+    return {
+        stories: storyGroups.join('\n'),
+        domain: extractDomain(storyGroups),
+    };
+}
+
 if (Meteor.isServer) {
     export const parseNlu = async (instance, examples, nolog = true) => {
         check(instance, Object);
@@ -49,7 +118,7 @@ if (Meteor.isServer) {
                 const url = `${instance.host}/model/parse?${qs}`;
                 return client.post(url, payload);
             });
-
+            
             const result = await axios.all(requests);
             if (result.length === 1 && result[0].status === 200) {
                 return result[0].data;
@@ -89,6 +158,10 @@ if (Meteor.isServer) {
                     config: 1, training_data: 1, language: 1, logActivity: 1,
                 },
             }).fetch();
+            const corePolicies = CorePolicies.findOne(
+                { projectId },
+                { policies: 1 },
+            ).policies;
             const nlu = {};
             const config = {};
             const client = axios.create({
@@ -105,15 +178,14 @@ if (Meteor.isServer) {
                         language: nluModels[i].language,
                     });
                     nlu[nluModels[i].language] = data;
-                    config[nluModels[i].language] = getConfig(nluModels[i], instance);
+
+                    const langConfig = `${getConfig(nluModels[i], instance)}\n\n${corePolicies}`;
+                    config[nluModels[i].language] = langConfig;
                 }
-
-                const domain = 'intents:\n- basics.yes\nactions:\n- utter_yes\ntemplates:\n  utter_yes:\n  - text: "yes"';
-                const stories = '## story\n* basics.yes\n- utter_yes';
-
+                
+                const { stories, domain } = getStoriesAndDomain();
                 const payload = {
                     domain,
-                    // domain: '',
                     stories,
                     nlu,
                     config,
@@ -186,19 +258,21 @@ if (Meteor.isServer) {
                 throw error;
             }
         },
+
+        'extractDomainFromStories'(storyGroup) {
+            check(storyGroup, Array);
+            // StoryGroups.simpleSchema().validate(storyGroup, { check });
+            return extractDomain(storyGroup);
+        },
+
         'viewStoryExceptions'(story) {
             check(story, String);
             const val = new StoryValidator(story);
             val.validateStories();
             return val.exceptions.map(exception => ({
                 line: exception.line,
-                code: exception.code
+                code: exception.code,
             }));
-        },
-        // eslint-disable-next-line meteor/audit-argument-checks
-        'extractDomainFromStories'(storyGroup) {
-            StoryGroups.simpleSchema().validate(storyGroup, { check });
-            return extractDomain(storyGroup);
         },
     });
 }
