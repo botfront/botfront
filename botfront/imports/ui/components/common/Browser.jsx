@@ -1,4 +1,6 @@
-import { Menu, Icon, Input } from 'semantic-ui-react';
+import {
+    Menu, Icon, Input, Loader,
+} from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -45,8 +47,7 @@ class Browser extends React.Component {
             pageSize,
             allowAddition,
             nameAccessor,
-            saveMode,
-            onSave,
+            saving,
         } = this.props;
 
         const { addMode, newItemName, page } = this.state;
@@ -60,8 +61,8 @@ class Browser extends React.Component {
                 link={indexProp !== index}
             >
                 <span>{item[nameAccessor]}</span>
-                {indexProp === index && saveMode && (
-                    <Icon link name='save' color='grey' onClick={onSave} />
+                {indexProp === index && saving && (
+                    <Loader active size='tiny' />
                 )}
             </Menu.Item>
         ));
@@ -107,8 +108,7 @@ Browser.propTypes = {
     allowAddition: PropTypes.bool,
     onAdd: PropTypes.func,
     nameAccessor: PropTypes.string,
-    saveMode: PropTypes.bool,
-    onSave: PropTypes.func,
+    saving: PropTypes.bool,
 };
 
 Browser.defaultProps = {
@@ -118,8 +118,7 @@ Browser.defaultProps = {
     allowAddition: false,
     onAdd: () => {},
     nameAccessor: '_id',
-    saveMode: false,
-    onSave: () => {},
+    saving: false,
 };
 
 export default Browser;

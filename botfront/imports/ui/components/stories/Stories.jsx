@@ -1,10 +1,7 @@
-import {
-    Container, Grid, Segment, Message,
-} from 'semantic-ui-react';
+import { Container, Grid, Message } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { isEqual } from 'lodash';
 import React from 'react';
 
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
@@ -22,7 +19,6 @@ class Stories extends React.Component {
         this.state = {
             storyIndex: 0,
             selectedStories: [],
-            saved: true,
             saving: false,
             validationErrors: [],
             displaySaved: false,
@@ -30,15 +26,15 @@ class Stories extends React.Component {
     }
 
     componentDidUpdate() {
-        // This updates the selected story if the user is not editing it
+        // This updates the selected story if it hasnt been loaded yet
         // and if a new one has been fetched from the server
-        const { storyIndex, saved, selectedStories } = this.state;
+        const { storyIndex, saving, selectedStories } = this.state;
         const { stories, ready } = this.props;
         if (
-            saved
+            !saving
             && ready
-            && stories[storyIndex]
-            && !isEqual(selectedStories, stories[storyIndex].stories)
+            && selectedStories.length === 0
+            && stories[storyIndex].stories.length > 0
         ) {
             // We can use setstate if its in a condition, to prevent a neverending loop
             // eslint-disable-next-line react/no-did-update-set-state
@@ -46,10 +42,6 @@ class Stories extends React.Component {
                 selectedStories: stories[storyIndex].stories,
             });
         }
-    }
-
-    componentWillUnmount() {
-        clearTimeout(this.successTimeout);
     }
 
     handleAddStoryGroup = async (name) => {
@@ -67,7 +59,33 @@ class Stories extends React.Component {
                     this.setState({
                         storyIndex: stories.length,
                         selectedStories: newStories,
-                        saved: true,
+                    });
+                }
+            }),
+        );
+    };
+
+    saveCurrentStory = (stories) => {
+        const { saving } = this.state;
+        if (saving) return;
+        this.setState({ saving: true });
+        Meteor.call(
+            'storyGroups.update',
+            stories,
+            wrapMeteorCallback(() => {
+                this.setState({ saving: false });
+            }),
+        );
+    };
+
+    deleteCurrentStory = (story) => {
+        Meteor.call(
+            'storyGroups.delete',
+            story,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    this.setState({
+                        validationErrors: [],
                     });
                 }
             }),
@@ -79,67 +97,45 @@ class Stories extends React.Component {
         this.setState({
             storyIndex: index,
             selectedStories: stories[index] ? stories[index].stories : [''],
-            saved: true,
             validationErrors: [],
         });
     };
 
     handleStoriesChange = (newStories) => {
+        const { storyIndex } = this.state;
+        const { stories } = this.props;
         if (newStories.length === 0) {
-            const { storyIndex } = this.state;
-            const { stories } = this.props;
-            Meteor.call(
-                'storyGroups.delete',
-                stories[storyIndex],
-                wrapMeteorCallback((err) => {
-                    if (!err) {
-                        this.setState({
-                            saved: true,
-                            validationErrors: [],
-                        });
-                    }
-                }),
-            );
+            this.deleteCurrentStory(stories[storyIndex]);
             return;
         }
         this.setState({
             selectedStories: newStories,
-            saved: false,
         });
+        const validationErrors = this.validateStoryGroup(newStories);
+        this.setState({ validationErrors });
+        if (validationErrors.every(story => !story.length)) {
+            this.saveCurrentStory({
+                ...stories[storyIndex],
+                stories: newStories,
+            });
+        }
     };
 
-    handleSaveStory = () => {
-        const { stories } = this.props;
-        const { storyIndex, selectedStories } = this.state;
+    validateStoryGroup = (group) => {
         const storiesValidation = [];
-        selectedStories.forEach((story) => {
+        group.forEach((story) => {
             const validator = new StoryValidator(story);
             validator.validateStories();
+            if (!story.replace(/\s/g, '').length) {
+                validator.exceptions.push({
+                    type: 'error',
+                    line: 1,
+                    message: 'don\'t leave the story empty.',
+                });
+            }
             storiesValidation.push(validator.exceptions);
         });
-        this.setState({ validationErrors: storiesValidation });
-        if (!storiesValidation.every(story => !story.length)) return;
-        this.setState({ saving: true });
-        Meteor.call(
-            'storyGroups.update',
-            {
-                ...stories[storyIndex],
-                stories: selectedStories,
-            },
-            wrapMeteorCallback((err) => {
-                if (!err) {
-                    this.setState({
-                        saving: false,
-                        saved: true,
-                        displaySaved: true,
-                    });
-                    this.successTimeout = setTimeout(() => {
-                        this.setState({ displaySaved: false });
-                    }, 5 * 1000);
-                }
-                this.setState({ saving: false });
-            }),
-        );
+        return storiesValidation;
     };
 
     render() {
@@ -147,7 +143,6 @@ class Stories extends React.Component {
         const {
             storyIndex,
             selectedStories,
-            saved,
             saving,
             validationErrors,
             displaySaved,
@@ -156,35 +151,32 @@ class Stories extends React.Component {
             <>
                 <PageMenu title='Stories' icon='book' />
                 <Container className='stories-container'>
-                    <Segment>
-                        <Grid>
-                            <Grid.Column width={4}>
-                                <ItemsBrowser
-                                    data={stories}
-                                    allowAddition
-                                    index={storyIndex}
-                                    onAdd={this.handleAddStoryGroup}
-                                    onChange={this.handleMenuChange}
-                                    nameAccessor='name'
-                                    saveMode={!saved}
-                                    onSave={this.handleSaveStory}
+                    <Grid>
+                        <Grid.Column width={4}>
+                            <ItemsBrowser
+                                data={stories}
+                                allowAddition
+                                index={storyIndex}
+                                onAdd={this.handleAddStoryGroup}
+                                onChange={this.handleMenuChange}
+                                nameAccessor='name'
+                                saving={saving}
+                            />
+                        </Grid.Column>
+                        <Grid.Column width={12}>
+                            {displaySaved && <ChangesSaved />}
+                            {stories[storyIndex] ? (
+                                <StoriesEditor
+                                    stories={selectedStories}
+                                    onChange={this.handleStoriesChange}
+                                    disabled={saving}
+                                    errors={validationErrors}
                                 />
-                            </Grid.Column>
-                            <Grid.Column width={12}>
-                                {displaySaved && <ChangesSaved />}
-                                {stories[storyIndex] ? (
-                                    <StoriesEditor
-                                        stories={selectedStories}
-                                        onChange={this.handleStoriesChange}
-                                        disabled={saving}
-                                        errors={validationErrors}
-                                    />
-                                ) : (
-                                    <Message content='select or create a story group' />
-                                )}
-                            </Grid.Column>
-                        </Grid>
-                    </Segment>
+                            ) : (
+                                <Message content='select or create a story group' />
+                            )}
+                        </Grid.Column>
+                    </Grid>
                 </Container>
             </>
         );

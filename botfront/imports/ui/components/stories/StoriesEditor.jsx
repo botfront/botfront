@@ -1,17 +1,10 @@
 import {
-    Icon,
-    Container,
-    Label,
-    Popup,
-    Segment,
-    Message,
+    Icon, Container, Popup, Segment, Message,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
-import 'brace/mode/markdown';
-import 'brace/theme/xcode';
+import 'brace/theme/github';
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 
 function StoriesEditor(props) {
     function addStory() {
@@ -36,10 +29,9 @@ function StoriesEditor(props) {
             <Segment>
                 <AceEditor
                     readOnly={disabled}
+                    theme='github'
                     width='95%'
-                    mode='markdown'
                     name='story'
-                    theme='xcode'
                     minLines={5}
                     maxLines={Infinity}
                     fontSize={12}
@@ -47,6 +39,16 @@ function StoriesEditor(props) {
                     value={story}
                     showPrintMargin={false}
                     showGutter
+                    annotations={
+                        !!errors[index]
+                        && !!errors[index].length
+                        && errors[index].map(error => ({
+                            row: error.line - 1,
+                            type: error.type,
+                            text: error.message,
+                            column: 0,
+                        }))
+                    }
                     setOptions={{
                         tabSize: 2,
                     }}
@@ -57,28 +59,19 @@ function StoriesEditor(props) {
                     link
                     onClick={() => handeStoryDeletion(index)}
                 />
-                {errors[index] && !!errors[index].length && (
-                    <Message warning>
-                        {errors[index].map((error, indexErrors) => (
-                            <span key={indexErrors}>
-                                <b>{error.type}:</b>
-                                {` line ${error.line}`}
-                                <ReactMarkdown source={error.message} />
-                            </span>
-                        ))}
-                    </Message>
-                )}
             </Segment>
-            {index !== stories.length - 1 && (
-                <Container textAlign='center'>
-                    <Label content='AND' color='teal' basic />
-                </Container>
-            )}
+            {index !== stories.length - 1 && <br />}
         </React.Fragment>
     ));
 
     return (
         <>
+            {!errors.every(error => !error.length) && (
+                <Message
+                    warning
+                    content="Your changes haven't been saved. Correct errors first."
+                />
+            )}
             {editors}
             <Container textAlign='center'>
                 <Popup
