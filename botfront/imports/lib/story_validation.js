@@ -21,6 +21,7 @@ export class StoryValidator {
             actions: new Set(),
             forms: new Set(),
         };
+        this.noTitle = false;
         this.line = 0;
         this.prefix = null;
         this.content = null;
@@ -36,7 +37,10 @@ export class StoryValidator {
     }
 
     raiseStoryException = (code) => {
-        this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.line + 1, code));
+        if (code !== 'title' || !this.noTitle) {
+            this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.line + 1, code));
+            if (code === 'title') this.noTitle = true;
+        }
     }
 
     validateUtter = () => {
@@ -62,8 +66,8 @@ export class StoryValidator {
         title: ['error', 'Stories should have a title: `## MyStory`'],
         intent: ['error', 'User utterances (intents) should look like this: `* MyIntent` or `* MyIntent{"entity": "value"}`'],
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`'],
-        have_intent: ['warning', 'Bot actions should usually found in a user utterance (intent) block.'],
-        empty_story: ['warning', 'Story block closed without defining any interactions.'],
+        have_intent: ['warning', 'Bot actions should usually be found in a user utterance (intent) block.'],
+        empty_story: ['warning', 'Story closed without defining any interactions.'],
         empty_intent: ['warning', 'User utterance (intent) block closed without defining any bot action.'],
         action_name: ['warning', 'Actions should look like this: `- action_...`, `- utter_...`, `- slot{...}` or `- form{...}`.'],
         declare_form: ['warning', 'Form calls (`- form{"name": "MyForm"}`) should be preceded by matching `- MyForm`.'],
@@ -71,7 +75,7 @@ export class StoryValidator {
 
     validateIntent = () => {
         if (!this.story) this.raiseStoryException('title');
-        if (this.intent && !this.response) this.raiseStoryException('have_intent');
+        if (this.intent && !this.response) this.raiseStoryException('empty_intent');
         this.intent = this.content.split(' OR ').map(disj => trimStart(disj));
         this.response = null;
         this.form = null;
@@ -93,7 +97,7 @@ export class StoryValidator {
 
     validateResponse = () => {
         if (!this.story) this.raiseStoryException('title');
-        if (this.story && !this.intent) this.raiseStoryException('have_intent');
+        if (!this.intent) this.raiseStoryException('have_intent');
         this.response = trimEnd(trimStart(this.content));
         if (this.response.match(/^utter_/)) {
             this.validateUtter();
