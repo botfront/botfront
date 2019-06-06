@@ -119,10 +119,10 @@ class ProjectInfo extends React.Component {
                                 data-cy='language-selector'
                             />
                         </Form.Field>
-                        { !!modelLanguages.length && <SelectField name='defaultLanguage' options={modelLanguages} className='project-default-language' />}
+                        { !!modelLanguages.length && <SelectField name='defaultLanguage' options={modelLanguages} className='project-default-language' data-cy='default-langauge-selection' />}
                         <br />
                         <ErrorsField />
-                        <SubmitField className='primary save-project-info-button' value='Save Changes' />
+                        <SubmitField className='primary save-project-info-button' value='Save Changes' data-cy='save-changes' />
                     </AutoForm>
                 )}
             </>

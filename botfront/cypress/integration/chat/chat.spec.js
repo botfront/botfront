@@ -33,30 +33,31 @@ describe('chat side panel handling', function() {
         cy.get('[data-cy=chat-pane]').should('not.exist');
     });
 
-    it('should remove the core instance and the chat should display a message', function() {
-        cy.visit(`/project/${this.bf_project_id}/settings`);
+    // Removed for now because now we only have have one typeless instance at the begining
+    // it('should remove the core instance and the chat should display a message', function() {
+    //     cy.visit(`/project/${this.bf_project_id}/settings`);
 
-        cy.contains('Instances').click();
-        cy.get('[data-cy=edit-instance]').eq(1).click();
-        cy.get('i.delete.icon').click();
-        cy.get('[data-cy=type-selector] input').type('nlu{enter}');
-        cy.get('[data-cy=save-instance]').click();
+    //     cy.contains('Instances').click();
+    //     cy.get('[data-cy=edit-instance]').eq(0).click();
+    //     cy.get('i.delete.icon').click();
+    //     cy.get('[data-cy=type-selector] input').type('nlu{enter}');
+    //     cy.get('[data-cy=save-instance]').click();
 
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
-        cy.get('[data-cy=open-chat]').click();
-        cy.get('[data-cy=no-core-instance-message]');
-        cy.get('[data-cy=settings-link]').click();
-        cy.get('[data-cy=chat-pane]').should('not.exist');
+    //     cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+    //     cy.get('[data-cy=open-chat]').click();
+    //     cy.get('[data-cy=no-core-instance-message]');
+    //     cy.get('[data-cy=settings-link]').click();
+    //     cy.get('[data-cy=chat-pane]').should('not.exist');
 
-        cy.contains('Instances').click();
-        cy.get('[data-cy=edit-instance]').eq(1).click();
-        cy.get('i.delete.icon').click();
-        cy.get('[data-cy=type-selector] input').type('core{enter}');
-        cy.get('[data-cy=save-instance]').click();
+    //     cy.contains('Instances').click();
+    //     cy.get('[data-cy=edit-instance]').eq(0).click();
+    //     cy.get('i.delete.icon').click();
+    //     cy.get('[data-cy=type-selector] input').type('core{enter}');
+    //     cy.get('[data-cy=save-instance]').click();
 
-        cy.get('[data-cy=open-chat]').click();
-        cy.get('[data-cy=no-core-instance-message]').should('not.exist');
-    });
+    //     cy.get('[data-cy=open-chat]').click();
+    //     cy.get('[data-cy=no-core-instance-message]').should('not.exist');
+    // });
 
     it('should not crash when changing language', function() {
         cy.visit(`/project/${this.bf_project_id}/dialogue/templates`);

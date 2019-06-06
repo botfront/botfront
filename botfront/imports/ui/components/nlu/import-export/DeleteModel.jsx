@@ -50,7 +50,7 @@ export default class DeleteModel extends React.Component {
                 <Message
                     header='Default language cannot be deleted'
                     icon='warning'
-                    content={'You can\'t delete the default language, to delete this langauge change the default langauge of hte project.'}
+                    content={'You can\'t delete the default language, to delete this language change the default language of the project.'}
                     warning
                 />
             );

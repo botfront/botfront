@@ -178,13 +178,12 @@ if (Meteor.isServer) {
             if (modelLanguage.language !== projectDefaultLanguage.defaultLanguage) {
                 try {
                     NLUModels.remove({ _id: modelId });
-                    Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
-                    return 'Model Deleted';
+                    return Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
                 } catch (e) {
                     throw e;
                 }
             }
-            return 'Model Not Deleted';
+            throw new Meteor.Error('409', 'The default language cannot be deleted');
         },
 
         'nlu.removelanguage'(projectId, language) {
@@ -195,11 +194,10 @@ if (Meteor.isServer) {
             const { _id: modelId } = NLUModels.findOne({ _id: { $in: modelIds }, language });
             try {
                 NLUModels.remove({ _id: modelId });
-                Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
+                return Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
             } catch (e) {
                 throw e;
             }
-            return `Model with language ${language} deleted.`;
         },
 
         'nlu.getChitChatIntents'(language) {

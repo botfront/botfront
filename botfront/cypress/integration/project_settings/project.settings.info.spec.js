@@ -22,7 +22,7 @@ describe('Project Settings', function() {
             cy.visit(`/project/${this.bf_project_id}/settings`);
             cy.get('.project-name input').click();
             cy.get('.project-name input').type('33');
-            cy.contains('Save Changes').click();
+            cy.get('[data-cy=save-changes]').click();
             cy.get('.project-name input').should('have.value', 'Duedix33');
 
             // change tab and come back to verify info is still correct
