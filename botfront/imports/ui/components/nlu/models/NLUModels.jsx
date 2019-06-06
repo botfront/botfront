@@ -5,38 +5,26 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { browserHistory } from 'react-router';
 import { cloneDeep, uniq } from 'lodash';
 import {
-    AutoField,
-    AutoForm,
-    ErrorsField,
-    SubmitField,
-} from 'uniforms-semantic';
-import {
     Button,
     Card,
     Container,
     Message,
     Icon,
-    Label,
     Menu,
     Segment,
     Popup, Tab, Header,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
-import SelectLanguage from '../common/SelectLanguage';
-import SelectInstanceField from './settings/SelectInstanceField';
-import { Instances } from '../../../../api/instances/instances.collection';
 import { languages } from '../../../../lib/languages';
 import { Projects } from '../../../../api/project/project.collection';
 import { NLUModels as NLUModelsCollection } from '../../../../api/nlu_model/nlu_model.collection';
-import { NLUModelSchema } from '../../../../api/nlu_model/nlu_model.schema';
 import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import getColor from '../../../../lib/getColors';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 
 const NONE = -2;
-const NEW_MODEL = -1;
 
 class NLUModels extends React.Component {
     constructor(props) {
@@ -250,28 +238,6 @@ class NLUModels extends React.Component {
         changeWorkingLanguage(getNluModelLanguages(models.map(m => m._id))[activeIndex]);
     };
 
-    renderAddOrEditModel() {
-        const { instances } = this.props;
-
-        return (
-            <Card raised>
-                <Card.Content extra>
-                    <div>
-                        <Label attached='top right' as='a' icon='close' onClick={() => this.setState({ editing: NONE })} />
-                        <AutoForm schema={NLUModelSchema} model={{}} onSubmit={model => this.createOrUpdateModel(model)}>
-                            <AutoField name='name' label='Model name' />
-                            <SelectLanguage name='language' label='Language' />
-                            <AutoField name='description' />
-                            <SelectInstanceField name='instance' label='NLU Instance' instances={instances} />
-                            <ErrorsField />
-                            <SubmitField data-cy='model-save-button' value='Save model' className='primary' />
-                        </AutoForm>
-                    </div>
-                </Card.Content>
-            </Card>
-        );
-    }
-
     renderMessage = () => (
         <Message
             header='Botfront does not support several NLU models per language.'
@@ -292,7 +258,6 @@ class NLUModels extends React.Component {
                 <br />
                 <Container>
                     {this.renderMessage()}
-                    {editing === NEW_MODEL && this.renderAddOrEditModel({})}
                     {nluLanguages.length === 0 && editing === NONE && this.renderNoModel()}
                     {nluLanguages.length > 0 && (
                         <Tab
@@ -310,25 +275,18 @@ class NLUModels extends React.Component {
 
 NLUModels.propTypes = {
     projectId: PropTypes.string.isRequired,
-    instances: PropTypes.arrayOf(PropTypes.object).isRequired,
     workingLanguage: PropTypes.string.isRequired,
     changeWorkingLanguage: PropTypes.func.isRequired,
     models: PropTypes.arrayOf(PropTypes.object).isRequired,
-    ready: PropTypes.bool.isRequired,
 };
 
 const NLUModelsContainer = withTracker((props) => {
     const { project_id: projectId } = props.params;
-    const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
-
     const { nlu_models: modelIds = [] } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {};
     const models = NLUModelsCollection.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
     
-    const instances = Instances.find({ projectId }).fetch();
     return {
-        ready: instancesHandler.ready(),
         projectId,
-        instances,
         models,
     };
 })(NLUModels);

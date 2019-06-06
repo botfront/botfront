@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-let modelId = ''
+let modelId = '';
 
 describe('NLU Batch Insert', function() {
     before(function() {
@@ -86,7 +86,7 @@ describe('NLU Synonyms', function() {
         cy.get(':nth-child(1) > .rt-tr > .lookup-value > div input').type('value2');
         
         // click outside
-        cy.get('.message').click();
+        cy.get('[data-cy=example-text-editor-input]').click();
         cy.get(':nth-child(1) > .rt-tr > .lookup-value > div > p').should(($p) => {
             expect($p.first()).to.contain('valuevalue2');
         });
@@ -94,8 +94,7 @@ describe('NLU Synonyms', function() {
         cy.get(':nth-child(1) > .rt-tr > .lookup-list > :nth-child(1) > div > .ellipsis').click();
         cy.get(':nth-child(1) > .rt-tr > .lookup-list > :nth-child(1) > div textarea').type(',synonym4');
         // click outside
-        cy.get('.message').click();
-
+        cy.get('[data-cy=example-text-editor-input]').click();
         cy.get(':nth-child(1) > .rt-tr > .lookup-list > :nth-child(1) > div > .ellipsis').should(($p) => {
             expect($p.first()).to.contain('synonym1, synonym2, synonym3, synonym4');
         });

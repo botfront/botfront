@@ -20,7 +20,8 @@ export const createInstance = async (project) => {
             return;
         }
         if (instance) {
-            Instances.insert(instance);
+            // eslint-disable-next-line consistent-return
+            return await Instances.insert(instance);
         }
     } catch (e) {
         throw new Error('Could not cªreate default instance', e);

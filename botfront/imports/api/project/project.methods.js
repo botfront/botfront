@@ -27,8 +27,8 @@ if (Meteor.isServer) {
                 createCredentials({ _id, ...item });
                 createRules({ _id, ...item });
                 createPolicies({ _id, ...item });
-                await createInstance({ _id, ...item });
-                
+                const instance = await createInstance({ _id, ...item });
+                Projects.update({ _id }, { $set: { instance } });
                 return _id;
             } catch (e) {
                 if (_id) Meteor.call('project.delete', _id);

@@ -50,13 +50,11 @@ class ProjectInfo extends React.Component {
     }
 
     createNLUModels = (languageArray, projectId) => {
-        const { instanceId } = this.props;
         const nluInsertArray = languageArray.map(language => (
             Meteor.callWithPromise('nlu.insert', {
                 name: 'Default Model',
                 language,
                 description: 'Default description',
-                instance: instanceId,
             },
             projectId)
         ));

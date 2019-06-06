@@ -30,7 +30,6 @@ import IntentBulkInsert from './IntentBulkInsert';
 import Synonyms from '../../synonyms/Synonyms';
 import Gazette from '../../synonyms/Gazette';
 import NLUPipeline from './settings/NLUPipeline';
-import NLUParams from './settings/NLUParams';
 import DataImport from '../import-export/DataImport';
 import DataExport from '../import-export/DataExport';
 import NLUTrainButton from './NLUTrainButton';
@@ -57,9 +56,7 @@ class NLUModel extends React.Component {
             entities,
             instances,
             ready,
-            model: {
-                instance,
-            } = {},
+            instance,
         } = props;
         return {
             examples: ready ? NLUModel.getExamplesWithExtraSynonyms(props) : [],
@@ -174,10 +171,9 @@ class NLUModel extends React.Component {
     };
 
     getSettingsSecondaryPanes = () => {
-        const { model, instances, intents, projectDefaultLanguage } = this.props;
+        const { model, intents, projectDefaultLanguage } = this.props;
         const cannotDelete = model.language !== projectDefaultLanguage;
         return [
-            { menuItem: 'General', render: () => <NLUParams model={model} instances={instances} /> },
             { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
             { menuItem: 'Import', render: () => <DataImport model={model} /> },
             { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
@@ -412,15 +408,15 @@ const NLUDataLoaderContainer = withTracker((props) => {
         }
     });
 
-    const project = Projects.findOne({ _id: projectId }, {
+    const { name, nlu_models, defaultLanguage, instance } = Projects.findOne({ _id: projectId }, {
         fields: {
-            name: 1, namespace: 1, apiKey: 1, nlu_models: 1, defaultLanguage: 1,
+            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1,
         },
     });
-    if (!project) return browserHistory.replace({ pathname: '/404' });
-    const nluModelLanguages = getPublishedNluModelLanguages(project.nlu_models, true);
-    const models = NLUModels.find({ _id: { $in: project.nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
-    const projectDefaultLanguage = project.defaultLanguage;
+    if (!name) return browserHistory.replace({ pathname: '/404' });
+    const nluModelLanguages = getPublishedNluModelLanguages(nlu_models, true);
+    const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
+    const projectDefaultLanguage = defaultLanguage;
 
     return {
         ready,
@@ -433,6 +429,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         settings,
         nluModelLanguages,
         projectDefaultLanguage,
+        instance,
     };
 })(NLUModel);
 

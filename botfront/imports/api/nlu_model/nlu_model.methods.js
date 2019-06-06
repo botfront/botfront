@@ -142,11 +142,11 @@ if (Meteor.isServer) {
             check(projectId, String);
             // Check if the model with the langauge already exists in project
             // eslint-disable-next-line no-param-reassign
-            item.published = true; // a model should be publushed as soon as it is created
-            const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-            const nluModelLanguages = getNluModelLanguages(project.nlu_models, true);
+            item.published = true; // a model should be published as soon as it is created
+            const { nlu_models } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
+            const nluModelLanguages = getNluModelLanguages(nlu_models, true);
             if (nluModelLanguages.map(lang => (lang.value)).includes(item.language)) {
-                return `Model with langauge ${item.language} already exists`;
+                throw new Meteor.Error('409', `Model with langauge ${item.language} already exists`);
             }
             const {
                 settings: {
@@ -383,10 +383,8 @@ if (Meteor.isServer) {
                     fr: JSON.parse(Assets.getText('nlu/nlu-chitchat-fr.json')),
                     en: JSON.parse(Assets.getText('nlu/nlu-chitchat-en.json')),
                 };
-                const projectId = await Meteor.callWithPromise('project.insert', { name: 'Chitchat', _id: `chitchat-${shortid.generate()}`, namespace: 'chitchat' });
+                const projectId = await Meteor.callWithPromise('project.insert', { name: 'Chitchat', _id: `chitchat-${shortid.generate()}`, namespace: 'chitchat', defaultLanguage: 'en' });
                 
-                const instance = Instances.findOne({ projectId });
-            
                 // eslint-disable-next-line no-restricted-syntax
                 for (const lang of Object.keys(data)) {
                     // eslint-disable-next-line no-await-in-loop
@@ -395,7 +393,6 @@ if (Meteor.isServer) {
                         {
                             name: `chitchat-${lang}`,
                             language: lang,
-                            instance: instance ? instance._id : null,
                         },
                         projectId,
                     );
