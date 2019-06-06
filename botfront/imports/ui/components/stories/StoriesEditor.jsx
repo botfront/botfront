@@ -1,12 +1,19 @@
 import {
-    Icon, Container, Popup, Segment, Message,
+    Icon,
+    Container,
+    Popup,
+    Segment,
+    Message,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import 'brace/theme/github';
-import React from 'react';
+import React, { useState } from 'react';
+
+import ConfirmPopup from '../common/ConfirmPopup';
 
 function StoriesEditor(props) {
+    const [deletePopup, setDeletePopup] = useState(-1);
     function addStory() {
         props.onChange([...props.stories, '']);
     }
@@ -20,6 +27,7 @@ function StoriesEditor(props) {
     function handeStoryDeletion(index) {
         const newStories = [...props.stories];
         newStories.splice(index, 1);
+        setDeletePopup(-1);
         props.onChange(newStories);
     }
 
@@ -53,11 +61,25 @@ function StoriesEditor(props) {
                         tabSize: 2,
                     }}
                 />
-                <Icon
-                    name='trash'
-                    color='grey'
-                    link
-                    onClick={() => handeStoryDeletion(index)}
+                <Popup
+                    trigger={(
+                        <Icon
+                            name='trash'
+                            color='grey'
+                            link
+                        />
+                    )}
+                    content={(
+                        <ConfirmPopup
+                            title='Delete story ?'
+                            onYes={() => handeStoryDeletion(index)}
+                            onNo={() => setDeletePopup(-1)}
+                        />
+                    )}
+                    on='click'
+                    open={deletePopup === index}
+                    onOpen={() => setDeletePopup(index)}
+                    onClose={() => setDeletePopup(-1)}
                 />
             </Segment>
             {index !== stories.length - 1 && <br />}
