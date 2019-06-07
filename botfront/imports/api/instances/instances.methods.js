@@ -12,7 +12,9 @@ import { Evaluations } from '../nlu_evaluation';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    if (!process.env.ORCHESTRATOR) return;
+    if (!process.env.ORCHESTRATOR) {
+        process.env.ORCHESTRATOR = 'docker-compose';
+    }
 
     try {
         const { getDefaultInstance } = await import(`./instances.${process.env.ORCHESTRATOR}`);
