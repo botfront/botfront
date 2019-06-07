@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -14,7 +15,6 @@ import {
     Tab,
     Popup,
     Placeholder,
-    Loader,
     Dropdown,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
@@ -181,7 +181,7 @@ class NLUModel extends React.Component {
         ];
     };
 
-    onChange = (e, data) => {
+    handleLanguageChange = (e, data) => {
         const { models, projectId } = this.props;
         // Fetch the model Id for data.value
         const modelToRender = models.find(model => (model.language === data.value));
@@ -199,7 +199,7 @@ class NLUModel extends React.Component {
                 selection
                 value={modelId}
                 options={nluModelLanguages}
-                onChange={this.onChange}
+                onChange={this.handleLanguageChange}
                 data-cy='model-selector'
             />
         );
@@ -271,7 +271,7 @@ class NLUModel extends React.Component {
         return (
             <div id='nlu-model'>
                 <Menu pointing secondary>
-                    <Menu.Item style={{ paddingBottom: '0.3rem' }} header>{this.getHeader()}</Menu.Item>
+                    <Menu.Item header>{this.getHeader()}</Menu.Item>
                     <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
                         <Icon size='small' name='history' />
                         {'Activity'}
@@ -369,19 +369,23 @@ NLUModel.defaultProps = {
     model: [],
 };
 
+const handleDefaultRoute = (projectId) => {
+    const { nlu_models: modelIds = [], defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, defaultLanguage: 1 } }) || {};
+    const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
+
+    try {
+        const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${defaultModelId}` });
+    } catch (e) {
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelIds[0]}` });
+    }
+};
+
 const NLUDataLoaderContainer = withTracker((props) => {
     const { params: { model_id: modelId, project_id: projectId } = {} } = props;
     // For handling '/project/:project_id/nlu/models'
     if (!modelId) {
-        const { nlu_models: modelIds = [], defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, defaultLanguage: 1 } }) || {};
-        const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
-
-        try {
-            const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
-            browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${defaultModelId}` });
-        } catch (e) {
-            browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelIds[0]}` });
-        }
+        handleDefaultRoute(projectId);
     }
     // for handling '/project/:project_id/nlu/model/:model_id'
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
@@ -408,7 +412,12 @@ const NLUDataLoaderContainer = withTracker((props) => {
         }
     });
 
-    const { name, nlu_models, defaultLanguage, instance } = Projects.findOne({ _id: projectId }, {
+    const {
+        name,
+        nlu_models,
+        defaultLanguage,
+        instance,
+    } = Projects.findOne({ _id: projectId }, {
         fields: {
             name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1,
         },

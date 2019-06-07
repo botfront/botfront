@@ -15,7 +15,6 @@ describe('Project Instances', function() {
             cy.contains('Instances').click();
             cy.contains('New instance').click();
             cy.get('[name=name]').type('Test Name');
-            cy.get('[data-cy=type-selector] input').type('nlu{enter}');
             cy.get('[name=host]').type('http://localhost:5005');
             cy.get('[data-cy=save-instance]').click();
             cy.get('[data-cy=edit-instance]').should('have.lengthOf', 2);

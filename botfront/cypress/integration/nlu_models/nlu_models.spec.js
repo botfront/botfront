@@ -39,23 +39,6 @@ describe('NLU Models ', function() {
         cy.get('[data-cy=model-selector]').contains('French').should('not.exist');
     });
 
-    it('Should import a json file with training data', function() {
-        this.dropEvent = {
-            dataTransfer: {
-                files: [{ path: `${Cypress.config('fixturesFolder')}/nlu_import.json` }],
-            },
-        };
-        this.dropEvent.force = true; // https://github.com/cypress-io/cypress/issues/914
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
-        cy.get('.nlu-menu-settings').click();
-        cy.contains('Import').click();
-        cy.fixture('nlu_import.json', 'utf8').then((content) => {
-            cy.get('.file-dropzone').upload(content, 'data.json');
-        });
-
-        cy.contains('Import Training Data').click();
-    });
-
     it('should NOT be able to delete the default model', function() {
         cy.visit(`/project/${this.bf_project_id}/settings`);
         cy.get('[data-cy=default-langauge-selection] .ui > .search').click();
@@ -78,15 +61,6 @@ describe('NLU Models ', function() {
             this.bf_project_id,
         ]).then((result) => {
             expect(result.error).equals('409');
-        });
-    });
-
-    it('should be able to call the nlu.remove Meteor Call for the any model (not default)', function() {
-        cy.MeteorCall('nlu.remove', [
-            modelId,
-            this.bf_project_id,
-        ]).then((result) => {
-            expect(result).equals(1);
         });
     });
 });

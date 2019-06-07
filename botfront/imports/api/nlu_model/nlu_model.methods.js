@@ -143,9 +143,9 @@ if (Meteor.isServer) {
             // Check if the model with the langauge already exists in project
             // eslint-disable-next-line no-param-reassign
             item.published = true; // a model should be published as soon as it is created
-            const { nlu_models } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-            const nluModelLanguages = getNluModelLanguages(nlu_models, true);
-            if (nluModelLanguages.map(lang => (lang.value)).includes(item.language)) {
+            const { nlu_models: nluModels } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
+            const nluModelLanguages = getNluModelLanguages(nluModels, true);
+            if (nluModelLanguages.some(lang => (lang.value === item.language))) {
                 throw new Meteor.Error('409', `Model with langauge ${item.language} already exists`);
             }
             const {
@@ -383,7 +383,12 @@ if (Meteor.isServer) {
                     fr: JSON.parse(Assets.getText('nlu/nlu-chitchat-fr.json')),
                     en: JSON.parse(Assets.getText('nlu/nlu-chitchat-en.json')),
                 };
-                const projectId = await Meteor.callWithPromise('project.insert', { name: 'Chitchat', _id: `chitchat-${shortid.generate()}`, namespace: 'chitchat', defaultLanguage: 'en' });
+                const projectId = await Meteor.callWithPromise('project.insert', {
+                    name: 'Chitchat',
+                    _id: `chitchat-${shortid.generate()}`,
+                    namespace: 'chitchat',
+                    defaultLanguage: 'en',
+                });
                 
                 // eslint-disable-next-line no-restricted-syntax
                 for (const lang of Object.keys(data)) {
