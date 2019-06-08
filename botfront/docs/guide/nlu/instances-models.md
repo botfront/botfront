@@ -13,7 +13,7 @@ They can either be of type `nlu`, `core`, or both.
 ::: tip Host value
 Here the nlu instance uses `nlu` because it will be used internally by docker containers.
 
-The core instance uses `localhost` because it will be used by your browser to connect to the chat.
+The core instance uses `localhost` because it will be used by your browser to connect to the chat. Note that if you are running Botfront on a system other than your localhost, you must change the core instance hostname.
 
 Keep that in mind if you change the values.
 :::
