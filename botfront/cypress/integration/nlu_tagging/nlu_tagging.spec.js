@@ -10,7 +10,7 @@
 //     selection.addRange(range);
 // }
 
-const utterance = 'can you recover your asset in case of client default?';
+const utterance = 'whatever this is a testing utterance';
 const modelName = 'nluTaggingModel';
 const modelLang = 'fr';
 const intentName = 'KPI';
