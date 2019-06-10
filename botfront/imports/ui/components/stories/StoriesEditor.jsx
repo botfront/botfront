@@ -1,14 +1,10 @@
 import {
-    Icon,
-    Container,
-    Popup,
-    Segment,
-    Message,
+    Icon, Container, Popup, Segment, Message,
 } from 'semantic-ui-react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import 'brace/theme/github';
-import React, { useState } from 'react';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 
@@ -47,9 +43,10 @@ function StoriesEditor(props) {
                     value={story}
                     showPrintMargin={false}
                     showGutter
+                    // We use ternary
                     annotations={
-                        !!errors[index]
-                        && !!errors[index].length
+                        (!!errors[index] ? true : undefined)
+                        && (!!errors[index].length ? true : undefined)
                         && errors[index].map(error => ({
                             row: error.line - 1,
                             type: error.type,
@@ -62,13 +59,7 @@ function StoriesEditor(props) {
                     }}
                 />
                 <Popup
-                    trigger={(
-                        <Icon
-                            name='trash'
-                            color='grey'
-                            link
-                        />
-                    )}
+                    trigger={<Icon name='trash' color='grey' link />}
                     content={(
                         <ConfirmPopup
                             title='Delete story ?'

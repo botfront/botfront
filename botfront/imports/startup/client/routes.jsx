@@ -12,10 +12,10 @@ import TemplatesContainer from '../../ui/components/templates/templates-list/Tem
 import TemplateContainer from '../../ui/components/templates/template-upsert/Template';
 import SettingsContainer from '../../ui/components/admin/settings/Settings';
 import ForgotPassword from '../../ui/components/account/ForgotPassword.jsx';
+import StoriesContainer from '../../ui/components/stories/StoriesContainer';
 import ConfigurationContainer from '../../ui/components/settings/Settings';
 import ResetPassword from '../../ui/components/account/ResetPassword.jsx';
 import NLUModelComponent from '../../ui/components/nlu/models/NLUModel';
-import StoriesContainer from '../../ui/components/stories/Stories';
 import NLUModels from '../../ui/components/nlu/models/NLUModels';
 import SetupSteps from '../../ui/components/setup/SetupSteps';
 import Welcome from '../../ui/components/setup/Welcome';
