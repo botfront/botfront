@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 import fs from 'fs';
 import path from 'path';
 import { createProject } from './commands/init';
-import { dockerComposeUp, dockerComposeDown } from './commands/services';
+import { dockerComposeUp, dockerComposeDown, dockerComposeFollow } from './commands/services';
 
 const program = require('commander');
 
@@ -26,6 +26,10 @@ program
     .description('Stops a Botfront project and releases Docker resources.')
     .action(dockerComposeDown);
 
+program
+    .command('logs')
+    .description('Display botfront logs')
+    .action(dockerComposeFollow);
 
 async function initCommand() {
     const questions = [];

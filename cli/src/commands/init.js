@@ -7,6 +7,8 @@ import { URL } from 'url';
 import yaml from 'js-yaml';
 import { Docker } from 'docker-cli-js';
 import ora from 'ora';
+import inquirer from 'inquirer';
+import { dockerComposeUp } from './services';
 
 
 const access = promisify(fs.access);
@@ -79,6 +81,17 @@ export async function createProject(targetDirectory) {
                 'botfront up'
             )} to start your project.`
         );
+        const { current } = await inquirer.prompt({
+            type: 'confirm',
+            name: 'current',
+            message:
+                'Do you want to start your project now?',
+            default: true
+        });
+        if (current && installedHere) dockerComposeUp();
+        else if (current) {
+            dockerComposeUp(null, targetDirectory)
+        }
     } catch (e) {
       console.error(`${chalk.red.bold('ERROR')} ${e}`);
       process.exit(1)
