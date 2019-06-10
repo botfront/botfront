@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 
-describe('Project Credentials', function() {
+describe('Docker Compose', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
     });
@@ -13,18 +13,9 @@ describe('Project Credentials', function() {
         cy.logout();
     });
 
-    describe('Endpoints', function() {
-        it('Endpoints should not be empty', function() {
-            cy.visit(`/project/${this.bf_project_id}/settings`);
-            cy.contains('Endpoints').click();
-            cy.get('.ace_content').eq(0)
-                .invoke('text')
-                .then((text) => {
-                    expect(text).to.not.equal('');
-                });
-        });
-    });
-
-    after(function() {
+    it('Docker compose should exist in more settings', function() {
+        cy.visit(`/project/${this.bf_project_id}/settings`);
+        cy.contains('More Settings').click();
+        cy.contains('Docker Compose').should('exist');
     });
 });
