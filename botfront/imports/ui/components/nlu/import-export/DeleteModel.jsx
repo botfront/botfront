@@ -44,9 +44,31 @@ export default class DeleteModel extends React.Component {
         this.setState({ backupDownloaded: true });
     };
 
+    renderCannotDeleteMessage = (cannotDelete) => {
+        if (!cannotDelete) {
+            return (
+                <Message
+                    header='Default language cannot be deleted'
+                    icon='warning'
+                    content={'You can\'t delete the default language, to delete this language change the default language of the project.'}
+                    warning
+                />
+            );
+        }
+        return (
+            <Message
+                negative
+                header="All your model's data will be deleted!"
+                icon='warning circle'
+                content='Please use the button below to download a backup of your data before proceeding.'
+            />
+        );
+    }
+    
+
     render() {
         const { backupDownloaded, confirmOpen } = this.state;
-        const { model } = this.props;
+        const { model, cannotDelete } = this.props;
         return (
             <Tab.Pane>
                 <Confirm
@@ -58,12 +80,7 @@ export default class DeleteModel extends React.Component {
                 />
                 {!backupDownloaded && (
                     <div>
-                        <Message
-                            negative
-                            header="All your model's data will be deleted!"
-                            icon='warning circle'
-                            content='Please use the button below to download a backup of your data before proceeding.'
-                        />
+                        {this.renderCannotDeleteMessage(cannotDelete)}
                         <br />
                         <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button'>
                             <Icon name='download' />
@@ -74,16 +91,18 @@ export default class DeleteModel extends React.Component {
                 {backupDownloaded && <Message success icon='check circle' content='Backup downloaded' />}
                 <br />
                 <br />
-                <Button
-                    className='delete-model-button'
-                    type='submit'
-                    onClick={() => this.setState({ confirmOpen: true })}
-                    negative
-                    disabled={!backupDownloaded}
-                >
-                    <Icon name='trash' />
-                    Delete model <strong>{model.name}</strong>
-                </Button>
+                {cannotDelete && (
+                    <Button
+                        className='delete-model-button'
+                        type='submit'
+                        onClick={() => this.setState({ confirmOpen: true })}
+                        negative
+                        disabled={!backupDownloaded || !cannotDelete}
+                    >
+                        <Icon name='trash' />
+                        Delete model <strong>{model.name}</strong>
+                    </Button>
+                )}
             </Tab.Pane>
         );
     }
@@ -92,4 +111,5 @@ export default class DeleteModel extends React.Component {
 DeleteModel.propTypes = {
     model: PropTypes.object.isRequired,
     onDeleteModel: PropTypes.func.isRequired,
+    cannotDelete: PropTypes.bool.isRequired,
 };

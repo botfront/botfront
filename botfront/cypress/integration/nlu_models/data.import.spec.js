@@ -1,8 +1,7 @@
 /* eslint-disable no-undef */
 
 const modelName = 'myModel';
-const modelLang = 'French';
-
+let modelId = '';
 
 describe('training data import', function() {
     beforeEach(function() {
@@ -14,15 +13,16 @@ describe('training data import', function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModel(id, modelName, modelLang, 'my description');
+            cy.createNLUModelProgramatically(id, modelName, 'fr', 'my description')
+                .then((result) => {
+                    modelId = result;
+                });
         });
         cy.logout();
     });
 
     it('should import training data', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('French').click();
-        cy.get(':nth-child(1) > .extra > .basic > .primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.get('.nlu-menu-settings').click();
         cy.contains('Import').click();
         cy.fixture('nlu_import.json', 'utf8').then((content) => {
@@ -31,11 +31,7 @@ describe('training data import', function() {
 
         cy.contains('Import Training Data').click();
         cy.get('.s-alert-success').should('be.visible');
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains(modelLang).click();
-        cy.get(`#model-${modelName} [data-cy=open-model]`)
-            .first()
-            .click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
         cy.contains('Statistics').click();
         cy.contains('943').siblings('.label').should('contain', 'Examples');
@@ -46,7 +42,7 @@ describe('training data import', function() {
     after(function() {
         cy.logout();
         cy.login();
-        cy.deleteNLUModel(this.bf_project_id, modelName, modelLang);
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
         cy.logout();
     });
 });
