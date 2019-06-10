@@ -6,7 +6,6 @@ import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import { ActivityCollection } from '../activity';
 import { formatError } from '../../lib/utils';
-import { Rules, createRules } from '../rules';
 import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
@@ -25,7 +24,6 @@ if (Meteor.isServer) {
                 createEndpoints({ _id, ...item });
                 createDeployment({ _id, ...item });
                 createCredentials({ _id, ...item });
-                createRules({ _id, ...item });
                 createPolicies({ _id, ...item });
                 const instance = await createInstance({ _id, ...item });
                 Projects.update({ _id }, { $set: { instance } });
@@ -58,7 +56,6 @@ if (Meteor.isServer) {
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
                 ActivityCollection.remove({ modelId: { $in: project.nlu_models } }); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
-                Rules.remove({ projectId: project._id }); // Delete rules
                 CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
                 Credentials.remove({ projectId: project._id }); // Delete credentials
                 Endpoints.remove({ projectId: project._id }); // Delete endpoints
