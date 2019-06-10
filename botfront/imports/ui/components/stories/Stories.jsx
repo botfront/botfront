@@ -15,7 +15,7 @@ class Stories extends React.Component {
         const { stories } = this.props;
         this.state = {
             storyIndex: 0,
-            selectedStories: stories[0].stories ? stories[0].stories : [],
+            selectedStories: stories[0] ? stories[0].stories : [],
             saving: false,
             validationErrors: [],
             displaySaved: false,

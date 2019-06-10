@@ -208,13 +208,3 @@ Cypress.Commands.add(
     },
 );
 
-Cypress.Commands.add('MeteorCall', (method, args) => {
-    cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.call(method, ...args, (err, res) => {
-                if (err) return reject(err);
-                resolve(res);
-            });
-        }),
-    );
-});
