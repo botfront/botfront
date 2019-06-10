@@ -1,0 +1,40 @@
+{
+  "name": "@botfront/botfront",
+  "version": "1.0.0",
+  "description": "Botfront CLI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "@botfront/botfront": "bin/botfront",
+    "botfront": "bin/botfront"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "Botfront",
+    "Rasa"
+  ],
+  "preferGlobal": true,
+  "author": "Botfront",
+  "license": "AGPL v3",
+  "dependencies": {
+    "arg": "^4.1.0",
+    "chalk": "^2.4.2",
+    "commander": "^2.20.0",
+    "docker-cli-js": "^2.5.2",
+    "esm": "^3.2.18",
+    "inquirer": "^6.3.1",
+    "js-yaml": "^3.13.1",
+    "ncp": "^2.0.0",
+    "ora": "^3.4.0",
+    "shelljs": "^0.8.3"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.17.3"
+  }
+}
