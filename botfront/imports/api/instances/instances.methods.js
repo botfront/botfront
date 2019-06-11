@@ -87,6 +87,7 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
 };
 
 const getStoriesAndDomain = (projectId) => {
+    const mappingStory = '## mapping story\n* mapping_intent\n  - action_map';
     const storyGroups = StoryGroups.find(
         { projectId },
         { stories: 1 }
@@ -94,7 +95,7 @@ const getStoriesAndDomain = (projectId) => {
     console.log(storyGroups)
     // console.log(StoryGroups.find({ }).fetch())
     return {
-        stories: storyGroups.join('\n'),
+        stories: [mappingStory, ...storyGroups].join('\n'),
         domain: extractDomain(storyGroups),
     };
 }
@@ -189,7 +190,7 @@ if (Meteor.isServer) {
                     stories,
                     nlu,
                     config,
-                    out: '../_project/models',
+                    out: '_project/models',
                     // force: true,
                 };
 

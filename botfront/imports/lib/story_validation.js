@@ -20,6 +20,7 @@ export class StoryValidator {
             intents: new Set(),
             actions: new Set(),
             forms: new Set(),
+            templates: { },
         };
         this.noTitle = false;
         this.line = 0;
@@ -47,9 +48,14 @@ export class StoryValidator {
         this.form = null;
         this.checkForInvalidChars(this.response);
         this.extracted.actions.add(this.response);
+        this.extracted.templates[this.response] = '';
     }
 
-    validateAction = this.validateUtter;
+    validateAction = () => {
+        this.form = null;
+        this.checkForInvalidChars(this.response);
+        this.extracted.actions.add(this.response);
+    }
 
     validateForm = () => {
         this.form = this.response;
@@ -160,12 +166,27 @@ export class StoryValidator {
         }
         return {
             ...this.extracted,
-            templates: new Set(),
+            slots: { },
         };
     }
 }
 
 export const extractDomain = (stories) => {
+    const defaultDomain = {
+        actions: new Set(['action_map', 'action_map_follow_up', 'utter_fallback', 'utter_default']),
+        intents: new Set(['mapping_intent']),
+        entities: new Set(),
+        forms: new Set(),
+        templates: {
+            utter_default: '',
+            utter_fallback: '',
+        },
+        slots: {
+            latest_response_name: { type: 'unfeaturized' },
+            followup_response_name: { type: 'unfeaturized' },
+            parse_data: { type: 'unfeaturized' },
+        },
+    };
     let domains = stories.map((story) => {
         const val = new StoryValidator(story);
         val.validateStories();
@@ -176,14 +197,16 @@ export const extractDomain = (stories) => {
         intents: new Set([...d1.intents, ...d2.intents]),
         actions: new Set([...d1.actions, ...d2.actions]),
         forms: new Set([...d1.forms, ...d2.forms]),
-        templates: new Set([...d1.templates, ...d2.templates]),
-    }));
+        templates: { ...d1.templates, ...d2.templates },
+        slots: { ...d1.slots, ...d2.slots },
+    }), defaultDomain);
     domains = yamlDump({
         entities: Array.from(domains.entities),
         intents: Array.from(domains.intents),
         actions: Array.from(domains.actions),
         forms: Array.from(domains.forms),
-        templates: { blank: '' },
+        templates: domains.templates,
+        slots: domains.slots,
     });
     return domains;
 };
