@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import 'brace/theme/github';
+import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 
@@ -30,12 +31,13 @@ function StoriesEditor(props) {
     const { stories, disabled, errors } = props;
     const editors = stories.map((story, index) => (
         <React.Fragment key={index}>
-            <Segment>
+            <Segment data-cy='story-editor'>
                 <AceEditor
                     readOnly={disabled}
                     theme='github'
                     width='95%'
                     name='story'
+                    mode='text'
                     minLines={5}
                     maxLines={Infinity}
                     fontSize={12}
@@ -59,7 +61,14 @@ function StoriesEditor(props) {
                     }}
                 />
                 <Popup
-                    trigger={<Icon name='trash' color='grey' link />}
+                    trigger={(
+                        <Icon
+                            name='trash'
+                            color='grey'
+                            link
+                            data-cy='delete-story'
+                        />
+                    )}
                     content={(
                         <ConfirmPopup
                             title='Delete story ?'
@@ -88,9 +97,15 @@ function StoriesEditor(props) {
             {editors}
             <Container textAlign='center'>
                 <Popup
-                    trigger={
-                        <Icon name='add' link onClick={addStory} size='large' />
-                    }
+                    trigger={(
+                        <Icon
+                            name='add'
+                            link
+                            onClick={addStory}
+                            size='large'
+                            data-cy='add-story'
+                        />
+                    )}
                     content='Add a story'
                 />
             </Container>

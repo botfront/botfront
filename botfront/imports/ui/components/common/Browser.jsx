@@ -74,12 +74,13 @@ class Browser extends React.Component {
                         key='newItem'
                         onClick={() => this.setState({ addMode: true })}
                         link
+                        data-cy='add-item'
                     >
                         <Icon name='add' />
                         <span>Add</span>
                     </Menu.Item>
                 ) : (
-                    <Menu.Item key='newItem'>
+                    <Menu.Item key='newItem' data-cy='add-item'>
                         <Input
                             onChange={this.handleChangeNewItemName}
                             value={newItemName}

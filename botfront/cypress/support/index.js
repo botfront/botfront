@@ -188,6 +188,8 @@ Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
     ));
 });
 
+Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
+
 Cypress.Commands.add(
     'upload',
     {

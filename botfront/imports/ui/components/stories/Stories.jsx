@@ -64,6 +64,8 @@ class Stories extends React.Component {
                 if (!err) {
                     this.setState({
                         validationErrors: [],
+                        selectedStories: [''],
+                        storyIndex: -1,
                     });
                 }
             }),
