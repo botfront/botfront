@@ -173,8 +173,8 @@ export class StoryValidator {
 
 export const extractDomain = (stories) => {
     const defaultDomain = {
-        actions: new Set(['action_map', 'action_map_follow_up', 'utter_fallback', 'utter_default']),
-        intents: new Set(['mapping_intent']),
+        actions: new Set(['utter_fallback', 'utter_default']),
+        intents: new Set(),
         entities: new Set(),
         forms: new Set(),
         templates: {

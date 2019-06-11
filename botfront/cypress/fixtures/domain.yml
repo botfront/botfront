@@ -3,7 +3,6 @@ entities:
   - feedback_value
   - email
 intents:
-  - mapping_intent
   - thank
   - bye
   - greet
@@ -19,8 +18,6 @@ intents:
   - react_positive
   - react_negative
 actions:
-  - action_map
-  - action_map_follow_up
   - utter_fallback
   - utter_default
   - utter_noworries

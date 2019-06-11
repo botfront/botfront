@@ -31,7 +31,7 @@ export const createInstance = async (project) => {
             return await Instances.insert(instance);
         }
     } catch (e) {
-        throw new Error('Could not cªreate default instance', e);
+        throw new Error('Could not create default instance', e);
     }
 };
 
@@ -87,16 +87,25 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
 };
 
 const getStoriesAndDomain = (projectId) => {
-    const mappingStory = '## mapping story\n* mapping_intent\n  - action_map';
+    const { policies } = yaml.safeLoad(
+        CorePolicies.findOne(
+            { projectId }, { policies: 1 },
+        ).policies,
+    );
+    const mappingTriggers = policies
+        .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
+        .map(policy => policy.triggers.map(trigger => trigger.action))
+        .reduce((coll, curr) => coll.concat(curr), [])
+        .join('\n  - ');
+    const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up\n  - ${mappingTriggers}`;
     const storyGroups = StoryGroups.find(
         { projectId },
         { stories: 1 }
     ).fetch().map(group => group.stories.join('\n'));
-    console.log(storyGroups)
-    // console.log(StoryGroups.find({ }).fetch())
+    const stories = [mappingStory, ...storyGroups].join('\n');
     return {
-        stories: [mappingStory, ...storyGroups].join('\n'),
-        domain: extractDomain(storyGroups),
+        stories,
+        domain: extractDomain(stories),
     };
 }
 
