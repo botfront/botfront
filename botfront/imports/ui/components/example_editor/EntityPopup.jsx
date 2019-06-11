@@ -136,7 +136,7 @@ class EntityPopup extends React.Component {
             trigger,
             selection,
             length,
-            disableEntityPopup,
+            disabled,
         } = this.props;
         const { open } = this.state;
         return (
@@ -159,7 +159,7 @@ class EntityPopup extends React.Component {
                     )}
                     position='top center'
                     open={selection || open}
-                    disabled={disableEntityPopup}
+                    disabled={disabled}
                 />
             </span>
         );
@@ -176,7 +176,7 @@ EntityPopup.propTypes = {
     selection: PropTypes.bool,
     onSelectionReset: PropTypes.func,
     length: PropTypes.number.isRequired,
-    disableEntityPopup: PropTypes.bool,
+    disabled: PropTypes.bool,
 };
 
 EntityPopup.defaultProps = {
@@ -184,7 +184,7 @@ EntityPopup.defaultProps = {
     onDelete: () => {},
     selection: false,
     onSelectionReset: () => {},
-    disableEntityPopup: false,
+    disabled: false,
 };
 
 export default EntityPopup;

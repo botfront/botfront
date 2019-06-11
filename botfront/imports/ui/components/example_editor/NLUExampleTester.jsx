@@ -86,7 +86,7 @@ export default class NLUExampleTester extends React.Component {
 
     render() {
         const { clickable, example } = this.state;
-        const { entities, disableEntityPopup } = this.props;
+        const { entities, disablePopup } = this.props;
         const optionalProps = clickable ? { onClick: this.onDone } : {};
         return (
             <div className='tester' {...optionalProps} data-cy='nlu-example-tester'>
@@ -98,7 +98,7 @@ export default class NLUExampleTester extends React.Component {
                             entities={entities}
                             showIntent
                             showLabels
-                            disableEntityPopup={disableEntityPopup}
+                            disablePopup={disablePopup}
                         />
                     </Segment>
                 )}
@@ -114,4 +114,10 @@ NLUExampleTester.propTypes = {
     instance: PropTypes.object.isRequired,
     entities: PropTypes.array.isRequired,
     onDone: PropTypes.func,
+    disablePopup: PropTypes.bool,
+};
+
+NLUExampleTester.defaultProps = {
+    onDone: () => {},
+    disablePopup: false,
 };

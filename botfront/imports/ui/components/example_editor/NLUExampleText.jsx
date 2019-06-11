@@ -33,7 +33,7 @@ class NLUExampleText extends React.Component {
             example,
             entities,
             showLabels,
-            disableEntityPopup,
+            disablePopup,
         } = this.props;
         const { stateEntity, selectedEntity } = this.state;
 
@@ -124,7 +124,7 @@ class NLUExampleText extends React.Component {
                             )}
                             key={`${e.start}${e.end}`}
                             selection
-                            disableEntityPopup={disableEntityPopup}
+                            disable={disablePopup}
                         />,
                     );
                 } else {
@@ -146,7 +146,7 @@ class NLUExampleText extends React.Component {
                                 />
                             )}
                             key={`${e.start}${e.end}`}
-                            disableEntityPopup={disableEntityPopup}
+                            disable={disablePopup}
                         />,
                     );
                 }
@@ -398,7 +398,7 @@ NLUExampleText.propTypes = {
     withMargin: PropTypes.bool,
     onSave: PropTypes.func.isRequired,
     editable: PropTypes.bool,
-    disableEntityPopup: PropTypes.bool,
+    disablePopup: PropTypes.bool,
 };
 
 NLUExampleText.defaultProps = {
@@ -408,7 +408,7 @@ NLUExampleText.defaultProps = {
     showLabels: false,
     withMargin: false,
     editable: false,
-    disableEntityPopup: false,
+    disablePopup: false,
 };
 
 export default NLUExampleText;
