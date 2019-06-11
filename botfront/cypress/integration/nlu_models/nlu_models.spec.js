@@ -9,9 +9,6 @@ describe('NLU Models ', function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.fixture('bf_model_id.txt').as('bf_model_id');
-        cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModelProgramatically(id, 'MyModel', 'aa', 'My Description');
-        });
     });
 
     it('should be able to create a new Model by adding a new language, to the project and then delete it', function() {

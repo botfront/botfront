@@ -366,7 +366,7 @@ NLUModel.defaultProps = {
     models: [],
     projectDefaultLanguage: '',
     projectId: '',
-    model: [],
+    model: {},
 };
 
 const handleDefaultRoute = (projectId) => {

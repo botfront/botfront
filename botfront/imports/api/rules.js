@@ -2,8 +2,8 @@ import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import yaml from 'js-yaml';
-import { formatError } from '../lib/utils';
+
+import { formatError, validateYaml } from '../lib/utils';
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
 import { checkIfCan, can } from '../lib/scopes';
 
@@ -28,14 +28,7 @@ export const RulesSchema = new SimpleSchema({
     rules: {
         type: String,
         defaultValue: Meteor.isServer ? getDefaultRules() : '',
-        custom() {
-            try {
-                yaml.safeLoad(this.value);
-                return null;
-            } catch (e) {
-                return e.reason;
-            }
-        },
+        custom: validateYaml,
     },
     projectId: { type: String },
     createdAt: {

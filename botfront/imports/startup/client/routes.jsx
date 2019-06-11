@@ -12,6 +12,7 @@ import TemplatesContainer from '../../ui/components/templates/templates-list/Tem
 import TemplateContainer from '../../ui/components/templates/template-upsert/Template';
 import SettingsContainer from '../../ui/components/admin/settings/Settings';
 import ForgotPassword from '../../ui/components/account/ForgotPassword.jsx';
+import StoriesContainer from '../../ui/components/stories/StoriesContainer';
 import ConfigurationContainer from '../../ui/components/settings/Settings';
 import ResetPassword from '../../ui/components/account/ResetPassword.jsx';
 import NLUModelComponent from '../../ui/components/nlu/models/NLUModel';
@@ -88,6 +89,7 @@ Meteor.startup(() => {
                             name='Conversations'
                             onEnter={authenticateProject}
                         />
+                        <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticateProject} />
