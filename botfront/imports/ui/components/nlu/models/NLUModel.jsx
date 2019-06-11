@@ -171,13 +171,19 @@ class NLUModel extends React.Component {
     };
 
     getSettingsSecondaryPanes = () => {
-        const { model, intents, projectDefaultLanguage } = this.props;
+        const {
+            model,
+            intents,
+            projectDefaultLanguage,
+            nluModelLanguages,
+        } = this.props;
+        const languageName = nluModelLanguages.find(language => (language.value === model.language));
         const cannotDelete = model.language !== projectDefaultLanguage;
         return [
             { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
             { menuItem: 'Import', render: () => <DataImport model={model} /> },
             { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
-            { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} cannotDelete={cannotDelete} /> },
+            { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} cannotDelete={cannotDelete} language={languageName.text} /> },
         ];
     };
 

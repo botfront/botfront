@@ -45,6 +45,7 @@ export default class DeleteModel extends React.Component {
     };
 
     renderCannotDeleteMessage = (cannotDelete) => {
+        const { language } = this.props;
         if (!cannotDelete) {
             return (
                 <Message
@@ -58,7 +59,7 @@ export default class DeleteModel extends React.Component {
         return (
             <Message
                 negative
-                header="All your model's data will be deleted!"
+                header={`All the ${language} data of your model will be deleted !`}
                 icon='warning circle'
                 content='Please use the button below to download a backup of your data before proceeding.'
             />
@@ -68,12 +69,12 @@ export default class DeleteModel extends React.Component {
 
     render() {
         const { backupDownloaded, confirmOpen } = this.state;
-        const { model, cannotDelete } = this.props;
+        const { model, cannotDelete, language } = this.props;
         return (
             <Tab.Pane>
                 <Confirm
                     open={confirmOpen}
-                    header={`Delete model ${model.name}? (${model.training_data.common_examples.length} examples)`}
+                    header={`Delete ${language} data from your model? (${model.training_data.common_examples.length} examples)`}
                     content='This cannot be undone!'
                     onCancel={this.onCancel}
                     onConfirm={this.onConfirm}
@@ -84,7 +85,7 @@ export default class DeleteModel extends React.Component {
                         <br />
                         <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button'>
                             <Icon name='download' />
-                            Backup Model Data
+                            Backup {language} data of your model
                         </Button>
                     </div>
                 )}
@@ -100,7 +101,7 @@ export default class DeleteModel extends React.Component {
                         disabled={!backupDownloaded || !cannotDelete}
                     >
                         <Icon name='trash' />
-                        Delete model <strong>{model.name}</strong>
+                        Delete <strong>{language}</strong> data from your model
                     </Button>
                 )}
             </Tab.Pane>
@@ -112,4 +113,5 @@ DeleteModel.propTypes = {
     model: PropTypes.object.isRequired,
     onDeleteModel: PropTypes.func.isRequired,
     cannotDelete: PropTypes.bool.isRequired,
+    language: PropTypes.string.isRequired,
 };
