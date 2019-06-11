@@ -1,13 +1,12 @@
 {
-  "name": "@botfront/botfront",
-  "version": "1.0.0",
+  "name": "botfront",
+  "version": "0.0.2",
   "description": "Botfront CLI",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "@botfront/botfront": "bin/botfront",
     "botfront": "bin/botfront"
   },
   "publishConfig": {
@@ -15,7 +14,10 @@
   },
   "keywords": [
     "Botfront",
-    "Rasa"
+    "Rasa",
+    "Chatbot",
+    "Chatbot platform",
+    "Botkit"
   ],
   "preferGlobal": true,
   "author": "Botfront",
@@ -25,7 +27,7 @@
     "chalk": "^2.4.2",
     "commander": "^2.20.0",
     "docker-cli-js": "^2.5.2",
-    "esm": "^3.2.18",
+    "esm": "^3.2.25",
     "inquirer": "^6.3.1",
     "js-yaml": "^3.13.1",
     "ncp": "^2.0.0",
