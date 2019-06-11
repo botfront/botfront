@@ -32,12 +32,17 @@ export default class DataImport extends React.Component {
     }
 
     onDrop = (files) => {
+        const { model, instanceHost } = this.props;
         files.forEach((file) => {
             const reader = new FileReader();
-            reader.onload = () => this.setState({ values: reader.result });
+            reader.onload = () => {
+                Meteor.call('nlu.convertToJson', reader.result, model.language, 'json', instanceHost, wrapMeteorCallback((err, result) => {
+                    if (err) throw new Meteor.Error('Error in converting data', err);
+                    this.setState({ values: JSON.stringify(result.data, null, '\t') }); // Additional arguments to display json properly
+                }));
+            };
             reader.onabort = () => console.log('file reading was aborted');
             reader.onerror = () => console.log('file reading has failed');
-
             reader.readAsText(file, 'utf-8');
         });
     };
@@ -182,4 +187,5 @@ export default class DataImport extends React.Component {
 
 DataImport.propTypes = {
     model: PropTypes.object.isRequired,
+    instanceHost: PropTypes.string.isRequired,
 };
