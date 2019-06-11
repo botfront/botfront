@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-    Button, Card, Confirm, Label,
+    Button, Card, Label,
 } from 'semantic-ui-react';
 import {
     AutoField, AutoForm, ErrorsField, HiddenField, SubmitField,
@@ -14,13 +14,11 @@ import { Instances as InstancesCollection } from '../../../../api/instances/inst
 import SelectField from '../../form_fields/SelectField';
 
 const NONE = -2;
-const NEW_INSTANCE = -1;
 
 class Instances extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            confirmOpen: false,
             editing: NONE,
         };
     }
@@ -28,15 +26,7 @@ class Instances extends React.Component {
     createOrUpdateInstance = (instance) => {
         const method = instance._id ? 'instance.update' : 'instance.insert';
         Meteor.call(method, instance, (err) => {
-            this.setState({ editing: NONE, confirmOpen: false });
-            if (err) Alert.error(`Error: ${err.reason}`, { position: 'top-right', timeout: 'none' });
-        });
-    };
-
-    deleteInstance = (instance) => {
-        const { projectId } = this.props;
-        Meteor.call('instance.remove', instance._id, projectId, (err) => {
-            this.setState({ editing: NONE, confirmOpen: false });
+            this.setState({ editing: NONE });
             if (err) Alert.error(`Error: ${err.reason}`, { position: 'top-right', timeout: 'none' });
         });
     };
@@ -46,16 +36,8 @@ class Instances extends React.Component {
     renderReady = (instances, editing) => instances.map((instance, index) => (editing === index ? this.renderAddOrEditInstance(instance, index) : this.renderInstance(instance, index)));
     
     renderInstance = (instance, index) => {
-        const { confirmOpen } = this.state;
         return (
             <Card key={index}>
-                <Confirm
-                    open={confirmOpen === index}
-                    header={`Delete instance ${instance.name}?`}
-                    content='This cannot be undone!'
-                    onCancel={() => this.setState({ editing: NONE, confirmOpen: false })}
-                    onConfirm={() => this.deleteInstance(instance)}
-                />
                 <Card.Content>
                     <Card.Header>{instance.name}</Card.Header>
                     <Card.Meta>{this.getType(instance)}</Card.Meta>
@@ -64,7 +46,6 @@ class Instances extends React.Component {
                 <Card.Content extra>
                     <Button.Group basic floated='right'>
                         <Button primary onClick={() => this.setState({ editing: index })} icon='edit' data-cy='edit-instance' />
-                        <Button color='red' onClick={() => this.setState({ confirmOpen: index })} icon='trash' data-cy='delete-instance' />
                     </Button.Group>
                 </Card.Content>
             </Card>
@@ -112,16 +93,6 @@ class Instances extends React.Component {
     renderReady = (editing, instances) => (
         <Card.Group>
             {this.renderInstances(editing, instances)}
-            {editing === NEW_INSTANCE && this.renderAddOrEditInstance({})}
-
-            {editing === NONE && (
-                <Card key='new-instance'>
-                    <Card.Content />
-                    <Card.Content extra>
-                        <Button fluid onClick={() => this.setState({ editing: NEW_INSTANCE })} primary disabled={editing !== NONE} icon='add' content='New instance' labelPosition='left' />
-                    </Card.Content>
-                </Card>
-            )}
         </Card.Group>
     );
 
