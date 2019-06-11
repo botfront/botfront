@@ -4,9 +4,9 @@ import React from 'react';
 
 import { StoryValidator } from '../../../lib/story_validation';
 import { wrapMeteorCallback } from '../utils/Errors';
+import ChangesSaved from '../utils/ChangesSaved';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
-import ChangesSaved from '../utils/ChangesSaved';
 import './style.less';
 
 class Stories extends React.Component {
@@ -15,7 +15,9 @@ class Stories extends React.Component {
         const { stories } = this.props;
         this.state = {
             storyIndex: 0,
-            selectedStories: stories[0] ? stories[0].stories : [],
+            selectedStories: stories[0]
+                ? stories[0].stories.map(story => story.story)
+                : [],
             saving: false,
             validationErrors: [],
             displaySaved: false,
@@ -30,7 +32,7 @@ class Stories extends React.Component {
             {
                 name,
                 projectId,
-                stories: newStories,
+                stories: newStories.map(story => ({ story })),
             },
             wrapMeteorCallback((err) => {
                 if (!err) {
@@ -76,7 +78,9 @@ class Stories extends React.Component {
         const { stories } = this.props;
         this.setState({
             storyIndex: index,
-            selectedStories: stories[index] ? stories[index].stories : [''],
+            selectedStories: stories[index]
+                ? stories[index].stories.map(story => story.story)
+                : [''],
             validationErrors: [],
         });
     };
@@ -96,7 +100,7 @@ class Stories extends React.Component {
         if (validationErrors.every(story => !story.length)) {
             this.saveCurrentStory({
                 ...stories[storyIndex],
-                stories: newStories,
+                stories: newStories.map(story => ({ story })),
             });
         }
     };

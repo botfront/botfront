@@ -167,7 +167,7 @@ export class StoryValidator {
 
 export const extractDomain = (storyGroup) => {
     let domains = storyGroup.stories.map((story) => {
-        const val = new StoryValidator(story);
+        const val = new StoryValidator(story.story);
         val.validateStories();
         return val.extractDomain();
     });

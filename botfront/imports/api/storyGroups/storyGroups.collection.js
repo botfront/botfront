@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 
-import { StorySchema } from './storyGroups.schema';
+import { StoryGroupSchema } from './storyGroups.schema';
 
 export const StoryGroups = new Mongo.Collection('stories');
 
@@ -21,4 +21,4 @@ if (Meteor.isServer) {
     });
 }
 
-StoryGroups.attachSchema(StorySchema);
+StoryGroups.attachSchema(StoryGroupSchema);

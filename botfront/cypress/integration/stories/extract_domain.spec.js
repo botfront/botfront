@@ -17,7 +17,7 @@ describe('extract domain from storyfile fixtures', function() {
         const storyGroup = {
             name: 'test',
             projectId: 'test',
-            stories: [this.stories],
+            stories: [{ story: this.stories }],
         };
         cy.MeteorCall('extractDomainFromStories', [storyGroup])
             .then((res) => {
