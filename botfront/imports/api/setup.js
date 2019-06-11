@@ -7,7 +7,6 @@ import axios from 'axios';
 
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
 import { passwordComplexityRegex } from './user/user.methods';
-import { Instances } from './instances/instances.collection';
 import { languages } from '../lib/languages';
 
 const accountSetupSchema = new SimpleSchema(
@@ -131,14 +130,11 @@ if (Meteor.isServer) {
             
             const projectId = await Meteor.callWithPromise('project.insert', project);
 
-            const instance = Instances.findOne({ projectId });
-
             await Meteor.callWithPromise(
                 'nlu.insert',
                 {
                     name: 'My First Model',
                     language: projectData.language,
-                    instance: instance ? instance._id : null,
                     published: true,
                 },
                 projectId,

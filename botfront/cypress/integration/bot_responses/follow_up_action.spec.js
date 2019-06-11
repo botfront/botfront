@@ -2,8 +2,6 @@
 
 const intentName = 'QQQQ';
 const dummyResponseName = 'utter_dummy_response';
-const modelName = 'followUpModel';
-const modelLang = 'French';
 
 
 describe('Follow Up', function() {
@@ -11,15 +9,8 @@ describe('Follow Up', function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModel(id, modelName, modelLang, 'my description');
             cy.createResponse(id, dummyResponseName);
         });
-        cy.logout();
-    });
-
-    after(function() {
-        cy.login();
-        cy.deleteNLUModel(this.bf_project_id, modelName, modelLang);
         cy.logout();
     });
     
