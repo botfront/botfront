@@ -148,7 +148,7 @@ class Project extends React.Component {
                                 {children}
                                 {!showChatPane
                                     && credentials
-                                    && credentials['bot.socketio.SocketIOInput'] && (
+                                    && credentials['rasa_addons.core.channels.Webchat'] && (
                                     <Popup
                                         trigger={(
                                             <Button
