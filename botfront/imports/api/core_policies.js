@@ -2,8 +2,8 @@ import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import yaml from 'js-yaml';
-import { formatError } from '../lib/utils';
+
+import { formatError, validateYaml } from '../lib/utils';
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
 
 export const CorePolicies = new Mongo.Collection('core_policies');
@@ -27,14 +27,7 @@ export const CorePolicySchema = new SimpleSchema({
     policies: {
         type: String,
         defaultValue: Meteor.isServer ? getDefaultPolicies() : '',
-        custom() {
-            try {
-                yaml.safeLoad(this.value);
-                return null;
-            } catch (e) {
-                return e.reason;
-            }
-        },
+        custom: validateYaml,
     },
     projectId: { type: String },
     createdAt: {

@@ -6,6 +6,8 @@ import { Instances } from './instances.collection';
 import { getTrainingDataInRasaFormat, getConfig } from '../../lib/nlu_methods';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { getAxiosError } from '../../lib/utils';
+import { extractDomain, StoryValidator } from '../../lib/story_validation.js';
+import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
 import { Evaluations } from '../nlu_evaluation';
 
 export const createInstance = async (project) => {
@@ -183,6 +185,20 @@ if (Meteor.isServer) {
                 console.log(error);
                 throw error;
             }
+        },
+        'viewStoryExceptions'(story) {
+            check(story, String);
+            const val = new StoryValidator(story);
+            val.validateStories();
+            return val.exceptions.map(exception => ({
+                line: exception.line,
+                code: exception.code
+            }));
+        },
+        // eslint-disable-next-line meteor/audit-argument-checks
+        'extractDomainFromStories'(storyGroup) {
+            StoryGroups.simpleSchema().validate(storyGroup, { check });
+            return extractDomain(storyGroup);
         },
     });
 }

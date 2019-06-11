@@ -28,6 +28,9 @@ import '../imports/api/rules';
 import '../imports/api/user/user.methods';
 import '../imports/api/user/user.schema';
 import '../imports/api/user/user.collection';
+import '../imports/api/storyGroups/storyGroups.collection';
+import '../imports/api/storyGroups/storyGroups.methods';
+import '../imports/api/storyGroups/storyGroups.schema';
 import '../imports/api/orchestration/orchestration.methods.js';
 import '../imports/lib/scopes';
 
