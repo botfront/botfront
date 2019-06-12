@@ -68,6 +68,7 @@ export default class NLUPlayground extends React.Component {
                                 projectId={projectId}
                                 entities={entities}
                                 onDone={this.handleExampleTested}
+                                disablePopup
                             />
                         )}
                     </div>
