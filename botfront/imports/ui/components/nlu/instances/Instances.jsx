@@ -29,7 +29,6 @@ class Instances extends React.Component {
                 {ready && (
                     <AutoForm schema={InstanceSchema} model={instance} onSubmit={updatedInstance => this.onSave(updatedInstance)} onValidate={this.onValidate}>
                         <HiddenField name='projectId' value={projectId} />
-                        <AutoField name='name' label='Instance name' />
                         <AutoField name='host' />
                         <AutoField name='token' label='Token' />
                         <br />
@@ -42,9 +41,13 @@ class Instances extends React.Component {
 }
 
 Instances.propTypes = {
-    instance: PropTypes.object.isRequired,
+    instance: PropTypes.object,
     projectId: PropTypes.string.isRequired,
     ready: PropTypes.bool.isRequired,
+};
+
+Instances.defaultProps = {
+    instance: {},
 };
 
 const InstancesContainer = withTracker((props) => {
