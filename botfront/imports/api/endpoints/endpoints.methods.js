@@ -6,8 +6,8 @@ import { checkIfCan } from '../../lib/scopes';
 
 export const createEndpoints = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    if (!process.env.ORCHESTRATOR) return;
-    const { getDefaultEndpoints } = await import(`./endpoints.${process.env.ORCHESTRATOR}`);
+    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'docker-compose';
+    const { getDefaultEndpoints } = await import(`./endpoints.${orchestration}`);
     const endpoints = await getDefaultEndpoints(project);
     if (endpoints) Endpoints.insert({ endpoints, projectId: project._id });
 };
