@@ -19,6 +19,7 @@ import { setProjectId } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
+import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -94,7 +95,7 @@ class Project extends React.Component {
 
     render() {
         const {
-            children, projectId, loading, credentials,
+            children, projectId, loading, credentials, renderLegacyModels,
         } = this.props;
         const {
             showIntercom, intercomId, showChatPane, resizingChatPane,
@@ -118,6 +119,7 @@ class Project extends React.Component {
                             projectId={projectId}
                             handleChangeProject={this.handleChangeProject}
                             triggerIntercom={this.handleTriggerIntercom}
+                            renderLegacyModels={renderLegacyModels}
                         />
                     )}
                 </div>
@@ -197,6 +199,7 @@ const ProjectContainer = withTracker((props) => {
         params: { project_id: projectId },
     } = props;
     let projectHandler = null;
+    let renderLegacyModels;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
@@ -206,11 +209,18 @@ const ProjectContainer = withTracker((props) => {
         && (projectHandler
             ? projectHandler.ready() && nluModelsHandler.ready()
             : nluModelsHandler.ready());
+    
+    const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
 
-    if (ready && !Projects.findOne({ _id: projectId }, { fields: { _id: 1 } })) {
+    if (ready && !project) {
         return browserHistory.replace({ pathname: '/404' });
     }
 
+    if (project) {
+        const nluModelLanguages = getNluModelLanguages(project.nlu_models, true);
+        renderLegacyModels = project.nlu_models.length !== nluModelLanguages.length;
+    }
+    
     let credentials = null;
     if (ready) {
         credentials = Credentials.findOne({ projectId });
@@ -226,6 +236,7 @@ const ProjectContainer = withTracker((props) => {
         loading: !ready,
         projectId,
         credentials,
+        renderLegacyModels,
     };
 })(windowSize(Project));
 
