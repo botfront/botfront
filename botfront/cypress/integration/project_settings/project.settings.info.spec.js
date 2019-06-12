@@ -26,7 +26,7 @@ describe('Project Settings', function() {
             cy.get('.project-name input').should('have.value', 'Duedix33');
 
             // change tab and come back to verify info is still correct
-            cy.get('.project-settings-menu-rule').click();
+            cy.get('.project-settings-menu-credentials').click();
             cy.get('.project-settings-menu-info').click();
             cy.get('.project-name input').should('have.value', 'Duedix33');
             // Switching back
@@ -48,7 +48,7 @@ describe('Project Settings', function() {
             });
 
             // change tab and come back to verify info is still correct
-            cy.get('.project-settings-menu-rule').click();
+            cy.get('.project-settings-menu-credentials').click();
             cy.get('.project-settings-menu-info').click();
             cy.get('.project-default-language > .ui > div.text').should(($div) => {
                 expect($div.first()).to.contain('English');
