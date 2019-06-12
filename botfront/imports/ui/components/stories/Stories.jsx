@@ -135,6 +135,12 @@ class Stories extends React.Component {
             <Container className='stories-container'>
                 <Grid>
                     <Grid.Column width={4}>
+                        {!validationErrors.every(error => !error.length) && (
+                            <Message
+                                warning
+                                content="Your changes haven't been saved. Correct errors first."
+                            />
+                        )}
                         <ItemsBrowser
                             data={stories}
                             allowAddition

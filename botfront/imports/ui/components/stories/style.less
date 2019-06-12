@@ -32,12 +32,11 @@
       right: 10px;
       top: 15px;
     }
+  }
 
-    .warning.message {
-      p {
-        margin: 4px;
-      }
-    }
+  .warning.message {
+    animation-name: warningPopup;
+    animation-duration: 0.2s;
   }
 
   a.item span {
@@ -55,5 +54,15 @@
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes warningPopup {
+  from {
+    transform: scale(1, 0);
+  }
+
+  to {
+    transform: scale(1, 1);
   }
 }
