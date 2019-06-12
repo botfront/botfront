@@ -102,9 +102,9 @@ const getStoriesAndDomain = (projectId) => {
         { projectId },
         { stories: 1 }
     ).fetch().map(group => group.stories.join('\n'));
-    const stories = [mappingStory, ...storyGroups].join('\n');
+    const stories = [mappingStory, ...storyGroups];
     return {
-        stories,
+        stories: stories.join('\n'),
         domain: extractDomain(stories),
     };
 }
@@ -199,11 +199,14 @@ if (Meteor.isServer) {
                     stories,
                     nlu,
                     config,
-                    out: '_project/models',
+                    out: process.env.MODELSPATH,
                     // force: true,
                 };
 
                 await client.post('/model/train', payload);
+                if (process.env.ORCHESTRATOR === 'docker-compose') {
+                    await client.put('/model', { model_file: process.env.MODELSPATH });
+                }
                 Meteor.call('nlu.markTrainingStopped', nluModelId, 'success');
             } catch (e) {
                 Meteor.call('nlu.markTrainingStopped', nluModelId, 'failure', e.reason);
