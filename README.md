@@ -26,15 +26,11 @@ Botfront is an open source platform to build chatbots with Rasa. With Botfront y
 
 
 ### Getting started
-1. Install our ready to use boilerplate:
 
 ```bash
-git clone http://github.com/botfront/botfront-starter
-cd botfront-starter
-docker-compose up
+npm install botfront
+botfront
 ```
-
-2. Follow our [quick tutorial](https://docs.botfront.io/guide/getting-started/quick-start.html) to build your first bot.
 
 
 ### Getting help

@@ -1,0 +1,83 @@
+#####################################################################
+# You should not edit this file unless you know what you are doing. #
+#####################################################################
+
+version: "3.0"
+services:
+  botfront:
+    image: botfront/botfront
+    container_name: botfront-app
+    restart: always
+    networks: ['botfront-network']
+    ports:
+    - "8888:3000"
+    depends_on:
+    - mongo
+    env_file:
+    - .botfront/local.env
+    environment:
+      PORT: 3000
+      
+  botfront-api:
+    image: botfront/botfront-api
+    container_name: botfront-api
+    networks: ["botfront-network"]
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - "8081:8080"
+    env_file:
+      - .botfront/local.env
+
+  rasa:
+    image:  botfront/rasa-for-botfront
+    container_name: botfront-rasa
+    networks: ["botfront-network"]
+    restart: always
+    ports:
+      - 5000:5000
+    volumes:
+      - ./models/:/app/models
+    command:
+      - run
+      - --enable-api
+    env_file:
+      - .botfront/local.env
+
+
+
+  # actions:
+  #   build: ./actions
+  #   networks: ["botfront-network"]
+  #   ports:
+  #     - "5055:5055"
+  #   #    volumes:
+  #   #    - "./actions:/app/actions"
+  #   env_file:
+  #     - local.env
+
+  duckling:
+    image: botfront/duckling
+    container_name: botfront-duckling
+    networks: ["botfront-network"]
+    ports:
+      - "8000:8000"
+
+  mongo:
+    image: mongo
+    container_name: botfront-mongo
+    restart: always
+    networks: ["botfront-network"]
+    volumes:
+    - ./botfront-db:/data/db
+    ports:
+    - "27017:27017"
+    env_file:
+      - .botfront/local.env
+    
+
+networks: 
+  botfront-network: {}
+volumes:
+  botfront-db:
