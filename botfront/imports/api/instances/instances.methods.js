@@ -41,7 +41,7 @@ const getConfig = (model) => {
         throw new Meteor.Error('Please set a configuration');
     }
     config.pipeline.forEach((item) => {
-        if (item.name.includes('fuzzy_gazette')) {
+        if (item.name.includes('Gazette')) {
             if (model.training_data.fuzzy_gazette) {
                 // eslint-disable-next-line no-param-reassign
                 item.entities = model.training_data.fuzzy_gazette.map(({ value, mode, min_score }) => ({ name: value, mode, min_score }));
@@ -81,9 +81,9 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
     }
 
     const entity_synonyms = withSynonyms && model.training_data.entity_synonyms ? model.training_data.entity_synonyms.map(copyAndFilter) : [];
-    const fuzzy_gazette = withGazette && model.training_data.fuzzy_gazette ? model.training_data.fuzzy_gazette.map(copyAndFilter) : [];
+    const gazette = withGazette && model.training_data.fuzzy_gazette ? model.training_data.fuzzy_gazette.map(copyAndFilter) : [];
 
-    return { rasa_nlu_data: { common_examples, entity_synonyms, fuzzy_gazette } };
+    return { rasa_nlu_data: { common_examples, entity_synonyms, gazette } };
 };
 
 const getStoriesAndDomain = (projectId) => {
@@ -164,7 +164,13 @@ if (Meteor.isServer) {
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
             const nluModels = NLUModels.find({ _id: { $in: publishedModels.map(m => m._id) } }, {
                 fields: {
-                    config: 1, training_data: 1, language: 1, logActivity: 1,
+                    config: 1,
+                    training_data: 1,
+                    language: 1,
+                    logActivity: 1,
+                    entity_synonyms: 1,
+                    regex_features: 1,
+                    fuzzy_gazette: 1,
                 },
             }).fetch();
             const corePolicies = CorePolicies.findOne(
@@ -188,10 +194,11 @@ if (Meteor.isServer) {
                     });
                     nlu[nluModels[i].language] = data;
 
-                    const langConfig = `${getConfig(nluModels[i], instance)}\n\n${corePolicies}`;
-                    config[nluModels[i].language] = langConfig;
+                    config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
                 
+                console.log(config)
+
                 const { stories, domain } = getStoriesAndDomain();
                 const payload = {
                     domain,
