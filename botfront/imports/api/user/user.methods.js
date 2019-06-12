@@ -25,7 +25,7 @@ if (Meteor.isServer) {
             checkIfCan('global-admin');
             try {
                 const userId = Accounts.createUser({
-                    email: user.email,
+                    email: user.email.trim(),
                     profile: {
                         firstName: user.profile.firstName,
                         lastName: user.profile.lastName,

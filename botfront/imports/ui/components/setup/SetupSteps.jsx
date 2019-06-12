@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { Container, Segment, Step } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
@@ -26,6 +27,9 @@ class SetupSteps extends React.Component {
     }
 
     handleAccountSubmit = (doc) => {
+        doc.firstName = doc.firstName.trim();
+        doc.lastName = doc.lastName.trim();
+        doc.email = doc.email.trim();
         this.setState({ activeStep: 'project', accountData: doc });
     };
 
