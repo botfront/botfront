@@ -1,7 +1,12 @@
+#####################################################################
+# You should not edit this file unless you know what you are doing. #
+#####################################################################
+
 version: "3.0"
 services:
   botfront:
     image: botfront/botfront
+    container_name: botfront-app
     restart: always
     networks: ['botfront-network']
     ports:
@@ -9,12 +14,13 @@ services:
     depends_on:
     - mongo
     env_file:
-    - local.env
+    - .botfront/local.env
     environment:
       PORT: 3000
       
   botfront-api:
     image: botfront/botfront-api
+    container_name: botfront-api
     networks: ["botfront-network"]
     restart: always
     depends_on:
@@ -22,27 +28,24 @@ services:
     ports:
       - "8081:8080"
     env_file:
-      - local.env
-
-  # rasa:
-  #   image:  botfront/rasa-for-botfront
-  #   networks: ["botfront-network"]
-  #   ports:
-  #     - 5000:5000
-  #   volumes:
-  #     - ./models/:/app/models
-  #   command:
-  #     - run
+      - .botfront/local.env
 
   rasa:
-    image:  rasa/rasa
-  #   networks: ["botfront-network"]
-  #   ports:
-  #     - 5000:5000
-  #   volumes:
-  #     - ./models/:/app/models
-  #   command:
-  #     - run
+    image:  botfront/rasa-for-botfront
+    container_name: botfront-rasa
+    networks: ["botfront-network"]
+    restart: always
+    ports:
+      - 5000:5000
+    volumes:
+      - ./models/:/app/models
+    command:
+      - run
+      - --enable-api
+    env_file:
+      - .botfront/local.env
+
+
 
   # actions:
   #   build: ./actions
@@ -56,23 +59,25 @@ services:
 
   duckling:
     image: botfront/duckling
+    container_name: botfront-duckling
     networks: ["botfront-network"]
     ports:
       - "8000:8000"
 
   mongo:
     image: mongo
+    container_name: botfront-mongo
     restart: always
     networks: ["botfront-network"]
     volumes:
-    - ./db:/data/db
+    - ./botfront-db:/data/db
     ports:
     - "27017:27017"
     env_file:
-    - local.env
+      - .botfront/local.env
     
 
 networks: 
   botfront-network: {}
 volumes:
-  db:
+  botfront-db:

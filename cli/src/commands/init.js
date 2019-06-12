@@ -1,14 +1,16 @@
 import chalk from 'chalk';
+import shell from 'shelljs';
 import fs from 'fs';
 import ncp from 'ncp';
 import path from 'path';
 import { promisify } from 'util';
 import { URL } from 'url';
-import yaml from 'js-yaml';
 import { Docker } from 'docker-cli-js';
 import ora from 'ora';
 import inquirer from 'inquirer';
+import boxen from 'boxen';
 import { dockerComposeUp } from './services';
+import { getComposeFilePath, fixDir, getServices } from '../utils';
 
 
 const access = promisify(fs.access);
@@ -18,29 +20,34 @@ async function copyTemplateFiles(templateDirectory, targetDirectory) {
     const spinner = ora();
     spinner.start('Copying project files...');
     try {
-        const result = copy(templateDirectory, targetDirectory, {
+        await copy(templateDirectory, targetDirectory, {
             clobber: false
         });
-        spinner.succeed('Project files ready.');
+        spinner.stop();
     } catch (e) {
         spinner.fail(e.message);
     }
 }
 
-export function getDockerImages(composeFilePath) {
-    const services = yaml.safeLoad(fs.readFileSync(composeFilePath, 'utf-8'))
-        .services;
-    return Object.keys(services)
-        .filter(s => !!services[s].image)
-        .map(s => services[s].image);
+export async function checkDockerImages(dir) {
+    try {
+        const images = getServices(getComposeFilePath(fixDir(dir)));
+        const docker = new Docker();
+        const result = await docker.command('inspect botfront/botfront');
+        const inspection = JSON.parse(result.raw);
+        return inspection.length === images.length;
+    } catch (e) {
+        return false
+    } 
 }
 
-export async function pullDockerImages(images) {
+export async function pullDockerImages(images, 
+        message = 'Downloading Docker images... This can take a while, why don\'t you grab a ☕ and read the http://docs.botfront.io 😉?', 
+        spinner) {
+    const shouldDownload = await checkDockerImages();
+    if (!shouldDownload) return;
     const docker = new Docker({});
-    const spinner = ora(
-        'Downloading Docker images... This can take up to 10 minutes. Grab a ☕ and read the docs 😉'
-    );
-    spinner.start();
+    spinner.start(message);
     const pullPromises = images.map(i => docker.command(`pull ${i}`));
     try {
         await Promise.all(pullPromises);
@@ -52,6 +59,7 @@ export async function pullDockerImages(images) {
 }
 
 export async function createProject(targetDirectory) {
+    shell.cd(targetDirectory);
     const currentFileUrl = import.meta.url;
     const templateDir = path.resolve(
         new URL(currentFileUrl).pathname,
@@ -61,37 +69,34 @@ export async function createProject(targetDirectory) {
         await access(templateDir, fs.constants.R_OK);
     } catch (err) {
         console.log(templateDir)
-        console.error(`${chalk.green.bold('ERROR')} Invalid template name: ${err}`);
+        console.error(`${chalk.green.bold('ERROR')} Invalid template path: ${err}`);
         process.exit(1);
     }
+
     try {
         await copyTemplateFiles(templateDir, targetDirectory);
-        await pullDockerImages(
-            getDockerImages(`${templateDir}/docker-compose.yml`)
-        );
+        await pullDockerImages(getServices(), ora());
         
-        console.log(`${chalk.green.bold('DONE')} Your project is ready!`);
+        console.log(`\n\n        🎉 🎈 ${chalk.green.bold('Your project is READY')}! 🎉 🎈\n`);
+        const message = `Useful commands:\n\n` +
+                        `\u2022 Run ${chalk.cyan.bold('botfront up')} to start your project \n` +
+                        `\u2022 Run ${chalk.cyan.bold('botfront --help')} to see all you can do with the CLI\n` +
+                        `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation`;
+        console.log(boxen(message) + '\n');
+
         const installedHere = process.cwd() === targetDirectory;
         if (!installedHere) {
-            const cd = `cd ${targetDirectory}`;
-            console.log(`run ${chalk.cyan.bold(cd)} to go to your project.`);
+            shell.cd(targetDirectory);
         }
-        console.log(
-            `${installedHere ? 'Then run' : 'Run'} ${chalk.cyan.bold(
-                'botfront up'
-            )} to start your project.`
-        );
-        const { current } = await inquirer.prompt({
+        
+        const { start } = await inquirer.prompt({
             type: 'confirm',
-            name: 'current',
-            message:
-                'Do you want to start your project now?',
+            name: 'start',
+            message: `${chalk.green.bold('Start your project?')}`,
             default: true
         });
-        if (current && installedHere) dockerComposeUp();
-        else if (current) {
-            dockerComposeUp(null, targetDirectory)
-        }
+
+        if (start) dockerComposeUp({ verbose: false })
     } catch (e) {
       console.error(`${chalk.red.bold('ERROR')} ${e}`);
       process.exit(1)
