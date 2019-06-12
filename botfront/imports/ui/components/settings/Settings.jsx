@@ -26,6 +26,7 @@ class Settings extends React.Component {
                 const { default: def } = await import(`./${orchestrator}/Settings.${orchestrator}`);
                 orchestratorMenuItems = def;
             } catch (e) {
+                // eslint-disable-next-line no-console
                 if (!process.env.production) console.log(e);
             }
         }
