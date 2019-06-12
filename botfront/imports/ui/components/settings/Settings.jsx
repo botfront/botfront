@@ -60,8 +60,8 @@ class Settings extends React.Component {
                 render: () => <Tab.Pane><Endpoints orchestrator={orchestrator} /></Tab.Pane>,
             },
             {
-                menuItem: <Menu.Item className='project-settings-menu-instances' icon='server' content='Instances' key='Instances' />,
-                render: () => <Tab.Pane as='div'><Instances /></Tab.Pane>,
+                menuItem: <Menu.Item className='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
+                render: () => <Tab.Pane><Instances /></Tab.Pane>,
             },
             {
                 menuItem: <Menu.Item className='project-settings-menu-core-policy' icon='newspaper' content='Core Policy' key='Core Policy' />,

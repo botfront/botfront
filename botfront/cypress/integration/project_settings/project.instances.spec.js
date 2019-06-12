@@ -12,11 +12,10 @@ describe('Project Instances', function() {
     describe('Instances', function() {
         it('should be able to edit already created instances', function() {
             cy.visit(`/project/${this.bf_project_id}/settings`);
-            cy.contains('Instances').click();
-            cy.get('[data-cy=edit-instance]').eq(0).click();
-            cy.get('[name=name]').type('{selectAll}{del}New Test Name');
+            cy.contains('Instance').click();
+            cy.get('[name=name]').type('{selectAll}{del}Default instance');
             cy.get('[data-cy=save-instance]').click();
-            cy.contains('New Test Name');
+            cy.get('.s-alert-success').should('be.visible');
         });
     });
 });
