@@ -396,7 +396,7 @@ NLUExampleText.propTypes = {
     showIntent: PropTypes.bool,
     showLabels: PropTypes.bool,
     withMargin: PropTypes.bool,
-    onSave: PropTypes.func.isRequired,
+    onSave: PropTypes.func,
     editable: PropTypes.bool,
     disablePopup: PropTypes.bool,
 };
@@ -409,6 +409,7 @@ NLUExampleText.defaultProps = {
     withMargin: false,
     editable: false,
     disablePopup: false,
+    onSave: () => {},
 };
 
 export default NLUExampleText;
