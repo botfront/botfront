@@ -35,6 +35,7 @@ class ProjectChat extends React.Component {
                     this.setState({ noCore: true });
                     return;
                 }
+                // eslint-disable-next-line no-useless-escape
                 const matches = item.host.match(/^https?:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
                 const realHost = matches && matches[1];
                 const hostPath = item.host.split(realHost)[1];
@@ -61,7 +62,7 @@ class ProjectChat extends React.Component {
                         text: model.language,
                         value: model.language,
                     })),
-                    selectedLanguage: res[0].language,
+                    selectedLanguage: res[0] ? res[0].language : '',
                 });
             }),
         );
