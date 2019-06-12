@@ -60,7 +60,7 @@ const getConfig = (model) => {
     return yaml.dump(config);
 };
 
-const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withChitChat = true, chitChatFunc = () => [], withGazette = true) => {
+const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
     if (!model.training_data) {
         throw Error('Property training_data of model argument is required');
     }
@@ -100,14 +100,14 @@ const getStoriesAndDomain = (projectId) => {
     const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up\n  - ${mappingTriggers}`;
     const storyGroups = StoryGroups.find(
         { projectId },
-        { stories: 1 }
-    ).fetch().map(group => group.stories.join('\n'));
+        { stories: 1 },
+    ).fetch().map(group => group.stories.map(story => story.story).join('\n'));
     const stories = [mappingStory, ...storyGroups];
     return {
         stories: stories.join('\n'),
         domain: extractDomain(stories),
     };
-}
+};
 
 if (Meteor.isServer) {
     export const parseNlu = async (instance, examples, nolog = true) => {
@@ -140,7 +140,6 @@ if (Meteor.isServer) {
 
             throw new Meteor.Error('Error when parsing NLU');
         } catch (e) {
-            console.log(e);
             if (e instanceof Meteor.Error) {
                 throw e;
             } else {
@@ -235,7 +234,7 @@ if (Meteor.isServer) {
                 axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
                 const url = `${instance.host}/model/test/intents?${qs}`;
                 const results = Promise.await(client.post(url, examples));
-                console.log(results);
+
                 if (results.data.entity_evaluation) {
                     const ee = results.data.entity_evaluation;
                     Object.keys(ee).forEach((key) => {
@@ -267,7 +266,6 @@ if (Meteor.isServer) {
                     error = new Meteor.Error('500', e);
                 }
 
-                console.log(error);
                 throw error;
             }
         },
