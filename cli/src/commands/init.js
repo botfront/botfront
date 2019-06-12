@@ -10,7 +10,7 @@ import ora from 'ora';
 import inquirer from 'inquirer';
 import boxen from 'boxen';
 import { dockerComposeUp } from './services';
-import { getComposeFilePath, fixDir, getServices } from '../utils';
+import { getComposeFilePath, fixDir, getServices, updateProjectFile, generateDockerCompose } from '../utils';
 
 
 const access = promisify(fs.access);
@@ -23,29 +23,17 @@ async function copyTemplateFiles(templateDirectory, targetDirectory) {
         await copy(templateDirectory, targetDirectory, {
             clobber: false
         });
+        updateProjectFile()
+        generateDockerCompose()
         spinner.stop();
     } catch (e) {
         spinner.fail(e.message);
     }
 }
 
-export async function checkDockerImages(dir) {
-    try {
-        const images = getServices(getComposeFilePath(fixDir(dir)));
-        const docker = new Docker();
-        const result = await docker.command('inspect botfront/botfront');
-        const inspection = JSON.parse(result.raw);
-        return inspection.length === images.length;
-    } catch (e) {
-        return false
-    } 
-}
-
 export async function pullDockerImages(images, 
         message = 'Downloading Docker images... This can take a while, why don\'t you grab a ☕ and read the http://docs.botfront.io 😉?', 
         spinner) {
-    const shouldDownload = await checkDockerImages();
-    if (!shouldDownload) return;
     const docker = new Docker({});
     spinner.start(message);
     const pullPromises = images.map(i => docker.command(`pull ${i}`));

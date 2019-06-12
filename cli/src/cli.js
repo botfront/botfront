@@ -6,7 +6,7 @@ import shell from 'shelljs';
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
-import { createProject, checkDockerImages } from './commands/init';
+import { createProject } from './commands/init';
 import {
     dockerComposeUp,
     dockerComposeDown,
@@ -16,10 +16,10 @@ import {
     dockerComposeRestart,
     stopRunningProjects,
 } from './commands/services';
-import { wait, isProjectDir, verifySystem } from './utils';
+import { wait, isProjectDir, verifySystem, getBotfrontVersion } from './utils';
 
 const program = require('commander');
-const version = JSON.parse(fs.readFileSync(path.join(__dirname, '../../botfront/package.json'))).version;
+const version = getBotfrontVersion();
 
 program
     .version(version)

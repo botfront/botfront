@@ -4,6 +4,8 @@ import fs from 'fs';
 import axios from 'axios';
 import yaml from 'js-yaml';
 export const BF_CONFIG_DIR = '.botfront';
+export const BF_CONFIG_FILE = 'botfront.yml';
+export const DOCKER_COMPOSE_TEMPLATE_FILENAME = 'docker-compose-template.yml';
 export const DOCKER_COMPOSE_FILENAME = 'docker-compose.yml';
 import shell from 'shelljs';
 import { Docker } from 'docker-cli-js';
@@ -11,6 +13,30 @@ import chalk from 'chalk';
 import check from 'check-node-version';
 export function fixDir(dir) {
     return dir ? dir : process.cwd();
+}
+
+export async function updateProjectFile(dir) {
+    const config = getProjectConfig(dir);
+    config.version = getBotfrontVersion();
+    config.tags.current = JSON.parse(JSON.stringify(config.tags.default)); // deep copy
+    fs.writeFileSync(getProjectInfoFilePath(dir), yaml.safeDump(config));
+}
+
+export async function generateDockerCompose(dir) {
+    const dc = getComposeFile(dir, DOCKER_COMPOSE_TEMPLATE_FILENAME);
+    const config = getProjectConfig(dir);
+    const dcCopy = JSON.parse(JSON.stringify(dc));
+    Object.keys(dc.services).forEach( service => {
+
+        const image = dcCopy.services[service].image;
+        const splitTag = image.split(':');
+        dcCopy.services[service].image = `${splitTag.length > 1 ? splitTag[0] : image}:${config.tags.current[service]}`;
+    })
+    fs.writeFileSync(getComposeFilePath(dir), yaml.safeDump(dcCopy));
+}
+
+export function getProjectConfig(dir) {
+    return yaml.safeLoad(fs.readFileSync(getProjectInfoFilePath(dir), 'utf-8'));
 }
 
 export async function verifySystem() {
@@ -22,16 +48,28 @@ export async function verifySystem() {
     if (!results.versions.node.isSatisfied) throw `You must upgrade your Node.js installation to use Botfront. Please visit ${chalk.green('https://nodejs.org/en/download/')}`;
 }
 
-export function getComposeFilePath(dir) {
-    return path.join(fixDir(dir), BF_CONFIG_DIR, DOCKER_COMPOSE_FILENAME);
+export function getBotfrontVersion() {
+    return JSON.parse(fs.readFileSync(path.join(__dirname, '../../botfront/package.json'))).version;
+}
+
+export function getComposeFilePath(dir, fileName = DOCKER_COMPOSE_FILENAME) {
+    return path.join(fixDir(dir), BF_CONFIG_DIR, fileName);
+}
+
+export function getProjectInfoDirPath(dir) {
+    return path.join(fixDir(dir), BF_CONFIG_DIR);
+}
+
+export function getProjectInfoFilePath(dir) {
+    return path.join(fixDir(dir), BF_CONFIG_DIR, BF_CONFIG_FILE );
 }
 
 export function isProjectDir(dir) {
     return fs.existsSync(getComposeFilePath(fixDir(dir)));
 }
 
-export function getComposeFile(dir) {
-    return yaml.safeLoad(fs.readFileSync(getComposeFilePath(dir), 'utf-8'));
+export function getComposeFile(dir, fileName) {
+    return yaml.safeLoad(fs.readFileSync(getComposeFilePath(dir, fileName), 'utf-8'));
 }
 
 export function getServices(dir) {

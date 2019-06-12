@@ -3,25 +3,29 @@
 [Botfront](https://github.com/botfront/botfront) is an open-source Chatbot platform build on top of Rasa. 
 The Botfront documentation can be found [here](https://docs.botfront.io)
 
-## Usage
+
 
 ### Installation
 
 ```bash
 npm install -g botfront
+botfront
 ```
 
-### Create a Botfront project
+## Usage
+
+Interactive shell:
+
 ```bash
-botfront init
+botfront
 ```
 
-### Start a project
+List of all commands:
+
 ```bash
-botfront up
+botfront -h
 ```
 
-### Help
-```bash
-botfront --help
-```
+## Advanced
+
+To customize Docker image tags, edit the `current` section in `.botfront/botfront.yml`

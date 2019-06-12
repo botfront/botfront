@@ -1,0 +1,7 @@
+tags:
+  default:
+    botfront: latest
+    botfront-api: latest
+    rasa: latest
+    duckling: latest
+    mongo: latest

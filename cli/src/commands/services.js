@@ -7,7 +7,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import boxen from 'boxen';
 import { pullDockerImages } from './init';
-import { fixDir, isProjectDir, getComposeFilePath, getServices, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize } from '../utils';
+import { fixDir, isProjectDir, getComposeFilePath, getServices, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize, generateDockerCompose } from '../utils';
 
 export async function dockerComposeUp({ verbose }, workingDir) {
     shell.cd(fixDir(workingDir));
@@ -17,6 +17,7 @@ export async function dockerComposeUp({ verbose }, workingDir) {
     }
 
     const spinner = ora('Starting Botfront...')
+    generateDockerCompose();
     spinner.start();
     await pullDockerImages(getServices(), 'Downloading Docker images...', spinner)
     await stopRunningProjects("Another project is running. Shutting it down first...", null, null, spinner);
