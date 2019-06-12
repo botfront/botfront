@@ -20,35 +20,28 @@ class ProjectChat extends React.Component {
     }
 
     componentDidMount() {
-        this.loadCoreInstance();
+        this.loadInstance();
         this.loadAvailableLanguages();
     }
 
-    loadCoreInstance = () => {
-        const { projectId } = this.props;
-        Meteor.call(
-            'instance.findByType',
-            projectId,
-            'core',
-            wrapMeteorCallback((err, item) => {
-                if (!item) {
-                    this.setState({ noCore: true });
-                    return;
-                }
-                // eslint-disable-next-line no-useless-escape
-                const matches = item.host.match(/^https?:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
-                const realHost = matches && matches[1];
-                const hostPath = item.host.split(realHost)[1];
-                this.setState({
-                    socketUrl: realHost,
-                    path:
-                        realHost
-                        && (hostPath.substr(-1) === '/'
-                            ? `${hostPath}socket.io/`
-                            : `${hostPath}/socket.io/`),
-                });
-            }),
-        );
+    loadInstance = () => {
+        const { projectId, instance } = this.props;
+        if (!instance) {
+            this.setState({ noInstance: true });
+            return;
+        }
+        // eslint-disable-next-line no-useless-escape
+        const matches = instance.host.match(/^https?:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
+        const realHost = matches && matches[1];
+        const hostPath = instance.host.split(realHost)[1];
+        this.setState({
+            socketUrl: realHost,
+            path:
+                realHost
+                && (hostPath.substr(-1) === '/'
+                    ? `${hostPath}socket.io/`
+                    : `${hostPath}/socket.io/`),
+        });
     };
 
     loadAvailableLanguages = () => {
@@ -91,7 +84,7 @@ class ProjectChat extends React.Component {
 
     render() {
         const {
-            key, socketUrl, languageOptions, selectedLanguage, noCore, path,
+            key, socketUrl, languageOptions, selectedLanguage, noInstance, path,
         } = this.state;
         const { triggerChatPane, projectId } = this.props;
         return (
@@ -115,16 +108,16 @@ class ProjectChat extends React.Component {
                                     <Icon
                                         name='redo'
                                         color='grey'
-                                        link={!noCore}
+                                        link={!noInstance}
                                         onClick={this.handleReloadChat}
-                                        disabled={noCore}
+                                        disabled={noInstance}
                                         data-cy='restart-chat'
                                     />
                                 )}
                                 content='Restart the conversation'
                                 position='bottom right'
                                 className='redo-chat-popup'
-                                disabled={noCore}
+                                disabled={noInstance}
                             />
                         </Menu.Item>
                         <Menu.Item>
@@ -153,7 +146,7 @@ class ProjectChat extends React.Component {
                         path={path}
                     />
                 )}
-                {noCore && (
+                {noInstance && (
                     <Message
                         content={(
                             <div>
@@ -167,7 +160,7 @@ class ProjectChat extends React.Component {
                                 >
                                     create{' '}
                                 </Link>
-                                an instance of type <b>core</b> to enable the chat window.
+                                a valid instance of Rasa to enable the chat window.
                             </div>
                         )}
                         className='no-core-message'
@@ -183,6 +176,7 @@ class ProjectChat extends React.Component {
 ProjectChat.propTypes = {
     projectId: PropTypes.string.isRequired,
     triggerChatPane: PropTypes.func.isRequired,
+    instance: PropTypes.object.isRequired,
 };
 
 export default ProjectChat;
