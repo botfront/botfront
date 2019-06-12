@@ -35,6 +35,7 @@ class ProjectChat extends React.Component {
                     this.setState({ noCore: true });
                     return;
                 }
+                // eslint-disable-next-line no-useless-escape
                 const matches = item.host.match(/^https?:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
                 const realHost = matches && matches[1];
                 const hostPath = item.host.split(realHost)[1];
@@ -61,7 +62,7 @@ class ProjectChat extends React.Component {
                         text: model.language,
                         value: model.language,
                     })),
-                    selectedLanguage: res.length ? res[0].language : '',
+                    selectedLanguage: res[0] ? res[0].language : '',
                 });
             }),
         );
@@ -144,16 +145,7 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                {selectedLanguage === '' && (
-                    <Message warning className='no-language' data-cy='no-language'>
-                        There is no <Icon name='wifi' /><b>online</b> NLU model, so your chatbot cannot understand natural
-                        language. However you can use dialog acts like <code>/intent</code> or{' '}
-                        <code>
-                            /intent{'{'}&quot;entity&quot;:&quot;value&quot;{'}'}
-                        </code>
-                    </Message>
-                )}
-                {socketUrl && (selectedLanguage || selectedLanguage === '') && path && (
+                {socketUrl && path && (
                     <Chat
                         socketUrl={socketUrl}
                         key={key}
