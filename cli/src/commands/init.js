@@ -16,8 +16,7 @@ import { getComposeFilePath, fixDir, getServices, updateProjectFile, generateDoc
 const access = promisify(fs.access);
 const copy = promisify(ncp);
 
-async function copyTemplateFiles(templateDirectory, targetDirectory) {
-    const spinner = ora();
+async function copyTemplateFiles(templateDirectory, targetDirectory, spinner = ora()) {
     spinner.start('Copying project files...');
     try {
         await copy(templateDirectory, targetDirectory, {
@@ -33,16 +32,23 @@ async function copyTemplateFiles(templateDirectory, targetDirectory) {
 
 export async function pullDockerImages(images, 
         message = 'Downloading Docker images... This can take a while, why don\'t you grab a ☕ and read the http://docs.botfront.io 😉?', 
-        spinner) {
+        spinner = ora()) {
     const docker = new Docker({});
-    spinner.start(message);
+    spinner.start('Checking Docker images...');
+    const download = false;
+    const timeout = setTimeout(() => {
+        spinner.start(message);
+        download = true;
+    }, 3000);
     const pullPromises = images.map(i => docker.command(`pull ${i}`));
     try {
         await Promise.all(pullPromises);
-        spinner.succeed('Docker images downloaded.');
+        if (download) return spinner.succeed('Docker images ready.');
     } catch (e) {
         spinner.fail('Could not download Docker images');
         throw(e);
+    } finally {
+        clearTimeout(timeout);
     }
 }
 
@@ -63,7 +69,7 @@ export async function createProject(targetDirectory) {
 
     try {
         await copyTemplateFiles(templateDir, targetDirectory);
-        await pullDockerImages(getServices(), ora());
+        await pullDockerImages(getServices());
         
         console.log(`\n\n        🎉 🎈 ${chalk.green.bold('Your project is READY')}! 🎉 🎈\n`);
         const message = `Useful commands:\n\n` +
