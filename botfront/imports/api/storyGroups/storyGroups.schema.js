@@ -1,6 +1,5 @@
 import SimpleSchema from 'simpl-schema';
 
-
 export const StorySchema = new SimpleSchema({
     story: {
         type: String,

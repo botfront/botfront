@@ -1,4 +1,12 @@
-import { Container, Placeholder, Menu, Icon, Popup, Label } from 'semantic-ui-react';
+import {
+    Container,
+    Placeholder,
+    Menu,
+    Tab,
+    Icon,
+    Popup,
+    Label,
+} from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -9,6 +17,7 @@ import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../api/instances/instances.collection';
 import { Projects } from '../../../api/project/project.collection';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
+import { PageMenu } from '../utils/Utils';
 
 const Stories = React.lazy(() => import('./Stories'));
 
@@ -18,61 +27,112 @@ function StoriesContainer(props) {
         ready,
         stories,
         instance,
-        project: {
-            training: {
-                endTime,
-                status,
-            } = {},
-        },
+        project: { training: { endTime, status } = {} },
         project,
     } = props;
+
+    function getTabs() {
+        return [
+            {
+                menuItem: 'Stories',
+                render: () => (
+                    <React.Suspense fallback={<RenderPlaceHolder />}>
+                        {ready ? (
+                            <Stories
+                                projectId={projectId}
+                                stories={stories}
+                                ready={ready}
+                            />
+                        ) : (
+                            <RenderPlaceHolder />
+                        )}
+                    </React.Suspense>
+                ),
+            },
+            {
+                menuItem: 'Slots',
+                render: () => <div>Slots</div>,
+            },
+        ];
+    }
+
     function RenderPlaceHolder() {
         return (
-            <Container>
-                <Placeholder>
-                    <Placeholder.Paragraph>
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                    </Placeholder.Paragraph>
-                    <Placeholder.Paragraph>
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                    </Placeholder.Paragraph>
-                </Placeholder>
-            </Container>
+            <Placeholder>
+                <Placeholder.Paragraph>
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                </Placeholder.Paragraph>
+                <Placeholder.Paragraph>
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                </Placeholder.Paragraph>
+            </Placeholder>
         );
     }
 
     return (
-        <>  
-            <Menu pointing secondary style={{ background: '#fff' }}>
-                <Menu.Item>
-                    <Menu.Header as='h3'>
-                        <Icon name='book' />
-                        {'Stories'}
-                    </Menu.Header>
-                </Menu.Item>
-                {props.children}
+        <>
+            <PageMenu title='Stories' icon='book'>
                 <Menu.Menu position='right'>
                     <Menu.Item>
                         {!isTraining(project) && status === 'success' && (
                             <Popup
                                 trigger={(
-                                    <Icon size='small' name='check' fitted circular style={{ color: '#2c662d' }} />
+                                    <Icon
+                                        size='small'
+                                        name='check'
+                                        fitted
+                                        circular
+                                        style={{ color: '#2c662d' }}
+                                    />
                                 )}
-                                content={<Label basic content={<div>{`Trained ${moment(endTime).fromNow()}`}</div>} style={{ borderColor: '#2c662d', color: '#2c662d' }} />}
+                                content={(
+                                    <Label
+                                        basic
+                                        content={(
+                                            <div>
+                                                {`Trained ${moment(
+                                                    endTime,
+                                                ).fromNow()}`}
+                                            </div>
+                                        )}
+                                        style={{
+                                            borderColor: '#2c662d',
+                                            color: '#2c662d',
+                                        }}
+                                    />
+                                )}
                             />
                         )}
                         {!isTraining(project) && status === 'failure' && (
                             <Popup
                                 trigger={(
-                                    <Icon size='small' name='warning' color='red' fitted circular />
+                                    <Icon
+                                        size='small'
+                                        name='warning'
+                                        color='red'
+                                        fitted
+                                        circular
+                                    />
                                 )}
-                                content={<Label basic color='red' content={<div>{`Training failed ${moment(endTime).fromNow()}`}</div>} />}
+                                content={(
+                                    <Label
+                                        basic
+                                        color='red'
+                                        content={(
+                                            <div>
+                                                {`Training failed ${moment(
+                                                    endTime,
+                                                ).fromNow()}`}
+                                            </div>
+                                        )}
+                                    />
+                                )}
                             />
                         )}
                     </Menu.Item>
@@ -80,18 +140,13 @@ function StoriesContainer(props) {
                         <NLUTrainButton project={project} instance={instance} />
                     </Menu.Item>
                 </Menu.Menu>
-            </Menu>
-            <React.Suspense fallback={<RenderPlaceHolder />}>
-                {ready ? (
-                    <Stories
-                        projectId={projectId}
-                        stories={stories}
-                        ready={ready}
-                    />
-                ) : (
-                    <RenderPlaceHolder />
-                )}
-            </React.Suspense>
+            </PageMenu>
+            <Container>
+                <Tab
+                    menu={{ pointing: true, secondary: true }}
+                    panes={getTabs()}
+                />
+            </Container>
         </>
     );
 }
@@ -113,13 +168,14 @@ export default withTracker((props) => {
     const storiesHandler = Meteor.subscribe('storiesGroup', projectId);
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
-    const {
-        training,
-    } = Projects.findOne({ _id: projectId }, {
-        fields: {
-            training: 1,
+    const { training } = Projects.findOne(
+        { _id: projectId },
+        {
+            fields: {
+                training: 1,
+            },
         },
-    });
+    );
     const instance = Instances.findOne({ projectId });
 
     const project = {
@@ -128,7 +184,10 @@ export default withTracker((props) => {
     };
 
     return {
-        ready: storiesHandler.ready() && projectsHandler.ready() && instancesHandler.ready(),
+        ready:
+            storiesHandler.ready()
+            && projectsHandler.ready()
+            && instancesHandler.ready(),
         stories: StoryGroups.find({}).fetch(),
         instance,
         project,

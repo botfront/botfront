@@ -1,4 +1,4 @@
-import { Container, Grid, Message } from 'semantic-ui-react';
+import { Grid, Message } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -132,40 +132,38 @@ class Stories extends React.Component {
             displaySaved,
         } = this.state;
         return (
-            <Container className='stories-container'>
-                <Grid>
-                    <Grid.Column width={4}>
-                        {!validationErrors.every(error => !error.length) && (
-                            <Message
-                                warning
-                                content="Your changes haven't been saved. Correct errors first."
-                            />
-                        )}
-                        <ItemsBrowser
-                            data={stories}
-                            allowAddition
-                            index={storyIndex}
-                            onAdd={this.handleAddStoryGroup}
-                            onChange={this.handleMenuChange}
-                            nameAccessor='name'
-                            saving={saving}
+            <Grid className='stories-container'>
+                <Grid.Column width={4}>
+                    {!validationErrors.every(error => !error.length) && (
+                        <Message
+                            warning
+                            content="Your changes haven't been saved. Correct errors first."
                         />
-                    </Grid.Column>
-                    <Grid.Column width={12}>
-                        {displaySaved && <ChangesSaved />}
-                        {stories[storyIndex] ? (
-                            <StoriesEditor
-                                stories={selectedStories}
-                                onChange={this.handleStoriesChange}
-                                disabled={saving}
-                                errors={validationErrors}
-                            />
-                        ) : (
-                            <Message content='select or create a story group' />
-                        )}
-                    </Grid.Column>
-                </Grid>
-            </Container>
+                    )}
+                    <ItemsBrowser
+                        data={stories}
+                        allowAddition
+                        index={storyIndex}
+                        onAdd={this.handleAddStoryGroup}
+                        onChange={this.handleMenuChange}
+                        nameAccessor='name'
+                        saving={saving}
+                    />
+                </Grid.Column>
+                <Grid.Column width={12}>
+                    {displaySaved && <ChangesSaved />}
+                    {stories[storyIndex] ? (
+                        <StoriesEditor
+                            stories={selectedStories}
+                            onChange={this.handleStoriesChange}
+                            disabled={saving}
+                            errors={validationErrors}
+                        />
+                    ) : (
+                        <Message content='select or create a story group' />
+                    )}
+                </Grid.Column>
+            </Grid>
         );
     }
 }
