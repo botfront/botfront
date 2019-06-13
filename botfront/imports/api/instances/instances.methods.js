@@ -7,11 +7,10 @@ import yaml from 'js-yaml';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { Instances } from './instances.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
-// import { getTrainingDataInRasaFormat } from '../../lib/nlu_methods';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { CorePolicies } from '../core_policies';
 import { getAxiosError } from '../../lib/utils';
-import { extractDomain, StoryValidator } from '../../lib/story_validation.js';
+import { extractDomain } from '../../lib/story_validation.js';
 import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
 import { Evaluations } from '../nlu_evaluation';
 
@@ -86,7 +85,7 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
     return { rasa_nlu_data: { common_examples, entity_synonyms, gazette } };
 };
 
-const getStoriesAndDomain = (projectId) => {
+export const getStoriesAndDomain = (projectId) => {
     const { policies } = yaml.safeLoad(
         CorePolicies.findOne(
             { projectId }, { policies: 1 },
@@ -273,22 +272,6 @@ if (Meteor.isServer) {
 
                 throw error;
             }
-        },
-
-        'extractDomainFromStories'(storyGroup) {
-            check(storyGroup, Array);
-            // StoryGroups.simpleSchema().validate(storyGroup, { check });
-            return extractDomain(storyGroup);
-        },
-
-        'viewStoryExceptions'(story) {
-            check(story, String);
-            const val = new StoryValidator(story);
-            val.validateStories();
-            return val.exceptions.map(exception => ({
-                line: exception.line,
-                code: exception.code,
-            }));
         },
     });
 }
