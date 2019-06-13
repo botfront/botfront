@@ -20,6 +20,7 @@ import { Credentials } from '../../api/credentials';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
+import { Instances } from '../../api/instances/instances.collection';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -95,7 +96,7 @@ class Project extends React.Component {
 
     render() {
         const {
-            children, projectId, loading, credentials, renderLegacyModels,
+            children, projectId, loading, credentials, renderLegacyModels, instance,
         } = this.props;
         const {
             showIntercom, intercomId, showChatPane, resizingChatPane,
@@ -148,7 +149,7 @@ class Project extends React.Component {
                                 {children}
                                 {!showChatPane
                                     && credentials
-                                    && credentials['bot.socketio.SocketIOInput'] && (
+                                    && credentials['rasa_addons.core.channels.Webchat'] && (
                                     <Popup
                                         trigger={(
                                             <Button
@@ -169,6 +170,7 @@ class Project extends React.Component {
                         {showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
                                 <ProjectChat
+                                    instance={instance}
                                     triggerChatPane={this.triggerChatPane}
                                     projectId={projectId}
                                 />
@@ -188,10 +190,12 @@ Project.propTypes = {
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     credentials: PropTypes.object,
+    instance: PropTypes.object,
 };
 
 Project.defaultProps = {
     credentials: null,
+    instance: null,
 };
 
 const ProjectContainer = withTracker((props) => {
@@ -204,8 +208,10 @@ const ProjectContainer = withTracker((props) => {
     projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
+    const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const ready = Meteor.user()
         && credentialsHandler.ready()
+        && instanceHandler.ready()
         && (projectHandler
             ? projectHandler.ready() && nluModelsHandler.ready()
             : nluModelsHandler.ready());
@@ -222,7 +228,9 @@ const ProjectContainer = withTracker((props) => {
     }
     
     let credentials = null;
+    let instance = null;
     if (ready) {
+        instance = Instances.findOne({ projectId });
         credentials = Credentials.findOne({ projectId });
         credentials = credentials && yaml.safeLoad(credentials.credentials);
     }
@@ -237,6 +245,7 @@ const ProjectContainer = withTracker((props) => {
         projectId,
         credentials,
         renderLegacyModels,
+        instance,
     };
 })(windowSize(Project));
 
