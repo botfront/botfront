@@ -197,8 +197,6 @@ if (Meteor.isServer) {
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
                 
-                console.log(config)
-
                 const { stories, domain } = getStoriesAndDomain();
                 const payload = {
                     domain,
