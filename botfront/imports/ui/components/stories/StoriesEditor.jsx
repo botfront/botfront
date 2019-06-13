@@ -1,5 +1,5 @@
 import {
-    Icon, Container, Popup, Segment, Message,
+    Icon, Container, Popup, Segment,
 } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
@@ -88,12 +88,6 @@ function StoriesEditor(props) {
 
     return (
         <>
-            {!errors.every(error => !error.length) && (
-                <Message
-                    warning
-                    content="Your changes haven't been saved. Correct errors first."
-                />
-            )}
             {editors}
             <Container textAlign='center'>
                 <Popup
