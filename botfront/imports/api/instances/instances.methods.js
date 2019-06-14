@@ -203,6 +203,7 @@ if (Meteor.isServer) {
                     nlu,
                     config,
                     out: process.env.MODELSPATH,
+                    fixed_model_name: projectId,
                     // force: true,
                 };
 
