@@ -79,6 +79,14 @@ export function getServices(dir) {
         .map(s => services[s].image);
 }
 
+export async function getMissingImgs(dir) {
+    const docker = new Docker({});
+    const availableImgs = await docker.command(`images --format "{{.Repository}}:{{.Tag}}"`).then(
+        images => images.raw.split('\n')
+    );
+    return getServices().filter(service => !availableImgs.includes(service));
+}
+
 export function getServiceNames(dir) {
     const services = getComposeFile(dir).services;
     return Object.keys(services);

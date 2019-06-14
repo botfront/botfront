@@ -35,7 +35,7 @@ export async function pullDockerImages(images,
         spinner = ora()) {
     const docker = new Docker({});
     spinner.start('Checking Docker images...');
-    const download = false;
+    let download = false;
     const timeout = setTimeout(() => {
         spinner.start(message);
         download = true;
