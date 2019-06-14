@@ -29,13 +29,13 @@ program
 
 program
     .command('init')
-    .description('Creates a new Botfront project.')
+    .description('Create a new Botfront project.')
     .action(initCommand);
 
 program
     .command('up')
     .option('-v, --verbose', 'Display Docker Compose start-up logs')
-    .description('Starts a Botfront project.  Must be executed in your project\'s directory')
+    .description('Start a Botfront project.  Must be executed in your project\'s directory')
     .action(dockerComposeUp);
 
 program
@@ -57,12 +57,12 @@ program
 
 program
     .command('stop')
-    .description('Stops a Botfront service (interactive). Must be executed in your project\'s directory')
+    .description('Stop a Botfront service (interactive). Must be executed in your project\'s directory')
     .action(dockerComposeStop);
  
 program
     .command('start')
-    .description('Starts a Botfront service (interactive). Must be executed in your project\'s directory')
+    .description('Start a Botfront service (interactive). Must be executed in your project\'s directory')
     .action(dockerComposeStart);
 
 program
@@ -140,11 +140,11 @@ async function general() {
         await verifySystem()
         const { containers, networks, volumes } = await getRunningDockerResources()
         if (isProjectDir()){
-            choices.push({ title: 'Start project', cmd: () => dockerComposeUp({ verbose: false })});
-            
-            if (containers.length){
+            if (containers && containers.length){
                 choices.push({ title: 'Stop running project', cmd: () => dockerComposeDown({ verbose: false }) });
-            } 
+            } else {
+                choices.push({ title: 'Start project', cmd: () => dockerComposeUp({ verbose: false })});
+            }
             
         } else {
             choices.push({ title: 'Create a new project', cmd: initCommand });
