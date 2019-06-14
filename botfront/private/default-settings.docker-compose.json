@@ -8,10 +8,10 @@
             ]
         },
         "private": {
-            "bfApiHost": "{BF_API_HOST}",
-            "defaultEndpoints": "nlg:\n  url: {BF_API_HOST}/project/{BF_PROJECT_ID}/nlg\naction_endpoint:\n  url: {ACTIONS_URL}\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: {BF_API_HOST}\n  project_id: {BF_PROJECT_ID}",
+            "bfApiHost": "http://botfront-api:8080",
+            "defaultEndpoints": "nlg:\n  url: '{BF_API_HOST}/project/{BF_PROJECT_ID}/nlg'\naction_endpoint:\n  url: '{ACTIONS_URL}'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: '{BF_API_HOST}'\n  project_id: '{BF_PROJECT_ID}'",
             "defaultCredentials": "rasa_addons.core.channels.Webchat:\n  session_persistence: true",
-            "defaultPolicies": "policies:\n  - name: rasa_addons.core.policies.BotfrontMappingPolicy\n    triggers:\n      - trigger: '^chitchat\..+|^basics\..+'\n        action: 'action_botfront_mapping'\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy"
+            "defaultPolicies": "policies:\n  - name: rasa_addons.core.policies.BotfrontMappingPolicy\n    triggers:\n      - trigger: '^chitchat\\..+|^basics\\..+'\n        action: 'action_botfront_mapping'\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy"
         }
     }
 }
