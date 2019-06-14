@@ -400,7 +400,14 @@ const NLUDataLoaderContainer = withTracker((props) => {
     // for handling '/project/:project_id/nlu/model/:model_id'
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const settingsHandler = Meteor.subscribe('settings');
-    const modelHandler = Meteor.subscribe('nlu_models', modelId);
+    let modelHandler = {
+        ready() {
+            return false;
+        },
+    };
+    if (modelId) {
+        modelHandler = Meteor.subscribe('nlu_models', modelId);
+    }
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const ready = instancesHandler.ready() && settingsHandler.ready() && modelHandler.ready() && projectsHandler.ready();
     const model = NLUModels.findOne({ _id: modelId });
