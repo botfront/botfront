@@ -15,6 +15,7 @@ import {
     dockerComposeStart,
     dockerComposeRestart,
     stopRunningProjects,
+    getRunningDockerResources,
 } from './commands/services';
 import { wait, isProjectDir, verifySystem, getBotfrontVersion } from './utils';
 
@@ -106,7 +107,6 @@ async function initCommand() {
         await verifySystem();
         const questions = [];
         const currentDirEmpty = fs.readdirSync(process.cwd()).length === 0;
-        console.log(`\n\n        🎉 🎈 ${chalk.green.bold('Welcome to Botfront')}! 🎉 🎈\n`);
         if (currentDirEmpty) {
             const { current } = await inquirer.prompt({
                 type: 'confirm',
@@ -132,29 +132,41 @@ async function initCommand() {
     } catch (e) {
         console.log(boxen(e))
     }
-   
 }
 
 async function general() {
     const choices = [];
-    if (isProjectDir()){
-        choices.push({ title: 'Start or restart your project', cmd: () => dockerComposeUp({ verbose: false })});
-        choices.push({ title: 'Stop your project', cmd: () => dockerComposeDown({ verbose: false }) });
-    } else {
-        choices.push({ title: 'Create a new project', cmd: initCommand });
-        choices.push({ title: 'Stop a Botfront project', cmd: killAllCommand });
+    try {
+        await verifySystem()
+        const { containers, networks, volumes } = await getRunningDockerResources()
+        if (isProjectDir()){
+            choices.push({ title: 'Start project', cmd: () => dockerComposeUp({ verbose: false })});
+            
+            if (containers.length){
+                choices.push({ title: 'Stop running project', cmd: () => dockerComposeDown({ verbose: false }) });
+            } 
+            
+        } else {
+            choices.push({ title: 'Create a new project', cmd: initCommand });
+        }
+        choices.push({ title: 'Browse the online documentation', cmd: openDocs});
+        // if ((networks.length || volumes.length) && !containers.length) {
+        //     choices.push({ title: 'Clean up Docker resources resources', cmd: () => dockerComposeDown({ verbose: false }) });
+        // }
+        choices.push({ title: 'More options (display the --help)', cmd: () => shell.exec('botfront -h') });
+        choices.push({ title: 'Exit', cmd:  () => process.exit(0) });
+        console.log(boxen(`Welcome to ${chalk.green.bold('Botfront')}!\nversion: ${getBotfrontVersion()}`,  { padding: 1,  margin: 1 }));
+        const { action } = await inquirer.prompt({
+            type: 'list',
+            name: 'action',
+            message: `What do you want to do?`,
+            choices: choices.map(choice => choice.title),
+        });
+        choices.find(c => c.title === action).cmd()
+    
+    } catch (e) {
+        console.log(boxen(e, { padding: 1 }))
     }
-    choices.push({ title: 'Browse the online documentation', cmd: openDocs});
-    choices.push({ title: 'Get help with the CLI', cmd: () => shell.exec('botfront -h') });
-    choices.push({ title: 'Nothing, just exit', cmd:  () => process.exit(0) });
-    console.log(`\n\n        🎉 🎈 Welcome to ${chalk.green.bold('Botfront')}! 🎉 🎈\n`);
-    const { action } = await inquirer.prompt({
-        type: 'list',
-        name: 'action',
-        message: `What do you want to do?`,
-        choices: choices.map(choice => choice.title),
-    });
-    choices.find(c => c.title === action).cmd()
 }
 
 const commandr = program.parse(process.argv);

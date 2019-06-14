@@ -112,6 +112,19 @@ export function dockerComposeFollow(commander, workingDir) {
     shell.exec(command)
 }
 
+export async function getRunningDockerResources() {
+    const docker = new Docker({});
+    const command = 'container ps --format={{.Names}}'
+    const containersCommand = await docker.command(command);
+    const containers = containersCommand.raw.match(/(botfront-\w+)/g);
+    const networkCommand = await docker.command('network ls --format={{.Name}}');
+
+    const networks = networkCommand.raw.match(/([^\s]+_botfront-network)/g);
+    const volumeCommand = await docker.command('volume ls --format={{.Name}}');
+    const volumes = volumeCommand.raw.match(/([^\s]+_botfront-db)/g);
+    return { containers, networks, volumes };
+}
+
 export async function stopRunningProjects(
         runningMessage=null, 
         killedMessage = null, 
@@ -120,18 +133,12 @@ export async function stopRunningProjects(
     const docker = new Docker({});
     const command = 'container ps --format={{.Names}}'
     try{
-        const containersCommand = await docker.command(command);
-        const containers = containersCommand.raw.match(/(botfront-\w+)/g);
-        const networkCommand = await docker.command('network ls --format={{.Name}}');
-        const networks = networkCommand.raw.match(/([^\s]+_botfront-network)/g);
-        const volumeCommand = await docker.command('volume ls --format={{.Name}}');
-        const volumes = volumeCommand.raw.match(/([^\s]+_botfront-db)/g);
+        const { containers, networks, volumes } = await getRunningDockerResources();
         
         if (containers && containers.length) {           
             spinner.start(runningMessage)
             await docker.command(`stop ${containers.join(" ")}`);
             await docker.command(`rm ${containers.join(" ")}`);
-            
             if (killedMessage) spinner.succeed(killedMessage);    
         } else {
             if (allDeadMessage) spinner.succeed(allDeadMessage)

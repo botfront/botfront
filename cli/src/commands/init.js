@@ -31,11 +31,11 @@ async function copyTemplateFiles(templateDirectory, targetDirectory, spinner = o
 }
 
 export async function pullDockerImages(images, 
-        message = 'Downloading Docker images... This can take a while, why don\'t you grab a ☕ and read the http://docs.botfront.io 😉?', 
+        message = `Downloading Docker images... This can take a while, why don\'t you grab a ☕ and read the ${chalk.cyan('http://docs.botfront.io')} 😉?`, 
         spinner = ora()) {
     const docker = new Docker({});
     spinner.start('Checking Docker images...');
-    const download = false;
+    let download = false;
     const timeout = setTimeout(() => {
         spinner.start(message);
         download = true;
