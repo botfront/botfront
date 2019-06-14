@@ -81,9 +81,8 @@ export function getServices(dir) {
 
 export async function getMissingImgs(dir) {
     const docker = new Docker({});
-    const availableImgs = await docker.command(`images --format "{{.Repository}}:{{.Tag}}"`).then(
-        images => images.raw.split('\n')
-    );
+    let availableImgs = await docker.command(`images --format "{{.Repository}}:{{.Tag}}"`);
+    availableImgs = availableImgs.raw.split('\n');
     return getServices().filter(service => !availableImgs.includes(service));
 }
 
