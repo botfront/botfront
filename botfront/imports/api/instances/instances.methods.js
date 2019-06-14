@@ -52,7 +52,7 @@ const getConfig = (model) => {
     const apiHost = GlobalSettings.findOne({ _id: 'SETTINGS' }).settings.private.bfApiHost;
     if (model.logActivity && apiHost) {
         config.pipeline.push({
-            name: 'nlu.components.http_logger.HttpLogger',
+            name: 'rasa_addons.nlu.components.HttpLogger',
             url: `${apiHost}/log-utterance`,
         });
     }
