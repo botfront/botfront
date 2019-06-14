@@ -42,6 +42,7 @@ services:
     command:
       - run
       - --enable-api
+      - --debug
     env_file:
       - .botfront/local.env
 
