@@ -52,7 +52,7 @@ const getConfig = (model) => {
     const apiHost = GlobalSettings.findOne({ _id: 'SETTINGS' }).settings.private.bfApiHost;
     if (model.logActivity && apiHost) {
         config.pipeline.push({
-            name: 'components.botfront.activity_logger.ActivityLogger',
+            name: 'nlu.components.http_logger.HttpLogger',
             url: `${apiHost}/log-utterance`,
         });
     }
