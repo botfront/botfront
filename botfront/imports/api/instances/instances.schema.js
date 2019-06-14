@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 
 export const InstanceSchema = new SimpleSchema(
     {
-        name: { type: String },
+        name: { type: String, optional: true },
         type: { type: Array, optional: true },
         'type.$': { type: String, allowedValues: ['nlu', 'core'] },
         host: { type: String, regEx: /^(http|https):\/\// },

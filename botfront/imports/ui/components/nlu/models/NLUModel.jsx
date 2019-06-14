@@ -321,7 +321,7 @@ class NLUModel extends React.Component {
 
                 <Container>
                     <br />
-                    {instance ? (
+                    {instance && (
                         <div id='playground'>
                             <NLUPlayground
                                 testMode
@@ -335,8 +335,6 @@ class NLUModel extends React.Component {
                                 postSaveAction='clear'
                             />
                         </div>
-                    ) : (
-                        this.renderWarningMessage()
                     )}
                     <br />
                     <br />
