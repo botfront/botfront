@@ -85,11 +85,6 @@ export const NLUModelSchema = new SimpleSchema({
     chitchat_intents: { type: Array, defaultValue: [] },
     'chitchat_intents.$': { type: String },
 
-    training: { type: Object, optional: true },
-    'training.status': { type: String, allowedValues: ['training', 'success', 'failure'] },
-    'training.startTime': { type: Date, optional: true },
-    'training.endTime': { type: Date, optional: true },
-    'training.message': { type: String, optional: true },
     logActivity: { type: Boolean, defaultValue: true },
     training_data: {
         type: TrainingDataSchema,

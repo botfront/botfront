@@ -157,8 +157,7 @@ if (Meteor.isServer) {
             return parseNlu(instance, params, nolog);
         },
 
-        async 'rasa.train'(nluModelId, projectId, instance) {
-            check(nluModelId, String);
+        async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
@@ -211,9 +210,9 @@ if (Meteor.isServer) {
                 if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
                     await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
                 }
-                Meteor.call('nlu.markTrainingStopped', nluModelId, 'success');
+                Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
-                Meteor.call('nlu.markTrainingStopped', nluModelId, 'failure', e.reason);
+                Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw getAxiosError(e);
             }
         },
