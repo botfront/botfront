@@ -109,7 +109,7 @@ export function dockerComposeFollow(commander, workingDir) {
         `${chalk.green.bold('TIP: ')}if you just created your project, you probably just have to do ${chalk.cyan.bold('cd <your-project-folder>')} and then retry`;
         return console.log(boxen(noProjectMessage));
     }
-    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} logs `;
+    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} logs -f`;
     shell.exec(command)
 }
 
