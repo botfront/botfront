@@ -1,9 +1,0 @@
-{
-  "botfront/node_modules/node-gyp/gyp/pylib/gyp/MSVSSettings_test.py": true,
-  "botfront/node_modules/node-gyp/gyp/pylib/gyp/common_test.py": true,
-  "botfront/node_modules/node-gyp/gyp/pylib/gyp/easy_xml_test.py": true,
-  "botfront/node_modules/node-gyp/gyp/pylib/gyp/generator/msvs_test.py": true,
-  "botfront/node_modules/node-gyp/gyp/pylib/gyp/generator/ninja_test.py": true,
-  "botfront/node_modules/node-gyp/gyp/pylib/gyp/generator/xcode_test.py": true,
-  "botfront/node_modules/node-gyp/gyp/pylib/gyp/input_test.py": true
-}
