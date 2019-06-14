@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
-import Slots from './slots.collection';
+import { Slots } from './slots.collection';
 
 Meteor.methods({
     'slots.insert'(slot) {

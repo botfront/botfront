@@ -2,6 +2,7 @@ import SimpleSchema from 'simpl-schema';
 
 export const SlotsSchema = new SimpleSchema(
     {
+        _id: { type: String },
         name: {
             type: String,
         },

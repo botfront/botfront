@@ -17,47 +17,25 @@ import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../api/instances/instances.collection';
 import { Projects } from '../../../api/project/project.collection';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
+import { Slots } from '../../../api/slots/slots.collection';
 import { PageMenu } from '../utils/Utils';
 
 const Stories = React.lazy(() => import('./Stories'));
+const SlotsEditor = React.lazy(() => import('./Slots'));
 
 function StoriesContainer(props) {
     const {
         projectId,
         ready,
         stories,
+        slots,
         instance,
         project: { training: { endTime, status } = {} },
         project,
     } = props;
 
-    function getTabs() {
-        return [
-            {
-                menuItem: 'Stories',
-                render: () => (
-                    <React.Suspense fallback={<RenderPlaceHolder />}>
-                        {ready ? (
-                            <Stories
-                                projectId={projectId}
-                                stories={stories}
-                                ready={ready}
-                            />
-                        ) : (
-                            <RenderPlaceHolder />
-                        )}
-                    </React.Suspense>
-                ),
-            },
-            {
-                menuItem: 'Slots',
-                render: () => <div>Slots</div>,
-            },
-        ];
-    }
-
-    function RenderPlaceHolder() {
-        return (
+    function RenderPlaceHolder({ children }) {
+        const PlaceholderContent = (
             <Placeholder>
                 <Placeholder.Paragraph>
                     <Placeholder.Line />
@@ -73,6 +51,37 @@ function StoriesContainer(props) {
                 </Placeholder.Paragraph>
             </Placeholder>
         );
+
+        return (
+            <React.Suspense fallback={PlaceholderContent}>
+                {ready ? children : PlaceholderContent}
+            </React.Suspense>
+        );
+    }
+
+    RenderPlaceHolder.propTypes = {
+        children: PropTypes.element.isRequired,
+    };
+
+    function getTabs() {
+        return [
+            {
+                menuItem: 'Stories',
+                render: () => (
+                    <RenderPlaceHolder>
+                        <Stories projectId={projectId} stories={stories} />
+                    </RenderPlaceHolder>
+                ),
+            },
+            {
+                menuItem: 'Slots',
+                render: () => (
+                    <RenderPlaceHolder>
+                        <SlotsEditor slots={slots} projectId={projectId} />
+                    </RenderPlaceHolder>
+                ),
+            },
+        ];
     }
 
     return (
@@ -155,6 +164,7 @@ StoriesContainer.propTypes = {
     projectId: PropTypes.string.isRequired,
     ready: PropTypes.bool.isRequired,
     stories: PropTypes.array.isRequired,
+    slots: PropTypes.array.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -168,6 +178,7 @@ export default withTracker((props) => {
     const storiesHandler = Meteor.subscribe('storiesGroup', projectId);
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
+    const slotsHandler = Meteor.subscribe('slots', projectId);
     const { training } = Projects.findOne(
         { _id: projectId },
         {
@@ -187,8 +198,10 @@ export default withTracker((props) => {
         ready:
             storiesHandler.ready()
             && projectsHandler.ready()
-            && instancesHandler.ready(),
+            && instancesHandler.ready()
+            && slotsHandler.ready(),
         stories: StoryGroups.find({}).fetch(),
+        slots: Slots.find({}).fetch(),
         instance,
         project,
     };
