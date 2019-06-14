@@ -7,23 +7,22 @@ import {
 import { NLUModels } from './nlu_model.collection';
 import { languages } from '../../lib/languages';
 
-export const isTraining = (model) => {
+export const isTraining = (project) => {
     const {
-        _id: modelId,
+        _id: projectId,
         training,
         training: {
             startTime,
             status,
         } = {},
-    } = model;
-
+    } = project;
     if (!training) {
         return false;
     }
     const statusOk = status === 'training' && moment().diff(moment(startTime), 'minutes') < 30;
     const timeStampOk = moment().diff(moment(startTime), 'minutes') < 30;
     if (statusOk && !timeStampOk) { // something went wrong and training timed out
-        Meteor.call('nlu.markTrainingStopped', modelId, 'failure', 'training timed out');
+        Meteor.call('project.markTrainingStopped', projectId, 'failure', 'training timed out');
     }
     return !!statusOk && !!timeStampOk;
 };

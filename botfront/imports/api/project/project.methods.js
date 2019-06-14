@@ -65,5 +65,33 @@ if (Meteor.isServer) {
                 throw e;
             }
         },
+
+        'project.markTrainingStarted'(projectId) {
+            check(projectId, String);
+            checkIfCan('nlu-admin', projectId);
+    
+            try {
+                return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
+            } catch (e) {
+                throw e;
+            }
+        },
+
+        'project.markTrainingStopped'(projectId, status, error) {
+            check(projectId, String);
+            check(status, String);
+            check(error, Match.Optional(String));
+            checkIfCan('nlu-admin', projectId);
+    
+            try {
+                const set = { training: { status, endTime: new Date() } };
+                if (error) {
+                    set.training.message = error;
+                }
+                return Projects.update({ _id: projectId }, { $set: set });
+            } catch (e) {
+                throw e;
+            }
+        },
     });
 }
