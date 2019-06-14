@@ -36,7 +36,7 @@ services:
     networks: ["botfront-network"]
     restart: always
     ports:
-      - 5000:5000
+      - 5005:5005
     volumes:
       - ./models/:/app/models
     command:
