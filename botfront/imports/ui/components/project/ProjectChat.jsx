@@ -35,7 +35,7 @@ class ProjectChat extends React.Component {
         const realHost = matches && matches[1];
         const hostPath = instance.host.split(realHost)[1];
         this.setState({
-            socketUrl: realHost,
+            socketUrl: process.env.SOCKET_URL,
             path:
                 realHost
                 && (hostPath.substr(-1) === '/'
