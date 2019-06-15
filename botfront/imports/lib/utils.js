@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { sample } from 'lodash';
 import yaml from 'js-yaml';
+import path from 'path';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { Projects } from '../api/project/project.collection';
@@ -86,3 +87,10 @@ export const validateYaml = function() {
         return e.reason;
     }
 };
+
+export const getProjectModelFileName = (projectId, extension = null) => {
+    const modelName = `model-${projectId}`;
+    return extension ? `${modelName}.${extension}` : modelName;
+};
+
+export const getProjectModelLocalPath = projectId => path.join(process.env.MODELSPATH, getProjectModelFileName(projectId, 'tar.gz'));

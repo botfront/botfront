@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import axios from 'axios';
+import path from 'path';
 import { check, Match } from 'meteor/check';
 import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
@@ -9,7 +10,7 @@ import { Instances } from './instances.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { CorePolicies } from '../core_policies';
-import { getAxiosError } from '../../lib/utils';
+import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
 import { extractDomain } from '../../lib/story_validation.js';
 import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
 import { Evaluations } from '../nlu_evaluation';
@@ -203,13 +204,12 @@ if (Meteor.isServer) {
                     nlu,
                     config,
                     out: process.env.MODELSPATH,
-                    fixed_model_name: projectId,
+                    fixed_model_name: getProjectModelFileName(projectId),
                     // force: true,
                 };
-
-                await client.post('/model/train', payload);
-                if (process.env.ORCHESTRATOR === 'docker-compose') {
-                    await client.put('/model', { model_file: process.env.MODELSPATH });
+                const trainingResponse = await client.post('/model/train', payload);
+                if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
+                    await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
                 }
                 Meteor.call('nlu.markTrainingStopped', nluModelId, 'success');
             } catch (e) {
