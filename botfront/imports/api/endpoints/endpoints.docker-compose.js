@@ -8,7 +8,7 @@ export const getDefaultEndpoints = ({ _id }) => {
         'settings.private.bfApiHost': 1,
     };
 
-    const actionsUrl = process.env.ACTIONS_URL ? process.env.ACTIONS_URL : 'http://botfront-actions:5050/webhook'
+    const actionsUrl = process.env.ACTIONS_URL ? process.env.ACTIONS_URL : 'http://botfront-actions:5055/webhook';
     const { settings: { private: { defaultEndpoints = '', bfApiHost } = {} } = {} } = GlobalSettings.findOne({}, { fields });
     return defaultEndpoints
         .replace(/{BF_API_HOST}/g, bfApiHost)
