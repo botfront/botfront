@@ -26,7 +26,7 @@ services:
     depends_on:
       - mongo
     ports:
-      - "8081:8080"
+      - "8080:8080"
     env_file:
       - .botfront/local.env
 
