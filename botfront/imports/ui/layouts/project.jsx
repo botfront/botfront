@@ -20,7 +20,6 @@ import { Credentials } from '../../api/credentials';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
-import { Instances } from '../../api/instances/instances.collection';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -96,7 +95,7 @@ class Project extends React.Component {
 
     render() {
         const {
-            children, projectId, loading, credentials, renderLegacyModels, instance,
+            children, projectId, loading, channel, renderLegacyModels,
         } = this.props;
         const {
             showIntercom, intercomId, showChatPane, resizingChatPane,
@@ -104,9 +103,7 @@ class Project extends React.Component {
 
         return (
             <div style={{ height: '100vh' }}>
-                {showIntercom && !loading && (
-                    <Intercom appID={intercomId} {...this.getIntercomUser()} />
-                )}
+                {showIntercom && !loading && <Intercom appID={intercomId} {...this.getIntercomUser()} />}
                 <div className='project-sidebar'>
                     <Header as='h1' className='logo'>
                         Botfront.
@@ -139,29 +136,15 @@ class Project extends React.Component {
                         {loading && (
                             <div>
                                 <Menu pointing secondary style={{ background: '#fff' }} />
-                                <Container className='content-placeholder'>
-                                    {this.renderPlaceholder(false, true)}
-                                </Container>
+                                <Container className='content-placeholder'>{this.renderPlaceholder(false, true)}</Container>
                             </div>
                         )}
                         {!loading && (
                             <div data-cy='left-pane'>
                                 {children}
-                                {!showChatPane
-                                    && credentials
-                                    && credentials['rasa_addons.core.channels.Webchat'] && (
+                                {!showChatPane && channel && (
                                     <Popup
-                                        trigger={(
-                                            <Button
-                                                size='big'
-                                                circular
-                                                onClick={this.triggerChatPane}
-                                                icon='comment'
-                                                primary
-                                                className='open-chat-button'
-                                                data-cy='open-chat'
-                                            />
-                                        )}
+                                        trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
                                         content='Try out your chatbot'
                                     />
                                 )}
@@ -169,11 +152,7 @@ class Project extends React.Component {
                         )}
                         {showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
-                                <ProjectChat
-                                    instance={instance}
-                                    triggerChatPane={this.triggerChatPane}
-                                    projectId={projectId}
-                                />
+                                <ProjectChat channel={channel} triggerChatPane={this.triggerChatPane} projectId={projectId} />
                             </React.Suspense>
                         )}
                     </SplitPane>
@@ -189,13 +168,11 @@ Project.propTypes = {
     windowHeight: PropTypes.number.isRequired,
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
-    credentials: PropTypes.object,
-    instance: PropTypes.object,
+    channel: PropTypes.object,
 };
 
 Project.defaultProps = {
-    credentials: null,
-    instance: null,
+    channel: null,
 };
 
 const ProjectContainer = withTracker((props) => {
@@ -208,14 +185,9 @@ const ProjectContainer = withTracker((props) => {
     projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
-    const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
-    const ready = Meteor.user()
-        && credentialsHandler.ready()
-        && instanceHandler.ready()
-        && (projectHandler
-            ? projectHandler.ready() && nluModelsHandler.ready()
-            : nluModelsHandler.ready());
-    
+    // TODO: use every() instead of chaining &&
+    const ready = Meteor.user() && credentialsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready());
+
     const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
 
     if (ready && !project) {
@@ -226,13 +198,12 @@ const ProjectContainer = withTracker((props) => {
         const nluModelLanguages = getNluModelLanguages(project.nlu_models, true);
         renderLegacyModels = project.nlu_models.length !== nluModelLanguages.length;
     }
-    
-    let credentials = null;
-    let instance = null;
+
+    let channel = null;
     if (ready) {
-        instance = Instances.findOne({ projectId });
-        credentials = Credentials.findOne({ projectId });
+        let credentials = Credentials.findOne({ projectId });
         credentials = credentials && yaml.safeLoad(credentials.credentials);
+        channel = credentials['rasa_addons.core.channels.webchat.WebchatInput'];
     }
 
     // update store if new projectId
@@ -243,9 +214,8 @@ const ProjectContainer = withTracker((props) => {
     return {
         loading: !ready,
         projectId,
-        credentials,
+        channel,
         renderLegacyModels,
-        instance,
     };
 })(windowSize(Project));
 

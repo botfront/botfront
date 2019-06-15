@@ -25,22 +25,11 @@ class ProjectChat extends React.Component {
     }
 
     loadInstance = () => {
-        const { projectId, instance } = this.props;
-        if (!instance) {
-            this.setState({ noInstance: true });
-            return;
-        }
-        // eslint-disable-next-line no-useless-escape
-        const matches = instance.host.match(/^https?:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
-        const realHost = matches && matches[1];
-        const hostPath = instance.host.split(realHost)[1];
-        this.setState({
-            socketUrl: process.env.SOCKET_URL,
-            path:
-                realHost
-                && (hostPath.substr(-1) === '/'
-                    ? `${hostPath}socket.io/`
-                    : `${hostPath}/socket.io/`),
+        const { channel } = this.props;
+        if (!channel) return this.setState({ noChannel: true });
+        return this.setState({
+            socketUrl: channel.base_url,
+            path: channel.socket_path,
         });
     };
 
@@ -57,6 +46,9 @@ class ProjectChat extends React.Component {
                     })),
                     selectedLanguage: res[0] ? res[0].language : '',
                 });
+                // When it renders for the first time,  language is not passed to the widget and thus not associated
+                // to the message. Hence Rasa fails adding the language param to the NLG request. So we (shouldn't) need to...
+                this.rerenderChatComponent();
             }),
         );
     };
@@ -84,7 +76,7 @@ class ProjectChat extends React.Component {
 
     render() {
         const {
-            key, socketUrl, languageOptions, selectedLanguage, noInstance, path,
+            key, socketUrl, languageOptions, selectedLanguage, noChannel, path,
         } = this.state;
         const { triggerChatPane, projectId } = this.props;
         return (
@@ -108,16 +100,16 @@ class ProjectChat extends React.Component {
                                     <Icon
                                         name='redo'
                                         color='grey'
-                                        link={!noInstance}
+                                        link={!noChannel}
                                         onClick={this.handleReloadChat}
-                                        disabled={noInstance}
+                                        disabled={noChannel}
                                         data-cy='restart-chat'
                                     />
                                 )}
                                 content='Restart the conversation'
                                 position='bottom right'
                                 className='redo-chat-popup'
-                                disabled={noInstance}
+                                disabled={noChannel}
                             />
                         </Menu.Item>
                         <Menu.Item>
@@ -146,7 +138,7 @@ class ProjectChat extends React.Component {
                         path={path}
                     />
                 )}
-                {noInstance && (
+                {noChannel && (
                     <Message
                         content={(
                             <div>
@@ -176,7 +168,7 @@ class ProjectChat extends React.Component {
 ProjectChat.propTypes = {
     projectId: PropTypes.string.isRequired,
     triggerChatPane: PropTypes.func.isRequired,
-    instance: PropTypes.object.isRequired,
+    channel: PropTypes.object.isRequired,
 };
 
 export default ProjectChat;
