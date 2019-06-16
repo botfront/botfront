@@ -7,19 +7,80 @@ export const BF_CONFIG_DIR = '.botfront';
 export const BF_CONFIG_FILE = 'botfront.yml';
 export const DOCKER_COMPOSE_TEMPLATE_FILENAME = 'docker-compose-template.yml';
 export const DOCKER_COMPOSE_FILENAME = 'docker-compose.yml';
+export const DEFAULT_MODEL_FILENAME = 'default_model.tar.gz';
+export const ENV_FILENAME = '.env';
 import shell from 'shelljs';
 import { Docker } from 'docker-cli-js';
 import chalk from 'chalk';
+import boxen from 'boxen';
 import check from 'check-node-version';
+
 export function fixDir(dir) {
     return dir ? dir : process.cwd();
 }
 
-export async function updateProjectFile(dir) {
-    const config = getProjectConfig(dir);
+export function consoleError(error) {
+    try{
+        console.log(boxen(error))
+    } catch (e) {
+        console.log(error)
+    }
+}
+
+export function startSpinner(spinner, message) {
+    if (spinner) {
+        spinner.start(message);
+    } else {
+        console.log(message)
+    }
+}
+
+export function setSpinnerText(spinner, message) {
+    if (spinner) {
+        spinner.text = message;
+    } else {
+        console.log(message)
+    }
+}
+
+export function succeedSpinner(spinner, message) {
+    if (spinner) {
+        spinner.succeed(message);
+    } else {
+        console.log(message)
+    }
+}
+
+export function failSpinner(spinner, message) {
+    if (spinner) {
+        spinner.fail(message);
+    } else {
+        console.log(message)
+    }
+}
+
+export function stopSpinner(spinner) {
+    if (spinner) {
+        spinner.stop();
+    }
+}
+
+export async function updateProjectFile(projectAbsPath, images) {
+    const config = getProjectConfig(projectAbsPath);
     config.version = getBotfrontVersion();
-    config.tags.current = JSON.parse(JSON.stringify(config.tags.default)); // deep copy
-    fs.writeFileSync(getProjectInfoFilePath(dir), yaml.safeDump(config));
+    config.images.current = JSON.parse(JSON.stringify(config.images.default)); // deep copy
+    Object.keys(config.images.current).forEach(service => {
+        if (images[service]) config.images.current[service] = images[service];
+    });
+    let enviFileContent = '';
+    Object.keys(config.env).forEach(variable => {
+        enviFileContent += `${variable.toUpperCase()}=${config.env[variable]}\n`;
+    });
+    const templateModelFile = path.join(fixDir(projectAbsPath), 'models', DEFAULT_MODEL_FILENAME);
+    const projectModelFile = path.join(fixDir(projectAbsPath), 'models', `model-${config.env.bf_project_id}.tar.gz`)
+    if (!fs.existsSync(projectModelFile)) fs.renameSync(templateModelFile, projectModelFile);
+    fs.writeFileSync(getProjectEnvFilePath(projectAbsPath), enviFileContent);
+    fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
 }
 
 export async function generateDockerCompose(dir) {
@@ -27,16 +88,13 @@ export async function generateDockerCompose(dir) {
     const config = getProjectConfig(dir);
     const dcCopy = JSON.parse(JSON.stringify(dc));
     Object.keys(dc.services).forEach( service => {
-
-        const image = dcCopy.services[service].image;
-        const splitTag = image.split(':');
-        dcCopy.services[service].image = `${splitTag.length > 1 ? splitTag[0] : image}:${config.tags.current[service]}`;
+        dcCopy.services[service].image = config.images.current[service]
     })
     fs.writeFileSync(getComposeFilePath(dir), yaml.safeDump(dcCopy));
 }
 
-export function getProjectConfig(dir) {
-    return yaml.safeLoad(fs.readFileSync(getProjectInfoFilePath(dir), 'utf-8'));
+export function getProjectConfig(projectAbsPath) {
+    return yaml.safeLoad(fs.readFileSync(getProjectInfoFilePath(projectAbsPath), 'utf-8'));
 }
 
 export async function verifySystem() {
@@ -62,6 +120,10 @@ export function getProjectInfoDirPath(dir) {
 
 export function getProjectInfoFilePath(dir) {
     return path.join(fixDir(dir), BF_CONFIG_DIR, BF_CONFIG_FILE );
+}
+
+export function getProjectEnvFilePath(dir) {
+    return path.join(fixDir(dir), BF_CONFIG_DIR, ENV_FILENAME );
 }
 
 export function isProjectDir(dir) {
@@ -97,6 +159,11 @@ export function getService(serviceName, dir) {
 
 export function getExternalPort(serviceName, dir) {
     return getService(serviceName, dir).ports[0].split(':')[0];
+}
+
+export function getContainerNames(dir) {
+    const services = getComposeFile(dir).services;
+    return Object.keys(services).map(s => services[s].container_name);
 }
 
 export function getServiceUrl(serviceName) {

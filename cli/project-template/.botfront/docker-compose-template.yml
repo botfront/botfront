@@ -9,12 +9,14 @@ services:
     container_name: botfront-app
     restart: always
     networks: ['botfront-network']
+    volumes:
+      - ./models/:/app/models
     ports:
     - "8888:3000"
     depends_on:
     - mongo
     env_file:
-    - .botfront/local.env
+    - .botfront/.env
     environment:
       PORT: 3000
       
@@ -28,7 +30,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - .botfront/local.env
+      - .botfront/.env
 
   rasa:
     image:  botfront/rasa-for-botfront
@@ -44,7 +46,7 @@ services:
       - --enable-api
       - --debug
     env_file:
-      - .botfront/local.env
+      - .botfront/.env
 
 
 
@@ -56,7 +58,7 @@ services:
   #   #    volumes:
   #   #    - "./actions:/app/actions"
   #   env_file:
-  #     - local.env
+  #     - .env
 
   duckling:
     image: botfront/duckling
@@ -75,7 +77,7 @@ services:
     ports:
     - "27017:27017"
     env_file:
-      - .botfront/local.env
+      - .botfront/.env
     
 
 networks: 

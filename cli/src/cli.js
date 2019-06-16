@@ -3,10 +3,8 @@ import ora from 'ora';
 import boxen from 'boxen';
 import inquirer from 'inquirer';
 import shell from 'shelljs';
-import fs from 'fs';
-import path from 'path';
 import chalk from 'chalk';
-import { createProject } from './commands/init';
+import { initCommand, removeDockerImages, removeDockerContainers } from './commands/init';
 import {
     dockerComposeUp,
     dockerComposeDown,
@@ -17,7 +15,7 @@ import {
     stopRunningProjects,
     getRunningDockerResources,
 } from './commands/services';
-import { wait, isProjectDir, verifySystem, getBotfrontVersion } from './utils';
+import { wait, isProjectDir, verifySystem, getBotfrontVersion, succeedSpinner, failSpinner, consoleError, stopSpinner } from './utils';
 
 const program = require('commander');
 const version = getBotfrontVersion();
@@ -29,6 +27,11 @@ program
 
 program
     .command('init')
+    .option('--path <path>', 'Desired project path')
+    .option('--img-botfront <botfront>', 'Image for the botfront service')
+    .option('--img-botfront-api <botfront-api>', 'Image used by the botfront-api service')
+    .option('--img-rasa <rasa>', 'Image used by the Rasa service')
+    .option('--ci', 'No spinners, no prompt confirmations')
     .description('Create a new Botfront project.')
     .action(initCommand);
 
@@ -52,21 +55,23 @@ program
 
 program
     .command('killall')
+    .option('--remove-containers', 'Will also remove Botfront related Docker containers')
+    .option('--remove-images', 'Will also remove Botfront related Docker images')
     .description('Stops any running Botfront project')
-    .action(killAllCommand);
+    .action(killAllCommand);    
 
 program
-    .command('stop')
+    .command('stop [service]')
     .description('Stop a Botfront service (interactive). Must be executed in your project\'s directory')
     .action(dockerComposeStop);
  
 program
-    .command('start')
+    .command('start [service]')
     .description('Start a Botfront service (interactive). Must be executed in your project\'s directory')
     .action(dockerComposeStart);
 
 program
-    .command('restart')
+    .command('restart [service]')
     .description('restart a Botfront service (interactive). Must be executed in your project\'s directory')
     .action(dockerComposeRestart);
     
@@ -84,53 +89,37 @@ async function openDocs() {
     console.log('\n');
 }
     
-async function killAllCommand() {
+async function killAllCommand(cmd) {
     const { stop } = await inquirer.prompt({
         type: 'confirm',
         name: 'stop',
-        message: 'This will stop any running Botfront project. Proceed ?',
+        message: 'This will stop any running Botfront project and cleanup remaining Docker resources. This will not affect your project\'s data. Proceed ?',
         default: true
     });
-    if (stop)
-        stopRunningProjects(
-            'Attempting to stop a running project...',
-            `A project was stopped and all its resources released. Your data is safe and you can always restart it by running ${chalk.cyan.bold(
-                'botront up'
-            )} from your project\'s folder.\n`,
-            'All clear, no project is running, there is nothing to kill 👍.',
-            ora(),
-        );
-}
-
-async function initCommand() {
-    try {
-        await verifySystem();
-        const questions = [];
-        const currentDirEmpty = fs.readdirSync(process.cwd()).length === 0;
-        if (currentDirEmpty) {
-            const { current } = await inquirer.prompt({
-                type: 'confirm',
-                name: 'current',
-                message:
-                    'Create a new project in the current directory?',
-                default: true
-            });
-            if (current) return createProject(process.cwd());
-        } else {
-            const { subDir } = await inquirer.prompt({
-                type: 'input',
-                name: 'subDir',
-                message:
-                    'The project will be created in a subdirectory. How do you want to name it?',
-                default: 'my-botfront-project'
-            });
-            const projectPath = path.join(process.cwd(), subDir);
-            if (fs.existsSync(projectPath)) return console.log(boxen(`${chalk.red('ERROR:')} the directory ${chalk.blueBright.bold(subDir)} already exists. Run ${chalk.cyan.bold('botfront init')} again and choose another directory.`))
-            fs.mkdirSync(projectPath);
-            await createProject(projectPath);
+    if (stop){
+        const spinner = ora();
+        try {
+            await stopRunningProjects(
+                'Attempting to stop a running project...',
+                `A project was stopped and all its resources released. Your data is safe and you can always restart it by running ${chalk.cyan.bold(
+                    'botront up'
+                )} from your project\'s folder.\n`,
+                'All clear 👍.',
+                spinner,
+            );
+            if (cmd.removeContainers){
+                await removeDockerContainers(spinner)
+            }
+            
+            if (cmd.removeImages) {
+                await removeDockerImages(spinner)
+            }
+            stopSpinner(spinner)
+        } catch (e) {
+            failSpinner(spinner,"Error.")
+            consoleError(e)
         }
-    } catch (e) {
-        console.log(boxen(e))
+        
     }
 }
 
@@ -141,18 +130,21 @@ async function general() {
         const { containers, networks, volumes } = await getRunningDockerResources()
         if (isProjectDir()){
             if (containers && containers.length){
-                choices.push({ title: 'Stop running project', cmd: () => dockerComposeDown({ verbose: false }) });
+                choices.push({ title: 'Stop Botfront', cmd: () => dockerComposeDown({ verbose: false }) });
+                choices.push({ title: 'Show logs', cmd: () => dockerComposeFollow(service, { verbose: false }) });
+                // choices.push({ title: 'Stop a service', cmd: () => dockerComposeStop(service, { verbose: false }) });
+                // choices.push({ title: 'Restart a service', cmd: () => dockerComposeRestart({ verbose: false }) });
             } else {
                 choices.push({ title: 'Start project', cmd: () => dockerComposeUp({ verbose: false })});
             }
-            
         } else {
+            if (containers && containers.length){
+                choices.push({ title: 'Stop Botfront', cmd: () => killAllCommand({ verbose: false }) });
+            }
             choices.push({ title: 'Create a new project', cmd: initCommand });
         }
         choices.push({ title: 'Browse the online documentation', cmd: openDocs});
-        // if ((networks.length || volumes.length) && !containers.length) {
-        //     choices.push({ title: 'Clean up Docker resources resources', cmd: () => dockerComposeDown({ verbose: false }) });
-        // }
+        
         choices.push({ title: 'More options (display the --help)', cmd: () => shell.exec('botfront -h') });
         choices.push({ title: 'Exit', cmd:  () => process.exit(0) });
         console.log(boxen(`Welcome to ${chalk.green.bold('Botfront')}!\nversion: ${getBotfrontVersion()}`,  { padding: 1,  margin: 1 }));
