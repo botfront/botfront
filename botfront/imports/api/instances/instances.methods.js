@@ -203,7 +203,7 @@ if (Meteor.isServer) {
                     stories,
                     nlu,
                     config,
-                    out: process.env.MODELSPATH,
+                    out: process.env.MODELS_LOCAL_PATH,
                     fixed_model_name: getProjectModelFileName(projectId),
                     // force: true,
                 };
