@@ -132,6 +132,24 @@ if (Meteor.isServer) {
             return parseNlu(projectId, modelId, instance, params, nolog);
         },
 
+        async 'nlu.convertToJson'(file, language, outputFormat, host) {
+            check(file, String);
+            check(language, String);
+            check(outputFormat, String);
+            check(host, String);
+            const client = axios.create({
+                baseURL: host,
+                timeout: 100 * 1000,
+            });
+            const { data } = await client.post('/data/convert/', {
+                data: file,
+                output_format: outputFormat,
+                language,
+            });
+            
+            return data;
+        },
+
         'nlu.train'(modelId, projectId, instance) {
             check(modelId, String);
             check(projectId, String);
