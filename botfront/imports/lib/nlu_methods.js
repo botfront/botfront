@@ -175,7 +175,7 @@ if (Meteor.isServer) {
                 axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
                 const url = `${instance.host}/train?${qs}`;
                 Promise.await(client.post(url, trainingInfo));
-                Meteor.call('nlu.markTrainingStopped', modelId, 'success');
+                Meteor.call('project.markTrainingStopped', projectId, 'success');
                 return 'OK'; // because you need to return something
             } catch (e) {
                 console.log(e);
@@ -196,7 +196,7 @@ if (Meteor.isServer) {
                 }
 
                 console.log(error);
-                Meteor.call('nlu.markTrainingStopped', modelId, 'failure', error.reason);
+                Meteor.call('project.markTrainingStopped', projectId, 'failure', error.reason);
                 throw error;
             }
         },

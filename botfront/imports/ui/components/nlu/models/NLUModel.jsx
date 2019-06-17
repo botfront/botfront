@@ -242,6 +242,9 @@ class NLUModel extends React.Component {
             model,
             model: {
                 _id: modelId,
+            } = {},
+            project,
+            project: {
                 training: {
                     status,
                     endTime,
@@ -252,6 +255,7 @@ class NLUModel extends React.Component {
         const {
             activeItem, instance, entities, intents,
         } = this.state;
+        if (!project) return null;
         if (!model) return null;
         if (!ready) {
             return (
@@ -297,7 +301,7 @@ class NLUModel extends React.Component {
                     </Menu.Item>
                     <Menu.Menu position='right'>
                         <Menu.Item>
-                            {!isTraining(model) && status === 'success' && (
+                            {!isTraining(project) && status === 'success' && (
                                 <Popup
                                     trigger={(
                                         <Icon size='small' name='check' fitted circular style={{ color: '#2c662d' }} />
@@ -305,7 +309,7 @@ class NLUModel extends React.Component {
                                     content={<Label basic content={<div>{`Trained ${moment(endTime).fromNow()}`}</div>} style={{ borderColor: '#2c662d', color: '#2c662d' }} />}
                                 />
                             )}
-                            {!isTraining(model) && status === 'failure' && (
+                            {!isTraining(project) && status === 'failure' && (
                                 <Popup
                                     trigger={(
                                         <Icon size='small' name='warning' color='red' fitted circular />
@@ -315,7 +319,7 @@ class NLUModel extends React.Component {
                             )}
                         </Menu.Item>
                         <Menu.Item>
-                            <NLUTrainButton model={model} instance={instance} />
+                            <NLUTrainButton project={project} instance={instance} />
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
@@ -360,6 +364,7 @@ NLUModel.propTypes = {
     nluModelLanguages: PropTypes.array,
     models: PropTypes.array,
     projectDefaultLanguage: PropTypes.string,
+    project: PropTypes.object,
 };
 
 NLUModel.defaultProps = {
@@ -372,6 +377,7 @@ NLUModel.defaultProps = {
     projectDefaultLanguage: '',
     projectId: '',
     model: {},
+    project: {},
 };
 
 const handleDefaultRoute = (projectId) => {
@@ -395,7 +401,14 @@ const NLUDataLoaderContainer = withTracker((props) => {
     // for handling '/project/:project_id/nlu/model/:model_id'
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const settingsHandler = Meteor.subscribe('settings');
-    const modelHandler = Meteor.subscribe('nlu_models', modelId);
+    let modelHandler = {
+        ready() {
+            return false;
+        },
+    };
+    if (modelId) {
+        modelHandler = Meteor.subscribe('nlu_models', modelId);
+    }
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const ready = instancesHandler.ready() && settingsHandler.ready() && modelHandler.ready() && projectsHandler.ready();
     const model = NLUModels.findOne({ _id: modelId });
@@ -422,9 +435,10 @@ const NLUDataLoaderContainer = withTracker((props) => {
         nlu_models,
         defaultLanguage,
         instance,
+        training,
     } = Projects.findOne({ _id: projectId }, {
         fields: {
-            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1,
+            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1,
         },
     });
     if (!name) return browserHistory.replace({ pathname: '/404' });
@@ -432,6 +446,10 @@ const NLUDataLoaderContainer = withTracker((props) => {
     const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     const projectDefaultLanguage = defaultLanguage;
 
+    const project = {
+        _id: projectId,
+        training,
+    };
     return {
         ready,
         models,
@@ -444,6 +462,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         nluModelLanguages,
         projectDefaultLanguage,
         instance,
+        project,
     };
 })(NLUModel);
 

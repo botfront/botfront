@@ -1,6 +1,5 @@
 import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
-import { checkIfCan } from '../../lib/scopes';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
@@ -17,7 +16,6 @@ if (Meteor.isServer) {
     Meteor.methods({
         async 'project.insert'(item) {
             check(item, Object);
-            checkIfCan('global-admin');
             let _id;
             try {
                 _id = Projects.insert(item);
@@ -36,7 +34,6 @@ if (Meteor.isServer) {
 
         'project.update'(item) {
             check(item, Match.ObjectIncluding({ _id: String }));
-            checkIfCan('global-admin');
             try {
                 // eslint-disable-next-line no-param-reassign
                 delete item.createdAt;
@@ -48,7 +45,6 @@ if (Meteor.isServer) {
 
         'project.delete'(projectId) {
             check(projectId, String);
-            checkIfCan('global-admin');
 
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
             if (!project) throw new Meteor.Error('Project not found');
@@ -61,6 +57,32 @@ if (Meteor.isServer) {
                 Endpoints.remove({ projectId: project._id }); // Delete endpoints
                 Projects.remove({ _id: projectId }); // Delete project
                 Deployments.remove({ projectId }); // Delete deployment
+            } catch (e) {
+                throw e;
+            }
+        },
+
+        'project.markTrainingStarted'(projectId) {
+            check(projectId, String);
+    
+            try {
+                return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
+            } catch (e) {
+                throw e;
+            }
+        },
+
+        'project.markTrainingStopped'(projectId, status, error) {
+            check(projectId, String);
+            check(status, String);
+            check(error, Match.Optional(String));
+    
+            try {
+                const set = { training: { status, endTime: new Date() } };
+                if (error) {
+                    set.training.message = error;
+                }
+                return Projects.update({ _id: projectId }, { $set: set });
             } catch (e) {
                 throw e;
             }
