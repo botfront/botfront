@@ -5,10 +5,11 @@ images:
     rasa: botfront/rasa-for-botfront:branch-multilingual
     duckling: botfront/duckling:latest
     mongo: mongo:latest
+    actions: botfront/actions_sdk:latest
 env:
   bf_project_id: bf
   mongo_url: mongodb://mongo:27017/bf
-  actions_url: http://botfront-actions:5055/webhook
+  actions_url: http://actions:5055/webhook
   bf_url: http://botfront-api:8080
   orchestrator: docker-compose
   root_url: http://localhost:8888
