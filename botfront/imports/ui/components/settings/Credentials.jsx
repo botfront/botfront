@@ -65,11 +65,9 @@ class Credentials extends React.Component {
                         onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
                         content={(
                             <p>
-                                You need to <b>re-start</b> Core to deploy them.
-                                <br />
                                 {orchestrator === 'docker-compose' && (
                                     <span>
-                                        You can run <code>docker-compose restart core</code>
+                                        Run <b>botfront restart rasa</b> from your project's folder to apply changes.
                                     </span>
                                 )}
                             </p>
