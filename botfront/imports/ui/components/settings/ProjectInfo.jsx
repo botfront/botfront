@@ -19,7 +19,8 @@ class ProjectInfo extends React.Component {
     constructor(props) {
         super(props);
         const { modelLanguages } = this.props;
-        this.state = { saving: false, value: modelLanguages.map(lang => lang.value) };
+        const languageValues = modelLanguages.map(lang => lang.value);
+        this.state = { saving: false, value: languageValues, supportedLanguages: languageValues };
     }
 
     getOptions = () => {
@@ -44,11 +45,21 @@ class ProjectInfo extends React.Component {
         return label;
     };
 
-    onChange = (e, { value }) => {
-        this.setState({ saving: false, value });
-    };
-
-    createNLUModels = (languageArray, projectId) => {
+    onChange = (e, { value: newValue }) => {
+        const { supportedLanguages } = this.state;
+        // Check if the supported lanaguages are present in the newValue
+        let renderNewValue = true;
+        supportedLanguages.forEach(function(language) {
+            if (!newValue.includes(language)) {
+                renderNewValue = false;
+            }
+        });
+        if (renderNewValue) {
+            this.setState({ saving: false, value: newValue });
+        }
+    }
+        
+    createNLUModels = (languageArray, projectId, newSupportedLanguages) => {
         const nluInsertArray = languageArray.map(language => Meteor.callWithPromise(
             'nlu.insert',
             {
@@ -59,16 +70,19 @@ class ProjectInfo extends React.Component {
             projectId,
         ));
         Promise.all(nluInsertArray).then(() => {
-            this.setState({ saving: false });
+            this.setState({ saving: false, supportedLanguages: newSupportedLanguages });
         });
     };
 
     onSave = (project, modelLanguages) => {
         const { value } = this.state;
         const { name, _id, defaultLanguage } = project;
-        const differenceArray = this.diffArray(value, modelLanguages.map(lang => lang.value));
+        const modelLanguageCodes = modelLanguages.map(lang => lang.value);
+        const differenceArray = this.diffArray(value, modelLanguageCodes);
         this.setState({ saving: true });
-        Meteor.call('project.update', { name, _id, defaultLanguage }, wrapMeteorCallback(() => this.createNLUModels(differenceArray, _id), 'Changes saved'));
+        // newSupportedLanguages are used to update DOM state
+        const newSupportedLanguages = modelLanguageCodes.concat(differenceArray);
+        Meteor.call('project.update', { name, _id, defaultLanguage }, wrapMeteorCallback(() => this.createNLUModels(differenceArray, _id, newSupportedLanguages), 'Changes saved'));
     };
 
     renderDeleteModelLanguages = () => (
