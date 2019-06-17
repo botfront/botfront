@@ -157,7 +157,7 @@ async function general() {
         choices.find(c => c.title === action).cmd()
     
     } catch (e) {
-        console.log(boxen(e, { padding: 1 }))
+        console.log(e)
     }
 }
 
