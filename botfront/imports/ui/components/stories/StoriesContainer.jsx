@@ -2,7 +2,6 @@ import {
     Container,
     Placeholder,
     Menu,
-    Tab,
     Icon,
     Popup,
     Label,
@@ -10,7 +9,7 @@ import {
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import NLUTrainButton from '../nlu/models/NLUTrainButton';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
@@ -34,8 +33,10 @@ function StoriesContainer(props) {
         project,
     } = props;
 
-    function RenderPlaceHolder({ children }) {
-        const PlaceholderContent = (
+    const [activeItem, setActiveItem] = useState('stories');
+
+    function RenderPlaceHolder() {
+        return (
             <Placeholder>
                 <Placeholder.Paragraph>
                     <Placeholder.Line />
@@ -51,37 +52,6 @@ function StoriesContainer(props) {
                 </Placeholder.Paragraph>
             </Placeholder>
         );
-
-        return (
-            <React.Suspense fallback={PlaceholderContent}>
-                {ready ? children : PlaceholderContent}
-            </React.Suspense>
-        );
-    }
-
-    RenderPlaceHolder.propTypes = {
-        children: PropTypes.element.isRequired,
-    };
-
-    function getTabs() {
-        return [
-            {
-                menuItem: 'Stories',
-                render: () => (
-                    <RenderPlaceHolder>
-                        <Stories projectId={projectId} stories={stories} />
-                    </RenderPlaceHolder>
-                ),
-            },
-            {
-                menuItem: 'Slots',
-                render: () => (
-                    <RenderPlaceHolder>
-                        <SlotsEditor slots={slots} projectId={projectId} />
-                    </RenderPlaceHolder>
-                ),
-            },
-        ];
     }
 
     return (
@@ -151,10 +121,40 @@ function StoriesContainer(props) {
                 </Menu.Menu>
             </PageMenu>
             <Container>
-                <Tab
-                    menu={{ pointing: true, secondary: true }}
-                    panes={getTabs()}
-                />
+                <Menu pointing secondary className='hoverable'>
+                    <Menu.Item
+                        active={activeItem === 'stories'}
+                        name='stories'
+                        onClick={() => setActiveItem('stories')}
+                    >
+                        Stories
+                    </Menu.Item>
+                    <Menu.Item
+                        active={activeItem === 'slots'}
+                        name='slots'
+                        onClick={() => setActiveItem('slots')}
+                    >
+                        Slots
+                    </Menu.Item>
+                </Menu>
+                {activeItem === 'stories' && (
+                    <React.Suspense fallback={RenderPlaceHolder()}>
+                        {ready ? (
+                            <Stories projectId={projectId} stories={stories} />
+                        ) : (
+                            RenderPlaceHolder()
+                        )}
+                    </React.Suspense>
+                )}
+                {activeItem === 'slots' && (
+                    <React.Suspense fallback={RenderPlaceHolder()}>
+                        {ready ? (
+                            <SlotsEditor slots={slots} projectId={projectId} />
+                        ) : (
+                            RenderPlaceHolder()
+                        )}
+                    </React.Suspense>
+                )}
             </Container>
         </>
     );

@@ -14,10 +14,6 @@ class Slots extends React.Component {
         };
     }
 
-    componentWillUnmount() {
-        console.log('wtf');
-    }
-
     handleCreateSlot = () => {
         this.setState({
             newSlot: {},
@@ -30,6 +26,7 @@ class Slots extends React.Component {
             slot,
             wrapMeteorCallback((err) => {
                 if (!err) callback();
+                this.setState({ newSlot: undefined });
             }),
         );
     };
@@ -44,6 +41,10 @@ class Slots extends React.Component {
         );
     };
 
+    handleDeleteSlot = (slot) => {
+        Meteor.call('slots.delete', slot, wrapMeteorCallback());
+    };
+
     render() {
         const { slots, projectId } = this.props;
         const { newSlot } = this.state;
@@ -55,6 +56,7 @@ class Slots extends React.Component {
                         onSave={this.handleSaveSlot}
                         projectId={projectId}
                         key={slot._id}
+                        onDelete={this.handleDeleteSlot}
                     />
                 ))}
                 {newSlot && (
@@ -62,6 +64,7 @@ class Slots extends React.Component {
                         slot={newSlot}
                         onSave={this.handleSaveNewSlot}
                         projectId={projectId}
+                        newSlot
                     />
                 )}
                 {!newSlot && (

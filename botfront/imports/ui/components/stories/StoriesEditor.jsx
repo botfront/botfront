@@ -45,7 +45,7 @@ function StoriesEditor(props) {
                     value={story}
                     showPrintMargin={false}
                     showGutter
-                    // We use ternary
+                    // We use ternary expressions here to prevent wrong prop types
                     annotations={
                         (!!errors[index] ? true : undefined)
                         && (!!errors[index].length ? true : undefined)
@@ -56,6 +56,9 @@ function StoriesEditor(props) {
                             column: 0,
                         }))
                     }
+                    editorProps={{
+                        $blockScrolling: Infinity,
+                    }}
                     setOptions={{
                         tabSize: 2,
                     }}

@@ -47,13 +47,25 @@
   }
 }
 
+.slot-editor {
+  .icon.trash {
+    margin-left: 14px;
+    animation-name: fadein;
+    animation-duration: 0.2s;
+  }
+}
+
+.ui.segment.slot-editor.new {
+  border-style: dashed;
+}
+
 @keyframes fadein {
   from {
     opacity: 0;
   }
 
   to {
-    opacity: 1;
+    opacity: .8;
   }
 }
 
