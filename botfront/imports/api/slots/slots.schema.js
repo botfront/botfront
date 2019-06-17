@@ -1,5 +1,15 @@
 import SimpleSchema from 'simpl-schema';
 
+function validateMinMaxValue() {
+    if (
+        this.field('minValue').value >= this.field('maxValue').value
+        && this.field('category').value === 'float'
+    ) {
+        return 'minMax';
+    }
+    return true;
+}
+
 export const SlotsSchema = new SimpleSchema(
     {
         _id: { type: String, optional: true },
@@ -41,6 +51,7 @@ export const SlotsSchema = new SimpleSchema(
         maxValue: {
             type: Number,
             optional: true,
+            custom: validateMinMaxValue,
         },
         initialValue: {
             type: String,
@@ -54,3 +65,9 @@ export const SlotsSchema = new SimpleSchema(
         },
     },
 );
+
+SlotsSchema.messageBox.messages({
+    en: {
+        minMax: 'Maximum value must be greater than minimum value',
+    },
+});
