@@ -9,19 +9,20 @@ import ConfirmPopup from '../common/ConfirmPopup';
 import SaveButton from '../utils/SaveButton';
 
 function SlotEditor(props) {
-    let sucessTimeout = null;
     const {
         slot, onSave, projectId, onDelete, newSlot,
     } = props;
     const [saved, setSaved] = useState(false);
     const [deletePopupOpen, setDeletePopup] = useState(false);
     const [hover, setHover] = useState(false);
+    const [successTimeout, setSuccessTimeout] = useState(0);
 
+    // This effect cleans up the timeout in case the component dismounts
     useEffect(
         () => () => {
-            clearTimeout(sucessTimeout);
+            clearTimeout(successTimeout);
         },
-        [],
+        [successTimeout],
     );
 
     return (
@@ -35,14 +36,36 @@ function SlotEditor(props) {
                 schema={SlotsSchema}
                 onSubmit={doc => onSave(doc, () => {
                     setSaved(true);
-                    sucessTimeout = setTimeout(() => {
-                        setSaved(false);
-                    }, 2 * 1000);
+                    if (!newSlot) {
+                        setSuccessTimeout(
+                            setTimeout(() => {
+                                setSaved(false);
+                            }, 2 * 1000),
+                        );
+                    }
                 })
                 }
             >
                 <AutoField name='name' />
                 <SelectField name='category' />
+                {slot.category === 'text' && (
+                    <AutoField
+                        name='initialValue'
+                        placeholder='Leave empty for no initial value'
+                    />
+                )}
+                {slot.category === 'float' && (
+                    <>
+                        <AutoField
+                            name='minValue'
+                            placeholder='Leave empty for no minimum value'
+                        />
+                        <AutoField
+                            name='maxValue'
+                            placeholder='Leave empty for no maximum value'
+                        />
+                    </>
+                )}
                 <AutoField
                     name='projectId'
                     value={projectId}

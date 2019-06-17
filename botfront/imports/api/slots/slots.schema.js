@@ -18,13 +18,13 @@ export const SlotsSchema = new SimpleSchema(
                 'unfeaturized',
             ],
         },
-        categories: {
-            optional: true,
-            type: Array,
-        },
-        'categories.$': {
-            type: String,
-        },
+        // categories: {
+        //     optional: true,
+        //     type: Array,
+        // },
+        // 'categories.$': {
+        //     type: String,
+        // },
         createdAt: {
             type: Date,
             optional: true,
@@ -34,6 +34,23 @@ export const SlotsSchema = new SimpleSchema(
             optional: true,
             autoValue: () => new Date(),
         },
+        minValue: {
+            type: Number,
+            optional: true,
+        },
+        maxValue: {
+            type: Number,
+            optional: true,
+        },
+        initialValue: {
+            type: String,
+            optional: true,
+        },
     },
-    { tracker: Tracker },
+
+    {
+        clean: {
+            filter: false,
+        },
+    },
 );

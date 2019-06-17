@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 import { Slots } from './slots.collection';
+import { SlotsSchema } from './slots.schema';
 
 Meteor.methods({
     'slots.insert'(slot) {
@@ -12,7 +13,7 @@ Meteor.methods({
 
     'slots.update'(slot) {
         check(slot, Object);
-        Slots.simpleSchema().validate(slot, { check });
+        SlotsSchema.validate(slot, { check });
         return Slots.update({ _id: slot._id }, { $set: slot });
     },
 
