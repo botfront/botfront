@@ -38,7 +38,8 @@
     "open": "^6.3.0",
     "ora": "^3.4.0",
     "shelljs": "^0.8.3",
-    "unique-names-generator": "^3.0.0"
+    "unique-names-generator": "^3.0.0",
+    "chokidar": "^3"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
