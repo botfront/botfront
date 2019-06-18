@@ -92,12 +92,12 @@ export const getStoriesAndDomain = (projectId) => {
             { projectId }, { policies: 1 },
         ).policies,
     );
-    const mappingTriggers = policies
+    let mappingTriggers = policies
         .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
         .map(policy => policy.triggers.map(trigger => trigger.action))
-        .reduce((coll, curr) => coll.concat(curr), [])
-        .join('\n  - ');
-    const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up\n  - ${mappingTriggers}`;
+        .reduce((coll, curr) => coll.concat(curr), []);
+    mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
+    const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
     const storyGroups = StoryGroups.find(
         { projectId },
         { stories: 1 },
