@@ -32,9 +32,15 @@ class Slots extends React.Component {
     };
 
     handleSaveSlot = (slot, callback) => {
+        const updatedSlot = { ...slot };
+        // This code is here to prevent validation errors
+        if (updatedSlot.category !== 'float') {
+            delete updatedSlot.minValue;
+            delete updatedSlot.maxValue;
+        }
         Meteor.call(
             'slots.update',
-            slot,
+            updatedSlot,
             wrapMeteorCallback((err) => {
                 if (!err) callback();
             }),
