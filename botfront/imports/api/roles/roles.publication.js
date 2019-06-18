@@ -3,7 +3,7 @@ import { checkIfCan } from '../../lib/scopes';
 
 if (Meteor.isServer) {
     Meteor.publish('roles', function () {
-        checkIfCan('nlu-admin');
+        checkIfCan('nlu-model:w');
         return Meteor.roles.find({});
     });
 }

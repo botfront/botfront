@@ -140,7 +140,7 @@ if (Meteor.isServer) {
         'nlu.insert'(item, projectId) {
             check(item, Object);
             check(projectId, String);
-            checkIfCan('project-settings:w', projectId);
+            checkIfCan('nlu-model:w', projectId);
 
             // Check if the model with the langauge already exists in project
             // eslint-disable-next-line no-param-reassign
@@ -164,7 +164,7 @@ if (Meteor.isServer) {
         'nlu.update'(modelId, item) {
             check(item, Object);
             check(modelId, String);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
 
             NLUModels.update({ _id: modelId }, { $set: item });
             return modelId;
@@ -208,7 +208,7 @@ if (Meteor.isServer) {
         'nlu.removelanguage'(projectId, language) {
             check(projectId, String);
             check(language, String);
-            checkIfCan('nlu-admin', projectId);
+            checkIfCan('nlu-model:w', projectId);
             const modelIds = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
             const { _id: modelId } = NLUModels.findOne({ _id: { $in: modelIds }, language });
             try {

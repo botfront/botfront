@@ -231,7 +231,7 @@ class NLUModel extends React.Component {
         const { projectId } = this.props;
         return (
             <Menu pointing secondary>
-                <Menu.Item>{this.getHeader()}</Menu.Item>
+                <Menu.Item header>{this.getHeader()}</Menu.Item>
                 <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
                     <Icon size='small' name='history' />
                     {'Activity'}

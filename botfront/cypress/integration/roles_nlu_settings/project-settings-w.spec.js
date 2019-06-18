@@ -7,7 +7,8 @@ describe('project writer role permissions', function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.login();
         cy.get('@bf_project_id').then((id) => {
-            cy.createUser('projectwriter', email, ['project-settings:w'], id);
+            // data:r and model:w permission for accessing the necessary path for the test.
+            cy.createUser('projectwriter', email, ['project-settings:w', 'nlu-data:r', 'nlu-model:w'], id);
         });
         cy.logout();
     });
@@ -34,10 +35,20 @@ describe('project writer role permissions', function() {
         cy.get('.project-default-language').should('not.have.class', 'disabled');
         cy.get('[data-cy=save-changes]').click();
         cy.contains('More Settings').should('not.exist');
-        //  A new German model has been saved. Now we will check that the language is actually present in default languages.
-        cy.get('.project-default-language').click();
-        cy.get('.project-default-language input').type('Ger');
-        cy.get('.project-default-language').contains('German').should('exist');
+        //  A new German model has been saved. Now we will delete it.
+        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
+        // Instance should also be added to the model that is created.
+        cy.get('[data-cy=example-text-editor-input]').should('exist');
+        cy.get('[data-cy=model-selector]').click();
+        cy.get('[data-cy=model-selector] input').type('German{enter}');
+        cy.get('.nlu-menu-settings').click();
+        cy.contains('Delete').click();
+        cy.get('.dowload-model-backup-button').click();
+        cy.get('.delete-model-button').click();
+        cy.get('.ui.page.modals .primary').click();
+        cy.get('[data-cy=model-selector]').click();
+        cy.get('[data-cy=model-selector] input').type('Gre');
+        cy.get('[data-cy=model-selector]').contains('German').should('not.exist');
 
         // For meteor call
         cy.MeteorCall('project.update', [
