@@ -82,8 +82,7 @@ export default class IntentBulkInsert extends React.Component {
                         disabled={saving}
                         onChange={this.onTextChanged}
                     />
-                    <br />
-                    <br />
+                    <Message info content='Select an existing intent or type to create a new one' />
                     <IntentDropdown
                         intents={intents}
                         setIntent={newIntent => this.setState({ intent: newIntent })}

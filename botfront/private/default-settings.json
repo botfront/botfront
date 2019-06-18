@@ -2,14 +2,14 @@
   "_id": "SETTINGS",
   "settings": {
       "public": {
-          "defaultNLUConfig": "pipeline:\n  - name: components.botfront.language_setter.LanguageSetter\n  - name: tokenizer_whitespace\n  - name: intent_featurizer_count_vectors\n  - name: intent_classifier_tensorflow_embedding\n  - BILOU_flag: true\n    name: ner_crf\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: components.botfront.fuzzy_gazette.FuzzyGazette\n  - name: ner_synonyms",
+          "defaultNLUConfig": "pipeline:\n  - name: rasa_addons.nlu.components.LanguageSetter\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.Gazette\n  - name: EntitySynonymMapper",
           "backgroundImages": [
               "https://source.unsplash.com/collection/315548/2400x1500"
           ]
       },
       "private": {
-          "defaultRules": "intent_substitutions:\n  - intent: chitchat\\.(.*)\n    with: faq\n    entities:\n      add:\n        - name: intent\n          value: '{intent}'\n  - intent: faq\\.(.*)\n    with: faq\n    entities:\n      add:\n        - name: intent\n          value: '{intent}'\ndisambiguation_policy:\n  trigger: $0 > 1\n  max_suggestions: 2\n  display:\n    text_template: utter_disamb_text\n    button_title_template_prefix: utter_disamb\n    fallback_button:\n      title: utter_fallback_yes\n      payload: /fallback\n    exclude:\n      - chitchat\\..*\n      - basics\\..*\n      - cancel",
-          "defaultCredentials": "bot.socketio.SocketIOInput:\n  session_persistence: true"
+          "defaultCredentials": "rasa_addons.core.channels.webchat.Webchat:\n  session_persistence: true",
+          "defaultPolicies": "policies:\n  - name: rasa_addons.core.policies.BotfrontMappingPolicy\n    triggers:\n      - trigger: '^chitchat\\..+|^basics\\..+'\n        action: 'action_botfront_mapping'\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy"
       }
   }
 }

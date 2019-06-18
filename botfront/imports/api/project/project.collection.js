@@ -14,7 +14,7 @@ Projects.deny({
 
 
 if (Meteor.isServer) {
-    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'default';
+    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'docker-compose';
     import(`./project.schema.${orchestration}`)
         .then(({ ProjectsSchema }) => {
             Projects.attachSchema(ProjectsSchema);
@@ -62,6 +62,7 @@ if (Meteor.isServer) {
                     disabled: 1,
                     nlu_models: 1,
                     updatedAt: 1,
+                    instance: 1,
                 },
             });
         }

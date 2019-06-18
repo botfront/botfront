@@ -18,7 +18,7 @@ GlobalSettings.deny({
     },
 });
 
-const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'default';
+const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'docker-compose';
 import(`./globalSettings.schema.${orchestration}`)
     .then(({ GlobalSettingsSchema }) => {
         GlobalSettings.attachSchema(GlobalSettingsSchema);

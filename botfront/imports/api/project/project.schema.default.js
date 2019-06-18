@@ -21,6 +21,7 @@ export const ProjectsSchema = new SimpleSchema({
         autoValue: () => new Date(),
         index: -1,
     },
+    instance: { type: String, optional: true },
 
 }, { tracker: Tracker });
 

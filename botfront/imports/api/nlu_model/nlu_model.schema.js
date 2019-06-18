@@ -74,7 +74,6 @@ export const NLUModelSchema = new SimpleSchema({
     published: { type: Boolean, defaultValue: false },
     description: { type: String, optional: true },
     config: { type: String, optional: true },
-    instance: { type: String, optional: true },
 
     evaluations: { type: Array, optional: true, defaultValue: [] },
     'evaluations.$': { type: String },

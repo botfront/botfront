@@ -101,7 +101,7 @@ class Evaluation extends React.Component {
         const { data } = this.state;
         const instance = Instances.findOne({ _id: instanceId });
 
-        Meteor.call('nlu.evaluate', modelId, projectId, instance, data, (err) => {
+        Meteor.call('rasa.evaluate.nlu', modelId, projectId, instance, data, (err) => {
             this.setState({ evaluating: false });
             if (err) {
                 Alert.error(`Error: ${JSON.stringify(err.reason)}`, {

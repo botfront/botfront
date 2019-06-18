@@ -293,15 +293,15 @@ class Activity extends React.Component {
     }
 
     getActivityPanes = () => {
-        const { model: { _id: modelId }, instance } = this.props;
+        const { model, instance } = this.props;
         const panes = [];
         panes.push({ menuItem: 'New Utterances', render: this.primaryRender });
         if (this.hasDataWritePermission()) {
-            panes.push({ menuItem: 'Populate', render: () => <ActivityInsertions modelId={modelId} instance={instance} /> });
+            panes.push({ menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> });
         }
         return panes;
     }
-
+    
     render() {
         const { ready } = this.props;
         return (

@@ -54,6 +54,14 @@ export const getNluModelLanguages = (modelIds, asOptions = false) => {
     return languageCodes;
 };
 
+export const getPublishedNluModelLanguages = (modelIds, asOptions = false) => {
+    check(modelIds, Array);
+    const models = NLUModels.find({ _id: { $in: modelIds }, published: true }, { fields: { language: 1 } }).fetch();
+    const languageCodes = sortBy(uniq(models.map(m => m.language)));
+    if (asOptions) return languageCodes.map(value => ({ text: languages[value].name, value }));
+    return languageCodes;
+};
+
 export const getPureIntents = (commonExamples) => {
     const pureIntents = new Set();
     commonExamples.forEach((e) => {

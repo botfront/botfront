@@ -11,9 +11,6 @@ const templateFormats = [
     { menu: 'Messenger Handoff', label: 'Messenger Handoff' },
 ];
 
-const modelName = 'aModel';
-const modelLang = 'French';
-
 describe('Bot responses', function() {
     beforeEach(function () {
         cy.login();
@@ -27,20 +24,21 @@ describe('Bot responses', function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModel(id, modelName, modelLang, 'my description');
+            cy.createNLUModelProgramatically(id, 'German Model', 'de', 'My Description');
         });
     });
 
     after(function() {
         cy.login();
-        cy.deleteNLUModel(this.bf_project_id, modelName, modelLang);
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'de');
         cy.logout();
     });
 
     it('Should create a bot response', function() {
         cy.visit(`/project/${this.bf_project_id}/dialogue/templates/add`);
+        cy.contains('German').click();
         cy.get('[data-cy=response-name] input').type(responseName);
-        
+    
         templateFormats.forEach((format, index) => {
             cy.get('.response-message-next > .big > .ui').click();
             // cy.get('.response-message-next > .sequence-add-message-menu-header').should('be.visible');
@@ -62,6 +60,7 @@ describe('Bot responses', function() {
 
     it('Bot response should be the same when re-opened', function() {
         cy.openResponse(this.bf_project_id, responseName);
+        cy.contains('German').click();
         templateFormats.forEach((format, index) => {
             cy.get(`.response-message-${index} .ace_content`);
             cy.get(`.response-message-${index} .message-format-confirm`);
@@ -73,6 +72,7 @@ describe('Bot responses', function() {
 
     it('should rename a bot response', function() {
         cy.openResponse(this.bf_project_id, responseName);
+        cy.contains('German').click();
         cy.get('input').first().type(`{selectall}{del}${responseName}aaa`);
         cy.get('.response-save-button').click();
         cy.openResponse(this.bf_project_id, `${responseName}aaa`);
@@ -83,6 +83,7 @@ describe('Bot responses', function() {
 
     it('should not create a response with the same name', function() {
         cy.visit(`/project/${this.bf_project_id}/dialogue/templates/add`);
+        cy.contains('German').click();
         cy.get('[data-cy=response-name] input').type(responseName);
         cy.get('.response-save-button').click();
         cy.get('.s-alert-error');
@@ -91,6 +92,7 @@ describe('Bot responses', function() {
 
     it('Message can be inserted', function() {
         cy.openResponse(this.bf_project_id, responseName);
+        cy.contains('German').click();
         cy.get('.response-message-2.sequence-add-message').click();
         cy.get('.response-message-2.sequence-add-message').contains('Button template').click();
         cy.get('.response-message-2 .ace_content');
@@ -101,6 +103,7 @@ describe('Bot responses', function() {
         // Save and re-open
         cy.get('.response-save-button').click();
         cy.openResponse(this.bf_project_id, responseName);
+        cy.contains('German').click();
         // Verify the insertion was persisted
         cy.get('.response-message-2 .ace_content');
         cy.get('.response-message-2 .message-format-confirm');

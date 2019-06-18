@@ -37,7 +37,7 @@ describe('project-settings:r role permissions', function() {
         cy.get('.project-name').should('have.class', 'disabled');
         cy.get('.project-default-language').should('have.class', 'disabled');
         cy.contains('More Settings').should('not.exist');
-
+        cy.get('[data-cy=save-changes]').should('be.disabled');
         // For meteor call
         cy.MeteorCall('project.update', [
             {
@@ -50,26 +50,10 @@ describe('project-settings:r role permissions', function() {
         });
     });
 
-    it('should NOT be able to change rules', function() {
-        cy.visit(`/project/${this.bf_project_id}/settings`);
-        cy.contains('Credentials').click();
-        cy.get('[data-cy=ace-field]').should('have.class', 'disabled');
-        cy.get('[data-cy=save-button]').should('be.disabled');
-
-        // For meteor call
-        cy.MeteorCall('rules.save', [
-            {
-                projectId: this.bf_project_id,
-                rules: 'RULE',
-            },
-        ]).then((result) => {
-            expect(result.error).to.be.equals('403');
-        });
-    });
-
     it('should NOT be able to change credentials', function() {
         cy.visit(`/project/${this.bf_project_id}/settings`);
         cy.contains('Credentials').click();
+        cy.get('[data-cy=save-button]').should('be.disabled');
         cy.get('[data-cy=ace-field]').should('have.class', 'disabled');
         cy.get('[data-cy=save-button]').should('be.disabled');
 
@@ -101,11 +85,10 @@ describe('project-settings:r role permissions', function() {
         });
     });
 
-    it('should NOT be able to create new instances', function() {
+    it('should NOT be able edit instance values', function() {
         cy.visit(`/project/${this.bf_project_id}/settings`);
-        cy.contains('Instances').click();
-        cy.contains('New instance').should('not.exist');
-
+        cy.contains('Instance').click();
+        cy.get('[data-cy=save-instance]').should('be.disabled');
         // For meteor call
         cy.MeteorCall('instance.insert', [
             {

@@ -32,13 +32,27 @@ class ActivityInsertions extends React.Component {
 
     saveExamples() {
         const { text } = this.state;
-        const { projectId, modelId, instance } = this.props;
+        const {
+            projectId, model: { _id: modelId, language: lang }, instance, instance: { type },
+        } = this.props;
         
         this.setState({ loading: true });
+        
+        
+        if (type === 'nlu') {
+            const examples = text.split('\n')
+                .filter(t => !t.match(/^\s*$/))
+                .map(t => ({ q: t }));
+
+            return Meteor.call('nlu.parse', projectId, modelId, instance, examples, false, wrapMeteorCallback((err) => {
+                if (!err) return this.setState({ loading: false, text: '' });
+                return this.setState({ loading: false });
+            }));
+        }
         const examples = text.split('\n')
             .filter(t => !t.match(/^\s*$/))
-            .map(t => ({ q: t }));
-        Meteor.call('nlu.parse', projectId, modelId, instance, examples, false, wrapMeteorCallback((err) => {
+            .map(t => ({ text: t, lang }));
+        return Meteor.call('rasa.parse', instance, examples, false, wrapMeteorCallback((err) => {
             if (!err) return this.setState({ loading: false, text: '' });
             return this.setState({ loading: false });
         }));
@@ -69,7 +83,7 @@ class ActivityInsertions extends React.Component {
 }
 
 ActivityInsertions.propTypes = {
-    modelId: PropTypes.string.isRequired,
+    model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
     projectId: PropTypes.string.isRequired,
 };

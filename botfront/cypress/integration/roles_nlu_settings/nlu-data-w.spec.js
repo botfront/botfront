@@ -1,11 +1,9 @@
 /* eslint-disable no-undef */
 
 const email = 'nludataw@test.ia';
-
+let modelIdForUI = '';
 const modelNameForUI = 'myModel';
-const modelLangForUI = 'French';
 const modelNameForCall = 'deleteModel';
-const modelLangForCall = 'English';
 let modelIdForCall = '';
 const dataImport = `
 { 
@@ -38,16 +36,10 @@ describe('nlu-data:w role permissions', function() {
             cy.addTestActivity(modelId);
         });
         cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModel(id, modelNameForUI, modelLangForUI, 'my description');
-            cy.MeteorCall('nlu.insert', [
-                {
-                    evaluations: [],
-                    language: 'en',
-                    name: 'deleteModel',
-                    published: false,
-                },
-                id,
-            ]).then((result) => {
+            cy.createNLUModelProgramatically(id, modelNameForUI, 'fr', 'my description').then((result) => {
+                modelIdForUI = result;
+            });
+            cy.createNLUModelProgramatically(id, modelNameForCall, 'aa', 'my description').then((result) => {
                 modelIdForCall = result;
             });
         });
@@ -59,9 +51,11 @@ describe('nlu-data:w role permissions', function() {
     });
 
     after(function() {
-        cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.remove({ name: '${modelNameForCall}'});"`);
-        cy.exec(`mongo meteor --host localhost:3001 --eval "db.nlu_models.remove({ name: '${modelNameForUI}'});"`);
+        cy.login();
+        cy.deleteNLUModelProgramatically(modelIdForUI, this.bf_project_id);
+        cy.deleteNLUModelProgramatically(modelIdForCall, this.bf_project_id);
         cy.deleteUser(email);
+        cy.logout();
     });
 
     it('should be able to access nlu model menu tabs, activity, training-data and evaluation', function() {
@@ -73,11 +67,8 @@ describe('nlu-data:w role permissions', function() {
         cy.get('[data-cy=train-button]').should('not.exist');
     });
 
-    it('should NOT be able to see new model and duplicate model button', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.secondary').should('not.exist');
-        cy.get('[data-cy=new-model]').should('not.exist');
+    it('should NOT be able to add new languages', function() {
+    // TODO Should not be able to add new languages
     });
 
     it('should render activities and playground', function() {
@@ -104,10 +95,8 @@ describe('nlu-data:w role permissions', function() {
     });
 
     // For Training tab
-    it('should render training and playground, Chit Chat and Insert many should exist', function() {
+    it('should render training | Chit Chat and Insert many should exist', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Insert many').should('exist');
         cy.contains('Chit Chat').should('exist');
@@ -120,7 +109,7 @@ describe('nlu-data:w role permissions', function() {
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('An intent');
         cy.get('[data-cy=intent-dropdown]').click();
-        cy.get('input').type('TestIntent{enter}');
+        cy.get('input').eq(1).type('TestIntent{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.get('[data-cy=intent-label]').first().trigger('mouseover');
@@ -204,9 +193,7 @@ describe('nlu-data:w role permissions', function() {
     });
 
     it('should be able to import training data through UI', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('French').click();
-        cy.get(':nth-child(1) > .extra > .basic > .primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelIdForUI}`);
         cy.get('.nlu-menu-settings').click();
         cy.contains('Import').click();
         cy.fixture('nlu_import.json', 'utf8').then((content) => {
@@ -214,11 +201,7 @@ describe('nlu-data:w role permissions', function() {
         });
         cy.contains('Import Training Data').click();
         cy.get('.s-alert-success').should('be.visible');
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains(modelLangForUI).click();
-        cy.get(`#model-${modelNameForUI} [data-cy=open-model]`)
-            .first()
-            .click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelIdForUI}`);
         cy.contains('Training Data').click();
         cy.contains('Statistics').click();
         cy.contains('943').siblings('.label').should('contain', 'Examples');
@@ -232,9 +215,7 @@ describe('nlu-data:w role permissions', function() {
             modelIdForCall,
             true,
         ]).then(() => {
-            cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-            cy.contains(modelLangForCall).click();
-            cy.get(`#model-${modelNameForCall} [data-cy=open-model]`).click();
+            cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelIdForCall}`);
             cy.contains('Training Data').click();
             cy.contains('Statistics').click();
             cy.contains('1').siblings('.label').should('contain', 'Examples');

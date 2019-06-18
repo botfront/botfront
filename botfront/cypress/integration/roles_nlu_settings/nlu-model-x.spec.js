@@ -36,7 +36,7 @@ describe('nlu-model:x role permissions', function() {
     it('should be able to train the model', function () {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('[data-cy=train-button]').should('exist');
-    })
+    });
 
     it('should NOT be able to delete a model through Meteor.call', function() {
         // First a model needs to be created which would then be deleted by nlu-model:w

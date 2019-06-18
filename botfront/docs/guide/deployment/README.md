@@ -4,14 +4,18 @@
 We're working on a better deployment guide
 :::
 
-Running botfront requires deploying different services with Docker containers. The recommended way is to use an orchestration framework such as Kubernetes or Swarm.
-- botftont
-- botfront-api
-- nlu
-- core
-- actions
-- duckling (only if you need structured entities)
-- mongo (optional: you can use a hosted service such as mLab our Mongo Atlas instead).
+## Services and Docker images
+Running botfront requires deploying different services. The recommended way is to use an orchestration framework such as Kubernetes or Swarm.
+
+| Service  | Docker image  |
+|---|---|
+| botftont |  `botfront/botfront`|
+| botfront-api  |  `botfront/botfront-api`  |
+| nlu  |  `botfront/rasa-nlu-bf`  |
+| core  |  `botfront/rasa-core-bf`  |
+| duckling  |  `botfront/duckling`  |
+| actions | Build your own or `botfront/simple-actions` for simple FAQs | 
+| mongo | `mongo` or hosted service (mLab, Mongo Atlas, Compose, ...)  |
 
 See the `docker-compose.yaml` file in your `botfront-project` for an example
 
@@ -27,7 +31,7 @@ See the `docker-compose.yaml` file in your `botfront-project` for an example
 | `BF_URL` | The `botfront-api` root url | `core`  `actions`|
 
 ## MongoDB database
-When you run Botfront in developer mode, Meteor will spin up a MongoDB database accessible on port `3001`. However, when running in production or with `docker-compose` a MongoDB uri needs to be provided with the environment variable `MONGO_URL`. It is also highly recommended (but optional) to provide an oplog url with `MONGO_OPLOG_URL`. 
+When you run Botfront in developer mode, Meteor will spin up a local MongoDB database accessible on port `3001`. However, when running in production or with `docker-compose` a MongoDB uri needs to be provided with the environment variable `MONGO_URL`. It is also **highly** recommended (but optional) to provide an oplog url with `MONGO_OPLOG_URL`. 
 
 ::: warning Choose a very short database name
 We strongly recommend using a very short database name (e.g `bf`) and not too long response names to [avoid hitting the limits](https://docs.mongodb.com/manual/reference/limits/#namespaces).

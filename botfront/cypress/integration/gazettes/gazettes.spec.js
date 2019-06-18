@@ -4,19 +4,24 @@ const gazetteName = 'growth';
 const gazetteValues = 'raise, increase, augmentation';
 const sortedGazetteValues = 'augmentation, increase, raise';
 
-const visitGazette = (projectId) => {
-    cy.visit(`/project/${projectId}/nlu/models`);
-    cy.contains('French').click();
-    cy.get('.cards>:first-child button.primary').click();
+const visitGazette = (projectId, modelId) => {
+    cy.visit(`/project/${projectId}/nlu/model/${modelId}`);
     cy.contains('Training Data').click();
     cy.contains('Gazette').click();
 };
-
+let modelId = '';
 const getGazetteRow = () => cy.contains(sortedGazetteValues).closest('.rt-tr');
 
 describe('gazette', function() {
     before(function() {
+        cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
+        cy.get('@bf_project_id').then((id) => {
+            cy.createNLUModelProgramatically(id, modelName, 'fr', 'my description')
+                .then((result) => {
+                    modelId = result;
+                });
+        });
     });
     
     beforeEach(function() {
@@ -27,12 +32,16 @@ describe('gazette', function() {
         cy.logout();
     });
 
+    after(function() {
+        cy.login();
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+        cy.logout();
+    });
+
     
     describe('adding a gazette', function() {
         it('should create a gazette with supplied parameters', function() {
-            console.log(this.bf_project_id);
-            cy.createNLUModel(this.bf_project_id, modelName, 'French', 'my model');
-            visitGazette(this.bf_project_id);
+            visitGazette(this.bf_project_id, modelId);
             cy.get('.input.entity-synonym input').type(gazetteName);
             cy.get('textarea.entity-synonym-values').type(gazetteValues);
             cy.contains('Add').click();
@@ -49,7 +58,7 @@ describe('gazette', function() {
 
     describe('editing a gazette', function() {
         it('should change gazette mode', function() {
-            visitGazette(this.bf_project_id);
+            visitGazette(this.bf_project_id, modelId);
             getGazetteRow()
                 .children()
                 .eq(2)
@@ -66,7 +75,7 @@ describe('gazette', function() {
         });
 
         it('should edit the gazette examples', function() {
-            visitGazette(this.bf_project_id);
+            visitGazette(this.bf_project_id, modelId);
             getGazetteRow()
                 .children()
                 .eq(1)
@@ -84,7 +93,7 @@ describe('gazette', function() {
         });
 
         it('should remove the values and fail removing it without crashing', function() {
-            visitGazette(this.bf_project_id);
+            visitGazette(this.bf_project_id, modelId);
             getGazetteRow()
                 .children()
                 .eq(1)
@@ -121,13 +130,12 @@ describe('gazette', function() {
 
     describe('deleting Gazette', function() {
         it('should delete the created gazette', function() {
-            visitGazette(this.bf_project_id);
+            visitGazette(this.bf_project_id, modelId);
             getGazetteRow()
                 .find('i.remove')
                 .click();
             cy.get('body').should('not.contain', sortedGazetteValues);
             cy.contains(sortedGazetteValues).should('not.exist');
-            cy.deleteNLUModel(this.bf_project_id, modelName, 'French');
         });
     });
 });

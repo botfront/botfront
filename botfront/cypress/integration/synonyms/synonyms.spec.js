@@ -3,11 +3,10 @@ const modelName = 'myModel';
 const synonymName = 'growth';
 const synonymValues = 'raise, increase, augmentation';
 const sortedSynonymsValues = 'augmentation, increase, raise';
+let modelId = '';
 
 const visitSynonyms = (projectId) => {
-    cy.visit(`/project/${projectId}/nlu/models`);
-    cy.contains('French').click();
-    cy.get('.cards>:first-child button.primary').click();
+    cy.visit(`/project/${projectId}/nlu/model/${modelId}`);
     cy.contains('Training Data').click();
     cy.contains('Synonyms').click();
 };
@@ -16,7 +15,18 @@ const getSynonymRow = () => cy.contains(sortedSynonymsValues).closest('.rt-tr');
 
 describe('synonym', function() {
     before(function() {
+        cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
+        cy.get('@bf_project_id').then((id) => {
+            cy.createNLUModelProgramatically(
+                id,
+                modelName,
+                'fr',
+                'my nlu tagging testing model',
+            ).then((result) => {
+                modelId = result;
+            });
+        });
     });
 
     beforeEach(function() {
@@ -29,7 +39,6 @@ describe('synonym', function() {
 
     describe('adding a synonym', function() {
         it('should create a synonym with supplied parameters', function() {
-            cy.createNLUModel(this.bf_project_id, modelName, 'French', 'my model');
             visitSynonyms(this.bf_project_id);
             cy.get('.input.entity-synonym input').type(synonymName);
             cy.contains('Add').should('have.class', 'disabled');
@@ -110,7 +119,7 @@ describe('synonym', function() {
                 .click();
             cy.get('body').should('not.contain', sortedSynonymsValues);
             cy.contains(sortedSynonymsValues).should('not.exist');
-            cy.deleteNLUModel(this.bf_project_id, modelName, 'French');
+            cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
         });
     });
 });

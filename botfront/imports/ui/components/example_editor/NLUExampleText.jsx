@@ -29,7 +29,13 @@ class NLUExampleText extends React.Component {
     };
 
     renderText = () => {
-        const { example, entities, showLabels, projectId } = this.props;
+        const {
+            example,
+            entities,
+            showLabels,
+            disablePopup,
+            projectId,
+        } = this.props;
         const { stateEntity, selectedEntity } = this.state;
 
         let concatenatedEntities = example.entities;
@@ -120,6 +126,7 @@ class NLUExampleText extends React.Component {
                             key={`${e.start}${e.end}`}
                             selection
                             projectId={projectId}
+                            disable={disablePopup}
                         />,
                     );
                 } else {
@@ -142,6 +149,7 @@ class NLUExampleText extends React.Component {
                             )}
                             key={`${e.start}${e.end}`}
                             projectId={projectId}
+                            disable={disablePopup}
                         />,
                     );
                 }
@@ -391,9 +399,10 @@ NLUExampleText.propTypes = {
     showIntent: PropTypes.bool,
     showLabels: PropTypes.bool,
     withMargin: PropTypes.bool,
-    onSave: PropTypes.func.isRequired,
+    onSave: PropTypes.func,
     editable: PropTypes.bool,
     projectId: PropTypes.string.isRequired,
+    disablePopup: PropTypes.bool,
 };
 
 NLUExampleText.defaultProps = {
@@ -403,6 +412,8 @@ NLUExampleText.defaultProps = {
     showLabels: false,
     withMargin: false,
     editable: false,
+    disablePopup: false,
+    onSave: () => {},
 };
 
 export default NLUExampleText;
