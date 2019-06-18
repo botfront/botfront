@@ -30,6 +30,7 @@ function SlotEditor(props) {
             className={`slot-editor ${newSlot ? 'new' : ''}`}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
+            data-cy={newSlot ? 'new-slot-editor' : 'slot-editor'}
         >
             <AutoForm
                 model={slot}
@@ -47,7 +48,7 @@ function SlotEditor(props) {
                 }
             >
                 <AutoField name='name' />
-                <SelectField name='category' />
+                <SelectField name='category' data-cy='category-field' />
                 {slot.category === 'text' && (
                     <AutoField
                         name='initialValue'
@@ -72,7 +73,7 @@ function SlotEditor(props) {
                     label={false}
                     hidden
                 />
-                <ErrorsField />
+                <ErrorsField data-cy='errors-field' />
                 <SaveButton
                     saved={saved}
                     saveText={newSlot ? 'Add Slot' : 'Save'}
@@ -84,7 +85,7 @@ function SlotEditor(props) {
                                 name='trash'
                                 color='grey'
                                 link
-                                data-cy='delete-story'
+                                data-cy='delete-slot'
                             />
                         )}
                         content={(

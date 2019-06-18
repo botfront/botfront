@@ -74,7 +74,7 @@ class Slots extends React.Component {
                     />
                 )}
                 {!newSlot && (
-                    <Container textAlign='center'>
+                    <Container textAlign='center' id='add-slot-container'>
                         <Popup
                             trigger={(
                                 <Icon
