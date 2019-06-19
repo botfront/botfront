@@ -9,7 +9,7 @@
       },
       "private": {
           "defaultCredentials": "rasa_addons.core.channels.webchat.Webchat:\n  session_persistence: true",
-          "defaultPolicies": "policies:\n  - name: rasa_addons.core.policies.BotfrontMappingPolicy\n    triggers:\n      - trigger: '^chitchat\\..+|^basics\\..+'\n        action: 'action_botfront_mapping'\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy"
+          "defaultPolicies": "policies:\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy"
       }
   }
 }
