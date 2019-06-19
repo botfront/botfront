@@ -1,13 +1,13 @@
 /* eslint-disable no-undef */
 describe('Forgot password', function() {
     it('Open lost password', function() {
-        cy.visit('http://localhost:3000');
+        cy.visit('/');
         cy.contains('Forgot your password?').click();
         cy.url().should('be', '/forgot-password');
     });
 
     it('Non existing email returns ambiguous message', function() {
-        cy.visit('http://localhost:3000/forgot-password');
+        cy.visit('/forgot-password');
         cy.get('#uniforms-0000-0000')
             .type('nathan@mrbot.ai')
             .should('have.value', 'nathan@mrbot.ai');
@@ -18,7 +18,7 @@ describe('Forgot password', function() {
     });
 
     it('Go back to login', function() {
-        cy.visit('http://localhost:3000/forgot-password');
+        cy.visit('/forgot-password');
         cy.contains('Back to Sign in').click();
         cy.url().should('be', '/login');
     });
