@@ -5,7 +5,7 @@ images:
     rasa: botfront/rasa-for-botfront:branch-multilingual
     duckling: botfront/duckling:latest
     mongo: mongo:latest
-    actions: botfront/actions_sdk:latest
+    actions: botfront/actions-sdk:latest
 env:
   bf_project_id: bf
   mongo_url: mongodb://mongo:27017/bf
