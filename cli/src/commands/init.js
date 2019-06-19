@@ -53,7 +53,7 @@ export async function initCommand(cmd) {
         }
 
         if (cmd && cmd.path) {
-            await createProject(cmd.path, images, spinner);
+            return await createProject(cmd.path, images, ci);
         }
         consoleError('No conditions for anything was met. Nothing to do.')
     } catch (e) {

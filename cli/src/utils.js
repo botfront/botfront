@@ -43,6 +43,14 @@ export function setSpinnerText(spinner, message) {
     }
 }
 
+export function setSpinnerInfo(spinner, message) {
+    if (spinner) {
+        spinner.info = message;
+    } else {
+        console.log(message)
+    }
+}
+
 export function succeedSpinner(spinner, message) {
     if (spinner) {
         spinner.succeed(message);
