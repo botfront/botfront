@@ -7,6 +7,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import ChangesSaved from '../utils/ChangesSaved';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
+import { can } from '../../../lib/scopes';
 import './style.less';
 
 class Stories extends React.Component {
@@ -123,7 +124,8 @@ class Stories extends React.Component {
     };
 
     render() {
-        const { stories } = this.props;
+        const { stories, projectId } = this.props;
+        const canAddStory = can('stories:w', projectId);
         const {
             storyIndex,
             selectedStories,
@@ -149,6 +151,7 @@ class Stories extends React.Component {
                             onChange={this.handleMenuChange}
                             nameAccessor='name'
                             saving={saving}
+                            canAddItem={canAddStory}
                         />
                     </Grid.Column>
                     <Grid.Column width={12}>
@@ -159,6 +162,7 @@ class Stories extends React.Component {
                                 onChange={this.handleStoriesChange}
                                 disabled={saving}
                                 errors={validationErrors}
+                                projectId={projectId}
                             />
                         ) : (
                             <Message content='select or create a story group' />

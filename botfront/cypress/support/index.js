@@ -503,3 +503,17 @@ Cypress.Commands.add('removeTestResponse', (id) => {
     });'`;
     cy.exec(commandToRemoveResponse);
 });
+
+Cypress.Commands.add('addStory', (projectId) => {
+    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.stories.insert({ 
+        name: 'Test Story', 
+        projectId: '${projectId}', 
+        stories: [{ story: '## somestory' }],
+    });"`;
+    cy.exec(commandToAddStory);
+});
+
+Cypress.Commands.add('removeStory', () => {
+    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.stories.remove({ name: \'Test Story\'});"';
+    cy.exec(commandToRemoveStory);
+});

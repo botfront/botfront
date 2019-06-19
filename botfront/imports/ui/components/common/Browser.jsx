@@ -48,6 +48,7 @@ class Browser extends React.Component {
             allowAddition,
             nameAccessor,
             saving,
+            canAddItem,
         } = this.props;
 
         const { addMode, newItemName, page } = this.state;
@@ -66,8 +67,7 @@ class Browser extends React.Component {
                 )}
             </Menu.Item>
         ));
-
-        if (allowAddition) {
+        if (allowAddition && canAddItem) {
             items.unshift(
                 !addMode ? (
                     <Menu.Item
@@ -110,6 +110,7 @@ Browser.propTypes = {
     onAdd: PropTypes.func,
     nameAccessor: PropTypes.string,
     saving: PropTypes.bool,
+    canAddItem: PropTypes.bool,
 };
 
 Browser.defaultProps = {
@@ -120,6 +121,7 @@ Browser.defaultProps = {
     onAdd: () => {},
     nameAccessor: '_id',
     saving: false,
+    canAddItem: true,
 };
 
 export default Browser;

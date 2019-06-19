@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import 'brace/theme/github';
 import 'brace/mode/text';
+import { can } from '../../../lib/scopes';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 
@@ -28,12 +29,13 @@ function StoriesEditor(props) {
         props.onChange(newStories);
     }
 
-    const { stories, disabled, errors } = props;
+    const { stories, disabled, errors, projectId } = props;
+    const canWriteStories = can('stories:w', projectId);
     const editors = stories.map((story, index) => (
         <React.Fragment key={index}>
             <Segment data-cy='story-editor'>
                 <AceEditor
-                    readOnly={disabled}
+                    readOnly={disabled || !canWriteStories}
                     theme='github'
                     width='95%'
                     name='story'
@@ -60,48 +62,51 @@ function StoriesEditor(props) {
                         tabSize: 2,
                     }}
                 />
-                <Popup
-                    trigger={(
-                        <Icon
-                            name='trash'
-                            color='grey'
-                            link
-                            data-cy='delete-story'
-                        />
-                    )}
-                    content={(
-                        <ConfirmPopup
-                            title='Delete story ?'
-                            onYes={() => handeStoryDeletion(index)}
-                            onNo={() => setDeletePopup(-1)}
-                        />
-                    )}
-                    on='click'
-                    open={deletePopup === index}
-                    onOpen={() => setDeletePopup(index)}
-                    onClose={() => setDeletePopup(-1)}
-                />
+                {canWriteStories && (
+                    <Popup
+                        trigger={(
+                            <Icon
+                                name='trash'
+                                color='grey'
+                                link
+                                data-cy='delete-story'
+                            />
+                        )}
+                        content={(
+                            <ConfirmPopup
+                                title='Delete story ?'
+                                onYes={() => handeStoryDeletion(index)}
+                                onNo={() => setDeletePopup(-1)}
+                            />
+                        )}
+                        on='click'
+                        open={deletePopup === index}
+                        onOpen={() => setDeletePopup(index)}
+                        onClose={() => setDeletePopup(-1)}
+                    />)
+                }
             </Segment>
             {index !== stories.length - 1 && <br />}
         </React.Fragment>
     ));
-
     return (
         <>
             {editors}
             <Container textAlign='center'>
-                <Popup
-                    trigger={(
-                        <Icon
-                            name='add'
-                            link
-                            onClick={addStory}
-                            size='large'
-                            data-cy='add-story'
-                        />
-                    )}
-                    content='Add a story'
-                />
+                {canWriteStories && (
+                    <Popup
+                        trigger={(
+                            <Icon
+                                name='add'
+                                link
+                                onClick={addStory}
+                                size='large'
+                                data-cy='add-story'
+                            />
+                        )}
+                        content='Add a story'
+                    />)
+                }
             </Container>
         </>
     );
