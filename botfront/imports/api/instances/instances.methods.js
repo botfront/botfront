@@ -182,15 +182,14 @@ if (Meteor.isServer) {
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < nluModels.length; ++i) {
                     // eslint-disable-next-line no-await-in-loop
-                    // const { data } = await client.post('/data/convert/', {
-                    //     data: getTrainingDataInRasaFormat(nluModels[i]),
-                    //     output_format: 'md',
-                    //     language: nluModels[i].language,
-                    // });
-                    nlu[nluModels[i].language] = null;
+                    const { data } = await client.post('/data/convert/', {
+                        data: getTrainingDataInRasaFormat(nluModels[i]),
+                        output_format: 'md',
+                        language: nluModels[i].language,
+                    });
+                    nlu[nluModels[i].language] = data;
 
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
-                    console.log(config[nluModels[i].language]);
                 }
 
                 const { stories, domain } = getStoriesAndDomain();
