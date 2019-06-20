@@ -34,7 +34,7 @@ describe('Bot responses', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
         cy.contains('Chit Chat').click();
-        cy.get('[role=combobox]').eq(1).click();
+        cy.get('.chitchat > [role=combobox]').eq(1).click();
         cy.get('[role=listbox].menu').contains('basics.yes').click();
         cy.get('[role=listbox].menu').contains('basics.time').click();
         cy.get('[role=listbox].menu').contains('basics.no').click();

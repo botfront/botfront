@@ -13,7 +13,6 @@ env:
   bf_url: http://botfront-api:8080
   orchestrator: docker-compose
   root_url: http://localhost:8888
-  socket_url: http://localhost:5005
   socket_path: /socket.io/
   mongo_initdb_database: bf
   models_local_path: /app/models

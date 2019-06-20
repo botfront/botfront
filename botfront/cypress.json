@@ -11,11 +11,6 @@
     "watchForFileChanges": false,
     "numTestsKeptInMemory": 2 ,
     "viewportHeight": 660,
-    "viewportWidth": 1000,
-    "env": {
-      "bf_project_id": "HmSwboMcCCq8T273A",
-      "default_user_email": "test@test.com",
-      "default_user_password": "aaaaaaaa"
-    }
+    "viewportWidth": 1000
   }
   

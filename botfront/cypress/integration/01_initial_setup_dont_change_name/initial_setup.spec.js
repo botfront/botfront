@@ -2,7 +2,9 @@
 
 describe('intial setup', function() {
     before(function() {
-        cy.exec('mongo meteor --host localhost:3001 --eval "db.dropDatabase();"');
+        if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
+            cy.exec('mongo meteor --host localhost:3001 --eval "db.dropDatabase();"');
+        }
     });
 
     it('Should create projects when completing the initial setup', () => {
