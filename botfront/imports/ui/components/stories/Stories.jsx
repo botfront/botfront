@@ -48,11 +48,13 @@ class Stories extends React.Component {
 
     saveCurrentStory = (stories) => {
         const { saving } = this.state;
+        const { projectId } = this.props;
         if (saving) return;
         this.setState({ saving: true });
         Meteor.call(
             'storyGroups.update',
             stories,
+            projectId,
             wrapMeteorCallback(() => {
                 this.setState({ saving: false });
             }),
@@ -60,9 +62,11 @@ class Stories extends React.Component {
     };
 
     deleteCurrentStory = (story) => {
+        const { projectId } = this.props;
         Meteor.call(
             'storyGroups.delete',
             story,
+            projectId,
             wrapMeteorCallback((err) => {
                 if (!err) {
                     this.setState({

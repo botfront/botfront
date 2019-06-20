@@ -37,4 +37,38 @@ describe('stories:r permissions', function() {
         cy.get('[data-cy=add-story]').should('not.exist');
         cy.get('[data-cy=delete-story]').should('not.exist');
     });
+
+    it('should NOT be able call Meteor methods', function() {
+        cy.MeteorCall('storyGroups.insert', [
+            {
+                name: 'Test Story',
+                projectId: this.bf_project_id,
+                stories: [],
+            },
+        ]).then((result) => {
+            expect(result.error).to.equal('403');
+        });
+
+        cy.MeteorCall('storyGroups.update', [
+            {
+                name: 'Test Story',
+                projectId: this.bf_project_id,
+                stories: [],
+            },
+            this.bf_project_id,
+        ]).then((result) => {
+            expect(result.error).to.equal('403');
+        });
+
+        cy.MeteorCall('storyGroups.delete', [
+            {
+                name: 'Test Story',
+                projectId: this.bf_project_id,
+                stories: [],
+            },
+            this.bf_project_id,
+        ]).then((result) => {
+            expect(result.error).to.equal('403');
+        });
+    });
 });
