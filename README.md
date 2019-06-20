@@ -6,32 +6,32 @@
 
 </div>
 
-
-🎉🎉🎉 **Rasa 1.0 is here and we'll support it very soon in Botfront while keeping our unique features. Stay tuned**
-
 # Botfront
 
-**TL;DR: [Get started](https://docs.botfront.io/guide/getting-started/quick-start.html)** 
+Botfront is an open source chatbot platform built on top of **Rasa 1.x**.
 
-Botfront is an open source platform to build chatbots with Rasa. With Botfront you can:
-- Build, train and evaluate NLU models
-- Edit and store bot responses
-- Do simple Q&A (no code) and mix them with more complex stories (in code)
-- Monitor conversations
-- Review and annotate incoming NLU utterances
-- Build multilingual chatbots
-  
- 
-![Botfront screenshot](botfront/docs/images/botfront-screenshot-shadow.png)
+With Botfront you can:
+
+- Build advanced **multilingual** conversational agents 🌎
+- Create, edit and train **stories** 📖
+- Create, train, and evaluate **NLU** models 🤓
+- Create and edit your bot responses 👩‍🎨
+- Monitor conversations, review and annotate incoming NLU utterances 👌
 
 
 ### Getting started
 
+Just...
+
 ```bash
-npm install botfront
-botfront
+npm install -g botfront
 ```
 
+And...
+
+```bash
+botfront
+```
 
 ### Getting help
 - [Read the documentation](https://docs.botfront.io)
