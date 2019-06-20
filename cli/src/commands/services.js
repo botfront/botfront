@@ -7,6 +7,8 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import boxen from 'boxen';
 import { pullDockerImages } from './init';
+import path from 'path';
+import { watch } from 'chokidar';
 import { fixDir, isProjectDir, getComposeFilePath, getServices, getMissingImgs, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize, generateDockerCompose, startSpinner, stopSpinner, failSpinner, succeedSpinner, consoleError, setSpinnerText } from '../utils';
 
 export async function dockerComposeUp({ verbose = false }, workingDir, spinner = ora()) {
@@ -151,4 +153,22 @@ export async function stopRunningProjects(
     } finally {
         stopSpinner();
     }
+}
+
+export async function watchFolder({ verbose }, workingDir) {
+    const spinner = ora();
+    const watchedPath = path.join(fixDir(), 'actions');
+    const service = 'actions';
+    startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
+    watch(watchedPath, {
+        ignored: /(^|[\/\\])\../,
+        ignoreInitial: true,
+        interval: 1000,
+    })
+    .on('all', async (event, path) => {
+        stopSpinner(spinner);
+        console.log(`Detected ${event} on ${path}.`);
+        await dockerComposeRestart(service, { verbose }, workingDir);
+        startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
+    });
 }

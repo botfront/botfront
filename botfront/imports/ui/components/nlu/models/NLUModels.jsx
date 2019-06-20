@@ -23,7 +23,6 @@ import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_
 import { wrapMeteorCallback } from '../../utils/Errors';
 import getColor from '../../../../lib/getColors';
 import { setWorkingLanguage } from '../../../store/actions/actions';
-import { can, Can } from '../../../../lib/scopes';
 
 const NONE = -2;
 
@@ -100,12 +99,17 @@ class NLUModels extends React.Component {
     publishModel = (modelId, projectId) => Meteor.call('nlu.publish', modelId, projectId, wrapMeteorCallback());
 
     renderModels = (models) => {
-        const { projectId } = this.props;
+        const { projectId, project } = this.props;
         const {
             loading, popupTurnOnModel,
         } = this.state;
         const langs = uniq(models.map(m => m.language));
-        const disableOnlineOffline = !can('nlu-model:w', projectId);
+        const {
+            training: {
+                endTime,
+                status,
+            } = {},
+        } = project;
 
         const ConfirmPopup = ({ title, onYes = () => {}, description = '' }) => (
             <Segment basic className='model-popup' data-cy='confirm-popup'>
@@ -135,10 +139,6 @@ class NLUModels extends React.Component {
                 name,
                 language,
                 description,
-                training: {
-                    status,
-                    endTime,
-                } = {},
             } = model;
 
             const turnOnPopup = popupTurnOnModel === model._id;
@@ -162,7 +162,6 @@ class NLUModels extends React.Component {
                                 floated='right'
                                 content='ONLINE'
                                 data-cy='online-model'
-                                disabled={disableOnlineOffline}
                             />
                         ) : (
                             <Popup
@@ -170,7 +169,6 @@ class NLUModels extends React.Component {
                                 open={turnOnPopup}
                                 onOpen={() => this.setState({ popupTurnOnModel: model._id })}
                                 onClose={this.resetPopups}
-                                disabled={disableOnlineOffline}
                                 content={(
                                     <ConfirmPopup
                                         title='Publish ?'
@@ -178,21 +176,21 @@ class NLUModels extends React.Component {
                                         description={`Your bot will use this model for ${languageString}`}
                                     />
                                 )}
-                                trigger={<Button compact size='mini' basic floated='right' content='OFFLINE' disabled={disableOnlineOffline} data-cy='offline-model' />}
+                                trigger={<Button compact size='mini' basic floated='right' content='OFFLINE' data-cy='offline-model' />}
                             />
                         )}
                         <Card.Header>{name}</Card.Header>
                         <Card.Meta>{languageString}</Card.Meta>
                         <Card.Description>
                             {description && <div style={{ marginBottom: '10px' }}>{description}</div>}
-                            {!isTraining(model) && status === 'success' && (
+                            {!isTraining(project) && status === 'success' && (
                                 <Message positive content={`Trained ${moment(endTime).fromNow()}`} size='mini' />
                             )}
-                            {!isTraining(model) && status === 'failure' && (
+                            {!isTraining(project) && status === 'failure' && (
                                 <Message negative content={`Training failed ${moment(endTime).fromNow()}`} size='mini' />
                             )}
-                            {isTraining(model) && status === 'training' && (
-                                <Message info content={`Training started ${moment(model.training.startTime).fromNow()}...`} size='mini' />
+                            {isTraining(project) && status === 'training' && (
+                                <Message info content={`Training started ${moment(project.training.startTime).fromNow()}...`} size='mini' />
                             )}
                         </Card.Description>
                     </Card.Content>
@@ -282,16 +280,23 @@ NLUModels.propTypes = {
     workingLanguage: PropTypes.string.isRequired,
     changeWorkingLanguage: PropTypes.func.isRequired,
     models: PropTypes.arrayOf(PropTypes.object).isRequired,
+    project: PropTypes.object.isRequired,
 };
 
 const NLUModelsContainer = withTracker((props) => {
     const { project_id: projectId } = props.params;
-    const { nlu_models: modelIds = [] } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {};
+    const { nlu_models: modelIds = [], training } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, training: 1 } }) || {};
     const models = NLUModelsCollection.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
+
+    const project = {
+        _id: projectId,
+        training,
+    };
     
     return {
         projectId,
         models,
+        project,
     };
 })(NLUModels);
 

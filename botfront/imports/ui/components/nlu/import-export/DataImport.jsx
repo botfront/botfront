@@ -31,17 +31,51 @@ export default class DataImport extends React.Component {
         };
     }
 
+    errorAlert = (errorMessage) => {
+        Alert.error(`${errorMessage}`, {
+            position: 'top',
+            timeout: 5 * 1000,
+        });
+    }
+
     onDrop = (files) => {
+        const { model, instanceHost } = this.props;
         files.forEach((file) => {
             const reader = new FileReader();
-            reader.onload = () => this.setState({ values: reader.result });
+            reader.onload = () => {
+                if (file.name.split('.').pop() === 'json') {
+                    try {
+                        // Check if the content of file is valid JSON
+                        JSON.parse(reader.result);
+                        this.setState({ values: reader.result });
+                    } catch (e) {
+                        // If the content is not JSON it shows error
+                        this.errorAlert('Error: invalid schema');
+                        this.setState({ values: null });
+                    }
+                } else {
+                    Meteor.call('nlu.convertToJson', reader.result, model.language, 'json', instanceHost, (err, result) => {
+                        if (err) {
+                            this.errorAlert('Error: invalid schema');
+                        } else {
+                            Alert.success('Data successfully converted to JSON', {
+                                position: 'top-right',
+                                timeout: 1 * 1000,
+                            });
+                            this.setState({ values: JSON.stringify(result.data, null, '\t') }); // Additional arguments for pretty-print appearance
+                        }
+                    });
+                }
+            };
             reader.onabort = () => console.log('file reading was aborted');
             reader.onerror = () => console.log('file reading has failed');
-
             reader.readAsText(file, 'utf-8');
         });
     };
 
+    handleDropReject = () => {
+        this.errorAlert('Error: file not supported, make sure file size is less than 5 Mb.');
+    }
 
     downloadModelData = () => {
         const { model } = this.props;
@@ -68,18 +102,11 @@ export default class DataImport extends React.Component {
                 }, 'Data successfully imported'));
             } else {
                 this.setState({ uploading: false });
-                Alert.error('Error: invalid schema', {
-                    position: 'top',
-                    timeout: 'none',
-                });
+                this.errorAlert('Error: invalid schema');
             }
         } catch (e) {
             this.setState({ uploading: false });
-            Alert.error(`Error: ${e.reason}`, {
-                position: 'top',
-                timeout: 'none',
-            });
-            console.log(e);
+            this.errorAlert(`Error: ${e.reason}`);
         }
     };
 
@@ -108,11 +135,13 @@ export default class DataImport extends React.Component {
                         borderStyle: 'dashed',
                         borderRadius: '5px',
                     }}
+                    maxSize={5000000}
                     multiple={false}
                     onDrop={this.onDrop}
                     className='file-dropzone'
+                    onDropRejected={this.handleDropReject}
                 >
-                    <p> Drop Rasa NLU training data in json format </p>
+                    <p> Drop Rasa NLU training data in json format. Data should not be larger than <strong>5 Mb</strong>.</p>
                 </Dropzone>
                 <br />
                 <br />
@@ -182,4 +211,5 @@ export default class DataImport extends React.Component {
 
 DataImport.propTypes = {
     model: PropTypes.object.isRequired,
+    instanceHost: PropTypes.string.isRequired,
 };

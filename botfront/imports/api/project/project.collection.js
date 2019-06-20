@@ -63,6 +63,7 @@ if (Meteor.isServer) {
                     nlu_models: 1,
                     updatedAt: 1,
                     instance: 1,
+                    training: 1,
                 },
             });
         }

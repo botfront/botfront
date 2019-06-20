@@ -132,6 +132,24 @@ if (Meteor.isServer) {
             return parseNlu(projectId, modelId, instance, params, nolog);
         },
 
+        async 'nlu.convertToJson'(file, language, outputFormat, host) {
+            check(file, String);
+            check(language, String);
+            check(outputFormat, String);
+            check(host, String);
+            const client = axios.create({
+                baseURL: host,
+                timeout: 100 * 1000,
+            });
+            const { data } = await client.post('/data/convert/', {
+                data: file,
+                output_format: outputFormat,
+                language,
+            });
+            
+            return data;
+        },
+
         'nlu.train'(modelId, projectId, instance) {
             check(modelId, String);
             check(projectId, String);
@@ -157,7 +175,7 @@ if (Meteor.isServer) {
                 axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
                 const url = `${instance.host}/train?${qs}`;
                 Promise.await(client.post(url, trainingInfo));
-                Meteor.call('nlu.markTrainingStopped', modelId, 'success');
+                Meteor.call('project.markTrainingStopped', projectId, 'success');
                 return 'OK'; // because you need to return something
             } catch (e) {
                 console.log(e);
@@ -178,7 +196,7 @@ if (Meteor.isServer) {
                 }
 
                 console.log(error);
-                Meteor.call('nlu.markTrainingStopped', modelId, 'failure', error.reason);
+                Meteor.call('project.markTrainingStopped', projectId, 'failure', error.reason);
                 throw error;
             }
         },

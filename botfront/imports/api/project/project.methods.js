@@ -1,6 +1,5 @@
 import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
-import { checkIfCan } from '../../lib/scopes';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
@@ -12,12 +11,12 @@ import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
 import { createDeployment } from '../deployment/deployment.methods';
 import { Deployments } from '../deployment/deployment.collection';
+import { checkIfCan } from '../../lib/scopes';
 
 if (Meteor.isServer) {
     Meteor.methods({
         async 'project.insert'(item) {
             check(item, Object);
-            checkIfCan('global-admin');
             let _id;
             try {
                 _id = Projects.insert(item);
@@ -48,7 +47,6 @@ if (Meteor.isServer) {
 
         'project.delete'(projectId) {
             check(projectId, String);
-            checkIfCan('global-admin');
 
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
             if (!project) throw new Meteor.Error('Project not found');
@@ -64,6 +62,32 @@ if (Meteor.isServer) {
                 // Delete project related permissions for users (note: the role package does not provide
                 const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
                 projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
+            } catch (e) {
+                throw e;
+            }
+        },
+
+        'project.markTrainingStarted'(projectId) {
+            check(projectId, String);
+    
+            try {
+                return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
+            } catch (e) {
+                throw e;
+            }
+        },
+
+        'project.markTrainingStopped'(projectId, status, error) {
+            check(projectId, String);
+            check(status, String);
+            check(error, Match.Optional(String));
+    
+            try {
+                const set = { training: { status, endTime: new Date() } };
+                if (error) {
+                    set.training.message = error;
+                }
+                return Projects.update({ _id: projectId }, { $set: set });
             } catch (e) {
                 throw e;
             }

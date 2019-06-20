@@ -14,6 +14,7 @@ import {
     dockerComposeRestart,
     stopRunningProjects,
     getRunningDockerResources,
+    watchFolder,
 } from './commands/services';
 import { wait, isProjectDir, verifySystem, getBotfrontVersion, succeedSpinner, failSpinner, consoleError, stopSpinner } from './utils';
 
@@ -72,8 +73,13 @@ program
 
 program
     .command('restart [service]')
-    .description('restart a Botfront service (interactive). Must be executed in your project\'s directory')
+    .description('Restart a Botfront service (interactive). Must be executed in your project\'s directory')
     .action(dockerComposeRestart);
+
+program
+    .command('watch')
+    .description('Restart the Actions service automatically on file change. Must be executed in your project\'s directory')
+    .action(watchFolder);
     
 program
     .command('docs')

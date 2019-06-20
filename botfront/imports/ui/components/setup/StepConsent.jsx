@@ -11,20 +11,20 @@ class StepConsentComponent extends React.Component {
                 <br />
                 <br />
                 <span className='step-text'>
-                    Is it ok to email you important product updates (and nothing else)?
+                    Do you want to be notified of new releases ?
                 </span>
                 <br />
                 <br />
                 <br />
                 <span className='legal-text'>
-                    We use Mailchimp to send emails. Your email address, first and last names will be transferred to Mailchimp for processing.
+                    Privacy notice: your email address, first and last names will be transferred to Mailchimp. See their
                     <br />
                     <a
                         href='https://mailchimp.com/legal/'
                         target='_blank'
                         rel='noopener noreferrer'
                     >
-                        Learn more about Mailchimp&apos;s privacy practices here.
+                        privacy practices here.
                     </a>
                 </span>
                 <br />
