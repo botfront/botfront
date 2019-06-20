@@ -87,21 +87,16 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
 };
 
 export const getStoriesAndDomain = (projectId) => {
-    const { policies } = yaml.safeLoad(
-        CorePolicies.findOne(
-            { projectId }, { policies: 1 },
-        ).policies,
-    );
+    const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
     let mappingTriggers = policies
         .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
         .map(policy => policy.triggers.map(trigger => trigger.action))
         .reduce((coll, curr) => coll.concat(curr), []);
     mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
     const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
-    const storyGroups = StoryGroups.find(
-        { projectId },
-        { stories: 1 },
-    ).fetch().map(group => group.stories.map(story => story.story).join('\n'));
+    const storyGroups = StoryGroups.find({ projectId }, { stories: 1 })
+        .fetch()
+        .map(group => group.stories.map(story => story.story).join('\n'));
     const stories = [mappingStory, ...storyGroups];
     return {
         stories: stories.join('\n'),
@@ -128,7 +123,7 @@ if (Meteor.isServer) {
                 const url = `${instance.host}/model/parse?${qs}`;
                 return client.post(url, payload);
             });
-            
+
             const result = await axios.all(requests);
             if (result.length === 1 && result[0].status === 200) {
                 return result[0].data;
@@ -161,21 +156,21 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(instance, Object);
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
-            const nluModels = NLUModels.find({ _id: { $in: publishedModels.map(m => m._id) } }, {
-                fields: {
-                    config: 1,
-                    training_data: 1,
-                    language: 1,
-                    logActivity: 1,
-                    entity_synonyms: 1,
-                    regex_features: 1,
-                    fuzzy_gazette: 1,
+            const nluModels = NLUModels.find(
+                { _id: { $in: publishedModels.map(m => m._id) } },
+                {
+                    fields: {
+                        config: 1,
+                        training_data: 1,
+                        language: 1,
+                        logActivity: 1,
+                        entity_synonyms: 1,
+                        regex_features: 1,
+                        fuzzy_gazette: 1,
+                    },
                 },
-            }).fetch();
-            const corePolicies = CorePolicies.findOne(
-                { projectId },
-                { policies: 1 },
-            ).policies;
+            ).fetch();
+            const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 }).policies;
             const nlu = {};
             const config = {};
             const client = axios.create({
@@ -195,7 +190,7 @@ if (Meteor.isServer) {
 
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
-                
+
                 const { stories, domain } = getStoriesAndDomain();
                 const payload = {
                     domain,
@@ -217,10 +212,9 @@ if (Meteor.isServer) {
             }
         },
 
-        'rasa.evaluate.nlu'(modelId, projectId, instance, testData) {
+        'rasa.evaluate.nlu'(modelId, projectId, testData) {
             check(projectId, String);
             check(modelId, String);
-            check(instance, Object);
             check(testData, Match.Maybe(Object));
             try {
                 this.unblock();
@@ -228,6 +222,9 @@ if (Meteor.isServer) {
                 check(model, Object);
                 const examples = testData || getTrainingDataInRasaFormat(model, false);
                 const params = { language: model.language };
+                
+                const instance = Instances.findOne({ projectId });
+                console.log(instance)
                 if (instance.token) Object.assign(params, { token: instance.token });
                 const qs = queryString.stringify(params);
                 const client = axios.create({
