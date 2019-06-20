@@ -1,7 +1,17 @@
 const version = require('../../package.json').version;
 
+
 module.exports = {
-    ga: 'UA-110157233-2',
+    permalink: ':slug',
+    plugins: [
+            ['@vuepress/google-analytics', {
+              ga: 'UA-110157233-2'
+            }],
+            // '@vuepress/plugin-pwa',
+            '@vuepress/active-header-links',
+            '@vuepress/plugin-medium-zoom',
+            '@vuepress/back-to-top'
+        ],
     title: 'Documentation',
     themeConfig: {
         algolia: {
@@ -19,36 +29,35 @@ module.exports = {
 
         sidebar: [
             {
-                title: 'Getting Started', // required
+                title: 'Users guide', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
                     '/guide/getting-started/setup',
                     '/guide/getting-started/quick-start',
-                    '/guide/getting-started/rasa-stack',
+                    // '/guide/getting-started/rasa-stack',
                     // '/guide/getting-started/advanced',
                 ],
             },
-            {
-                title: 'Users Guide', // required
-                // path: '/guide',
-                collapsable: false,
-                sidebarDepth: 5,
-                children: ['/guide/users/settings', '/guide/users/endpoints', '/guide/users/credentials', '/guide/users/rules', '/guide/bot-responses/'],
-            },
+            // {
+            //     title: 'Users Guide', // required
+            //     // path: '/guide',
+            //     collapsable: false,
+            //     sidebarDepth: 5,
+            //     children: ['/guide/users/settings', '/guide/users/endpoints', '/guide/users/credentials', '/guide/users/rules', '/guide/bot-responses/'],
+            // },
             {
                 title: 'NLU Guide', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
-                    '/guide/nlu/instances-models',
                     ['/guide/', 'Intents and Entities'],
                     '/guide/nlu/training_adding_data',
                     '/guide/nlu/training',
                     '/guide/nlu/evaluation',
-                    '/guide/nlu/activity',
+                    // '/guide/nlu/activity',
                 ],
             },
             {
@@ -58,16 +67,13 @@ module.exports = {
                 sidebarDepth: 5,
                 children: [
                     '/guide/deployment/',
+                    // '/guide/deployment/settings',
+                    '/guide/deployment/endpoints',
+                    '/guide/deployment/credentials',
+                    // '/guide/deployment/rules',
+                    // '/guide/bot-responses/'
                 ]
             },
         ],
-        serviceWorker: {
-            updatePopup: true, // Boolean | Object, default to undefined.
-            // If set to true, the default text config will be:
-            // updatePopup: {
-            //    message: "New content is available.",
-            //    buttonText: "Refresh"
-            // }
-        },
     },
 };

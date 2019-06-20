@@ -1,22 +1,18 @@
 # Setup
 
-## Installation
-
-You can install Botfront on your computer by typing the following in your terminal:
+In your terminal:
 
 ```bash
 npm install -g botfront
 ```
 
-## Create a project
-
-In you terminal, type:
+Then...
 
 ```bash
 botfront
 ```
 
-And follow the instructions.After a long while (there's a lot to download), your browser should open Botfront:
+And follow the instructions to create a project. After a long while (there's a lot to download) Botfront will open in your browser and invite you to set up your project.
 
 
 <video autoplay muted loop width="740" controls>
