@@ -24,6 +24,7 @@ describe('chat side panel handling', function() {
     after(function() {
         cy.login();
         cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+        cy.removeTestConversation();
         cy.logout();
     });
 
