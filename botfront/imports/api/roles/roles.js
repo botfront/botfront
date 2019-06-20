@@ -32,12 +32,16 @@ if (Meteor.isServer) {
         Roles.createRole('responses:r', ue);
         Roles.createRole('responses:w', ue);
         Roles.addRolesToParent('responses:r', 'responses:w');
+
+        Roles.createRole('stories:r', ue);
+        Roles.createRole('stories:w', ue);
+        Roles.addRolesToParent('stories:r', 'stories:w');
     
         Roles.createRole('copy-viewer', ue);
-        Roles.addRolesToParent('responses:r', 'copy-viewer');
+        Roles.addRolesToParent(['responses:r', 'stories:r'], 'copy-viewer');
     
         Roles.createRole('copy-editor', ue);
-        Roles.addRolesToParent('responses:w', 'copy-editor');
+        Roles.addRolesToParent(['responses:w', 'stories:w'], 'copy-editor');
     
         Roles.createRole('conversations:r', ue);
         Roles.createRole('conversations-viewer', ue);

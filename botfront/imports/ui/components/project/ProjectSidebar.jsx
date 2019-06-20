@@ -47,9 +47,11 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='Conversations' icon='comments' />
                         </Link>
                     </Can>
-                    <Link to={`/project/${projectId}/stories`}>
-                        <Menu.Item name='Stories' icon='book' />
-                    </Link>
+                    <Can I='stories:r' projectId={projectId}>
+                        <Link to={`/project/${projectId}/stories`}>
+                            <Menu.Item name='Stories' icon='book' />
+                        </Link>
+                    </Can>
                     <Can I='project-settings:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/settings`}>
                             <Menu.Item name='Settings' icon='setting' />

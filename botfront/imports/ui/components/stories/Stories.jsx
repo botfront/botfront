@@ -7,6 +7,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import ChangesSaved from '../utils/ChangesSaved';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
+import { can } from '../../../lib/scopes';
 import './style.less';
 
 class Stories extends React.Component {
@@ -47,11 +48,13 @@ class Stories extends React.Component {
 
     saveCurrentStory = (stories) => {
         const { saving } = this.state;
+        const { projectId } = this.props;
         if (saving) return;
         this.setState({ saving: true });
         Meteor.call(
             'storyGroups.update',
             stories,
+            projectId,
             wrapMeteorCallback(() => {
                 this.setState({ saving: false });
             }),
@@ -59,9 +62,11 @@ class Stories extends React.Component {
     };
 
     deleteCurrentStory = (story) => {
+        const { projectId } = this.props;
         Meteor.call(
             'storyGroups.delete',
             story,
+            projectId,
             wrapMeteorCallback((err) => {
                 if (!err) {
                     this.setState({
@@ -123,7 +128,8 @@ class Stories extends React.Component {
     };
 
     render() {
-        const { stories } = this.props;
+        const { stories, projectId } = this.props;
+        const canAddStory = can('stories:w', projectId);
         const {
             storyIndex,
             selectedStories,
@@ -149,6 +155,7 @@ class Stories extends React.Component {
                             onChange={this.handleMenuChange}
                             nameAccessor='name'
                             saving={saving}
+                            canAddItem={canAddStory}
                         />
                     </Grid.Column>
                     <Grid.Column width={12}>
@@ -159,6 +166,7 @@ class Stories extends React.Component {
                                 onChange={this.handleStoriesChange}
                                 disabled={saving}
                                 errors={validationErrors}
+                                projectId={projectId}
                             />
                         ) : (
                             <Message content='select or create a story group' />

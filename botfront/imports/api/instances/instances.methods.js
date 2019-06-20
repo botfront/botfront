@@ -14,6 +14,7 @@ import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from
 import { extractDomain } from '../../lib/story_validation.js';
 import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
 import { Evaluations } from '../nlu_evaluation';
+import { checkIfCan } from '../roles/roles';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -153,6 +154,7 @@ if (Meteor.isServer) {
             check(instance, Object);
             check(params, Array);
             check(nolog, Boolean);
+            checkIfCan('nlu-data:r', instance.projectId);
             this.unblock();
             return parseNlu(instance, params, nolog);
         },
@@ -161,6 +163,7 @@ if (Meteor.isServer) {
             check(nluModelId, String);
             check(projectId, String);
             check(instance, Object);
+            checkIfCan('nlu-model:x', projectId);
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
             const nluModels = NLUModels.find({ _id: { $in: publishedModels.map(m => m._id) } }, {
                 fields: {
