@@ -82,7 +82,15 @@ class Activity extends React.Component {
     }
 
     getIntentColumns() {
-        const { model: { _id: modelId, training: { endTime } = {} }, outDatedUtteranceIds } = this.props;
+        const {
+            model: {
+                _id: modelId,
+            },
+            project: {
+                training: { endTime } = {},
+            },
+            outDatedUtteranceIds,
+        } = this.props;
         return [{
             id: 'confidence',
             Header: '%',
@@ -271,18 +279,19 @@ const ActivityContainer = withTracker((props) => {
         modelId,
         entities,
         intents,
+        project,
     } = props;
 
-    const isUtteranceOutdated = ({ training: { endTime } }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
-    const getOutdatedUtterances = (utterances, model) => utterances.filter(u => isUtteranceOutdated(model, u));
+    const isUtteranceOutdated = ({ training: { endTime } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+    const getOutdatedUtterances = (utterances, projectData) => utterances.filter(u => isUtteranceOutdated(projectData, u));
 
     const activityHandler = Meteor.subscribe('activity', modelId);
     const ready = activityHandler.ready();
-    const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1 } });
+    const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1, language: 1 } });
     const trainingExamples = model.training_data.common_examples;
     const pureIntents = getPureIntents(trainingExamples);
     const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
-    const outDatedUtteranceIds = getOutdatedUtterances(utterances, model).map(u => u._id);
+    const outDatedUtteranceIds = getOutdatedUtterances(utterances, project).map(u => u._id);
     let localIntents = [];
     let localEntities = []; // eslint-disable-line
     let numValidated = 0;
