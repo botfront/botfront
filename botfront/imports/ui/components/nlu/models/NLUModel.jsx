@@ -46,7 +46,7 @@ class NLUModel extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { activeItem: 'activity', ...NLUModel.getDerivedStateFromProps(props), modelId: '' };
+        this.state = { activeItem: 'data', ...NLUModel.getDerivedStateFromProps(props), modelId: '' };
         this.activityLinkRender = false;
     }
 
