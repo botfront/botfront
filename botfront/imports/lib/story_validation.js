@@ -173,6 +173,7 @@ export class StoryValidator {
 
 function addSlots(slots) {
     const slotsToAdd = {};
+    if (!slots) return {};
     slots.forEach((slot) => {
         const options = {};
         if (slot.type === 'float') {
