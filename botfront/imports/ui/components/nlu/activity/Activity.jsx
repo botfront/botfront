@@ -5,7 +5,6 @@ import matchSorter from 'match-sorter';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { sortBy, uniq } from 'lodash';
-import moment from 'moment';
 import {
     Tab,
     Button,
@@ -22,7 +21,7 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import ActivityActions from './ActivityActions';
 import './style.less';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import { getPureIntents } from '../../../../api/nlu_model/nlu_model.utils';
+import { getOutdatedUtterances } from '../../../../api/nlu_model/nlu_model.utils';
 import IntentViewer from '../models/IntentViewer';
 import { can } from '../../../../api/roles/roles';
 
@@ -350,8 +349,17 @@ const ActivityContainer = withTracker((props) => {
         project,
     } = props;
 
-    const isUtteranceOutdated = ({ training: { endTime } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
-    const getOutdatedUtterances = (utterances, projectData) => utterances.filter(u => isUtteranceOutdated(projectData, u));
+    const getPureIntents = (commonExamples) => {
+        const pureIntents = new Set();
+        commonExamples.forEach((e) => {
+            if ((!e.entities || e.entities.length === 0) && e.intent) {
+                pureIntents.add(e.intent);
+            } else {
+                pureIntents.delete(e.intent);
+            }
+        });
+        return [...pureIntents];
+    };
     const getDeletableUtterances = (utterances, minConfidence, pureIntents, outDatedUtteranceIds) => utterances.filter(e => pureIntents.includes(e.intent)
                                 && e.confidence >= minConfidence
                                 && e.confidence < 1

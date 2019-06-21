@@ -61,16 +61,40 @@ export const getPublishedNluModelLanguages = (modelIds, asOptions = false) => {
     return languageCodes;
 };
 
-export const getPureIntents = (commonExamples) => {
-    const pureIntents = new Set();
-    commonExamples.forEach((e) => {
-        if ((!e.entities || e.entities.length === 0) && e.intent) {
-            pureIntents.add(e.intent);
-        } else {
-            pureIntents.delete(e.intent);
-        }
-    });
-    return [...pureIntents];
+const smartTips = (flags) => {
+    let code, message;
+    const { intentBelowTh, entitiesBelowTh } = flags;
+    if (intentBelowTh) {
+        message = `Validate this utterance: Intent ${intentBelowTh.name} was predicted with confidence ${intentBelowTh.confidence}, which is below your set threshold.`;
+        code = 'intentBelowTh';
+    }
+    if (entitiesBelowTh) {
+        const plural = entitiesBelowTh.length > 1;
+        const entityNames = entitiesBelowTh.map(entity => entity.name);
+        const entityConf = entitiesBelowTh.map(entity => entity.confidence);
+        message = `Validate this utterance: Entit${plural ? 'ies' : 'y'} ${entityNames.join(', ')} ${plural ? 'were' : 'was'} predicted
+        with confidence ${entityConf.join(', ')}, which is below your set threshold.`;
+        code = 'entitiesBelowTh';
+    }
+
+    return { code, message };
+};
+
+const isUtteranceOutdated = ({ training: { endTime } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+
+export const getOutdatedUtterances = (utterances, projectData) => utterances.filter(u => isUtteranceOutdated(projectData, u));
+
+
+export const getSmartTips = (model, utterance, th) => {
+    examples = model.training_data.common_examples;
+    // synonyms = model.training_data.entity_synonyms;
+    // gazette = model.training_data.gazette;
+    if (isUtteranceOutdated(utterance)) return 'outdated';
+    const intentBelowTh = utterance.confidence < th ? { name: utterance.intent, confidence: utterance.confidence } : null;
+    if (intentBelowTh) return smartTips({ intentBelowTh });
+    const entitiesBelowTh = utterance.entities.filter(entity => entity.confidence < th)
+        .map(entity => ({ name: entity.entity, confidence: entity.confidence }));
+    if (entitiesBelowTh.length) return smartTips({ entitiesBelowTh });
 };
 
 export const renameIntentsInTemplates = (templates, oldIntent, newIntent) => {
