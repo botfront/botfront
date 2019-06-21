@@ -1,18 +1,20 @@
 /* eslint-disable camelcase */
-import axios from 'axios';
-import path from 'path';
 import { check, Match } from 'meteor/check';
 import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
 import yaml from 'js-yaml';
+import axios from 'axios';
+import path from 'path';
+
+import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-import { Instances } from './instances.collection';
+import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
-import { CorePolicies } from '../core_policies';
-import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
 import { extractDomain } from '../../lib/story_validation.js';
-import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
+import { Stories } from '../story/stories.collection';
+import { Instances } from './instances.collection';
+import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 
 export const createInstance = async (project) => {
@@ -95,10 +97,11 @@ export const getStoriesAndDomain = (projectId) => {
         .reduce((coll, curr) => coll.concat(curr), []);
     mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
     const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
-    const storyGroups = StoryGroups.find({ projectId }, { stories: 1 })
-        .fetch()
-        .map(group => group.stories.map(story => story.story).join('\n'));
-    const stories = [mappingStory, ...storyGroups];
+    let stories = Stories.find(
+        { projectId },
+        { story: 1 },
+    ).fetch().map(story => story.story);
+    stories = [mappingStory, ...stories];
     return {
         stories: stories.join('\n'),
         domain: extractDomain(stories),
@@ -156,6 +159,7 @@ if (Meteor.isServer) {
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
+            const { stories, domain } = getStoriesAndDomain();
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
             const nluModels = NLUModels.find(
                 { _id: { $in: publishedModels.map(m => m._id) } },
