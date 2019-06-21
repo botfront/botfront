@@ -34,7 +34,7 @@ class Slots extends React.Component {
     handleSaveSlot = (slot, callback) => {
         const updatedSlot = { ...slot };
         // This code is here to prevent validation errors
-        if (updatedSlot.category !== 'float') {
+        if (updatedSlot.type !== 'float') {
             delete updatedSlot.minValue;
             delete updatedSlot.maxValue;
         }

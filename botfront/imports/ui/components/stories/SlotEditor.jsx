@@ -30,6 +30,7 @@ function SlotEditor(props) {
             className={`slot-editor ${newSlot ? 'new' : ''}`}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
+            onMouseMove={() => setHover(true)}
             data-cy={newSlot ? 'new-slot-editor' : 'slot-editor'}
         >
             <AutoForm
@@ -48,23 +49,17 @@ function SlotEditor(props) {
                 }
             >
                 <AutoField name='name' />
-                <SelectField name='category' data-cy='category-field' />
-                {slot.category === 'text' && (
+                <SelectField name='type' data-cy='type-field' />
+                {slot.type === 'text' && (
                     <AutoField
                         name='initialValue'
                         placeholder='Leave empty for no initial value'
                     />
                 )}
-                {slot.category === 'float' && (
+                {slot.type === 'float' && (
                     <>
-                        <AutoField
-                            name='minValue'
-                            placeholder='Leave empty for no minimum value'
-                        />
-                        <AutoField
-                            name='maxValue'
-                            placeholder='Leave empty for no maximum value'
-                        />
+                        <AutoField name='minValue' placeholder='0.0' />
+                        <AutoField name='maxValue' placeholder='1.0' />
                     </>
                 )}
                 <AutoField
