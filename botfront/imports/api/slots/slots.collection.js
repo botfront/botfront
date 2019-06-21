@@ -2,12 +2,12 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 
-import { StoryGroupSchema } from './storyGroups.schema';
+import { SlotsSchema } from './slots.schema';
 
-export const StoryGroups = new Mongo.Collection('storyGroups');
+export const Slots = new Mongo.Collection('slots');
 
 // Deny all client-side updates on the Projects collection
-StoryGroups.deny({
+Slots.deny({
     insert() {
         return true;
     },
@@ -20,10 +20,11 @@ StoryGroups.deny({
 });
 
 if (Meteor.isServer) {
-    Meteor.publish('storiesGroup', function(projectId) {
+    Meteor.publish('slots', function(projectId) {
         check(projectId, String);
-        return StoryGroups.find({ projectId });
+        Slots.find({ projectId });
+        return Slots.find({ projectId });
     });
 }
 
-StoryGroups.attachSchema(StoryGroupSchema);
+Slots.attachSchema(SlotsSchema);
