@@ -3,7 +3,7 @@ import SimpleSchema from 'simpl-schema';
 function validateMinMaxValue() {
     if (
         this.field('minValue').value >= this.field('maxValue').value
-        && this.field('category').value === 'float'
+        && this.field('type').value === 'float'
     ) {
         return 'minMax';
     }
@@ -17,7 +17,7 @@ export const SlotsSchema = new SimpleSchema(
             type: String,
         },
         projectId: { type: String },
-        category: {
+        type: {
             type: String,
             allowedValues: [
                 'text',

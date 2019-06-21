@@ -8,12 +8,12 @@ import path from 'path';
 
 import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { extractDomain } from '../../lib/story_validation.js';
 import { Stories } from '../story/stories.collection';
 import { Instances } from './instances.collection';
+import { Slots } from '../slots/slots.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 
@@ -102,9 +102,10 @@ export const getStoriesAndDomain = (projectId) => {
         { story: 1 },
     ).fetch().map(story => story.story);
     stories = [mappingStory, ...stories];
+    const slots = Slots.find({ projectId }).fetch();
     return {
         stories: stories.join('\n'),
-        domain: extractDomain(stories),
+        domain: extractDomain(stories, slots),
     };
 };
 
@@ -159,7 +160,6 @@ if (Meteor.isServer) {
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
-            const { stories, domain } = getStoriesAndDomain();
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
             const nluModels = NLUModels.find(
                 { _id: { $in: publishedModels.map(m => m._id) } },
@@ -229,7 +229,6 @@ if (Meteor.isServer) {
                 const params = { language: model.language };
                 
                 const instance = Instances.findOne({ projectId });
-                console.log(instance)
                 if (instance.token) Object.assign(params, { token: instance.token });
                 const qs = queryString.stringify(params);
                 const client = axios.create({

@@ -15,7 +15,7 @@ describe('stories', function() {
     function createSlot() {
         cy.dataCy('add-slot').click();
         cy.dataCy('new-slot-editor').get('input').first().type(slotName);
-        cy.dataCy('category-field').click();
+        cy.dataCy('type-field').click();
         cy.get('[role=listbox]').contains('text').click();
         cy.dataCy('save-button').click();
     }
@@ -39,7 +39,7 @@ describe('stories', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('slots-tab').click();
         createSlot();
-        cy.dataCy('category-field').click();
+        cy.dataCy('type-field').click();
         cy.get('[role=listbox]').contains('float').click();
         cy.dataCy('save-button').click();
         cy.contains('Min value');
