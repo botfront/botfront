@@ -18,6 +18,7 @@ export const publicSettingsSchema = new SimpleSchema({
     docUrl: { type: String, defaultValue: 'https://docs.botfront.io' },
     backgroundImages: { type: Array, defaultValue: [] },
     'backgroundImages.$': { type: String },
+    logoUrl: { type: String, optional: true },
 });
 
 export const GlobalSettingsSchema = new SimpleSchema(

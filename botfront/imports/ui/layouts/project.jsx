@@ -106,12 +106,7 @@ class Project extends React.Component {
             <div style={{ height: '100vh' }}>
                 {showIntercom && !loading && <Intercom appID={intercomId} {...this.getIntercomUser()} />}
                 <div className='project-sidebar'>
-                    <Header as='h1' className='logo'>
-                        Botfront.
-                    </Header>
-                    <Header as='h1' className='simple-logo'>
-                        B.
-                    </Header>
+                    
                     {loading && this.renderPlaceholder(true, false)}
                     {!loading && (
                         <ProjectSidebarComponent
