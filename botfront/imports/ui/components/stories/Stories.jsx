@@ -18,43 +18,33 @@ class Stories extends React.Component {
     }
 
     handleAddStoryGroup = async (name) => {
-        const { projectId, stories } = this.props;
-        const newStories = [`## ${name}`];
+        const { projectId, storyGroups } = this.props;
         Meteor.call(
             'storyGroups.insert',
             {
                 name,
                 projectId,
-                stories: newStories.map(story => ({ story })),
             },
-            wrapMeteorCallback((err) => {
+            wrapMeteorCallback((err, groupId) => {
                 if (!err) {
                     this.setState({
-                        storyIndex: stories.length,
+                        storyIndex: storyGroups.length,
                         validationErrors: false,
+                    });
+                    Meteor.call('stories.insert', {
+                        story: `## ${name}`,
+                        storyGroupId: groupId,
+                        projectId,
                     });
                 }
             }),
         );
     };
 
-    saveCurrentStory = (stories) => {
-        const { saving } = this.state;
-        if (saving) return;
-        this.setState({ saving: true });
-        Meteor.call(
-            'storyGroups.update',
-            stories,
-            wrapMeteorCallback(() => {
-                this.setState({ saving: false });
-            }),
-        );
-    };
-
-    deleteCurrentStory = (story) => {
+    deleteCurrentStory = (storyGroup) => {
         Meteor.call(
             'storyGroups.delete',
-            story,
+            storyGroup,
             wrapMeteorCallback((err) => {
                 if (!err) {
                     this.setState({
@@ -90,26 +80,30 @@ class Stories extends React.Component {
     };
 
     handleNewStory = () => {
-        const { projectId, stories } = this.props;
+        const { projectId, storyGroups } = this.props;
         const { storyIndex } = this.state;
         Meteor.call(
             'stories.insert',
             {
-                story: `## ${stories[storyIndex].name}`,
+                story: `## ${storyGroups[storyIndex].name}`,
                 projectId,
-                storyGroupId: stories[storyIndex]._id,
+                storyGroupId: storyGroups[storyIndex]._id,
             },
             wrapMeteorCallback(),
         );
     };
 
     handleDeleteGroup = (index) => {
-        const { stories } = this.props;
-        Meteor.call('storyGroups.delete', stories[index], wrapMeteorCallback());
+        const { storyGroups } = this.props;
+        Meteor.call(
+            'storyGroups.delete',
+            storyGroups[index],
+            wrapMeteorCallback(),
+        );
     };
 
     render() {
-        const { stories, projectId } = this.props;
+        const { storyGroups, projectId } = this.props;
         const { storyIndex, saving, validationErrors } = this.state;
         return (
             <Grid className='stories-container'>
@@ -121,7 +115,7 @@ class Stories extends React.Component {
                         />
                     )}
                     <ItemsBrowser
-                        data={stories}
+                        data={storyGroups}
                         allowAddition
                         index={storyIndex}
                         onAdd={this.handleAddStoryGroup}
@@ -131,9 +125,9 @@ class Stories extends React.Component {
                     />
                 </Grid.Column>
                 <Grid.Column width={12}>
-                    {stories[storyIndex] ? (
+                    {storyGroups[storyIndex] ? (
                         <StoriesEditor
-                            storyGroup={stories[storyIndex]}
+                            storyGroup={storyGroups[storyIndex]}
                             onSaving={this.handleSavingStories}
                             onSaved={this.handleSavedStories}
                             onError={this.handleError}
@@ -154,7 +148,7 @@ class Stories extends React.Component {
 
 Stories.propTypes = {
     projectId: PropTypes.string.isRequired,
-    stories: PropTypes.array.isRequired,
+    storyGroups: PropTypes.array.isRequired,
 };
 
 export default Stories;

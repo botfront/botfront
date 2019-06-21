@@ -142,7 +142,10 @@ function StoriesContainer(props) {
                 {activeItem === 'stories' && (
                     <React.Suspense fallback={RenderPlaceHolder()}>
                         {ready ? (
-                            <Stories projectId={projectId} stories={storyGroups} />
+                            <Stories
+                                projectId={projectId}
+                                storyGroups={storyGroups}
+                            />
                         ) : (
                             RenderPlaceHolder()
                         )}

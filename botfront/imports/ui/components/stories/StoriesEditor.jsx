@@ -28,6 +28,7 @@ function StoriesEditor(props) {
         onErrorResolved,
         onAddNewStory,
         onDeleteGroup,
+        storyGroup,
     } = props;
 
     // This effect listen to changes on errors and notifies
@@ -41,6 +42,13 @@ function StoriesEditor(props) {
         });
         if (noErrors) onErrorResolved();
     }, [errors]);
+
+    // This effect resets the state if the storyGroup being displayed changed
+    useEffect(() => {
+        setStoryTexts([]);
+        setErrors([]);
+        setDeletePopup(-1);
+    }, [storyGroup]);
 
     function saveStory(story) {
         onSaving();
