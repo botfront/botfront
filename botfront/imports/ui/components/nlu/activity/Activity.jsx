@@ -93,6 +93,7 @@ class Activity extends React.Component {
                 training: { endTime } = {},
             },
             outDatedUtteranceIds,
+            projectId,
         } = this.props;
         return [{
             id: 'confidence',
@@ -351,6 +352,10 @@ const ActivityContainer = withTracker((props) => {
 
     const isUtteranceOutdated = ({ training: { endTime } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
     const getOutdatedUtterances = (utterances, projectData) => utterances.filter(u => isUtteranceOutdated(projectData, u));
+    const getDeletableUtterances = (utterances, minConfidence, pureIntents, outDatedUtteranceIds) => utterances.filter(e => pureIntents.includes(e.intent)
+                                && e.confidence >= minConfidence
+                                && e.confidence < 1
+                                && !outDatedUtteranceIds.includes(e._id));
 
     const activityHandler = Meteor.subscribe('activity', modelId);
     const ready = activityHandler.ready();
@@ -359,6 +364,7 @@ const ActivityContainer = withTracker((props) => {
     const pureIntents = getPureIntents(trainingExamples);
     const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
     const outDatedUtteranceIds = getOutdatedUtterances(utterances, project).map(u => u._id);
+    const deletableUtteranceIds = getDeletableUtterances(utterances, 0.85, pureIntents, outDatedUtteranceIds).map(u => u._id);
     let localIntents = [];
     let localEntities = []; // eslint-disable-line
     let numValidated = 0;
