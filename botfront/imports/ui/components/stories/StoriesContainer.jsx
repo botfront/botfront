@@ -7,16 +7,17 @@ import {
     Label,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
 import moment from 'moment';
-import NLUTrainButton from '../nlu/models/NLUTrainButton';
-import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
-import { Instances } from '../../../api/instances/instances.collection';
-import { Projects } from '../../../api/project/project.collection';
+
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
+import { Instances } from '../../../api/instances/instances.collection';
+import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
+import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
+import NLUTrainButton from '../nlu/models/NLUTrainButton';
 import { PageMenu } from '../utils/Utils';
 
 const Stories = React.lazy(() => import('./Stories'));
@@ -26,7 +27,7 @@ function StoriesContainer(props) {
     const {
         projectId,
         ready,
-        stories,
+        storyGroups,
         slots,
         instance,
         project: { training: { endTime, status } = {} },
@@ -141,7 +142,7 @@ function StoriesContainer(props) {
                 {activeItem === 'stories' && (
                     <React.Suspense fallback={RenderPlaceHolder()}>
                         {ready ? (
-                            <Stories projectId={projectId} stories={stories} />
+                            <Stories projectId={projectId} stories={storyGroups} />
                         ) : (
                             RenderPlaceHolder()
                         )}
@@ -164,7 +165,7 @@ function StoriesContainer(props) {
 StoriesContainer.propTypes = {
     projectId: PropTypes.string.isRequired,
     ready: PropTypes.bool.isRequired,
-    stories: PropTypes.array.isRequired,
+    storyGroups: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
 };
 
@@ -176,7 +177,7 @@ const StoriesWithState = connect(mapStateToProps)(StoriesContainer);
 
 export default withTracker((props) => {
     const { project_id: projectId } = props.params;
-    const storiesHandler = Meteor.subscribe('storiesGroup', projectId);
+    const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
@@ -197,11 +198,11 @@ export default withTracker((props) => {
 
     return {
         ready:
-            storiesHandler.ready()
+            storyGroupsHandler.ready()
             && projectsHandler.ready()
             && instancesHandler.ready()
             && slotsHandler.ready(),
-        stories: StoryGroups.find({}).fetch(),
+        storyGroups: StoryGroups.find({}).fetch(),
         slots: Slots.find({}).fetch(),
         instance,
         project,

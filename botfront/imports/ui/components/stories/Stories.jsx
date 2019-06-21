@@ -2,9 +2,7 @@ import { Grid, Message } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { StoryValidator } from '../../../lib/story_validation';
 import { wrapMeteorCallback } from '../utils/Errors';
-import ChangesSaved from '../utils/ChangesSaved';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
 import './style.less';
@@ -12,15 +10,10 @@ import './style.less';
 class Stories extends React.Component {
     constructor(props) {
         super(props);
-        const { stories } = this.props;
         this.state = {
             storyIndex: 0,
-            selectedStories: stories[0]
-                ? stories[0].stories.map(story => story.story)
-                : [],
             saving: false,
-            validationErrors: [],
-            displaySaved: false,
+            validationErrors: false,
         };
     }
 
@@ -38,7 +31,7 @@ class Stories extends React.Component {
                 if (!err) {
                     this.setState({
                         storyIndex: stories.length,
-                        selectedStories: newStories,
+                        validationErrors: false,
                     });
                 }
             }),
@@ -65,8 +58,7 @@ class Stories extends React.Component {
             wrapMeteorCallback((err) => {
                 if (!err) {
                     this.setState({
-                        validationErrors: [],
-                        selectedStories: [''],
+                        validationErrors: false,
                         storyIndex: -1,
                     });
                 }
@@ -75,66 +67,54 @@ class Stories extends React.Component {
     };
 
     handleMenuChange = (index) => {
-        const { stories } = this.props;
         this.setState({
             storyIndex: index,
-            selectedStories: stories[index]
-                ? stories[index].stories.map(story => story.story)
-                : [''],
-            validationErrors: [],
+            validationErrors: false,
         });
     };
 
-    handleStoriesChange = (newStories) => {
+    handleSavingStories = () => {
+        this.setState({ saving: true });
+    };
+
+    handleSavedStories = () => {
+        this.setState({ saving: false });
+    };
+
+    handleError = () => {
+        this.setState({ validationErrors: true });
+    };
+
+    handleErrorResolved = () => {
+        this.setState({ validationErrors: false });
+    };
+
+    handleNewStory = () => {
+        const { projectId, stories } = this.props;
         const { storyIndex } = this.state;
-        const { stories } = this.props;
-        if (newStories.length === 0) {
-            this.deleteCurrentStory(stories[storyIndex]);
-            return;
-        }
-        this.setState({
-            selectedStories: newStories,
-        });
-        const validationErrors = this.validateStoryGroup(newStories);
-        this.setState({ validationErrors });
-        if (validationErrors.every(story => !story.length)) {
-            this.saveCurrentStory({
-                ...stories[storyIndex],
-                stories: newStories.map(story => ({ story })),
-            });
-        }
+        Meteor.call(
+            'stories.insert',
+            {
+                story: `## ${stories[storyIndex].name}`,
+                projectId,
+                storyGroupId: stories[storyIndex]._id,
+            },
+            wrapMeteorCallback(),
+        );
     };
 
-    validateStoryGroup = (group) => {
-        const storiesValidation = [];
-        group.forEach((story) => {
-            const validator = new StoryValidator(story);
-            validator.validateStories();
-            if (!story.replace(/\s/g, '').length) {
-                validator.exceptions.push({
-                    type: 'error',
-                    line: 1,
-                    message: 'don\'t leave the story empty.',
-                });
-            }
-            storiesValidation.push(validator.exceptions);
-        });
-        return storiesValidation;
+    handleDeleteGroup = (index) => {
+        const { stories } = this.props;
+        Meteor.call('storyGroups.delete', stories[index], wrapMeteorCallback());
     };
 
     render() {
-        const { stories } = this.props;
-        const {
-            storyIndex,
-            selectedStories,
-            saving,
-            validationErrors,
-            displaySaved,
-        } = this.state;
+        const { stories, projectId } = this.props;
+        const { storyIndex, saving, validationErrors } = this.state;
         return (
             <Grid className='stories-container'>
                 <Grid.Column width={4}>
-                    {!validationErrors.every(error => !error.length) && (
+                    {validationErrors && (
                         <Message
                             warning
                             content="Your changes haven't been saved. Correct errors first."
@@ -151,13 +131,17 @@ class Stories extends React.Component {
                     />
                 </Grid.Column>
                 <Grid.Column width={12}>
-                    {displaySaved && <ChangesSaved />}
                     {stories[storyIndex] ? (
                         <StoriesEditor
-                            stories={selectedStories}
-                            onChange={this.handleStoriesChange}
-                            disabled={saving}
-                            errors={validationErrors}
+                            storyGroup={stories[storyIndex]}
+                            onSaving={this.handleSavingStories}
+                            onSaved={this.handleSavedStories}
+                            onError={this.handleError}
+                            onErrorResolved={this.handleErrorResolved}
+                            onAddNewStory={this.handleNewStory}
+                            projectId={projectId}
+                            onDeleteGroup={() => this.handleDeleteGroup(storyIndex)
+                            }
                         />
                     ) : (
                         <Message content='select or create a story group' />

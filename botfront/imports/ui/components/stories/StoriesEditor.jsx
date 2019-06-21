@@ -1,34 +1,108 @@
 import {
     Icon, Container, Popup, Segment,
 } from 'semantic-ui-react';
-import React, { useState } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import 'brace/theme/github';
 import 'brace/mode/text';
 
+import { Stories } from '../../../api/story/stories.collection';
+import { StoryValidator } from '../../../lib/story_validation';
 import ConfirmPopup from '../common/ConfirmPopup';
+import { wrapMeteorCallback } from '../utils/Errors';
 
 function StoriesEditor(props) {
     const [deletePopup, setDeletePopup] = useState(-1);
-    function addStory() {
-        props.onChange([...props.stories, '']);
+    const [errors, setErrors] = useState([]);
+    // This state is only used to store edited stories
+    const [storyTexts, setStoryTexts] = useState([]);
+
+    const {
+        stories,
+        disabled,
+        onSaving,
+        onSaved,
+        onError,
+        onErrorResolved,
+        onAddNewStory,
+        onDeleteGroup,
+    } = props;
+
+    // This effect listen to changes on errors and notifies
+    // the parent component if no errors were detected
+    useEffect(() => {
+        let noErrors = true;
+        errors.forEach((error) => {
+            if (error && error.length) {
+                noErrors = false;
+            }
+        });
+        if (noErrors) onErrorResolved();
+    }, [errors]);
+
+    function saveStory(story) {
+        onSaving();
+        Meteor.call(
+            'stories.update',
+            story,
+            wrapMeteorCallback(() => {
+                onSaved();
+            }),
+        );
     }
 
     function handleStoryChange(newStory, index) {
-        const newStories = [...props.stories];
-        newStories[index] = newStory;
-        props.onChange(newStories);
+        const newTexts = [...storyTexts];
+        newTexts[index] = newStory;
+        setStoryTexts(newTexts);
+        const validator = new StoryValidator(newStory);
+        validator.validateStories();
+
+        if (!newStory.replace(/\s/g, '').length) {
+            validator.exceptions.push({
+                type: 'error',
+                line: 1,
+                message: 'don\'t leave the story empty.',
+            });
+        }
+
+        const newErrors = [...errors];
+        newErrors[index] = validator.exceptions;
+        setErrors(newErrors);
+
+        if (validator.exceptions.length) {
+            onError();
+            // We save the story only if there are no errors
+            return;
+        }
+        saveStory({ ...stories[index], story: newStory });
     }
 
     function handeStoryDeletion(index) {
-        const newStories = [...props.stories];
-        newStories.splice(index, 1);
         setDeletePopup(-1);
-        props.onChange(newStories);
+        const toBeDeletedStory = stories[index];
+        Meteor.call('stories.delete', toBeDeletedStory, wrapMeteorCallback());
+        const stateErrors = [...errors];
+        stateErrors.splice(index, 1);
+        setErrors(stateErrors);
+        const stateStoryTexts = [...storyTexts];
+        stateStoryTexts.splice(index, 1);
+        setStoryTexts(stateStoryTexts);
+        Meteor.call(
+            'stories.delete',
+            toBeDeletedStory,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    if (stories.length === 1) {
+                        onDeleteGroup();
+                    }
+                }
+            }),
+        );
     }
 
-    const { stories, disabled, errors } = props;
     const editors = stories.map((story, index) => (
         <React.Fragment key={index}>
             <Segment data-cy='story-editor'>
@@ -42,7 +116,11 @@ function StoriesEditor(props) {
                     maxLines={Infinity}
                     fontSize={12}
                     onChange={data => handleStoryChange(data, index)}
-                    value={story}
+                    value={
+                        storyTexts[index] !== undefined
+                            ? storyTexts[index]
+                            : story.story
+                    }
                     showPrintMargin={false}
                     showGutter
                     // We use ternary expressions here to prevent wrong prop types
@@ -98,7 +176,7 @@ function StoriesEditor(props) {
                         <Icon
                             name='add'
                             link
-                            onClick={addStory}
+                            onClick={onAddNewStory}
                             size='large'
                             data-cy='add-story'
                         />
@@ -111,16 +189,39 @@ function StoriesEditor(props) {
 }
 
 StoriesEditor.propTypes = {
-    stories: PropTypes.array.isRequired,
-    onChange: PropTypes.func,
+    storyGroup: PropTypes.object.isRequired,
+    stories: PropTypes.array,
+    // this method will be called when the component starts saving changes
+    onSaving: PropTypes.func.isRequired,
+    // This one is called when changes are saved
+    onError: PropTypes.func.isRequired,
+    onErrorResolved: PropTypes.func.isRequired,
+    onSaved: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
-    errors: PropTypes.array,
+    onAddNewStory: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
+    onDeleteGroup: PropTypes.func.isRequired,
 };
 
 StoriesEditor.defaultProps = {
-    onChange: () => {},
     disabled: false,
-    errors: [],
+    stories: [],
 };
 
-export default StoriesEditor;
+export default withTracker((props) => {
+    const { storyGroup, projectId } = props;
+    // We're using a specific subscription so we don't fetch too much at once
+    const storiesHandler = Meteor.subscribe(
+        'stories.inGroup',
+        projectId,
+        storyGroup._id,
+    );
+
+    return {
+        ready: storiesHandler.ready(),
+        stories: Stories.find({
+            projectId,
+            storyGroupId: storyGroup._id,
+        }).fetch(),
+    };
+})(StoriesEditor);
