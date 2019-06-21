@@ -9,7 +9,7 @@ import boxen from 'boxen';
 import { pullDockerImages } from './init';
 import path from 'path';
 import { watch } from 'chokidar';
-import { fixDir, isProjectDir, getComposeFilePath, getServices, getMissingImgs, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize, generateDockerCompose, startSpinner, stopSpinner, failSpinner, succeedSpinner, consoleError, setSpinnerText } from '../utils';
+import { fixDir, isProjectDir, getComposeFilePath, getServices, getMissingImgs, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize, generateDockerCompose, startSpinner, stopSpinner, failSpinner, succeedSpinner, consoleError, setSpinnerText, setSpinnerInfo } from '../utils';
 
 export async function dockerComposeUp({ verbose = false }, workingDir, spinner = ora()) {
     shell.cd(fixDir(workingDir));
@@ -37,10 +37,10 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
                         `\u2022 Run ${chalk.cyan.bold('botfront --help')} to get help with the CLI\n`;
                         `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation\n`;
         console.log(boxen(message) + '\n');
-        setSpinnerText(spinner, `Opening Botfront (${chalk.green.bold(serviceUrl)}) in your browser...`)
+        setSpinnerText(spinner, `Opening Botfront (${chalk.green.bold(serviceUrl)}) in your browser...`);
         await wait(3000);
-        await open(serviceUrl)
-        spinner.info(`Visit ${chalk.green(serviceUrl)}`)
+        if (spinner) await open(serviceUrl);
+        setSpinnerInfo(spinner, `Visit ${chalk.green(serviceUrl)}`);
         console.log('\n');
         stopSpinner();
         process.exit(0);
@@ -50,7 +50,7 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
         } else {
             stopSpinner(spinner);
             failSpinner(spinner, 'Couldn\'t start Botfront. Retrying in verbose mode...');
-            return dockerComposeUp({ verbose: true }, workingDir, null, true)
+            return dockerComposeUp({ verbose: true }, workingDir, null, spinner);
         }   
     }
 }
@@ -58,7 +58,7 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
 export async function dockerComposeDown({ verbose }, workingDir) {
     if (workingDir) shell.cd(workingDir)
     if (!isProjectDir()) {
-        const noProjectMessage = `${chalk.yellow.bold('No project found in this directory.')}\n\nIf you don\'t know where your project is running from, ${chalk.cyan.bold('botfront killall')} will find and shut down any Botfront project on your machine.`;
+        const noProjectMessage = `${chalk.yellow.bold('No project found in this directory.')}\n\nIf you don\'t know where your project is running from,\n${chalk.cyan.bold('botfront killall')} will find and shut down any Botfront\nproject on your machine.`;
         return console.log(boxen(noProjectMessage));
     }
     const spinner = ora('Stopping Botfront...')
