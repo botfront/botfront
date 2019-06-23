@@ -283,7 +283,7 @@ class NLUModel extends React.Component {
             <div id='nlu-model'>
                 <Menu pointing secondary>
                     <Menu.Item header>{this.getHeader()}</Menu.Item>
-                    <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
+                    <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick}>
                         <Icon size='small' name='history' />
                         {'Activity'}
                     </Menu.Item>
@@ -291,7 +291,7 @@ class NLUModel extends React.Component {
                         <Icon size='small' name='database' />
                         {'Training Data'}
                     </Menu.Item>
-                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
+                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick}>
                         <Icon size='small' name='percent' />
                         {'Evaluation'}
                     </Menu.Item>
