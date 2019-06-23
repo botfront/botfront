@@ -138,8 +138,6 @@ async function general() {
             if (containers && containers.length){
                 choices.push({ title: 'Stop Botfront', cmd: () => dockerComposeDown({ verbose: false }) });
                 choices.push({ title: 'Show logs', cmd: dockerComposeFollow });
-                // choices.push({ title: 'Stop a service', cmd: () => dockerComposeStop(service, { verbose: false }) });
-                // choices.push({ title: 'Restart a service', cmd: () => dockerComposeRestart({ verbose: false }) });
             } else {
                 choices.push({ title: 'Start project', cmd: () => dockerComposeUp({ verbose: false })});
             }

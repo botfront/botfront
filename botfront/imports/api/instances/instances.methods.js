@@ -225,7 +225,6 @@ if (Meteor.isServer) {
                 const params = { language: model.language };
                 
                 const instance = Instances.findOne({ projectId });
-                console.log(instance)
                 if (instance.token) Object.assign(params, { token: instance.token });
                 const qs = queryString.stringify(params);
                 const client = axios.create({

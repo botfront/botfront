@@ -8,19 +8,20 @@ meta:
 
 # Quick Start
 
-Botfront is essentially based on Rasa and implements its fundamental concepts. This guide will show you how to:
+In this guide you will learn:
 
-- write and train **stories** 📖
-- Create and train a simple **NLU** model 🤓
+- How to write and train **stories** 📖
+- How to create and train a simple **NLU** model 🤓
 
-A lot of information can be found in the official Rasa [docs](https://rasa.com/docs). This guide should provide the necessary information to get started.
-If you already know Rasa and are familiar with stories, [go directly to the part where you train them in Botfront](#write-and-train-stories-in-botfront)
+Botfront is built on top of the Rasa library and and exposes its essential concepts in an intuitive interface. The official Rasa [docs](https://rasa.com/docs) is an exhaustive source of information, and this guide should provide the necessary information to get started.
 
-## A quick intro about stories
+::: tip
+If you already know Rasa and are familiar with stories, [skip the intro and go directly to the Botfront part.](#write-and-train-stories-in-botfront)
+:::
+
+## Understanding Rasa stories
 
 Stories are the building blocks of your conversation flows. It's a symbolic language used to describe conversations a user can have with a bot.
-
-### A simple story
 In their simplest form, stories are made of user messages, starting with a `*`, and bot responses, starting with a `-`. 
 
 ```md
@@ -28,7 +29,7 @@ In their simplest form, stories are made of user messages, starting with a `*`, 
   - utter_hi_there
 ```
 
-As you can see this is not real natural language: the user message is expressed in the form of an *intent*, and the bot response with a *response name*. The content of this intent (the many ways to say *hi*) and of the bot response (something like *Hello my human friend*) will be defined later
+As you can see this is not real natural language: the user message is expressed in the form of an **_intent_**, and the bot response with a **_response name_**. The content of this intent (the many ways to say *hi*) and of the bot response (something like *Hello my human friend*) will be defined later
 
 ::: tip
 This has an important implication: **stories are language agnostic**. The stories you write will work in any language.
@@ -36,7 +37,9 @@ This has an important implication: **stories are language agnostic**. The storie
 
 ### Stories and context
 
-In the story above, if you say Hi three times to the bot it will reply three times the same thing. In the real life, that's not true.
+The context of a conversation is simply the fact that when the bot decides what to do or say, it decides it based on the whole conversation (or at least a few turns) and not based on the last thing it heard.
+
+In the story above, if you say **_Hi_** three times to the bot it will reply three times the same thing. Consider this one:
 
 ```md
 * chitchat.greet
@@ -49,7 +52,7 @@ In the story above, if you say Hi three times to the bot it will reply three tim
 
 In that situation, when you say Hi to the bot for the third time, it knows you're repeating yourself and can answer something different. 
 
-### Stories and conversation paths / branches
+### Stories and conversation paths
 
 Conversations are often designed as tree-like flow charts. Stories are *real* conversations examples. Let's see how you can use stories to branch you flow:
 
