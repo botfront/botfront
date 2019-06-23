@@ -2,9 +2,9 @@ import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import yaml from 'js-yaml';
+
 import { checkIfCan, can } from '../lib/scopes';
-import { formatError } from '../lib/utils';
+import { formatError, validateYaml } from '../lib/utils';
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
 
 export const Credentials = new Mongo.Collection('credentials');
@@ -36,14 +36,7 @@ export const CredentialsSchema = new SimpleSchema(
     {
         credentials: {
             type: String,
-            // eslint-disable-next-line consistent-return
-            custom() {
-                try {
-                    yaml.safeLoad(this.value);
-                } catch (e) {
-                    return e.reason;
-                }
-            },
+            custom: validateYaml,
         },
         projectId: { type: String },
         createdAt: {

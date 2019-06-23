@@ -1,9 +1,9 @@
 ---
 home: true
 heroImage: /Botfront-screenshot.jpg
-heroText: Botfront Documentation
-tagline: Open Source GUI Platform for Rasa
-actionText: Read the docs →
+heroText: Botfront
+tagline: An Open Source Chatbot Platform built with Rasa
+actionText: Get started →
 actionLink: /guide/getting-started/quick-start
 footer:  Copyright © 2019
 ---

@@ -27,7 +27,13 @@ export const ProjectsSchema = new SimpleSchema({
         autoValue: () => new Date(),
         index: -1,
     },
-
+    instance: { type: String, optional: true },
+    training: { type: Object, optional: true },
+    'training.status': { type: String, allowedValues: ['training', 'success', 'failure'] },
+    'training.startTime': { type: Date, optional: true },
+    'training.endTime': { type: Date, optional: true },
+    'training.message': { type: String, optional: true },
+    
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

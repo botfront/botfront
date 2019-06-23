@@ -13,9 +13,8 @@ import { GlobalSettings } from '../../../api/globalSettings/globalSettings.colle
 class ProjectSidebar extends React.Component {
     render() {
         const {
-            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom,
+            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom, renderLegacyModels,
         } = this.props;
-
         const intercomId = settingsReady ? settings.settings.public.intercomAppId : null;
 
         return (
@@ -28,8 +27,16 @@ class ProjectSidebar extends React.Component {
                     <Link to={`/project/${projectId}/nlu/models`}>
                         <Menu.Item name='NLU' icon='grid layout' />
                     </Link>
+                    {renderLegacyModels && (
+                        <Link to={`/project/${projectId}/nlu/legacy-models`}>
+                            <Menu.Item name='Legacy NLU' icon='history' />
+                        </Link>
+                    )}
                     <Link to={`/project/${projectId}/dialogue/templates`}>
                         <Menu.Item name='Responses' icon='comment' />
+                    </Link>
+                    <Link to={`/project/${projectId}/stories`}>
+                        <Menu.Item name='Stories' icon='book' />
                     </Link>
                     <Link to={`/project/${projectId}/dialogue/conversations/p/1`}>
                         <Menu.Item name='Conversations' icon='comments' />
@@ -64,6 +71,7 @@ ProjectSidebar.propTypes = {
     settingsReady: PropTypes.bool.isRequired,
     settings: PropTypes.object,
     triggerIntercom: PropTypes.func.isRequired,
+    renderLegacyModels: PropTypes.bool.isRequired,
 };
 
 ProjectSidebar.defaultProps = {

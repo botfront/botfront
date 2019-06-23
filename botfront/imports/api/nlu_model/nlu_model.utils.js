@@ -7,23 +7,22 @@ import {
 import { NLUModels } from './nlu_model.collection';
 import { languages } from '../../lib/languages';
 
-export const isTraining = (model) => {
+export const isTraining = (project) => {
     const {
-        _id: modelId,
+        _id: projectId,
         training,
         training: {
             startTime,
             status,
         } = {},
-    } = model;
-
+    } = project;
     if (!training) {
         return false;
     }
     const statusOk = status === 'training' && moment().diff(moment(startTime), 'minutes') < 30;
     const timeStampOk = moment().diff(moment(startTime), 'minutes') < 30;
     if (statusOk && !timeStampOk) { // something went wrong and training timed out
-        Meteor.call('nlu.markTrainingStopped', modelId, 'failure', 'training timed out');
+        Meteor.call('project.markTrainingStopped', projectId, 'failure', 'training timed out');
     }
     return !!statusOk && !!timeStampOk;
 };
@@ -49,6 +48,14 @@ export const checkNoEmojisInExamples = (examples) => {
 export const getNluModelLanguages = (modelIds, asOptions = false) => {
     check(modelIds, Array);
     const models = NLUModels.find({ _id: { $in: modelIds } }, { fields: { language: 1 } }).fetch();
+    const languageCodes = sortBy(uniq(models.map(m => m.language)));
+    if (asOptions) return languageCodes.map(value => ({ text: languages[value].name, value }));
+    return languageCodes;
+};
+
+export const getPublishedNluModelLanguages = (modelIds, asOptions = false) => {
+    check(modelIds, Array);
+    const models = NLUModels.find({ _id: { $in: modelIds }, published: true }, { fields: { language: 1 } }).fetch();
     const languageCodes = sortBy(uniq(models.map(m => m.language)));
     if (asOptions) return languageCodes.map(value => ({ text: languages[value].name, value }));
     return languageCodes;

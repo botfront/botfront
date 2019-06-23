@@ -14,7 +14,7 @@ Projects.deny({
 
 
 if (Meteor.isServer) {
-    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'default';
+    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'docker-compose';
     import(`./project.schema.${orchestration}`)
         .then(({ ProjectsSchema }) => {
             Projects.attachSchema(ProjectsSchema);

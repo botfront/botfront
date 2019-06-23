@@ -20,34 +20,17 @@ class ProjectChat extends React.Component {
     }
 
     componentDidMount() {
-        this.loadCoreInstance();
+        this.loadInstance();
         this.loadAvailableLanguages();
     }
 
-    loadCoreInstance = () => {
-        const { projectId } = this.props;
-        Meteor.call(
-            'instance.findByType',
-            projectId,
-            'core',
-            wrapMeteorCallback((err, item) => {
-                if (!item) {
-                    this.setState({ noCore: true });
-                    return;
-                }
-                const matches = item.host.match(/^https?:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
-                const realHost = matches && matches[1];
-                const hostPath = item.host.split(realHost)[1];
-                this.setState({
-                    socketUrl: realHost,
-                    path:
-                        realHost
-                        && (hostPath.substr(-1) === '/'
-                            ? `${hostPath}socket.io/`
-                            : `${hostPath}/socket.io/`),
-                });
-            }),
-        );
+    loadInstance = () => {
+        const { channel } = this.props;
+        if (!channel) return this.setState({ noChannel: true });
+        return this.setState({
+            socketUrl: channel.base_url,
+            path: channel.socket_path,
+        });
     };
 
     loadAvailableLanguages = () => {
@@ -61,8 +44,11 @@ class ProjectChat extends React.Component {
                         text: model.language,
                         value: model.language,
                     })),
-                    selectedLanguage: res.length ? res[0].language : '',
+                    selectedLanguage: res[0] ? res[0].language : '',
                 });
+                // When it renders for the first time,  language is not passed to the widget and thus not associated
+                // to the message. Hence Rasa fails adding the language param to the NLG request. So we (shouldn't) need to...
+                this.rerenderChatComponent();
             }),
         );
     };
@@ -90,7 +76,7 @@ class ProjectChat extends React.Component {
 
     render() {
         const {
-            key, socketUrl, languageOptions, selectedLanguage, noCore, path,
+            key, socketUrl, languageOptions, selectedLanguage, noChannel, path,
         } = this.state;
         const { triggerChatPane, projectId } = this.props;
         return (
@@ -114,16 +100,16 @@ class ProjectChat extends React.Component {
                                     <Icon
                                         name='redo'
                                         color='grey'
-                                        link={!noCore}
+                                        link={!noChannel}
                                         onClick={this.handleReloadChat}
-                                        disabled={noCore}
+                                        disabled={noChannel}
                                         data-cy='restart-chat'
                                     />
                                 )}
                                 content='Restart the conversation'
                                 position='bottom right'
                                 className='redo-chat-popup'
-                                disabled={noCore}
+                                disabled={noChannel}
                             />
                         </Menu.Item>
                         <Menu.Item>
@@ -144,16 +130,7 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                {selectedLanguage === '' && (
-                    <Message warning className='no-language' data-cy='no-language'>
-                        There is no <Icon name='wifi' /><b>online</b> NLU model, so your chatbot cannot understand natural
-                        language. However you can use dialog acts like <code>/intent</code> or{' '}
-                        <code>
-                            /intent{'{'}&quot;entity&quot;:&quot;value&quot;{'}'}
-                        </code>
-                    </Message>
-                )}
-                {socketUrl && (selectedLanguage || selectedLanguage === '') && path && (
+                {socketUrl && path && (
                     <Chat
                         socketUrl={socketUrl}
                         key={key}
@@ -161,7 +138,7 @@ class ProjectChat extends React.Component {
                         path={path}
                     />
                 )}
-                {noCore && (
+                {noChannel && (
                     <Message
                         content={(
                             <div>
@@ -175,7 +152,7 @@ class ProjectChat extends React.Component {
                                 >
                                     create{' '}
                                 </Link>
-                                an instance of type <b>core</b> to enable the chat window.
+                                a valid instance of Rasa to enable the chat window.
                             </div>
                         )}
                         className='no-core-message'
@@ -191,6 +168,7 @@ class ProjectChat extends React.Component {
 ProjectChat.propTypes = {
     projectId: PropTypes.string.isRequired,
     triggerChatPane: PropTypes.func.isRequired,
+    channel: PropTypes.object.isRequired,
 };
 
 export default ProjectChat;

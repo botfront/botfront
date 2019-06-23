@@ -5,7 +5,7 @@
   "scripts": {
     "start": "meteor run",
     "start:docker-compose": "ORCHESTRATOR=docker-compose meteor run",
-    "debug": "meteor run --inspect",
+    "debug": "meteor run --inspect-brk=9229",
     "cy:run": "npx cypress run",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
@@ -13,7 +13,9 @@
     "postinstall": "cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./public/",
     "licenses:summary": "license-checker --summary",
     "licenses:csv": "license-checker --csv --out botfront-licenses.csv",
-    "release": "standard-version"
+    "release": "standard-version",
+    "test": "meteor test --driver-package=practicalmeteor:mocha --port 3010",
+    "test-debug": "meteor test --inspect --driver-package=practicalmeteor:mocha --port 3010"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
@@ -37,15 +39,16 @@
     "query-string": "^5.1.0",
     "random-seed": "^0.3.0",
     "rasa-webchat": "mrbot-ai/rasa-webchat#0.5.8",
-    "react": "^16.4.1",
+    "react": "^16.8.6",
     "react-ace": "^6.1.4",
     "react-debounce-input": "^3.2.0",
     "react-document-title": "^2.0.3",
-    "react-dom": "^16.4.1",
+    "react-dom": "^16.8.6",
     "react-dropzone": "^4.3.0",
     "react-google-recaptcha": "^1.0.5",
     "react-intercom": "^1.0.15",
     "react-json-view": "^1.19.0",
+    "react-markdown": "^4.0.8",
     "react-redux": "^5.1.0",
     "react-required-if": "^1.0.3",
     "react-router": "^3.2.1",
@@ -70,10 +73,11 @@
   },
   "devDependencies": {
     "@meteorjs/eslint-config-meteor": "^1.0.5",
-    "@vuepress/plugin-active-header-links": "^1.0.0-alpha.0",
-    "@vuepress/plugin-back-to-top": "^1.0.0-alpha.0",
-    "@vuepress/plugin-google-analytics": "^1.0.0-alpha.0",
-    "@vuepress/plugin-medium-zoom": "^1.0.0-alpha.0",
+    "@vuepress/plugin-active-header-links": "^1.0.1",
+    "@vuepress/plugin-back-to-top": "^1.0.1",
+    "@vuepress/plugin-google-analytics": "^1.0.1",
+    "@vuepress/plugin-medium-zoom": "^1.0.1",
+    "@vuepress/plugin-pwa": "^1.0.1",
     "autoprefixer": "^6.3.1",
     "babel-eslint": "^10.0.1",
     "chromedriver": "^2.42.0",
@@ -90,7 +94,7 @@
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
     "license-checker": "^25.0.1",
-    "vuepress": "^0.14.11",
+    "vuepress": "^1.0.1",
     "webpack": "^4.28.4"
   },
   "postcss": {

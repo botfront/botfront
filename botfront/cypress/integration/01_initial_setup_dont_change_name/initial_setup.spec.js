@@ -2,7 +2,9 @@
 
 describe('intial setup', function() {
     before(function() {
-        cy.exec('mongo meteor --host localhost:3001 --eval "db.dropDatabase();"');
+        if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
+            cy.exec('mongo meteor --host localhost:3001 --eval "db.dropDatabase();"');
+        }
     });
 
     it('Should create projects when completing the initial setup', () => {
@@ -57,9 +59,13 @@ describe('intial setup', function() {
             const id = url.match(/project\/(.*?)\/nlu/i)[1];
             cy.writeFile('cypress/fixtures/bf_project_id.txt', id);
         });
-        
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
+
+        cy.url().then((url) => {
+            // This gets the model id
+            const id = url.split('/')[7];
+            cy.writeFile('cypress/fixtures/bf_model_id.txt', id);
+        });
+        cy.get('[data-cy=example-text-editor-input]').should('exist'); // Test if a default instance is added
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('Pipeline').click();
         cy.get(':checkbox').should('be.checked');

@@ -5,8 +5,13 @@
       padding: '0.64em 0em';
     }
   }
-  input:focus + .text {
+  
+  input:focus + .text + :not(.ui.active.search.selection.dropdown) {
     color: hsl(288, 50%, 90%) !important;
+  }
+
+  .active.selected.item {
+    border:0
   }
 }
 
@@ -26,4 +31,8 @@
     display: flex;
     justify-content: space-between;
   }
+}
+
+.project-children #nlu-model .ui.pointing.secondary.menu div.header.item {
+  padding-bottom: 0.3rem;
 }
