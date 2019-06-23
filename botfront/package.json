@@ -73,11 +73,11 @@
   },
   "devDependencies": {
     "@meteorjs/eslint-config-meteor": "^1.0.5",
-    "@vuepress/plugin-active-header-links": "^1.0.1",
-    "@vuepress/plugin-back-to-top": "^1.0.1",
-    "@vuepress/plugin-google-analytics": "^1.0.1",
-    "@vuepress/plugin-medium-zoom": "^1.0.1",
-    "@vuepress/plugin-pwa": "^1.0.1",
+    "@vuepress/plugin-active-header-links": "^1.0.2",
+    "@vuepress/plugin-back-to-top": "^1.0.2",
+    "@vuepress/plugin-google-analytics": "^1.0.2",
+    "@vuepress/plugin-medium-zoom": "^1.0.2",
+    "@vuepress/plugin-pwa": "^1.0.2",
     "autoprefixer": "^6.3.1",
     "babel-eslint": "^10.0.1",
     "chromedriver": "^2.42.0",
@@ -94,7 +94,7 @@
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
     "license-checker": "^25.0.1",
-    "vuepress": "^1.0.1",
+    "vuepress": "^1.0.2",
     "webpack": "^4.28.4"
   },
   "postcss": {
