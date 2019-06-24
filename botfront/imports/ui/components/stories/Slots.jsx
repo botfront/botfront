@@ -1,10 +1,13 @@
-import { Container, Icon, Popup } from 'semantic-ui-react';
+import {
+    Container, Popup, Button, Dropdown,
+} from 'semantic-ui-react';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import React from 'react';
 
 import { wrapMeteorCallback } from '../utils/Errors';
 import SlotEditor from './SlotEditor';
+import { slotSchemas } from '../../../api/slots/slots.schema';
 
 class Slots extends React.Component {
     constructor(props) {
@@ -14,9 +17,10 @@ class Slots extends React.Component {
         };
     }
 
-    handleCreateSlot = () => {
+    handleCreateSlot = (e, { value: slotType }) => {
         this.setState({
             newSlot: {},
+            slotType,
         });
     };
 
@@ -51,39 +55,34 @@ class Slots extends React.Component {
         Meteor.call('slots.delete', slot, wrapMeteorCallback());
     };
 
+    // TODO: Add sorting on slot types
+    getSlotOptions = () => Object.keys(slotSchemas).map(s => ({ text: s, value: s }))
+
     render() {
         const { slots, projectId } = this.props;
-        const { newSlot } = this.state;
+        const { newSlot, slotType } = this.state;
+       
         return (
             <>
                 {slots.map(slot => (
-                    <SlotEditor
-                        slot={slot}
-                        onSave={this.handleSaveSlot}
-                        projectId={projectId}
-                        key={slot._id}
-                        onDelete={this.handleDeleteSlot}
-                    />
+                    <SlotEditor slot={slot} onSave={this.handleSaveSlot} projectId={projectId} key={slot._id} onDelete={this.handleDeleteSlot} />
                 ))}
-                {newSlot && (
-                    <SlotEditor
-                        slot={newSlot}
-                        onSave={this.handleSaveNewSlot}
-                        projectId={projectId}
-                        newSlot
-                    />
-                )}
+                { /* @matt The bool slot is not required here. you can use the value of the slot to know it it's new */}
+                {newSlot && <SlotEditor slot={newSlot} onSave={this.handleSaveNewSlot} projectId={projectId} newSlot slotType={slotType} />}
                 {!newSlot && (
                     <Container textAlign='center' id='add-slot-container'>
                         <Popup
                             trigger={(
-                                <Icon
-                                    name='add'
-                                    link
-                                    size='large'
-                                    data-cy='add-slot'
-                                    onClick={this.handleCreateSlot}
-                                />
+                                <Button.Group size='big'>
+                                    <Dropdown basic size='big' icon='add' button className='icon'>
+                                        <Dropdown.Menu>
+                                            <Dropdown.Header content='Choose a slot type' />
+                                            {this.getSlotOptions().map(option => (
+                                                <Dropdown.Item key={option.value} onClick={this.handleCreateSlot} {...option} />
+                                            ))}
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </Button.Group>
                             )}
                             content='Add slot'
                         />
