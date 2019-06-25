@@ -171,7 +171,30 @@ export class StoryValidator {
     }
 }
 
-export const extractDomain = (stories) => {
+function addSlots(slots) {
+    const slotsToAdd = {};
+    if (!slots) return {};
+    slots.forEach((slot) => {
+        const options = {};
+        if (slot.type === 'float') {
+            if (slot.minValue) {
+                options.minValue = slot.minValue;
+            }
+            if (slot.maxValue) {
+                options.maxValue = slot.maxValue;
+            }
+        } else if (slot.type === 'text' && slot.initialValue) {
+            options.initialValue = slot.initialValue;
+        }
+        slotsToAdd[slot.name] = {
+            type: slot.type,
+            ...options,
+        };
+    });
+    return slotsToAdd;
+}
+
+export const extractDomain = (stories, slots) => {
     const defaultDomain = {
         actions: new Set(['utter_fallback', 'utter_default']),
         intents: new Set(),
@@ -185,6 +208,7 @@ export const extractDomain = (stories) => {
             latest_response_name: { type: 'unfeaturized' },
             followup_response_name: { type: 'unfeaturized' },
             parse_data: { type: 'unfeaturized' },
+            ...addSlots(slots),
         },
     };
     let domains = stories.map((story) => {

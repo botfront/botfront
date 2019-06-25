@@ -1,18 +1,20 @@
 /* eslint-disable camelcase */
-import axios from 'axios';
-import path from 'path';
 import { check, Match } from 'meteor/check';
 import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
 import yaml from 'js-yaml';
+import axios from 'axios';
+import path from 'path';
+
+import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-import { Instances } from './instances.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
-import { CorePolicies } from '../core_policies';
-import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
 import { extractDomain } from '../../lib/story_validation.js';
-import { StoryGroups } from '../storyGroups/storyGroups.collection.js';
+import { Stories } from '../story/stories.collection';
+import { Instances } from './instances.collection';
+import { Slots } from '../slots/slots.collection';
+import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import { checkIfCan } from '../roles/roles';
 
@@ -96,13 +98,15 @@ export const getStoriesAndDomain = (projectId) => {
         .reduce((coll, curr) => coll.concat(curr), []);
     mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
     const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
-    const storyGroups = StoryGroups.find({ projectId }, { stories: 1 })
-        .fetch()
-        .map(group => group.stories.map(story => story.story).join('\n'));
-    const stories = [mappingStory, ...storyGroups];
+    let stories = Stories.find(
+        { projectId },
+        { story: 1 },
+    ).fetch().map(story => story.story);
+    stories = [mappingStory, ...stories];
+    const slots = Slots.find({ projectId }).fetch();
     return {
         stories: stories.join('\n'),
-        domain: extractDomain(stories),
+        domain: extractDomain(stories, slots),
     };
 };
 
@@ -228,7 +232,6 @@ if (Meteor.isServer) {
                 const params = { language: model.language };
                 
                 const instance = Instances.findOne({ projectId });
-                console.log(instance)
                 if (instance.token) Object.assign(params, { token: instance.token });
                 const qs = queryString.stringify(params);
                 const client = axios.create({

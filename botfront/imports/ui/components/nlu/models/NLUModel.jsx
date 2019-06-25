@@ -228,55 +228,6 @@ class NLUModel extends React.Component {
         );
     };
 
-    renderMenuItems = (activeItem, model, status, endTime, instance) => {
-        const { projectId } = this.props;
-        return (
-            <Menu pointing secondary>
-                <Menu.Item header>{this.getHeader()}</Menu.Item>
-                <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
-                    <Icon size='small' name='history' />
-                    {'Activity'}
-                </Menu.Item>
-                <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
-                    <Icon size='small' name='database' />
-                    {'Training Data'}
-                </Menu.Item>
-                <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
-                    <Icon size='small' name='percent' />
-                    {'Evaluation'}
-                </Menu.Item>
-                <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
-                    <Icon size='small' name='setting' />
-                    {'Settings'}
-                </Menu.Item>
-                <Menu.Menu position='right'>
-                    <Menu.Item>
-                        {!isTraining(model) && status === 'success' && (
-                            <Popup
-                                trigger={(
-                                    <Icon size='small' name='check' fitted circular style={{ color: '#2c662d' }} />
-                                )}
-                                content={<Label basic content={<div>{`Trained ${moment(endTime).fromNow()}`}</div>} style={{ borderColor: '#2c662d', color: '#2c662d' }} />}
-                            />
-                        )}
-                        {!isTraining(model) && status === 'failure' && (
-                            <Popup
-                                trigger={(
-                                    <Icon size='small' name='warning' color='red' fitted circular />
-                                )}
-                                content={<Label basic color='red' content={<div>{`Training failed ${moment(endTime).fromNow()}`}</div>} />}
-                            />
-                        )}
-                    </Menu.Item>
-                    {can('nlu-model:x', projectId) && (
-                        <Menu.Item>
-                            <NLUTrainButton model={model} instance={instance} />
-                        </Menu.Item>
-                    )}
-                </Menu.Menu>
-            </Menu>
-        );
-    }
 
     handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
 

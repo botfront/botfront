@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-
+let modelId = '';
 const email = 'nludatar@test.ia';
 
 describe('nlu-data:r role permissions', function() {
@@ -9,9 +9,12 @@ describe('nlu-data:r role permissions', function() {
         cy.login();
         cy.get('@bf_project_id').then((id) => {
             cy.createUser('nlu-data:r', email, ['nlu-data:r'], id);
-        });
-        cy.get('@bf_model_id').then((modelId) => {
-            cy.addTestActivity(modelId);
+            cy.createNLUModelProgramatically(id, 'MyModel', 'fr', 'My Description')
+                .then((result) => {
+                    modelId = result;
+                    cy.addTrainingData(result, 'fr');
+                    cy.addTestActivity(modelId);
+                });
         });
         cy.logout();
     });
@@ -21,10 +24,9 @@ describe('nlu-data:r role permissions', function() {
     });
 
     after(function() {
-        cy.fixture('bf_model_id.txt').then((modelId) => {
-            cy.removeTestActivity(modelId);
-        });
+        cy.removeTestActivity(modelId);
         cy.deleteUser(email);
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
     });
 
     it('should be able to access nlu model menu tabs -> activity, training-data and evaluation', function() {
@@ -44,13 +46,16 @@ describe('nlu-data:r role permissions', function() {
     });
 
     it('should not be able to change intent, validate or expand entries', function () {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.get('[data-cy=model-selector]').click();
+        cy.get('[data-cy=model-selector] input').type('French{enter}');
         cy.get('[data-cy=process-in-bulk]').should('not.exist');
         cy.get('[data-cy=validate-button]').should('not.exist');
         cy.get('.nlu-delete-example').should('not.exist');
-        cy.get('[data-cy=intent-label]').trigger('mouseover');
+        cy.get('[data-cy=intent-label]').first().trigger('mouseover');
         cy.get('[data-cy=intent-popup]').should('not.exist');
         cy.get('div.rt-td.rt-expandable').should('not.exist');
+        cy.get('.nlu-menu-activity').click();
         cy.contains('New Utterances').should('exist');
         cy.contains('Populate').should('not.exist');
     });
@@ -58,11 +63,12 @@ describe('nlu-data:r role permissions', function() {
     it('should be able to reinterpet intents', function() {
         // Logs the admin
         cy.login();
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.get('[data-cy=train-button]').click();
         // logs back our test user
         cy.loginTestUser(email);
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.get('.nlu-menu-activity').click();
         cy.get('.rt-td.right').first().click();
         cy.get('[data-cy=re-interpret-button]').should('exist');
     });

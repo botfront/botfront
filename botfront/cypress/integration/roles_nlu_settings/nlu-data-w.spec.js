@@ -52,8 +52,8 @@ describe('nlu-data:w role permissions', function() {
 
     after(function() {
         cy.login();
-        cy.deleteNLUModelProgramatically(modelIdForUI, this.bf_project_id);
-        cy.deleteNLUModelProgramatically(modelIdForCall, this.bf_project_id);
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'aa');
         cy.deleteUser(email);
         cy.logout();
     });
@@ -80,6 +80,7 @@ describe('nlu-data:w role permissions', function() {
 
     it('should be able to change intent, validate, delete and access the subComponent in each row', function () {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.get('.nlu-menu-activity').click();
         cy.get('[data-cy=process-in-bulk]').should('exist');
         cy.get('[data-cy=validate-button]').should('exist');
         cy.get('.nlu-delete-example').should('exist');

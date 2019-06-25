@@ -30,6 +30,12 @@ import '../imports/api/user/user.collection';
 import '../imports/api/storyGroups/storyGroups.collection';
 import '../imports/api/storyGroups/storyGroups.methods';
 import '../imports/api/storyGroups/storyGroups.schema';
+import '../imports/api/story/stories.collection';
+import '../imports/api/story/stories.methods';
+import '../imports/api/story/stories.schema';
+import '../imports/api/slots/slots.collection';
+import '../imports/api/slots/slots.methods';
+import '../imports/api/slots/slots.schema';
 import '../imports/api/orchestration/orchestration.methods.js';
 import '../imports/lib/scopes';
 

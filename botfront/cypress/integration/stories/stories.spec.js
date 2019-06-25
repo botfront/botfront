@@ -48,6 +48,7 @@ describe('stories', function() {
         cy.contains(initialText).should('not.exist');
         cy.get('[data-cy=delete-story]').click();
         cy.dataCy('confirm-yes').click();
+        cy.wait(100);
         cy.contains(storyGroupTwo).click();
         cy.get('[data-cy=delete-story]').click();
         cy.dataCy('confirm-yes').click();

@@ -149,7 +149,7 @@ ContainerLoader.propTypes = {
 };
 
 export function PageMenu(props) {
-    const { title, icon } = props;
+    const { title, icon, children } = props;
     return (
         <Menu pointing secondary style={{ background: '#fff' }}>
             <Menu.Item>
@@ -158,7 +158,7 @@ export function PageMenu(props) {
                     {` ${title}`}
                 </Menu.Header>
             </Menu.Item>
-            {props.children}
+            {children}
         </Menu>
     );
 }

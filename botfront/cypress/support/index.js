@@ -505,15 +505,61 @@ Cypress.Commands.add('removeTestResponse', (id) => {
 });
 
 Cypress.Commands.add('addStory', (projectId) => {
-    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.stories.insert({ 
-        name: 'Test Story', 
+    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.stories.insert({
+        storyGroupId: 'StoryGroupId',
         projectId: '${projectId}', 
-        stories: [{ story: '## somestory' }],
+        story: '## somestory',
+    });"`;
+    cy.exec(commandToAddStory);
+});
+
+Cypress.Commands.add('addStoryGroup', (projectId) => {
+    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.storyGroups.insert({
+        _id: 'StoryGroupId',
+        projectId: '${projectId}', 
+        name: 'TestName',
     });"`;
     cy.exec(commandToAddStory);
 });
 
 Cypress.Commands.add('removeStory', () => {
-    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.stories.remove({ name: \'Test Story\'});"';
+    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.stories.remove({ storyGroupId: \'StoryGroupId\'});"';
     cy.exec(commandToRemoveStory);
+});
+
+Cypress.Commands.add('removeStoryGroup', () => {
+    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.storyGroups.remove({ _id: \'StoryGroupId\'});"';
+    cy.exec(commandToRemoveStory);
+});
+
+// Add and remove slot programatically.
+Cypress.Commands.add('addSlot', (projectId) => {
+    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.slots.insert({
+        _id: 'DELETESLOT',
+        projectId: '${projectId}',
+        name: 'Test',
+        type: 'bool',
+    });"`;
+    cy.exec(commandToAddStory);
+});
+
+Cypress.Commands.add('removeSlot', () => {
+    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.slots.remove({ _id: \'DELETESLOT\'});"';
+    cy.exec(commandToRemoveStory);
+});
+
+Cypress.Commands.add('addIntent', () => {
+    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.slots.remove({ _id: \'DELETESLOT\'});"';
+    cy.exec(commandToRemoveStory);
+});
+
+Cypress.Commands.add('addTrainingData', (modelId, language) => {
+    cy.MeteorCall(
+        'nlu.addChitChatToTrainingData',
+        [
+            modelId,
+            language,
+            ['basics.no'],
+        ],
+    );
 });
