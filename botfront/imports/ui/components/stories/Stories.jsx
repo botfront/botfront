@@ -61,6 +61,10 @@ class Stories extends React.Component {
         });
     };
 
+    handleDragEnd = (result) => {
+        console.log(result);
+    }
+
     handleSavingStories = () => {
         this.setState({ saving: true });
     };

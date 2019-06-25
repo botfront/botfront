@@ -3,6 +3,7 @@ import {
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import 'brace/theme/github';
@@ -113,71 +114,94 @@ function StoriesEditor(props) {
 
     const editors = stories.map((story, index) => (
         <React.Fragment key={index}>
-            <Segment data-cy='story-editor'>
-                <AceEditor
-                    readOnly={disabled}
-                    theme='github'
-                    width='95%'
-                    name='story'
-                    mode='text'
-                    minLines={5}
-                    maxLines={Infinity}
-                    fontSize={12}
-                    onChange={data => handleStoryChange(data, index)}
-                    value={
-                        storyTexts[index] !== undefined
-                            ? storyTexts[index]
-                            : story.story
-                    }
-                    showPrintMargin={false}
-                    showGutter
-                    // We use ternary expressions here to prevent wrong prop types
-                    annotations={
-                        (!!errors[index] ? true : undefined)
-                        && (!!errors[index].length ? true : undefined)
-                        && errors[index].map(error => ({
-                            row: error.line - 1,
-                            type: error.type,
-                            text: error.message,
-                            column: 0,
-                        }))
-                    }
-                    editorProps={{
-                        $blockScrolling: Infinity,
-                    }}
-                    setOptions={{
-                        tabSize: 2,
-                    }}
-                />
-                <Popup
-                    trigger={(
-                        <Icon
-                            name='trash'
-                            color='grey'
-                            link
-                            data-cy='delete-story'
-                        />
-                    )}
-                    content={(
-                        <ConfirmPopup
-                            title='Delete story ?'
-                            onYes={() => handeStoryDeletion(index)}
-                            onNo={() => setDeletePopup(-1)}
-                        />
-                    )}
-                    on='click'
-                    open={deletePopup === index}
-                    onOpen={() => setDeletePopup(index)}
-                    onClose={() => setDeletePopup(-1)}
-                />
-            </Segment>
-            {index !== stories.length - 1 && <br />}
+            <Draggable draggableId={story._id} index={index}>
+                {provided => (
+                    <Ref innerRef={provided.innerRef}>
+                        <Segment
+                            data-cy='story-editor'
+                            {...provided.draggableProps}
+                        >
+                            <div
+                                className='drag-handle'
+                                {...provided.dragHandleProps}
+                            />
+                            <AceEditor
+                                readOnly={disabled}
+                                theme='github'
+                                width='95%'
+                                name='story'
+                                mode='text'
+                                minLines={5}
+                                maxLines={Infinity}
+                                fontSize={12}
+                                onChange={data => handleStoryChange(data, index)
+                                }
+                                value={
+                                    storyTexts[index] !== undefined
+                                        ? storyTexts[index]
+                                        : story.story
+                                }
+                                showPrintMargin={false}
+                                showGutter
+                                // We use ternary expressions here to prevent wrong prop types
+                                annotations={
+                                    (!!errors[index] ? true : undefined)
+                                    && (!!errors[index].length
+                                        ? true
+                                        : undefined)
+                                    && errors[index].map(error => ({
+                                        row: error.line - 1,
+                                        type: error.type,
+                                        text: error.message,
+                                        column: 0,
+                                    }))
+                                }
+                                editorProps={{
+                                    $blockScrolling: Infinity,
+                                }}
+                                setOptions={{
+                                    tabSize: 2,
+                                }}
+                            />
+                            <Popup
+                                trigger={(
+                                    <Icon
+                                        name='trash'
+                                        color='grey'
+                                        link
+                                        data-cy='delete-story'
+                                    />
+                                )}
+                                content={(
+                                    <ConfirmPopup
+                                        title='Delete story ?'
+                                        onYes={() => handeStoryDeletion(index)}
+                                        onNo={() => setDeletePopup(-1)}
+                                    />
+                                )}
+                                on='click'
+                                open={deletePopup === index}
+                                onOpen={() => setDeletePopup(index)}
+                                onClose={() => setDeletePopup(-1)}
+                            />
+                        </Segment>
+                    </Ref>
+                )}
+            </Draggable>
+            {/* {index !== stories.length - 1 && <br />} */}
         </React.Fragment>
     ));
 
     return (
         <>
-            {editors}
+            <Droppable droppableId='editors'>
+                {provided => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                        {editors}
+                        {provided.placeholder}
+                    </div>
+                )}
+            </Droppable>
             <Container textAlign='center'>
                 <Button icon='add' basic name='add' onClick={onAddNewStory} size='medium' data-cy='add-story' color='black' content='Add a story' />
             </Container>
