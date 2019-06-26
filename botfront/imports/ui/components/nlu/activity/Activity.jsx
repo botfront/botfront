@@ -359,7 +359,7 @@ const ActivityContainer = withTracker((props) => {
     const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1, language: 1 } });
 
     const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
-    const smartTips = getAllSmartTips(model, project, utterances, 0.87);
+    const smartTips = getAllSmartTips(model, project, utterances);
     let localIntents = [];
     let localEntities = []; // eslint-disable-line
     let numValidated = 0;

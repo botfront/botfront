@@ -76,7 +76,9 @@ const getSimilarTD = (model, utterance) => {
     return examples;
 };
 
-export const getSmartTips = (model, project, utterance, th) => {
+export const getSmartTips = (model, project, utterance) => {
+    const th = project.nluThreshold;
+
     if (isUtteranceOutdated(project, utterance)) return smartTips({ outdated: true });
 
     const intentBelowTh = utterance.confidence < th ? { name: utterance.intent, confidence: utterance.confidence } : null;
@@ -101,10 +103,11 @@ export const getSmartTips = (model, project, utterance, th) => {
     });
 };
 
-export const getAllSmartTips = (model, project, utterances, th) => {
+export const getAllSmartTips = (model, project, utterances) => {
+    console.log(project)
     const allTips = {};
     utterances.forEach((utterance) => {
-        allTips[utterance._id] = getSmartTips(model, project, utterance, th);
+        allTips[utterance._id] = getSmartTips(model, project, utterance);
     });
     return allTips;
 };

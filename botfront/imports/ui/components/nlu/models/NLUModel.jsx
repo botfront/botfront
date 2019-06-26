@@ -455,9 +455,10 @@ const NLUDataLoaderContainer = withTracker((props) => {
         defaultLanguage,
         instance,
         training,
+        nluThreshold,
     } = Projects.findOne({ _id: projectId }, {
         fields: {
-            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1,
+            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1, nluThreshold: 1,
         },
     });
     if (!name) return browserHistory.replace({ pathname: '/404' });
@@ -468,6 +469,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
     const project = {
         _id: projectId,
         training,
+        nluThreshold,
     };
     return {
         ready,
