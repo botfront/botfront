@@ -125,16 +125,16 @@ class Template extends React.Component {
                 {(!edit || template) && (
                     <Container className='bot-response-form'>
                         <AutoForm schema={TemplateSchema} onSubmit={this.updateTemplate} model={template || {}} modelTransform={this.modelTransform}>
-                            <DisplayIf condition={context => context.model.match != null}>
+                            {/* <DisplayIf condition={context => context.model.match != null}>
                                 <AutoField data-cy='response-name' name='key' className='tiny' label='Response name' placeholder='this will be auto generated' disabled />
-                            </DisplayIf>
+                            </DisplayIf> */}
                             <DisplayIf condition={context => context.model.match == null}>
                                 <AutoField data-cy='response-name' name='key' className='tiny' label='Response name' />
                             </DisplayIf>
 
                             <br />
 
-                            <NLUCriteriaCheckboxField>
+                            {/* <NLUCriteriaCheckboxField> 
                                 <>
                                     <Step.Group widths={3}>
                                         <Step
@@ -167,6 +167,7 @@ class Template extends React.Component {
                                     {activeStep === 'followup' && <FollowUp name='followUp' />}
                                 </>
                             </NLUCriteriaCheckboxField>
+                            */}
                             <br />
                             <DisplayIf condition={context => context.model.match == null}>
                                 <>

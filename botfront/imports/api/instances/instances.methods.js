@@ -4,8 +4,6 @@ import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
 import yaml from 'js-yaml';
 import axios from 'axios';
-import path from 'path';
-
 import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';

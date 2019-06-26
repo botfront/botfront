@@ -1,6 +1,6 @@
 # Global Settings
 
-Botfont as global and per project settings. _default_ in the global settings means that the content of these settings will be used as template for new projects.
+Botfont has global and per project settings. _default_ in the global settings means that the content of these settings will be used as template for new projects.
 
 
 #### Default NLU pipeline
