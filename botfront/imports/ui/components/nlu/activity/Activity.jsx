@@ -21,7 +21,7 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import ActivityActions from './ActivityActions';
 import './style.less';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import { getOutdatedUtterances } from '../../../../api/nlu_model/nlu_model.utils';
+import { getAllSmartTips } from '../../../../lib/smart_tips';
 import IntentViewer from '../models/IntentViewer';
 import { can } from '../../../../api/roles/roles';
 
@@ -43,7 +43,7 @@ class Activity extends React.Component {
     };
 
     getExtraColumns() {
-        const { deletableUtteranceIds, outDatedUtteranceIds, projectId } = this.props;
+        const { smartTips, projectId } = this.props;
         return [
             {
                 id: 'validate',
@@ -54,21 +54,29 @@ class Activity extends React.Component {
                         value: utterance,
                         value: { validated, intent } = {},
                     } = props;
-                    const colour = deletableUtteranceIds.some(id => id === utterance._id) ? 'yellow' : 'green';
+                    const { code } = smartTips[utterance._id];
+                    let color = 'grey';
+                    if (['intentBelowTh', 'entitiesBelowTh'].includes(code)) {
+                        color = 'green';
+                    } else if (['entitiesInTD'].includes(code)) {
+                        color = 'yellow';
+                    } else if (['aboveTh'].includes(code)) {
+                        color = 'red';
+                    }
                     const size = 'mini';
                     const text = <strong>{validated ? 'Validated' : 'Validate'}</strong>;
                     return (
                         <div>
-                            {this.renderDeleteTip(utterance, deletableUtteranceIds) }
+                            {this.renderDeleteTip(utterance, color, smartTips) }
                             {!!validated ? (
                                 can('nlu-data:w', projectId) && <Button size={size} onClick={() => this.onValidateExamples([utterance])} color='green' icon='check' data-cy='validate-button' />
                             ) : (can('nlu-data:w', projectId) && (
                                 <Button
                                     basic
                                     size={size}
-                                    disabled={!intent || outDatedUtteranceIds.includes(utterance._id)}
+                                    disabled={!intent || smartTips[utterance._id].code === 'outdated'}
                                     onClick={() => this.onValidateExamples([utterance])}
-                                    color={colour}
+                                    color={color}
                                     content={text}
                                     data-cy='validate-button'
                                 />)
@@ -91,7 +99,7 @@ class Activity extends React.Component {
             project: {
                 training: { endTime } = {},
             },
-            outDatedUtteranceIds,
+            smartTips,
             projectId,
         } = this.props;
         return [{
@@ -107,13 +115,12 @@ class Activity extends React.Component {
                     confidence, intent, _id,
                 },
             }) => {
-                const showValue = typeof intent === 'string';
-                const confidenceValue = typeof confidence === 'number' ? confidence : 1;
-                const outDated = outDatedUtteranceIds.includes(_id);
+                const showValue = (typeof intent === 'string' && typeof confidence === 'number' && confidence > 0);
+                const isOutdated = smartTips[_id].code === 'outdated';
                 
                 return (
                     <div>
-                        { outDated && endTime && (
+                        { isOutdated && endTime && (
                             <Tip
                                 title='Confidence outdated'
                                 iconName='sync'
@@ -128,8 +135,8 @@ class Activity extends React.Component {
                                                 <Button
                                                     icon='sync'
                                                     color='green'
-                                                    content={`Re-interpret ${Math.min(outDatedUtteranceIds.length, 20)} utterances like this`}
-                                                    onClick={() => this.reInterpretUtterances(outDatedUtteranceIds.slice(0, 20))}
+                                                    content='Re-interpret outdated utterances'
+                                                    onClick={() => this.reInterpretUtterances(smartTips)}
                                                     data-cy='re-interpret-button'
                                                 />)
                                         }
@@ -137,7 +144,7 @@ class Activity extends React.Component {
                                 }
                             />
                         )}
-                        { !outDated && <div className='confidence-text'>{showValue ? `${Math.floor(confidenceValue * 100)}%` : ''}</div> }
+                        { !isOutdated && <div className='confidence-text'>{showValue ? `${Math.floor(confidence * 100)}%` : ''}</div> }
                     </div>
                 );
             },
@@ -189,45 +196,42 @@ class Activity extends React.Component {
         return hasPermission;
     }
 
-    reInterpretUtterances = (outDatedUtteranceIds) => {
+    reInterpretUtterances = (smartTips) => {
         const {
             projectId, model: { _id: modelId },
         } = this.props;
-        Meteor.call('activity.reinterpret', projectId, modelId, outDatedUtteranceIds, wrapMeteorCallback());
+        const outdated = smartTips.keys().map(u => smartTips[u].code === 'outdated');
+        Meteor.call('activity.reinterpret', projectId, modelId, outdated, wrapMeteorCallback());
     }
 
-    renderDeleteTip = (example) => {
-        const { deletableUtteranceIds } = this.props;
+    renderDeleteTip = (utterance) => {
+        const { color, smartTips } = this.props;
+        const { code, message } = smartTips[utterance._id];
         // eslint-disable-next-line react/jsx-one-expression-per-line
         const content = (
             <div>
                 <br />
-                The intent <strong> {example.intent} </strong>
-                was found with a very high confidence level and your model won&apos;t learn much from it.
-                It is recommended to delete it and not add it to your training data.
+                { message }
                 <br />
                 <br />
                 <Button
                     icon='trash'
                     color='green'
-                    content={`Delete ${deletableUtteranceIds.length} utterances like this`}
+                    content='Delete utterances like this'
                     onClick={this.onDeleteHighConfidence}
                 />
             </div>
         );
-        if (deletableUtteranceIds.some(id => id === example._id)) {
-            return (
-                <Tip
-                    iconName='lightbulb'
-                    iconColor='green'
-                    title='Delete this utterance'
-                    description={content}
-                    flowing
-                    hoverable
-                />
-            );
-        }
-        return <div />;
+        return (
+            <Tip
+                iconName='lightbulb'
+                iconColor={color}
+                title='Delete this utterance'
+                description={content}
+                flowing
+                hoverable
+            />
+        );
     }
     
     addToTrainingData = () => {
@@ -241,11 +245,13 @@ class Activity extends React.Component {
 
     onExamplesEdit = (utterances, callback) => {
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
+        // need to update outdated utterances here
     };
 
     onDeleteHighConfidence = () => {
-        const { model: { _id: modelId }, deletableUtteranceIds } = this.props;
-        Meteor.call('activity.deleteExamples', modelId, deletableUtteranceIds, wrapMeteorCallback());
+        const { model: { _id: modelId }, smartTips } = this.props;
+        const highConf = smartTips.keys().map(u => ['intentBelowTh', 'entitiesBelowTh'].includes(smartTips[u].code));
+        Meteor.call('activity.deleteExamples', modelId, highConf, wrapMeteorCallback());
     }
 
     primaryRender = () => {
@@ -331,8 +337,7 @@ Activity.propTypes = {
     instance: PropTypes.object.isRequired,
     numValidated: PropTypes.number,
     linkRender: PropTypes.func,
-    outDatedUtteranceIds: PropTypes.array.isRequired,
-    deletableUtteranceIds: PropTypes.array.isRequired,
+    smartTips: PropTypes.object.isRequired,
 };
 
 Activity.defaultProps = {
@@ -349,30 +354,12 @@ const ActivityContainer = withTracker((props) => {
         project,
     } = props;
 
-    const getPureIntents = (commonExamples) => {
-        const pureIntents = new Set();
-        commonExamples.forEach((e) => {
-            if ((!e.entities || e.entities.length === 0) && e.intent) {
-                pureIntents.add(e.intent);
-            } else {
-                pureIntents.delete(e.intent);
-            }
-        });
-        return [...pureIntents];
-    };
-    const getDeletableUtterances = (utterances, minConfidence, pureIntents, outDatedUtteranceIds) => utterances.filter(e => pureIntents.includes(e.intent)
-                                && e.confidence >= minConfidence
-                                && e.confidence < 1
-                                && !outDatedUtteranceIds.includes(e._id));
-
     const activityHandler = Meteor.subscribe('activity', modelId);
     const ready = activityHandler.ready();
     const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1, language: 1 } });
-    const trainingExamples = model.training_data.common_examples;
-    const pureIntents = getPureIntents(trainingExamples);
+
     const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
-    const outDatedUtteranceIds = getOutdatedUtterances(utterances, project).map(u => u._id);
-    const deletableUtteranceIds = getDeletableUtterances(utterances, 0.85, pureIntents, outDatedUtteranceIds).map(u => u._id);
+    const smartTips = getAllSmartTips(model, project, utterances, 0.87);
     let localIntents = [];
     let localEntities = []; // eslint-disable-line
     let numValidated = 0;
@@ -396,10 +383,8 @@ const ActivityContainer = withTracker((props) => {
 
     return {
         model,
-        pureIntents,
         utterances,
-        outDatedUtteranceIds,
-        deletableUtteranceIds,
+        smartTips,
         ready,
         entities: uniq(entities.concat(localEntities)),
         intents: sortBy(uniq(intents.concat(localIntents))),
