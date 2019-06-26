@@ -1,20 +1,13 @@
 
 import SimpleSchema from 'simpl-schema';
-import yaml from 'js-yaml';
 
-const validateYaml = function() {
-    try {
-        yaml.safeLoad(this.value);
-        return null;
-    } catch (e) {
-        return e.reason;
-    }
-};
+import { validateYaml } from '../../lib/utils';
 
 export const privateSettingsSchema = new SimpleSchema({
     defaultEndpoints: { type: String, custom: validateYaml, optional: true, defaultValue: '' },
     defaultCredentials: { type: String, custom: validateYaml, optional: true },
     defaultRules: { type: String, custom: validateYaml, optional: true },
+    defaultPolicies: { type: String, custom: validateYaml, optional: true },
     reCatpchaSecretServerKey: { type: String, optional: true },
 });
 

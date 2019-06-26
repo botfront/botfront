@@ -21,30 +21,14 @@ describe('nlu-model:w role permissions', function() {
         cy.deleteUser(email);
     });
 
-    it('should show NEW MODEL button', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.get('[data-cy=new-model]').should('exist');
-    });
-
-    it('should show DUPLICATE button', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.secondary').should('exist');
-    });
-
-    it('should NOT disable online button', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.right.floated').should('not.have.class', 'disabled');
-    });
-
-    // This tests inserting and duplicating since they use the same method
+    /* Test on the UI are not performed because this permission does not allow user to go to the routes to actually delete the model,
+       this permission is used by project-admin to delete a model. */
     it('should be able to insert and delete a model through Meteor.call', function() {
         // First a model needs to be created which would then be deleted by nlu-model:w
         cy.MeteorCall('nlu.insert', [
             {
                 evaluations: [],
-                language: 'en',
+                language: 'aa',
                 name: 'To be deleted by model:w',
                 published: false,
             },
@@ -53,29 +37,9 @@ describe('nlu-model:w role permissions', function() {
             .then(modelId => cy.MeteorCall('nlu.remove', [
                 modelId,
                 this.bf_project_id,
-            ])) // returns string 'Model Deleted' when resolved
+            ]))
             .then((result) => {
-                expect(result).to.equal('Model Deleted');
+                expect(result).to.equal(1);
             });
-    });
-
-    it('should be able to delete a model through UI', function () {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
-        cy.get('.nlu-menu-settings').click();
-        cy.contains('Delete').click();
-        cy.get('[data-cy=download-backup]').click();
-        cy.get('[data-cy=delete-model]').click();
-        cy.get('.primary').click();
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.get('.card').should('not.exist');
-        cy.insertGenericNLUModel(this.bf_model_id, this.bf_project_id);
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
-    });
-
-    it('should be able to call allowed methods', function() {
-        cy.MeteorCall('nlu.publish', [
-            this.bf_model_id,
-            this.bf_project_id,
-        ]).then(err => expect(err.error).to.not.equal('403'));
     });
 });

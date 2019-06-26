@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -14,11 +15,11 @@ import {
     Tab,
     Popup,
     Placeholder,
-    Loader,
+    Dropdown,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
+import { isTraining, getPublishedNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
 import NluDataTable from './NluDataTable';
 import NLUPlayground from '../../example_editor/NLUPlayground';
@@ -29,7 +30,6 @@ import IntentBulkInsert from './IntentBulkInsert';
 import Synonyms from '../../synonyms/Synonyms';
 import Gazette from '../../synonyms/Gazette';
 import NLUPipeline from './settings/NLUPipeline';
-import NLUParams from './settings/NLUParams';
 import DataImport from '../import-export/DataImport';
 import DataExport from '../import-export/DataExport';
 import NLUTrainButton from './NLUTrainButton';
@@ -38,16 +38,18 @@ import DeleteModel from '../import-export/DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
+import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import { can } from '../../../../lib/scopes';
 
-const API = React.lazy(() => import('./API'));
+// const API = React.lazy(() => import('./API'));
+import { Projects } from '../../../../api/project/project.collection';
 
 class NLUModel extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { activeItem: 'activity', ...NLUModel.getDerivedStateFromProps(props) };
+        this.state = { activeItem: 'data', ...NLUModel.getDerivedStateFromProps(props), modelId: '' };
         this.activityLinkRender = false;
     }
 
@@ -57,9 +59,7 @@ class NLUModel extends React.Component {
             entities,
             instances,
             ready,
-            model: {
-                instance,
-            } = {},
+            instance,
         } = props;
         return {
             examples: ready ? NLUModel.getExamplesWithExtraSynonyms(props) : [],
@@ -173,11 +173,7 @@ class NLUModel extends React.Component {
         if (instance) {
             tabs.push({
                 menuItem: 'API',
-                render: () => (
-                    <React.Suspense fallback={<Loader active />}>
-                        <API model={model} instance={instance} />
-                    </React.Suspense>
-                ),
+                render: () => (<API model={model} instance={instance} />),
             });
         }
         return tabs;
@@ -185,11 +181,16 @@ class NLUModel extends React.Component {
 
     getSettingsSecondaryPanes = () => {
         const {
-            model, instances, intents, projectId,
+            model,
+            intents,
+            projectDefaultLanguage,
+            nluModelLanguages,
+            projectId,
         } = this.props;
-        
+        const { instance } = this.state;
+        const languageName = nluModelLanguages.find(language => (language.value === model.language));
+        const cannotDelete = model.language !== projectDefaultLanguage;
         const tabs = [
-            { menuItem: 'General', render: () => <NLUParams model={model} instances={instances} projectId={projectId} /> },
             { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} projectId={projectId} /> },
             { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
         ];
@@ -198,71 +199,35 @@ class NLUModel extends React.Component {
             tabs.push({ menuItem: 'Import', render: () => <DataImport model={model} /> });
         }
         if (can('nlu-model:w', projectId)) {
-            tabs.push({ menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} /> });
+            tabs.push({ menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} cannotDelete={cannotDelete} language={languageName.text} /> });
         }
         return tabs;
     };
 
+    handleLanguageChange = (e, data) => {
+        const { models, projectId } = this.props;
+        // Fetch the model Id for data.value
+        const modelToRender = models.find(model => (model.language === data.value));
+        this.setState({ modelId: modelToRender.language }, browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelToRender._id}` }));
+    }
+
     getHeader = () => {
-        const { projectId, model: { name, language } = {} } = this.props;
+        const { nluModelLanguages, model } = this.props;
+        let { modelId } = this.state;
+        modelId = model.language;
         return (
-            <div className='model_header'>
-                <Link to={`/project/${projectId}/nlu/models`}>
-                    <strong>{`NLU Models > ${name} (${language})`}</strong>
-                </Link>
-            </div>
+            <Dropdown
+                placeholder='Select Model'
+                search
+                selection
+                value={modelId}
+                options={nluModelLanguages}
+                onChange={this.handleLanguageChange}
+                data-cy='model-selector'
+            />
         );
     };
 
-    renderMenuItems = (activeItem, model, status, endTime, instance) => {
-        const { projectId } = this.props;
-        return (
-            <Menu pointing secondary>
-                <Menu.Item>{this.getHeader()}</Menu.Item>
-                <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
-                    <Icon size='small' name='history' />
-                    {'Activity'}
-                </Menu.Item>
-                <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
-                    <Icon size='small' name='database' />
-                    {'Training Data'}
-                </Menu.Item>
-                <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
-                    <Icon size='small' name='percent' />
-                    {'Evaluation'}
-                </Menu.Item>
-                <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
-                    <Icon size='small' name='setting' />
-                    {'Settings'}
-                </Menu.Item>
-                <Menu.Menu position='right'>
-                    <Menu.Item>
-                        {!isTraining(model) && status === 'success' && (
-                            <Popup
-                                trigger={(
-                                    <Icon size='small' name='check' fitted circular style={{ color: '#2c662d' }} />
-                                )}
-                                content={<Label basic content={<div>{`Trained ${moment(endTime).fromNow()}`}</div>} style={{ borderColor: '#2c662d', color: '#2c662d' }} />}
-                            />
-                        )}
-                        {!isTraining(model) && status === 'failure' && (
-                            <Popup
-                                trigger={(
-                                    <Icon size='small' name='warning' color='red' fitted circular />
-                                )}
-                                content={<Label basic color='red' content={<div>{`Training failed ${moment(endTime).fromNow()}`}</div>} />}
-                            />
-                        )}
-                    </Menu.Item>
-                    {can('nlu-model:x', projectId) && (
-                        <Menu.Item>
-                            <NLUTrainButton model={model} instance={instance} />
-                        </Menu.Item>
-                    )}
-                </Menu.Menu>
-            </Menu>
-        );
-    }
 
     handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
 
@@ -294,6 +259,9 @@ class NLUModel extends React.Component {
             model,
             model: {
                 _id: modelId,
+            } = {},
+            project,
+            project: {
                 training: {
                     status,
                     endTime,
@@ -304,6 +272,7 @@ class NLUModel extends React.Component {
         const {
             activeItem, instance, entities, intents,
         } = this.state;
+        if (!project) return null;
         if (!model) return null;
         if (!ready) {
             return (
@@ -329,14 +298,56 @@ class NLUModel extends React.Component {
         }
         return (
             <div id='nlu-model'>
-                {this.renderMenuItems(activeItem, model, status, endTime, instance)}
+                <Menu pointing secondary>
+                    <Menu.Item header>{this.getHeader()}</Menu.Item>
+                    <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick} className='nlu-menu-activity'>
+                        <Icon size='small' name='history' />
+                        {'Activity'}
+                    </Menu.Item>
+                    <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
+                        <Icon size='small' name='database' />
+                        {'Training Data'}
+                    </Menu.Item>
+                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
+                        <Icon size='small' name='percent' />
+                        {'Evaluation'}
+                    </Menu.Item>
+                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
+                        <Icon size='small' name='setting' />
+                        {'Settings'}
+                    </Menu.Item>
+                    <Menu.Menu position='right'>
+                        <Menu.Item>
+                            {!isTraining(project) && status === 'success' && (
+                                <Popup
+                                    trigger={(
+                                        <Icon size='small' name='check' fitted circular style={{ color: '#2c662d' }} />
+                                    )}
+                                    content={<Label basic content={<div>{`Trained ${moment(endTime).fromNow()}`}</div>} style={{ borderColor: '#2c662d', color: '#2c662d' }} />}
+                                />
+                            )}
+                            {!isTraining(project) && status === 'failure' && (
+                                <Popup
+                                    trigger={(
+                                        <Icon size='small' name='warning' color='red' fitted circular />
+                                    )}
+                                    content={<Label basic color='red' content={<div>{`Training failed ${moment(endTime).fromNow()}`}</div>} />}
+                                />
+                            )}
+                        </Menu.Item>
+                        <Menu.Item>
+                            <NLUTrainButton project={project} instance={instance} />
+                        </Menu.Item>
+                    </Menu.Menu>
+                </Menu>
+
                 <Container>
                     <br />
-                    {can('nlu-data:r', projectId) && (instance ? (
+                    {can('nlu-data:r', projectId) && instance && (
                         <div id='playground'>
                             <NLUPlayground
                                 testMode
-                                modelId={modelId}
+                                model={model}
                                 projectId={projectId}
                                 instance={instance}
                                 floated='right'
@@ -346,16 +357,14 @@ class NLUModel extends React.Component {
                                 postSaveAction='clear'
                             />
                         </div>
-                    ) : (
-                        this.renderWarningMessage()
-                    ))}
+                    )}
                     <br />
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && can('nlu-data:r', projectId) && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} />}
                     {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
                     {activeItem === 'activity' && can('nlu-data:r', projectId) && (
-                        <Activity modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} projectId={projectId} />
+                        <Activity project={project} modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} projectId={projectId} />
                     )}
                 </Container>
             </div>
@@ -364,27 +373,63 @@ class NLUModel extends React.Component {
 }
 
 NLUModel.propTypes = {
-    model: PropTypes.object.isRequired,
-    projectId: PropTypes.string.isRequired,
+    model: PropTypes.object,
+    projectId: PropTypes.string,
     instances: PropTypes.arrayOf(PropTypes.object),
     entities: PropTypes.array,
     intents: PropTypes.array,
     settings: PropTypes.object.isRequired,
-    ready: PropTypes.bool.isRequired,
+    ready: PropTypes.bool,
+    nluModelLanguages: PropTypes.array,
+    models: PropTypes.array,
+    projectDefaultLanguage: PropTypes.string,
+    project: PropTypes.object,
 };
 
 NLUModel.defaultProps = {
     instances: [],
     entities: [],
     intents: [],
+    ready: false,
+    nluModelLanguages: [],
+    models: [],
+    projectDefaultLanguage: '',
+    projectId: '',
+    model: {},
+    project: {},
+};
+
+const handleDefaultRoute = (projectId) => {
+    const { nlu_models: modelIds = [], defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, defaultLanguage: 1 } }) || {};
+    const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
+
+    try {
+        const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${defaultModelId}` });
+    } catch (e) {
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelIds[0]}` });
+    }
 };
 
 const NLUDataLoaderContainer = withTracker((props) => {
     const { params: { model_id: modelId, project_id: projectId } = {} } = props;
+    // For handling '/project/:project_id/nlu/models'
+    if (!modelId) {
+        handleDefaultRoute(projectId);
+    }
+    // for handling '/project/:project_id/nlu/model/:model_id'
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const settingsHandler = Meteor.subscribe('settings');
-    const modelHandler = Meteor.subscribe('nlu_models', modelId);
-    const ready = instancesHandler.ready() && settingsHandler.ready() && modelHandler.ready();
+    let modelHandler = {
+        ready() {
+            return false;
+        },
+    };
+    if (modelId) {
+        modelHandler = Meteor.subscribe('nlu_models', modelId);
+    }
+    const projectsHandler = Meteor.subscribe('projects', projectId);
+    const ready = instancesHandler.ready() && settingsHandler.ready() && modelHandler.ready() && projectsHandler.ready();
     const model = NLUModels.findOne({ _id: modelId });
     if (!model) {
         return {};
@@ -404,14 +449,39 @@ const NLUDataLoaderContainer = withTracker((props) => {
         }
     });
 
+    const {
+        name,
+        nlu_models,
+        defaultLanguage,
+        instance,
+        training,
+    } = Projects.findOne({ _id: projectId }, {
+        fields: {
+            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1,
+        },
+    });
+    if (!name) return browserHistory.replace({ pathname: '/404' });
+    const nluModelLanguages = getPublishedNluModelLanguages(nlu_models, true);
+    const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
+    const projectDefaultLanguage = defaultLanguage;
+
+    const project = {
+        _id: projectId,
+        training,
+    };
     return {
         ready,
+        models,
         model,
         instances,
         intents,
         entities,
         projectId,
         settings,
+        nluModelLanguages,
+        projectDefaultLanguage,
+        instance,
+        project,
     };
 })(NLUModel);
 

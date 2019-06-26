@@ -22,8 +22,6 @@ describe('nlu-model:r role permissions', function() {
 
     it('should be able to access the right nlu model menu tabs', function () {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
         cy.get('.nlu-menu-activity').should('exist');
         cy.get('.nlu-menu-training-data').should('exist');
         cy.get('.nlu-menu-evaluation').should('exist');
@@ -32,14 +30,11 @@ describe('nlu-model:r role permissions', function() {
         cy.get('#playground').should('exist');
     });
 
-    it('should NOT show NEW MODEL button', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.get('.right>:first-child button.primary').should('not.exist');
+    it('should NOT be able go to project settings route', function() {
+        // TODO
     });
 
-    it('should NOT show DUPLICATE button', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.secondary').should('not.exist');
+    it('should NOT be able to call nlu.insert', function() {
+        // TODO
     });
 });

@@ -1,38 +1,34 @@
 {
     "version": "0.2.0",
     "configurations": [
-
         {
             "type": "chrome",
             "request": "launch",
             "name": "Meteor: Chrome",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Meteor: Debug",
-            "restart": true,
-            "port": 9229,
-            "timeout": 60000,
+            "url": "http://localhost:3000",
+            "cwd": "${workspaceFolder}/botfront",
+            "outputCapture": "std"
         },
         {
             "type": "node",
             "request": "launch",
+            "cwd": "${workspaceFolder}/botfront",
             "name": "Meteor: Node",
             "runtimeExecutable": "npm",
             "runtimeArgs": ["run", "debug"],
-          
-            "timeout": 30000,
-            "env": {
-                
-            },
+            "outputCapture": "std",
+            "port": 9229,
+            "timeout": 90000
         }
     ],
     "compounds": [
         {
             "name": "Meteor: All",
-            "configurations": ["Meteor: Debug"]
+            "configurations": ["Meteor: Node", "Meteor: Chrome"]
+        },
+        {
+            "name": "Meteor: All Tests",
+            "configurations": ["Meteor: Server Tests", "Meteor: Client Tests"]
         }
     ]
 }

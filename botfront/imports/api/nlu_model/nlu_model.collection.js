@@ -47,6 +47,7 @@ if (Meteor.isServer) {
                     description: 1,
                     training: 1,
                     published: 1,
+                    instance: 1,
                 },
             });
         }

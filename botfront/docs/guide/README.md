@@ -1,7 +1,7 @@
 # Understanding intents and entities
 
 ::: tip
-Technology plays a role, but the most significant performance gains are obtained by developping a deep understanding of the fundamental NLU concepts. 
+Technology plays certainly a role, but the most significant performance gains are obtained by developping a good understanding of the fundamental NLU concepts. 
 :::
 
 ## Intents
@@ -12,16 +12,18 @@ An intent captures the general meaning of a sentence (or an utterance in the cha
 - I am starving
 - My kingdom for a pizza
 
-How do we teach our model that those utterances convey the `i_am_hungry` intent? We train it to distinguish those sentences from sentences with other meanings. We create a _dataset_ containing examples for different intents.
+How do we teach our model that those utterances convey the `i_am_hungry` intent? We train it to distinguish those sentences from sentences with other meanings. We create a _dataset_ containing examples of different intents.
 
 Here is a sample of a dataset in Botfront. You can see examples for 2 different intents. This project has more than 150.
 
 ![](../images/intents_sample.png)
 
-We said that intents carry the meaning of a sentence. How does a progam understand meaning? Let's just say there's a way to express the meaning of words with numbers (or vectors). The long explanation is [here](https://mrbot.ai/blog/natural-language-processing/understanding-intent-classification/) if your interested
+We said that intents carry the meaning of a sentence. How does a program understand meaning? Let's just say there's a way to express the meaning of words with numbers (or vectors). The long explanation is [here](https://mrbot.ai/blog/natural-language-processing/understanding-intent-classification/) if your interested, but the essential idea is that vectors can be compared (a distance can be calculated), and that a small distance indicates the words have a similar meaning. 
+
+In Rasa, the **_Spacy_** pipeline comes with ready to use _pretrained_ vectors, while the **_Tensorflow_** pipeline will train its own vectors on your dataset. The latter implies that you will need more examples, but your reward is that it will be more accurate on your custom or domain vocabulary, and more resilient to spelling mistakes. 
 
 ::: tip
-Rasa's Tensorflow Pipeline (only pipeline currently supported) only look at those vectors to determine the meaning of words and sentences. Entites present in an utterance won't influence intent classification. It is not necessary to tag entity to help the model pick up the correct intent
+Only the Tensorflow Pipeline is supported in Botfront at this time. 
 :::
 
 Usually, an intent carries an action or an expectation. 
@@ -43,3 +45,4 @@ A common mistake is to choose the entity value as the name like this:
 ![](../images/nlu_entities_2.png)
 :::
 
+Finally it should be noted that recognizing the intent and extracting entities are two separate tasks: in order word, having similar entities in utterances will not influence the model when it parses it to recognize the intent.

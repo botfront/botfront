@@ -133,7 +133,13 @@ class EntityPopup extends React.Component {
     };
 
     render() {
-        const { trigger, selection, length, projectId } = this.props;
+        const {
+            trigger,
+            selection,
+            length,
+            projectId,
+            disabled,
+        } = this.props;
         const { open } = this.state;
         const hasAddEntityPermission = can('nlu-data:w', projectId);
         return (
@@ -156,7 +162,7 @@ class EntityPopup extends React.Component {
                     )}
                     position='top center'
                     open={selection || open}
-                    disabled={!hasAddEntityPermission}
+                    disabled={!hasAddEntityPermission || disabled}
                 />
             </span>
         );
@@ -174,6 +180,7 @@ EntityPopup.propTypes = {
     onSelectionReset: PropTypes.func,
     length: PropTypes.number.isRequired,
     projectId: PropTypes.string.isRequired,
+    disabled: PropTypes.bool,
 };
 
 EntityPopup.defaultProps = {
@@ -181,6 +188,7 @@ EntityPopup.defaultProps = {
     onDelete: () => {},
     selection: false,
     onSelectionReset: () => {},
+    disabled: false,
 };
 
 export default EntityPopup;

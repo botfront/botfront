@@ -85,7 +85,16 @@ class Activity extends React.Component {
     }
 
     getIntentColumns() {
-        const { model: { _id: modelId, training: { endTime } = {} }, outDatedUtteranceIds, projectId } = this.props;
+        const {
+            model: {
+                _id: modelId,
+            },
+            project: {
+                training: { endTime } = {},
+            },
+            outDatedUtteranceIds,
+            projectId,
+        } = this.props;
         return [{
             id: 'confidence',
             Header: '%',
@@ -293,15 +302,15 @@ class Activity extends React.Component {
     }
 
     getActivityPanes = () => {
-        const { model: { _id: modelId }, instance } = this.props;
+        const { model, instance } = this.props;
         const panes = [];
         panes.push({ menuItem: 'New Utterances', render: this.primaryRender });
         if (this.hasDataWritePermission()) {
-            panes.push({ menuItem: 'Populate', render: () => <ActivityInsertions modelId={modelId} instance={instance} /> });
+            panes.push({ menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> });
         }
         return panes;
     }
-
+    
     render() {
         const { ready } = this.props;
         return (
@@ -338,10 +347,11 @@ const ActivityContainer = withTracker((props) => {
         modelId,
         entities,
         intents,
+        project,
     } = props;
 
-    const isUtteranceOutdated = ({ training: { endTime } }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
-    const getOutdatedUtterances = (utterances, model) => utterances.filter(u => isUtteranceOutdated(model, u));
+    const isUtteranceOutdated = ({ training: { endTime } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+    const getOutdatedUtterances = (utterances, projectData) => utterances.filter(u => isUtteranceOutdated(projectData, u));
     const getDeletableUtterances = (utterances, minConfidence, pureIntents, outDatedUtteranceIds) => utterances.filter(e => pureIntents.includes(e.intent)
                                 && e.confidence >= minConfidence
                                 && e.confidence < 1
@@ -349,11 +359,11 @@ const ActivityContainer = withTracker((props) => {
 
     const activityHandler = Meteor.subscribe('activity', modelId);
     const ready = activityHandler.ready();
-    const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1 } });
+    const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1, language: 1 } });
     const trainingExamples = model.training_data.common_examples;
     const pureIntents = getPureIntents(trainingExamples);
     const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
-    const outDatedUtteranceIds = getOutdatedUtterances(utterances, model).map(u => u._id);
+    const outDatedUtteranceIds = getOutdatedUtterances(utterances, project).map(u => u._id);
     const deletableUtteranceIds = getDeletableUtterances(utterances, 0.85, pureIntents, outDatedUtteranceIds).map(u => u._id);
     let localIntents = [];
     let localEntities = []; // eslint-disable-line

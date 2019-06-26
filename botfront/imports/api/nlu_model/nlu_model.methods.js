@@ -8,7 +8,7 @@ import { formatError, getProjectIdFromModelId } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
-import { checkNoEmojisInExamples, checkNoDuplicatesInExamples, renameIntentsInTemplates } from './nlu_model.utils';
+import { checkNoEmojisInExamples, checkNoDuplicatesInExamples, renameIntentsInTemplates, getNluModelLanguages } from './nlu_model.utils';
 import { setGazetteDefaults } from '../../ui/components/synonyms/GazetteConfig';
 import { Projects } from '../project/project.collection';
 import { Instances } from '../instances/instances.collection';
@@ -142,6 +142,14 @@ if (Meteor.isServer) {
             check(projectId, String);
             checkIfCan('nlu-model:w', projectId);
 
+            // Check if the model with the langauge already exists in project
+            // eslint-disable-next-line no-param-reassign
+            item.published = true; // a model should be published as soon as it is created
+            const { nlu_models: nluModels } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
+            const nluModelLanguages = getNluModelLanguages(nluModels, true);
+            if (nluModelLanguages.some(lang => (lang.value === item.language))) {
+                throw new Meteor.Error('409', `Model with langauge ${item.language} already exists`);
+            }
             const {
                 settings: {
                     public: { defaultNLUConfig },
@@ -156,7 +164,7 @@ if (Meteor.isServer) {
         'nlu.update'(modelId, item) {
             check(item, Object);
             check(modelId, String);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
 
             NLUModels.update({ _id: modelId }, { $set: item });
             return modelId;
@@ -183,15 +191,32 @@ if (Meteor.isServer) {
             check(modelId, String);
             check(projectId, String);
             checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
+            // check the default language of project and the language of model
+            const modelLanguage = NLUModels.findOne({ _id: modelId });
+            const projectDefaultLanguage = Projects.findOne({ _id: projectId });
+            if (modelLanguage.language !== projectDefaultLanguage.defaultLanguage) {
+                try {
+                    NLUModels.remove({ _id: modelId });
+                    return Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
+                } catch (e) {
+                    throw e;
+                }
+            }
+            throw new Meteor.Error('409', 'The default language cannot be deleted');
+        },
 
+        'nlu.removelanguage'(projectId, language) {
+            check(projectId, String);
+            check(language, String);
+            checkIfCan('nlu-model:w', projectId);
+            const modelIds = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+            const { _id: modelId } = NLUModels.findOne({ _id: { $in: modelIds }, language });
             try {
                 NLUModels.remove({ _id: modelId });
-                Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
+                return Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
             } catch (e) {
                 throw e;
             }
-
-            return 'Model Deleted';
         },
 
         'nlu.getChitChatIntents'(language) {
@@ -379,10 +404,13 @@ if (Meteor.isServer) {
                     fr: JSON.parse(Assets.getText('nlu/nlu-chitchat-fr.json')),
                     en: JSON.parse(Assets.getText('nlu/nlu-chitchat-en.json')),
                 };
-                const projectId = await Meteor.callWithPromise('project.insert', { name: 'Chitchat', _id: `chitchat-${shortid.generate()}`, namespace: 'chitchat' });
+                const projectId = await Meteor.callWithPromise('project.insert', {
+                    name: 'Chitchat',
+                    _id: `chitchat-${shortid.generate()}`,
+                    namespace: 'chitchat',
+                    defaultLanguage: 'en',
+                });
                 
-                const instance = Instances.findOne({ projectId });
-            
                 // eslint-disable-next-line no-restricted-syntax
                 for (const lang of Object.keys(data)) {
                     // eslint-disable-next-line no-await-in-loop
@@ -391,7 +419,6 @@ if (Meteor.isServer) {
                         {
                             name: `chitchat-${lang}`,
                             language: lang,
-                            instance: instance ? instance._id : null,
                         },
                         projectId,
                     );

@@ -40,7 +40,7 @@ export default class NLUPlayground extends React.Component {
 
     render() {
         const {
-            modelId, instance, projectId, intents, entities, testMode,
+            model, instance, projectId, intents, entities, testMode,
         } = this.props;
         const { example, example: { text } = {}, editMode } = this.state;
 
@@ -64,11 +64,12 @@ export default class NLUPlayground extends React.Component {
                         {testMode && (
                             <NLUExampleTester
                                 text={text}
-                                modelId={modelId}
+                                model={model}
                                 instance={instance}
                                 projectId={projectId}
                                 entities={entities}
                                 onDone={this.handleExampleTested}
+                                disablePopup
                             />
                         )}
                     </div>
@@ -93,7 +94,7 @@ NLUPlayground.propTypes = {
     entities: PropTypes.array.isRequired,
     onSave: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
-    modelId: PropTypes.string.isRequired,
+    model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
     testMode: PropTypes.bool,
 };

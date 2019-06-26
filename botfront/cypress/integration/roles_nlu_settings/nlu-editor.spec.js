@@ -23,17 +23,7 @@ describe('nlu-editor role permissions', function() {
 
     it('should be able to change nlu model general settings and pipeline', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.primary').click();
         cy.get('[data-cy=settings-in-model]').click();
-        cy.contains('General').click();
-        cy.get('form').within(() => {
-            cy.get('input[name="name"]').should('not.be.disabled');
-            cy.get('#uniforms-0000-0002').parent().should('not.have.class', 'disabled');
-            cy.get('input[name="description"]').should('not.be.disabled');
-            cy.get('[data-cy=save-button]').should('not.be.disabled');
-            cy.get('#uniforms-0000-0005').parent().should('not.have.class', 'disabled');
-        });
         cy.get('[data-cy=save-button]').click();
         cy.get('[data-cy=changes-saved]');
         cy.contains('Pipeline').click();
@@ -45,17 +35,7 @@ describe('nlu-editor role permissions', function() {
         });
     });
 
-    it('should NOT show DUPLICATE button', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.secondary').should('not.exist');
-    });
-
-    it('should disable online button', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('English').click();
-        cy.get('.cards>:first-child button.right.floated').should('have.class', 'disabled');
-    });
+    // TODO add test to check project settings are unavailable
 
     it('should not be able to call nlu.update', function() {
         cy.MeteorCall('nlu.update', [
@@ -85,7 +65,7 @@ describe('nlu-editor role permissions', function() {
         cy.get('[data-cy=train-button]').click();
     });
 
-    it('should be able to call nlu.train withouth having a 403', function() {
+    it('should be able to call nlu.train with out having a 403', function() {
         cy.MeteorCall('nlu.train', [
             this.bf_model_id,
             this.bf_project_id,

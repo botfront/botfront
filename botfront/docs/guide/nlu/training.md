@@ -37,10 +37,13 @@ We must still assume that our users are careful enough to avoid typos and spelli
 
 However, a fuzzy gazette can.
 
-## Fuzzy Gazettes
+## Gazettes
 
-Fuzzy gazettes are useful when you expect the values of an entity to be in a finite set, and when you want to give users some spelling latitude. Common examples are colors, brands, or cities. 
-The example below shows how to set up a gazette to help the model understand that _the big aple_ is **JFK** and that the _citi of lite_ is _CDG_:
+Gazettes are useful when you expect the values of an entity to be in a finite set, and when you want to give users some spelling latitude. Common examples are colors, brands, or cities. 
+In the example below we want to make sure the `color` entity returns an allowed color. The allowed colors are **red** and **blue**. We want to make sure of two things:
+
+1. If the `CRFEntityExtractor` extracts **yellow**, which is not in the white list, we don't want it in the NLU parse data.
+2. The correct color is returned is the user spells it incorrectly (to some extent).
 
 ![](../../images/nlu_training_13.png)
 
@@ -50,31 +53,35 @@ All you have to do is specify the list of allowed (or commonly) expected values 
 When the entity extractor picks up _citi of lite_, it compares it with every element of the Gazette list and computes a fuzziness score for each element. The highest score is for _the city of light_, which is then mapped to _CDG_ by the synonyms processor. If the highest score is below the minimum score, it means the value is out of scope and the entity is removed.
 :::
 
-## _Sorta_ composite entities
+## Composiing entities
 
-Duckling offers an easy way to extract structured entities such as numbers, amounts of money, emails, dates, ... But consider the following sentence:
+Duckling is an open source parser by Facebook able to extract structured entities such as numbers, amounts of money, emails, dates. It can be used by Rasa and is integrated in the Botfront package (when you start Botfront with the CLI, a Duckling container is started)
+
+Being a parser, it is only able to recognize patterns in a sentence and not to attribute it to a specific entity. For example, in the following sentence:
 
 > I want *2* beers and *3* cokes
 
-If you need to know the count for both beers and cokes, the `number` entities returned by Duckling won't be enough. Luckily we have a component for that.
+Duckling will return two instances of the `number` entity, but no information about which quantity applies to which beverage.
 
-Annotate *2* as a `beers_count` entity and *3* as a `cokes_count` entity.
+Luckily, Botfront comes with a component just for that. Simply annotate *2* as a `beers_count` entity and *3* as a `cokes_count` entity.
 
-Then in the pipeline:
+Then add the following component in the pipeline **after** the `CRFEntityExtractor`:
 
 ```yaml
-- name: ner_crf
+- name: CRFEntityExtractor
   ...
-- name: components.botfront.duckling_http_extractor.DucklingHTTPExtractor
+- name: rasa_addons.nlu.components.duckling_http_extractor.DucklingHTTPExtractor
   url: http://duckling
   dimensions:
   - "number"
   
-- name: components.botfront.duckling_crf_merger.DucklingCrfMerger
+- name: rasa_addons.nlu.components.duckling_crf_merger.DucklingCrfMerger
   entities:
     beers_count: ["number"]
     cokes_count: ["number"]
 ```
+
+Now, the `beers_count` and `cokes_count` entities are guaranteed to return a value of type number, and your custom actions can safely rely on it. If the `CRFEntityExtractor` extracts an entity that does not contains a `number` it is going to be removed.  
 
 ::: tip The order is important
 - The entities are first extracted by the `ner_crf` component. 
@@ -86,13 +93,9 @@ Then in the pipeline:
 
 For the above to work we need to make sure things happen in the right order:
 
-1. The `ner_crf` component extracts _citi of lite_ from the utterance
-2. The `FuzzyGazette` component replaces _citi of lite_ with _the city of light_
-3. The `ner_synonyms` componenent maps _the city of light_ to _CDG_.
-
-This is how such a pipeline could look like:
-
-![](../../images/nlu_training_14.png)
+1. The `CRFEntityExtractor` component extracts _citi of lite_ from the utterance
+2. The `Gazette` component replaces _citi of lite_ with _the city of light_
+3. The `EntitySynonymMapper` componenent maps _the city of light_ to _CDG_.
 
 ## Semantic variety
 

@@ -1,7 +1,8 @@
 /* eslint-disable no-undef */
 
 const modelName = 'aModel';
-const modelLang = 'French';
+const modelLang = 'fr';
+let modelId = '';
 
 describe('Bot responses', function() {
     beforeEach(function () {
@@ -16,23 +17,24 @@ describe('Bot responses', function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModel(id, modelName, modelLang, 'my description');
+            cy.createNLUModelProgramatically(id, modelName, modelLang, 'my description')
+                .then((result) => {
+                    modelId = result;
+                });
         });
     });
 
     after(function() {
         cy.login();
-        cy.deleteNLUModel(this.bf_project_id, modelName, modelLang);
+        cy.deleteNLUModelProgramatically(modelId, this.bf_project_id);
         cy.logout();
     });
 
     it('Should scroll into training data', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains('French').click();
-        cy.get('.cards>:first-child button.primary').click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
         cy.contains('Chit Chat').click();
-        cy.get('[role=combobox]').click();
+        cy.get('.chitchat > [role=combobox]').eq(1).click();
         cy.get('[role=listbox].menu').contains('basics.yes').click();
         cy.get('[role=listbox].menu').contains('basics.time').click();
         cy.get('[role=listbox].menu').contains('basics.no').click();

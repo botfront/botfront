@@ -14,9 +14,8 @@ import { GlobalSettings } from '../../../api/globalSettings/globalSettings.colle
 class ProjectSidebar extends React.Component {
     render() {
         const {
-            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom,
+            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom, renderLegacyModels,
         } = this.props;
-
         const intercomId = settingsReady ? settings.settings.public.intercomAppId : null;
 
         return (
@@ -27,9 +26,16 @@ class ProjectSidebar extends React.Component {
                         <ProjectsDropdown currentProjectId={projectId} onProjectChange={handleChangeProject} />
                     </Menu.Item>
                     <Can I='nlu-data:r' projectId={projectId}>
-                        <Link to={`/project/${projectId}/nlu/models`}>
-                            <Menu.Item name='NLU' icon='grid layout' />
-                        </Link>
+                        <>
+                            <Link to={`/project/${projectId}/nlu/models`}>
+                                <Menu.Item name='NLU' icon='grid layout' />
+                            </Link>
+                            {renderLegacyModels && (
+                                <Link to={`/project/${projectId}/nlu/legacy-models`}>
+                                    <Menu.Item name='Legacy NLU' icon='history' />
+                                </Link>
+                            )}
+                        </>
                     </Can>
                     <Can I='responses:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/dialogue/templates`}>
@@ -39,6 +45,11 @@ class ProjectSidebar extends React.Component {
                     <Can I='conversations:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/dialogue/conversations/p/1`}>
                             <Menu.Item name='Conversations' icon='comments' />
+                        </Link>
+                    </Can>
+                    <Can I='stories:r' projectId={projectId}>
+                        <Link to={`/project/${projectId}/stories`}>
+                            <Menu.Item name='Stories' icon='book' />
                         </Link>
                     </Can>
                     <Can I='project-settings:r' projectId={projectId}>
@@ -77,6 +88,7 @@ ProjectSidebar.propTypes = {
     settingsReady: PropTypes.bool.isRequired,
     settings: PropTypes.object,
     triggerIntercom: PropTypes.func.isRequired,
+    renderLegacyModels: PropTypes.bool.isRequired,
 };
 
 ProjectSidebar.defaultProps = {

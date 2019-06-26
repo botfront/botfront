@@ -10,28 +10,38 @@
 //     selection.addRange(range);
 // }
 
-const utterance = 'can you recover your asset in case of client default?';
+const utterance = 'whatever this is a testing utterance';
 const modelName = 'nluTaggingModel';
-const modelLang = 'French';
+const modelLang = 'fr';
 const intentName = 'KPI';
 const secondIntent = 'chitchat.greet';
 const newIntent = 'test';
 const newRenameIntent = 'KKPPII';
-
 const secondEntity = 'ENT2';
 const newEntity = 'myNewEntity';
+let modelId = '';
 
 describe('nlu tagging in training data', function() {
     before(function() {
         cy.login();
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModelWithImport(
+            cy.createNLUModelProgramatically(
                 id,
                 modelName,
                 modelLang,
                 'my nlu tagging testing model',
-            );
+            ).then((result) => {
+                modelId = result;
+                cy.visit(`/project/${id}/nlu/model/${modelId}`);
+                cy.get('.nlu-menu-settings').click();
+                cy.contains('Import').click();
+                cy.fixture('nlu_import.json', 'utf8').then((content) => {
+                    cy.get('.file-dropzone').upload(content, 'data.json');
+                });
+            
+                cy.contains('Import Training Data').click();
+            });
         });
         cy.logout();
     });
@@ -39,14 +49,12 @@ describe('nlu tagging in training data', function() {
     beforeEach(function() {
         cy.logout();
         cy.login();
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains(modelLang).click();
-        cy.get('.card:first button.primary', { timeout: 10000 }).click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
     });
 
     after(function() {
-        cy.deleteNLUModel(this.bf_project_id, modelName, modelLang);
+        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
     });
 
     it('Should add training data', function() {
@@ -126,8 +134,7 @@ describe('nlu tagging in training data', function() {
         cy.get('[data-cy=remove-response-1]').should('not.exist');
 
         // Then we go in training data
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.get('.card:first button.primary', { timeout: 10000 }).click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
 
         // And create a training data with an intent of intentName
@@ -166,8 +173,8 @@ describe('nlu tagging in training data', function() {
         // Cool
 
         // Then we go back in training data
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.get('.card:first button.primary', { timeout: 10000 }).click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        // cy.get('.card:first button.primary', { timeout: 10000 }).click();
         cy.contains('Training Data').click();
 
         // Rename it to the original intentName
@@ -221,9 +228,7 @@ describe('nlu tagging in training data', function() {
 
         cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
 
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains(modelLang).click();
-        cy.get('.card:first button.primary', { timeout: 10000 }).click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
         cy.get('[data-cy=trigger-entity-names]').click();
 
@@ -242,9 +247,7 @@ describe('nlu tagging in training data', function() {
 
         cy.get('.rt-tbody .rt-tr:first').contains(newEntity);
 
-        cy.visit(`/project/${this.bf_project_id}/nlu/models`);
-        cy.contains(modelLang).click();
-        cy.get('.card:first button.primary', { timeout: 10000 }).click();
+        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
         cy.get('[data-cy=trigger-entity-names]').click();
 
