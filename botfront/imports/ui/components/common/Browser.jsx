@@ -3,6 +3,7 @@ import {
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
+import './style.less';
 
 class Browser extends React.Component {
     constructor(props) {
@@ -11,6 +12,8 @@ class Browser extends React.Component {
             page: 0,
             addMode: false,
             newItemName: '',
+            hover: -1,
+            hoverIcon: -1,
         };
     }
 
@@ -40,6 +43,12 @@ class Browser extends React.Component {
         this.setState({ addMode: false, newItemName: '' });
     };
 
+    handleToggle = (e, element) => {
+        e.stopPropagation();
+        const { toggleSelect } = this.props;
+        toggleSelect(element);
+    }
+
     render() {
         const {
             data,
@@ -48,10 +57,16 @@ class Browser extends React.Component {
             allowAddition,
             nameAccessor,
             saving,
+            icon,
         } = this.props;
 
-        const { addMode, newItemName, page } = this.state;
-
+        const {
+            addMode,
+            newItemName,
+            page,
+            hover,
+            hoverIcon,
+        } = this.state;
         const items = data.map((item, index) => (
             <Menu.Item
                 key={index.toString()}
@@ -59,7 +74,19 @@ class Browser extends React.Component {
                 active={indexProp === index}
                 onClick={() => this.handleClickMenuItem(index)}
                 link={indexProp !== index}
+                onMouseEnter={() => this.setState({ hover: index })}
+                onMouseLeave={() => this.setState({ hover: -1 })}
             >
+                {icon && (
+                    <Icon
+                        id={`${item.selected ? 'selected' : 'not-selected'}`}
+                        className={`${hover === index ? 'hovered' : 'not-hovered'} ${hoverIcon === index ? 'hovered-icon' : ''}`}
+                        name={icon}
+                        onClick={e => this.handleToggle(e, item)}
+                        onMouseEnter={() => this.setState({ hoverIcon: index })}
+                        onMouseLeave={() => this.setState({ hoverIcon: -1 })}
+                    />)
+                }
                 <span>{item[nameAccessor]}</span>
                 {indexProp === index && saving && (
                     <Loader active size='tiny' />
@@ -110,6 +137,8 @@ Browser.propTypes = {
     onAdd: PropTypes.func,
     nameAccessor: PropTypes.string,
     saving: PropTypes.bool,
+    icon: PropTypes.string,
+    toggleSelect: PropTypes.func,
 };
 
 Browser.defaultProps = {
@@ -118,8 +147,10 @@ Browser.defaultProps = {
     pageSize: 20,
     allowAddition: false,
     onAdd: () => {},
+    toggleSelect: () => {},
     nameAccessor: '_id',
     saving: false,
+    icon: null,
 };
 
 export default Browser;

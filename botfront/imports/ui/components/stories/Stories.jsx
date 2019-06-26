@@ -102,6 +102,16 @@ class Stories extends React.Component {
         );
     };
 
+    handleUpdateStoryGroup = (storyGroup) => {
+        // eslint-disable-next-line no-param-reassign
+        storyGroup.selected = !storyGroup.selected;
+        Meteor.call(
+            'storyGroups.update',
+            storyGroup,
+            wrapMeteorCallback(),
+        );
+    }
+
     render() {
         const { storyGroups, projectId } = this.props;
         const { storyIndex, saving, validationErrors } = this.state;
@@ -122,6 +132,8 @@ class Stories extends React.Component {
                         onChange={this.handleMenuChange}
                         nameAccessor='name'
                         saving={saving}
+                        icon='grid layout'
+                        toggleSelect={this.handleUpdateStoryGroup}
                     />
                 </Grid.Column>
                 <Grid.Column width={12}>

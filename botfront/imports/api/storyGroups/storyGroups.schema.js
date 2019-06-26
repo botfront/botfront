@@ -13,6 +13,7 @@ export const StoryGroupSchema = new SimpleSchema(
             optional: true,
             autoValue: () => new Date(),
         },
+        selected: { type: Boolean, defaultValue: false },
     },
     { tracker: Tracker },
 );
