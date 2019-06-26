@@ -26,6 +26,10 @@
     }
   }
 
+  .icon.add {
+    margin-top: 1em;
+  }
+
   .segment {
     .icon.trash {
       position: absolute;
@@ -42,11 +46,16 @@
       background-image: radial-gradient(#d8d8d8 50%, transparent 20%);
       background-position: 0 0, 10px 10px;
       background-size: 8px 8px;
+      cursor: grab;
     }
 
     .ace_editor {
       margin-left: 18px;
     }
+  }
+
+  .segment.dragging {
+    opacity: 0.1;
   }
 
   .warning.message {

@@ -1,6 +1,7 @@
 import {
     Menu, Icon, Input, Loader, Button,
 } from 'semantic-ui-react';
+// import { useDrop } from 'react-dnd-cjs';
 import PropTypes from 'prop-types';
 import React from 'react';
 import './style.less';
