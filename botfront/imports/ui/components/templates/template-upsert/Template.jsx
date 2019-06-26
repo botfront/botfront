@@ -134,7 +134,7 @@ class Template extends React.Component {
 
                             <br />
 
-                            {/* <NLUCriteriaCheckboxField> 
+                            <NLUCriteriaCheckboxField> 
                                 <>
                                     <Step.Group widths={3}>
                                         <Step
@@ -167,7 +167,6 @@ class Template extends React.Component {
                                     {activeStep === 'followup' && <FollowUp name='followUp' />}
                                 </>
                             </NLUCriteriaCheckboxField>
-                            */}
                             <br />
                             <DisplayIf condition={context => context.model.match == null}>
                                 <>
