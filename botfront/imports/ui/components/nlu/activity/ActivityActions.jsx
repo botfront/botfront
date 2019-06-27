@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Confirm, Dropdown, Button } from 'semantic-ui-react';
+import { Confirm, Dropdown, Button, Icon } from 'semantic-ui-react';
 
 const confirmations = {
     ADD_TO_TRAINING: 'The selected utterances will be added to the training data',
@@ -10,7 +10,6 @@ const confirmations = {
     DELETE_ALL: 'All utterances will be permanently deleted',
     VALIDATE: 'The selected utterances will be marked validated.',
     INVALIDATE: 'The selected utterances will be marked invalidated.',
-    SET_INTENT: 'This will change the intent on the selected utterances',
 };
 
 export default class ActivityActions extends React.Component {
@@ -44,10 +43,7 @@ export default class ActivityActions extends React.Component {
         const { onFilterChange } = this.props;
         const filterFns = {
             VALIDATED: examples => examples.filter(example => example.validated),
-            'SCORE>85': examples => ActivityActions.getExamplesFilterByConfidence(examples, 0.85),
-            'SCORE>90': examples => ActivityActions.getExamplesFilterByConfidence(examples, 0.9),
-            'SCORE>95': examples => ActivityActions.getExamplesFilterByConfidence(examples, 0.95),
-            ALL: examples => ActivityActions.getExamplesFilterByConfidence(examples, 0),
+//            ALL: examples => ActivityActions.getExamplesFilterByConfidence(examples, 0),
         };
         onFilterChange(filterFns[value]);
         this.setState({ dataFilter: value, action: null, actionOptions: this.getActionsOptions(value) });
@@ -58,9 +54,8 @@ export default class ActivityActions extends React.Component {
     getFilterOptions = () => {
         const options = [];
         const { numValidated } = this.props;
-        if (numValidated > 0) options.push({ text: `${numValidated} validated utterances`, value: 'VALIDATED' });
-        [85, 90, 95].map(s => options.push({ text: `Utterances with scores > ${s}%`, value: `SCORE>${s}` }));
-        options.push({ text: 'All utterances', value: 'ALL' });
+        if (numValidated > 0) options.push({ text: `Process ${numValidated} validated utterance${numValidated === 1 ? '' : 's'}`, value: 'VALIDATED' });
+//        options.push({ text: 'All utterances', value: 'ALL' });
         return options;
     };
 
@@ -70,22 +65,12 @@ export default class ActivityActions extends React.Component {
                 { text: 'Add to training data', value: 'ADD_TO_TRAINING', key: 'ADD_TO_TRAINING' },
                 { text: 'Run evaluation', value: 'EVALUATE', key: 'EVALUATE' },
                 { text: 'Invalidate', value: 'INVALIDATE', key: 'INVALIDATE' },
-                { text: 'Change intent', value: 'SET_INTENT', key: 'SET_INTENT' },
-            ];
-        }
-
-        if (dataFilter.startsWith('SCORE')) {
-            return [
-                { text: 'Validate', value: 'VALIDATE', key: 'VALIDATE' },
-                { text: 'Delete', value: 'DELETE', key: 'DELETE' },
-                { text: 'Change intent', value: 'SET_INTENT', key: 'SET_INTENT' },
             ];
         }
 
         if (dataFilter === 'ALL') {
             return [
                 { text: 'Delete All', value: 'DELETE_ALL', key: 'DELETE_ALL' },
-                { text: 'Change intent', value: 'SET_INTENT', key: 'SET_INTENT' },
             ];
         }
         return null;
@@ -113,7 +98,6 @@ export default class ActivityActions extends React.Component {
         case 'ADD_TO_TRAINING': onAddToTraining(); break;
         case 'DELETE': onDelete(); break;
         case 'DELETE_ALL': onDelete(); break;
-        case 'SET_INTENT': onSetIntent(intent); break;
         default: break;
         }
         this.finish();
@@ -123,7 +107,7 @@ export default class ActivityActions extends React.Component {
         const {
             dataFilter, actionOptions, action, confirmOpen, confirmation, intent,
         } = this.state;
-        const { intents } = this.props;
+        const { intents, numValidated } = this.props;
         const options = intents.map(i => ({ text: i, value: i }));
         const noBorder = { border: 0 };
         return (
@@ -135,19 +119,18 @@ export default class ActivityActions extends React.Component {
                     onCancel={() => { this.resetState(); }}
                     onConfirm={() => { this.executeAction(); }}
                 />
-                <Button.Group size='small' color='teal' basic style={noBorder}>
-                    <Dropdown
-                        button
-                        className='icon'
-                        icon='filter'
-                        floating
-                        labeled
-                        placeholder='Process in bulk'
-                        value={dataFilter}
-                        options={this.getFilterOptions()}
-                        onChange={this.handleDataChanged}
-                    />
-                </Button.Group>
+                <Button
+                    disabled={!numValidated}
+                    className='icon'
+                    color='green'
+                    size='small'
+                    basic
+                    icon
+                    labelPosition='left'
+                    onClick={e => this.handleDataChanged(e, { value: 'VALIDATED' })}
+                >
+                    <Icon name='angle double right' /> {`Process ${numValidated > 0 ? numValidated : ''} validated utterance${numValidated === 1 ? '' : 's'}`}
+                </Button>
                 &nbsp;
                 &nbsp;
                 {dataFilter && (
@@ -155,37 +138,13 @@ export default class ActivityActions extends React.Component {
                         <Dropdown
                             button
                             className='icon'
-                            icon='arrow right'
+                            icon='angle double right'
                             floating
                             labeled
                             placeholder='Choose Action'
                             value={action}
                             options={actionOptions}
                             onChange={this.handleActionChanged}
-                        />
-                    </Button.Group>
-                )
-                }
-
-                &nbsp;
-                &nbsp;
-                {dataFilter && action === 'SET_INTENT' && (
-                    <Button.Group basic size='small' color='purple' style={noBorder}>
-                        <Dropdown
-                            button
-                            className='icon'
-                            icon='tag'
-                            floating
-                            labeled
-                            placeholder='Select an intent'
-                            name='intent'
-                            search
-                            value={intent}
-                            allowAdditions
-                            additionLabel='Create intent: '
-                            onAddItem={this.handleChangeOrAddIntent}
-                            onChange={this.handleChangeOrAddIntent}
-                            options={options}
                         />
                     </Button.Group>
                 )
