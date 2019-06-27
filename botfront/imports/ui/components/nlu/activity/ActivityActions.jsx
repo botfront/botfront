@@ -168,7 +168,6 @@ ActivityActions.propTypes = {
     onValidate: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onEvaluate: PropTypes.func.isRequired,
-    onSetIntent: PropTypes.func.isRequired,
     onAddToTraining: PropTypes.func.isRequired,
     numValidated: PropTypes.number.isRequired,
     onFilterChange: PropTypes.func.isRequired,
