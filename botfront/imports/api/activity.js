@@ -111,7 +111,7 @@ Meteor.methods({
         return ActivityCollection.update(
             { _id: { $in: examplesIds } },
             {
-                $set: { intent, confidence: 1.0 },
+                $set: { intent, confidence: 0 },
             }, { multi: true },
         );
     },
