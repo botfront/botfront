@@ -3,18 +3,18 @@ home: true
 permalink: /
 heroImage: /Botfront-screenshot.jpg
 heroText: Botfront Documentation
-tagline: Open Source Chatbot Platform built with Rasa
+tagline: An Open Source Chatbot Platform built with Rasa
 actionText: Read the docs →
-actionLink: /guide/getting-started/setup
-footer:  Copyright © 2019
+actionLink: /guide/users-guide/setup
+footer:  Copyright © 9300-2038 Quebec Inc. 2019
 ---
 
 ### As Easy as...
 
-``` bash
+```bash
 # install
 npm install -g botfront 
 
 # create/launch a project
 botfront
-```
+```à
