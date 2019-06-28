@@ -36,7 +36,7 @@ module.exports = {
                 children: [
                     '/guide/getting-started/setup',
                     '/guide/getting-started/quick-start',
-                    '/guide/getting-started/rasa-stack',
+                    '/guide/getting-started/branching-conversations',
                 ],
             },
             {
