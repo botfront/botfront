@@ -1,3 +1,11 @@
+---
+meta:
+  - name: description
+    content: 'Botfront & Rasa tutorial: write and train Rasa stories in Botfront'
+  - name: keywords
+    content: botfront stories nlu rasa
+permalink: /users-guide/:slug
+---
 # Setup
 
 In your terminal:
