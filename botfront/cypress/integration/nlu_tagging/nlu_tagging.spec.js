@@ -111,108 +111,108 @@ describe('nlu tagging in training data', function() {
         cy.get('.rt-tbody .rt-tr:first').should('not.contain', utterance);
     });
 
-    it('should be able to rename an intent and rename intents in bot responses at the same time', function() {
-        // We start by adding a bot response with intentName
-        cy.get(
-            `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
-        ).click({ force: true });
-        cy.contains('Add bot response').click();
-        cy.get('.ui.toggle.checkbox').click();
-        cy.get('.ui.three.steps').should('be.visible');
-        cy.get('#nlu-criterium-0 .intent').should('be.visible');
-        cy.get('.add-criterium-ellipsis').should('not.be.visible');
+    // it('should be able to rename an intent and rename intents in bot responses at the same time', function() {
+    //     // We start by adding a bot response with intentName
+    //     cy.get(
+    //         `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
+    //     ).click({ force: true });
+    //     cy.contains('Add bot response').click();
+    //     cy.get('.ui.toggle.checkbox').click();
+    //     cy.get('.ui.three.steps').should('be.visible');
+    //     cy.get('#nlu-criterium-0 .intent').should('be.visible');
+    //     cy.get('.add-criterium-ellipsis').should('not.be.visible');
 
-        // Add intent
-        cy.get('#nlu-criterium-0 .intent').click();
-        cy.get('#nlu-criterium-0 [role=listbox]')
-            .contains(intentName)
-            .click();
-        cy.contains('Save response').click();
-        cy.get('.toggle-nlu-criteria').click();
-        cy.get('.nlu-criteria-filter').type(intentName);
-        cy.get('[data-cy=remove-response-0]');
-        cy.get('[data-cy=remove-response-1]').should('not.exist');
+    //     // Add intent
+    //     cy.get('#nlu-criterium-0 .intent').click();
+    //     cy.get('#nlu-criterium-0 [role=listbox]')
+    //         .contains(intentName)
+    //         .click();
+    //     cy.contains('Save response').click();
+    //     cy.get('.toggle-nlu-criteria').click();
+    //     cy.get('.nlu-criteria-filter').type(intentName);
+    //     cy.get('[data-cy=remove-response-0]');
+    //     cy.get('[data-cy=remove-response-1]').should('not.exist');
 
-        // Then we go in training data
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
-        cy.contains('Training Data').click();
+    //     // Then we go in training data
+    //     cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+    //     cy.contains('Training Data').click();
 
-        // And create a training data with an intent of intentName
-        cy.contains('Insert many').click();
-        cy.get('.batch-insert-input').type(utterance);
-        cy.get('.purple > .ui').click();
-        cy.get('.purple > .ui > .search').type(intentName);
-        cy.get('[role=listbox]')
-            .contains(intentName)
-            .click();
-        cy.get('[data-cy=save-button]').click();
-        cy.contains('Examples').click();
+    //     // And create a training data with an intent of intentName
+    //     cy.contains('Insert many').click();
+    //     cy.get('.batch-insert-input').type(utterance);
+    //     cy.get('.purple > .ui').click();
+    //     cy.get('.purple > .ui > .search').type(intentName);
+    //     cy.get('[role=listbox]')
+    //         .contains(intentName)
+    //         .click();
+    //     cy.get('[data-cy=save-button]').click();
+    //     cy.contains('Examples').click();
 
-        // We try renaming it without renaming the bot responses
-        cy.get('.rt-tbody .rt-tr:first')
-            .contains(intentName)
-            .trigger('mouseover');
-        cy.get('[data-cy=rename-intent]').click();
-        cy.get('.rt-tbody .rt-tr:first input').type(`{selectAll}{del}${newRenameIntent}{enter}`);
-        cy.get('[data-cy=rename-intent-confirm-modal]')
-            .contains('OK')
-            .click();
-        cy.get('[data-cy=rename-responses-confirm-modal]')
-            .contains('No')
-            .click();
+    //     // We try renaming it without renaming the bot responses
+    //     cy.get('.rt-tbody .rt-tr:first')
+    //         .contains(intentName)
+    //         .trigger('mouseover');
+    //     cy.get('[data-cy=rename-intent]').click();
+    //     cy.get('.rt-tbody .rt-tr:first input').type(`{selectAll}{del}${newRenameIntent}{enter}`);
+    //     cy.get('[data-cy=rename-intent-confirm-modal]')
+    //         .contains('OK')
+    //         .click();
+    //     cy.get('[data-cy=rename-responses-confirm-modal]')
+    //         .contains('No')
+    //         .click();
 
-        // We check that the bot response has indeed NOT been modified
-        cy.get(
-            `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
-        ).click({ force: true });
-        cy.get('.toggle-nlu-criteria').click();
-        cy.get('.nlu-criteria-filter').type(newRenameIntent);
-        cy.get('[data-cy=remove-response-0]').should('not.exist');
-        cy.get('.nlu-criteria-filter').type(`{selectAll}{del}${intentName}`);
-        cy.get('[data-cy=remove-response-0]');
-        // Cool
+    //     // We check that the bot response has indeed NOT been modified
+    //     cy.get(
+    //         `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
+    //     ).click({ force: true });
+    //     cy.get('.toggle-nlu-criteria').click();
+    //     cy.get('.nlu-criteria-filter').type(newRenameIntent);
+    //     cy.get('[data-cy=remove-response-0]').should('not.exist');
+    //     cy.get('.nlu-criteria-filter').type(`{selectAll}{del}${intentName}`);
+    //     cy.get('[data-cy=remove-response-0]');
+    //     // Cool
 
-        // Then we go back in training data
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
-        // cy.get('.card:first button.primary', { timeout: 10000 }).click();
-        cy.contains('Training Data').click();
+    //     // Then we go back in training data
+    //     cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+    //     // cy.get('.card:first button.primary', { timeout: 10000 }).click();
+    //     cy.contains('Training Data').click();
 
-        // Rename it to the original intentName
-        cy.get('.rt-tbody .rt-tr:first')
-            .contains(newRenameIntent)
-            .trigger('mouseover');
-        cy.get('[data-cy=rename-intent]').click();
-        cy.get('.rt-tbody .rt-tr:first input').type(`{selectAll}{del}${intentName}{enter}`);
-        cy.get('[data-cy=rename-intent-confirm-modal]')
-            .contains('OK')
-            .click();
+    //     // Rename it to the original intentName
+    //     cy.get('.rt-tbody .rt-tr:first')
+    //         .contains(newRenameIntent)
+    //         .trigger('mouseover');
+    //     cy.get('[data-cy=rename-intent]').click();
+    //     cy.get('.rt-tbody .rt-tr:first input').type(`{selectAll}{del}${intentName}{enter}`);
+    //     cy.get('[data-cy=rename-intent-confirm-modal]')
+    //         .contains('OK')
+    //         .click();
 
-        // And renaming it again but this time we decide to also rename the bot responses
-        cy.get('.rt-tbody .rt-tr:first')
-            .contains(intentName)
-            .trigger('mouseover');
-        cy.get('[data-cy=rename-intent]').click();
-        cy.get('.rt-tbody .rt-tr:first input').type(`{selectAll}{del}${newRenameIntent}{enter}`);
-        cy.get('[data-cy=rename-intent-confirm-modal]')
-            .contains('OK')
-            .click();
-        cy.get('[data-cy=rename-responses-confirm-modal]')
-            .contains('Yes')
-            .click();
+    //     // And renaming it again but this time we decide to also rename the bot responses
+    //     cy.get('.rt-tbody .rt-tr:first')
+    //         .contains(intentName)
+    //         .trigger('mouseover');
+    //     cy.get('[data-cy=rename-intent]').click();
+    //     cy.get('.rt-tbody .rt-tr:first input').type(`{selectAll}{del}${newRenameIntent}{enter}`);
+    //     cy.get('[data-cy=rename-intent-confirm-modal]')
+    //         .contains('OK')
+    //         .click();
+    //     cy.get('[data-cy=rename-responses-confirm-modal]')
+    //         .contains('Yes')
+    //         .click();
 
-        // deleting the utterance
-        cy.get('.rt-tbody .rt-tr:first i.delete').click();
-        cy.get('.rt-tbody .rt-tr:first').should('not.contain', utterance);
+    //     // deleting the utterance
+    //     cy.get('.rt-tbody .rt-tr:first i.delete').click();
+    //     cy.get('.rt-tbody .rt-tr:first').should('not.contain', utterance);
 
-        // checking that this time, the bot response intent has been renamed
-        cy.get(
-            `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
-        ).click({ force: true });
-        cy.get('.toggle-nlu-criteria').click();
-        cy.get('.nlu-criteria-filter').type(newRenameIntent);
-        // And deleting it, effetively resetting the state
-        cy.get('[data-cy=remove-response-0]').click();
-    });
+    //     // checking that this time, the bot response intent has been renamed
+    //     cy.get(
+    //         `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
+    //     ).click({ force: true });
+    //     cy.get('.toggle-nlu-criteria').click();
+    //     cy.get('.nlu-criteria-filter').type(newRenameIntent);
+    //     // And deleting it, effetively resetting the state
+    //     cy.get('[data-cy=remove-response-0]').click();
+    // });
 
     it('should be able to change an entity with a popup', function() {
         cy.get('.rt-tbody .rt-tr:first')

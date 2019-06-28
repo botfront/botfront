@@ -249,8 +249,8 @@ class TemplatesTable extends React.Component {
         } = this.props;
         return (
             <>
-                <Checkbox className='toggle-nlu-criteria' toggle label='Only show responses with matching criteria' checked={showMatchingCriteria} onChange={toggleMatch} />
-                <br />
+                {/* <Checkbox className='toggle-nlu-criteria' toggle label='Only show responses with matching criteria' checked={showMatchingCriteria} onChange={toggleMatch} /> */}
+                {/* <br /> */}
                 <br />
                 <ReactTable
                     style={{ background: '#fff' }}
