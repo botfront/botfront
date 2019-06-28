@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Tab, Button, Icon } from 'semantic-ui-react';
+import { Tab, Button, Popup } from 'semantic-ui-react';
 import ReactTable from 'react-table';
 import NLUExampleText from '../../example_editor/NLUExampleText';
 import IntentViewer from '../models/IntentViewer';
@@ -8,6 +8,8 @@ import 'react-select/dist/react-select.css';
 import { wrapMeteorCallback } from '../../utils/Errors';
 
 export default class ActivityDataTable extends React.Component {
+    headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
+
     getIntentForDropdown(all) {
         const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
         const { intents } = this.props;
@@ -25,47 +27,25 @@ export default class ActivityDataTable extends React.Component {
         return {
             id: 'actions',
             Header: 'Actions',
+            headerStyle: this.headerStyle,
             sortable: false,
             accessor: e => e,
-            Cell: ({
-                value: utterance,
-                value: { validated, intent } = {},
-            }) => {
+            Cell: ({ value: utterance, value: { validated, intent } = {} }) => {
                 const size = 'mini';
                 const isOutdated = outDatedUtteranceIds.includes(utterance._id);
                 const ooS = !intent;
                 let actions;
                 if (isOutdated) {
-                    actions = [
-                        <Button size={size} onClick={() => this.onReinterpret(utterance)} circular basic icon='redo' />,
-                    ];
+                    actions = [<Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' />];
                 } else if (!!validated) {
-                    actions = [
-                        <Button size={size} onClick={() => this.onValidate(utterance)} color='green' circular icon='check' />,
-                    ];
+                    actions = [<Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />];
                 } else {
-                    actions = [
-                        <Button
-                            basic
-                            circular
-                            size={size}
-                            disabled={ooS}
-                            onClick={() => this.onValidate(utterance)}
-                            color='green'
-                            icon='check'
-                        />,
-                    ];
+                    actions = [<Popup size='mini' inverted content='Mark this utterance valid' trigger={<Button basic size={size} disabled={ooS} onClick={() => this.onValidate(utterance)} color='green' icon='check' />} />];
                 }
                 return (
                     <div>
                         {actions}
-                        <Button
-                            circular
-                            size={size}
-                            icon='trash'
-                            onClick={() => this.onDelete(utterance)}
-                            className='viewOnHover subdued'
-                        />
+                        <Button size={size} icon='trash' onClick={() => this.onDelete(utterance)} className='viewOnHover subdued' />
                     </div>
                 );
             },
@@ -75,31 +55,25 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getConfidenceColumn() {
-        const {
-            outDatedUtteranceIds,
-        } = this.props;
+        const { outDatedUtteranceIds } = this.props;
         return {
             id: 'confidence',
+            headerStyle: this.headerStyle,
             Header: '%',
             sortable: false,
             accessor: ({
                 confidence, intent, _id, updatedAt,
             }) => ({
-                confidence, intent, _id, updatedAt,
+                confidence,
+                intent,
+                _id,
+                updatedAt,
             }),
-            Cell: ({
-                value: {
-                    confidence, intent, _id,
-                },
-            }) => {
-                const showValue = (typeof intent === 'string' && typeof confidence === 'number' && confidence > 0);
+            Cell: ({ value: { confidence, intent, _id } }) => {
+                const showValue = typeof intent === 'string' && typeof confidence === 'number' && confidence > 0;
                 const isOutdated = outDatedUtteranceIds.includes(_id);
-                
-                return (
-                    <div>
-                        { !isOutdated && <div className='confidence-text'>{showValue ? `${Math.floor(confidence * 100)}%` : ''}</div> }
-                    </div>
-                );
+
+                return <div>{!isOutdated && <div className='confidence-text'>{showValue ? `${Math.floor(confidence * 100)}%` : ''}</div>}</div>;
             },
             width: 40,
             className: 'right',
@@ -107,12 +81,11 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getIntentColumn() {
-        const {
-            modelId, projectId,
-        } = this.props;
+        const { modelId, projectId } = this.props;
         return {
             accessor: e => e,
             Header: 'Intent',
+            headerStyle: this.headerStyle,
             id: 'intent',
             sortable: false,
             width: 150,
@@ -140,27 +113,15 @@ export default class ActivityDataTable extends React.Component {
             id: 'example',
             accessor: e => e,
             Header: 'Example',
+            headerStyle: this.headerStyle,
             sortable: false,
-            Cell: props => (
-                <NLUExampleText
-                    example={props.value}
-                    entities={entities}
-                    showLabels
-                    onSave={this.onEntityEdit}
-                    editable
-                />
-            ),
+            Cell: props => <NLUExampleText example={props.value} entities={entities} showLabels onSave={this.onEntityEdit} editable />,
             style: { overflow: 'visible' },
         };
     }
 
     getColumns() {
-        return [
-            this.getConfidenceColumn(),
-            this.getIntentColumn(),
-            this.getExampleColumn(),
-            this.getValidationColumn(),
-        ];
+        return [this.getConfidenceColumn(), this.getIntentColumn(), this.getExampleColumn(), this.getValidationColumn()];
     }
 
     onValidate = u => this.onExamplesEdit([{ ...u, validated: !u.validated }]);
@@ -169,21 +130,21 @@ export default class ActivityDataTable extends React.Component {
 
     onExamplesEdit = (utterances, callback) => {
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
-    }
+    };
 
     onEntityEdit = (utterance, callback) => {
         this.onExamplesEdit([utterance], callback);
-    }
+    };
 
     onReinterpret = (u) => {
         const { projectId, modelId } = this.props;
         Meteor.call('activity.reinterpret', projectId, modelId, [u], wrapMeteorCallback());
-    }
+    };
 
     onDelete = (u) => {
         const { modelId } = this.props;
         Meteor.call('activity.deleteExamples', modelId, [u._id], wrapMeteorCallback());
-    }
+    };
 
     render() {
         const columns = this.getColumns();

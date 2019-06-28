@@ -5,7 +5,9 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { sortBy, uniq } from 'lodash';
 import moment from 'moment';
-import { Tab, Message, Button, Segment, Icon } from 'semantic-ui-react';
+import {
+    Tab, Message
+} from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
 import ActivityInsertions from './ActivityInsertions';
@@ -19,19 +21,19 @@ import { getPureIntents } from '../../../../api/nlu_model/nlu_model.utils';
 import { wrapMeteorCallback } from '../../utils/Errors';
 
 class Activity extends React.Component {
-    getDefaultState = () => ({ filterFn: utterances => utterances });
-
     state = this.getDefaultState();
+
+    getDefaultState = () => ({ filterFn: utterances => utterances });
 
     batchAdd = () => {
         const { modelId } = this.props;
         Meteor.call('activity.addValidatedToTraining', modelId, wrapMeteorCallback());
-    }
+    };
 
     batchReinterpret = () => {
         const { projectId, modelId, outDatedUtteranceIds } = this.props;
         Meteor.call('activity.reinterpret', projectId, modelId, outDatedUtteranceIds, wrapMeteorCallback());
-    }
+    };
 
     batchDelete = (modelId, itemIds) => {
         Meteor.call('activity.deleteExamples', modelId, itemIds, wrapMeteorCallback());
@@ -43,7 +45,7 @@ class Activity extends React.Component {
     };
 
     onValidateExamples = utterances => this.onExamplesEdit(utterances.map(e => ({ ...e, validated: !e.validated })));
-    
+
     onExamplesEdit = (utterances, callback) => {
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
     };
@@ -64,37 +66,34 @@ class Activity extends React.Component {
         const filteredExamples = filterFn(utterances);
 
         return utterances && utterances.length > 0 ? (
-            <div>
-                <Segment vertical>
-                    <ActivityActions
-                        intents={intents}
-                        onEvaluate={this.onEvaluate}
-                        onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
-                        onAddToTraining={this.batchAdd}
-                        onDone={() => this.setState(this.getDefaultState())}
-                        onValidate={() => this.onValidateExamples(filteredExamples)}
-                        numValidated={numValidated}
-                        // eslint-disable-next-line no-shadow
-                        onFilterChange={filterFn => this.setState({ filterFn })}
-                        projectId={projectId}
-                    />
-                </Segment>
-                <Segment vertical>
-                    <ActivityDataTable
-                        utterances={utterances}
-                        entities={entities}
-                        intents={intents}
-                        projectId={projectId}
-                        outDatedUtteranceIds={outDatedUtteranceIds}
-                        linkRender={linkRender}
-                        modelId={modelId}
-                    />
-                </Segment>
-            </div>
+            <>
+                <ActivityActions
+                    intents={intents}
+                    onEvaluate={this.onEvaluate}
+                    onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
+                    onAddToTraining={this.batchAdd}
+                    onDone={() => this.setState(this.getDefaultState())}
+                    onValidate={() => this.onValidateExamples(filteredExamples)}
+                    numValidated={numValidated}
+                    // eslint-disable-next-line no-shadow
+                    onFilterChange={filterFn => this.setState({ filterFn })}
+                    projectId={projectId}
+                />
+                <br />
+                <ActivityDataTable
+                    utterances={utterances}
+                    entities={entities}
+                    intents={intents}
+                    projectId={projectId}
+                    outDatedUtteranceIds={outDatedUtteranceIds}
+                    linkRender={linkRender}
+                    modelId={modelId}
+                />
+            </>
         ) : (
             <Message success icon='check' header='Congratulations!' content='You are up to date' />
         );
-    }
+    };
 
     render() {
         const { model, ready, instance } = this.props;
@@ -103,10 +102,7 @@ class Activity extends React.Component {
             <Loading loading={!ready}>
                 <Tab
                     menu={{ pointing: true, secondary: true }}
-                    panes={[
-                        { menuItem: 'Incoming', render: this.renderIncomingTab },
-                        { menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> },
-                    ]}
+                    panes={[{ menuItem: 'Incoming', render: this.renderIncomingTab }, { menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> }]}
                 />
             </Loading>
         );
@@ -123,13 +119,9 @@ Activity.propTypes = {
     outDatedUtteranceIds: PropTypes.array.isRequired,
 };
 
-
 const ActivityContainer = withTracker((props) => {
     const {
-        modelId,
-        entities,
-        intents,
-        project,
+        modelId, entities, intents, project,
     } = props;
 
     const isUtteranceOutdated = ({ training: { endTime } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
@@ -142,26 +134,30 @@ const ActivityContainer = withTracker((props) => {
     const pureIntents = getPureIntents(trainingExamples);
     const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
     const outDatedUtteranceIds = getOutdatedUtterances(utterances, project).map(u => u._id);
-    
+
     let localIntents = [];
     let localEntities = []; // eslint-disable-line
     let numValidated = 0;
     if (utterances) {
-        localIntents = uniq(utterances.filter(e => !!e.intent).map((e) => {
-            if (e.entities) {
-                e.entities.forEach((ent) => {
-                    if (localEntities.indexOf(ent.entity) === -1) {
-                        localEntities.push(ent.entity);
+        localIntents = uniq(
+            utterances
+                .filter(e => !!e.intent)
+                .map((e) => {
+                    if (e.entities) {
+                        e.entities.forEach((ent) => {
+                            if (localEntities.indexOf(ent.entity) === -1) {
+                                localEntities.push(ent.entity);
+                            }
+                        });
                     }
-                });
-            }
 
-            if (e.validated) {
-                numValidated += 1;
-            }
+                    if (e.validated) {
+                        numValidated += 1;
+                    }
 
-            return (e.intent.name || e.intent);
-        }));
+                    return e.intent.name || e.intent;
+                }),
+        );
     }
 
     return {
@@ -180,6 +176,4 @@ const mapStateToProps = state => ({
     projectId: state.get('projectId'),
 });
 
-export default connect(
-    mapStateToProps,
-)(ActivityContainer);
+export default connect(mapStateToProps)(ActivityContainer);
