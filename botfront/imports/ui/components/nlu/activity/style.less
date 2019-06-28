@@ -1,3 +1,30 @@
+@import "../../../../../client/variables.less";
+
 .confidence-text {
   font-size: 11px;
+}
+.ReactTable {
+  border-radius: 4px;
+}
+
+.viewOnHover {
+  visibility: hidden;
+}
+
+.ReactTable {
+  .rt-tbody {
+    .rt-tr:not(.-padRow):hover {
+      background: rgba(0, 0, 0, 0.05);
+
+      .viewOnHover {
+        visibility: visible;
+      }
+      .subdued {
+        background: rgba(0, 0, 0, 0);
+        i {
+          color: @grey;
+        }
+      }
+    }
+  }
 }

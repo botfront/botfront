@@ -145,7 +145,7 @@ class IntentNameEditor extends React.Component {
         const { intents, intent, projectId } = this.props;
         const { hovering, confirmOpen } = this.state;
         const style = {
-            borderRadius: '0.15rem',
+            borderRadius: '4px',
             cursor: 'default',
         };
         const disableChangeIntent = !can('nlu-data:w', projectId);
@@ -170,7 +170,7 @@ class IntentNameEditor extends React.Component {
                     </div>
                 )}
                 trigger={(
-                    <Label basic style={style} data-cy='intent-label'>
+                    <Label color='purple' style={style}>
                         {intent || '-'}
                     </Label>
                 )}
