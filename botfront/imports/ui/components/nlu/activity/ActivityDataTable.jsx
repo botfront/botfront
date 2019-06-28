@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Tab, Button, Popup } from 'semantic-ui-react';
+import {
+    Tab, Button, Popup, Label,
+} from 'semantic-ui-react';
 import ReactTable from 'react-table';
 import NLUExampleText from '../../example_editor/NLUExampleText';
 import IntentViewer from '../models/IntentViewer';
@@ -91,31 +93,49 @@ export default class ActivityDataTable extends React.Component {
             width: 150,
             Cell: (props) => {
                 const example = props.value;
-                const { intents } = this.props;
+                const { intents, outDatedUtteranceIds } = this.props;
                 const onUpdateText = newExample => this.onChangeIntent([newExample._id], newExample.intent, modelId);
-
-                return (
-                    <IntentViewer
-                        intents={intents.map(intent => ({ value: intent, text: intent }))}
-                        example={example}
-                        intent={example.intent ? example.intent : ''}
-                        projectId={projectId}
-                        onSave={onUpdateText}
-                    />
-                );
+                const isOutdated = outDatedUtteranceIds.includes(example._id);
+                
+                return isOutdated
+                    ? (
+                        <Label color='grey' basic>
+                            {example.intent || '-'}
+                        </Label>
+                    )
+                    : (
+                        <IntentViewer
+                            intents={intents.map(intent => ({ value: intent, text: intent }))}
+                            example={example}
+                            intent={example.intent ? example.intent : ''}
+                            projectId={projectId}
+                            onSave={onUpdateText}
+                        />
+                    );
             },
         };
     }
 
     getExampleColumn() {
-        const { entities } = this.props;
+        const { entities, outDatedUtteranceIds } = this.props;
         return {
             id: 'example',
             accessor: e => e,
             Header: 'Example',
             headerStyle: this.headerStyle,
             sortable: false,
-            Cell: props => <NLUExampleText example={props.value} entities={entities} showLabels onSave={this.onEntityEdit} editable />,
+            Cell: (props) => {
+                const isOutdated = outDatedUtteranceIds.includes(props.value._id);
+                return (
+                    <NLUExampleText
+                        example={props.value}
+                        entities={entities}
+                        showLabels
+                        onSave={this.onEntityEdit}
+                        editable={!isOutdated}
+                    />
+                );
+            },
             style: { overflow: 'visible' },
         };
     }
