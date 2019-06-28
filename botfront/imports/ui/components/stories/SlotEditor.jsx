@@ -3,8 +3,7 @@ import { Segment, Popup, Icon } from 'semantic-ui-react';
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { SlotsSchema } from '../../../api/slots/slots.schema';
-import SelectField from '../form_fields/SelectField';
+import { slotSchemas } from '../../../api/slots/slots.schema';
 import ConfirmPopup from '../common/ConfirmPopup';
 import SaveButton from '../utils/SaveButton';
 
@@ -12,6 +11,7 @@ function SlotEditor(props) {
     const {
         slot, onSave, projectId, onDelete, newSlot,
     } = props;
+    const { type } = slot;
     const [saved, setSaved] = useState(false);
     const [deletePopupOpen, setDeletePopup] = useState(false);
     const [hover, setHover] = useState(false);
@@ -35,7 +35,7 @@ function SlotEditor(props) {
         >
             <AutoForm
                 model={slot}
-                schema={SlotsSchema}
+                schema={slotSchemas[type]}
                 onSubmit={doc => onSave(doc, () => {
                     setSaved(true);
                     if (!newSlot) {
@@ -49,25 +49,27 @@ function SlotEditor(props) {
                 }
             >
                 <AutoField name='name' />
-                <SelectField name='type' data-cy='type-field' />
-                {slot.type === 'text' && (
+                {type !== 'unfeaturized' && (
                     <AutoField
                         name='initialValue'
                         placeholder='Leave empty for no initial value'
                     />
                 )}
-                {slot.type === 'float' && (
+                {type === 'float' && (
                     <>
                         <AutoField name='minValue' placeholder='0.0' />
                         <AutoField name='maxValue' placeholder='1.0' />
                     </>
                 )}
+                {type === 'categorical' && <AutoField name='categories' />}
                 <AutoField
                     name='projectId'
                     value={projectId}
                     label={false}
                     hidden
                 />
+                <b>{`Type:  ${type}`}</b>
+                <br />
                 <ErrorsField data-cy='errors-field' />
                 <SaveButton
                     saved={saved}

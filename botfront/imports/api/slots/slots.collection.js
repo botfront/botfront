@@ -2,8 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 
-import { SlotsSchema } from './slots.schema';
-
 export const Slots = new Mongo.Collection('slots');
 
 // Deny all client-side updates on the Projects collection
@@ -26,5 +24,3 @@ if (Meteor.isServer) {
         return Slots.find({ projectId });
     });
 }
-
-Slots.attachSchema(SlotsSchema);

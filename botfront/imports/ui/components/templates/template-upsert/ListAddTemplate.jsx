@@ -51,7 +51,7 @@ const ListAddTemplate = ({
             <Dropdown
                 basic
                 size='big'
-                icon='ellipsis horizontal'
+                icon='add'
                 disabled={!limitNotReached}
                 button
                 className={`icon ${indexClassName} sequence-add-message`}
