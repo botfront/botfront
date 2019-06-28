@@ -186,7 +186,7 @@ function addSlots(slots) {
             }
         }
         if (slot.initialValue) {
-            options.initialValue = slot.initialValue;
+            options.initial_value = slot.initialValue;
         }
         if (type === 'categorical' && slot.categories) {
             options.values = slot.categories;
