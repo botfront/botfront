@@ -36,17 +36,9 @@ module.exports = {
                 children: [
                     '/guide/getting-started/setup',
                     '/guide/getting-started/quick-start',
-                    // '/guide/getting-started/rasa-stack',
-                    // '/guide/getting-started/advanced',
+                    '/guide/getting-started/branching-conversations',
                 ],
             },
-            // {
-            //     title: 'Users Guide', // required
-            //     // path: '/guide',
-            //     collapsable: false,
-            //     sidebarDepth: 5,
-            //     children: ['/guide/users/settings', '/guide/users/endpoints', '/guide/users/credentials', '/guide/users/rules', '/guide/bot-responses/'],
-            // },
             {
                 title: 'NLU Guide', // required
                 // path: '/guide',
@@ -57,7 +49,6 @@ module.exports = {
                     '/guide/nlu/training_adding_data',
                     '/guide/nlu/training',
                     '/guide/nlu/evaluation',
-                    // '/guide/nlu/activity',
                 ],
             },
             {
@@ -67,11 +58,8 @@ module.exports = {
                 sidebarDepth: 5,
                 children: [
                     '/guide/deployment/',
-                    // '/guide/deployment/settings',
                     '/guide/deployment/endpoints',
                     '/guide/deployment/credentials',
-                    // '/guide/deployment/rules',
-                    // '/guide/bot-responses/'
                 ]
             },
         ],

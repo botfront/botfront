@@ -2,10 +2,10 @@
 home: true
 permalink: /
 heroImage: /Botfront-screenshot.jpg
-heroText: Botfront
-tagline: An Open Source Chatbot Platform built with Rasa
-actionText: Get started →
-actionLink: /guide/getting-started/quick-start
+heroText: Botfront Documentation
+tagline: Open Source Chatbot Platform built with Rasa
+actionText: Read the docs →
+actionLink: /guide/getting-started/setup
 footer:  Copyright © 2019
 ---
 
