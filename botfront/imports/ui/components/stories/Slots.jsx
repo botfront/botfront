@@ -19,8 +19,9 @@ class Slots extends React.Component {
 
     handleCreateSlot = (e, { value: slotType }) => {
         this.setState({
-            newSlot: {},
-            slotType,
+            newSlot: {
+                type: slotType,
+            },
         });
     };
 
@@ -56,30 +57,60 @@ class Slots extends React.Component {
     };
 
     // TODO: Add sorting on slot types
-    getSlotOptions = () => Object.keys(slotSchemas).map(s => ({ text: s, value: s }))
+    getSlotOptions = () => Object.keys(slotSchemas).map(s => ({ text: s, value: s }));
 
     render() {
         const { slots, projectId } = this.props;
-        const { newSlot, slotType } = this.state;
-       
+        const { newSlot } = this.state;
+
         return (
             <>
                 {slots.map(slot => (
-                    <SlotEditor slot={slot} onSave={this.handleSaveSlot} projectId={projectId} key={slot._id} onDelete={this.handleDeleteSlot} />
+                    <SlotEditor
+                        slot={slot}
+                        onSave={this.handleSaveSlot}
+                        projectId={projectId}
+                        key={slot._id}
+                        onDelete={this.handleDeleteSlot}
+                    />
                 ))}
-                { /* @matt The bool slot is not required here. you can use the value of the slot to know it it's new */}
-                {newSlot && <SlotEditor slot={newSlot} onSave={this.handleSaveNewSlot} projectId={projectId} newSlot slotType={slotType} />}
+                {/* @matt The bool slot is not required here. you can use the value of the slot to know it it's new */}
+                {/* @nathan if you're talking about the newSlot bool, it's true,
+                but i'd rather make it explicit for other devs who might work on that */}
+                {newSlot && (
+                    <SlotEditor
+                        slot={newSlot}
+                        onSave={this.handleSaveNewSlot}
+                        projectId={projectId}
+                        newSlot
+                    />
+                )}
                 {!newSlot && (
                     <Container textAlign='center' id='add-slot-container'>
                         <Popup
                             trigger={(
                                 <Button.Group size='big'>
-                                    <Dropdown basic size='big' icon='add' button className='icon'>
+                                    <Dropdown
+                                        basic
+                                        size='big'
+                                        icon='add'
+                                        button
+                                        className='icon'
+                                    >
                                         <Dropdown.Menu>
                                             <Dropdown.Header content='Choose a slot type' />
-                                            {this.getSlotOptions().map(option => (
-                                                <Dropdown.Item key={option.value} onClick={this.handleCreateSlot} {...option} />
-                                            ))}
+                                            {this.getSlotOptions().map(
+                                                option => (
+                                                    <Dropdown.Item
+                                                        key={option.value}
+                                                        onClick={
+                                                            this
+                                                                .handleCreateSlot
+                                                        }
+                                                        {...option}
+                                                    />
+                                                ),
+                                            )}
                                         </Dropdown.Menu>
                                     </Dropdown>
                                 </Button.Group>
