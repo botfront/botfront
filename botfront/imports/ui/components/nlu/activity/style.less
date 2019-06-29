@@ -34,10 +34,20 @@
                 visibility: visible;
             }
         }
+        .rt-td {
+          border-right: none !important;
+        }
+        .rt-td
     }
 
     .rt-thead.-header {
         box-shadow: none !important;
+    }
+    .rt-thead.-filters .rt-th, .rt-thead .rt-th,  .rt-thead .rt-td{
+      border-right: none !important;
+    }
+    .rt-thead.-filters {
+      border-bottom: none !important;
     }
 
     .-pagination {
@@ -53,7 +63,9 @@
         align-items: stretch;
         -ms-flex-wrap: wrap;
         flex-wrap: wrap;
-        padding-top: 5px !important;
+        padding-top: 15px !important;
+        padding-left: 50px !important;
+        padding-right: 50px !important;
         box-shadow: none !important;
         border-top: none !important;
     }
