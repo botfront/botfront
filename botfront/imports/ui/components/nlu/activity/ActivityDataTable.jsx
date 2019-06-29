@@ -29,7 +29,6 @@ export default class ActivityDataTable extends React.Component {
         return {
             id: 'actions',
             Header: 'Actions',
-            headerStyle: this.headerStyle,
             sortable: false,
             accessor: e => e,
             Cell: ({ value: utterance, value: { validated, intent } = {} }) => {
@@ -77,7 +76,6 @@ export default class ActivityDataTable extends React.Component {
         const { outDatedUtteranceIds } = this.props;
         return {
             id: 'confidence',
-            headerStyle: this.headerStyle,
             Header: '%',
             sortable: false,
             accessor: ({
@@ -104,7 +102,6 @@ export default class ActivityDataTable extends React.Component {
         return {
             accessor: e => e,
             Header: 'Intent',
-            headerStyle: this.headerStyle,
             id: 'intent',
             sortable: false,
             width: 150,
@@ -139,7 +136,6 @@ export default class ActivityDataTable extends React.Component {
             id: 'example',
             accessor: e => e,
             Header: 'Example',
-            headerStyle: this.headerStyle,
             sortable: false,
             Cell: (props) => {
                 const isOutdated = outDatedUtteranceIds.includes(props.value._id);
@@ -216,6 +212,7 @@ export default class ActivityDataTable extends React.Component {
                         getTheadThProps={() => ({
                             style: {
                                 borderRight: 'none',
+                                ...this.headerStyle,
                             },
                         })}
                         className=''
