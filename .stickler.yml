@@ -1,0 +1,4 @@
+---
+linters:
+    eslint:
+        config: './botfront/.eslintrc.js'
