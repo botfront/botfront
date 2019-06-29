@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Tab, Button, Popup, Label,
+    Tab, Button, Popup, Label, Icon,
 } from 'semantic-ui-react';
 import ReactTable from 'react-table';
 import NLUExampleText from '../../example_editor/NLUExampleText';
@@ -47,12 +47,29 @@ export default class ActivityDataTable extends React.Component {
                 return (
                     <div>
                         {actions}
-                        <Button size={size} icon='trash' onClick={() => this.onDelete(utterance)} className='viewOnHover subdued' />
+                        <div
+                            style={{
+                                width: '16px',
+                                float: 'right',
+                                lineHeight: '24px',
+                                textAlign: 'left',
+                            }}
+                        >
+                            <Icon
+                                size='small'
+                                color='grey'
+                                name='trash'
+                                link
+                                className='viewOnHover'
+                                onClick={() => this.onDelete(utterance)}
+                            />
+                        </div>
                     </div>
                 );
             },
             width: 80,
             className: 'right',
+            style: { textAlign: 'left' },
         };
     }
 
