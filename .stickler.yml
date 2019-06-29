@@ -2,3 +2,4 @@
 linters:
     eslint:
         config: './botfront/.eslintrc.js'
+        fixer: true
