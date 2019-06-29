@@ -13,7 +13,7 @@ import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import NLUExampleText from '../../example_editor/NLUExampleText';
 import EntityUtils from '../../utils/EntityUtils';
 import IntentNameEditor from './IntentViewer';
-import 'react-select/dist/react-select.css';
+import 'react-select/dist/react-select.css'; // Is it used somewhere?
 import Filters from './Filters';
 
 export default class NluDataTable extends React.Component {
@@ -63,13 +63,20 @@ export default class NluDataTable extends React.Component {
     getExamples = () => {
         const { examples } = this.props;
         const filter = this.scrapFilter();
-        return examples.filter((e) => {
+        const { entities, intents, query } = filter;
+        let filtered = examples.filter((e) => {
             if (!e.entities) e.entities = [];
-            const intentOk = filter.intents.length === 0 || difference([e.intent], filter.intents).length === 0;
+            const intentOk = intents.length === 0 || difference([e.intent], intents).length === 0;
             const entitiesOk = !!e.entities
-                && difference(filter.entities, e.entities.map(ent => ent.entity)).length === 0;
+                && difference(entities, e.entities.map(ent => ent.entity)).length === 0;
             return intentOk && entitiesOk;
         });
+        if (query) {
+            let matchCriteria = { keys: ['text', 'intent'] };
+            if (includeSynonyms(query)) matchCriteria = { keys: ['text', 'intent', 'extra'] };
+            filtered = matchSorter(filtered, _cleanQuery(query), matchCriteria);
+        }
+        return filtered;
     };
 
     getColumns() {
@@ -92,7 +99,6 @@ export default class NluDataTable extends React.Component {
                         projectId={projectId}
                     />
                 ),
-                filterAll: true,
             },
         ];
 
@@ -104,15 +110,6 @@ export default class NluDataTable extends React.Component {
             },
             {
                 id: 'example',
-                Filter: ({ filter, onChange }) => (
-                    <DebounceInput
-                        minLength={1}
-                        debounceTimeout={300}
-                        style={{ width: '100%' }}
-                        value={filter ? filter.value : ''}
-                        onChange={event => onChange(event.target.value)}
-                    />
-                ),
                 sortMethod: (a, b) => a.text.localeCompare(b.text),
                 sortable: true,
                 accessor: e => e,
@@ -127,12 +124,6 @@ export default class NluDataTable extends React.Component {
                     />
                 ),
                 style: { overflow: 'visible' },
-                filterMethod: (filter, rows) => {
-                    let matchCriteria = { keys: ['text'] };
-                    if (includeSynonyms(filter.value)) matchCriteria = { keys: ['text', '_original.extra'] };
-                    return matchSorter(rows, _cleanQuery(filter.value), matchCriteria);
-                },
-                filterAll: true,
             },
         ];
 
@@ -159,13 +150,18 @@ export default class NluDataTable extends React.Component {
     collapseExpanded = () => this.setState({ expanded: {} });
 
     scrapFilter() {
+        const { filter: { intents: intentsFilter, entities: entitiesFilter, query } } = this.state;
+        const { intents, entities } = this.props;
+
         return {
-            intents: this.state.filter.intents.filter(intent => _.includes(this.props.intents, intent)),
-            entities: this.state.filter.entities.filter(entity => _.includes(this.props.entities, entity)),
+            intents: intentsFilter.filter(intent => _.includes(intents, intent)),
+            entities: entitiesFilter.filter(entity => _.includes(entities, entity)),
+            query,
         };
     }
 
     render() {
+        const headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
         const columns = this.getColumns();
         return (
             <Tab.Pane as='div'>
@@ -202,7 +198,6 @@ export default class NluDataTable extends React.Component {
                 <div style={{ padding: '0px', background: '#fff' }}>
                     <ReactTable
                         data={this.getExamples()}
-                        filterable
                         onFilteredChange={this.collapseExpanded}
                         onSortedChange={this.collapseExpanded}
                         onPageChange={(page) => {
@@ -237,6 +232,12 @@ export default class NluDataTable extends React.Component {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
+                            },
+                        })}
+                        getTheadThProps={() => ({
+                            style: {
+                                borderRight: 'none',
+                                ...headerStyle,
                             },
                         })}
                         className=''
