@@ -146,6 +146,7 @@ export default class ActivityDataTable extends React.Component {
                         showLabels
                         onSave={this.onEntityEdit}
                         editable={!isOutdated}
+                        disablePopup={isOutdated}
                     />
                 );
             },
