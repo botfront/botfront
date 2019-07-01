@@ -62,6 +62,15 @@ module.exports = {
                     '/guide/deployment/credentials',
                 ]
             },
+            {
+                title: 'Developers Guide',   // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/developers-guide/',
+                ]
+            },
         ],
     },
 };
