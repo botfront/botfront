@@ -1,10 +1,7 @@
 
 # Developers guide
 
-## Develop
-
-
-#### Install
+## Install
 
 1. Botfront is a Meteor app, so the first step is to [install Meteor](https://www.meteor.com/install)
 2. Then clone this repo and install the dependencies
@@ -14,55 +11,35 @@ cd botfront/botfront
 meteor npm install
 ```
 
-#### Run
+::: tip
+Meteor comes with its own Node.js and NPM. When installing dependencies, it is better to use the Meteor NPM by running `meteor npm install` than using your local one (`npm install`)
+:::
+
+## Run
 
 - With default settings: `meteor npm start`
 
 
-#### Documentation
+
+
+## Documentation
 - Run the documentation locally: `npm run docs:dev`
 - Build the documentation : `npm run docs:build`
 
 The docs are built with [Vuepress](https://vuepress.vuejs.org)
 
 
-#### Running and writing tests
+## Running and writing tests
 You can run our integration test suite with `npx cypress run` or interactively with `npx cypress open`
 
-::: danger
+::: warning Don't run tests if you have valuable data in your DB
 The test suite starts by testing the setup process **and will wipe the database**. 
 :::
 
-## Production deployment
 
-A few things you should pay attention to when deploying Botfront.
+## Developing with Docker Compose
 
-### MongoDB database
-When you run Botfront in developer mode, Meteor will spin up a MongoDB database accessible on port `3001`. However, when running in production or with `docker-compose` a MongoDB uri needs to be provided with the environment variable `MONGO_URL`. It is also highly recommended (but optional) to provide an oplog url with `MONGO_OPLOG_URL`. 
-
-::: warning Choosing a database name
-We strongly recommend using a very short database name (e.g `bf`) and not too long response names to [avoid hitting the limits](https://docs.mongodb.com/manual/reference/limits/#namespaces).
-:::
-
-### Required environment variables
-
-- `ROOT_URL`: the end user URL (e.g. https://your.doma.in)
-- `MONGO_URL`: to MongoDB connection string
-- `MAIL_URL`: An SMTP url if you want to use the password reset feature
-
-### Technical requirements
-
-Those are the miminal requirements:
-
-| Service  | RAM   | CPU  |
-|---|---:|---:|
-| botfront |  1 Gb | 1  | 
-| botfront-api  |  512 Mb | 0.5  |
-| duckling  |  512 Mb | 0.5  |
-| rasa-nlu  | 1 Gb  |  1 |
-| rasa-core  |  512 Mb | 1  |
-
-### Developing with Docker Compose
+Until we provide a better way...
 
 1. Set the `MODELS_PATH_ENVIRONMENT` variable in your shell with for example `export MODELS_LOCAL_PATH=~/botfront-projects/s`
 2. Start Botfront locally with `meteor npm start`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
