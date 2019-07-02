@@ -275,8 +275,8 @@ export default class ActivityDataTable extends React.Component {
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
     }
 
-    onEntityEdit = (utterance, callback) => {
-        this.onExamplesEdit([utterance], callback);
+    onEntityEdit = (u, callback) => {
+        this.onExamplesEdit([{ ...u, entities: u.entities.map(entity => ({ ...entity, confidence: 0 })) }], callback);
     }
 
     onReinterpret = (u) => {

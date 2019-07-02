@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Accordion, Icon } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
+import { formatMessage } from '../../../../lib/utils'
 
 export default class SmartTip extends React.Component {
     state = {
@@ -41,7 +42,7 @@ export default class SmartTip extends React.Component {
                     header={tip}
                     content={(<>
                         <div style={{ padding: '5px' }}>
-                            {message}
+                            {formatMessage(message)}
                         </div>
                         { mainAction && (
                             <div style={{ padding: '5px' }}>
@@ -56,7 +57,7 @@ export default class SmartTip extends React.Component {
                                 </Accordion.Title>
                                 <Accordion.Content active={accordionOpen}>
                                     <p>
-                                        {otherActions.map(a => a(false))}
+                                        {otherActions && otherActions.length && otherActions.map(a => !a || a(false))}
                                     </p>
                                 </Accordion.Content>
                             </Accordion>

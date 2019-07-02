@@ -4,6 +4,7 @@ import { sample } from 'lodash';
 import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
+import React from 'react';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { checkIfCan } from '../api/roles/roles';
@@ -189,3 +190,15 @@ export const getProjectModelFileName = (projectId, extension = null) => {
 };
 
 export const getProjectModelLocalPath = projectId => path.join(process.env.MODELS_LOCAL_PATH, getProjectModelFileName(projectId, 'tar.gz'));
+
+export const formatMessage = (message) => {
+    const bits = message.split('*');
+    return (
+        <>
+            {bits.map((bit, idx) => ((idx % 2 !== 0)
+                ? <b>{bit}</b>
+                : <>{bit}</>
+            ))}
+        </>
+    );
+};

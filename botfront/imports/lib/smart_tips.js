@@ -12,22 +12,22 @@ const smartTips = (flags) => {
         outdated, intentBelowTh, entitiesBelowTh, entitiesInTD, aboveTh,
     } = flags;
     if (outdated) {
-        tip = 'Re-interpret this utterance';
+        tip = 'Outdated';
         message = 'The model was trained since this utterance was logged.';
         code = 'outdated';
     }
     if (intentBelowTh) {
-        tip = 'Validate this utterance';
+        tip = 'Low confidence';
         code = 'intentBelowTh';
         message = intentBelowTh.confidence > 0
-            ? `Intent <${intentBelowTh.name}> was predicted with confidence ${roundPercent(intentBelowTh.confidence)}, which is below your set threshold.`
+            ? `Intent *${intentBelowTh.name}* was predicted with confidence ${roundPercent(intentBelowTh.confidence)}, which is below your set threshold.`
             : 'You have made some changes to the labeling.';
     }
     if (entitiesBelowTh) {
-        tip = 'Validate this utterance';
+        tip = 'Low confidence';
         code = 'entitiesBelowTh';
         const plural = entitiesBelowTh.length > 1;
-        const entityNames = entitiesBelowTh.map(entity => `<${entity.name}>`);
+        const entityNames = entitiesBelowTh.map(entity => `*${entity.name}*`);
         const entityConf = entitiesBelowTh.map(entity => roundPercent(entity.confidence));
         message = entityConf.every(conf => conf > 0)
             ? `Entit${plural ? 'ies' : 'y'} ${entityNames.join(', ')} ${plural ? 'were' : 'was'} predicted
@@ -35,24 +35,24 @@ const smartTips = (flags) => {
             : 'You have made some changes to the labeling.';
     }
     if (entitiesInTD) {
-        tip = 'Warning';
+        tip = 'High confidence';
         code = 'entitiesInTD';
         extraEntities = entitiesInTD;
         const plural = entitiesInTD.length > 1;
-        message = `Are you sure this utterance does not contain entit${plural ? 'ies' : 'y'} ${entitiesInTD.map(e => `<${e}>`).join(', ')}?
+        message = `Are you sure this utterance does not contain entit${plural ? 'ies' : 'y'} ${entitiesInTD.map(e => `*${e}*`).join(', ')}?
         If so, we recommend you delete this utterance, since confidence levels of prediction exceed your set threshold.`;
     }
     if (aboveTh) {
-        tip = 'Discard this utterance';
+        tip = 'High confidence';
         code = 'aboveTh';
         const { intent, entities } = aboveTh;
         if (entities.length > 0) {
             const plural = entities > 1;
-            const entityNames = entities.map(entity => `<${entity.name}>`);
-            message = `Intent <${intent.name}> and entit${plural ? 'ies' : 'y'} ${entityNames.join(', ')} were predicted
+            const entityNames = entities.map(entity => `*${entity.name}*`);
+            message = `Intent *${intent.name}* and entit${plural ? 'ies' : 'y'} ${entityNames.join(', ')} were predicted
             with a confidence level above your set threshold. We recommend you delete this kind of utterance.`;
         } else {
-            message = `Intent <${intent.name}> was predicted with a confidence level above your set threshold. We recommend you delete this kind of utterance.`;
+            message = `Intent *${intent.name}* was predicted with a confidence level above your set threshold. We recommend you delete this kind of utterance.`;
         }
     }
 
