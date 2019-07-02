@@ -1,7 +1,6 @@
 import {
     Grid,
     Message,
-    Header,
     Menu,
     Icon,
 } from 'semantic-ui-react';
@@ -144,9 +143,26 @@ class Stories extends React.Component {
         }
         return storyGroupFiltered.findIndex(storyGroup => (storyGroup.name === storyGroupNameSelected));
     }
+
+    renderStoryEditor = (storyGroupFiltered, introStory, storySelected) => {
+        const { projectId } = this.props;
+        const storyGroupSelected = storyGroupFiltered[storySelected];
+        return (storyGroupSelected || introStory) && (
+            <StoriesEditor
+                storyGroup={storyGroupSelected || introStory}
+                onSaving={this.handleSavingStories}
+                onSaved={this.handleSavedStories}
+                onError={this.handleError}
+                onErrorResolved={this.handleErrorResolved}
+                onAddNewStory={() => this.handleNewStory(storyGroupSelected || introStory)}
+                projectId={projectId}
+                onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)}
+            />
+        );
+    }
     
     render() {
-        const { storyGroups, projectId } = this.props;
+        const { storyGroups } = this.props;
         const { storyIndex, saving, validationErrors, storyGroupNameSelected } = this.state;
         const introStory = storyGroups.find(storyGroup => (storyGroup.introStory));
         const storyGroupFiltered = storyGroups.filter((storyGroup => !storyGroup.introStory)).sort(this.sortAlphabetically);
@@ -207,20 +223,7 @@ class Stories extends React.Component {
                     </Grid.Column>
 
                     <Grid.Column width={12}>
-                        {storySelected > -2 && (storyGroupFiltered[storySelected] || introStory) ? (
-                            <StoriesEditor
-                                storyGroup={storyGroupFiltered[storySelected] ? storyGroupFiltered[storySelected] : introStory}
-                                onSaving={this.handleSavingStories}
-                                onSaved={this.handleSavedStories}
-                                onError={this.handleError}
-                                onErrorResolved={this.handleErrorResolved}
-                                onAddNewStory={() => this.handleNewStory(storySelected !== -1 ? storyGroupFiltered[storySelected] : introStory)}
-                                projectId={projectId}
-                                onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)}
-                            />
-                        ) : (
-                            <Message content='select or create a story group' />
-                        )}
+                        {this.renderStoryEditor(storyGroupFiltered, introStory, storySelected)}
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
