@@ -147,6 +147,15 @@ class IntentNameEditor extends React.Component {
             borderRadius: '4px',
             cursor: 'default',
         };
+        const trigger = intent ? (
+            <Label color='purple' style={style}>
+                {intent}
+            </Label>
+        ) : (
+            <Label color='grey' style={style} basic>
+                -
+            </Label>
+        );
         return (
             <Popup
                 content={(
@@ -167,11 +176,7 @@ class IntentNameEditor extends React.Component {
                         </Grid>
                     </div>
                 )}
-                trigger={(
-                    <Label color='purple' style={style}>
-                        {intent || '-'}
-                    </Label>
-                )}
+                trigger={trigger}
                 hoverable
                 position='top center'
                 // if we don't check confirmOpen then the popup appears on top of the confirm modal
