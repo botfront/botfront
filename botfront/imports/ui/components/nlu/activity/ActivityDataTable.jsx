@@ -10,8 +10,6 @@ import 'react-select/dist/react-select.css';
 import { wrapMeteorCallback } from '../../utils/Errors';
 
 export default class ActivityDataTable extends React.Component {
-    headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
-
     getIntentForDropdown(all) {
         const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
         const { intents } = this.props;
@@ -210,12 +208,17 @@ export default class ActivityDataTable extends React.Component {
                                 borderRight: 'none',
                             },
                         })}
-                        getTheadThProps={() => ({
-                            style: {
-                                borderRight: 'none',
-                                ...this.headerStyle,
-                            },
-                        })}
+                        getTheadThProps={(state, row, column) => {
+                            const style = column.id === 'confidence' ? { textAlign: 'right' } : { textAlign: 'left' };
+                            return ({
+                                style: {
+                                    borderRight: 'none',
+                                    fontWeight: 800,
+                                    paddingBottom: '10px',
+                                    ...style,
+                                },
+                            });
+                        }}
                         className=''
                     />
                 </div>
