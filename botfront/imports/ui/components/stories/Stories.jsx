@@ -36,7 +36,8 @@ class Stories extends React.Component {
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {
                     Meteor.call('stories.insert', {
-                        story: `## ${name}`,
+                        story: ' ',
+                        title: 'name',
                         storyGroupId: groupId,
                         projectId,
                     },
@@ -77,13 +78,14 @@ class Stories extends React.Component {
         this.setState({ validationErrors: false });
     };
 
-    handleNewStory = (introStoryGroup) => {
+    handleNewStory = (introStoryGroup, indexOfNewStory) => {
         const { projectId, storyGroups } = this.props;
         const { storyIndex } = this.state;
         Meteor.call(
             'stories.insert',
             {
-                story: `## ${!!introStoryGroup ? introStoryGroup.name : storyGroups[storyIndex].name}`,
+                story: ' ',
+                title: `${!!introStoryGroup ? introStoryGroup.name : storyGroups[storyIndex].name} ${indexOfNewStory}`,
                 projectId,
                 storyGroupId: `${!!introStoryGroup ? introStoryGroup._id : storyGroups[storyIndex]._id}`,
             },
@@ -145,7 +147,7 @@ class Stories extends React.Component {
     }
 
     renderStoryEditor = (storyGroupFiltered, introStory, storySelected) => {
-        const { projectId } = this.props;
+        const { projectId, storyGroups } = this.props;
         const storyGroupSelected = storyGroupFiltered[storySelected];
         return (storyGroupSelected || introStory) && (
             <StoriesEditor
@@ -157,6 +159,7 @@ class Stories extends React.Component {
                 onAddNewStory={() => this.handleNewStory(storyGroupSelected || introStory)}
                 projectId={projectId}
                 onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)}
+                groupNames={storyGroups.map(group => group.name)}
             />
         );
     }

@@ -112,7 +112,7 @@ class NLUModels extends React.Component {
         } = project;
 
         const ConfirmPopup = ({ title, onYes = () => {}, description = '' }) => (
-            <Segment basic className='model-popup' data-cy='confirm-popup'>
+            <Segment basic className='confirm-popup' data-cy='confirm-popup'>
                 <Header as='h4'>{title}</Header>
                 {description}
                 <div>

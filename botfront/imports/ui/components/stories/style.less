@@ -30,14 +30,6 @@
     margin-top: 1em;
   }
 
-  .segment {
-    .icon.trash {
-      position: absolute;
-      right: 10px;
-      top: 15px;
-    }
-  }
-
   .warning.message {
     animation-name: warningPopup;
     animation-duration: 0.2s;
@@ -72,11 +64,6 @@
   position: relative;
 }
 
-.story-name {
-  position: absolute;
-  bottom: 0;
-}
-
 .ui.vertical.menu.intro-story {
   border-color: rgb(33,133,208);
   border-width: 2px;
@@ -99,6 +86,15 @@
     &:hover {
       opacity: 0.50;
     }
+  }
+}
+
+.story-editor {
+  margin-bottom: 20px;
+
+  //removes borders b/w menu items
+  .item::before{
+    width: 0;
   }
 }
 

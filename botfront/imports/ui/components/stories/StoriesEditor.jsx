@@ -4,17 +4,13 @@ import {
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import AceEditor from 'react-ace';
-import 'brace/theme/github';
-import 'brace/mode/text';
 
 import { Stories } from '../../../api/story/stories.collection';
 import { StoryValidator } from '../../../lib/story_validation';
-import ConfirmPopup from '../common/ConfirmPopup';
 import { wrapMeteorCallback } from '../utils/Errors';
+import StoryAceEditor from './StoryAceEditor';
 
 function StoriesEditor(props) {
-    const [deletePopup, setDeletePopup] = useState(-1);
     const [errors, setErrors] = useState([]);
     // This state is only used to store edited stories
     const [storyTexts, setStoryTexts] = useState([]);
@@ -29,6 +25,7 @@ function StoriesEditor(props) {
         onAddNewStory,
         onDeleteGroup,
         storyGroup,
+        groupNames,
     } = props;
 
     // This effect listen to changes on errors and notifies
@@ -48,7 +45,6 @@ function StoriesEditor(props) {
         // console.log('use effect');
         setStoryTexts([]);
         setErrors([]);
-        setDeletePopup(-1);
     }, [storyGroup]);
 
     function saveStory(story) {
@@ -91,7 +87,6 @@ function StoriesEditor(props) {
     }
 
     function handeStoryDeletion(index) {
-        setDeletePopup(-1);
         const toBeDeletedStory = stories[index];
         Meteor.call('stories.delete', toBeDeletedStory, wrapMeteorCallback());
         const stateErrors = [...errors];
@@ -113,81 +108,37 @@ function StoriesEditor(props) {
         );
     }
 
-    const StoryEditor = ({ story, index }) => (
-        <Segment data-cy='story-editor'>
-            <AceEditor
-                readOnly={disabled}
-                theme='github'
-                width='95%'
-                name='story'
-                mode='text'
-                minLines={5}
-                maxLines={Infinity}
-                fontSize={12}
-                onChange={data => handleStoryChange(data, index)}
-                value={
-                    storyTexts[index] !== undefined
-                        ? storyTexts[index]
-                        : story.story
-                }
-                showPrintMargin={false}
-                showGutter
-                // We use ternary expressions here to prevent wrong prop types
-                annotations={
-                    (!!errors[index] ? true : undefined)
-                    && (!!errors[index].length ? true : undefined)
-                    && errors[index].map(error => ({
-                        row: error.line - 1,
-                        type: error.type,
-                        text: error.message,
-                        column: 0,
-                    }))
-                }
-                editorProps={{
-                    $blockScrolling: Infinity,
-                }}
-                setOptions={{
-                    tabSize: 2,
-                }}
-            />
-            <Popup
-                trigger={(
-                    <Icon
-                        name='trash'
-                        color='grey'
-                        link
-                        data-cy='delete-story'
-                    />
-                )}
-                content={(
-                    <ConfirmPopup
-                        title='Delete story ?'
-                        onYes={() => handeStoryDeletion(index)}
-                        onNo={() => setDeletePopup(-1)}
-                    />
-                )}
-                on='click'
-                open={deletePopup === index}
-                onOpen={() => setDeletePopup(index)}
-                onClose={() => setDeletePopup(-1)}
-            />
-        </Segment>
-    );
-
-    StoryEditor.propTypes = {
-        story: PropTypes.object.isRequired,
-        index: PropTypes.number.isRequired,
-    };
-
     const editors = stories.map((story, index) => (
-        <StoryEditor story={story} index={index} key={index} />
+        <StoryAceEditor
+            story={
+                storyTexts[index] !== undefined
+                    ? storyTexts[index]
+                    : story.story
+            }
+            annotations={
+                (!!errors[index] ? true : undefined)
+                && (!!errors[index].length ? true : undefined)
+                && errors[index].map(error => ({
+                    row: error.line - 1,
+                    type: error.type,
+                    text: error.message,
+                    column: 0,
+                }))
+            }
+            disabled={disabled}
+            onChange={data => handleStoryChange(data, index)}
+            onDelete={() => handeStoryDeletion(index)}
+            key={index}
+            title={story.title}
+            groupNames={groupNames}
+        />
     ));
 
     return (
         <>
             {editors}
             <Container textAlign='center'>
-                <Button icon='add' basic name='add' onClick={onAddNewStory} size='medium' data-cy='add-story' color='black' content='Add a story' />
+                <Button icon='add' basic name='add' onClick={() => onAddNewStory(stories.length + 1)} size='medium' data-cy='add-story' color='black' content='Add a story' />
             </Container>
         </>
     );
@@ -206,6 +157,7 @@ StoriesEditor.propTypes = {
     onAddNewStory: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
+    groupNames: PropTypes.array.isRequired,
 };
 
 StoriesEditor.defaultProps = {
