@@ -11,6 +11,7 @@ import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
 import { createDeployment } from '../deployment/deployment.methods';
 import { Deployments } from '../deployment/deployment.collection';
+import { createIntroStoryGroup } from '../storyGroups/storyGroups.methods';
 
 if (Meteor.isServer) {
     Meteor.methods({
@@ -23,6 +24,7 @@ if (Meteor.isServer) {
                 createDeployment({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
+                createIntroStoryGroup(_id);
                 const instance = await createInstance({ _id, ...item });
                 Projects.update({ _id }, { $set: { instance } });
                 return _id;

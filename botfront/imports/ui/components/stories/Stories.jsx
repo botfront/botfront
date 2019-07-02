@@ -17,9 +17,10 @@ class Stories extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            storyIndex: 0,
+            storyIndex: -1,
             saving: false,
             validationErrors: false,
+            storyGroupNameSelected: '',
         };
     }
 
@@ -34,8 +35,8 @@ class Stories extends React.Component {
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {
                     this.setState({
-                        storyIndex: -1,
                         validationErrors: false,
+                        storyGroupNameSelected: name,
                     });
                     Meteor.call('stories.insert', {
                         story: `## ${name}`,
@@ -51,6 +52,7 @@ class Stories extends React.Component {
         this.setState({
             storyIndex: index,
             validationErrors: false,
+            storyGroupNameSelected: '',
         });
     };
 
@@ -89,7 +91,9 @@ class Stories extends React.Component {
             Meteor.call(
                 'storyGroups.delete',
                 filterdStoryGroup[index],
-                wrapMeteorCallback(),
+                wrapMeteorCallback((err) => {
+                    if (!err) this.setState({ storyIndex: -1, storyGroupNameSelected: '' });
+                }),
             );
         }
     };
@@ -108,7 +112,11 @@ class Stories extends React.Component {
         Meteor.call(
             'storyGroups.update',
             storyGroup,
-            wrapMeteorCallback(),
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    this.setState({ storyGroupNameSelected: storyGroup.name });
+                }
+            }),
         );
     }
 
@@ -123,12 +131,21 @@ class Stories extends React.Component {
         e.stopPropagation();
         this.handleStoryGroupSelect(introStory);
     }
+
+    storyGroupSelected = (storyIndex, storyGroupNameSelected, storyGroupFiltered) => {
+        if (storyGroupNameSelected === '' || (storyGroupFiltered[storyIndex] && storyGroupFiltered[storyIndex].name) === storyGroupNameSelected) {
+            return storyIndex;
+        }
+        return storyGroupFiltered.findIndex(storyGroup => (storyGroup.name === storyGroupNameSelected));
+    }
     
     render() {
         const { storyGroups, projectId } = this.props;
-        const { storyIndex, saving, validationErrors } = this.state;
+        const { storyIndex, saving, validationErrors, storyGroupNameSelected } = this.state;
         const introStory = storyGroups.find(storyGroup => (storyGroup.introStory));
         const storyGroupFiltered = storyGroups.filter((storyGroup => !storyGroup.introStory)).sort(this.sortAlphabetically);
+        const storySelected = this.storyGroupSelected(storyIndex, storyGroupNameSelected, storyGroupFiltered);
+
         return (
             <Grid className='stories-container'>
 
@@ -152,7 +169,7 @@ class Stories extends React.Component {
                     <Grid.Column width={12} className='story-name-parent'>
                         {storyIndex !== -1 ? (
                             <Header className='story-name'>
-                                {storyGroupFiltered[storyIndex] && storyGroupFiltered[storyIndex].name}
+                                {storyGroupFiltered[storySelected] && storyGroupFiltered[storySelected].name}
                             </Header>
                         ) : (
                             <Message info size='small'>The intro stories group contains the initial messages that would be sent to users when they start chatting with your bot</Message>
@@ -173,7 +190,7 @@ class Stories extends React.Component {
                                 data={storyGroupFiltered}
                                 allowAddition
                                 allowEdit
-                                index={storyIndex}
+                                index={storySelected}
                                 onAdd={this.handleAddStoryGroup}
                                 onChange={this.handleMenuChange}
                                 nameAccessor='name'
@@ -186,14 +203,14 @@ class Stories extends React.Component {
                     </Grid.Column>
 
                     <Grid.Column width={12}>
-                        {storyIndex > -2 && (storyGroupFiltered[storyIndex] || introStory) ? (
+                        {storyIndex > -2 && (storyGroupFiltered[storySelected] || introStory) ? (
                             <StoriesEditor
-                                storyGroup={storyGroupFiltered[storyIndex] ? storyGroupFiltered[storyIndex] : introStory}
+                                storyGroup={storyGroupFiltered[storySelected] ? storyGroupFiltered[storySelected] : introStory}
                                 onSaving={this.handleSavingStories}
                                 onSaved={this.handleSavedStories}
                                 onError={this.handleError}
                                 onErrorResolved={this.handleErrorResolved}
-                                onAddNewStory={() => this.handleNewStory(storyIndex !== -1 ? storyGroupFiltered[storyIndex] : introStory)}
+                                onAddNewStory={() => this.handleNewStory(storyIndex !== -1 ? storyGroupFiltered[storySelected] : introStory)}
                                 projectId={projectId}
                                 onDeleteGroup={() => this.handleDeleteGroup(storyIndex, storyGroupFiltered)}
                             />
