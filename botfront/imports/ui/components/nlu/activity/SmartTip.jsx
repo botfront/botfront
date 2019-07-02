@@ -76,6 +76,6 @@ SmartTip.propTypes = {
     button: PropTypes.element,
     tip: PropTypes.string,
     message: PropTypes.string,
-    mainAction: PropTypes.element,
-    otherActions: PropTypes.arrayOf(PropTypes.element),
+    mainAction: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+    otherActions: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.element, PropTypes.func])),
 };

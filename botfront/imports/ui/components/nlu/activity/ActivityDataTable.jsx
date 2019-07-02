@@ -12,8 +12,6 @@ import { can } from '../../../../api/roles/roles';
 import SmartTip from './SmartTip';
 
 export default class ActivityDataTable extends React.Component {
-    headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
-
     getIntentForDropdown(all) {
         const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
         const { intents } = this.props;
@@ -39,17 +37,13 @@ export default class ActivityDataTable extends React.Component {
                 const isOutdated = outDatedUtteranceIds.includes(utterance._id);
                 const ooS = !intent;
                 const { code, tip, message } = smartTips[utterance._id];
-                let actions = [];
+                let action;
                 if (isOutdated) {
-                    actions = [
-                        <Button size={size} onClick={() => this.onReinterpret(utterance)} circular basic icon='redo' />,
-                    ];
+                    action = <Button size={size} onClick={() => this.onReinterpret(utterance)} circular basic icon='redo' />;
                 } else if (validated) {
-                    actions = [
-                        <Button size={size} onClick={() => this.onValidate(utterance)} color='green' circular icon='check' />,
-                    ];
+                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' circular icon='check' />;
                 } else if (code === 'aboveTh') {
-                    actions = [
+                    action = (
                         <SmartTip
                             tip={tip}
                             message={message}
@@ -61,10 +55,10 @@ export default class ActivityDataTable extends React.Component {
                             button={(
                                 <Button size={size} icon='trash' color='teal' basic circular />
                             )}
-                        />,
-                    ];
+                        />
+                    );
                 } else if (code === 'entitiesInTD') {
-                    actions = [
+                    action = (
                         <SmartTip
                             tip={tip}
                             message={message}
@@ -75,10 +69,10 @@ export default class ActivityDataTable extends React.Component {
                             button={(
                                 <Button size={size} icon='info' color='yellow' circular />
                             )}
-                        />,
-                    ];
+                        />
+                    );
                 } else if (!validated) {
-                    actions = [
+                    action = (
                         <Button
                             basic
                             circular
@@ -87,14 +81,14 @@ export default class ActivityDataTable extends React.Component {
                             onClick={() => this.onValidate(utterance)}
                             color='green'
                             icon='check'
-                        />,
-                    ];
+                        />
+                    );
                 }
 
                 return (
                     <div>
-                        {actions}
-                        { !['aboveTh', 'entitiesInTD'].includes(code) && (
+                        {action}
+                        { !['aboveTh'].includes(code) && (
                             <div
                                 style={{
                                     width: '16px',
@@ -190,7 +184,7 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getExampleColumn() {
-        const { entities, outDatedUtteranceIds } = this.props;
+        const { entities, outDatedUtteranceIds, projectId } = this.props;
         return {
             id: 'example',
             accessor: e => e,
@@ -206,6 +200,7 @@ export default class ActivityDataTable extends React.Component {
                         onSave={this.onEntityEdit}
                         editable={!isOutdated}
                         disablePopup={isOutdated}
+                        projectId={projectId}
                     />
                 );
             },
@@ -247,15 +242,16 @@ export default class ActivityDataTable extends React.Component {
     renderDeleteButton = u => mainAction => (
         <Button
             className='icon'
-            color='grey'
+            color={mainAction ? 'teal' : 'grey'}
             size={mainAction ? 'small' : 'mini'}
             icon
             fluid={mainAction}
-            basic
+            basic={!mainAction && true}
             labelPosition='left'
             onClick={() => this.onDelete(u)}
+            key={`${u._id}-delete`}
         >
-            <Icon name='trash' /> {'Delete this utterance only'}
+            <Icon name='trash' /> {mainAction ? 'Delete this utterance' : 'Delete this one only'}
         </Button>
     );
 
@@ -267,6 +263,7 @@ export default class ActivityDataTable extends React.Component {
             fluid={mainAction}
             content='Validate anyway'
             onClick={() => this.onValidate(u)}
+            key={`${u._id}-validate`}
         />
     );
 
@@ -322,12 +319,17 @@ export default class ActivityDataTable extends React.Component {
                                 borderRight: 'none',
                             },
                         })}
-                        getTheadThProps={() => ({
-                            style: {
-                                borderRight: 'none',
-                                ...this.headerStyle,
-                            },
-                        })}
+                        getTheadThProps={(state, row, column) => {
+                            const style = column.id === 'confidence' ? { textAlign: 'right' } : { textAlign: 'left' };
+                            return ({
+                                style: {
+                                    borderRight: 'none',
+                                    fontWeight: 800,
+                                    paddingBottom: '10px',
+                                    ...style,
+                                },
+                            });
+                        }}
                         className=''
                     />
                 </div>
