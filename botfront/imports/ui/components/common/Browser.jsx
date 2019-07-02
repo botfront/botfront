@@ -1,7 +1,6 @@
 import {
     Menu, Icon, Input, Loader, Button,
 } from 'semantic-ui-react';
-// import { useDrop } from 'react-dnd-cjs';
 import PropTypes from 'prop-types';
 import React from 'react';
 import './style.less';
@@ -87,7 +86,7 @@ class Browser extends React.Component {
             <Menu.Item
                 key={index.toString()}
                 name={item[nameAccessor]}
-                className={`${indexProp === index ? 'selected-blue' : ''}`}
+                className={indexProp === index ? 'selected-blue' : ''}
                 active={indexProp === index}
                 onClick={() => this.handleClickMenuItem(index)}
                 link={indexProp !== index}
