@@ -40,7 +40,14 @@ export default class ActivityDataTable extends React.Component {
                 } else if (!!validated) {
                     action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />;
                 } else {
-                    action = <Popup size='mini' inverted content='Mark this utterance valid' trigger={<Button basic size={size} disabled={ooS} onClick={() => this.onValidate(utterance)} color='green' icon='check' />} />;
+                    action = (
+                        <Popup
+                            size='mini'
+                            inverted
+                            content='Mark this utterance valid'
+                            trigger={<Button basic size={size} disabled={ooS} onClick={() => this.onValidate(utterance)} color='green' icon='check' />}
+                        />
+                    );
                 }
                 return (
                     <div>
@@ -216,11 +223,10 @@ export default class ActivityDataTable extends React.Component {
 }
 
 ActivityDataTable.propTypes = {
-    utterances: PropTypes.array,
-    intents: PropTypes.array,
-    entities: PropTypes.array,
+    utterances: PropTypes.array.isRequired,
+    intents: PropTypes.array.isRequired,
+    entities: PropTypes.array.isRequired,
     projectId: PropTypes.string.isRequired,
-    outDatedUtteranceIds: PropTypes.array,
-    modelId: PropTypes.string,
-    linkRender: PropTypes.func,
+    outDatedUtteranceIds: PropTypes.array.isRequired,
+    modelId: PropTypes.string.isRequired,
 };

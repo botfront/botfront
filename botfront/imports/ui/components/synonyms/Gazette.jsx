@@ -9,8 +9,7 @@ import MinScoreEdit from './MinScoreEdit';
 
 function ModeEdit({ gazette, onEdit }) {
     function onUpdateText(value, callback) {
-        gazette.mode = value;
-        onEdit(gazette, callback);
+        onEdit({ ...gazette, mode: value }, callback);
     }
 
     const data = ['ratio', 'partial_ratio', 'token_sort_ratio', 'token_set_ratio'];
@@ -20,15 +19,20 @@ function ModeEdit({ gazette, onEdit }) {
     );
 }
 
+ModeEdit.propTypes = {
+    gazette: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+};
+
 class GazetteEditor extends React.Component {
     onItemChanged = (gazette, callback) => {
         const { model } = this.props;
-        Meteor.call('nlu.upsertEntityGazette', model._id, gazette, wrapMeteorCallback(callback))
+        Meteor.call('nlu.upsertEntityGazette', model._id, gazette, wrapMeteorCallback(callback));
     };
 
     onItemDeleted = (gazette, callback) => {
         const { model } = this.props;
-        Meteor.call('nlu.deleteEntityGazette', model._id, gazette._id, wrapMeteorCallback(callback))
+        Meteor.call('nlu.deleteEntityGazette', model._id, gazette._id, wrapMeteorCallback(callback));
     };
 
     extraColumns() {
@@ -79,8 +83,6 @@ GazetteEditor.propTypes = {
     model: PropTypes.object.isRequired,
 };
 
-export default GazetteEditorContainer = withTracker((props) => {
-    return {
-        model: props.model
-    };
-})(GazetteEditor);
+export default withTracker(props => ({
+    model: props.model,
+}))(GazetteEditor);

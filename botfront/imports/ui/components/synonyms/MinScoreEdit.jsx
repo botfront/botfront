@@ -11,7 +11,7 @@ export default class MinScoreEdit extends React.Component {
         };
     }
 
-    onDone() {
+    onDone = () => {
         const { gazette, onEdit } = this.props;
         const { value } = this.state;
         const copy = gazette.min_score;
@@ -25,8 +25,8 @@ export default class MinScoreEdit extends React.Component {
         });
     }
 
-    handleTextChange(value) {
-        this.setState({ value: parseInt(value) });
+    handleTextChange = (value) => {
+        this.setState({ value: parseInt(value, 10) });
     }
 
     render() {
@@ -34,9 +34,14 @@ export default class MinScoreEdit extends React.Component {
         return (
             <TextInput
                 text={value.toString(10)}
-                onBlur={this.onDone.bind(this)}
-                onTextChange={this.handleTextChange.bind(this)}
+                onBlur={this.onDone}
+                onTextChange={this.handleTextChange}
             />
         );
     }
 }
+
+MinScoreEdit.propTypes = {
+    gazette: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+};

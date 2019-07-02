@@ -5,7 +5,6 @@ import {
 } from 'semantic-ui-react';
 import _, { difference } from 'lodash';
 import ReactTable from 'react-table';
-import { DebounceInput } from 'react-debounce-input';
 import matchSorter from 'match-sorter';
 
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
@@ -20,13 +19,14 @@ import TrashBin from '../common/TrashBin';
 export default class NluDataTable extends React.Component {
     constructor(props) {
         super(props);
+        const { showLabels } = this.props;
         this.state = {
             expanded: {},
             filter: {
                 intents: [],
                 entities: [],
             },
-            showLabels: false,
+            showLabels,
         };
     }
 
@@ -78,8 +78,12 @@ export default class NluDataTable extends React.Component {
     };
 
     getColumns() {
-        const { onRenameIntent, examples, projectId } = this.props;
-        const intentColumns = this.props.intentColumns || [
+        const {
+            onRenameIntent, examples, projectId, entities, extraColumns, onDeleteExample,
+        } = this.props;
+        let { intentColumns } = this.props;
+        const { showLabels } = this.state;
+        intentColumns = intentColumns || [
             {
                 accessor: 'intent',
                 Header: 'Intent',
@@ -115,8 +119,8 @@ export default class NluDataTable extends React.Component {
                 Cell: props => (
                     <NLUExampleText
                         example={props.value}
-                        entities={this.props.entities}
-                        showLabels={this.state.showLabels || this.props.showLabels}
+                        entities={entities}
+                        showLabels={showLabels}
                         onSave={this.onEditExample}
                         editable
                     />
@@ -125,13 +129,13 @@ export default class NluDataTable extends React.Component {
             },
         ];
 
-        firstColumns = intentColumns.concat(firstColumns.concat(this.props.extraColumns || []));
+        firstColumns = intentColumns.concat(firstColumns.concat(extraColumns || []));
         firstColumns.push({
             accessor: '_id',
             filterable: false,
             Cell: props => (
                 <TrashBin
-                    onClick={() => this.props.onDeleteExample(props.value)}
+                    onClick={() => onDeleteExample(props.value)}
                 />
             ),
             Header: '',
@@ -158,7 +162,7 @@ export default class NluDataTable extends React.Component {
         const headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
         const columns = this.getColumns();
         const { hideHeader, intents, entities } = this.props;
-        const { showLabels } = this.state;
+        const { showLabels, expanded } = this.state;
         return (
             <Tab.Pane as='div'>
                 {!hideHeader && (
@@ -196,16 +200,17 @@ export default class NluDataTable extends React.Component {
                     onFilteredChange={this.collapseExpanded}
                     onSortedChange={this.collapseExpanded}
                     onPageChange={() => this.setState({ expanded: {} })}
-                    expanded={this.state.expanded}
-                    onExpandedChange={(newExpanded, index, event) => {
+                    expanded={expanded}
+                    onExpandedChange={(newExpanded, index) => {
+                        let expandedChange;
                         if (newExpanded[index[0]] === false) {
-                            newExpanded = {};
+                            expandedChange = {};
                         } else {
-                            Object.keys(newExpanded).map((k) => {
-                                newExpanded[k] = parseInt(k) === index[0] ? {} : false;
+                            Object.keys(newExpanded).forEach((k) => {
+                                expandedChange[k] = parseInt(k, 10) === index[0] ? {} : false;
                             });
                         }
-                        this.setState({ expanded: newExpanded });
+                        this.setState({ expanded: expandedChange });
                     }}
                     columns={columns}
                     minRows={1}
@@ -252,20 +257,22 @@ export default class NluDataTable extends React.Component {
 }
 
 NluDataTable.propTypes = {
-    examples: PropTypes.array,
-    intents: PropTypes.array,
-    entities: PropTypes.array,
+    examples: PropTypes.array.isRequired,
+    intents: PropTypes.array.isRequired,
+    entities: PropTypes.array.isRequired,
     onEditExample: PropTypes.func.isRequired,
     onDeleteExample: PropTypes.func.isRequired,
-    onRenameIntent: PropTypes.func,
+    onRenameIntent: PropTypes.func.isRequired,
     showLabels: PropTypes.bool,
     hideHeader: PropTypes.bool,
     extraColumns: PropTypes.array,
     intentColumns: PropTypes.arrayOf(PropTypes.object),
-    easyEdit: PropTypes.bool,
     projectId: PropTypes.string.isRequired,
 };
 
 NluDataTable.defaultProps = {
-    easyEdit: false,
+    showLabels: true,
+    hideHeader: false,
+    extraColumns: [],
+    intentColumns: null,
 };

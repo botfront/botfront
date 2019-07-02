@@ -6,7 +6,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { sortBy, uniq } from 'lodash';
 import moment from 'moment';
 import {
-    Tab, Message
+    Tab, Message,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
@@ -21,9 +21,9 @@ import { getPureIntents } from '../../../../api/nlu_model/nlu_model.utils';
 import { wrapMeteorCallback } from '../../utils/Errors';
 
 class Activity extends React.Component {
-    state = this.getDefaultState();
+    getDefaultState = () => ({ filterFn: utterances => utterances }); // eslint-disable-line react/sort-comp
 
-    getDefaultState = () => ({ filterFn: utterances => utterances });
+    state = this.getDefaultState();
 
     batchAdd = () => {
         const { modelId } = this.props;
@@ -58,7 +58,6 @@ class Activity extends React.Component {
             intents,
             projectId,
             outDatedUtteranceIds,
-            linkRender,
             numValidated,
         } = this.props;
 
@@ -68,7 +67,6 @@ class Activity extends React.Component {
         return utterances && utterances.length > 0 ? (
             <>
                 <ActivityActions
-                    intents={intents}
                     onEvaluate={this.onEvaluate}
                     onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
                     onAddToTraining={this.batchAdd}
@@ -86,7 +84,6 @@ class Activity extends React.Component {
                     intents={intents}
                     projectId={projectId}
                     outDatedUtteranceIds={outDatedUtteranceIds}
-                    linkRender={linkRender}
                     modelId={modelId}
                 />
             </>
@@ -115,7 +112,7 @@ Activity.propTypes = {
     entities: PropTypes.array.isRequired,
     intents: PropTypes.array.isRequired,
     instance: PropTypes.object.isRequired,
-    linkRender: PropTypes.func,
+    linkRender: PropTypes.func.isRequired,
     outDatedUtteranceIds: PropTypes.array.isRequired,
 };
 

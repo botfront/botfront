@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Icon } from 'semantic-ui-react';
 
 export default function TrashBin(props) {
@@ -24,3 +25,7 @@ export default function TrashBin(props) {
         </div>
     );
 }
+
+TrashBin.propTypes = {
+    onClick: PropTypes.func.isRequired,
+};
