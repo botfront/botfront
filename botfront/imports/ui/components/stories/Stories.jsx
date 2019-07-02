@@ -17,6 +17,8 @@ class Stories extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            // storyIndex is used to track the index of element in the browser component
+            // storyGroupNameSelected used to track the storygroup to be displayed by the storyEditor
             storyIndex: -1,
             saving: false,
             validationErrors: false,
@@ -34,15 +36,19 @@ class Stories extends React.Component {
             },
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {
-                    this.setState({
-                        validationErrors: false,
-                        storyGroupNameSelected: name,
-                    });
                     Meteor.call('stories.insert', {
                         story: `## ${name}`,
                         storyGroupId: groupId,
                         projectId,
-                    });
+                    },
+                    wrapMeteorCallback((error) => {
+                        if (!error) {
+                            this.setState({
+                                validationErrors: false,
+                                storyGroupNameSelected: name,
+                            });
+                        }
+                    }));
                 }
             }),
         );
@@ -122,7 +128,7 @@ class Stories extends React.Component {
 
     handleIntroStoryClick = (event) => {
         event.preventDefault();
-        this.setState({ storyIndex: -1 });
+        this.setState({ storyIndex: -1, storyGroupNameSelected: '' });
     }
 
     sortAlphabetically = (a, b) => (a.name.localeCompare(b.name));
@@ -151,10 +157,10 @@ class Stories extends React.Component {
 
                 <Grid.Row columns={2}>
                     <Grid.Column width={4}>
-                        <Menu vertical fluid onClick={this.handleIntroStoryClick} className={`intro-story ${storyIndex === -1 ? 'selected-intro-story' : ''}`}>
+                        <Menu vertical fluid onClick={this.handleIntroStoryClick} className={`intro-story ${storySelected === -1 ? 'selected-intro-story' : ''}`}>
                             <Menu.Item
                                 key='intro-story'
-                                active={storyIndex === -1}
+                                active={storySelected === -1}
                                 link
                             >
                                 <Icon
@@ -167,10 +173,8 @@ class Stories extends React.Component {
                         </Menu>
                     </Grid.Column>
                     <Grid.Column width={12} className='story-name-parent'>
-                        {storyIndex !== -1 ? (
-                            <Header className='story-name'>
-                                {storyGroupFiltered[storySelected] && storyGroupFiltered[storySelected].name}
-                            </Header>
+                        {storySelected !== -1 ? (
+                            <Message info size='small'>Story Groups</Message>
                         ) : (
                             <Message info size='small'>The intro stories group contains the initial messages that would be sent to users when they start chatting with your bot</Message>
                         )}
@@ -203,16 +207,16 @@ class Stories extends React.Component {
                     </Grid.Column>
 
                     <Grid.Column width={12}>
-                        {storyIndex > -2 && (storyGroupFiltered[storySelected] || introStory) ? (
+                        {storySelected > -2 && (storyGroupFiltered[storySelected] || introStory) ? (
                             <StoriesEditor
                                 storyGroup={storyGroupFiltered[storySelected] ? storyGroupFiltered[storySelected] : introStory}
                                 onSaving={this.handleSavingStories}
                                 onSaved={this.handleSavedStories}
                                 onError={this.handleError}
                                 onErrorResolved={this.handleErrorResolved}
-                                onAddNewStory={() => this.handleNewStory(storyIndex !== -1 ? storyGroupFiltered[storySelected] : introStory)}
+                                onAddNewStory={() => this.handleNewStory(storySelected !== -1 ? storyGroupFiltered[storySelected] : introStory)}
                                 projectId={projectId}
-                                onDeleteGroup={() => this.handleDeleteGroup(storyIndex, storyGroupFiltered)}
+                                onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)}
                             />
                         ) : (
                             <Message content='select or create a story group' />

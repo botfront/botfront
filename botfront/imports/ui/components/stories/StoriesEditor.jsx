@@ -179,7 +179,7 @@ function StoriesEditor(props) {
         <>
             {editors}
             <Container textAlign='center'>
-                <Button icon='add' basic name='add' onClick={onAddNewStory} size='large' data-cy='add-story' color='black' content='Add a story' />
+                <Button icon='add' basic name='add' onClick={onAddNewStory} size='medium' data-cy='add-story' color='black' content='Add a story' />
             </Container>
         </>
     );

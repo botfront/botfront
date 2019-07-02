@@ -22,12 +22,12 @@ class NLUTrainButton extends React.Component {
     }
 
     render() {
-        const { project, instance } = this.props;
+        const { project, instance, content } = this.props;
         return (
             <Button
                 color='blue'
                 icon='grid layout'
-                content='Train'
+                content={content}
                 labelPosition='left'
                 disabled={isTraining(project) || !instance}
                 loading={isTraining(project)}
@@ -42,10 +42,12 @@ NLUTrainButton.propTypes = {
     project: PropTypes.object.isRequired,
     projectId: PropTypes.string.isRequired,
     instance: PropTypes.object,
+    content: PropTypes.string,
 };
 
 NLUTrainButton.defaultProps = {
     instance: null,
+    content: 'Train',
 };
 
 const mapStateToProps = state => ({
