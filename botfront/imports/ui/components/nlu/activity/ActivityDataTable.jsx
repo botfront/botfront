@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Tab, Button, Popup, Label, Icon,
+    Tab, Button, Popup, Label,
 } from 'semantic-ui-react';
 import ReactTable from 'react-table';
 import NLUExampleText from '../../example_editor/NLUExampleText';
 import IntentViewer from '../models/IntentViewer';
 import 'react-select/dist/react-select.css';
 import { wrapMeteorCallback } from '../../utils/Errors';
+import TrashBin from '../common/TrashBin';
 
 export default class ActivityDataTable extends React.Component {
     getIntentForDropdown(all) {
@@ -44,23 +45,9 @@ export default class ActivityDataTable extends React.Component {
                 return (
                     <div>
                         {action}
-                        <div
-                            style={{
-                                width: '16px',
-                                float: 'right',
-                                lineHeight: '24px',
-                                textAlign: 'left',
-                            }}
-                        >
-                            <Icon
-                                size='small'
-                                color='grey'
-                                name='trash'
-                                link
-                                className='viewOnHover'
-                                onClick={() => this.onDelete(utterance)}
-                            />
-                        </div>
+                        <TrashBin
+                            onClick={() => this.onDelete(utterance)}
+                        />
                     </div>
                 );
             },

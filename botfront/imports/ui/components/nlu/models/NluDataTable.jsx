@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Checkbox, Icon, Tab, Grid,
+    Checkbox, Tab, Grid,
 } from 'semantic-ui-react';
 import _, { difference } from 'lodash';
 import ReactTable from 'react-table';
@@ -15,19 +15,17 @@ import EntityUtils from '../../utils/EntityUtils';
 import IntentNameEditor from './IntentViewer';
 import 'react-select/dist/react-select.css'; // Is it used somewhere?
 import Filters from './Filters';
+import TrashBin from '../common/TrashBin';
 
 export default class NluDataTable extends React.Component {
     constructor(props) {
         super(props);
-        const { examples } = this.props;
         this.state = {
-            examples,
             expanded: {},
             filter: {
                 intents: [],
                 entities: [],
             },
-            showFilters: true,
             showLabels: false,
         };
     }
@@ -132,13 +130,9 @@ export default class NluDataTable extends React.Component {
             accessor: '_id',
             filterable: false,
             Cell: props => (
-                <div
-                    className='center'
+                <TrashBin
                     onClick={() => this.props.onDeleteExample(props.value)}
-                    className='nlu-delete-example'
-                >
-                    <Icon link name='delete' size='tiny' color='grey' />
-                </div>
+                />
             ),
             Header: '',
             width: 30,
@@ -163,26 +157,28 @@ export default class NluDataTable extends React.Component {
     render() {
         const headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
         const columns = this.getColumns();
+        const { hideHeader, intents, entities } = this.props;
+        const { showLabels } = this.state;
         return (
             <Tab.Pane as='div'>
-                {!this.props.hideHeader && (
+                {!hideHeader && (
                     <Grid style={{ paddingBottom: '12px' }}>
                         <Grid.Row>
                             <Grid.Column width={13} textAlign='left' verticalAlign='middle'>
                                 <Filters
-                                    intents={this.props.intents}
-                                    entities={this.props.entities}
+                                    intents={intents}
+                                    entities={entities}
                                     filter={this.scrapFilter()}
                                     onChange={filter => this.setState({ filter })}
                                 />
                             </Grid.Column>
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
-                                {this.props.entities.length > 0
-                                    && this.props.showLabels === undefined && (
+                                {entities.length > 0
+                                    && showLabels === undefined && (
                                     <Checkbox
-                                        checked={this.state.showLabels}
+                                        checked={showLabels}
                                         onChange={() => this.setState({
-                                            showLabels: !this.state.showLabels,
+                                            showLabels: !showLabels,
                                         })
                                         }
                                         slider
@@ -195,65 +191,61 @@ export default class NluDataTable extends React.Component {
                         </Grid.Row>
                     </Grid>
                 )}
-                <div style={{ padding: '0px', background: '#fff' }}>
-                    <ReactTable
-                        data={this.getExamples()}
-                        onFilteredChange={this.collapseExpanded}
-                        onSortedChange={this.collapseExpanded}
-                        onPageChange={(page) => {
-                            this.setState({ expanded: {} });
-                        }}
-                        expanded={this.state.expanded}
-                        onExpandedChange={(newExpanded, index, event) => {
-                            if (newExpanded[index[0]] === false) {
-                                newExpanded = {};
-                            } else {
-                                Object.keys(newExpanded).map((k) => {
-                                    newExpanded[k] = parseInt(k) === index[0] ? {} : false;
-                                });
-                            }
-                            this.setState({ expanded: newExpanded });
-                        }}
-                        columns={columns}
-                        minRows={1}
-                        style={{ overflow: 'visible' }}
-                        getTbodyProps={() => ({
-                            style: {
-                                overflow: 'visible',
-                            },
-                        })}
-                        getTableProps={() => ({
-                            style: {
-                                overflow: 'visible',
-                            },
-                        })}
-                        getTdProps={() => ({
-                            style: {
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
-                            },
-                        })}
-                        getTheadThProps={() => ({
-                            style: {
-                                borderRight: 'none',
-                                ...headerStyle,
-                            },
-                        })}
-                        className=''
-                        SubComponent={row => (
-                            <NLUExampleEditMode
-                                floated='right'
-                                example={row.original}
-                                entities={this.props.entities}
-                                intents={this.getIntentForDropdown(false)}
-                                onSave={this.onEditExample}
-                                onCancel={() => this.setState({ expanded: {} })}
-                                postSaveAction='close'
-                            />
-                        )}
-                    />
-                </div>
+                <ReactTable
+                    data={this.getExamples()}
+                    onFilteredChange={this.collapseExpanded}
+                    onSortedChange={this.collapseExpanded}
+                    onPageChange={() => this.setState({ expanded: {} })}
+                    expanded={this.state.expanded}
+                    onExpandedChange={(newExpanded, index, event) => {
+                        if (newExpanded[index[0]] === false) {
+                            newExpanded = {};
+                        } else {
+                            Object.keys(newExpanded).map((k) => {
+                                newExpanded[k] = parseInt(k) === index[0] ? {} : false;
+                            });
+                        }
+                        this.setState({ expanded: newExpanded });
+                    }}
+                    columns={columns}
+                    minRows={1}
+                    style={{ overflow: 'visible' }}
+                    getTbodyProps={() => ({
+                        style: {
+                            overflow: 'visible',
+                        },
+                    })}
+                    getTableProps={() => ({
+                        style: {
+                            overflow: 'visible',
+                        },
+                    })}
+                    getTdProps={() => ({
+                        style: {
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                        },
+                    })}
+                    getTheadThProps={() => ({
+                        style: {
+                            borderRight: 'none',
+                            ...headerStyle,
+                        },
+                    })}
+                    className=''
+                    SubComponent={row => (
+                        <NLUExampleEditMode
+                            floated='right'
+                            example={row.original}
+                            entities={entities}
+                            intents={this.getIntentForDropdown(false)}
+                            onSave={this.onEditExample}
+                            onCancel={() => this.setState({ expanded: {} })}
+                            postSaveAction='close'
+                        />
+                    )}
+                />
             </Tab.Pane>
         );
     }

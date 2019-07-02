@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { sortBy } from 'lodash';
-import { Divider, Icon, Tab } from 'semantic-ui-react';
+import { Tab } from 'semantic-ui-react';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import matchSorter from 'match-sorter';
 import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
 import LookupTableEditorViewer from './LookupTableListEditorViewer';
+import TrashBin from '../nlu/common/TrashBin';
 
 export default class LookupTable extends React.Component {
     getColumns() {
@@ -24,7 +25,6 @@ export default class LookupTable extends React.Component {
                 sortMethod: (rowA, rowB) => rowA.value.localeCompare(rowB.value),
                 Cell: props => <LookupTableValueEditorViewer listAttribute={listAttribute} entitySynonym={props.value} onEdit={onItemChanged} />,
                 width: 200,
-                filterAll: true,
             },
             {
                 id: listAttribute,
@@ -42,7 +42,6 @@ export default class LookupTable extends React.Component {
                         </div>
                     );
                 },
-                filterAll: true,
             },
             {
                 id: 'text',
@@ -60,12 +59,7 @@ export default class LookupTable extends React.Component {
             width: 35,
             className: 'center',
             Cell: ({ value }) => (
-                <Icon
-                    link
-                    className='delete-entity-synonym'
-                    size='tiny'
-                    name='remove'
-                    color='grey'
+                <TrashBin
                     onClick={() => onItemDeleted(value)}
                 />
             ),
@@ -78,16 +72,26 @@ export default class LookupTable extends React.Component {
         const {
             listAttribute, data, onItemChanged, valuePlaceholder, listPlaceholder,
         } = this.props;
+        const headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
         return (
-            <Tab.Pane>
+            <Tab.Pane as='div'>
                 <AddLookupTableRow
                     listAttribute={listAttribute}
                     onAdd={onItemChanged}
                     valuePlaceholder={valuePlaceholder}
                     listPlaceholder={listPlaceholder}
                 />
-                <Divider />
-                <ReactTable filterable data={data} columns={this.getColumns()} />
+                <br />
+                <ReactTable
+                    data={data}
+                    columns={this.getColumns()}
+                    getTheadThProps={() => ({
+                        style: {
+                            borderRight: 'none',
+                            ...headerStyle,
+                        },
+                    })}
+                />
             </Tab.Pane>
         );
     }
