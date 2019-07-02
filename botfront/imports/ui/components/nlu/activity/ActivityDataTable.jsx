@@ -33,17 +33,17 @@ export default class ActivityDataTable extends React.Component {
                 const size = 'mini';
                 const isOutdated = outDatedUtteranceIds.includes(utterance._id);
                 const ooS = !intent;
-                let actions;
+                let action;
                 if (isOutdated) {
-                    actions = [<Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' />];
+                    action = <Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' />;
                 } else if (!!validated) {
-                    actions = [<Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />];
+                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />;
                 } else {
-                    actions = [<Popup size='mini' inverted content='Mark this utterance valid' trigger={<Button basic size={size} disabled={ooS} onClick={() => this.onValidate(utterance)} color='green' icon='check' />} />];
+                    action = <Popup size='mini' inverted content='Mark this utterance valid' trigger={<Button basic size={size} disabled={ooS} onClick={() => this.onValidate(utterance)} color='green' icon='check' />} />;
                 }
                 return (
                     <div>
-                        {actions}
+                        {action}
                         <div
                             style={{
                                 width: '16px',
@@ -129,7 +129,7 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getExampleColumn() {
-        const { entities, outDatedUtteranceIds } = this.props;
+        const { entities, outDatedUtteranceIds, projectId } = this.props;
         return {
             id: 'example',
             accessor: e => e,
@@ -145,6 +145,7 @@ export default class ActivityDataTable extends React.Component {
                         onSave={this.onEntityEdit}
                         editable={!isOutdated}
                         disablePopup={isOutdated}
+                        projectId={projectId}
                     />
                 );
             },
