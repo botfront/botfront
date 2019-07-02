@@ -1,5 +1,5 @@
 import {
-    Icon, Container, Popup, Segment,
+    Icon, Container, Popup, Segment, Button,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
@@ -179,18 +179,7 @@ function StoriesEditor(props) {
         <>
             {editors}
             <Container textAlign='center'>
-                <Popup
-                    trigger={(
-                        <Icon
-                            name='add'
-                            link
-                            onClick={onAddNewStory}
-                            size='large'
-                            data-cy='add-story'
-                        />
-                    )}
-                    content='Add a story'
-                />
+                <Button icon='add' basic name='add' onClick={onAddNewStory} size='large' data-cy='add-story' color='black' content='Add a story' />
             </Container>
         </>
     );

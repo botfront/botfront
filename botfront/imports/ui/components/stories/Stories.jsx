@@ -1,4 +1,10 @@
-import { Grid, Message } from 'semantic-ui-react';
+import {
+    Grid,
+    Message,
+    Header,
+    Menu,
+    Icon,
+} from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -18,7 +24,7 @@ class Stories extends React.Component {
     }
 
     handleAddStoryGroup = async (name) => {
-        const { projectId, storyGroups } = this.props;
+        const { projectId } = this.props;
         Meteor.call(
             'storyGroups.insert',
             {
@@ -28,28 +34,13 @@ class Stories extends React.Component {
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {
                     this.setState({
-                        storyIndex: storyGroups.length,
+                        storyIndex: -1,
                         validationErrors: false,
                     });
                     Meteor.call('stories.insert', {
                         story: `## ${name}`,
                         storyGroupId: groupId,
                         projectId,
-                    });
-                }
-            }),
-        );
-    };
-
-    deleteCurrentStory = (storyGroup) => {
-        Meteor.call(
-            'storyGroups.delete',
-            storyGroup,
-            wrapMeteorCallback((err) => {
-                if (!err) {
-                    this.setState({
-                        validationErrors: false,
-                        storyIndex: -1,
                     });
                 }
             }),
@@ -79,30 +70,31 @@ class Stories extends React.Component {
         this.setState({ validationErrors: false });
     };
 
-    handleNewStory = () => {
+    handleNewStory = (introStoryGroup) => {
         const { projectId, storyGroups } = this.props;
         const { storyIndex } = this.state;
         Meteor.call(
             'stories.insert',
             {
-                story: `## ${storyGroups[storyIndex].name}`,
+                story: `## ${!!introStoryGroup ? introStoryGroup.name : storyGroups[storyIndex].name}`,
                 projectId,
-                storyGroupId: storyGroups[storyIndex]._id,
+                storyGroupId: `${!!introStoryGroup ? introStoryGroup._id : storyGroups[storyIndex]._id}`,
             },
             wrapMeteorCallback(),
         );
     };
 
-    handleDeleteGroup = (index) => {
-        const { storyGroups } = this.props;
-        Meteor.call(
-            'storyGroups.delete',
-            storyGroups[index],
-            wrapMeteorCallback(),
-        );
+    handleDeleteGroup = (index, filterdStoryGroup) => {
+        if (index !== -1) {
+            Meteor.call(
+                'storyGroups.delete',
+                filterdStoryGroup[index],
+                wrapMeteorCallback(),
+            );
+        }
     };
 
-    handleUpdateStoryGroup = (storyGroup) => {
+    handleStoryGroupSelect = (storyGroup) => {
         // eslint-disable-next-line no-param-reassign
         storyGroup.selected = !storyGroup.selected;
         Meteor.call(
@@ -112,47 +104,104 @@ class Stories extends React.Component {
         );
     }
 
+    handleNameChange = (storyGroup) => {
+        Meteor.call(
+            'storyGroups.update',
+            storyGroup,
+            wrapMeteorCallback(),
+        );
+    }
+
+    handleIntroStoryClick = (event) => {
+        event.preventDefault();
+        this.setState({ storyIndex: -1 });
+    }
+
+    sortAlphabetically = (a, b) => (a.name.localeCompare(b.name));
+
+    handleIntroClick = (e, introStory) => {
+        e.stopPropagation();
+        this.handleStoryGroupSelect(introStory);
+    }
+    
     render() {
         const { storyGroups, projectId } = this.props;
         const { storyIndex, saving, validationErrors } = this.state;
+        const introStory = storyGroups.find(storyGroup => (storyGroup.introStory));
+        const storyGroupFiltered = storyGroups.filter((storyGroup => !storyGroup.introStory)).sort(this.sortAlphabetically);
         return (
             <Grid className='stories-container'>
-                <Grid.Column width={4}>
-                    {validationErrors && (
-                        <Message
-                            warning
-                            content="Your changes haven't been saved. Correct errors first."
-                        />
-                    )}
-                    <ItemsBrowser
-                        data={storyGroups}
-                        allowAddition
-                        index={storyIndex}
-                        onAdd={this.handleAddStoryGroup}
-                        onChange={this.handleMenuChange}
-                        nameAccessor='name'
-                        saving={saving}
-                        icon='grid layout'
-                        toggleSelect={this.handleUpdateStoryGroup}
-                    />
-                </Grid.Column>
-                <Grid.Column width={12}>
-                    {storyGroups[storyIndex] ? (
-                        <StoriesEditor
-                            storyGroup={storyGroups[storyIndex]}
-                            onSaving={this.handleSavingStories}
-                            onSaved={this.handleSavedStories}
-                            onError={this.handleError}
-                            onErrorResolved={this.handleErrorResolved}
-                            onAddNewStory={this.handleNewStory}
-                            projectId={projectId}
-                            onDeleteGroup={() => this.handleDeleteGroup(storyIndex)
-                            }
-                        />
-                    ) : (
-                        <Message content='select or create a story group' />
-                    )}
-                </Grid.Column>
+
+                <Grid.Row columns={2}>
+                    <Grid.Column width={4}>
+                        <Menu vertical fluid onClick={this.handleIntroStoryClick} className={`intro-story ${storyIndex === -1 ? 'selected-intro-story' : ''}`}>
+                            <Menu.Item
+                                key='intro-story'
+                                active={storyIndex === -1}
+                                link
+                            >
+                                <Icon
+                                    id={`${introStory.selected ? 'selected' : 'not-selected'}`}
+                                    name='grid layout'
+                                    onClick={e => this.handleIntroClick(e, introStory)}
+                                />
+                                <span>Intro Stories</span>
+                            </Menu.Item>
+                        </Menu>
+                    </Grid.Column>
+                    <Grid.Column width={12} className='story-name-parent'>
+                        {storyIndex !== -1 ? (
+                            <Header className='story-name'>
+                                {storyGroupFiltered[storyIndex] && storyGroupFiltered[storyIndex].name}
+                            </Header>
+                        ) : (
+                            <Message info size='small'>The intro stories group contains the initial messages that would be sent to users when they start chatting with your bot</Message>
+                        )}
+                    </Grid.Column>
+                </Grid.Row>
+
+                <Grid.Row columns={2}>
+                    <Grid.Column width={4}>
+                        {validationErrors && (
+                            <Message
+                                warning
+                                content="Your changes haven't been saved. Correct errors first."
+                            />
+                        )}
+                        {storyGroupFiltered && (
+                            <ItemsBrowser
+                                data={storyGroupFiltered}
+                                allowAddition
+                                allowEdit
+                                index={storyIndex}
+                                onAdd={this.handleAddStoryGroup}
+                                onChange={this.handleMenuChange}
+                                nameAccessor='name'
+                                saving={saving}
+                                selectAccessor='selected'
+                                toggleSelect={this.handleStoryGroupSelect}
+                                changeName={this.handleNameChange}
+                            />)
+                        }
+                    </Grid.Column>
+
+                    <Grid.Column width={12}>
+                        {storyIndex > -2 && (storyGroupFiltered[storyIndex] || introStory) ? (
+                            <StoriesEditor
+                                storyGroup={storyGroupFiltered[storyIndex] ? storyGroupFiltered[storyIndex] : introStory}
+                                onSaving={this.handleSavingStories}
+                                onSaved={this.handleSavedStories}
+                                onError={this.handleError}
+                                onErrorResolved={this.handleErrorResolved}
+                                onAddNewStory={() => this.handleNewStory(storyIndex !== -1 ? storyGroupFiltered[storyIndex] : introStory)}
+                                projectId={projectId}
+                                onDeleteGroup={() => this.handleDeleteGroup(storyIndex, storyGroupFiltered)}
+                            />
+                        ) : (
+                            <Message content='select or create a story group' />
+                        )}
+                    </Grid.Column>
+                </Grid.Row>
             </Grid>
         );
     }

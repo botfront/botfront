@@ -1,5 +1,5 @@
 import {
-    Menu, Icon, Input, Loader,
+    Menu, Icon, Input, Loader, Button,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -12,8 +12,8 @@ class Browser extends React.Component {
             page: 0,
             addMode: false,
             newItemName: '',
-            hover: -1,
-            hoverIcon: -1,
+            editing: -1,
+            itemName: '',
         };
     }
 
@@ -21,14 +21,26 @@ class Browser extends React.Component {
         this.setState({ newItemName: data.value });
     };
 
-    handleKeyDownInput = (event) => {
-        if (event.key === 'Enter') {
+    handleChangeOldName = (_, data) => {
+        this.setState({ itemName: data.value });
+    };
+
+    handleKeyDownInput = (event, element) => {
+        const { editing } = this.state;
+        if (event.key === 'Enter' && editing === -1) {
             event.preventDefault();
             event.stopPropagation();
             const { onAdd } = this.props;
             const { newItemName } = this.state;
             onAdd(newItemName);
             this.resetAddItem();
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            const { changeName } = this.props;
+            const { itemName } = this.state;
+            changeName({ ...element, name: itemName });
+            this.setState({ editing: -1 });
         }
     };
 
@@ -43,10 +55,18 @@ class Browser extends React.Component {
         this.setState({ addMode: false, newItemName: '' });
     };
 
-    handleToggle = (e, element) => {
-        e.stopPropagation();
+    resetRenameItem = () => {
+        this.setState({ editing: -1 });
+    };
+
+    handleToggle = (event, element) => {
+        event.stopPropagation();
         const { toggleSelect } = this.props;
         toggleSelect(element);
+    }
+
+    handleEdit = (index, itemName) => {
+        this.setState({ editing: index, itemName });
     }
 
     render() {
@@ -57,73 +77,98 @@ class Browser extends React.Component {
             allowAddition,
             nameAccessor,
             saving,
-            icon,
+            selectAccessor,
+            allowEdit,
         } = this.props;
 
         const {
             addMode,
             newItemName,
             page,
-            hover,
-            hoverIcon,
+            editing,
+            itemName,
         } = this.state;
+
         const items = data.map((item, index) => (
             <Menu.Item
                 key={index.toString()}
                 name={item[nameAccessor]}
+                className={`${indexProp === index ? 'selected-blue' : ''}`}
                 active={indexProp === index}
                 onClick={() => this.handleClickMenuItem(index)}
                 link={indexProp !== index}
-                onMouseEnter={() => this.setState({ hover: index })}
-                onMouseLeave={() => this.setState({ hover: -1 })}
             >
-                {icon && (
-                    <Icon
-                        id={`${item.selected ? 'selected' : 'not-selected'}`}
-                        className={`${hover === index ? 'hovered' : 'not-hovered'} ${hoverIcon === index ? 'hovered-icon' : ''}`}
-                        name={icon}
-                        onClick={e => this.handleToggle(e, item)}
-                        onMouseEnter={() => this.setState({ hoverIcon: index })}
-                        onMouseLeave={() => this.setState({ hoverIcon: -1 })}
-                    />)
+                { editing !== index ? (
+                    <React.Fragment>
+                        {selectAccessor && (
+                            <Icon
+                                id={`${item[selectAccessor] ? 'selected' : 'not-selected'}`}
+                                name='grid layout'
+                                onClick={e => this.handleToggle(e, item)}
+                            />
+                        )}
+                        {allowEdit && (
+                            <Icon
+                                id='edit-icon'
+                                name='edit'
+                                onClick={() => this.handleEdit(index, item[nameAccessor])}
+                                data-cy='edit-name-icon'
+                            />
+                        )}
+                        <span>{item[nameAccessor]}</span>
+                        {indexProp === index && saving && (
+                            <Loader active size='tiny' />
+                        )}
+                    </React.Fragment>
+                ) : (
+                    <Input
+                        onChange={this.handleChangeOldName}
+                        value={itemName}
+                        onKeyDown={e => this.handleKeyDownInput(e, item)}
+                        autoFocus
+                        onBlur={this.resetRenameItem}
+                        fluid
+                        data-cy='edit-name'
+                    />
+                )
                 }
-                <span>{item[nameAccessor]}</span>
-                {indexProp === index && saving && (
-                    <Loader active size='tiny' />
-                )}
+                
             </Menu.Item>
         ));
-
-        if (allowAddition) {
-            items.unshift(
-                !addMode ? (
-                    <Menu.Item
+        return (
+            <React.Fragment>
+                { allowAddition && (!addMode ? (
+                    <Button
+                        icon
+                        labelPosition='left'
                         key='newItem'
                         onClick={() => this.setState({ addMode: true })}
                         link
                         data-cy='add-item'
+                        fluid
                     >
                         <Icon name='add' />
-                        <span>Add</span>
-                    </Menu.Item>
+                        Add a story group
+                    </Button>
                 ) : (
-                    <Menu.Item key='newItem' data-cy='add-item'>
-                        <Input
-                            onChange={this.handleChangeNewItemName}
-                            value={newItemName}
-                            onKeyDown={this.handleKeyDownInput}
-                            autoFocus
-                            onBlur={this.resetAddItem}
-                        />
-                    </Menu.Item>
-                ),
-            );
-        }
-
-        return (
-            <Menu pointing vertical fluid>
-                {items}
-            </Menu>
+                    <Input
+                        onChange={this.handleChangeNewItemName}
+                        value={newItemName}
+                        onKeyDown={this.handleKeyDownInput}
+                        autoFocus
+                        onBlur={this.resetAddItem}
+                        fluid
+                        data-cy='input-item'
+                    />
+                ))
+                }
+                {data.length > 0 && (
+                    <Menu vertical fluid>
+                        {items}
+                    </Menu>
+                )}
+            </React.Fragment>
+            
         );
     }
 }
@@ -137,8 +182,10 @@ Browser.propTypes = {
     onAdd: PropTypes.func,
     nameAccessor: PropTypes.string,
     saving: PropTypes.bool,
-    icon: PropTypes.string,
+    selectAccessor: PropTypes.string,
     toggleSelect: PropTypes.func,
+    changeName: PropTypes.func,
+    allowEdit: PropTypes.bool,
 };
 
 Browser.defaultProps = {
@@ -148,9 +195,11 @@ Browser.defaultProps = {
     allowAddition: false,
     onAdd: () => {},
     toggleSelect: () => {},
+    changeName: () => {},
     nameAccessor: '_id',
     saving: false,
-    icon: null,
+    selectAccessor: '',
+    allowEdit: false,
 };
 
 export default Browser;

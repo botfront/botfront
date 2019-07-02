@@ -35,7 +35,7 @@ function StoriesContainer(props) {
     } = props;
 
     const [activeItem, setActiveItem] = useState('stories');
-
+    
     function RenderPlaceHolder() {
         return (
             <Placeholder>

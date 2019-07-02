@@ -1,15 +1,36 @@
-.ui.menu .item>i#selected {
+.ui.vertical.menu .item>#selected {
     opacity: 0.90;
 }
 
-.ui.menu .item>i#not-selected.not-hovered {
-    opacity: 0.10;
-}
-
-.ui.menu .item>i#not-selected.hovered {
+.ui.vertical.menu .item:hover #not-selected {
     opacity: 0.25;
 }
 
-.ui.menu .item>i#not-selected.hovered-icon {
+.ui.vertical.menu .item>#not-selected {
+    opacity: 0.10;
+}
+
+.ui.vertical.menu .item>#not-selected:hover {
     opacity: 0.50;
+}
+
+.menu.vertical .active.item.selected-blue{
+    background-color: rgba(33,133,208,0.08);
+    font-weight: bold;
+}
+
+.menu.vertical .active.item:hover.selected-blue{
+    background-color: rgba(33,133,208,0.16);
+}
+
+.ui.vertical.menu .item>#edit-icon {
+    opacity: 0.0;
+}
+
+.ui.vertical.menu .item:hover #edit-icon {
+    opacity: .25;
+}
+
+.ui.vertical.menu .item>#edit-icon:hover {
+    opacity: .50;
 }

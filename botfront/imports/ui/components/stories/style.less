@@ -45,6 +45,51 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+}
+
+.ui.vertical.menu.intro-story.selected-intro-story>.active.item {
+  background-color: rgba(33,133,208,0.08);
+  span {
+    font-weight: bold;
+  }
+}
+
+.ui.vertical.menu.intro-story.selected-intro-story>.active.item:hover {
+  background-color: rgba(33,133,208,0.16);
+}
+
+.story-name-parent {
+  position: relative;
+}
+
+.story-name {
+  position: absolute;
+  bottom: 0;
+}
+
+.ui.vertical.menu.intro-story {
+  border-color: rgb(33,133,208);
+  border-width: 2px;
+  span {
+    color: rgb(33,133,208);
+  }
+}
+
+.ui.vertical.menu .item>#selected {
+  opacity: 0.90;
+}
+
+.ui.vertical.menu .item:hover #not-selected {
+  opacity: 0.25;
+}
+
+.ui.vertical.menu .item>#not-selected {
+  opacity: 0.10;
+}
+
+.ui.vertical.menu .item>#not-selected:hover {
+  opacity: 0.50;
 }
 
 .slot-editor {
