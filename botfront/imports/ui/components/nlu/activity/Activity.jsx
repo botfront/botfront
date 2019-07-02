@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { sortBy, uniq } from 'lodash';
-import { Tab, Message, Segment } from 'semantic-ui-react';
+import { Tab, Message } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
 import ActivityInsertions from './ActivityInsertions';
@@ -65,38 +65,35 @@ class Activity extends React.Component {
         const filteredExamples = filterFn(utterances);
 
         return utterances && utterances.length > 0 ? (
-            <div>
-                <Segment vertical>
-                    <ActivityActions
-                        intents={intents}
-                        onEvaluate={this.onEvaluate}
-                        onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
-                        onAddToTraining={this.batchAdd}
-                        onDone={() => this.setState(this.getDefaultState())}
-                        onValidate={() => this.onValidateExamples(filteredExamples)}
-                        numValidated={numValidated}
-                        // eslint-disable-next-line no-shadow
-                        onFilterChange={filterFn => this.setState({ filterFn })}
-                        projectId={projectId}
-                    />
-                </Segment>
-                <Segment vertical>
-                    <ActivityDataTable
-                        utterances={utterances}
-                        entities={entities}
-                        intents={intents}
-                        projectId={projectId}
-                        outDatedUtteranceIds={outDatedUtteranceIds}
-                        smartTips={smartTips}
-                        linkRender={linkRender}
-                        modelId={modelId}
-                    />
-                </Segment>
-            </div>
+            <>
+                <ActivityActions
+                    intents={intents}
+                    onEvaluate={this.onEvaluate}
+                    onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
+                    onAddToTraining={this.batchAdd}
+                    onDone={() => this.setState(this.getDefaultState())}
+                    onValidate={() => this.onValidateExamples(filteredExamples)}
+                    numValidated={numValidated}
+                    // eslint-disable-next-line no-shadow
+                    onFilterChange={filterFn => this.setState({ filterFn })}
+                    projectId={projectId}
+                />
+                <br />
+                <ActivityDataTable
+                    utterances={utterances}
+                    entities={entities}
+                    intents={intents}
+                    projectId={projectId}
+                    outDatedUtteranceIds={outDatedUtteranceIds}
+                    smartTips={smartTips}
+                    linkRender={linkRender}
+                    modelId={modelId}
+                />
+            </>
         ) : (
             <Message success icon='check' header='Congratulations!' content='You are up to date' />
         );
-    }
+    };
 
     getActivityPanes = () => {
         const { model, instance, projectId } = this.props;

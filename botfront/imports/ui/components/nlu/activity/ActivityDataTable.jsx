@@ -12,6 +12,8 @@ import { can } from '../../../../api/roles/roles';
 import SmartTip from './SmartTip';
 
 export default class ActivityDataTable extends React.Component {
+    headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
+
     getIntentForDropdown(all) {
         const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
         const { intents } = this.props;
@@ -32,10 +34,7 @@ export default class ActivityDataTable extends React.Component {
             Header: 'Actions',
             sortable: false,
             accessor: e => e,
-            Cell: ({
-                value: utterance,
-                value: { validated, intent } = {},
-            }) => {
+            Cell: ({ value: utterance, value: { validated, intent } = {} }) => {
                 const size = 'mini';
                 const isOutdated = outDatedUtteranceIds.includes(utterance._id);
                 const ooS = !intent;
@@ -44,6 +43,10 @@ export default class ActivityDataTable extends React.Component {
                 if (isOutdated) {
                     actions = [
                         <Button size={size} onClick={() => this.onReinterpret(utterance)} circular basic icon='redo' />,
+                    ];
+                } else if (validated) {
+                    actions = [
+                        <Button size={size} onClick={() => this.onValidate(utterance)} color='green' circular icon='check' />,
                     ];
                 } else if (code === 'aboveTh') {
                     actions = [
@@ -90,24 +93,32 @@ export default class ActivityDataTable extends React.Component {
 
                 return (
                     <div>
-                        { validated && !isOutdated && (
-                            <Button size={size} onClick={() => this.onValidate(utterance)} color='green' circular icon='check' />
-                        )}
                         {actions}
                         { !['aboveTh', 'entitiesInTD'].includes(code) && (
-                            <Button
-                                circular
-                                size={size}
-                                icon='trash'
-                                onClick={() => this.onDelete(utterance)}
-                                className='viewOnHover subdued'
-                            />
+                            <div
+                                style={{
+                                    width: '16px',
+                                    float: 'right',
+                                    lineHeight: '24px',
+                                    textAlign: 'left',
+                                }}
+                            >
+                                <Icon
+                                    size='small'
+                                    color='grey'
+                                    name='trash'
+                                    link
+                                    className='viewOnHover'
+                                    onClick={() => this.onDelete(utterance)}
+                                />
+                            </div>
                         )}
                     </div>
                 );
             },
             width: 80,
             className: 'right',
+            style: { textAlign: 'left' },
         };
     }
 
@@ -194,6 +205,7 @@ export default class ActivityDataTable extends React.Component {
                         showLabels
                         onSave={this.onEntityEdit}
                         editable={!isOutdated}
+                        disablePopup={isOutdated}
                     />
                 );
             },
@@ -313,6 +325,7 @@ export default class ActivityDataTable extends React.Component {
                         getTheadThProps={() => ({
                             style: {
                                 borderRight: 'none',
+                                ...this.headerStyle,
                             },
                         })}
                         className=''

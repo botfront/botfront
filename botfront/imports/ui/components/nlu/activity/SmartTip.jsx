@@ -40,31 +40,31 @@ export default class SmartTip extends React.Component {
                     wide
                     header={tip}
                     content={(<>
-                        <div
-                            style={{ padding: '5px' }}
-                        >
+                        <div style={{ padding: '5px' }}>
                             {message}
                         </div>
-                        <div
-                            style={{ padding: '5px' }}
-                        >
-                            {mainAction(true)}
-                        </div>
-                        <Accordion>
-                            <Accordion.Title active={accordionOpen} onClick={this.handleAccordionClick}>
-                                <Icon name='dropdown' />
-                                    Other actions
-                            </Accordion.Title>
-                            <Accordion.Content active={accordionOpen}>
-                                <p>
-                                    {otherActions.map(a => a(false))}
-                                </p>
-                            </Accordion.Content>
-                        </Accordion>
+                        { mainAction && (
+                            <div style={{ padding: '5px' }}>
+                                {mainAction(true)}
+                            </div>
+                        )}
+                        { otherActions && otherActions.length && (
+                            <Accordion>
+                                <Accordion.Title active={accordionOpen} onClick={this.handleAccordionClick}>
+                                    <Icon name='dropdown' />
+                                        Other actions
+                                </Accordion.Title>
+                                <Accordion.Content active={accordionOpen}>
+                                    <p>
+                                        {otherActions.map(a => a(false))}
+                                    </p>
+                                </Accordion.Content>
+                            </Accordion>
+                        )}
                     </>)}
                     trigger={button}
                     hoverable
-                    position='top left'
+                    position='left center'
                     open={hovering}
                 />
             </div>
