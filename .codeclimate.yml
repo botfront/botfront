@@ -6,6 +6,8 @@ plugins:
     nodesecurity:
         enabled: true
 checks:
+  similar-code:
+    enabled: false
   argument-count:
     config:
       threshold: 4
