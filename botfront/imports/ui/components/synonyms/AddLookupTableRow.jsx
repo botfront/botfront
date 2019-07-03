@@ -23,9 +23,7 @@ export default class AddLookupTableRow extends React.Component {
         obj[listAttribute] = obj[listAttribute].filter(listItem => listItem);
         
         onAdd(obj, (err) => {
-            if (!err) {
-                this.setState(this.emptyState());
-            } else console.log(err);
+            if (!err) this.setState(this.emptyState());
         });
     };
 

@@ -356,8 +356,6 @@ class NLUModel extends React.Component {
 NLUModel.propTypes = {
     model: PropTypes.object,
     projectId: PropTypes.string,
-    instances: PropTypes.arrayOf(PropTypes.object),
-    entities: PropTypes.array,
     intents: PropTypes.array,
     settings: PropTypes.object.isRequired,
     ready: PropTypes.bool,
@@ -368,8 +366,6 @@ NLUModel.propTypes = {
 };
 
 NLUModel.defaultProps = {
-    instances: [],
-    entities: [],
     intents: [],
     ready: false,
     nluModelLanguages: [],
