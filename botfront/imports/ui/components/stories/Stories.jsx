@@ -159,7 +159,10 @@ class Stories extends React.Component {
                 onAddNewStory={(index) => this.handleNewStory(storyGroupSelected || introStory, index)}
                 projectId={projectId}
                 onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)}
-                groupNames={storyGroups.map(group => ({ text: group.name, value: group._id }))}
+                groupNames={storyGroups.map(group => ({
+                    text: group.name,
+                    value: group._id,
+                }))}
             />
         );
     }
