@@ -56,7 +56,7 @@ describe('nlu-data:r role permissions', function() {
         cy.get('[data-cy=intent-popup]').should('not.exist');
         cy.get('div.rt-td.rt-expandable').should('not.exist');
         cy.get('.nlu-menu-activity').click();
-        cy.contains('New Utterances').should('exist');
+        cy.contains('Incoming').should('exist');
         cy.contains('Populate').should('not.exist');
     });
 

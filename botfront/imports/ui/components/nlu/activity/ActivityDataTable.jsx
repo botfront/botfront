@@ -40,7 +40,7 @@ export default class ActivityDataTable extends React.Component {
                 const { code, tip, message } = smartTips[utterance._id];
                 let action;
                 if (isOutdated) {
-                    action = <Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' />;
+                    action = <Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' data-cy='re-interpret-button' />;
                 } else if (validated) {
                     action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />;
                 } else if (code === 'aboveTh') {
@@ -150,7 +150,7 @@ export default class ActivityDataTable extends React.Component {
                 
                 return isOutdated
                     ? (
-                        <Label color='grey' basic>
+                        <Label color='grey' basic data-cy='intent-label'>
                             {example.intent || '-'}
                         </Label>
                     )

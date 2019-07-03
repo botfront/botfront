@@ -265,18 +265,19 @@ export default class NluDataTable extends React.Component {
                         },
                     })}
                     className=''
-                    SubComponent={row => (
-                        can('nlu-data:w', projectId)
-                        && (<NLUExampleEditMode
-                            floated='right'
-                            example={row.original}
-                            entities={entities}
-                            intents={this.getIntentForDropdown(false)}
-                            onSave={this.onEditExample}
-                            onCancel={() => this.setState({ expanded: {} })}
-                            postSaveAction='close'
-                        />
-                        ))}
+                    SubComponent={can('nlu-data:w', projectId)
+                        ? row => (
+                            <NLUExampleEditMode
+                                floated='right'
+                                example={row.original}
+                                entities={entities}
+                                intents={this.getIntentForDropdown(false)}
+                                onSave={this.onEditExample}
+                                onCancel={() => this.setState({ expanded: {} })}
+                                postSaveAction='close'
+                            />
+                        ) : null
+                    }
                 />
             </Tab.Pane>
         );

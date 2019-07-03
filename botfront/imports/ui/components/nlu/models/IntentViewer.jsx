@@ -150,11 +150,11 @@ class IntentNameEditor extends React.Component {
         };
         const disableChangeIntent = !can('nlu-data:w', projectId);
         const trigger = intent ? (
-            <Label color='purple' style={style}>
+            <Label color='purple' style={style} data-cy='intent-label'>
                 {intent}
             </Label>
         ) : (
-            <Label color='grey' style={style} basic>
+            <Label color='grey' style={style} basic data-cy='intent-label'>
                 -
             </Label>
         );

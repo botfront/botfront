@@ -362,7 +362,8 @@ Cypress.Commands.add('loginAdmin', (email = 'admin@test.com', password = 'Aaaaaa
         );
 });
 
-Cypress.Commands.add('addTestActivity', (modelId) => {
+Cypress.Commands.add('addTestActivity', (modelId, projectId) => {
+    const futureDate = new Date().getTime() + 3600 * 1000; // this is so activity is not outdated at insertion time
     const commandToAddActivity = `mongo meteor --host localhost:3001 --eval "db.activity.insert({ 
         _id:'TestActivity',
         text: 'bonjour , avez vous un f1 à lyon autour de l apardieu ?',
@@ -370,26 +371,16 @@ Cypress.Commands.add('addTestActivity', (modelId) => {
         entities:[
     
         ],
-        confidence:{
-        '$numberDouble' :'0.7438368201255798'
-        },
+        confidence: '0.50',
         modelId: '${modelId}',
-        createdAt:{
-        '$date' :{
-            numberLong: '1557323537346'
-        }
-        },
-        updatedAt:{
-        '$date':{
-            '$numberLong': '1557323537346'
-        }
-        },
+        createdAt: '${futureDate}',
+        updatedAt: '${futureDate}',
         __v:{
         '$numberInt': '0'
         }
     });"`;
     cy.exec(commandToAddActivity);
-    cy.exec(`mongo meteor --host localhost:3001 --eval 'db.nlu_models.update({ _id: "${modelId}"}, { $set: { "training.endTime": "123" } });'`);
+    cy.exec(`mongo meteor --host localhost:3001 --eval 'db.projects.update({ _id: "${projectId}"}, { $set: { "training.endTime": "123" } });'`);
 });
 
 Cypress.Commands.add('removeTestActivity', (modelId) => {
