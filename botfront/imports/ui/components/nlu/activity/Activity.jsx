@@ -57,7 +57,6 @@ class Activity extends React.Component {
             projectId,
             outDatedUtteranceIds,
             smartTips,
-            linkRender,
             numValidated,
         } = this.props;
 
@@ -67,7 +66,6 @@ class Activity extends React.Component {
         return utterances && utterances.length > 0 ? (
             <>
                 <ActivityActions
-                    intents={intents}
                     onEvaluate={this.onEvaluate}
                     onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
                     onAddToTraining={this.batchAdd}
@@ -86,7 +84,6 @@ class Activity extends React.Component {
                     projectId={projectId}
                     outDatedUtteranceIds={outDatedUtteranceIds}
                     smartTips={smartTips}
-                    linkRender={linkRender}
                     modelId={modelId}
                 />
             </>
@@ -124,19 +121,15 @@ Activity.propTypes = {
     entities: PropTypes.array.isRequired,
     intents: PropTypes.array.isRequired,
     instance: PropTypes.object.isRequired,
-    linkRender: PropTypes.func,
+    linkRender: PropTypes.func.isRequired,
     smartTips: PropTypes.object.isRequired,
-    numValidated: PropTypes.number,
-    outDatedUtteranceIds: PropTypes.array,
+    numValidated: PropTypes.number.isRequired,
+    outDatedUtteranceIds: PropTypes.array.isRequired,
 };
-
 
 const ActivityContainer = withTracker((props) => {
     const {
-        modelId,
-        entities,
-        intents,
-        project,
+        modelId, entities, intents, project,
     } = props;
 
     const activityHandler = Meteor.subscribe('activity', modelId);
@@ -150,21 +143,25 @@ const ActivityContainer = withTracker((props) => {
     let localEntities = []; // eslint-disable-line
     let numValidated = 0;
     if (utterances) {
-        localIntents = uniq(utterances.filter(e => !!e.intent).map((e) => {
-            if (e.entities) {
-                e.entities.forEach((ent) => {
-                    if (localEntities.indexOf(ent.entity) === -1) {
-                        localEntities.push(ent.entity);
+        localIntents = uniq(
+            utterances
+                .filter(e => !!e.intent)
+                .map((e) => {
+                    if (e.entities) {
+                        e.entities.forEach((ent) => {
+                            if (localEntities.indexOf(ent.entity) === -1) {
+                                localEntities.push(ent.entity);
+                            }
+                        });
                     }
-                });
-            }
 
-            if (e.validated) {
-                numValidated += 1;
-            }
+                    if (e.validated) {
+                        numValidated += 1;
+                    }
 
-            return (e.intent.name || e.intent);
-        }));
+                    return e.intent.name || e.intent;
+                }),
+        );
     }
 
     return {
@@ -183,6 +180,4 @@ const mapStateToProps = state => ({
     projectId: state.get('projectId'),
 });
 
-export default connect(
-    mapStateToProps,
-)(ActivityContainer);
+export default connect(mapStateToProps)(ActivityContainer);

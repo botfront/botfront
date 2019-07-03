@@ -2,18 +2,16 @@
 home: true
 permalink: /
 heroImage: /Botfront-screenshot.jpg
-
-heroText: Botfront EE
+heroText: Botfront Documentation
 tagline: A Chatbot Platform built with Rasa
-actionText: Get started →
-
-actionLink: /guide/getting-started/quick-start
-footer:  Copyright © 2019
+actionText: Read the docs →
+actionLink: /guide/users-guide/setup
+footer:  Copyright © 9300-2038 Quebec Inc. 2019
 ---
 
 ### As Easy as...
 
-``` bash
+```bash
 # install
 npm install -g botfront 
 

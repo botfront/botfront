@@ -73,6 +73,9 @@ export function stopSpinner(spinner) {
     }
 }
 
+/*
+Augment the botfront.yml file with version and project specific values
+*/
 export async function updateProjectFile(projectAbsPath, images) {
     const config = getProjectConfig(projectAbsPath);
     config.version = getBotfrontVersion();
@@ -80,15 +83,24 @@ export async function updateProjectFile(projectAbsPath, images) {
     Object.keys(config.images.current).forEach(service => {
         if (images[service]) config.images.current[service] = images[service];
     });
+    fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
+    
+    // Rename default model
+    const templateModelFile = path.join(fixDir(projectAbsPath), 'models', DEFAULT_MODEL_FILENAME);
+    const projectModelFile = path.join(fixDir(projectAbsPath), 'models', `model-${config.env.bf_project_id}.tar.gz`)
+    if (!fs.existsSync(projectModelFile)) fs.renameSync(templateModelFile, projectModelFile);
+    
+    updateEnvFile(projectAbsPath);
+}
+
+export async function updateEnvFile(projectAbsPath) {
+    const config = getProjectConfig(projectAbsPath);
     let enviFileContent = '';
     Object.keys(config.env).forEach(variable => {
         enviFileContent += `${variable.toUpperCase()}=${config.env[variable]}\n`;
     });
-    const templateModelFile = path.join(fixDir(projectAbsPath), 'models', DEFAULT_MODEL_FILENAME);
-    const projectModelFile = path.join(fixDir(projectAbsPath), 'models', `model-${config.env.bf_project_id}.tar.gz`)
-    if (!fs.existsSync(projectModelFile)) fs.renameSync(templateModelFile, projectModelFile);
+    
     fs.writeFileSync(getProjectEnvFilePath(projectAbsPath), enviFileContent);
-    fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
 }
 
 export async function generateDockerCompose(dir) {

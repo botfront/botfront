@@ -2,17 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Input } from 'semantic-ui-react';
-import LookupTable from './LookupTable';
 import { wrapMeteorCallback } from '../utils/Errors';
-import TextInput from '../utils/TextInput';
+import LookupTable from './LookupTable';
 import InlineSearch from '../utils/InlineSearch';
+import MinScoreEdit from './MinScoreEdit';
 import { can } from '../../../lib/scopes';
 
 function ModeEdit({ gazette, onEdit }) {
     function onUpdateText(value, callback) {
-        gazette.mode = value;
-        onEdit(gazette, callback);
+        onEdit({ ...gazette, mode: value }, callback);
     }
 
     const data = ['ratio', 'partial_ratio', 'token_sort_ratio', 'token_set_ratio'];
@@ -22,66 +20,21 @@ function ModeEdit({ gazette, onEdit }) {
     );
 }
 
-class MinScoreEdit extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            value: this.props.gazette.min_score,
-        }
-    }
-
-    onDone() {
-        let copy = this.props.gazette.min_score;
-
-        this.props.gazette.min_score = this.state.value;
-        this.props.onEdit(this.props.gazette, (error) => {
-            if (error) {
-                this.props.gazette.min_score = copy;
-                this.setState({value: copy})
-            }
-        });
-    }
-
-    handleTextChange(value) {
-        this.setState({ value: parseInt(value) });
-    }
-
-    render() {
-        return (
-            <TextInput
-                text={this.state.value.toString(10)}
-                onBlur={this.onDone.bind(this)}
-                onTextChange={this.handleTextChange.bind(this)}
-            />
-        );
-    }
-}
+ModeEdit.propTypes = {
+    gazette: PropTypes.object.isRequired,
+    onEdit: PropTypes.func.isRequired,
+};
 
 class GazetteEditor extends React.Component {
     onItemChanged = (gazette, callback) => {
-        Meteor.call('nlu.upsertEntityGazette', this.props.model._id, gazette, wrapMeteorCallback(callback));
+        const { model } = this.props;
+        Meteor.call('nlu.upsertEntityGazette', model._id, gazette, wrapMeteorCallback(callback));
     };
 
     onItemDeleted = (gazette, callback) => {
-        Meteor.call('nlu.deleteEntityGazette', this.props.model._id, gazette._id, wrapMeteorCallback(callback));
+        const { model } = this.props;
+        Meteor.call('nlu.deleteEntityGazette', model._id, gazette._id, wrapMeteorCallback(callback));
     };
-
-    render() {
-        const { projectId} = this.props;
-        return (
-            <LookupTable
-                data={this.props.model.training_data.fuzzy_gazette}
-                header='Gazette'
-                listAttribute='gazette'
-                extraColumns={this.extraColumns()}
-                onItemChanged={this.onItemChanged}
-                onItemDeleted={this.onItemDeleted}
-                valuePlaceholder='entity name'
-                listPlaceholder='match1, match2, ...'
-                projectId={projectId}
-            />
-        );
-    }
 
     extraColumns() {
         const { projectId } = this.props;
@@ -90,7 +43,7 @@ class GazetteEditor extends React.Component {
                 id: 'mode',
                 accessor: e => e,
                 Header: 'Mode',
-                Cell: props => {
+                Cell: (props) => {
                     if (can('nlu-data:w', projectId)) {
                         return (
                             <div>
@@ -98,7 +51,7 @@ class GazetteEditor extends React.Component {
                             </div>
                         );
                     }
-                    return <span>{props.value.mode}</span>
+                    return <span>{props.value.mode}</span>;
                 },
                 width: 130,
                 filterable: false,
@@ -119,6 +72,23 @@ class GazetteEditor extends React.Component {
             },
         ];
     }
+
+    render() {
+        const { projectId, model } = this.props;
+        return (
+            <LookupTable
+                data={model.training_data.fuzzy_gazette}
+                header='Gazette'
+                listAttribute='gazette'
+                extraColumns={this.extraColumns()}
+                onItemChanged={this.onItemChanged}
+                onItemDeleted={this.onItemDeleted}
+                valuePlaceholder='entity name'
+                listPlaceholder='match1, match2, ...'
+                projectId={projectId}
+            />
+        );
+    }
 }
 
 GazetteEditor.propTypes = {
@@ -126,8 +96,6 @@ GazetteEditor.propTypes = {
     projectId: PropTypes.string.isRequired,
 };
 
-export default GazetteEditorContainer = withTracker((props) => {
-    return {
-        model: props.model,
-    };
-})(GazetteEditor);
+export default withTracker(props => ({
+    model: props.model,
+}))(GazetteEditor);

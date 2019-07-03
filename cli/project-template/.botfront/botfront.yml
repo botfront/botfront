@@ -1,11 +1,11 @@
 images:
   default:
-    botfront: botfront/botfront:v0.15.0-rc.0
+    botfront: botfront/botfront:v0.15.0-rc.1
     botfront-api: botfront/botfront-api:0.15.0
     rasa: botfront/rasa-for-botfront:0.15.2
     duckling: botfront/duckling:latest
     mongo: mongo:latest
-    actions: botfront/actions-sdk:0.15.1
+    actions: botfront/actions-sdk:v0.15.2
 env:
   bf_project_id: bf
   mongo_url: mongodb://mongo:27017/bf

@@ -176,15 +176,20 @@ function addSlots(slots) {
     if (!slots) return {};
     slots.forEach((slot) => {
         const options = {};
-        if (slot.type === 'float') {
+        const { type } = slot;
+        if (type === 'float') {
             if (slot.minValue) {
                 options.minValue = slot.minValue;
             }
             if (slot.maxValue) {
                 options.maxValue = slot.maxValue;
             }
-        } else if (slot.type === 'text' && slot.initialValue) {
-            options.initialValue = slot.initialValue;
+        }
+        if (slot.initialValue) {
+            options.initial_value = slot.initialValue;
+        }
+        if (type === 'categorical' && slot.categories) {
+            options.values = slot.categories;
         }
         slotsToAdd[slot.name] = {
             type: slot.type,

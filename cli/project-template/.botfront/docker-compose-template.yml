@@ -51,7 +51,7 @@ services:
       - .botfront/.env
 
   actions:
-    image: botfront/actions_sdk:latest
+    image: botfront/actions-sdk
     container_name: botfront-actions
     networks: ["botfront-network"]
     restart: always

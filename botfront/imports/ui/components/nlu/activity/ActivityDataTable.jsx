@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Tab, Button, Label, Icon,
+    Tab, Button, Label, Icon, Popup,
 } from 'semantic-ui-react';
 import ReactTable from 'react-table';
 import NLUExampleText from '../../example_editor/NLUExampleText';
@@ -10,6 +10,7 @@ import 'react-select/dist/react-select.css';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { can } from '../../../../api/roles/roles';
 import SmartTip from './SmartTip';
+import TrashBin from '../common/TrashBin';
 
 export default class ActivityDataTable extends React.Component {
     getIntentForDropdown(all) {
@@ -39,9 +40,9 @@ export default class ActivityDataTable extends React.Component {
                 const { code, tip, message } = smartTips[utterance._id];
                 let action;
                 if (isOutdated) {
-                    action = <Button size={size} onClick={() => this.onReinterpret(utterance)} circular basic icon='redo' />;
+                    action = <Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' />;
                 } else if (validated) {
-                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' circular icon='check' />;
+                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />;
                 } else if (code === 'aboveTh') {
                     action = (
                         <SmartTip
@@ -53,7 +54,7 @@ export default class ActivityDataTable extends React.Component {
                                 deleteable.length > 1 && this.renderDeleteButton(utterance),
                             ]}
                             button={(
-                                <Button size={size} icon='trash' color='teal' basic circular />
+                                <Button size={size} icon='trash' color='teal' basic />
                             )}
                         />
                     );
@@ -67,20 +68,26 @@ export default class ActivityDataTable extends React.Component {
                                 this.renderValidateButton(utterance),
                             ]}
                             button={(
-                                <Button size={size} icon='info' color='yellow' circular />
+                                <Button size={size} icon='info' color='yellow' />
                             )}
                         />
                     );
                 } else if (!validated) {
                     action = (
-                        <Button
-                            basic
-                            circular
-                            size={size}
-                            disabled={ooS}
-                            onClick={() => this.onValidate(utterance)}
-                            color='green'
-                            icon='check'
+                        <Popup
+                            size='mini'
+                            inverted
+                            content='Mark this utterance valid'
+                            trigger={(
+                                <Button
+                                    basic
+                                    size={size}
+                                    disabled={ooS}
+                                    onClick={() => this.onValidate(utterance)}
+                                    color='green'
+                                    icon='check'
+                                />
+                            )}
                         />
                     );
                 }
@@ -89,23 +96,9 @@ export default class ActivityDataTable extends React.Component {
                     <div>
                         {action}
                         { !['aboveTh'].includes(code) && (
-                            <div
-                                style={{
-                                    width: '16px',
-                                    float: 'right',
-                                    lineHeight: '24px',
-                                    textAlign: 'left',
-                                }}
-                            >
-                                <Icon
-                                    size='small'
-                                    color='grey'
-                                    name='trash'
-                                    link
-                                    className='viewOnHover'
-                                    onClick={() => this.onDelete(utterance)}
-                                />
-                            </div>
+                            <TrashBin
+                                onClick={() => this.onDelete(utterance)}
+                            />
                         )}
                     </div>
                 );
@@ -117,9 +110,7 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getConfidenceColumn() {
-        const {
-            outDatedUtteranceIds,
-        } = this.props;
+        const { outDatedUtteranceIds } = this.props;
         return {
             id: 'confidence',
             Header: '%',
@@ -127,21 +118,16 @@ export default class ActivityDataTable extends React.Component {
             accessor: ({
                 confidence, intent, _id, updatedAt,
             }) => ({
-                confidence, intent, _id, updatedAt,
+                confidence,
+                intent,
+                _id,
+                updatedAt,
             }),
-            Cell: ({
-                value: {
-                    confidence, intent, _id,
-                },
-            }) => {
-                const showValue = (typeof intent === 'string' && typeof confidence === 'number' && confidence > 0);
+            Cell: ({ value: { confidence, intent, _id } }) => {
+                const showValue = typeof intent === 'string' && typeof confidence === 'number' && confidence > 0;
                 const isOutdated = outDatedUtteranceIds.includes(_id);
-                
-                return (
-                    <div>
-                        { !isOutdated && <div className='confidence-text'>{showValue ? `${Math.floor(confidence * 100)}%` : ''}</div> }
-                    </div>
-                );
+
+                return <div>{!isOutdated && <div className='confidence-text'>{showValue ? `${Math.floor(confidence * 100)}%` : ''}</div>}</div>;
             },
             width: 40,
             className: 'right',
@@ -149,9 +135,7 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getIntentColumn() {
-        const {
-            modelId, projectId,
-        } = this.props;
+        const { modelId, projectId } = this.props;
         return {
             accessor: e => e,
             Header: 'Intent',
@@ -273,7 +257,7 @@ export default class ActivityDataTable extends React.Component {
 
     onExamplesEdit = (utterances, callback) => {
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
-    }
+    };
 
     onEntityEdit = (u, callback) => {
         this.onExamplesEdit([{ ...u, entities: u.entities.map(entity => ({ ...entity, confidence: 0 })) }], callback);
@@ -282,12 +266,12 @@ export default class ActivityDataTable extends React.Component {
     onReinterpret = (u) => {
         const { projectId, modelId } = this.props;
         Meteor.call('activity.reinterpret', projectId, modelId, [u], wrapMeteorCallback());
-    }
+    };
 
     onDelete = (u) => {
         const { modelId } = this.props;
         Meteor.call('activity.deleteExamples', modelId, [u._id], wrapMeteorCallback());
-    }
+    };
 
     render() {
         const columns = this.getColumns();
@@ -339,12 +323,11 @@ export default class ActivityDataTable extends React.Component {
 }
 
 ActivityDataTable.propTypes = {
-    utterances: PropTypes.array,
-    intents: PropTypes.array,
-    entities: PropTypes.array,
+    utterances: PropTypes.array.isRequired,
+    intents: PropTypes.array.isRequired,
+    entities: PropTypes.array.isRequired,
     projectId: PropTypes.string.isRequired,
-    outDatedUtteranceIds: PropTypes.array,
-    smartTips: PropTypes.object,
-    modelId: PropTypes.string,
-    linkRender: PropTypes.func,
+    outDatedUtteranceIds: PropTypes.array.isRequired,
+    smartTips: PropTypes.object.isRequired,
+    modelId: PropTypes.string.isRequired,
 };

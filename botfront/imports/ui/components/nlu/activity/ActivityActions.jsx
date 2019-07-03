@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Confirm, Dropdown, Button, Icon } from 'semantic-ui-react';
+import {
+    Confirm, Dropdown, Button, Icon,
+} from 'semantic-ui-react';
 import { can } from '../../../../api/roles/roles';
 
 const confirmations = {
@@ -14,17 +16,6 @@ const confirmations = {
 };
 
 export default class ActivityActions extends React.Component {
-    static getFailingEntities = (entities, score) => entities.filter(entity => entity.extractor === 'ner_crf'
-        && (!entity.confidence || entity.confidence < score)); // TODO remove when
-
-    static getExamplesFilterByConfidence = (examples, score) => examples.filter((example) => {
-        // TODO remove this soon, this is a temp fix for projects that have intents with score 0.0
-        if (!example.confidence) example = { ...example, confidence: 1.0 };
-        //
-        const entitiesFailing = ActivityActions.getFailingEntities(example.entities, score);
-        return entitiesFailing.length === 0 && example.confidence >= score;
-    });
-
     constructor(props) {
         super(props);
         this.state = this.getDefaultState();
@@ -44,7 +35,6 @@ export default class ActivityActions extends React.Component {
         const { onFilterChange } = this.props;
         const filterFns = {
             VALIDATED: examples => examples.filter(example => example.validated),
-//            ALL: examples => ActivityActions.getExamplesFilterByConfidence(examples, 0),
         };
         onFilterChange(filterFns[value]);
         this.setState({ dataFilter: value, action: null, actionOptions: this.getActionsOptions(value) });
@@ -56,7 +46,6 @@ export default class ActivityActions extends React.Component {
         const options = [];
         const { numValidated } = this.props;
         if (numValidated > 0) options.push({ text: `Process ${numValidated} validated utterance${numValidated === 1 ? '' : 's'}`, value: 'VALIDATED' });
-//        options.push({ text: 'All utterances', value: 'ALL' });
         return options;
     };
 
@@ -77,8 +66,6 @@ export default class ActivityActions extends React.Component {
         return null;
     };
 
-    handleChangeOrAddIntent = (e, { value }) => this.setState({ intent: value });
-
     resetState = () => this.setState(this.getDefaultState());
 
     finish = () => {
@@ -88,9 +75,9 @@ export default class ActivityActions extends React.Component {
     };
 
     executeAction = () => {
-        const { action, intent } = this.state;
+        const { action } = this.state;
         const {
-            onValidate, onAddToTraining, onDelete, onEvaluate, onSetIntent,
+            onValidate, onAddToTraining, onDelete, onEvaluate,
         } = this.props;
         switch (action) {
         case 'VALIDATE': onValidate(); break;
@@ -106,10 +93,9 @@ export default class ActivityActions extends React.Component {
 
     render() {
         const {
-            dataFilter, actionOptions, action, confirmOpen, confirmation, intent,
+            dataFilter, actionOptions, action, confirmOpen, confirmation,
         } = this.state;
-        const { intents, projectId, numValidated } = this.props;
-        const options = intents.map(i => ({ text: i, value: i }));
+        const { numValidated, projectId } = this.props;
         const noBorder = { border: 0 };
         return (
             <div>
@@ -175,6 +161,5 @@ ActivityActions.propTypes = {
     numValidated: PropTypes.number.isRequired,
     onFilterChange: PropTypes.func.isRequired,
     onDone: PropTypes.func.isRequired,
-    intents: PropTypes.array.isRequired,
     projectId: PropTypes.string.isRequired,
 };

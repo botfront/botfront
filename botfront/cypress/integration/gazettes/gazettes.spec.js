@@ -132,8 +132,8 @@ describe('gazette', function() {
         it('should delete the created gazette', function() {
             visitGazette(this.bf_project_id, modelId);
             getGazetteRow()
-                .find('i.remove')
-                .click();
+                .find('[data-cy=trashbin] .viewOnHover')
+                .click({ force: true });
             cy.get('body').should('not.contain', sortedGazetteValues);
             cy.contains(sortedGazetteValues).should('not.exist');
         });

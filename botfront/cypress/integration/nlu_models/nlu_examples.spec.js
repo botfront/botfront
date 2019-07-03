@@ -34,22 +34,22 @@ describe('NLU Batch Insert', function() {
         cy.contains('Examples').click();
         cy.contains('hello')
             .closest('.rt-tr')
-            .find('.nlu-delete-example')
+            .find('[data-cy=trashbin] .viewOnHover')
             .first()
-            .click();
+            .click({ force: true });
         cy.wait(100);
         cy.contains('coucou')
             .closest('.rt-tr')
-            .find('.nlu-delete-example')
+            .find('[data-cy=trashbin] .viewOnHover')
             .first()
-            .click();
+            .click({ force: true });
         cy.wait(100);
         cy.contains('salut')
             .closest('.rt-tr')
-            .find('.nlu-delete-example')
+            .find('[data-cy=trashbin] .viewOnHover')
             .first()
-            .click();
-        cy.get('.nlu-delete-example').should('not.exist');
+            .click({ force: true });
+        cy.get('[data-cy=trashbin]').should('not.exist');
     });
 });
 
@@ -111,7 +111,9 @@ describe('NLU Synonyms', function() {
         });
 
         // Delete first synonym
-        cy.get(':nth-child(1) > .rt-tr > .center > .grey').click();
+        cy.get(':nth-child(1) > .rt-tr')
+            .find('[data-cy=trashbin] .viewOnHover')
+            .click({ force: true });
         // verify it's deleted
         cy.get(':nth-child(1) > .rt-tr > .lookup-value > div > p').should(($p) => {
             expect($p.first()).to.contain('value3');
@@ -122,7 +124,9 @@ describe('NLU Synonyms', function() {
         });
 
         // Delete the remaining synonym
-        cy.get(':nth-child(1) > .rt-tr > .center > .grey').click();
+        cy.get(':nth-child(1) > .rt-tr')
+            .find('[data-cy=trashbin] .viewOnHover')
+            .click({ force: true });
     });
 
     after(function() {
