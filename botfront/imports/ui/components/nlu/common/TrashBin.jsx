@@ -13,6 +13,7 @@ export default function TrashBin(props) {
                 lineHeight: '24px',
                 textAlign: 'left',
             }}
+            data-cy='trashbin'
         >
             <Icon
                 size='small'
