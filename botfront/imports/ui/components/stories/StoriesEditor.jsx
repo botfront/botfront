@@ -47,6 +47,15 @@ function StoriesEditor(props) {
         setErrors([]);
     }, [storyGroup]);
 
+    function spliceStoryState(index) {
+        const stateErrors = [...errors];
+        stateErrors.splice(index, 1);
+        setErrors(stateErrors);
+        const stateStoryTexts = [...storyTexts];
+        stateStoryTexts.splice(index, 1);
+        setStoryTexts(stateStoryTexts);
+    }
+
     function saveStory(story) {
         onSaving();
         Meteor.call(
@@ -69,7 +78,8 @@ function StoriesEditor(props) {
         if (!newStory.replace(/\s/g, '').length) {
             validator.exceptions.push({
                 type: 'error',
-                line: 1,
+                // this ensures that the error is on the last line
+                line: newStory.split('\n').length,
                 message: 'don\'t leave the story empty.',
             });
         }
@@ -89,22 +99,48 @@ function StoriesEditor(props) {
     function handeStoryDeletion(index) {
         const toBeDeletedStory = stories[index];
         Meteor.call('stories.delete', toBeDeletedStory, wrapMeteorCallback());
-        const stateErrors = [...errors];
-        stateErrors.splice(index, 1);
-        setErrors(stateErrors);
-        const stateStoryTexts = [...storyTexts];
-        stateStoryTexts.splice(index, 1);
-        setStoryTexts(stateStoryTexts);
+        spliceStoryState(index);
         Meteor.call(
             'stories.delete',
             toBeDeletedStory,
             wrapMeteorCallback((err) => {
                 if (!err) {
+                    // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
                     }
                 }
             }),
+        );
+    }
+
+    function handleMoveStory(newGroupId, index) {
+        if (newGroupId === stories[index].storyGroupId) {
+            return;
+        }
+        spliceStoryState(index);
+        Meteor.call(
+            'stories.update',
+            { ...stories[index], storyGroupId: newGroupId },
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    // deletes group if no stories left
+                    if (stories.length === 1) {
+                        onDeleteGroup();
+                    }
+                }
+            }),
+        );
+    }
+
+    function handleDuplicateStory(index) {
+        const newStory = { ...stories[index] };
+        delete newStory._id;
+        newStory.title = `${stories[index].title} (copy)`;
+        Meteor.call(
+            'stories.insert',
+            newStory,
+            wrapMeteorCallback(),
         );
     }
 
@@ -130,7 +166,9 @@ function StoriesEditor(props) {
             onDelete={() => handeStoryDeletion(index)}
             key={index}
             title={story.title}
-            groupNames={groupNames}
+            groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
+            onMove={newGroupId => handleMoveStory(newGroupId, index)}
+            onClone={() => handleDuplicateStory(index)}
         />
     ));
 

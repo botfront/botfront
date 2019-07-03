@@ -1,7 +1,7 @@
 import {
     Popup, Icon, Segment, Menu, Dropdown,
 } from 'semantic-ui-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import 'brace/theme/github';
@@ -23,11 +23,24 @@ const StoryEditor = ({
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [clonePopupOpened, openClonePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
+    const [moveDestination, setMoveDestination] = useState(null);
+    const [editor, setEditor] = useState();
+
+    // sets annotations directly on the ace editor, bypassing the react component
+    // We bypass react-ace because annotations are buggy on it
+    useEffect(() => {
+        if (editor) {
+            editor.getSession().setAnnotations(annotations);
+        }
+    }, [annotations, story]);
 
     return (
         <div className='story-editor' data-cy='story-editor'>
             <Menu attached='top'>
-                <Menu.Item header>{`## ${title}`}</Menu.Item>
+                <Menu.Item header>
+                    <span className='story-title-prefix'>##</span>
+                    {title}
+                </Menu.Item>
                 <Menu.Item position='right'>
                     <Popup
                         trigger={(
@@ -41,23 +54,28 @@ const StoryEditor = ({
                         content={(
                             <ConfirmPopup
                                 title='Move story to :'
-                                onYes={() => {
-                                    openMovePopup(false);
-                                    onMove();
-                                }}
                                 content={(
                                     <Dropdown
                                         button
+                                        openOnFocus
                                         search
                                         basic
+                                        placeholder='Select a group'
                                         fluid
                                         selection
-                                        options={groupNames.map(name => ({
-                                            text: name,
-                                            value: name,
-                                        }))}
+                                        value={moveDestination}
+                                        options={groupNames}
+                                        onChange={(e, data) => {
+                                            setMoveDestination(data.value);
+                                        }}
                                     />
                                 )}
+                                onYes={() => {
+                                    if (moveDestination) {
+                                        openMovePopup(false);
+                                        onMove(moveDestination);
+                                    }
+                                }}
                                 onNo={() => openMovePopup(false)}
                             />
                         )}
@@ -119,6 +137,7 @@ const StoryEditor = ({
             <Segment attached='bottom'>
                 <AceEditor
                     readOnly={disabled}
+                    onLoad={setEditor}
                     theme='github'
                     width='100%'
                     name='story'
@@ -130,13 +149,14 @@ const StoryEditor = ({
                     value={story}
                     showPrintMargin={false}
                     showGutter
-                    // We use ternary expressions here to prevent wrong prop types
                     annotations={annotations}
                     editorProps={{
                         $blockScrolling: Infinity,
                     }}
                     setOptions={{
                         tabSize: 2,
+                        // the worker has a bug which removes annotations
+                        useWorker: false,
                     }}
                 />
             </Segment>

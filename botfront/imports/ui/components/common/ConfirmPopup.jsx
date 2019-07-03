@@ -9,7 +9,7 @@ const ConfirmPopup = ({
         <Header as='h4'>{title}</Header>
         {description}
         {content}
-        <div>
+        <div className='popup-buttons'>
             <Button primary onClick={onNo} size='tiny' data-cy='confirm-no'>
                 Cancel
             </Button>

@@ -36,7 +36,7 @@ class Stories extends React.Component {
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {
                     Meteor.call('stories.insert', {
-                        story: ' ',
+                        story: '* replace_with_intent',
                         title: 'name',
                         storyGroupId: groupId,
                         projectId,
@@ -84,7 +84,7 @@ class Stories extends React.Component {
         Meteor.call(
             'stories.insert',
             {
-                story: ' ',
+                story: '* replace_with_intent',
                 title: `${!!introStoryGroup ? introStoryGroup.name : storyGroups[storyIndex].name} ${indexOfNewStory}`,
                 projectId,
                 storyGroupId: `${!!introStoryGroup ? introStoryGroup._id : storyGroups[storyIndex]._id}`,
@@ -156,10 +156,10 @@ class Stories extends React.Component {
                 onSaved={this.handleSavedStories}
                 onError={this.handleError}
                 onErrorResolved={this.handleErrorResolved}
-                onAddNewStory={() => this.handleNewStory(storyGroupSelected || introStory)}
+                onAddNewStory={(index) => this.handleNewStory(storyGroupSelected || introStory, index)}
                 projectId={projectId}
                 onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)}
-                groupNames={storyGroups.map(group => group.name)}
+                groupNames={storyGroups.map(group => ({ text: group.name, value: group._id }))}
             />
         );
     }
