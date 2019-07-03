@@ -17,6 +17,7 @@ import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { setProjectId } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
+import { Stories } from '../../api/story/stories.collection';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
@@ -95,7 +96,7 @@ class Project extends React.Component {
 
     render() {
         const {
-            children, projectId, loading, channel, renderLegacyModels,
+            children, projectId, loading, channel, renderLegacyModels, introStory,
         } = this.props;
         const {
             showIntercom, intercomId, showChatPane, resizingChatPane,
@@ -152,7 +153,7 @@ class Project extends React.Component {
                         )}
                         {showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
-                                <ProjectChat channel={channel} triggerChatPane={this.triggerChatPane} projectId={projectId} />
+                                <ProjectChat channel={channel} triggerChatPane={this.triggerChatPane} projectId={projectId} introStory={introStory} />
                             </React.Suspense>
                         )}
                     </SplitPane>
@@ -169,10 +170,12 @@ Project.propTypes = {
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
+    introStory: PropTypes.string,
 };
 
 Project.defaultProps = {
     channel: null,
+    introStory: '',
 };
 
 const ProjectContainer = withTracker((props) => {
@@ -185,8 +188,9 @@ const ProjectContainer = withTracker((props) => {
     projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
+    const introStoryHandler = Meteor.subscribe('introStory', projectId);
     // TODO: use every() instead of chaining &&
-    const ready = Meteor.user() && credentialsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready());
+    const ready = Meteor.user() && credentialsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready()) && introStoryHandler.ready();
 
     const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
 
@@ -210,12 +214,15 @@ const ProjectContainer = withTracker((props) => {
     if (store.getState().get('projectId') !== projectId) {
         store.dispatch(setProjectId(projectId));
     }
+    
+    const introStory = Stories.findOne({}, { fields: { story: 1 } });
 
     return {
         loading: !ready,
         projectId,
         channel,
         renderLegacyModels,
+        introStory: ready && introStory.story,
     };
 })(windowSize(Project));
 

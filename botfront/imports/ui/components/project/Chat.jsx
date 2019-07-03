@@ -13,11 +13,16 @@ class Chat extends React.Component {
     }
 
     render() {
-        const { socketUrl, language, path } = this.props;
+        const {
+            socketUrl,
+            language,
+            path,
+            introStory,
+        } = this.props;
         return (
             <Widget
                 interval={0}
-                initPayload=''
+                initPayload={introStory}
                 socketUrl={socketUrl}
                 socketPath={path}
                 inputTextFieldHint='Try out your chatbot...'
@@ -33,10 +38,12 @@ Chat.propTypes = {
     socketUrl: PropTypes.string.isRequired,
     path: PropTypes.string.isRequired,
     language: PropTypes.string,
+    introStory: PropTypes.string,
 };
 
 Chat.defaultProps = {
     language: '',
+    introStory: '',
 };
 
 export default Chat;

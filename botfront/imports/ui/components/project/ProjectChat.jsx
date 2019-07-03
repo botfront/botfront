@@ -78,7 +78,7 @@ class ProjectChat extends React.Component {
         const {
             key, socketUrl, languageOptions, selectedLanguage, noChannel, path,
         } = this.state;
-        const { triggerChatPane, projectId } = this.props;
+        const { triggerChatPane, projectId, introStory } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
@@ -136,6 +136,7 @@ class ProjectChat extends React.Component {
                         key={key}
                         language={selectedLanguage}
                         path={path}
+                        introStory={introStory}
                     />
                 )}
                 {noChannel && (
@@ -169,6 +170,11 @@ ProjectChat.propTypes = {
     projectId: PropTypes.string.isRequired,
     triggerChatPane: PropTypes.func.isRequired,
     channel: PropTypes.object.isRequired,
+    introStory: PropTypes.string,
+};
+
+ProjectChat.defaultProps = {
+    introStory: '',
 };
 
 export default ProjectChat;
