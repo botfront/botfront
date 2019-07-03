@@ -55,7 +55,7 @@ describe('stories', function() {
         cy.dataCy('confirm-yes').click();
     });
 
-    it('should be able to rename stories and select stories', function() {
+    it('should be able to rename storyGroups and select storyGroups', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.get('[data-cy=add-item]').click();
         cy.get('[data-cy=input-item] input').type(`${storyGroupOne}{enter}`);
@@ -70,6 +70,10 @@ describe('stories', function() {
         cy.dataCy('edit-name-icon').click({ force: true });
         cy.get('[data-cy=edit-name] input').click().type('{backspace}{backspace}{backspace}{enter}');
         cy.contains('storyGroup').should('exist');
+        cy.contains('Train');
+        cy.get('.active > #not-selected').click();
+        cy.contains('Train 1 story group');
+
         cy.contains('storyGroup').click();
         cy.get('[data-cy=delete-story]').click();
         cy.dataCy('confirm-yes').click();

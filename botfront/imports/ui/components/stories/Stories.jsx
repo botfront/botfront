@@ -162,6 +162,7 @@ class Stories extends React.Component {
     }
     
     render() {
+        // TODO when adding search remove eslint error and reduce the size of render method to 60 lines for 62.
         const { storyGroups } = this.props;
         const { storyIndex, saving, validationErrors, storyGroupNameSelected } = this.state;
         const introStory = storyGroups.find(storyGroup => (storyGroup.introStory));
