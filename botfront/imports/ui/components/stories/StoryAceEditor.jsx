@@ -21,7 +21,6 @@ const StoryEditor = ({
     groupNames,
 }) => {
     const [deletePopupOpened, openDeletePopup] = useState(false);
-    const [clonePopupOpened, openClonePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
     const [editor, setEditor] = useState();
@@ -84,6 +83,13 @@ const StoryEditor = ({
                         onOpen={() => openMovePopup(true)}
                         onClose={() => openMovePopup(false)}
                     />
+                    <Icon
+                        name='clone'
+                        color='grey'
+                        link
+                        data-cy='duplicate-story'
+                        onClick={onClone}
+                    />
                     <Popup
                         trigger={(
                             <Icon
@@ -107,30 +113,6 @@ const StoryEditor = ({
                         open={deletePopupOpened}
                         onOpen={() => openDeletePopup(true)}
                         onClose={() => openDeletePopup(false)}
-                    />
-                    <Popup
-                        trigger={(
-                            <Icon
-                                name='clone'
-                                color='grey'
-                                link
-                                data-cy='duplicate-story'
-                            />
-                        )}
-                        content={(
-                            <ConfirmPopup
-                                title='Clone story ?'
-                                onYes={() => {
-                                    openClonePopup(false);
-                                    onClone();
-                                }}
-                                onNo={() => openClonePopup(false)}
-                            />
-                        )}
-                        on='click'
-                        open={clonePopupOpened}
-                        onOpen={() => openClonePopup(true)}
-                        onClose={() => openClonePopup(false)}
                     />
                 </Menu.Item>
             </Menu>
