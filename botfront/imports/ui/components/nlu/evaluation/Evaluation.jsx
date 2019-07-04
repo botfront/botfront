@@ -17,7 +17,6 @@ import EntityReport from './EntityReport';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { InputButtons } from './InputButtons.jsx';
 import { Evaluations } from '../../../../api/nlu_evaluation';
-import { Instances } from '../../../../api/instances/instances.collection';
 import { ActivityCollection } from '../../../../api/activity';
 import { TestImport } from '../import-export/TestImport';
 import { Loading } from '../../utils/Utils';
@@ -124,7 +123,6 @@ class Evaluation extends React.Component {
                 _id: modelId,
             } = {},
         } = this.props;
-        const { loading } = this.state;
         Meteor.subscribe('activity', modelId, () => {
             const examples = ActivityCollection.find({ modelId }).fetch() || [];
             const validExamples = examples.filter(({ validated }) => validated)
@@ -132,13 +130,10 @@ class Evaluation extends React.Component {
 
             // Check that there are nonzero validated examples
             if (validExamples.length > 0) {
-                // Check that component is waiting for data before setting state
-                if (loading) {
-                    this.setState({
-                        data: { rasa_nlu_data: { common_examples: validExamples } },
-                        loading: false,
-                    }, callback);
-                }
+                this.setState({
+                    data: { rasa_nlu_data: { common_examples: validExamples } },
+                    loading: false,
+                }, callback);
             } else {
                 const message = (
                     <Message warning>
