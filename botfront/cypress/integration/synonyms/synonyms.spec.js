@@ -115,8 +115,8 @@ describe('synonym', function() {
         it('should delete the created synonym', function() {
             visitSynonyms(this.bf_project_id);
             getSynonymRow()
-                .find('i.remove')
-                .click();
+                .find('[data-cy=trashbin] .viewOnHover')
+                .click({ force: true });
             cy.get('body').should('not.contain', sortedSynonymsValues);
             cy.contains(sortedSynonymsValues).should('not.exist');
             cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');

@@ -17,4 +17,4 @@ npm install -g botfront
 
 # create/launch a project
 botfront
-```à
+```

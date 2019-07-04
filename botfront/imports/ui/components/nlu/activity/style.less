@@ -1,3 +1,72 @@
+@import '../../../../../client/variables.less';
+
 .confidence-text {
-  font-size: 11px;
+    font-size: 11px;
+}
+.ReactTable {
+    border-radius: 4px;
+}
+
+.viewOnHover {
+    visibility: hidden;
+}
+.ReactTable .rt-tbody .rt-tr-group:not(:last-child) {
+  border-bottom: 0;
+}
+.ReactTable {
+    border: 0 !important;
+    .rt-tbody {
+        > :first-child {
+            border-radius: 4px 4px 0 0;
+        }
+        > :last-child {
+            border-radius: 0 0 4px 4px;
+            border-bottom: solid 1px rgba(0, 0, 0, 0.05) !important;
+        }
+        .rt-tr-group {
+            border-top: solid 1px rgba(0, 0, 0, 0.05);
+            border-left: solid 1px rgba(0, 0, 0, 0.05);
+            border-right: solid 1px rgba(0, 0, 0, 0.05);
+        }
+        .rt-tr:not(.-padRow):hover {
+            background: rgba(0, 0, 0, 0.05);
+            .viewOnHover {
+                visibility: visible;
+            }
+        }
+        .rt-td {
+          border-right: none !important;
+        }
+        .rt-td
+    }
+
+    .rt-thead.-header {
+        box-shadow: none !important;
+    }
+    .rt-thead.-filters .rt-th, .rt-thead .rt-th,  .rt-thead .rt-td{
+      border-right: none !important;
+    }
+    .rt-thead.-filters {
+      border-bottom: none !important;
+    }
+
+    .-pagination {
+        z-index: 1;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        -webkit-box-align: stretch;
+        -ms-flex-align: stretch;
+        align-items: stretch;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        padding-top: 15px !important;
+        padding-left: 50px !important;
+        padding-right: 50px !important;
+        box-shadow: none !important;
+        border-top: none !important;
+    }
 }

@@ -107,7 +107,7 @@ describe('nlu tagging in training data', function() {
     });
 
     it('should delete the training data', function() {
-        cy.get('.rt-tbody .rt-tr:first i.delete').click();
+        cy.get('.rt-tbody .rt-tr:first [data-cy=trashbin] .viewOnHover').click({ force: true });
         cy.get('.rt-tbody .rt-tr:first').should('not.contain', utterance);
     });
 
@@ -224,13 +224,13 @@ describe('nlu tagging in training data', function() {
             .contains(secondEntity)
             .click();
 
-        cy.get('[data-cy=trigger-entity-names]').click();
+        // cy.get('[data-cy=trigger-entity-names]').click();
 
         cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
 
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
-        cy.get('[data-cy=trigger-entity-names]').click();
+        // cy.get('[data-cy=trigger-entity-names]').click();
 
         cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
     });
@@ -243,13 +243,13 @@ describe('nlu tagging in training data', function() {
         cy.get('[data-cy=entity-dropdown]').click();
         cy.get('[data-cy=entity-dropdown] input').type(`${newEntity}{enter}`);
 
-        cy.get('[data-cy=trigger-entity-names]').click();
+        // cy.get('[data-cy=trigger-entity-names]').click();
 
         cy.get('.rt-tbody .rt-tr:first').contains(newEntity);
 
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
-        cy.get('[data-cy=trigger-entity-names]').click();
+        // cy.get('[data-cy=trigger-entity-names]').click();
 
         cy.get('.rt-tbody .rt-tr:first').contains(newEntity);
     });
