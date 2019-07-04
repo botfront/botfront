@@ -26,12 +26,7 @@ class Activity extends React.Component {
     batchAdd = () => {
         const { modelId } = this.props;
         Meteor.call('activity.addValidatedToTraining', modelId, wrapMeteorCallback());
-    }
-
-    batchReinterpret = () => {
-        const { projectId, modelId, outDatedUtteranceIds } = this.props;
-        Meteor.call('activity.reinterpret', projectId, modelId, outDatedUtteranceIds, wrapMeteorCallback());
-    }
+    };
 
     batchDelete = (modelId, itemIds) => {
         Meteor.call('activity.deleteExamples', modelId, itemIds, wrapMeteorCallback());
@@ -41,6 +36,8 @@ class Activity extends React.Component {
         const { linkRender } = this.props;
         linkRender();
     };
+
+    onValidateExamples = utterances => this.onExamplesEdit(utterances.map(e => ({ ...e, validated: !e.validated })));
 
     onValidateExamples = utterances => this.onExamplesEdit(utterances.map(e => ({ ...e, validated: !e.validated })));
     

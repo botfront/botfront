@@ -5,9 +5,6 @@ import { check } from 'meteor/check';
 
 import { formatError, getProjectIdFromModelId } from '../lib/utils';
 import ExampleUtils from '../ui/components/utils/ExampleUtils';
-import { Instances } from './instances/instances.collection';
-import { NLUModels } from './nlu_model/nlu_model.collection';
-import { parseNlu } from '../lib/nlu_methods';
 import { checkIfCan } from '../lib/scopes';
 
 export const ActivityCollection = new Mongo.Collection('activity');
@@ -65,31 +62,6 @@ if (Meteor.isServer) {
         } catch (e) {
             return [];
         }
-    });
-
-    Meteor.methods({
-        'activity.reinterpret'(projectId, modelId, itemIds) {
-            checkIfCan('nlu-data:r', getProjectIdFromModelId(modelId));
-            check(itemIds, Array);
-            check(modelId, String);
-            check(projectId, String);
-    
-            try {
-                const items = ActivityCollection.find({ _id: { $in: itemIds } }).fetch();
-                const model = NLUModels.findOne({ _id: modelId }, { fields: { instance: 1 } });
-                if (!model.instance) throw new Meteor.Error('400', 'Model has no instance set.');
-                const instance = Instances.findOne({ _id: model.instance });
-                this.unblock();
-                const results = Promise.await(parseNlu(projectId, modelId, instance, items.map(i => ({ q: i.text })), true));
-                return results.map((r) => {
-                    // eslint-disable-next-line no-param-reassign
-                    r.entities = r.entities.filter(e => e.extractor === 'ner_crf');
-                    return ActivityCollection.update({ modelId, text: r.text }, { $set: r });
-                });
-            } catch (e) {
-                throw e;
-            }
-        },
     });
 }
 
