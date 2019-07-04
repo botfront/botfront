@@ -8,9 +8,15 @@ import NLUExampleText from '../../example_editor/NLUExampleText';
 import IntentViewer from '../models/IntentViewer';
 import 'react-select/dist/react-select.css';
 import { wrapMeteorCallback } from '../../utils/Errors';
+import { Instances } from '../../../../api/instances/instances.collection';
+import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection'
 import TrashBin from '../common/TrashBin';
 
 export default class ActivityDataTable extends React.Component {
+    state = {
+        reInterpreting: [],
+    }
+
     getIntentForDropdown(all) {
         const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
         const { intents } = this.props;
@@ -25,6 +31,9 @@ export default class ActivityDataTable extends React.Component {
 
     getValidationColumn() {
         const { outDatedUtteranceIds } = this.props;
+        const { reInterpreting } = this.state;
+        const newReInterpreting = reInterpreting.filter(id => outDatedUtteranceIds.includes(id));
+        if (reInterpreting.some(id => !newReInterpreting.includes(id))) this.setState({ reInterpreting: newReInterpreting });
         return {
             id: 'actions',
             Header: 'Actions',
@@ -33,10 +42,13 @@ export default class ActivityDataTable extends React.Component {
             Cell: ({ value: utterance, value: { validated, intent } = {} }) => {
                 const size = 'mini';
                 const isOutdated = outDatedUtteranceIds.includes(utterance._id);
+                const isReInterpreting = reInterpreting.includes(utterance._id);
                 const ooS = !intent;
                 let action;
                 if (isOutdated) {
-                    action = <Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' />;
+                    action = !isReInterpreting
+                        ? <Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' />
+                        : <Button size={size} disabled basic icon='redo' loading />;
                 } else if (!!validated) {
                     action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />;
                 } else {
@@ -52,9 +64,7 @@ export default class ActivityDataTable extends React.Component {
                 return (
                     <div>
                         {action}
-                        <TrashBin
-                            onClick={() => this.onDelete(utterance)}
-                        />
+                        {!isReInterpreting && <TrashBin onClick={() => this.onDelete(utterance)} />}
                     </div>
                 );
             },
@@ -164,8 +174,13 @@ export default class ActivityDataTable extends React.Component {
     }
 
     onReinterpret = (u) => {
+        const { reInterpreting } = this.state;
         const { projectId, modelId } = this.props;
-        Meteor.call('activity.reinterpret', projectId, modelId, [u], wrapMeteorCallback());
+        const instance = Instances.findOne({ projectId });
+        const { language } = NLUModels.findOne({ _id: modelId });
+        const newReInterpreting = reInterpreting.concat([u._id]);
+        this.setState({ reInterpreting: newReInterpreting });
+        Meteor.call('rasa.parse', instance, [{ text: u.text, lang: language }], false, wrapMeteorCallback());
     };
 
     onDelete = (u) => {
