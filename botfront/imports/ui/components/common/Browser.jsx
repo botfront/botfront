@@ -26,21 +26,18 @@ class Browser extends React.Component {
     };
 
     handleKeyDownInput = (event, element) => {
-        const { editing } = this.state;
-        if (event.key === 'Enter' && editing === -1) {
+        const { editing, newItemName, itemName } = this.state;
+        const { onAdd, changeName } = this.props;
+        if (event.key === 'Enter') {
             event.preventDefault();
             event.stopPropagation();
-            const { onAdd } = this.props;
-            const { newItemName } = this.state;
-            onAdd(newItemName);
-            this.resetAddItem();
-        } else if (event.key === 'Enter') {
-            event.preventDefault();
-            event.stopPropagation();
-            const { changeName } = this.props;
-            const { itemName } = this.state;
-            changeName({ ...element, name: itemName });
-            this.setState({ editing: -1 });
+            if (editing === -1 && !!newItemName) {
+                onAdd(newItemName);
+                this.resetAddItem();
+            } else if (editing !== -1 && !!itemName) {
+                changeName({ ...element, name: itemName });
+                this.setState({ editing: -1 });
+            }
         }
     };
 
