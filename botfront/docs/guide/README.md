@@ -1,7 +1,7 @@
 # Understanding intents and entities
 
 ::: tip
-Technology plays certainly a role, but the most significant performance gains are obtained by developping a good understanding of the fundamental NLU concepts. 
+Technology plays certainly a role, but the most significant performance gains are obtained by developing a good understanding of the fundamental NLU concepts. 
 :::
 
 ## Intents
@@ -45,4 +45,4 @@ A common mistake is to choose the entity value as the name like this:
 ![](../images/nlu_entities_2.png)
 :::
 
-Finally it should be noted that recognizing the intent and extracting entities are two separate tasks: in order word, having similar entities in utterances will not influence the model when it parses it to recognize the intent.
+Finally, it should be noted that recognizing the intent and extracting entities are two separate tasks: in order word, having similar entities in utterances will not influence the model when it parses it to recognize the intent.
