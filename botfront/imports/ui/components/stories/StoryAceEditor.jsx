@@ -41,6 +41,7 @@ const StoryEditor = ({
                 <Menu.Item header>
                     <span className='story-title-prefix'>##</span>
                     <input
+                        data-cy='story-title'
                         value={newTitle}
                         onChange={event => setNewTitle(event.target.value)}
                         onBlur={() => {
@@ -78,6 +79,7 @@ const StoryEditor = ({
                                         onChange={(e, data) => {
                                             setMoveDestination(data.value);
                                         }}
+                                        data-cy='move-story-dropdown'
                                     />
                                 )}
                                 onYes={() => {
