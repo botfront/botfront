@@ -27,5 +27,3 @@ if (Meteor.isServer) {
         return Slots.find({ projectId });
     });
 }
-
-Slots.attachSchema(SlotsSchema);

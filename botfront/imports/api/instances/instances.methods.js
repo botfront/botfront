@@ -15,6 +15,7 @@ import { Slots } from '../slots/slots.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import { checkIfCan } from '../roles/roles';
+import { ActivityCollection } from '../activity';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -210,6 +211,7 @@ if (Meteor.isServer) {
                 const trainingResponse = await client.post('/model/train', payload);
                 if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
                     await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
+                    ActivityCollection.update({}, { $set: { validated: false } }, { multi: true });
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {

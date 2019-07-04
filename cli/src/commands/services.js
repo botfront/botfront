@@ -9,7 +9,7 @@ import boxen from 'boxen';
 import { pullDockerImages } from './init';
 import path from 'path';
 import { watch } from 'chokidar';
-import { fixDir, isProjectDir, getComposeFilePath, getServices, getMissingImgs, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize, generateDockerCompose, startSpinner, stopSpinner, failSpinner, succeedSpinner, consoleError, setSpinnerText, setSpinnerInfo } from '../utils';
+import { fixDir, isProjectDir, getComposeFilePath, getServices, getMissingImgs, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize, generateDockerCompose, startSpinner, stopSpinner, failSpinner, succeedSpinner, consoleError, setSpinnerText, setSpinnerInfo, updateEnvFile } from '../utils';
 
 export async function dockerComposeUp({ verbose = false }, workingDir, spinner = ora()) {
     shell.cd(fixDir(workingDir));
@@ -17,11 +17,12 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
         const noProjectMessage = `${chalk.yellow.bold('No project found.')} ${chalk.cyan.bold('botfront up')} must be executed from your project\'s directory`;
         return console.log(noProjectMessage);
     }
+    updateEnvFile(process.cwd());
     generateDockerCompose();
     startSpinner(spinner, 'Starting Botfront...')
     const missingImgs = await getMissingImgs()
     await pullDockerImages(missingImgs, spinner, 'Downloading Docker images...')    
-    await stopRunningProjects("Another project is running. Shutting it down first...", null, null, spinner);
+    await stopRunningProjects("Shutting down running project first...", null, null, spinner);
     let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d`;
     try{
         startSpinner(spinner, 'Starting Botfront...')
@@ -38,7 +39,7 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
                         `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation\n`;
         console.log(boxen(message) + '\n');
         setSpinnerText(spinner, `Opening Botfront (${chalk.green.bold(serviceUrl)}) in your browser...`);
-        await wait(3000);
+        await wait(2000);
         if (spinner) await open(serviceUrl);
         setSpinnerInfo(spinner, `Visit ${chalk.green(serviceUrl)}`);
         console.log('\n');

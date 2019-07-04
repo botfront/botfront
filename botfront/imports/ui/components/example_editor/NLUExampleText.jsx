@@ -126,7 +126,7 @@ class NLUExampleText extends React.Component {
                             key={`${e.start}${e.end}`}
                             selection
                             projectId={projectId}
-                            disable={disablePopup}
+                            disabled={disablePopup}
                         />,
                     );
                 } else {
@@ -143,13 +143,13 @@ class NLUExampleText extends React.Component {
                                 <Entity
                                     entity={e}
                                     text={example.text.slice(e.start, e.end)}
-                                    colour={this.getEntityLabelColor(e)}
+                                    colour={disablePopup ? 'grey' : this.getEntityLabelColor(e)}
                                     showLabel={showLabels}
                                 />
                             )}
                             key={`${e.start}${e.end}`}
                             projectId={projectId}
-                            disable={disablePopup}
+                            disabled={disablePopup}
                         />,
                     );
                 }

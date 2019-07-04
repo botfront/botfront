@@ -25,7 +25,7 @@ module.exports = {
         editLinkText: '🖊️ Edit this page on Github!',
         lastUpdated: 'Last Updated',
         
-        nav: [{ text: 'Guide', link: '/guide/getting-started/quick-start/' }, { text: 'Botfront website', link: 'https://botfront.io' }],
+        nav: [{ text: 'Guide', link: '/guide/users-guide/quick-start/' }, { text: 'Github', link: 'https://github.com/botfront/botfront' }, { text: 'Botfront website', link: 'https://botfront.io' } ],
 
         sidebar: [
             {
@@ -34,19 +34,11 @@ module.exports = {
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
-                    '/guide/getting-started/setup',
-                    '/guide/getting-started/quick-start',
-                    // '/guide/getting-started/rasa-stack',
-                    // '/guide/getting-started/advanced',
+                    '/guide/users-guide/setup',
+                    '/guide/users-guide/quick-start',
+                    '/guide/users-guide/branching-conversations',
                 ],
             },
-            // {
-            //     title: 'Users Guide', // required
-            //     // path: '/guide',
-            //     collapsable: false,
-            //     sidebarDepth: 5,
-            //     children: ['/guide/users/settings', '/guide/users/endpoints', '/guide/users/credentials', '/guide/users/rules', '/guide/bot-responses/'],
-            // },
             {
                 title: 'Admin Guide', // required
                 // path: '/guide',
@@ -66,7 +58,6 @@ module.exports = {
                     '/guide/nlu/training_adding_data',
                     '/guide/nlu/training',
                     '/guide/nlu/evaluation',
-                    // '/guide/nlu/activity',
                 ],
             },
             {
@@ -76,11 +67,17 @@ module.exports = {
                 sidebarDepth: 5,
                 children: [
                     '/guide/deployment/',
-                    // '/guide/deployment/settings',
                     '/guide/deployment/endpoints',
                     '/guide/deployment/credentials',
-                    // '/guide/deployment/rules',
-                    // '/guide/bot-responses/'
+                ]
+            },
+            {
+                title: 'Developers Guide',   // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/developers-guide/',
                 ]
             },
         ],

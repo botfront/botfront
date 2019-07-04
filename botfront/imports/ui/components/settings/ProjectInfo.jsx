@@ -84,7 +84,9 @@ class ProjectInfo extends React.Component {
 
     onSave = (project, modelLanguages) => {
         const { value } = this.state;
-        const { name, _id, defaultLanguage } = project;
+        const {
+            name, _id, defaultLanguage, nluThreshold,
+        } = project;
         const modelLanguageCodes = modelLanguages.map(lang => lang.value);
         const differenceArray = this.diffArray(value, modelLanguageCodes);
         this.setState({ saving: true });
@@ -94,7 +96,9 @@ class ProjectInfo extends React.Component {
         );
         Meteor.call(
             'project.update',
-            { name, _id, defaultLanguage },
+            {
+                name, _id, defaultLanguage, nluThreshold,
+            },
             wrapMeteorCallback((err) => {
                 if (!err) {
                     this.createNLUModels(
@@ -122,6 +126,7 @@ class ProjectInfo extends React.Component {
 
     render() {
         const { project, modelLanguages, ready } = this.props;
+        console.log(project)
         const { saving, value } = this.state;
         const projectsSchema = Projects.simpleSchema();
         const hasProjectWritePermission = !can('project-settings:w', project._id);
@@ -185,6 +190,12 @@ class ProjectInfo extends React.Component {
                                 data-cy='default-langauge-selection'
                             />
                         )}
+                        <InfoField
+                            name='nluThreshold'
+                            label='NLU threshold'
+                            info='Botfront will display recommendations on incoming utterances based on that threshold'
+                            data-cy='change-nlu-threshold'
+                        />
                         <br />
                         <ErrorsField />
                         <SubmitField
@@ -216,6 +227,7 @@ const ProjectInfoContainer = withTracker(({ projectId }) => {
                 apiKey: 1,
                 nlu_models: 1,
                 defaultLanguage: 1,
+                nluThreshold: 1,
             },
         },
     );

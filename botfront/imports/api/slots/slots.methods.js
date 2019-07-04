@@ -3,14 +3,22 @@ import { check } from 'meteor/check';
 
 import { Slots } from './slots.collection';
 import { checkIfCan } from '../../lib/scopes';
-import { SlotsSchema } from './slots.schema';
+import { slotSchemas } from './slots.schema';
+
+function validateSchema(slot) {
+    if (slot.type) {
+        slotSchemas[slot.type].validate(slot, { check });
+    } else {
+        throw new Meteor.Error('400');
+    }
+}
 
 Meteor.methods({
     'slots.insert'(slot, projectId) {
         check(slot, Object);
         check(projectId, String);
         checkIfCan('stories:w', projectId);
-        Slots.simpleSchema().validate(slot, { check });
+        validateSchema(slot);
         return Slots.insert(slot);
     },
 
@@ -18,7 +26,7 @@ Meteor.methods({
         check(slot, Object);
         check(projectId, String);
         checkIfCan('stories:w', projectId);
-        SlotsSchema.validate(slot, { check });
+        validateSchema(slot);
         return Slots.update({ _id: slot._id }, { $set: slot });
     },
 
@@ -26,7 +34,7 @@ Meteor.methods({
         check(slot, Object);
         check(projectId, String);
         checkIfCan('stories:w', projectId);
-        Slots.simpleSchema().validate(slot, { check });
+        validateSchema(slot);
         return Slots.remove(slot);
     },
 });

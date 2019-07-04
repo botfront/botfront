@@ -13,6 +13,9 @@ export const ProjectsSchema = new SimpleSchema({
     // namespace: {
     //     type: String, regEx: /^[a-z0-9-_]+$/, unique: 1, sparse: 1,
     // },
+    nluThreshold: {
+        type: Number, defaultValue: 0.75, min: 0.5, max: 0.95,
+    },
     defaultLanguage: { type: String, optional: true },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },

@@ -1,67 +1,83 @@
-import React from "react";
-import PropTypes from "prop-types"
-import {Input, Dropdown} from "semantic-ui-react";
-import getColor from "../../../../lib/getColors";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Input, Dropdown } from 'semantic-ui-react';
+import getColor from '../../../../lib/getColors';
 
 export default class Filters extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.props = props;
-        this.state = {
-            active:false
-        };
+    getIntentsOptions = () => {
+        const { intents } = this.props;
+        return intents.map(i => ({ text: i, value: i }));
     }
 
-    getIntentsOptions = () => this.props.intents.map(i=> {return {text: i, value: i}});
+    getEntitiesOptions = () => {
+        const { entities } = this.props;
+        return entities.map(e => ({ text: e, value: e }));
+    }
 
-    getEntitiesOptions = () => this.props.entities.map(e=> {return {text: e, value: e}});
-
-
-    handleIntentSelectorChange = (e, {value}) => {
-        this.props.onChange({intents: value, entities:this.props.filter.entities});
+    handleIntentSelectorChange = (e, { value }) => {
+        const { onChange, filter: { entities: entitiesFilter, query } } = this.props;
+        onChange({ intents: value, entities: entitiesFilter, query });
     };
 
-    handleEntitiesSelectorChange = (e, {value}) => {
-        this.props.onChange({intents:this.props.filter.intents, entities: value});
+    handleEntitiesSelectorChange = (e, { value }) => {
+        const { onChange, filter: { intents: intentsFilter, query } } = this.props;
+        onChange({ intents: intentsFilter, entities: value, query });
+    };
+
+    handleTextChange = (e, { value: query }) => {
+        const { filter: { intents: intentsFilter, entities: entitiesFilter }, onChange } = this.props;
+        onChange({ query, intents: intentsFilter, entities: entitiesFilter });
     };
 
     render() {
+        const { filter: { intents: intentsFilter, entities: entitiesFilter, query }, intents, entities } = this.props;
         const renderIntentLabel = label => ({ color: 'purple', content: `${label.text}` });
-        const renderEntityLabel = label => ({ color: getColor(this.props.entities.indexOf(label.text), true), content: `${label.text}`});
+        const renderEntityLabel = label => ({ color: getColor(entities.indexOf(label.text), true), content: `${label.text}` });
 
-        return  <div style={{marginRight: '10px'}}>
-            {this.props.intents.length > 0 &&<Dropdown style={{marginRight: '10px'}}
+        return (
+            <div style={{ marginRight: '10px' }}>
+                {intents.length > 0 && (
+                    <Dropdown
+                        style={{ marginRight: '10px' }}
                         placeholder='Filter by intents'
-                        size="tiny"
-                        onChange = {this.handleIntentSelectorChange}
+                        size='tiny'
+                        onChange={this.handleIntentSelectorChange}
                         multiple
-                        value={this.props.filter.intents}
+                        value={intentsFilter}
                         search
                         selection
                         renderLabel={renderIntentLabel}
-                        options={this.getIntentsOptions()}/>}
-            {this.props.entities.length > 0 &&
-                    <Dropdown style={{marginRight: '10px'}}
+                        options={this.getIntentsOptions()}
+                    />
+                )}
+                {entities.length > 0 && (
+                    <Dropdown
+                        style={{ marginRight: '10px' }}
                         placeholder='Filter by entities'
-                        size="tiny"
+                        size='tiny'
                         onChange={this.handleEntitiesSelectorChange}
-                        value={this.props.filter.entities}
+                        value={entitiesFilter}
                         multiple
                         search
                         selection
-
                         renderLabel={renderEntityLabel}
-                        options={this.getEntitiesOptions()}/>}
+                        options={this.getEntitiesOptions()}
+                    />
+                )}
 
-            {/*<Input icon='search' placeholder='Search...' onChange={this.handleTextChange} />*/}
-        </div>
+                <Input icon='search' placeholder='Search...' onChange={this.handleTextChange} value={query} />
+            </div>
+        );
     }
 }
+
+Filters.defaultProps = {
+    filter: null,
+};
 
 Filters.propTypes = {
     intents: PropTypes.array.isRequired,
     entities: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
-    filter: PropTypes.object
+    filter: PropTypes.object,
 };

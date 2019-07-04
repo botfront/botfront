@@ -61,18 +61,6 @@ export const getPublishedNluModelLanguages = (modelIds, asOptions = false) => {
     return languageCodes;
 };
 
-export const getPureIntents = (commonExamples) => {
-    const pureIntents = new Set();
-    commonExamples.forEach((e) => {
-        if ((!e.entities || e.entities.length === 0) && e.intent) {
-            pureIntents.add(e.intent);
-        } else {
-            pureIntents.delete(e.intent);
-        }
-    });
-    return [...pureIntents];
-};
-
 export const renameIntentsInTemplates = (templates, oldIntent, newIntent) => {
     const newTemplate = templates;
     templates.forEach((template, index) => {

@@ -145,10 +145,19 @@ class IntentNameEditor extends React.Component {
         const { intents, intent, projectId } = this.props;
         const { hovering, confirmOpen } = this.state;
         const style = {
-            borderRadius: '0.15rem',
+            borderRadius: '4px',
             cursor: 'default',
         };
         const disableChangeIntent = !can('nlu-data:w', projectId);
+        const trigger = intent ? (
+            <Label color='purple' style={style} data-cy='intent-label'>
+                {intent}
+            </Label>
+        ) : (
+            <Label color='grey' style={style} basic data-cy='intent-label'>
+                -
+            </Label>
+        );
         return (
             <Popup
                 content={(
@@ -169,11 +178,7 @@ class IntentNameEditor extends React.Component {
                         </Grid>
                     </div>
                 )}
-                trigger={(
-                    <Label basic style={style} data-cy='intent-label'>
-                        {intent || '-'}
-                    </Label>
-                )}
+                trigger={trigger}
                 disabled={disableChangeIntent}
                 hoverable
                 position='top center'

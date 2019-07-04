@@ -33,7 +33,9 @@ describe('nlu-data:w role permissions', function() {
             cy.createUser('nlu-data:w', email, ['nlu-data:w'], id);
         });
         cy.get('@bf_model_id').then((modelId) => {
-            cy.addTestActivity(modelId);
+            cy.get('@bf_project_id').then((projectId) => {
+                cy.addTestActivity(modelId, projectId);
+            });
         });
         cy.get('@bf_project_id').then((id) => {
             cy.createNLUModelProgramatically(id, modelNameForUI, 'fr', 'my description').then((result) => {
@@ -78,20 +80,17 @@ describe('nlu-data:w role permissions', function() {
         cy.get('.ReactTable').should('exist');
     });
 
-    it('should be able to change intent, validate, delete and access the subComponent in each row', function () {
+    it('should be able to change intent, delete and access the subComponent in each row', function () {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-activity').click();
         cy.get('[data-cy=process-in-bulk]').should('exist');
-        cy.get('[data-cy=validate-button]').should('exist');
-        cy.get('.nlu-delete-example').should('exist');
+        cy.get('[data-cy=trashbin]').should('exist');
         // TODO: Add test for change entity, currently cypress does not allow to select text
         cy.get('[data-cy=intent-label]').trigger('mouseover');
         cy.get('[data-cy=intent-popup]').should('exist');
-        cy.get('div.rt-td.rt-expandable').click();
-        cy.get('[data-cy=example-text-editor-input]').eq(1).should('not.be.disabled');
         cy.get('[data-cy=intent-dropdown]').eq(0).should('not.have.class', 'disabled');
         cy.contains('Save').should('not.have.class', 'disabled');
-        cy.contains('New Utterances').should('exist');
+        cy.contains('Incoming').should('exist');
         cy.contains('Populate').should('exist');
     });
 
@@ -115,10 +114,9 @@ describe('nlu-data:w role permissions', function() {
         cy.contains('Examples').click();
         cy.get('[data-cy=intent-label]').first().trigger('mouseover');
         cy.get('[data-cy=intent-popup]').should('exist');
-        cy.get('div.rt-td.rt-expandable').first().click();
         cy.get('[data-cy=intent-dropdown]').eq(0).should('not.have.class', 'disabled');
         cy.contains('Save').should('not.have.class', 'disabled');
-        cy.get('.nlu-delete-example').click();
+        cy.get('[data-cy=trashbin]').click();
     });
 
     it('should be able to add, edit and delete Synonym and Gazette', function() {
@@ -153,8 +151,8 @@ describe('nlu-data:w role permissions', function() {
             .type(`{selectall}{del}${editedValues}`);
         cy.contains('Synonyms').click();
         getSynonymRow(editedValues)
-            .find('i.remove')
-            .click();
+            .find('[data-cy=trashbin] .viewOnHover')
+            .click({ force: true });
         cy.contains(editedValues).should('not.exist');
         cy.contains('Gazette').click();
         cy.get('.input.entity-synonym input').type(synonymName);
@@ -180,8 +178,8 @@ describe('nlu-data:w role permissions', function() {
             .type(`{selectall}{del}${editedValues}`);
         cy.contains('Gazette').click();
         getSynonymRow(editedValues)
-            .find('i.remove')
-            .click();
+            .find('[data-cy=trashbin] .viewOnHover')
+            .click({ force: true });
         cy.contains(editedValues).should('not.exist');
     });
 
