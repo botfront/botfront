@@ -7,6 +7,7 @@ export const StorySchema = new SimpleSchema({
     },
     title: {
         type: String,
+        trim: true,
     },
     storyGroupId: {
         type: String,

@@ -114,6 +114,14 @@ function StoriesEditor(props) {
         );
     }
 
+    function handleStoryRenaming(newTitle, index) {
+        Meteor.call(
+            'stories.update',
+            { ...stories[index], title: newTitle },
+            wrapMeteorCallback(),
+        );
+    }
+
     function handleMoveStory(newGroupId, index) {
         if (newGroupId === stories[index].storyGroupId) {
             return;
@@ -137,11 +145,7 @@ function StoriesEditor(props) {
         const newStory = { ...stories[index] };
         delete newStory._id;
         newStory.title = `${stories[index].title} (copy)`;
-        Meteor.call(
-            'stories.insert',
-            newStory,
-            wrapMeteorCallback(),
-        );
+        Meteor.call('stories.insert', newStory, wrapMeteorCallback());
     }
 
     const editors = stories.map((story, index) => (
@@ -163,10 +167,13 @@ function StoriesEditor(props) {
             }
             disabled={disabled}
             onChange={data => handleStoryChange(data, index)}
+            onRename={newTitle => handleStoryRenaming(newTitle, index)}
             onDelete={() => handeStoryDeletion(index)}
             key={index}
             title={story.title}
-            groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
+            groupNames={groupNames.filter(
+                name => name.text !== storyGroup.name,
+            )}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
             onClone={() => handleDuplicateStory(index)}
         />

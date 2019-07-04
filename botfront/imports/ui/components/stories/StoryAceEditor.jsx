@@ -19,11 +19,13 @@ const StoryEditor = ({
     onClone,
     onMove,
     groupNames,
+    onRename,
 }) => {
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
     const [editor, setEditor] = useState();
+    const [newTitle, setNewTitle] = useState(title);
 
     // sets annotations directly on the ace editor, bypassing the react component
     // We bypass react-ace because annotations are buggy on it
@@ -38,7 +40,16 @@ const StoryEditor = ({
             <Menu attached='top'>
                 <Menu.Item header>
                     <span className='story-title-prefix'>##</span>
-                    {title}
+                    <input
+                        value={newTitle}
+                        onChange={event => setNewTitle(event.target.value)}
+                        onBlur={() => {
+                            if (title === newTitle) {
+                                return;
+                            }
+                            onRename(newTitle);
+                        }}
+                    />
                 </Menu.Item>
                 <Menu.Item position='right'>
                     <Popup
@@ -156,6 +167,7 @@ StoryEditor.propTypes = {
     onClone: PropTypes.func.isRequired,
     onMove: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
+    onRename: PropTypes.func.isRequired,
 };
 
 StoryEditor.defaultProps = {
