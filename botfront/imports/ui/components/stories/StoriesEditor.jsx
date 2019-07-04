@@ -145,7 +145,18 @@ function StoriesEditor(props) {
         const newStory = { ...stories[index] };
         delete newStory._id;
         newStory.title = `${stories[index].title} (copy)`;
-        Meteor.call('stories.insert', newStory, wrapMeteorCallback());
+        Meteor.call(
+            'stories.insert',
+            newStory,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    const editors = document.querySelectorAll('.story-editor');
+                    editors
+                        .item(editors.length - 1)
+                        .scrollIntoView({ behavior: 'smooth' });
+                }
+            }),
+        );
     }
 
     const editors = stories.map((story, index) => (
