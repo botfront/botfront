@@ -8,7 +8,7 @@ export const createIntroStoryGroup = (projectId) => {
     Meteor.call(
         'storyGroups.insert',
         {
-            name: 'Intro Story Group',
+            name: 'Intro stories',
             projectId,
             introStory: true,
         },

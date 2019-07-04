@@ -16,26 +16,26 @@ describe('stories', function() {
 
     it('should be able to add and delete stories', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
-        cy.get('[data-cy=add-item]').click();
+        cy.dataCy('add-item').click();
         cy.get('[data-cy=input-item] input').type(`${storyGroupOne}{enter}`);
         cy.contains('storyGroupOne').click();
         cy.dataCy('story-editor').get('textarea');
         cy.dataCy('add-story').click();
         cy.dataCy('story-editor').should('have.lengthOf', 2);
-        cy.get('[data-cy=delete-story]')
+        cy.dataCy('delete-story')
             .first()
             .click();
         cy.dataCy('confirm-yes').click();
-        cy.get('[data-cy=delete-story]').click();
+        cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
         cy.contains(storyGroupTwo).should('not.exist');
     });
 
     it('should autosave stories as you edit them', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
-        cy.get('[data-cy=add-item]').click();
+        cy.dataCy('add-item').click();
         cy.get('[data-cy=input-item] input').type(`${storyGroupOne}{enter}`);
-        cy.get('[data-cy=add-item]').click();
+        cy.dataCy('add-item').click();
         cy.get('[data-cy=input-item] input').type(`${storyGroupTwo}{enter}`);
         cy.contains(storyGroupOne).click();
         cy.dataCy('story-editor')
@@ -47,17 +47,17 @@ describe('stories', function() {
         cy.contains(storyGroupTwo).click();
         cy.contains(storyGroupOne).click();
         cy.contains(initialText).should('not.exist');
-        cy.get('[data-cy=delete-story]').click();
+        cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
         cy.wait(100);
         cy.contains(storyGroupTwo).click();
-        cy.get('[data-cy=delete-story]').click();
+        cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
     });
 
     it('should be able to rename storyGroups and select storyGroups', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
-        cy.get('[data-cy=add-item]').click();
+        cy.dataCy('add-item').click();
         cy.get('[data-cy=input-item] input').type(`${storyGroupOne}{enter}`);
         cy.contains(storyGroupOne).click();
         cy.dataCy('story-editor')
@@ -68,14 +68,18 @@ describe('stories', function() {
         cy.wait(500);
         cy.contains(storyGroupOne).trigger('mouseover');
         cy.dataCy('edit-name-icon').click({ force: true });
+        // Change name of a story group
         cy.get('[data-cy=edit-name] input').click().type('{backspace}{backspace}{backspace}{enter}');
         cy.contains('storyGroup').should('exist');
+        // Initially none of the story groups are selected, therefore content in the train button should be 'Train'
         cy.contains('Train');
         cy.get('.active > #not-selected').click();
-        cy.contains('Train 1 story group');
+        cy.get('#not-selected').click();
+        // Text in the train button should change after all the stories are selected
+        cy.contains('Train all 2 story group');
 
         cy.contains('storyGroup').click();
-        cy.get('[data-cy=delete-story]').click();
+        cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
     });
 });
