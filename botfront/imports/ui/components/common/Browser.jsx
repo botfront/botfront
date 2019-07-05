@@ -100,7 +100,7 @@ class Browser extends React.Component {
                         {selectAccessor && (
                             <Icon
                                 id={`${item[selectAccessor] ? 'selected' : 'not-selected'}`}
-                                name='grid layout'
+                                name='eye'
                                 onClick={e => this.handleToggle(e, item)}
                             />
                         )}

@@ -40,4 +40,9 @@ Meteor.methods({
         check(storyGroup, Object);
         return StoryGroups.update({ _id: storyGroup._id }, { $set: storyGroup });
     },
+
+    'storyGroups.removeFocus'(projectId) {
+        check(projectId, String);
+        return StoryGroups.update({ projectId }, { $set: { selected: false } }, { multi: true });
+    },
 });

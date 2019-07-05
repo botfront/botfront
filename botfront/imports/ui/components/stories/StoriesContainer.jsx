@@ -17,7 +17,7 @@ import { Instances } from '../../../api/instances/instances.collection';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
-import NLUTrainButton from '../nlu/models/NLUTrainButton';
+import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
 
 const Stories = React.lazy(() => import('./Stories'));
@@ -33,15 +33,6 @@ function StoriesContainer(props) {
         project: { training: { endTime, status } = {} },
         project,
     } = props;
-    
-    const storyGroupsToTrain = storyGroups.filter(storyGroup => (storyGroup.selected)).length;
-    let contentForTrainButton;
-
-    if (storyGroupsToTrain === 0 && storyGroups.length >= 1) contentForTrainButton = 'Train';
-    else if (storyGroupsToTrain === 1) contentForTrainButton = 'Train 1 story group';
-    else if (storyGroupsToTrain === storyGroups.length) contentForTrainButton = `Train all ${storyGroupsToTrain} story groups`;
-    else contentForTrainButton = `Train ${storyGroupsToTrain} story groups`;
-    
     const [activeItem, setActiveItem] = useState('stories');
     
     function RenderPlaceHolder() {
@@ -125,7 +116,7 @@ function StoriesContainer(props) {
                         )}
                     </Menu.Item>
                     <Menu.Item>
-                        <NLUTrainButton project={project} instance={instance} content={contentForTrainButton} />
+                        <TrainButton project={project} instance={instance} projectId={projectId} />
                     </Menu.Item>
                 </Menu.Menu>
             </PageMenu>

@@ -72,6 +72,24 @@ describe('stories', function() {
         cy.get('[data-cy=edit-name] input').click().type('{backspace}{backspace}{backspace}{enter}');
         cy.contains('storyGroup').should('exist');
         // Initially none of the story groups are selected, therefore content in the train button should be 'Train'
+        cy.contains('Train Everything');
+        cy.get('.active > #not-selected').click();
+        cy.get('#not-selected').click();
+        // Text in the train button should change after all the stories are selected
+        cy.contains('Partial Training');
+
+        cy.contains('storyGroup').click();
+        cy.dataCy('delete-story').click();
+        cy.dataCy('confirm-yes').click();
+    });
+
+    it('train button hsould be in-sync with seleted stpry groups', function() {
+        cy.visit(`/project/${this.bf_project_id}/stories`);
+        cy.dataCy('add-item').click();
+        cy.get('[data-cy=input-item] input').type(`${storyGroupOne}{enter}`);
+        cy.contains(storyGroupOne).click();
+        
+        // Initially none of the story groups are selected, therefore content in the train button should be 'Train'
         cy.contains('Train');
         cy.get('.active > #not-selected').click();
         cy.get('#not-selected').click();

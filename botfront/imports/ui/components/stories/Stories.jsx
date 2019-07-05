@@ -160,11 +160,49 @@ class Stories extends React.Component {
             />
         );
     }
-    
-    render() {
-        // TODO when adding search remove eslint error and reduce the size of render method to 60 lines for 62.
+
+    removeAllSelection = () => {
+        const { projectId } = this.props;
+        Meteor.call(
+            'storyGroups.removeFocus',
+            projectId,
+        );
+    }
+
+    renderMessages = () => {
         const { storyGroups } = this.props;
-        const { storyIndex, saving, validationErrors, storyGroupNameSelected } = this.state;
+        const numberOfSelectedStoryGroups = storyGroups.filter(storyGroup => storyGroup.selected).length;
+        /* eslint-disable jsx-a11y/click-events-have-key-events */
+        const link = <span id='remove-focus' tabIndex='0' onClick={this.removeAllSelection} role='button'>Remove focus</span>;
+        if (numberOfSelectedStoryGroups === 1) {
+            return (
+                <Message
+                    warning
+                >
+                You’re currently focusing on 1 story group and only that story group will be trained. {link}
+                </Message>
+            );
+        }
+        return (
+            numberOfSelectedStoryGroups >= 1 && (
+                <Message
+                    warning
+                >
+                You’re currently focusing on {numberOfSelectedStoryGroups} story groups and only those story groups will be trained. {link}
+                </Message>
+
+            )
+        );
+    }
+
+    render() {
+        const { storyGroups } = this.props;
+        const {
+            storyIndex,
+            saving,
+            validationErrors,
+            storyGroupNameSelected,
+        } = this.state;
         const introStory = storyGroups.find(storyGroup => (storyGroup.introStory));
         const storyGroupFiltered = storyGroups.filter((storyGroup => !storyGroup.introStory)).sort(this.sortAlphabetically);
         const storySelected = this.storyGroupSelected(storyIndex, storyGroupNameSelected, storyGroupFiltered);
@@ -182,7 +220,7 @@ class Stories extends React.Component {
                             >
                                 <Icon
                                     id={`${introStory.selected ? 'selected' : 'not-selected'}`}
-                                    name='grid layout'
+                                    name='eye'
                                     onClick={e => this.handleIntroClick(e, introStory)}
                                 />
                                 <span>Intro Stories</span>
@@ -202,10 +240,11 @@ class Stories extends React.Component {
                     <Grid.Column width={4}>
                         {validationErrors && (
                             <Message
-                                warning
+                                negative
                                 content="Your changes haven't been saved. Correct errors first."
                             />
                         )}
+                        {this.renderMessages()}
                         {storyGroupFiltered && (
                             <ItemsBrowser
                                 data={storyGroupFiltered}
