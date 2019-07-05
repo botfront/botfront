@@ -219,7 +219,7 @@ class Stories extends React.Component {
                                 link
                             >
                                 <Icon
-                                    id={`${introStory.selected ? 'selected' : 'not-selected'}`}
+                                    id={`${introStory && introStory.selected ? 'selected' : 'not-selected'}`}
                                     name='eye'
                                     onClick={e => this.handleIntroClick(e, introStory)}
                                 />
