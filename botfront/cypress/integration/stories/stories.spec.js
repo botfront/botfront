@@ -55,7 +55,7 @@ describe('stories', function() {
         cy.dataCy('confirm-yes').click();
     });
 
-    it('should be able to rename storyGroups and select storyGroups', function() {
+    it('should be able to rename storyGroups and select storyGroups, train button should be in sync with the seleted stpry groups', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
         cy.get('[data-cy=input-item] input').type(`${storyGroupOne}{enter}`);
@@ -81,23 +81,6 @@ describe('stories', function() {
         cy.contains('storyGroup').click();
         cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
-    });
-
-    it('train button hsould be in-sync with seleted stpry groups', function() {
-        cy.visit(`/project/${this.bf_project_id}/stories`);
-        cy.dataCy('add-item').click();
-        cy.get('[data-cy=input-item] input').type(`${storyGroupOne}{enter}`);
-        cy.contains(storyGroupOne).click();
-        
-        // Initially none of the story groups are selected, therefore content in the train button should be 'Train'
-        cy.contains('Train');
-        cy.get('.active > #not-selected').click();
-        cy.get('#not-selected').click();
-        // Text in the train button should change after all the stories are selected
-        cy.contains('Train all 2 story group');
-
-        cy.contains('storyGroup').click();
-        cy.dataCy('delete-story').click();
-        cy.dataCy('confirm-yes').click();
+        cy.get('.active > #selected').click();
     });
 });

@@ -35,6 +35,7 @@ class TrainButton extends React.Component {
                 loading={isTraining(project)}
                 onClick={this.train}
                 compact
+                data-cy='train-button'
             />
         ) : (
             <Popup
@@ -48,6 +49,7 @@ class TrainButton extends React.Component {
                         disabled={isTraining(project) || !instance}
                         loading={isTraining(project)}
                         onClick={this.train}
+                        data-cy='train-button'
                     />)
                 }
                 // Popup is disabled while training
@@ -94,8 +96,8 @@ export default withTracker((props) => {
         storyGroups = StoryGroups.find({ projectId }, { field: { _id: 1 } }).fetch();
         selectedStoryGroups = storyGroups.filter(storyGroup => (storyGroup.selected));
 
-        if (selectedStoryGroups && selectedStoryGroups.length > 1) popupContent = `Train NLU and stories form ${selectedStoryGroups.length} focussed story group.`;
-        else if (selectedStoryGroups && selectedStoryGroups.length === 1) popupContent = 'Train NLU and stories form 1 focussed story group';
+        if (selectedStoryGroups && selectedStoryGroups.length > 1) popupContent = `Train NLU and stories from ${selectedStoryGroups.length} focussed story group.`;
+        else if (selectedStoryGroups && selectedStoryGroups.length === 1) popupContent = 'Train NLU and stories from 1 focussed story group';
     }
     
     return {
