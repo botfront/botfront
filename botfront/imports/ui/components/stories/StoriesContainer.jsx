@@ -33,8 +33,9 @@ function StoriesContainer(props) {
         project: { training: { endTime, status } = {} },
         project,
     } = props;
+
     const [activeItem, setActiveItem] = useState('stories');
-    
+
     function RenderPlaceHolder() {
         return (
             <Placeholder>

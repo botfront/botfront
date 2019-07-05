@@ -60,11 +60,11 @@ class Browser extends React.Component {
         event.stopPropagation();
         const { toggleSelect } = this.props;
         toggleSelect(element);
-    }
+    };
 
     handleEdit = (index, itemName) => {
         this.setState({ editing: index, itemName });
-    }
+    };
 
     render() {
         const {
@@ -79,11 +79,7 @@ class Browser extends React.Component {
         } = this.props;
 
         const {
-            addMode,
-            newItemName,
-            page,
-            editing,
-            itemName,
+            addMode, newItemName, page, editing, itemName,
         } = this.state;
 
         const items = data.map((item, index) => (
@@ -95,11 +91,15 @@ class Browser extends React.Component {
                 onClick={() => this.handleClickMenuItem(index)}
                 link={indexProp !== index}
             >
-                { editing !== index ? (
-                    <React.Fragment>
+                {editing !== index ? (
+                    <>
                         {selectAccessor && (
                             <Icon
-                                id={`${item[selectAccessor] ? 'selected' : 'not-selected'}`}
+                                id={`${
+                                    item[selectAccessor]
+                                        ? 'selected'
+                                        : 'not-selected'
+                                }`}
                                 name='eye'
                                 onClick={e => this.handleToggle(e, item)}
                             />
@@ -108,7 +108,8 @@ class Browser extends React.Component {
                             <Icon
                                 id='edit-icon'
                                 name='edit'
-                                onClick={() => this.handleEdit(index, item[nameAccessor])}
+                                onClick={() => this.handleEdit(index, item[nameAccessor])
+                                }
                                 data-cy='edit-name-icon'
                             />
                         )}
@@ -116,7 +117,7 @@ class Browser extends React.Component {
                         {indexProp === index && saving && (
                             <Loader active size='tiny' />
                         )}
-                    </React.Fragment>
+                    </>
                 ) : (
                     <Input
                         onChange={this.handleChangeOldName}
@@ -127,45 +128,42 @@ class Browser extends React.Component {
                         fluid
                         data-cy='edit-name'
                     />
-                )
-                }
-                
+                )}
             </Menu.Item>
         ));
         return (
-            <React.Fragment>
-                { allowAddition && (!addMode ? (
-                    <Button
-                        icon
-                        labelPosition='left'
-                        key='newItem'
-                        onClick={() => this.setState({ addMode: true })}
-                        link
-                        data-cy='add-item'
-                        fluid
-                    >
-                        <Icon name='add' />
-                        Add a story group
-                    </Button>
-                ) : (
-                    <Input
-                        onChange={this.handleChangeNewItemName}
-                        value={newItemName}
-                        onKeyDown={this.handleKeyDownInput}
-                        autoFocus
-                        onBlur={this.resetAddItem}
-                        fluid
-                        data-cy='input-item'
-                    />
-                ))
-                }
+            <>
+                {allowAddition
+                    && (!addMode ? (
+                        <Button
+                            icon
+                            labelPosition='left'
+                            key='newItem'
+                            onClick={() => this.setState({ addMode: true })}
+                            link
+                            data-cy='add-item'
+                            fluid
+                        >
+                            <Icon name='add' />
+                            Add a story group
+                        </Button>
+                    ) : (
+                        <Input
+                            onChange={this.handleChangeNewItemName}
+                            value={newItemName}
+                            onKeyDown={this.handleKeyDownInput}
+                            autoFocus
+                            onBlur={this.resetAddItem}
+                            fluid
+                            data-cy='input-item'
+                        />
+                    ))}
                 {data.length > 0 && (
                     <Menu vertical fluid>
                         {items}
                     </Menu>
                 )}
-            </React.Fragment>
-            
+            </>
         );
     }
 }

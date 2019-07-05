@@ -171,29 +171,32 @@ class Stories extends React.Component {
 
     renderMessages = () => {
         const { storyGroups } = this.props;
-        const numberOfSelectedStoryGroups = storyGroups.filter(storyGroup => storyGroup.selected).length;
+        const numberOfSelectedStoryGroups = storyGroups.filter(
+            storyGroup => storyGroup.selected,
+        ).length;
         /* eslint-disable jsx-a11y/click-events-have-key-events */
-        const link = <span id='remove-focus' tabIndex='0' onClick={this.removeAllSelection} role='button'>Remove focus</span>;
-        if (numberOfSelectedStoryGroups === 1) {
-            return (
-                <Message
-                    warning
-                >
-                You’re currently focusing on 1 story group and only that story group will be trained. {link}
-                </Message>
-            );
-        }
+        const link = (
+            <span
+                id='remove-focus'
+                tabIndex='0'
+                onClick={this.removeAllSelection}
+                role='button'
+            >
+                Remove focus
+            </span>
+        );
+        const plural = numberOfSelectedStoryGroups > 1;
         return (
             numberOfSelectedStoryGroups >= 1 && (
-                <Message
-                    warning
-                >
-                You’re currently focusing on {numberOfSelectedStoryGroups} story groups and only those story groups will be trained. {link}
+                <Message warning>
+                    You’re currently focusing on {numberOfSelectedStoryGroups}{' '}
+                    story group{plural && 's'} and only{' '}
+                    {plural ? 'those' : 'that'} story group{plural && 's'} will
+                    be trained. {link}
                 </Message>
-
             )
         );
-    }
+    };
 
     render() {
         const { storyGroups } = this.props;
@@ -209,7 +212,6 @@ class Stories extends React.Component {
 
         return (
             <Grid className='stories-container'>
-
                 <Grid.Row columns={2}>
                     <Grid.Column width={4}>
                         <Menu vertical fluid onClick={this.handleIntroStoryClick} className={`intro-story ${storySelected === -1 ? 'selected-intro-story' : ''}`}>
