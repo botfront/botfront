@@ -155,7 +155,7 @@ class Browser extends React.Component {
                             autoFocus
                             onBlur={this.resetAddItem}
                             fluid
-                            data-cy='input-item'
+                            data-cy='add-item-input'
                         />
                     ))}
                 {data.length > 0 && (
