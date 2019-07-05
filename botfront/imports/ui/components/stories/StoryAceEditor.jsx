@@ -35,6 +35,10 @@ const StoryEditor = ({
         }
     }, [annotations, story]);
 
+    useEffect(() => {
+        setNewTitle(title);
+    }, [title]);
+
     return (
         <div className='story-editor' data-cy='story-editor'>
             <Menu attached='top'>

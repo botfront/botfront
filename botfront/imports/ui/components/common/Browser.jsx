@@ -140,7 +140,7 @@ class Browser extends React.Component {
                             labelPosition='left'
                             key='newItem'
                             onClick={() => this.setState({ addMode: true })}
-                            link
+                            // link
                             data-cy='add-item'
                             fluid
                         >

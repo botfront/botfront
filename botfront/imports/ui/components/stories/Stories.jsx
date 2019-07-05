@@ -37,7 +37,7 @@ class Stories extends React.Component {
                 if (!err) {
                     Meteor.call('stories.insert', {
                         story: '* replace_with_intent',
-                        title: 'name',
+                        title: name,
                         storyGroupId: groupId,
                         projectId,
                     },
