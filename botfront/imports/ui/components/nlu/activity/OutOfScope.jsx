@@ -5,6 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import {
     Tab, Popup, Button, Icon,
 } from 'semantic-ui-react';
+import { saveAs } from 'file-saver';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import { can } from '../../../../lib/scopes';
@@ -12,7 +13,6 @@ import TrashBin from '../common/TrashBin';
 import IntentViewer from '../models/IntentViewer';
 import NLUExampleText from '../../example_editor/NLUExampleText';
 import { wrapMeteorCallback } from '../../utils/Errors';
-import { saveAs } from 'file-saver';
 
 class OutOfScope extends React.Component {
     getIntentColumn() {
@@ -35,6 +35,7 @@ class OutOfScope extends React.Component {
                         intent={example.intent ? example.intent : ''}
                         projectId={projectId}
                         onSave={onUpdateText}
+                        enableReset
                     />
                 );
             },
