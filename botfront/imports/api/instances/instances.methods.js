@@ -14,6 +14,7 @@ import { Instances } from './instances.collection';
 import { Slots } from '../slots/slots.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
+import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { ActivityCollection } from '../activity';
 
 export const createInstance = async (project) => {
@@ -96,10 +97,25 @@ export const getStoriesAndDomain = (projectId) => {
         .reduce((coll, curr) => coll.concat(curr), []);
     mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
     const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
-    let stories = Stories.find(
-        { projectId },
-        { story: 1 },
-    ).fetch().map(story => story.story);
+    const storyGroupsIds = StoryGroups.find(
+        { projectId, selected: true },
+        { fields: { _id: 1 } },
+    ).fetch().map(storyGroup => storyGroup._id);
+
+    let stories;
+
+    if (storyGroupsIds.length > 0) {
+        stories = Stories.find(
+            { projectId, storyGroupId: { $in: storyGroupsIds } },
+            { fields: { story: 1 } },
+        ).fetch().map(story => story.story);
+    } else {
+        stories = Stories.find(
+            { projectId },
+            { fields: { story: 1 } },
+        ).fetch().map(story => story.story);
+    }
+    
     stories = [mappingStory, ...stories];
     const slots = Slots.find({ projectId }).fetch();
     return {
@@ -195,7 +211,7 @@ if (Meteor.isServer) {
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
 
-                const { stories, domain } = getStoriesAndDomain();
+                const { stories, domain } = getStoriesAndDomain(projectId);
                 const payload = {
                     domain,
                     stories,
