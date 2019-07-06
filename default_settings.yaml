@@ -2,7 +2,6 @@ public:
   coreModelUploadEnabled: true
   deploymentEnabled: true
 private:
-  gcpBucketNLU: bf_eu_nlu_models
   gcpBucketCore: bf_eu_core_models
   bfApiHost: 'http://localhost:8081'
   imagesTag: 0.6.5
@@ -14,7 +13,6 @@ private:
       bf_url: '{BF_API_HOST}'
       bf_api_key: '{BF_API_KEY}'
       bf_project_id: '{BF_PROJECT_ID}'
-      nlu_models_bucket: '{GCP_BUCKET_NLU}'
       core_models_bucket: '{GCP_BUCKET_CORE}'
       debug: true
       do_not_persist_conversations: 'false'

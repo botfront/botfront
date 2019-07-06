@@ -33,7 +33,6 @@ class Deployment extends React.Component {
                 <AutoField name='deployment.config.bf_url' />
                 <AutoField name='deployment.config.bf_api_key' />
                 <AutoField name='deployment.config.bf_project_id' />
-                <AutoField name='deployment.config.nlu_models_bucket' />
                 <AutoField name='deployment.config.core_models_bucket' />
                 <AutoField name='deployment.config.debug' />
                 <AutoField name='deployment.images.core' />
