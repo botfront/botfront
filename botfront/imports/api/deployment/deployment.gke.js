@@ -7,7 +7,7 @@ export const getDefaultDeployment = ({ _id, namespace, apiKey }) => {
     const fields = {
         'settings.private.bfApiHost': 1,
         'settings.private.defaultDeployment': 1,
-        'settings.private.gcpBucketCore': 1,
+        'settings.private.gcpModelsBucket': 1,
         'settings.private.dockerRegistry': 1,
         'settings.private.imagesTag': 1,
     };
@@ -16,7 +16,7 @@ export const getDefaultDeployment = ({ _id, namespace, apiKey }) => {
         settings: {
             private: {
                 defaultDeployment,
-                gcpBucketCore,
+                gcpModelsBucket,
                 dockerRegistry,
                 imagesTag,
                 bfApiHost,
@@ -28,7 +28,7 @@ export const getDefaultDeployment = ({ _id, namespace, apiKey }) => {
 
     deployment = deployment.replace(/{BF_API_KEY}/g, apiKey);
     deployment = deployment.replace(/{BF_API_HOST}/g, bfApiHost);
-    deployment = deployment.replace(/{GCP_BUCKET_CORE}/g, gcpBucketCore);
+    deployment = deployment.replace(/{GCP_MODELS_BUCKET}/g, gcpModelsBucket);
     deployment = deployment.replace(/{BF_PROJECT_ID}/g, _id);
     deployment = deployment.replace(/{PROJECT_NAMESPACE}/g, namespace);
     deployment = deployment.replace(/{DOCKER_REGISTRY}/g, dockerRegistry);

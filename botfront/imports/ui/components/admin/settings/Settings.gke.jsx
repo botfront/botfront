@@ -12,7 +12,7 @@ export default [
             <Tab.Pane>
                 <InfoField name='settings.private.bfApiHost' label='Botfront API host' />
                 <InfoField name='settings.private.gcpProjectId' label='GCP Project ID' />
-                <InfoField name='settings.private.gcpBucketCore' label='GCS Bucket for Core models' />
+                <InfoField name='settings.private.gcpModelsBucket' label='GCS Bucket for Core models' />
                 <InfoField name='settings.private.dockerRegistry' label='Docker registry' />
                 <InfoField name='settings.private.imagesTag' label='Docker images tag' />
             </Tab.Pane>

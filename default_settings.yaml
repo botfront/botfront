@@ -2,7 +2,7 @@ public:
   coreModelUploadEnabled: true
   deploymentEnabled: true
 private:
-  gcpBucketCore: bf_eu_core_models
+  gcpModelsBucket: bf_eu_core_models
   bfApiHost: 'http://localhost:8081'
   imagesTag: 0.6.5
   dockerRegistry: gcr.io/botfront-project
@@ -13,7 +13,7 @@ private:
       bf_url: '{BF_API_HOST}'
       bf_api_key: '{BF_API_KEY}'
       bf_project_id: '{BF_PROJECT_ID}'
-      core_models_bucket: '{GCP_BUCKET_CORE}'
+      gcp_models_bucket: '{GCP_MODELS_BUCKET}'
       debug: true
       do_not_persist_conversations: 'false'
     images:
@@ -28,7 +28,7 @@ private:
       url: 'http://actions.{PROJECT_NAMESPACE}/webhook'
     models:
       url: >-
-        https://storage.googleapis.com/{GCP_BUCKET_CORE}/prod-{BF_PROJECT_ID}.zip
+        https://storage.googleapis.com/{GCP_MODELS_BUCKET}/prod-{BF_PROJECT_ID}.zip
     nlu_models_info:
       url: '{BF_API_HOST}/project/{BF_PROJECT_ID}/models/published'
     rules:

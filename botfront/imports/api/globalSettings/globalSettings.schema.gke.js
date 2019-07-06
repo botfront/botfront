@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import { privateSettingsSchema as basePrivateSettingsSchema, publicSettingsSchema as basePublicSettingsSchema } from './globalSettings.schema.default';
 
 export const privateSettingsSchema = basePrivateSettingsSchema.extend({
-    gcpBucketCore: { type: String, optional: true },
+    gcpModelsBucket: { type: String, optional: true },
     gcpProjectId: { type: String, optional: true },
     bfApiHost: { type: String, optional: true },
     imagesTag: { type: String, optional: true },

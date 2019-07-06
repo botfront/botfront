@@ -225,11 +225,11 @@ if (Meteor.isServer) {
                     }
 
                     if (process.env.ORCHESTRATOR === 'gke') {
-                        const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.core_models_bucket': 1 } });
-                        const { deployment: { config: { core_models_bucket = null } = {} } = {} } = deployment;
+                        const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } });
+                        const { deployment: { config: { gcp_models_bucket = null } = {} } = {} } = deployment;
                         
-                        if (core_models_bucket) {
-                            await uploadFileToGcs(getProjectModelLocalPath(projectId), core_models_bucket);
+                        if (gcp_models_bucket) {
+                            await uploadFileToGcs(getProjectModelLocalPath(projectId), gcp_models_bucket);
                         }
                     }
                 }

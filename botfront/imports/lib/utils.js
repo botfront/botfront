@@ -170,8 +170,8 @@ if (Meteor.isServer) {
             checkIfCan('global-admin');
             check(fileBinaryString, String);
             this.unblock();
-            const { settings: { private: { gcpBucketCore } } } = GlobalSettings.findOne({}, { fields: { 'settings.private.gcpBucketCore': 1 } });
-            return Meteor.call('upload.gcs', fileBinaryString, projectId, gcpBucketCore, `prod-${projectId}.zip`);
+            const { settings: { private: { gcpModelsBucket } } } = GlobalSettings.findOne({}, { fields: { 'settings.private.gcpModelsBucket': 1 } });
+            return Meteor.call('upload.gcs', fileBinaryString, projectId, gcpModelsBucket, `prod-${projectId}.zip`);
         },
     });
 }

@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start": "meteor run",
-    "start:docker-compose": "ORCHESTRATOR=docker-compose meteor run",
     "start:gke": "ORCHESTRATOR=gke meteor run",
     "debug-old": "meteor run --inspect",
     "debug": "meteor run --inspect-brk=9229",
