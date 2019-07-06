@@ -111,7 +111,7 @@ describe('stories', function() {
         cy.dataCy('confirm-yes').click();
     });
 
-    it('should be able to rename storyGroups and select storyGroups, train button should be in sync with the seleted stpry groups', function() {
+    it('should be able to rename storyGroups and select storyGroups, train button should be in sync with the seleted story groups', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
@@ -158,5 +158,20 @@ describe('stories', function() {
         cy.dataCy('story-title').should('have.value', storyGroupOne);
         cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
+    });
+
+    it('should be able to delete and add stories in intro stories', function() {
+        cy.visit(`/project/${this.bf_project_id}/stories`);
+        cy.dataCy('story-editor').get('textarea');
+        cy.dataCy('add-story').click();
+        cy.dataCy('story-editor').should('have.lengthOf', 2);
+        cy.dataCy('delete-story')
+            .first()
+            .click();
+        cy.dataCy('confirm-yes').click();
+        cy.dataCy('delete-story').click();
+        cy.dataCy('confirm-yes').click();
+        cy.dataCy('add-story').click();
+        cy.dataCy('story-editor').should('have.lengthOf', 1);
     });
 });
