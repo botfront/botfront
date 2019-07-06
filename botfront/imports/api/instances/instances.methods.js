@@ -208,7 +208,7 @@ if (Meteor.isServer) {
                 const trainingResponse = await client.post('/model/train', payload);
                 if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
                     await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
-                    ActivityCollection.update({}, { $set: { validated: false } }, { multi: true });
+                    // ActivityCollection.update({}, { $set: { validated: false } }, { multi: true });
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
