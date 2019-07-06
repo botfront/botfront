@@ -17,7 +17,7 @@ import { Instances } from '../../../api/instances/instances.collection';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
-import NLUTrainButton from '../nlu/models/NLUTrainButton';
+import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
 
 const Stories = React.lazy(() => import('./Stories'));
@@ -117,7 +117,7 @@ function StoriesContainer(props) {
                         )}
                     </Menu.Item>
                     <Menu.Item>
-                        <NLUTrainButton project={project} instance={instance} />
+                        <TrainButton project={project} instance={instance} projectId={projectId} />
                     </Menu.Item>
                 </Menu.Menu>
             </PageMenu>

@@ -1,0 +1,37 @@
+.ui.vertical.menu {
+    .item>#selected {
+        opacity: 0.87;
+    }
+
+    .item:hover #not-selected {
+        opacity: 0.40;
+    }
+
+    .item>#not-selected {
+        opacity: 0.0;
+        &:hover {
+            opacity: 0.50;
+        }
+    }
+}
+
+.menu.vertical .active.item.selected-blue {
+    background-color: rgba(33,133,208,0.08);
+    font-weight: bold;
+    &:hover {
+        background-color: rgba(33,133,208,0.16);
+    }
+}
+
+.ui.vertical.menu {
+    .item>#edit-icon {
+        opacity: 0.0;
+        &:hover{
+            opacity: .50;
+        }
+    }
+
+    .item:hover #edit-icon{
+        opacity: .40;
+    }
+}
