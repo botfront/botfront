@@ -107,7 +107,7 @@ function deleteTemp (path) {
     });
 }
 
-function uploadFile (filePath, bucket) {
+export function uploadFileToGcs (filePath, bucket) {
     const { Storage } = require('@google-cloud/storage');
     const storage = new Storage();
     return new Promise((resolve, reject) => storage.bucket(bucket)
@@ -125,7 +125,7 @@ function binaryStringToUint8Array(fileBinaryString) {
 function uploadModel(bytes, path, bucket, makePublic) {
     return new Promise((resolve, reject) => {
         writeFile(path, bytes)
-            .then(() => uploadFile(path, bucket))
+            .then(() => uploadFileToGcs(path, bucket))
             .then(([file]) => {
                 if (makePublic) {
                     return file.makePublic();

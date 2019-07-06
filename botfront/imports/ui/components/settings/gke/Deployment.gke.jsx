@@ -4,7 +4,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import {
-    AutoForm, AutoField, ErrorsField, SubmitField,
+    AutoForm, AutoField, ErrorsField, SubmitField, HiddenField,
 } from 'uniforms-semantic';
 import ReactJson from 'react-json-view';
 import { DeploymentSchema } from '../../../../api/deployment/deployment.schema';
@@ -20,28 +20,22 @@ class Deployment extends React.Component {
     onSave = (deployment) => {
         this.setState({ saving: true });
         const { projectId } = this.props;
-        Object.assign(deployment, { projectId });
-        Meteor.call('deployments.save', deployment, wrapMeteorCallback(() => this.setState({ saving: false }), 'Deployment info saved'));
+        const deploymentWithProjectId = Object.assign(deployment, { projectId });
+        Meteor.call('deployments.save', deploymentWithProjectId, wrapMeteorCallback(() => this.setState({ saving: false }), 'Deployment info saved'));
     };
 
-    renderDeployment = (saving, deployment) => (
+    renderDeployment = (saving, deployment, projectId) => (
         <>
-            <AutoForm
-                schema={DeploymentSchema}
-                model={deployment}
-                onSubmit={this.onSave}
-                disabled={saving}
-            >
+            <AutoForm schema={DeploymentSchema} model={deployment} onSubmit={this.onSave} disabled={saving}>
                 <AutoField name='deployment.namespace' />
                 <AutoField name='deployment.domain' />
-
+                <HiddenField name='projectId' value={projectId} />
                 <AutoField name='deployment.config.bf_url' />
                 <AutoField name='deployment.config.bf_api_key' />
                 <AutoField name='deployment.config.bf_project_id' />
                 <AutoField name='deployment.config.nlu_models_bucket' />
                 <AutoField name='deployment.config.core_models_bucket' />
                 <AutoField name='deployment.config.debug' />
-
                 <AutoField name='deployment.images.core' />
                 <AutoField name='deployment.images.nlu' />
                 <AutoField name='deployment.images.actions' />

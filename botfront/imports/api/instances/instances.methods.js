@@ -4,7 +4,9 @@ import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
 import yaml from 'js-yaml';
 import axios from 'axios';
-import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
+import {
+    getAxiosError, getProjectModelFileName, getProjectModelLocalPath, uploadFileToGcs,
+} from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
@@ -16,6 +18,7 @@ import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import { checkIfCan } from '../roles/roles';
 import { ActivityCollection } from '../activity';
+import { Deployments } from '../deployment/deployment.collection';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -208,11 +211,29 @@ if (Meteor.isServer) {
                     fixed_model_name: getProjectModelFileName(projectId),
                     // force: true,
                 };
-                const trainingResponse = await client.post('/model/train', payload);
-                if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
-                    await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
-                    ActivityCollection.update({}, { $set: { validated: false } }, { multi: true });
+                const trainingResponse = await client({
+                    method: 'post',
+                    url: '/model/train',
+                    data: payload,
+                    responseType: 'blob',
+                });
+                console.log(trainingResponse.headers, typeof trainingResponse.data);
+                if (trainingResponse.status === 200) {
+                    if (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose') {
+                        await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
+                        // ActivityCollection.update({}, { $set: { validated: false } }, { multi: true });
+                    }
+
+                    if (process.env.ORCHESTRATOR === 'gke') {
+                        const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.core_models_bucket': 1 } });
+                        const { deployment: { config: { core_models_bucket = null } = {} } = {} } = deployment;
+                        
+                        if (core_models_bucket) {
+                            await uploadFileToGcs(getProjectModelLocalPath(projectId), core_models_bucket);
+                        }
+                    }
                 }
+
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
