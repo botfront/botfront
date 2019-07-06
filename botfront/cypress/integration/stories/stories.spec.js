@@ -17,7 +17,7 @@ describe('stories', function() {
     it('should be able to add and delete stories', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input').type(`${storyGroupOne}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
         cy.contains('storyGroupOne').click();
         cy.dataCy('story-editor').get('textarea');
         cy.dataCy('add-story').click();
@@ -34,9 +34,9 @@ describe('stories', function() {
     it('should autosave stories as you edit them', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input').type(`${storyGroupOne}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
         cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input').type(`${storyGroupTwo}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupTwo}{enter}`);
         cy.contains(storyGroupOne).click();
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('story-editor')
@@ -56,7 +56,7 @@ describe('stories', function() {
     it('should be able to duplicate a story', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
-        cy.get('[data-cy=add-item] input').type(`${storyGroupOne}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('duplicate-story').click();
         cy.dataCy('story-editor').should('have.lengthOf', 2);
@@ -71,9 +71,9 @@ describe('stories', function() {
     it('should be able to move a story', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
-        cy.get('[data-cy=add-item] input').type(`${storyGroupOne}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
         cy.dataCy('add-item').click();
-        cy.get('[data-cy=add-item] input').type(`${storyGroupTwo}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupTwo}{enter}`);
         cy.contains(storyGroupOne).click();
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('move-story').click();
@@ -83,6 +83,7 @@ describe('stories', function() {
             .contains(storyGroupTwo)
             .click();
         cy.dataCy('confirm-yes').click();
+        cy.contains(storyGroupTwo).click();
         cy.dataCy('story-editor').should('have.lengthOf', 2);
         cy.dataCy('delete-story')
             .first()
@@ -95,9 +96,9 @@ describe('stories', function() {
     it('should be able to rename a story', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
-        cy.get('[data-cy=add-item] input').type(`${storyGroupOne}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
         cy.dataCy('add-item').click();
-        cy.get('[data-cy=add-item] input').type(`${storyGroupTwo}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupTwo}{enter}`);
         cy.contains(storyGroupOne).click();
         cy.dataCy('story-title').type('{selectall}{backspace}newTitle');
         cy.contains(storyGroupTwo).click();
@@ -113,7 +114,7 @@ describe('stories', function() {
     it('should be able to rename storyGroups and select storyGroups, train button should be in sync with the seleted stpry groups', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
-        cy.get('[data-cy=add-item-input] input').type(`${storyGroupOne}{enter}`);
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
         cy.contains(storyGroupOne).click();
         cy.dataCy('story-editor')
             .contains(initialText);
@@ -137,5 +138,25 @@ describe('stories', function() {
         cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
         cy.get('.active > #selected').click();
+    });
+
+    it('should not be able to add empty story or story group names', function() {
+        cy.visit(`/project/${this.bf_project_id}/stories`);
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input').find('input').type('{enter}');
+        cy.dataCy('browser-item').should('not.exist');
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input').find('input').type(`${storyGroupTwo}{enter}`);
+        cy.contains(storyGroupOne).click();
+        cy.dataCy('story-title').type('{selectall}{backspace}');
+        cy.contains(storyGroupTwo).click();
+        cy.dataCy('delete-story')
+            .click();
+        cy.dataCy('confirm-yes').click();
+        cy.contains(storyGroupOne).click();
+        cy.dataCy('story-title').should('have.value', storyGroupOne);
+        cy.dataCy('delete-story').click();
+        cy.dataCy('confirm-yes').click();
     });
 });

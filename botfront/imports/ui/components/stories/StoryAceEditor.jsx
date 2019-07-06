@@ -52,6 +52,10 @@ const StoryEditor = ({
                             if (title === newTitle) {
                                 return;
                             }
+                            if (!newTitle.replace(/\s/g, '').length) {
+                                setNewTitle(title);
+                                return;
+                            }
                             onRename(newTitle);
                         }}
                     />

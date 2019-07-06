@@ -90,6 +90,7 @@ class Browser extends React.Component {
                 active={indexProp === index}
                 onClick={() => this.handleClickMenuItem(index)}
                 link={indexProp !== index}
+                data-cy='browser-item'
             >
                 {editing !== index ? (
                     <>
