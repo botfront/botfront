@@ -7,16 +7,9 @@ steps:
   ]
 
 - name: 'gcr.io/cloud-builders/docker'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - docker pull botfront/botfront:latest || exit 0
-
-- name: 'gcr.io/cloud-builders/docker'
   args: [ "build",
           "-t", "botfront/botfront:$TAG_NAME",
           "-t", "botfront/botfront:latest",
-          "--cache-from", "botfront/botfront:latest",
           "."]
 
 - name: 'gcr.io/cloud-builders/docker'
