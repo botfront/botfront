@@ -8,7 +8,7 @@
           ]
       },
       "private": {
-          "defaultCredentials": "rasa_addons.core.channels.webchat.Webchat:\n  session_persistence: true",
+          "defaultCredentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true",
           "defaultPolicies": "policies:\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy"
       }
   }
