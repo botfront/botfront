@@ -1,6 +1,6 @@
 images:
   default:
-    botfront: botfront/botfront:v0.15.0-rc.1
+    botfront: botfront/botfront:latest
     botfront-api: botfront/botfront-api:0.15.0
     rasa: botfront/rasa-for-botfront:0.15.2
     duckling: botfront/duckling:latest
@@ -15,4 +15,3 @@ env:
   root_url: http://localhost:8888
   socket_path: /socket.io/
   mongo_initdb_database: bf
-  models_local_path: /app/models

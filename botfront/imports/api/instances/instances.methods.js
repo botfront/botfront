@@ -4,6 +4,8 @@ import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
 import yaml from 'js-yaml';
 import axios from 'axios';
+import fs from 'fs';
+import { promisify } from 'util';
 import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
@@ -193,11 +195,12 @@ if (Meteor.isServer) {
             const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 }).policies;
             const nlu = {};
             const config = {};
-            const client = axios.create({
-                baseURL: instance.host,
-                timeout: 100 * 1000,
-            });
+
             try {
+                const client = axios.create({
+                    baseURL: instance.host,
+                    timeout: 60 * 1000,
+                });
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < nluModels.length; ++i) {
                     // eslint-disable-next-line no-await-in-loop
@@ -207,7 +210,6 @@ if (Meteor.isServer) {
                         language: nluModels[i].language,
                     });
                     nlu[nluModels[i].language] = data;
-
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
 
@@ -217,11 +219,19 @@ if (Meteor.isServer) {
                     stories,
                     nlu,
                     config,
-                    out: process.env.MODELS_LOCAL_PATH,
-                    fixed_model_name: getProjectModelFileName(projectId),
-                    // force: true,
                 };
-                const trainingResponse = await client.post('/model/train', payload);
+                const trainingClient = axios.create({
+                    baseURL: instance.host,
+                    timeout: 30 * 60 * 1000,
+                    responseType: 'arraybuffer',
+                });
+                const trainingResponse = await trainingClient.post('/model/train', payload);
+                try {
+                    await promisify(fs.writeFile)(getProjectModelLocalPath(projectId), trainingResponse.data, 'binary');
+                } catch (e) {
+                    console.log(`Could not save trained model to ${location}:${e}`);
+                }
+                
                 if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
                     await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
                     // ActivityCollection.update({}, { $set: { validated: false } }, { multi: true });
