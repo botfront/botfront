@@ -28,6 +28,7 @@ See the `docker-compose.yaml` file in the `.botfront` directory on your project
 | `MAIL_URL`  |  An SMTP url if you want to use the password reset feature  | `botfront` |
 | `BF_PROJECT_ID` | The Botfront project ID (typically `my-first-project`) | `rasa` |
 | `BF_URL` | The `botfront-api` root url | `rasa`  `actions`|
+| `MODELS_LOCAL_PATH` |  Where the trained model returned by Rasa is stored locally. Defaults to `/app/models/` and should not be changed in a containerized environment. The Botfront Dockerfile exposes a volume with that path | `botfront` |
 
 ## MongoDB database
 When you run Botfront in developer mode, Meteor will spin up a local MongoDB database accessible on port `3001`. However, when running in production or with `docker-compose` a MongoDB uri needs to be provided with the environment variable `MONGO_URL`. It is also **highly** recommended (but optional) to provide an oplog url with `MONGO_OPLOG_URL`. 
