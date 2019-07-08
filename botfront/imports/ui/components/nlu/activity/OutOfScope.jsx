@@ -147,6 +147,7 @@ class OutOfScope extends React.Component {
                 )}
                 <ReactTable
                     data={utterances}
+                    minRows={1}
                     columns={this.getColumns()}
                     getTheadThProps={() => ({
                         style: {
