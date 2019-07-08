@@ -76,6 +76,7 @@ class Browser extends React.Component {
             saving,
             selectAccessor,
             allowEdit,
+            placeholderAddItem,
         } = this.props;
 
         const {
@@ -150,6 +151,7 @@ class Browser extends React.Component {
                         </Button>
                     ) : (
                         <Input
+                            placeholder={placeholderAddItem}
                             onChange={this.handleChangeNewItemName}
                             value={newItemName}
                             onKeyDown={this.handleKeyDownInput}
@@ -182,6 +184,7 @@ Browser.propTypes = {
     toggleSelect: PropTypes.func,
     changeName: PropTypes.func,
     allowEdit: PropTypes.bool,
+    placeholderAddItem: PropTypes.string,
 };
 
 Browser.defaultProps = {
@@ -196,6 +199,7 @@ Browser.defaultProps = {
     saving: false,
     selectAccessor: '',
     allowEdit: false,
+    placeholderAddItem: '',
 };
 
 export default Browser;

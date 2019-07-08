@@ -320,6 +320,7 @@ class Stories extends React.Component {
                                 selectAccessor='selected'
                                 toggleSelect={this.handleStoryGroupSelect}
                                 changeName={this.handleNameChange}
+                                placeholderAddItem='Choose a group name'
                             />
                         )}
                     </Grid.Column>
