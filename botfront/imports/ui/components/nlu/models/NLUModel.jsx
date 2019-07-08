@@ -256,6 +256,7 @@ class NLUModel extends React.Component {
     render() {
         const {
             projectId,
+            instance,
             model,
             model: {
                 _id: modelId,
@@ -270,7 +271,7 @@ class NLUModel extends React.Component {
             ready,
         } = this.props;
         const {
-            activeItem, instance, entities, intents,
+            activeItem, entities, intents,
         } = this.state;
         if (!project) return null;
         if (!model) return null;
@@ -382,6 +383,7 @@ NLUModel.propTypes = {
     models: PropTypes.array,
     projectDefaultLanguage: PropTypes.string,
     project: PropTypes.object,
+    instance: PropTypes.object,
 };
 
 NLUModel.defaultProps = {
@@ -393,6 +395,7 @@ NLUModel.defaultProps = {
     projectId: '',
     model: {},
     project: {},
+    instance: null,
 };
 
 const handleDefaultRoute = (projectId) => {
@@ -431,7 +434,6 @@ const NLUDataLoaderContainer = withTracker((props) => {
         return {};
     }
     const { training_data: { common_examples = [] } = {} } = model;
-    const instances = Instances.find({ projectId }).fetch();
     const intents = sortBy(uniq(common_examples.map(e => e.intent)));
     const entities = [];
     const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
@@ -449,7 +451,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         name,
         nlu_models,
         defaultLanguage,
-        instance,
+        instance: instanceId,
         training,
         nluThreshold,
     } = Projects.findOne({ _id: projectId }, {
@@ -457,6 +459,8 @@ const NLUDataLoaderContainer = withTracker((props) => {
             name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1, nluThreshold: 1,
         },
     });
+    const instances = Instances.find({ projectId }).fetch();
+    const instance = instances && instances.length ? instances[0] : null;
     if (!name) return browserHistory.replace({ pathname: '/404' });
     const nluModelLanguages = getPublishedNluModelLanguages(nlu_models, true);
     const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
@@ -471,14 +475,13 @@ const NLUDataLoaderContainer = withTracker((props) => {
         ready,
         models,
         model,
-        instances,
+        instance,
         intents,
         entities,
         projectId,
         settings,
         nluModelLanguages,
         projectDefaultLanguage,
-        instance,
         project,
     };
 })(NLUModel);
