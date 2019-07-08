@@ -76,6 +76,7 @@ class Browser extends React.Component {
             saving,
             selectAccessor,
             allowEdit,
+            placeholderAddItem,
         } = this.props;
 
         const {
@@ -86,10 +87,11 @@ class Browser extends React.Component {
             <Menu.Item
                 key={index.toString()}
                 name={item[nameAccessor]}
-                className={`${indexProp === index ? 'selected-blue' : ''}`}
+                className={indexProp === index ? 'selected-blue' : ''}
                 active={indexProp === index}
                 onClick={() => this.handleClickMenuItem(index)}
                 link={indexProp !== index}
+                data-cy='browser-item'
             >
                 {editing !== index ? (
                     <>
@@ -140,7 +142,7 @@ class Browser extends React.Component {
                             labelPosition='left'
                             key='newItem'
                             onClick={() => this.setState({ addMode: true })}
-                            link
+                            // link
                             data-cy='add-item'
                             fluid
                         >
@@ -149,13 +151,14 @@ class Browser extends React.Component {
                         </Button>
                     ) : (
                         <Input
+                            placeholder={placeholderAddItem}
                             onChange={this.handleChangeNewItemName}
                             value={newItemName}
                             onKeyDown={this.handleKeyDownInput}
                             autoFocus
                             onBlur={this.resetAddItem}
                             fluid
-                            data-cy='input-item'
+                            data-cy='add-item-input'
                         />
                     ))}
                 {data.length > 0 && (
@@ -181,6 +184,7 @@ Browser.propTypes = {
     toggleSelect: PropTypes.func,
     changeName: PropTypes.func,
     allowEdit: PropTypes.bool,
+    placeholderAddItem: PropTypes.string,
 };
 
 Browser.defaultProps = {
@@ -195,6 +199,7 @@ Browser.defaultProps = {
     saving: false,
     selectAccessor: '',
     allowEdit: false,
+    placeholderAddItem: '',
 };
 
 export default Browser;

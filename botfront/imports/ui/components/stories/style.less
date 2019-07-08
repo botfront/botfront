@@ -26,12 +26,8 @@
     }
   }
 
-  .segment {
-    .icon.trash {
-      position: absolute;
-      right: 10px;
-      top: 15px;
-    }
+  .icon.add {
+    margin-top: 1em;
   }
 
   .warning.message {
@@ -68,16 +64,62 @@
   position: relative;
 }
 
-.story-name {
-  position: absolute;
-  bottom: 0;
-}
-
 .ui.vertical.menu.intro-story {
   border-color: rgb(33,133,208);
   border-width: 2px;
   span {
     color: rgb(33,133,208);
+  }
+}
+  
+.story-editor {
+  margin-bottom: 20px;
+  .ui.attached.top {
+    border-color: #eeeeee;
+    .item {
+      padding: 10px 16px;
+    }
+
+    .header {
+
+      input {
+        margin: 0 5px;
+        border-style: solid;
+        font-size: 16px;
+        border-color:rgba(176, 176, 176, 0);
+        border-radius: 6px;
+        padding: 4px 9px;
+        border-width: 1px;
+        color: rgba(0,0,0,.87);
+        outline: none;
+        &:hover {
+          border-color: rgba(176, 176, 176, 0.4);
+        }
+        &:focus {
+          border-color: rgb(176, 176, 176);
+          color: rgba(0,0,0,1);
+        }
+      }
+    }
+
+    .icon {
+      margin-left: 8px;
+    }
+
+    .story-title-prefix {
+      opacity: 0.4;
+      margin-right: 8px;
+    }
+
+    //removes borders b/w menu items
+    .item::before {
+      width: 0;
+    }
+  }
+
+  .ui.segment.bottom {
+    border-color: #eeeeee;
+    padding: 0;
   }
 }
 

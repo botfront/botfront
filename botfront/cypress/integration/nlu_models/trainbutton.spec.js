@@ -10,17 +10,15 @@ describe('Train Button', function() {
     });
 
     it('train button should have the same text on both the NLU and stories page', function() {
-        
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
-        cy.get('[data-cy=input-item] input').type('storyGroupOne{enter}');
+        cy.dataCy('add-item-input').find('input').type('storyGroupOne{enter}');
         cy.contains('storyGroupOne').click();
         // Selecting a story group
         cy.get('.active > #not-selected').click();
         cy.contains('Partial Training');
         cy.dataCy('train-button').trigger('mouseover');
         cy.contains('Train NLU and stories from 1 focussed story group');
-
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
 
         cy.dataCy('train-button').trigger('mouseover');

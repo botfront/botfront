@@ -20,6 +20,12 @@ StoryGroups.deny({
     },
 });
 
+Meteor.startup(() => {
+    if (Meteor.isServer) {
+        StoryGroups._ensureIndex({ projectId: 1, name: 1 }, { unique: true });
+    }
+});
+
 if (Meteor.isServer) {
     Meteor.publish('storiesGroup', function(projectId) {
         check(projectId, String);
