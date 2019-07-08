@@ -113,6 +113,7 @@ export default class ActivityDataTable extends React.Component {
                             example={example}
                             intent={example.intent ? example.intent : ''}
                             projectId={projectId}
+                            enableReset
                             onSave={onUpdateText}
                         />
                     );
