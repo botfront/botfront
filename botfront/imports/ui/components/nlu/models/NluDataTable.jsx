@@ -202,7 +202,7 @@ export default class NluDataTable extends React.Component {
                     onPageChange={() => this.setState({ expanded: {} })}
                     expanded={expanded}
                     onExpandedChange={(newExpanded, index) => {
-                        let expandedChange;
+                        let expandedChange = {};
                         if (newExpanded[index[0]] === false) {
                             expandedChange = {};
                         } else {

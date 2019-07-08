@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { check } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 
 import { formatError, getProjectIdFromModelId } from '../lib/utils';
 import ExampleUtils from '../ui/components/utils/ExampleUtils';
@@ -19,7 +19,7 @@ const ActivitySchema = new SimpleSchema({
     _id: String,
     modelId: String,
     text: String,
-    intent: String,
+    intent: { type: String, optional: true },
     entities: Array,
     'entities.$': Object,
     'entities.$.start': Number,
@@ -78,12 +78,17 @@ Meteor.methods({
     'activity.onChangeIntent'(examplesIds, intent, modelId) {
         checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
         check(examplesIds, Array);
-        check(intent, String);
+        check(intent, Match.Maybe(String));
         check(modelId, String);
+        let set = { confidence: 0 };
+        let unset = {};
+        if (intent) set = { ...set, intent };
+        else { unset = { intent }; set = { ...set, validated: false }; }
         return ActivityCollection.update(
             { _id: { $in: examplesIds } },
             {
-                $set: { intent, confidence: 0 },
+                $set: set,
+                $unset: unset,
             }, { multi: true },
         );
     },

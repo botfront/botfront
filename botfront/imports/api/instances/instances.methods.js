@@ -6,7 +6,9 @@ import yaml from 'js-yaml';
 import axios from 'axios';
 import fs from 'fs';
 import { promisify } from 'util';
-import { getAxiosError, getProjectModelFileName, getProjectModelLocalPath } from '../../lib/utils';
+import {
+    getAxiosError, getProjectModelFileName, getProjectModelLocalPath, getModelIdsFromProjectId,
+} from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
@@ -234,7 +236,8 @@ if (Meteor.isServer) {
                 
                 if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
                     await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
-                    // ActivityCollection.update({}, { $set: { validated: false } }, { multi: true });
+                    const modelIds = getModelIdsFromProjectId(projectId);
+                    ActivityCollection.update({ modelId: { $in: modelIds }, validated: true }, { $set: { validated: false } }, { multi: true });
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {

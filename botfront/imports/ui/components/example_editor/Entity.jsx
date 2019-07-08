@@ -76,7 +76,7 @@ function EntityLabel({ entity, entities, isSynonym, onUpdateText, editable }) {
             <EntityName entity={entity} entities={entities} onUpdateText={onUpdateText} editable={editable} />
             {isSynonym && ': '}
             {isSynonym && <EntityValue entity={entity} />}
-            {confidence && ` (${confidence}%)`}
+            {confidence && confidence > 0 && ` (${confidence}%)`}
         </Label.Detail>
     );
 }
