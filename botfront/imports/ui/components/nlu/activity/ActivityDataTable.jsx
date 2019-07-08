@@ -17,18 +17,6 @@ export default class ActivityDataTable extends React.Component {
         reInterpreting: [],
     }
 
-    getIntentForDropdown(all) {
-        const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
-        const { intents } = this.props;
-        intents.forEach((i) => {
-            intentSelection.push({
-                text: i,
-                value: i,
-            });
-        });
-        return intentSelection;
-    }
-
     getValidationColumn() {
         const { outDatedUtteranceIds } = this.props;
         const { reInterpreting } = this.state;
