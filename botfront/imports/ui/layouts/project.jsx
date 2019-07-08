@@ -215,14 +215,14 @@ const ProjectContainer = withTracker((props) => {
         store.dispatch(setProjectId(projectId));
     }
     
-    const introStory = Stories.findOne({}, { fields: { story: 1 } });
-
+    const introStory = Stories.find({ selected: true }, { fields: { story: 1 } }).fetch();
+    
     return {
         loading: !ready,
         projectId,
         channel,
         renderLegacyModels,
-        introStory: ready && introStory.story,
+        // introStory: ready && introStory.story,
     };
 })(windowSize(Project));
 

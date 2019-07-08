@@ -1,9 +1,10 @@
 import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {
-    Menu, Icon, Dropdown, Popup, Message,
+    Menu, Icon, Dropdown, Popup, Message, Label,
 } from 'semantic-ui-react';
 
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -74,38 +75,61 @@ class ProjectChat extends React.Component {
         }));
     };
 
+    renderEntities = (entities) => {
+        return entities.map(e => (
+            <Label basic color='teal'>
+                <Label.Detail>{e.entity}</Label.Detail>
+                {e.value}
+            </Label>
+        ));
+    }
+
+    renderPayLoadOptions = () => {
+        const {
+            initPayloads: {
+                objectPayloads: payLoadOptions,
+            },
+        } = this.props;
+
+        const menuItems = payLoadOptions.map((payLoad, index) => (
+            <Dropdown.Item
+                key={index.toString()}
+            >
+                <Menu.Item fluid>
+                    <Label basic color='violet'>
+                        {payLoad.intent}
+                    </Label>
+                    { payLoad.entities && payLoad.entities.length > 0 && (
+                        this.renderEntities(payLoad.entities)
+                    )}
+                    <Icon name='check' />
+
+                </Menu.Item>
+            </Dropdown.Item>
+        ));
+        return menuItems;
+    }
+
     render() {
         const {
             key, socketUrl, languageOptions, selectedLanguage, noChannel, path,
         } = this.state;
-        const { triggerChatPane, projectId, introStory } = this.props;
+        const { triggerChatPane, projectId, initPayloads } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
+                    <Dropdown item icon='bolt'>
+                        <Dropdown.Menu>
+                            {this.renderPayLoadOptions()}
+                        </Dropdown.Menu>
+                    </Dropdown>
                     <Menu.Item>
-                        {selectedLanguage && (
-                            <Dropdown
-                                options={languageOptions}
-                                selection
-                                onChange={this.handleLangChange}
-                                value={selectedLanguage}
-                                data-cy='chat-language-option'
-                            />
-                        )}
+                        {selectedLanguage && <Dropdown options={languageOptions} selection onChange={this.handleLangChange} value={selectedLanguage} data-cy='chat-language-option' />}
                     </Menu.Item>
                     <Menu.Menu position='right'>
                         <Menu.Item>
                             <Popup
-                                trigger={(
-                                    <Icon
-                                        name='redo'
-                                        color='grey'
-                                        link={!noChannel}
-                                        onClick={this.handleReloadChat}
-                                        disabled={noChannel}
-                                        data-cy='restart-chat'
-                                    />
-                                )}
+                                trigger={<Icon name='redo' color='grey' link={!noChannel} onClick={this.handleReloadChat} disabled={noChannel} data-cy='restart-chat' />}
                                 content='Restart the conversation'
                                 position='bottom right'
                                 className='redo-chat-popup'
@@ -114,15 +138,7 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                         <Menu.Item>
                             <Popup
-                                trigger={(
-                                    <Icon
-                                        name='close'
-                                        color='grey'
-                                        link
-                                        onClick={triggerChatPane}
-                                        data-cy='close-chat'
-                                    />
-                                )}
+                                trigger={<Icon name='close' color='grey' link onClick={triggerChatPane} data-cy='close-chat' />}
                                 content='Close the conversation'
                                 position='bottom right'
                                 className='redo-chat-popup'
@@ -130,15 +146,7 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                {socketUrl && path && (
-                    <Chat
-                        socketUrl={socketUrl}
-                        key={key}
-                        language={selectedLanguage}
-                        path={path}
-                        introStory={introStory}
-                    />
-                )}
+                {socketUrl && path && <Chat socketUrl={socketUrl} key={key} language={selectedLanguage} path={path} initialPayLoad={initPayloads.stringPayloads} />}
                 {noChannel && (
                     <Message
                         content={(
@@ -146,11 +154,7 @@ class ProjectChat extends React.Component {
                                 Go to <Icon name='setting' />
                                 Settings &gt; <Icon name='server' />
                                 Instances to{' '}
-                                <Link
-                                    to={`/project/${projectId}/settings`}
-                                    onClick={triggerChatPane}
-                                    data-cy='settings-link'
-                                >
+                                <Link to={`/project/${projectId}/settings`} onClick={triggerChatPane} data-cy='settings-link'>
                                     create{' '}
                                 </Link>
                                 a valid instance of Rasa to enable the chat window.
@@ -170,11 +174,19 @@ ProjectChat.propTypes = {
     projectId: PropTypes.string.isRequired,
     triggerChatPane: PropTypes.func.isRequired,
     channel: PropTypes.object.isRequired,
-    introStory: PropTypes.string,
+    initPayloads: PropTypes.array,
 };
 
 ProjectChat.defaultProps = {
-    introStory: '',
+    initPayloads: [],
 };
 
-export default ProjectChat;
+const ProjectChatContainer = withTracker(props => ({
+    loading: true,
+    initPayloads: {
+        objectPayloads: [{ intent: 'intent' }, { intent: 'intent1', entities: [{ entity: 'ent', value: 'val' }] }],
+        stringPayloads: ['/intent', '/intent1{"ent":"val"}'],
+    },
+}))(ProjectChat);
+
+export default ProjectChatContainer;

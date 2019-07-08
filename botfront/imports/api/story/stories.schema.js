@@ -13,4 +13,5 @@ export const StorySchema = new SimpleSchema({
         type: String,
     },
     projectId: { type: String },
+    selected: { type: true, optional: true },
 });
