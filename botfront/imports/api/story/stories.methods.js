@@ -4,24 +4,21 @@ import { checkIfCan } from '../../lib/scopes';
 import { Stories } from './stories.collection';
 
 Meteor.methods({
-    'stories.insert'(story, projectId) {
+    'stories.insert'(story) {
         check(story, Object);
-        check(projectId, String);
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', story.projectId);
         return Stories.insert(story);
     },
 
-    'stories.update'(story, projectId) {
+    'stories.update'(story) {
         check(story, Object);
-        check(projectId, String);
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', story.projectId);
         return Stories.update({ _id: story._id }, { $set: story });
     },
 
-    'stories.delete'(story, projectId) {
+    'stories.delete'(story) {
         check(story, Object);
-        check(projectId, String);
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', story.projectId);
         return Stories.remove(story);
     },
 });

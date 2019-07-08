@@ -98,7 +98,6 @@ class Stories extends React.Component {
                         : storyGroups[storyIndex]._id
                 }`,
             },
-            projectId,
             wrapMeteorCallback(),
         );
     };
@@ -233,7 +232,7 @@ class Stories extends React.Component {
     };
 
     render() {
-        const { storyGroups } = this.props;
+        const { storyGroups, projectId } = this.props;
         const {
             storyIndex,
             saving,

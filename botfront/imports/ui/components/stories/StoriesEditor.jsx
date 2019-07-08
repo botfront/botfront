@@ -1,5 +1,5 @@
 import {
-    Icon, Container, Popup, Segment, Button,
+    Container, Button,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
@@ -63,7 +63,6 @@ function StoriesEditor(props) {
         Meteor.call(
             'stories.update',
             story,
-            projectId,
             wrapMeteorCallback(() => {
                 onSaved();
             }),
@@ -101,12 +100,10 @@ function StoriesEditor(props) {
 
     function handeStoryDeletion(index) {
         const toBeDeletedStory = stories[index];
-        Meteor.call('stories.delete', toBeDeletedStory, projectId, wrapMeteorCallback());
         spliceStoryState(index);
         Meteor.call(
             'stories.delete',
             toBeDeletedStory,
-            projectId,
             wrapMeteorCallback((err) => {
                 if (!err) {
                     // deletes group if no stories left
@@ -198,7 +195,7 @@ function StoriesEditor(props) {
             {editors}
             <Container textAlign='center'>
                 {
-                    canWriteStories && (
+                    can('stories:w', projectId) && (
                         <Button icon='add' basic name='add' onClick={() => onAddNewStory(stories.length + 1)} size='medium' data-cy='add-story' color='black' content='Add a story' />
                     )
                 }

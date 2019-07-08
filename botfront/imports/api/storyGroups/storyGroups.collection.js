@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 
+import { checkIfCan } from '../../lib/scopes';
 import { StoryGroupSchema } from './storyGroups.schema';
 import { createIntroStoryGroup } from './storyGroups.methods';
 
@@ -29,6 +30,7 @@ Meteor.startup(() => {
 if (Meteor.isServer) {
     Meteor.publish('storiesGroup', function(projectId) {
         check(projectId, String);
+        checkIfCan('stories:r', projectId);
         if (!StoryGroups.findOne({ projectId, introStory: true })) {
             createIntroStoryGroup(projectId);
         }

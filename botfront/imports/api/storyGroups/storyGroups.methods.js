@@ -36,10 +36,9 @@ function handleError(e) {
 }
 
 Meteor.methods({
-    'storyGroups.delete'(storyGroup, projectId) {
+    'storyGroups.delete'(storyGroup) {
         check(storyGroup, Object);
-        check(projectId, String);
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', storyGroup.projectId);
         return StoryGroups.remove({ _id: storyGroup._id });
     },
 
@@ -53,10 +52,9 @@ Meteor.methods({
         }
     },
 
-    'storyGroups.update'(storyGroup, projectId) {
+    'storyGroups.update'(storyGroup) {
         check(storyGroup, Object);
-        check(projectId, String);
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', storyGroup.projectId);
         try {
             return StoryGroups.update(
                 { _id: storyGroup._id },
