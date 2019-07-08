@@ -85,6 +85,23 @@ export default class ActivityDataTable extends React.Component {
                             )}
                         />
                     );
+                } else if (ooS) {
+                    action = (
+                        <Popup
+                            size='mini'
+                            inverted
+                            content='Mark this utterance OoS'
+                            trigger={(
+                                <Button
+                                    basic
+                                    size={size}
+                                    onClick={() => this.onMarkOoS(utterance)}
+                                    color='black'
+                                    icon='sign-out'
+                                />
+                            )}
+                        />
+                    );
                 } else if (!validated) {
                     action = (
                         <Popup
@@ -209,8 +226,8 @@ export default class ActivityDataTable extends React.Component {
         return [
             this.getConfidenceColumn(),
             this.getIntentColumn(),
-            can('nlu-data:w', projectId) && this.getExampleColumn(),
-            this.getValidationColumn(),
+            this.getExampleColumn(),
+            can('nlu-data:w', projectId) && this.getValidationColumn(),
         ];
     }
 
@@ -264,6 +281,11 @@ export default class ActivityDataTable extends React.Component {
     );
 
     onValidate = u => this.onExamplesEdit([{ ...u, validated: !u.validated }]);
+
+    onMarkOoS = (u) => {
+        const { modelId } = this.props;
+        Meteor.call('activity.markooS', modelId, u._id, wrapMeteorCallback());
+    }
 
     onChangeIntent = (examplesIds, intent, modelId) => Meteor.call('activity.onChangeIntent', examplesIds, intent, modelId, wrapMeteorCallback());
 

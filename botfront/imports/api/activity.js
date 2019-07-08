@@ -43,6 +43,7 @@ const ActivitySchema = new SimpleSchema({
         type: Date,
         autoValue() { return new Date(); },
     },
+    ooS: { type: Boolean, defaultValue: false },
 });
 
 Meteor.startup(() => {
@@ -68,6 +69,16 @@ if (Meteor.isServer) {
 ActivityCollection.attachSchema(ActivitySchema);
 
 Meteor.methods({
+    'activity.markooS'(modelId, itemId) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        check(itemId, String);
+        check(modelId, String);
+        return ActivityCollection.update(
+            { _id: itemId },
+            { $set: { ooS: true, validated: false } },
+        );
+    },
+
     'activity.deleteExamples'(modelId, itemIds) {
         checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(itemIds, Array);
@@ -123,11 +134,29 @@ Meteor.methods({
         });
     },
 
+    'activity.addToTraining'(modelId, u) {
+        check(modelId, String);
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        check(u, [String]);
+        const examples = ActivityCollection.find({ _id: { $in: u } });
+        const error = Promise.await(new Promise((resolve) => {
+            Meteor.call('nlu.insertExamples', modelId, examples.map(example => ExampleUtils.stripBare(example, true, true)), (err) => {
+                if (err) {
+                    resolve(err);
+                } else {
+                    resolve();
+                }
+            });
+        }));
+        if (error) throw formatError(error);
+        return ActivityCollection.remove({ _id: { $in: u } });
+    },
+
     'activity.addValidatedToTraining'(modelId) {
         check(modelId, String);
         checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
-        const validatedExamples = ActivityCollection.find({ modelId, validated: true }).fetch();
+        const validatedExamples = ActivityCollection.find({ modelId, validated: true, $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] }).fetch();
 
         const error = Promise.await(new Promise((resolve) => {
             Meteor.call('nlu.insertExamples', modelId, validatedExamples.map(example => ExampleUtils.stripBare(example, true, true)), (err) => {
@@ -149,6 +178,6 @@ Meteor.methods({
             throw formatError(error);
         }
 
-        return ActivityCollection.remove({ modelId, validated: true });
+        return ActivityCollection.remove({ modelId, validated: true, $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] });
     },
 });

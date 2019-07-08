@@ -9,6 +9,7 @@ import { Tab, Message } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import ActivityInsertions from './ActivityInsertions';
 import ActivityDataTable from './ActivityDataTable';
+import OutOfScope from './OutOfScope';
 import ActivityActions from './ActivityActions';
 import { Loading } from '../../utils/Utils';
 import { ActivityCollection } from '../../../../api/activity';
@@ -90,9 +91,25 @@ class Activity extends React.Component {
     };
 
     getActivityPanes = () => {
-        const { model, instance, projectId } = this.props;
+        const {
+            model, instance, projectId, intents, oosUtterances, entities, utterances,
+        } = this.props;
         const panes = [];
-        panes.push({ menuItem: 'Incoming', render: this.renderIncomingTab });
+        const incomingPaneTitle = utterances.length ? `Incoming (${utterances.length})` : 'Incoming';
+        const oosPaneTitle = oosUtterances.length ? `Out of Scope (${oosUtterances.length})` : 'Out of Scope';
+        panes.push({ menuItem: incomingPaneTitle, render: this.renderIncomingTab });
+        panes.push({
+            menuItem: oosPaneTitle,
+            render: () => (
+                <OutOfScope
+                    model={model}
+                    utterances={oosUtterances}
+                    projectId={projectId}
+                    intents={intents}
+                    entities={entities}
+                />
+            ),
+        });
         if (can('nlu-data:w', projectId)) {
             panes.push({ menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> });
         }
@@ -115,6 +132,7 @@ class Activity extends React.Component {
 Activity.propTypes = {
     model: PropTypes.object.isRequired,
     utterances: PropTypes.array.isRequired,
+    oosUtterances: PropTypes.array.isRequired,
     entities: PropTypes.array.isRequired,
     intents: PropTypes.array.isRequired,
     instance: PropTypes.object.isRequired,
@@ -133,7 +151,8 @@ const ActivityContainer = withTracker((props) => {
     const ready = activityHandler.ready();
     const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1, language: 1 } });
 
-    const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
+    const utterances = ActivityCollection.find({ modelId, $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] }, { sort: { createdAt: 1 } }).fetch();
+    const oosUtterances = ActivityCollection.find({ modelId, ooS: true }, { sort: { createdAt: 1 } }).fetch();
     const smartTips = getAllSmartTips(model, project, utterances);
     const outDatedUtteranceIds = Object.keys(smartTips).filter(u => smartTips[u].code === 'outdated');
     let localIntents = [];
@@ -164,6 +183,7 @@ const ActivityContainer = withTracker((props) => {
     return {
         model,
         utterances,
+        oosUtterances,
         smartTips,
         ready,
         entities: uniq(entities.concat(localEntities)),
