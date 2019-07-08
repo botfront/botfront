@@ -79,6 +79,8 @@ export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProp
 
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
 
+export const getModelIdsFromProjectId = projectId => Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+
 export const validateYaml = function() {
     try {
         yaml.safeLoad(this.value);
