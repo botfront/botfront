@@ -1,10 +1,6 @@
 [
     {
         "line": 1,
-        "code": "title"
-    },
-    {
-        "line": 1,
         "code": "have_intent"
     },
     {
@@ -24,8 +20,8 @@
         "code": "prefix"
     },
     {
-        "line": 13,
-        "code": "have_intent"
+        "line": 11,
+        "code": "prefix"
     },
     {
         "line": 17,
@@ -36,8 +32,12 @@
         "code": "prefix"
     },
     {
+        "line": 20,
+        "code": "prefix"
+    },
+    {
         "line": 22,
-        "code": "empty_story"
+        "code": "prefix"
     },
     {
         "line": 26,
@@ -45,6 +45,10 @@
     },
     {
         "line": 28,
+        "code": "prefix"
+    },
+    {
+        "line": 30,
         "code": "empty_intent"
     },
     {

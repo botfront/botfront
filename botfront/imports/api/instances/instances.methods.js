@@ -111,20 +111,20 @@ export const getStoriesAndDomain = (projectId) => {
     if (storyGroupsIds.length > 0) {
         stories = Stories.find(
             { projectId, storyGroupId: { $in: storyGroupsIds } },
-            { fields: { story: 1 } },
-        ).fetch().map(story => story.story);
+            { fields: { story: 1, title: 1 } },
+        ).fetch();
     } else {
         stories = Stories.find(
             { projectId },
-            { fields: { story: 1 } },
-        ).fetch().map(story => story.story);
+            { fields: { story: 1, title: 1 } },
+        ).fetch();
     }
     
-    stories = [mappingStory, ...stories];
+    stories = [mappingStory, ...stories.map(story => story.story)];
     const slots = Slots.find({ projectId }).fetch();
     return {
-        stories: stories.join('\n'),
-        domain: extractDomain(stories, slots),
+        stories: stories.map(story => `## ${story.title}\n${story.story}`).join('\n'),
+        domain: extractDomain(stories.map(story => story.story), slots),
     };
 };
 

@@ -1,8 +1,5 @@
 import {
-    Grid,
-    Message,
-    Menu,
-    Icon,
+    Grid, Message, Menu, Icon,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -35,19 +32,23 @@ class Stories extends React.Component {
             },
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {
-                    Meteor.call('stories.insert', {
-                        story: `## ${name}`,
-                        storyGroupId: groupId,
-                        projectId,
-                    },
-                    wrapMeteorCallback((error) => {
-                        if (!error) {
-                            this.setState({
-                                validationErrors: false,
-                                storyGroupNameSelected: name,
-                            });
-                        }
-                    }));
+                    Meteor.call(
+                        'stories.insert',
+                        {
+                            story: '* replace_with_intent',
+                            title: name,
+                            storyGroupId: groupId,
+                            projectId,
+                        },
+                        wrapMeteorCallback((error) => {
+                            if (!error) {
+                                this.setState({
+                                    validationErrors: false,
+                                    storyGroupNameSelected: name,
+                                });
+                            }
+                        }),
+                    );
                 }
             }),
         );
@@ -77,15 +78,24 @@ class Stories extends React.Component {
         this.setState({ validationErrors: false });
     };
 
-    handleNewStory = (introStoryGroup) => {
+    handleNewStory = (introStoryGroup, indexOfNewStory) => {
         const { projectId, storyGroups } = this.props;
         const { storyIndex } = this.state;
         Meteor.call(
             'stories.insert',
             {
-                story: `## ${!!introStoryGroup ? introStoryGroup.name : storyGroups[storyIndex].name}`,
+                story: '* replace_with_intent',
+                title: `${
+                    !!introStoryGroup
+                        ? introStoryGroup.name
+                        : storyGroups[storyIndex].name
+                } ${indexOfNewStory}`,
                 projectId,
-                storyGroupId: `${!!introStoryGroup ? introStoryGroup._id : storyGroups[storyIndex]._id}`,
+                storyGroupId: `${
+                    !!introStoryGroup
+                        ? introStoryGroup._id
+                        : storyGroups[storyIndex]._id
+                }`,
             },
             wrapMeteorCallback(),
         );
@@ -97,7 +107,12 @@ class Stories extends React.Component {
                 'storyGroups.delete',
                 filterdStoryGroup[index],
                 wrapMeteorCallback((err) => {
-                    if (!err) this.setState({ storyIndex: -1, storyGroupNameSelected: '' });
+                    if (!err) {
+                        this.setState({
+                            storyIndex: -1,
+                            storyGroupNameSelected: '',
+                        });
+                    }
                 }),
             );
         }
@@ -106,12 +121,8 @@ class Stories extends React.Component {
     handleStoryGroupSelect = (storyGroup) => {
         // eslint-disable-next-line no-param-reassign
         storyGroup.selected = !storyGroup.selected;
-        Meteor.call(
-            'storyGroups.update',
-            storyGroup,
-            wrapMeteorCallback(),
-        );
-    }
+        Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback());
+    };
 
     handleNameChange = (storyGroup) => {
         Meteor.call(
@@ -123,51 +134,72 @@ class Stories extends React.Component {
                 }
             }),
         );
-    }
+    };
 
     handleIntroStoryClick = (event) => {
         event.preventDefault();
         this.setState({ storyIndex: -1, storyGroupNameSelected: '' });
-    }
+    };
 
-    sortAlphabetically = (a, b) => (a.name.localeCompare(b.name));
+    sortAlphabetically = (a, b) => a.name.localeCompare(b.name);
 
     handleIntroClick = (e, introStory) => {
         e.stopPropagation();
         this.handleStoryGroupSelect(introStory);
-    }
+    };
 
-    storyGroupSelected = (storyIndex, storyGroupNameSelected, storyGroupFiltered) => {
-        if (storyGroupNameSelected === '' || (storyGroupFiltered[storyIndex] && storyGroupFiltered[storyIndex].name) === storyGroupNameSelected) {
+    storyGroupSelected = (
+        storyIndex,
+        storyGroupNameSelected,
+        storyGroupFiltered,
+    ) => {
+        if (
+            storyGroupNameSelected === ''
+            || (storyGroupFiltered[storyIndex]
+                && storyGroupFiltered[storyIndex].name) === storyGroupNameSelected
+        ) {
             return storyIndex;
         }
-        return storyGroupFiltered.findIndex(storyGroup => (storyGroup.name === storyGroupNameSelected));
-    }
+        return storyGroupFiltered.findIndex(
+            storyGroup => storyGroup.name === storyGroupNameSelected,
+        );
+    };
 
     renderStoryEditor = (storyGroupFiltered, introStory, storySelected) => {
-        const { projectId } = this.props;
+        const { projectId, storyGroups } = this.props;
         const storyGroupSelected = storyGroupFiltered[storySelected];
-        return (storyGroupSelected || introStory) && (
-            <StoriesEditor
-                storyGroup={storyGroupSelected || introStory}
-                onSaving={this.handleSavingStories}
-                onSaved={this.handleSavedStories}
-                onError={this.handleError}
-                onErrorResolved={this.handleErrorResolved}
-                onAddNewStory={() => this.handleNewStory(storyGroupSelected || introStory)}
-                projectId={projectId}
-                onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)}
-            />
+        return (
+            (storyGroupSelected || introStory) && (
+                <StoriesEditor
+                    storyGroup={storyGroupSelected || introStory}
+                    onSaving={this.handleSavingStories}
+                    onSaved={this.handleSavedStories}
+                    onError={this.handleError}
+                    onErrorResolved={this.handleErrorResolved}
+                    onAddNewStory={index => this.handleNewStory(
+                        storyGroupSelected || introStory,
+                        index,
+                    )
+                    }
+                    projectId={projectId}
+                    onDeleteGroup={() => this.handleDeleteGroup(
+                        storySelected,
+                        storyGroupFiltered,
+                    )
+                    }
+                    groupNames={storyGroups.map(group => ({
+                        text: group.name,
+                        value: group._id,
+                    }))}
+                />
+            )
         );
-    }
+    };
 
     removeAllSelection = () => {
         const { projectId } = this.props;
-        Meteor.call(
-            'storyGroups.removeFocus',
-            projectId,
-        );
-    }
+        Meteor.call('storyGroups.removeFocus', projectId);
+    };
 
     renderMessages = () => {
         const { storyGroups } = this.props;
@@ -206,24 +238,46 @@ class Stories extends React.Component {
             validationErrors,
             storyGroupNameSelected,
         } = this.state;
-        const introStory = storyGroups.find(storyGroup => (storyGroup.introStory));
-        const storyGroupFiltered = storyGroups.filter((storyGroup => !storyGroup.introStory)).sort(this.sortAlphabetically);
-        const storySelected = this.storyGroupSelected(storyIndex, storyGroupNameSelected, storyGroupFiltered);
+        const introStory = storyGroups.find(
+            storyGroup => storyGroup.introStory,
+        );
+        const storyGroupFiltered = storyGroups
+            .filter(storyGroup => !storyGroup.introStory)
+            .sort(this.sortAlphabetically);
+        const storySelected = this.storyGroupSelected(
+            storyIndex,
+            storyGroupNameSelected,
+            storyGroupFiltered,
+        );
 
         return (
             <Grid className='stories-container'>
                 <Grid.Row columns={2}>
                     <Grid.Column width={4}>
-                        <Menu vertical fluid onClick={this.handleIntroStoryClick} className={`intro-story ${storySelected === -1 ? 'selected-intro-story' : ''}`}>
+                        <Menu
+                            vertical
+                            fluid
+                            onClick={this.handleIntroStoryClick}
+                            className={`intro-story ${
+                                storySelected === -1
+                                    ? 'selected-intro-story'
+                                    : ''
+                            }`}
+                        >
                             <Menu.Item
-                                key='intro-story'
                                 active={storySelected === -1}
                                 link
+                                data-cy='intro-story-group'
                             >
                                 <Icon
-                                    id={`${introStory && introStory.selected ? 'selected' : 'not-selected'}`}
+                                    id={`${
+                                        introStory && introStory.selected
+                                            ? 'selected'
+                                            : 'not-selected'
+                                    }`}
                                     name='eye'
-                                    onClick={e => this.handleIntroClick(e, introStory)}
+                                    onClick={e => this.handleIntroClick(e, introStory)
+                                    }
                                 />
                                 <span>Intro Stories</span>
                             </Menu.Item>
@@ -231,9 +285,15 @@ class Stories extends React.Component {
                     </Grid.Column>
                     <Grid.Column width={12} className='story-name-parent'>
                         {storySelected !== -1 ? (
-                            <Message info size='small'>Story Groups</Message>
+                            <Message info size='small'>
+                                Story Groups
+                            </Message>
                         ) : (
-                            <Message info size='small'>The intro stories group contains the initial messages that would be sent to users when they start chatting with your bot</Message>
+                            <Message info size='small'>
+                                The intro stories group contains the initial
+                                messages that would be sent to users when they
+                                start chatting with your bot
+                            </Message>
                         )}
                     </Grid.Column>
                 </Grid.Row>
@@ -260,12 +320,17 @@ class Stories extends React.Component {
                                 selectAccessor='selected'
                                 toggleSelect={this.handleStoryGroupSelect}
                                 changeName={this.handleNameChange}
-                            />)
-                        }
+                                placeholderAddItem='Choose a group name'
+                            />
+                        )}
                     </Grid.Column>
 
                     <Grid.Column width={12}>
-                        {this.renderStoryEditor(storyGroupFiltered, introStory, storySelected)}
+                        {this.renderStoryEditor(
+                            storyGroupFiltered,
+                            introStory,
+                            storySelected,
+                        )}
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

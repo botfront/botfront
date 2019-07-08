@@ -2,7 +2,7 @@
 import { safeLoad } from 'js-yaml';
 import { isEqual } from 'lodash';
 import gold2 from '../../fixtures/story_exceptions.json';
-import { extractDomain, StoryValidator } from '../../../imports/lib/story_validation'
+import { extractDomain, StoryValidator } from '../../../imports/lib/story_validation';
 
 describe('extract domain from storyfile fixtures', function() {
     before(function() {
@@ -14,7 +14,7 @@ describe('extract domain from storyfile fixtures', function() {
 
     it('should output yaml matching the gold', function() {
         const gold = safeLoad(this.gold);
-        const domain = safeLoad(extractDomain([this.stories]));
+        const domain = safeLoad(extractDomain(this.stories.split('\n\n')));
         expect(isEqual(domain, gold)).to.be.equal(true);
     });
 

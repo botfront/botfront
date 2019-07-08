@@ -15,15 +15,25 @@ export const createIntroStoryGroup = (projectId) => {
         (err, groupId) => {
             if (!err) {
                 Meteor.call('stories.insert', {
-                    story: '## Get started\n* get_started\n    - utter_get_started',
+                    story: '* get_started\n    - utter_get_started',
+                    title: 'Get started',
                     storyGroupId: groupId,
                     projectId,
                 });
+            } else {
+                // eslint-disable-next-line no-console
+                console.log(err);
             }
         },
     );
 };
 
+function handleError(e) {
+    if (e.code === 11000) {
+        throw new Meteor.Error(400, 'Group name already exists');
+    }
+    throw new Meteor.Error(500, 'Server Error');
+}
 
 Meteor.methods({
     'storyGroups.delete'(storyGroup) {
@@ -33,16 +43,31 @@ Meteor.methods({
 
     'storyGroups.insert'(storyGroup) {
         check(storyGroup, Object);
-        return StoryGroups.insert(storyGroup);
+        try {
+            return StoryGroups.insert(storyGroup);
+        } catch (e) {
+            return handleError(e);
+        }
     },
 
     'storyGroups.update'(storyGroup) {
         check(storyGroup, Object);
-        return StoryGroups.update({ _id: storyGroup._id }, { $set: storyGroup });
+        try {
+            return StoryGroups.update(
+                { _id: storyGroup._id },
+                { $set: storyGroup },
+            );
+        } catch (e) {
+            return handleError(e);
+        }
     },
 
     'storyGroups.removeFocus'(projectId) {
         check(projectId, String);
-        return StoryGroups.update({ projectId }, { $set: { selected: false } }, { multi: true });
+        return StoryGroups.update(
+            { projectId },
+            { $set: { selected: false } },
+            { multi: true },
+        );
     },
 });
