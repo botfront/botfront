@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Tab, Button, Popup, Label,
+    Tab, Button, Popup, Label, Icon,
 } from 'semantic-ui-react';
 import ReactTable from 'react-table';
 import NLUExampleText from '../../example_editor/NLUExampleText';
@@ -9,8 +9,10 @@ import IntentViewer from '../models/IntentViewer';
 import 'react-select/dist/react-select.css';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { Instances } from '../../../../api/instances/instances.collection';
-import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection'
+import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import TrashBin from '../common/TrashBin';
+import SmartTip from './SmartTip';
+import { ActivityCollection } from '../../../../api/activity';
 
 export default class ActivityDataTable extends React.Component {
     state = {
@@ -35,7 +37,19 @@ export default class ActivityDataTable extends React.Component {
                 let action;
                 if (isOutdated) {
                     action = !isReInterpreting
-                        ? <Button size={size} onClick={() => this.onReinterpret(utterance)} basic icon='redo' />
+                        ? (
+                            <SmartTip
+                                tip='Utterance outdated'
+                                message='Model has been trained since this utterance was logged. It needs to be reinterpreted.'
+                                mainAction={this.renderReinterpretAllButton(outDatedUtteranceIds)}
+                                otherActions={[
+                                    outDatedUtteranceIds.length > 1 && this.renderReinterpretButton(utterance),
+                                ]}
+                                button={(
+                                    <Button size={size} basic icon='redo' />
+                                )}
+                            />
+                        )
                         : <Button size={size} disabled basic icon='redo' loading />;
                 } else if (!!validated) {
                     action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />;
@@ -162,20 +176,62 @@ export default class ActivityDataTable extends React.Component {
         this.onExamplesEdit([{ ...u, entities: u.entities.map(entity => ({ ...entity, confidence: 0 })) }], callback);
     }
 
-    onReinterpret = (u) => {
-        const { reInterpreting } = this.state;
+    onReinterpret = async (utterances) => {
         const { projectId, modelId } = this.props;
+        const { reInterpreting } = this.state;
         const instance = Instances.findOne({ projectId });
         const { language } = NLUModels.findOne({ _id: modelId });
-        const newReInterpreting = reInterpreting.concat([u._id]);
+        let fullUtterances = utterances;
+        if (fullUtterances.length && typeof fullUtterances[0] === 'string') {
+            fullUtterances = await ActivityCollection.find({ modelId, _id: { $in: utterances } }).fetch();
+        }
+        const newReInterpreting = reInterpreting.concat(fullUtterances.map(u => u._id));
         this.setState({ reInterpreting: newReInterpreting });
-        Meteor.call('rasa.parse', instance, [{ text: u.text, lang: language }], false, wrapMeteorCallback());
+        Meteor.call('rasa.parse', instance, fullUtterances.map(u => ({ text: u.text, lang: language })), false, wrapMeteorCallback());
     };
 
     onDelete = (u) => {
         const { modelId } = this.props;
         Meteor.call('activity.deleteExamples', modelId, [u._id], wrapMeteorCallback());
     };
+
+    renderReinterpretAllButton = utterances => mainAction => (
+        <Button
+            className='icon'
+            color='grey'
+            size={mainAction ? 'small' : 'mini'}
+            icon
+            fluid={mainAction}
+            labelPosition='left'
+            onClick={() => this.onReinterpret(utterances.slice(0, 20))}
+        >
+            <Icon name='redo' />
+            {utterances.length === 1
+                ? 'Reinterpret this utterance'
+                : `Reinterpret ${Math.min(utterances.length, 20)} utterances like this`
+            }
+        </Button>
+    );
+
+    renderReinterpretButton = utterance => mainAction => (
+        <Button
+            className='icon'
+            color='grey'
+            basic={!mainAction}
+            size={mainAction ? 'small' : 'mini'}
+            icon
+            fluid={mainAction}
+            labelPosition='left'
+            onClick={() => this.onReinterpret([utterance])}
+            key={`${utterance._id}-reinterpret`}
+        >
+            <Icon name='redo' />
+            {mainAction
+                ? 'Reinterpret this utterance'
+                : 'Reinterpret this one only'
+            }
+        </Button>
+    );
 
     render() {
         const columns = this.getColumns();
