@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 import { StoryGroups } from './storyGroups.collection';
+import { Stories } from '../story/stories.collection';
 
 export const createIntroStoryGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
