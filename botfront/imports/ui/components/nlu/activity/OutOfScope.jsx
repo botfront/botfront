@@ -130,9 +130,11 @@ class OutOfScope extends React.Component {
 
     onExport = () => {
         const { utterances } = this.props;
-        const csvData = utterances.map(u => `${u.intent || '-'}\t${u.text}`).join('\n');
-        const blob = new Blob([csvData], { type: 'text/tsv;charset=utf-8' });
-        return saveAs(blob, 'out_of_scope.tsv');
+        const csvData = utterances.map(u => (
+            `"${(u.intent || '-').replace('"', '""')}","${u.text.replace('"', '""')}",`
+        )).join('\n');
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+        return saveAs(blob, 'out_of_scope.csv');
     }
 
     render() {
