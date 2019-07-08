@@ -12,8 +12,8 @@ const smartTips = (flags) => {
         outdated, intentBelowTh, entitiesBelowTh, entitiesInTD, aboveTh,
     } = flags;
     if (outdated) {
-        tip = 'Outdated';
-        message = 'The model was trained since this utterance was logged.';
+        tip = 'Utterance outdated';
+        message = 'Model has been trained since this utterance was logged. It needs to be reinterpreted.';
         code = 'outdated';
     }
     if (intentBelowTh) {
@@ -35,12 +35,12 @@ const smartTips = (flags) => {
             : 'You have made some changes to the labeling.';
     }
     if (entitiesInTD) {
-        tip = 'High confidence';
+        tip = 'High confidence, but...';
         code = 'entitiesInTD';
         extraEntities = entitiesInTD;
         const plural = entitiesInTD.length > 1;
-        message = `Are you sure this utterance does not contain entit${plural ? 'ies' : 'y'} ${entitiesInTD.map(e => `*${e}*`).join(', ')}?
-        If so, we recommend you delete this utterance, since confidence levels of prediction exceed your set threshold.`;
+        message = `First verify entit${plural ? 'ies' : 'y'} ${entitiesInTD.map(e => `*${e}*`).join(', ')} ${plural ? 'are' : 'is'} not present in this utterance. 
+        If not, you can delete it, as your model will likely not learn from it.`;
     }
     if (aboveTh) {
         tip = 'High confidence';
@@ -50,7 +50,7 @@ const smartTips = (flags) => {
             const plural = entities > 1;
             const entityNames = entities.map(entity => `*${entity.name}*`);
             message = `Intent *${intent.name}* and entit${plural ? 'ies' : 'y'} ${entityNames.join(', ')} were predicted
-            with a confidence level above your set threshold. We recommend you delete this kind of utterance.`;
+            with sufficient confidence. You can delete this utterance, as your model will likely not learn from it.`;
         } else {
             message = `Intent *${intent.name}* was predicted with a confidence level above your set threshold. We recommend you delete this kind of utterance.`;
         }
