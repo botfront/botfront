@@ -1,3 +1,12 @@
+---
+meta:
+  - name: description
+    content: 'Botfront tutorial: setup Botfront and start building your Rasa chatbot'
+  - name: keywords
+    content: botfront stories nlu rasa
+permalink: /getting-started/:slug
+---
+
 # Setup
 
 ## Requirements
