@@ -84,6 +84,7 @@ export default class LookupTable extends React.Component {
                 <br />
                 <ReactTable
                     data={data}
+                    minRows={1}
                     columns={this.getColumns()}
                     getTheadThProps={() => ({
                         style: {
