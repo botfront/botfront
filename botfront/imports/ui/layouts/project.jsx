@@ -96,7 +96,7 @@ class Project extends React.Component {
 
     render() {
         const {
-            children, projectId, loading, channel, renderLegacyModels, introStory,
+            children, projectId, loading, channel, renderLegacyModels,
         } = this.props;
         const {
             showIntercom, intercomId, showChatPane, resizingChatPane,
@@ -153,7 +153,7 @@ class Project extends React.Component {
                         )}
                         {showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
-                                <ProjectChat channel={channel} triggerChatPane={this.triggerChatPane} projectId={projectId} introStory={introStory} />
+                                <ProjectChat channel={channel} triggerChatPane={this.triggerChatPane} projectId={projectId} />
                             </React.Suspense>
                         )}
                     </SplitPane>
@@ -170,12 +170,10 @@ Project.propTypes = {
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
-    introStory: PropTypes.string,
 };
 
 Project.defaultProps = {
     channel: null,
-    introStory: '',
 };
 
 const ProjectContainer = withTracker((props) => {
