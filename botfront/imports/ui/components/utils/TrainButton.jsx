@@ -96,8 +96,8 @@ export default withTracker((props) => {
         storyGroups = StoryGroups.find({ projectId }, { field: { _id: 1 } }).fetch();
         selectedStoryGroups = storyGroups.filter(storyGroup => (storyGroup.selected));
 
-        if (selectedStoryGroups && selectedStoryGroups.length > 1) popupContent = `Train NLU and stories from ${selectedStoryGroups.length} focussed story group.`;
-        else if (selectedStoryGroups && selectedStoryGroups.length === 1) popupContent = 'Train NLU and stories from 1 focussed story group';
+        if (selectedStoryGroups && selectedStoryGroups.length > 1) popupContent = `Train NLU and stories from ${selectedStoryGroups.length} focused story groups.`;
+        else if (selectedStoryGroups && selectedStoryGroups.length === 1) popupContent = 'Train NLU and stories from 1 focused story group.';
     }
     
     return {
