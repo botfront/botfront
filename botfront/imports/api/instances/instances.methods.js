@@ -7,7 +7,7 @@ import axios from 'axios';
 import fs from 'fs';
 import { promisify } from 'util';
 import {
-    getAxiosError, getProjectModelLocalPath, uploadFileToGcs,
+    getAxiosError, getProjectModelLocalPath, getModelIdsFromProjectId, uploadFileToGcs,
 } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
@@ -19,6 +19,7 @@ import { Slots } from '../slots/slots.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import { checkIfCan } from '../roles/roles';
+import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { ActivityCollection } from '../activity';
 import { Deployments } from '../deployment/deployment.collection';
 
@@ -102,15 +103,30 @@ export const getStoriesAndDomain = (projectId) => {
         .reduce((coll, curr) => coll.concat(curr), []);
     mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
     const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
-    let stories = Stories.find(
-        { projectId },
-        { story: 1 },
-    ).fetch().map(story => story.story);
-    stories = [mappingStory, ...stories];
+    const storyGroupsIds = StoryGroups.find(
+        { projectId, selected: true },
+        { fields: { _id: 1 } },
+    ).fetch().map(storyGroup => storyGroup._id);
+
+    let stories;
+
+    if (storyGroupsIds.length > 0) {
+        stories = Stories.find(
+            { projectId, storyGroupId: { $in: storyGroupsIds } },
+            { fields: { story: 1, title: 1 } },
+        ).fetch();
+    } else {
+        stories = Stories.find(
+            { projectId },
+            { fields: { story: 1, title: 1 } },
+        ).fetch();
+    }
+    
+    stories = [mappingStory, ...stories.map(story => story.story)];
     const slots = Slots.find({ projectId }).fetch();
     return {
-        stories: stories.join('\n'),
-        domain: extractDomain(stories, slots),
+        stories: stories.map(story => `## ${story.title}\n${story.story}`).join('\n'),
+        domain: extractDomain(stories.map(story => story.story), slots),
     };
 };
 
@@ -203,7 +219,7 @@ if (Meteor.isServer) {
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
 
-                const { stories, domain } = getStoriesAndDomain();
+                const { stories, domain } = getStoriesAndDomain(projectId);
                 const payload = {
                     domain,
                     stories,
@@ -222,10 +238,10 @@ if (Meteor.isServer) {
                 } catch (e) {
                     console.log(`Could not save trained model to ${location}:${e}`);
                 }
+
                 if (trainingResponse.status === 200) {
                     if (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose') {
-                        await client.put('/model', { model_file: location });
-                        // ActivityCollection.update({}, { $set: { validated: false } }, { multi: true });
+                        await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
                     }
 
                     if (process.env.ORCHESTRATOR === 'gke') {
@@ -236,6 +252,8 @@ if (Meteor.isServer) {
                             await uploadFileToGcs(getProjectModelLocalPath(projectId), gcp_models_bucket);
                         }
                     }
+                    const modelIds = getModelIdsFromProjectId(projectId);
+                    ActivityCollection.update({ modelId: { $in: modelIds }, validated: true }, { $set: { validated: false } }, { multi: true });
                 }
 
                 Meteor.call('project.markTrainingStopped', projectId, 'success');

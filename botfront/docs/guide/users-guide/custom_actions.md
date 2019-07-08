@@ -1,11 +1,6 @@
-# Using Rasa with Botfront
+# Using Rasa custom actions
 
-Botfront has a deep Rasa integration, however not everything happens in Botfront.
-This tutorial is primarily for developers.
-
-You will learn:
-- How to write and train stories
-- How to write custom actions
+In this tutorial you will learn how to write custom actions in Botfront
 
 ## Project structure
 
@@ -14,24 +9,15 @@ Go to the `botfront-starter` project you cloned earlier and let's have a quick l
 ```
 botfront-project
 |- actions
-|- db
-|- models
-|- project
-|-- domains
-|--- domain.yml
-|-- stories
-|--- stories.md
-|-- policies.yml
+|- botfront-db
+|- .botfront
 ```
 
 | Folder | Description |
 | ------ | ------------- |
 | `actions` |  Custom actions for the actions server |
-| `db`      |  MongoDB persisted files |
-| `models`  |  Persisted NLU and Core models |
-| `domains` |  Core Domain files. Name must start with `domain` and you can have several files. They will be merged at training) |
-| `stories` | Rasa Core stories |
-| `policies.yml` | Rasa Core training policies |
+| `botfront-db`      |  MongoDB persisted files |
+| `models`  |  Persisted models |
 
 
 ## Prepare your environment

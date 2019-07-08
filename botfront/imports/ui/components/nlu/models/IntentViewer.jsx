@@ -125,6 +125,10 @@ class IntentNameEditor extends React.Component {
         );
     };
 
+    handleXClick = (e) => {
+        this.handleChangeOrAddIntent(e, { value: null });
+    };
+
     getExamplesCount = () => this.props.examples.filter(e => e.intent === this.props.intent).length;
 
     renderRenameTemplatesModal() {
@@ -196,7 +200,12 @@ class IntentNameEditor extends React.Component {
             hovering,
             templatesMatchIntent,
         } = this.state;
-        const { onRenameIntent, intent, enableRenaming } = this.props;
+        const {
+            onRenameIntent,
+            intent,
+            enableRenaming,
+            enableReset,
+        } = this.props;
         const iconStyle = {
             padding: '5px 0 0 5px',
         };
@@ -240,6 +249,20 @@ class IntentNameEditor extends React.Component {
                             onNewName={this.onNewName}
                         />
                     )}
+                    {enableReset && intent && (
+                        <div style={{ width: '20px' }}>
+                            {hovering && (
+                                <Icon
+                                    data-cy='rename-intent'
+                                    name='x'
+                                    style={iconStyle}
+                                    color='grey'
+                                    link
+                                    onClick={this.handleXClick}
+                                />
+                            )}
+                        </div>
+                    )}
                     {enableRenaming && !rename && (
                         <div style={{ width: '20px' }}>
                             {hovering && (
@@ -268,12 +291,14 @@ IntentNameEditor.propTypes = {
     example: PropTypes.shape(examplePropType).isRequired,
     onSave: PropTypes.func.isRequired,
     enableRenaming: PropTypes.bool,
+    enableReset: PropTypes.bool,
     projectId: PropTypes.string.isRequired,
 };
 
 IntentNameEditor.defaultProps = {
     onRenameIntent: () => {},
     enableRenaming: false,
+    enableReset: false,
     examples: [],
 };
 

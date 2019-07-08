@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Accordion, Icon } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
-import { formatMessage } from '../../../../lib/utils'
+import { formatMessage } from '../../../../lib/utils';
 
 export default class SmartTip extends React.Component {
     state = {
@@ -74,9 +74,13 @@ export default class SmartTip extends React.Component {
 }
 
 SmartTip.propTypes = {
-    button: PropTypes.element,
-    tip: PropTypes.string,
-    message: PropTypes.string,
-    mainAction: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+    button: PropTypes.element.isRequired,
+    tip: PropTypes.string.isRequired,
+    message: PropTypes.string.isRequired,
+    mainAction: PropTypes.oneOfType([PropTypes.element, PropTypes.func]).isRequired,
     otherActions: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.element, PropTypes.func])),
+};
+
+SmartTip.defaultProps = {
+    otherActions: [],
 };

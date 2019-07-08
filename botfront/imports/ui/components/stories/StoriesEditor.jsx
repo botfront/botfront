@@ -1,21 +1,17 @@
 import {
-    Icon, Container, Popup, Segment,
+    Icon, Container, Popup, Segment, Button,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import AceEditor from 'react-ace';
-import 'brace/theme/github';
-import 'brace/mode/text';
 import { can } from '../../../lib/scopes';
 
 import { Stories } from '../../../api/story/stories.collection';
 import { StoryValidator } from '../../../lib/story_validation';
-import ConfirmPopup from '../common/ConfirmPopup';
 import { wrapMeteorCallback } from '../utils/Errors';
+import StoryAceEditor from './StoryAceEditor';
 
 function StoriesEditor(props) {
-    const [deletePopup, setDeletePopup] = useState(-1);
     const [errors, setErrors] = useState([]);
     // This state is only used to store edited stories
     const [storyTexts, setStoryTexts] = useState([]);
@@ -31,6 +27,7 @@ function StoriesEditor(props) {
         onDeleteGroup,
         storyGroup,
         projectId,
+        groupNames,
     } = props;
 
     // This effect listen to changes on errors and notifies
@@ -47,10 +44,19 @@ function StoriesEditor(props) {
 
     // This effect resets the state if the storyGroup being displayed changed
     useEffect(() => {
+        // console.log('use effect');
         setStoryTexts([]);
         setErrors([]);
-        setDeletePopup(-1);
     }, [storyGroup]);
+
+    function spliceStoryState(index) {
+        const stateErrors = [...errors];
+        stateErrors.splice(index, 1);
+        setErrors(stateErrors);
+        const stateStoryTexts = [...storyTexts];
+        stateStoryTexts.splice(index, 1);
+        setStoryTexts(stateStoryTexts);
+    }
 
     function saveStory(story) {
         onSaving();
@@ -65,6 +71,7 @@ function StoriesEditor(props) {
     }
 
     function handleStoryChange(newStory, index) {
+        // console.log('handle story change');
         const newTexts = [...storyTexts];
         newTexts[index] = newStory;
         setStoryTexts(newTexts);
@@ -74,7 +81,8 @@ function StoriesEditor(props) {
         if (!newStory.replace(/\s/g, '').length) {
             validator.exceptions.push({
                 type: 'error',
-                line: 1,
+                // this ensures that the error is on the last line
+                line: newStory.split('\n').length,
                 message: 'don\'t leave the story empty.',
             });
         }
@@ -92,21 +100,16 @@ function StoriesEditor(props) {
     }
 
     function handeStoryDeletion(index) {
-        setDeletePopup(-1);
         const toBeDeletedStory = stories[index];
         Meteor.call('stories.delete', toBeDeletedStory, projectId, wrapMeteorCallback());
-        const stateErrors = [...errors];
-        stateErrors.splice(index, 1);
-        setErrors(stateErrors);
-        const stateStoryTexts = [...storyTexts];
-        stateStoryTexts.splice(index, 1);
-        setStoryTexts(stateStoryTexts);
+        spliceStoryState(index);
         Meteor.call(
             'stories.delete',
             toBeDeletedStory,
             projectId,
             wrapMeteorCallback((err) => {
                 if (!err) {
+                    // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
                     }
@@ -115,89 +118,89 @@ function StoriesEditor(props) {
         );
     }
 
-    const canWriteStories = can('stories:w', projectId);
-    const editors = stories.map((story, index) => (
-        <React.Fragment key={index}>
-            <Segment data-cy='story-editor'>
-                <AceEditor
-                    readOnly={disabled || !canWriteStories}
-                    theme='github'
-                    width='95%'
-                    name='story'
-                    mode='text'
-                    minLines={5}
-                    maxLines={Infinity}
-                    fontSize={12}
-                    onChange={data => handleStoryChange(data, index)}
-                    value={
-                        storyTexts[index] !== undefined
-                            ? storyTexts[index]
-                            : story.story
+    function handleStoryRenaming(newTitle, index) {
+        Meteor.call(
+            'stories.update',
+            { ...stories[index], title: newTitle },
+            wrapMeteorCallback(),
+        );
+    }
+
+    function handleMoveStory(newGroupId, index) {
+        if (newGroupId === stories[index].storyGroupId) {
+            return;
+        }
+        spliceStoryState(index);
+        Meteor.call(
+            'stories.update',
+            { ...stories[index], storyGroupId: newGroupId },
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    // deletes group if no stories left
+                    if (stories.length === 1) {
+                        onDeleteGroup();
                     }
-                    showPrintMargin={false}
-                    showGutter
-                    // We use ternary expressions here to prevent wrong prop types
-                    annotations={
-                        (!!errors[index] ? true : undefined)
-                        && (!!errors[index].length ? true : undefined)
-                        && errors[index].map(error => ({
-                            row: error.line - 1,
-                            type: error.type,
-                            text: error.message,
-                            column: 0,
-                        }))
-                    }
-                    editorProps={{
-                        $blockScrolling: Infinity,
-                    }}
-                    setOptions={{
-                        tabSize: 2,
-                    }}
-                />
-                {canWriteStories && (
-                    <Popup
-                        trigger={(
-                            <Icon
-                                name='trash'
-                                color='grey'
-                                link
-                                data-cy='delete-story'
-                            />
-                        )}
-                        content={(
-                            <ConfirmPopup
-                                title='Delete story ?'
-                                onYes={() => handeStoryDeletion(index)}
-                                onNo={() => setDeletePopup(-1)}
-                            />
-                        )}
-                        on='click'
-                        open={deletePopup === index}
-                        onOpen={() => setDeletePopup(index)}
-                        onClose={() => setDeletePopup(-1)}
-                    />)
                 }
-            </Segment>
-            {index !== stories.length - 1 && <br />}
-        </React.Fragment>
+            }),
+        );
+    }
+
+    function handleDuplicateStory(index) {
+        const newStory = { ...stories[index] };
+        delete newStory._id;
+        newStory.title = `${stories[index].title} (copy)`;
+        Meteor.call(
+            'stories.insert',
+            newStory,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    const editors = document.querySelectorAll('.story-editor');
+                    editors
+                        .item(editors.length - 1)
+                        .scrollIntoView({ behavior: 'smooth' });
+                }
+            }),
+        );
+    }
+
+    const editors = stories.map((story, index) => (
+        <StoryAceEditor
+            story={
+                storyTexts[index] !== undefined
+                    ? storyTexts[index]
+                    : story.story
+            }
+            annotations={
+                (!!errors[index] ? true : undefined)
+                && (!!errors[index].length ? true : undefined)
+                && errors[index].map(error => ({
+                    row: error.line - 1,
+                    type: error.type,
+                    text: error.message,
+                    column: 0,
+                }))
+            }
+            disabled={disabled}
+            onChange={data => handleStoryChange(data, index)}
+            onRename={newTitle => handleStoryRenaming(newTitle, index)}
+            onDelete={() => handeStoryDeletion(index)}
+            key={index}
+            title={story.title}
+            groupNames={groupNames.filter(
+                name => name.text !== storyGroup.name,
+            )}
+            onMove={newGroupId => handleMoveStory(newGroupId, index)}
+            onClone={() => handleDuplicateStory(index)}
+        />
     ));
     return (
         <>
             {editors}
             <Container textAlign='center'>
-                {canWriteStories && (
-                    <Popup
-                        trigger={(
-                            <Icon
-                                name='add'
-                                link
-                                onClick={onAddNewStory}
-                                size='large'
-                                data-cy='add-story'
-                            />
-                        )}
-                        content='Add a story'
-                    />)
+                {
+                    canWriteStories && (
+                        <Button icon='add' basic name='add' onClick={() => onAddNewStory(stories.length + 1)} size='medium' data-cy='add-story' color='black' content='Add a story' />
+                    )
                 }
             </Container>
         </>
@@ -217,6 +220,7 @@ StoriesEditor.propTypes = {
     onAddNewStory: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
+    groupNames: PropTypes.array.isRequired,
 };
 
 StoriesEditor.defaultProps = {

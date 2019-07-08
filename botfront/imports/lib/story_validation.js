@@ -22,7 +22,6 @@ export class StoryValidator {
             forms: new Set(),
             templates: { },
         };
-        this.noTitle = false;
         this.line = 0;
         this.prefix = null;
         this.content = null;
@@ -38,10 +37,7 @@ export class StoryValidator {
     }
 
     raiseStoryException = (code) => {
-        if (code !== 'title' || !this.noTitle) {
-            this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.line + 1, code));
-            if (code === 'title') this.noTitle = true;
-        }
+        this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.line + 1, code));
     }
 
     validateUtter = () => {
@@ -68,8 +64,7 @@ export class StoryValidator {
     }
 
     exceptionMessages = {
-        prefix: ['error', 'Lines should start with `## `, `* ` or `- `'],
-        title: ['error', 'Stories should have a title: `## MyStory`'],
+        prefix: ['error', 'Lines should start with `* ` or `- `'],
         intent: ['error', 'User utterances (intents) should look like this: `* MyIntent` or `* MyIntent{"entity": "value"}`'],
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`'],
         have_intent: ['warning', 'Bot actions should usually be found in a user utterance (intent) block.'],
@@ -80,7 +75,6 @@ export class StoryValidator {
     }
 
     validateIntent = () => {
-        if (!this.story) this.raiseStoryException('title');
         if (this.intent && !this.response) this.raiseStoryException('empty_intent');
         this.intent = this.content.split(' OR ').map(disj => trimStart(disj));
         this.response = null;
@@ -102,7 +96,6 @@ export class StoryValidator {
     }
 
     validateResponse = () => {
-        if (!this.story) this.raiseStoryException('title');
         if (!this.intent) this.raiseStoryException('have_intent');
         this.response = trimEnd(trimStart(this.content));
         if (this.response.match(/^utter_/)) {
@@ -137,17 +130,9 @@ export class StoryValidator {
             const line = this.stories[this.line].replace(/ *<!--.*--> */g, '');
             if (trimStart(line).length !== 0) {
                 try {
-                    [this.prefix, this.content] = /(^ *## |^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
+                    [this.prefix, this.content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
                     this.prefix = trimStart(this.prefix);
-
-                    if (this.prefix === '## ') { // new story
-                        if (this.story && !this.intent && !this.response) this.raiseStoryException('empty_story');
-                        if (this.story && this.intent && !this.response) this.raiseStoryException('empty_intent');
-                        this.story = this.content;
-                        this.intent = null;
-                        this.response = null;
-                        this.form = null;
-                    } else if (this.prefix === '* ') { // new intent
+                    if (this.prefix === '* ') { // new intent
                         this.validateIntent();
                     } else if (this.prefix === '- ') { // new response
                         this.validateResponse();

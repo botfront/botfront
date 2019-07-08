@@ -12,11 +12,13 @@ import { Credentials, createCredentials } from '../credentials';
 import { createDeployment } from '../deployment/deployment.methods';
 import { Deployments } from '../deployment/deployment.collection';
 import { checkIfCan } from '../../lib/scopes';
+import { createIntroStoryGroup } from '../storyGroups/storyGroups.methods';
 
 if (Meteor.isServer) {
     Meteor.methods({
         async 'project.insert'(item) {
             check(item, Object);
+            checkIfCan('global-admin');
             let _id;
             try {
                 _id = Projects.insert(item);
@@ -24,6 +26,7 @@ if (Meteor.isServer) {
                 createDeployment({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
+                createIntroStoryGroup(_id);
                 const instance = await createInstance({ _id, ...item });
                 Projects.update({ _id }, { $set: { instance } });
                 return _id;
@@ -47,6 +50,7 @@ if (Meteor.isServer) {
 
         'project.delete'(projectId) {
             check(projectId, String);
+            checkIfCan('global-admin');
 
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
             if (!project) throw new Meteor.Error('Project not found');
@@ -69,6 +73,7 @@ if (Meteor.isServer) {
 
         'project.markTrainingStarted'(projectId) {
             check(projectId, String);
+            checkIfCan('nlu-model:x', projectId);
     
             try {
                 return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
@@ -81,6 +86,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(status, String);
             check(error, Match.Optional(String));
+            checkIfCan('nlu-model:x', projectId);
     
             try {
                 const set = { training: { status, endTime: new Date() } };

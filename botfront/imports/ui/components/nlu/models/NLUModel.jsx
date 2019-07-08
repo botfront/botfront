@@ -32,7 +32,7 @@ import Gazette from '../../synonyms/Gazette';
 import NLUPipeline from './settings/NLUPipeline';
 import DataImport from '../import-export/DataImport';
 import DataExport from '../import-export/DataExport';
-import NLUTrainButton from './NLUTrainButton';
+import TrainButton from '../../utils/TrainButton';
 import Statistics from './Statistics';
 import DeleteModel from '../import-export/DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
@@ -336,7 +336,7 @@ class NLUModel extends React.Component {
                             )}
                         </Menu.Item>
                         <Menu.Item>
-                            <NLUTrainButton project={project} instance={instance} />
+                            <TrainButton project={project} instance={instance} projectId={projectId} />
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>

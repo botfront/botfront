@@ -41,7 +41,7 @@ The test suite starts by testing the setup process **and will wipe the database*
 
 Until we provide a better way...
 
-1. Set the `MODELS_PATH_ENVIRONMENT` variable in your shell with for example `export MODELS_LOCAL_PATH=~/botfront-projects/s`
+1. Set the `MODELS_LOCAL_PATH` environment variable in your shell with for example `export MODELS_LOCAL_PATH=~/botfront-projects/s`
 2. Start Botfront locally with `meteor npm start`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
 3. In settings > endpoints: change domain names to `localhost`. Don't change ports
 4. In settings > more settings > docker-compose change API host to `http://host.docker.internal:8080`

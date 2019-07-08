@@ -175,6 +175,8 @@ if (Meteor.isServer) {
         },
     });
 }
+export const getModelIdsFromProjectId = projectId => Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+
 export const validateYaml = function() {
     try {
         yaml.safeLoad(this.value);
