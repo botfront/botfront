@@ -279,7 +279,7 @@ class Stories extends React.Component {
                                     onClick={e => this.handleIntroClick(e, introStory)
                                     }
                                 />
-                                <span>Intro Stories</span>
+                                <span>Intro stories</span>
                             </Menu.Item>
                         </Menu>
                     </Grid.Column>
@@ -290,9 +290,9 @@ class Stories extends React.Component {
                             </Message>
                         ) : (
                             <Message info size='small'>
-                                The intro stories group contains the initial
+                                The Intro stories group contains the initial
                                 messages that would be sent to users when they
-                                start chatting with your bot
+                                start chatting with your bot.
                             </Message>
                         )}
                     </Grid.Column>
@@ -303,7 +303,7 @@ class Stories extends React.Component {
                         {validationErrors && (
                             <Message
                                 negative
-                                content="Your changes haven't been saved. Correct errors first."
+                                content="Your changes haven't been saved. Please correct errors first."
                             />
                         )}
                         {this.renderMessages()}
