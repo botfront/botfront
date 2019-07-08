@@ -42,21 +42,22 @@ describe('stories', function() {
         cy.dataCy('story-editor')
             .get('textarea')
             .type(`{selectall}{backspace}${testText}`, { force: true });
-        cy.wait(500);
-        cy.contains(storyGroupTwo).click();
-        cy.contains(storyGroupOne).click();
+        cy.wait(300);
+        cy.contains(storyGroupTwo).click({ force: true });
+        cy.contains(storyGroupOne).click({ force: true });
         cy.contains(initialText).should('not.exist');
-        cy.dataCy('delete-story').click();
-        cy.dataCy('confirm-yes').click();
-        cy.contains(storyGroupTwo).first().click();
-        cy.dataCy('delete-story').click();
-        cy.dataCy('confirm-yes').click();
+        cy.dataCy('delete-story').click({ force: true });
+        cy.dataCy('confirm-yes').click({ force: true });
+        cy.contains(storyGroupTwo).first().click({ force: true });
+        cy.dataCy('delete-story').click({ force: true });
+        cy.dataCy('confirm-yes').click({ force: true });
     });
 
     it('should be able to duplicate a story', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
+        cy.wait(200);
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('duplicate-story').click();
         cy.dataCy('story-editor').should('have.lengthOf', 2);
@@ -77,17 +78,19 @@ describe('stories', function() {
         cy.contains(storyGroupOne).click();
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('move-story').click();
-        cy.dataCy('move-story-dropdown').click();
+        cy.dataCy('move-story-dropdown').click({ force: true });
         cy.dataCy('move-story-dropdown')
             .get('[role=listbox]')
             .contains(storyGroupTwo)
             .click();
         cy.dataCy('confirm-yes').click();
-        cy.contains(storyGroupTwo).click();
+        cy.contains(storyGroupTwo).click({ force: true });
+        cy.wait(200);
         cy.dataCy('story-editor').should('have.lengthOf', 2);
         cy.dataCy('delete-story')
             .first()
             .click();
+        cy.wait(200);
         cy.dataCy('confirm-yes').click();
         cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
@@ -100,6 +103,7 @@ describe('stories', function() {
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input').find('input').type(`${storyGroupTwo}{enter}`);
         cy.contains(storyGroupOne).click();
+        cy.wait(200);
         cy.dataCy('story-title').type('{selectall}{backspace}newTitle');
         cy.contains(storyGroupTwo).click();
         cy.dataCy('delete-story')
@@ -148,13 +152,13 @@ describe('stories', function() {
         cy.dataCy('add-item-input').find('input').type(`${storyGroupOne}{enter}`);
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input').find('input').type(`${storyGroupTwo}{enter}`);
-        cy.contains(storyGroupOne).click();
+        cy.contains(storyGroupOne).click({ force: true });
         cy.dataCy('story-title').type('{selectall}{backspace}');
-        cy.contains(storyGroupTwo).click();
+        cy.contains(storyGroupTwo).click({ force: true });
         cy.dataCy('delete-story')
             .click();
         cy.dataCy('confirm-yes').click();
-        cy.contains(storyGroupOne).click();
+        cy.contains(storyGroupOne).click({ force: true });
         cy.dataCy('story-title').should('have.value', storyGroupOne);
         cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
