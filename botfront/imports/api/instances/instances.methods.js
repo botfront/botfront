@@ -102,7 +102,7 @@ export const getStoriesAndDomain = (projectId) => {
         .map(policy => policy.triggers.map(trigger => trigger.action))
         .reduce((coll, curr) => coll.concat(curr), []);
     mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
-    const mappingStory = `## mapping story\n* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
+    const mappingStory = `* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
     const storyGroupsIds = StoryGroups.find(
         { projectId, selected: true },
         { fields: { _id: 1 } },
@@ -121,12 +121,15 @@ export const getStoriesAndDomain = (projectId) => {
             { fields: { story: 1, title: 1 } },
         ).fetch();
     }
+
+    const storiesForRasa = [`## mapping_story\n${mappingStory}`, ...stories.map(story => `## ${story.title}\n${story.story}`)];
+    const storiesForDomain = [mappingStory, ...stories.map(story => story.story)];
     
-    stories = [mappingStory, ...stories.map(story => story.story)];
+    
     const slots = Slots.find({ projectId }).fetch();
     return {
-        stories: stories.map(story => `## ${story.title}\n${story.story}`).join('\n'),
-        domain: extractDomain(stories.map(story => story.story), slots),
+        stories: storiesForRasa.join('\n'),
+        domain: extractDomain(storiesForDomain, slots),
     };
 };
 
