@@ -72,12 +72,3 @@ Meteor.methods({
         );
     },
 });
-
-if (Meteor.isServer) {
-    Meteor.publish('introStory', function (projectId) {
-        check(projectId, String);
-        // Find the introStory Group, and send the first story from the group
-        const { _id: introStoryGroupId } = StoryGroups.findOne({ introStory: true, projectId }, { fields: { _id: 1 } });
-        return Stories.find({ storyGroupId: introStoryGroupId });
-    });
-}

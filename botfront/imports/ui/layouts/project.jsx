@@ -188,9 +188,8 @@ const ProjectContainer = withTracker((props) => {
     projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
-    const introStoryHandler = Meteor.subscribe('introStory', projectId);
     // TODO: use every() instead of chaining &&
-    const ready = Meteor.user() && credentialsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready()) && introStoryHandler.ready();
+    const ready = Meteor.user() && credentialsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready());
 
     const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
 
@@ -215,14 +214,11 @@ const ProjectContainer = withTracker((props) => {
         store.dispatch(setProjectId(projectId));
     }
     
-    const introStory = Stories.find({ selected: true }, { fields: { story: 1 } }).fetch();
-    
     return {
         loading: !ready,
         projectId,
         channel,
         renderLegacyModels,
-        // introStory: ready && introStory.story,
     };
 })(windowSize(Project));
 

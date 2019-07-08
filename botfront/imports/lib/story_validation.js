@@ -38,7 +38,7 @@ export class StoryValidator {
 
     raiseStoryException = (code) => {
         this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.line + 1, code));
-    }
+    };
 
     validateUtter = () => {
         this.form = null;
@@ -128,7 +128,8 @@ export class StoryValidator {
                 try {
                     [this.prefix, this.content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
                     this.prefix = trimStart(this.prefix);
-                    if (this.prefix === '* ') { // new intent
+                    if (this.prefix === '* ') {
+                        // new intent
                         this.validateIntent();
                     } else if (this.prefix === '- ') {
                         // new response
@@ -159,29 +160,24 @@ export class StoryValidator {
         this.response = null;
         this.form = null;
         const payloadRegex = /([^{]*) *({.*}|)/;
-        const output = {
-            objectPayloads: [],
-            stringPayloads: [],
-        };
+        const output = [];
         try {
-            this.payloads.forEach((payload) => {
-                const matches = payloadRegex.exec(payload);
+            this.payloads.forEach((stringPayload) => {
+                const matches = payloadRegex.exec(stringPayload);
                 const intent = matches[1];
                 let entities = matches[2];
-                const payloadOutput = {
+                const objectPayload = {
                     intent,
                     entities: [],
                 };
-                console.log(entities);
                 if (entities && entities !== '') {
                     const parsed = JSON.parse(entities);
                     entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
                 } else {
                     entities = [];
                 }
-                payloadOutput.entities = entities;
-                output.objectPayloads.push(payloadOutput);
-                output.stringPayloads.push(payload);
+                objectPayload.entities = entities;
+                output.push({ objectPayload, stringPayload: `/${stringPayload}` });
             });
         } catch (e) {
             console.log(e);

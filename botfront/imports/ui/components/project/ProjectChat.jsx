@@ -6,9 +6,10 @@ import React from 'react';
 import {
     Menu, Icon, Dropdown, Popup, Message, Label,
 } from 'semantic-ui-react';
-
+import { StoryValidator } from '../../../lib/story_validation';
 import { wrapMeteorCallback } from '../utils/Errors';
 import Chat from './Chat';
+import { Stories } from '../../../api/story/stories.collection';
 
 class ProjectChat extends React.Component {
     constructor(props) {
@@ -17,12 +18,22 @@ class ProjectChat extends React.Component {
             key: 0,
             languageOptions: null,
             selectedLanguage: null,
+            selectedPayload: null,
         };
     }
 
     componentDidMount() {
         this.loadInstance();
         this.loadAvailableLanguages();
+    }
+
+    componentWillReceiveProps(props) {
+        this.props = props;
+        const { initPayloads } = this.props;
+        const { selectedPayload } = this.state;
+        if (initPayloads && initPayloads.length > 0 && !selectedPayload) {
+            this.setState({ selectedPayload: initPayloads[0].stringPayload });
+        }
     }
 
     loadInstance = () => {
@@ -62,8 +73,7 @@ class ProjectChat extends React.Component {
     handleLangChange = (e, { value }) => {
         this.setState({
             selectedLanguage: value,
-        });
-        this.handleReloadChat();
+        }, () => this.handleReloadChat());
     };
 
     rerenderChatComponent = () => {
@@ -75,52 +85,43 @@ class ProjectChat extends React.Component {
         }));
     };
 
-    renderEntities = (entities) => {
-        return entities.map(e => (
-            <Label basic color='teal'>
-                <Label.Detail>{e.entity}</Label.Detail>
-                {e.value}
-            </Label>
-        ));
+    renderEntities = entities => entities.map(e => (
+        <Label basic color='teal'>
+            <Label.Detail>{e.entity}</Label.Detail>
+            {e.value}
+        </Label>
+    ));
+
+    handleChangePayload = (e, { value }) => {
+        this.setState({ selectedPayload: value }, () => this.handleReloadChat());
     }
 
-    renderPayLoadOptions = () => {
-        const {
-            initPayloads: {
-                objectPayloads: payLoadOptions,
-            },
-        } = this.props;
-
-        const menuItems = payLoadOptions.map((payLoad, index) => (
-            <Dropdown.Item
-                key={index.toString()}
-            >
-                <Menu.Item fluid>
-                    <Label basic color='violet'>
-                        {payLoad.intent}
-                    </Label>
-                    { payLoad.entities && payLoad.entities.length > 0 && (
-                        this.renderEntities(payLoad.entities)
-                    )}
-                    <Icon name='check' />
-
-                </Menu.Item>
+    renderPayloadOptions = () => {
+        const { initPayloads } = this.props;
+        const { selectedPayload } = this.state;
+        const items = initPayloads.map(p => (
+            <Dropdown.Item key={p.stringPayload} onClick={this.handleChangePayload} value={p.stringPayload} selected={p.stringPayload === selectedPayload}>
+                <code>{p.stringPayload}</code>
             </Dropdown.Item>
         ));
-        return menuItems;
-    }
+        return items;
+    };
 
     render() {
         const {
-            key, socketUrl, languageOptions, selectedLanguage, noChannel, path,
+            key, socketUrl, languageOptions, selectedLanguage, noChannel, path, selectedPayload,
         } = this.state;
-        const { triggerChatPane, projectId, initPayloads } = this.props;
+        const {
+            triggerChatPane, projectId, loading,
+        } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
                     <Dropdown item icon='bolt'>
                         <Dropdown.Menu>
-                            {this.renderPayLoadOptions()}
+                            {' '}
+                            <Dropdown.Header content='Select initial payload' icon='bolt' />
+                            {!loading && this.renderPayloadOptions()}
                         </Dropdown.Menu>
                     </Dropdown>
                     <Menu.Item>
@@ -146,7 +147,7 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                {socketUrl && path && <Chat socketUrl={socketUrl} key={key} language={selectedLanguage} path={path} initialPayLoad={initPayloads.stringPayloads} />}
+                {socketUrl && path && selectedPayload && <Chat socketUrl={socketUrl} key={key} language={selectedLanguage} path={path} initialPayLoad={selectedPayload} />}
                 {noChannel && (
                     <Message
                         content={(
@@ -175,18 +176,27 @@ ProjectChat.propTypes = {
     triggerChatPane: PropTypes.func.isRequired,
     channel: PropTypes.object.isRequired,
     initPayloads: PropTypes.array,
+    loading: PropTypes.bool,
 };
 
 ProjectChat.defaultProps = {
     initPayloads: [],
+    loading: true,
 };
 
-const ProjectChatContainer = withTracker(props => ({
-    loading: true,
-    initPayloads: {
-        objectPayloads: [{ intent: 'intent' }, { intent: 'intent1', entities: [{ entity: 'ent', value: 'val' }] }],
-        stringPayloads: ['/intent', '/intent1{"ent":"val"}'],
-    },
-}))(ProjectChat);
+const ProjectChatContainer = withTracker(({ projectId }) => {
+    const storiesHandler = Meteor.subscribe('stories.intro', projectId);
+    let initPayloads = [];
+    if (storiesHandler.ready()) {
+        const initStories = Stories.find({}).fetch();
+        initStories.forEach((s) => {
+            initPayloads = [...initPayloads, ...new StoryValidator(s.story).extractDialogAct()];
+        });
+    }
+    return {
+        loading: !storiesHandler.ready(),
+        initPayloads,
+    };
+})(ProjectChat);
 
 export default ProjectChatContainer;

@@ -7,7 +7,6 @@ import {
 } from 'semantic-ui-react';
 
 class Chat extends React.Component {
-
     // WARNING
     // Returns false, because for some uninvestigated reason, Widget creates
     // leaking connections on ComponentWillUpdate
@@ -58,7 +57,7 @@ Chat.propTypes = {
 
 Chat.defaultProps = {
     language: '',
-    initialPayLoad: [],
+    initialPayLoad: '',
 };
 
 export default Chat;
