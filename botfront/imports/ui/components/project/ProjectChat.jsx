@@ -1,13 +1,15 @@
 import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {
-    Menu, Icon, Dropdown, Popup, Message,
+    Menu, Icon, Dropdown, Popup, Message, Label,
 } from 'semantic-ui-react';
-
+import { StoryValidator } from '../../../lib/story_validation';
 import { wrapMeteorCallback } from '../utils/Errors';
 import Chat from './Chat';
+import { Stories } from '../../../api/story/stories.collection';
 
 class ProjectChat extends React.Component {
     constructor(props) {
@@ -16,12 +18,22 @@ class ProjectChat extends React.Component {
             key: 0,
             languageOptions: null,
             selectedLanguage: null,
+            selectedPayload: null,
         };
     }
 
     componentDidMount() {
         this.loadInstance();
         this.loadAvailableLanguages();
+    }
+
+    componentWillReceiveProps(props) {
+        this.props = props;
+        const { initPayloads } = this.props;
+        const { selectedPayload } = this.state;
+        if (initPayloads && initPayloads.length > 0 && !selectedPayload) {
+            this.setState({ selectedPayload: initPayloads[0].stringPayload });
+        }
     }
 
     loadInstance = () => {
@@ -61,8 +73,7 @@ class ProjectChat extends React.Component {
     handleLangChange = (e, { value }) => {
         this.setState({
             selectedLanguage: value,
-        });
-        this.handleReloadChat();
+        }, () => this.handleReloadChat());
     };
 
     rerenderChatComponent = () => {
@@ -74,38 +85,52 @@ class ProjectChat extends React.Component {
         }));
     };
 
+    renderEntities = entities => entities.map(e => (
+        <Label basic color='teal'>
+            <Label.Detail>{e.entity}</Label.Detail>
+            {e.value}
+        </Label>
+    ));
+
+    handleChangePayload = (e, { value }) => {
+        this.setState({ selectedPayload: value }, () => this.handleReloadChat());
+    }
+
+    renderPayloadOptions = () => {
+        const { initPayloads } = this.props;
+        const { selectedPayload } = this.state;
+        const items = initPayloads.map(p => (
+            <Dropdown.Item key={p.stringPayload} onClick={this.handleChangePayload} value={p.stringPayload} selected={p.stringPayload === selectedPayload}>
+                <code>{p.stringPayload}</code>
+            </Dropdown.Item>
+        ));
+        return items;
+    };
+
     render() {
         const {
-            key, socketUrl, languageOptions, selectedLanguage, noChannel, path,
+            key, socketUrl, languageOptions, selectedLanguage, noChannel, path, selectedPayload,
         } = this.state;
-        const { triggerChatPane, projectId } = this.props;
+        const {
+            triggerChatPane, projectId, loading,
+        } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
+                    <Dropdown item icon='bolt'>
+                        <Dropdown.Menu>
+                            {' '}
+                            <Dropdown.Header content='Select initial payload' icon='bolt' />
+                            {!loading && this.renderPayloadOptions()}
+                        </Dropdown.Menu>
+                    </Dropdown>
                     <Menu.Item>
-                        {selectedLanguage && (
-                            <Dropdown
-                                options={languageOptions}
-                                selection
-                                onChange={this.handleLangChange}
-                                value={selectedLanguage}
-                                data-cy='chat-language-option'
-                            />
-                        )}
+                        {selectedLanguage && <Dropdown options={languageOptions} selection onChange={this.handleLangChange} value={selectedLanguage} data-cy='chat-language-option' />}
                     </Menu.Item>
                     <Menu.Menu position='right'>
                         <Menu.Item>
                             <Popup
-                                trigger={(
-                                    <Icon
-                                        name='redo'
-                                        color='grey'
-                                        link={!noChannel}
-                                        onClick={this.handleReloadChat}
-                                        disabled={noChannel}
-                                        data-cy='restart-chat'
-                                    />
-                                )}
+                                trigger={<Icon name='redo' color='grey' link={!noChannel} onClick={this.handleReloadChat} disabled={noChannel} data-cy='restart-chat' />}
                                 content='Restart the conversation'
                                 position='bottom right'
                                 className='redo-chat-popup'
@@ -114,15 +139,7 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                         <Menu.Item>
                             <Popup
-                                trigger={(
-                                    <Icon
-                                        name='close'
-                                        color='grey'
-                                        link
-                                        onClick={triggerChatPane}
-                                        data-cy='close-chat'
-                                    />
-                                )}
+                                trigger={<Icon name='close' color='grey' link onClick={triggerChatPane} data-cy='close-chat' />}
                                 content='Close the conversation'
                                 position='bottom right'
                                 className='redo-chat-popup'
@@ -130,14 +147,7 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                {socketUrl && path && (
-                    <Chat
-                        socketUrl={socketUrl}
-                        key={key}
-                        language={selectedLanguage}
-                        path={path}
-                    />
-                )}
+                {socketUrl && path && selectedPayload && <Chat socketUrl={socketUrl} key={key} language={selectedLanguage} path={path} initialPayLoad={selectedPayload} />}
                 {noChannel && (
                     <Message
                         content={(
@@ -145,11 +155,7 @@ class ProjectChat extends React.Component {
                                 Go to <Icon name='setting' />
                                 Settings &gt; <Icon name='server' />
                                 Instances to{' '}
-                                <Link
-                                    to={`/project/${projectId}/settings`}
-                                    onClick={triggerChatPane}
-                                    data-cy='settings-link'
-                                >
+                                <Link to={`/project/${projectId}/settings`} onClick={triggerChatPane} data-cy='settings-link'>
                                     create{' '}
                                 </Link>
                                 a valid instance of Rasa to enable the chat window.
@@ -169,6 +175,28 @@ ProjectChat.propTypes = {
     projectId: PropTypes.string.isRequired,
     triggerChatPane: PropTypes.func.isRequired,
     channel: PropTypes.object.isRequired,
+    initPayloads: PropTypes.array,
+    loading: PropTypes.bool,
 };
 
-export default ProjectChat;
+ProjectChat.defaultProps = {
+    initPayloads: [],
+    loading: true,
+};
+
+const ProjectChatContainer = withTracker(({ projectId }) => {
+    const storiesHandler = Meteor.subscribe('stories.intro', projectId);
+    let initPayloads = [];
+    if (storiesHandler.ready()) {
+        const initStories = Stories.find({}).fetch();
+        initStories.forEach((s) => {
+            initPayloads = [...initPayloads, ...new StoryValidator(s.story).extractDialogAct()];
+        });
+    }
+    return {
+        loading: !storiesHandler.ready(),
+        initPayloads,
+    };
+})(ProjectChat);
+
+export default ProjectChatContainer;

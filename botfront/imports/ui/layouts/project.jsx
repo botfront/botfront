@@ -17,6 +17,7 @@ import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { setProjectId } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
+import { Stories } from '../../api/story/stories.collection';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
@@ -210,7 +211,7 @@ const ProjectContainer = withTracker((props) => {
     if (store.getState().get('projectId') !== projectId) {
         store.dispatch(setProjectId(projectId));
     }
-
+    
     return {
         loading: !ready,
         projectId,
