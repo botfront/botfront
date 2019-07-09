@@ -82,7 +82,7 @@ Note that we prefixed the intent with `/`. Since there is no training data for t
 The bot should reply with `utter_ok`.
 
 <video autoplay muted loop width="740" controls>
-  <source src="../../videos/core_simple_story.mp4" type="video/mp4">
+  <source src="../../../videos/core_simple_story.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
 
@@ -103,7 +103,7 @@ We're assuming you still have the training data from the Quick Start guide. If n
 :::
 
 <video autoplay muted loop width="740" controls>
-  <source src="../../videos/nlu_insert_many.mp4" type="video/mp4">
+  <source src="../../../videos/nlu_insert_many.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
 
@@ -112,7 +112,7 @@ We're assuming you still have the training data from the Quick Start guide. If n
 Finally, let's create a bot response for the `utter_ok` template we put in the story.
 
 <video autoplay muted loop width="740" controls>
-  <source src="../../videos/core_bot_response.mp4" type="video/mp4">
+  <source src="../../../videos/core_bot_response.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
 
@@ -153,7 +153,7 @@ _Adding Duckling to the NLU pipeline_ means that we are going to use Duckling to
 :::
 
 <video autoplay muted loop width="740" controls>
-  <source src="../../videos/add_duckling.mp4" type="video/mp4">
+  <source src="../../../videos/add_duckling.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
 
@@ -244,7 +244,7 @@ Run `./train_core.sh`. The core server will be unavailable for a minute (you'll 
 Then you can test the result:
 
 <video autoplay muted loop width="740" controls>
-  <source src="../../videos/dev_custom_action_bot.mp4" type="video/mp4">
+  <source src="../../../videos/dev_custom_action_bot.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
 

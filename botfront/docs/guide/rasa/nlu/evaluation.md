@@ -52,7 +52,7 @@ The view below replaces the usual confusion matrix which we decided to discard b
 
 A detailed per intent report is also available in the form of a sortable table where you can see which intents are the weakest and require priority actions
 
-![](../../i../mages/nlu_evaluation_2.png)
+![](../../../images/nlu_evaluation_2.png)
 
 ### Entities
 
