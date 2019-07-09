@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "0.15.0-rc.1",
+  "version": "0.15.0",
   "private": true,
   "scripts": {
     "start": "meteor run",
