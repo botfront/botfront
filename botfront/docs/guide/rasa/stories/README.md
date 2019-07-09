@@ -74,19 +74,16 @@ In other words, to represent a conversation branching in two different scenarios
 Another way is to use entity values:
 
 ```
-## book
 * book{"class":"business"}
 - utter_business
 ```
 
 ```
-## book
 * book{"class":"eco"}
 - utter_eco
 ```
 
 ```
-## book
 * book
 - utter_which_class
 ```
@@ -109,16 +106,14 @@ It means that if a user said one of the above sentences (`book{"class":"business
 
 Let's add 2 new stories
 
-```{3}
-## cancel booking
-* cancel
+```{2}
+* cancel_booking
 - slot{"class":"eco"}
 - utter_booking_not_cancellable
 ```
 
-```{3}
-## cancel booking
-* cancel
+```{2}
+* cancel_booking
 - slot{"class":"business"}
 - utter_booking_canceled
 ```
@@ -127,9 +122,8 @@ As you can see, the `- slot{"class":"..."}` branch the conversation in different
 
 ::: tip What if the class has not been set yet?
 You can add a 3rd category **not_set** to the `class` slot, and set the initial value to **not_set**. Then you can handle the case where no class is set gracefully like this:
-```{3}
-## cancel booking
-* cancel
+```{2}
+* cancel_booking
 - slot{"class":"not_set"}
 - utter_which_class
 ```
