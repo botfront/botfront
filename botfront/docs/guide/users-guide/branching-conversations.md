@@ -56,7 +56,7 @@ Another way is to use entity values:
 ```
 
 ::: warning But wait, that doesn't work!
-If you train and try those stories, you'll see that if you type `/book` the agent will utter `utter_which_class` as expected, but if you type `book{"class":"business"}` or `book{"class":"business"}` the response will be 
+If you train and try those stories, you'll see that if you type `/book` the agent will utter `utter_which_class` as expected, but if you type `book{"class":"business"}` or `book{"class":"eco"}` the response will be 
 random. The reason is that if the value of the entity is not stored somewhere, Rasa only differentiates flow looking at ifthe entity `class` exists or not in the user utterance
 :::
 
