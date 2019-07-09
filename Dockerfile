@@ -5,6 +5,8 @@ FROM botfront/meteor-base:1.8.1
 COPY ./botfront/package*.json $APP_SOURCE_FOLDER/
 
 ENV NODE_ENV production
+# Increase Node memory for build
+ENV TOOL_NODE_FLAGS --max-old-space-size=4096
 
 RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
 
