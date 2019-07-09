@@ -1,3 +1,12 @@
+---
+meta:
+  - name: description
+    content: 'Botfront: undestanding intents and entities with Rasa'
+  - name: keywords
+    content: botfront stories nlu rasa
+permalink: /rasa/:slug
+---
+
 # Understanding intents and entities
 
 ::: tip
@@ -16,7 +25,7 @@ How do we teach our model that those utterances convey the `i_am_hungry` intent?
 
 Here is a sample of a dataset in Botfront. You can see examples for 2 different intents. This project has more than 150.
 
-![](../images/intents_sample.png)
+![](../../../images/intents_sample.png)
 
 We said that intents carry the meaning of a sentence. How does a program understand meaning? Let's just say there's a way to express the meaning of words with numbers (or vectors). The long explanation is [here](https://mrbot.ai/blog/natural-language-processing/understanding-intent-classification/) if your interested, but the essential idea is that vectors can be compared (a distance can be calculated), and that a small distance indicates the words have a similar meaning. 
 
@@ -32,7 +41,7 @@ Usually, an intent carries an action or an expectation.
 
 Entities are positional elements in an utterance. In the following examples, we're trying to build a currency exchange assistant. To provide a rate, we need the know which currency the user wants to buy, and which currency she wants to sell.
 
-![](../images/nlu_entities_1.png)
+![](../../../images/nlu_entities_1.png)
 
 We have thus 2 entities: `currency_buy` and `currency_sell`. 
 
@@ -42,7 +51,7 @@ We have thus 2 entities: `currency_buy` and `currency_sell`, and they can have a
 
 ::: danger NOT GOOD 
 A common mistake is to choose the entity value as the name like this:
-![](../images/nlu_entities_2.png)
+![](../../../images/nlu_entities_2.png)
 :::
 
 Finally, it should be noted that recognizing the intent and extracting entities are two separate tasks: in order word, having similar entities in utterances will not influence the model when it parses it to recognize the intent.

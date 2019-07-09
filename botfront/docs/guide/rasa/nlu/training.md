@@ -1,3 +1,12 @@
+---
+meta:
+  - name: description
+    content: 'Botfront: get the best of your Rasa NLU models'
+  - name: keywords
+    content: botfront stories nlu rasa
+permalink: /rasa/nlu/:slug
+---
+
 # Training intents and entities
 
 **Intents** capture the general meaning of an utterance while **entities** refers to some particular elements *within* a sentence. Let's say you create a flight booking bot.
@@ -13,7 +22,7 @@ Then we'll need more examples:
 
 And in Botfront it's gonna look like this:
 
-![](../../images/nlu_training_11.png)
+![](../../../images/nlu_training_11.png)
 
 After you train you can verify it works as expected by typing a sentence in the _User says..._. You can see that the `from` and `to` entities are picked up as expected.
 
@@ -21,13 +30,13 @@ After you train you can verify it works as expected by typing a sentence in the 
 You don't see an intent here because our dataset only has one intent. You need at least two intents to train an intent classifier.
 :::
 
-![](../../images/nlu_training_12.png)
+![](../../../images/nlu_training_12.png)
 
 ## Entity Synonyms
 
 However in the example above, if we really want to pass it to a booking engine or a price comparator, we may need airport codes. Entity synonyms can be used for that. In the example below, we mapped _the city of light_ to CDG and _the big apple_ to JFK in the synonyms, retrained, and the values returned for the entities were **CDG** and **JFK**.
 
-![](../../images/nlu_training_8.png)
+![](../../../images/nlu_training_8.png)
 
 ::: tip
 Adding synonyms in the table is generally not enough. You still need to teach the entity extractor the various form an origin or a destination could take by adding more examples to the training data
@@ -45,7 +54,7 @@ In the example below we want to make sure the `color` entity returns an allowed 
 1. If the `CRFEntityExtractor` extracts **yellow**, which is not in the white list, we don't want it in the NLU parse data.
 2. The correct color is returned is the user spells it incorrectly (to some extent).
 
-![](../../images/nlu_training_13.png)
+![](../../../images/nlu_training_13.png)
 
 All you have to do is specify the list of allowed (or commonly) expected values (there aren't that many ways of saying Paris or New-York). Th_spelling latiture_ is adjusted with fuzziness parameter. 100 will have no telerance to errors, 0 will be extremely tolerant. It will always return one of the values even if the user types something completely out of scope.
 
@@ -53,7 +62,7 @@ All you have to do is specify the list of allowed (or commonly) expected values 
 When the entity extractor picks up _citi of lite_, it compares it with every element of the Gazette list and computes a fuzziness score for each element. The highest score is for _the city of light_, which is then mapped to _CDG_ by the synonyms processor. If the highest score is below the minimum score, it means the value is out of scope and the entity is removed.
 :::
 
-## Composiing entities
+## Compositing entities
 
 Duckling is an open source parser by Facebook able to extract structured entities such as numbers, amounts of money, emails, dates. It can be used by Rasa and is integrated in the Botfront package (when you start Botfront with the CLI, a Duckling container is started)
 

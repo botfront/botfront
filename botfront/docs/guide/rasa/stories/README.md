@@ -1,3 +1,12 @@
+---
+meta:
+  - name: description
+    content: 'Botfront: the most efficient way to write Rasa stories'
+  - name: keywords
+    content: botfront stories nlu rasa
+permalink: /rasa/:slug
+---
+
 # Introduction to Rasa stories
 
 Stories are the building blocks of conversation flows. It's a symbolic language used to describe conversations a user can have with a bot.

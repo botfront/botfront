@@ -46,7 +46,7 @@ module.exports = {
                 sidebarDepth: 5,
                 children: [
                     '/guide/rasa/stories/',
-                    // '/guide/rasa/stories/branching-conversations',
+                    '/guide/rasa/stories/custom_actions',
                 ],
             },
             {
