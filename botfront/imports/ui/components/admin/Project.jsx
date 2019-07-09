@@ -8,12 +8,13 @@ import AutoForm from 'uniforms-semantic/AutoForm';
 import React from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
 import { browserHistory } from 'react-router';
-    import { AutoField, ErrorsField, SubmitField } from 'uniforms-semantic';
-    import InfoField from '../utils/InfoField';
+import { AutoField, ErrorsField, SubmitField } from 'uniforms-semantic';
+import InfoField from '../utils/InfoField';
 import { Projects } from '../../../api/project/project.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { PageMenu } from '../utils/Utils';
 import Can from '../roles/Can';
+import SelectField from '../nlu/common/SelectLanguage';
 
 class Project extends React.Component {
     constructor(props) {
@@ -29,7 +30,20 @@ class Project extends React.Component {
         if (project._id) {
             Meteor.call('project.update', project, this.methodCallback());
         } else {
-            Meteor.call('project.insert', project, this.methodCallback());
+            Meteor.call('project.insert', project, wrapMeteorCallback((err, result) => {
+                if (!err) {
+                    Meteor.callWithPromise(
+                        'nlu.insert',
+                        {
+                            name: 'Default Model',
+                            language: project.defaultLanguage,
+                            published: true,
+                        },
+                        result,
+                    );
+                    browserHistory.goBack();
+                }
+            }));
         }
     };
 
@@ -63,6 +77,8 @@ class Project extends React.Component {
                                         disabled={!!namespace}
                                     />
                                 )}
+                                <SelectField name='defaultLanguage' label={null} placeholder='Select the default language of your project' />
+                                <br />
                                 {projectsSchema.allowsKey('apiKey') && (
                                     <InfoField name='apiKey' label='API key' info='Botfront API key' />
                                 )}
