@@ -10,6 +10,8 @@
 
 Botfront is an open source chatbot platform built on top of **Rasa 1.x**.
 
+![Botfront screenshot](botfront/docs/images/botfront-screenshot.jpg)
+
 With Botfront you can:
 
 - Build advanced **multilingual** conversational agents 🌎
@@ -17,7 +19,7 @@ With Botfront you can:
 - Create, train, and evaluate **NLU** models 🤓
 - Create and edit your bot responses 👩‍🎨
 - Monitor conversations, review and annotate incoming NLU utterances 👌
-- 
+
 
 ### Getting started
 
