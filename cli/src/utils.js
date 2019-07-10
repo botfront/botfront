@@ -59,12 +59,14 @@ export function succeedSpinner(spinner, message) {
     }
 }
 
-export function failSpinner(spinner, message) {
+export function failSpinner(spinner, message, params = {}) {
+    const { exit = true } = params;
     if (spinner) {
         spinner.fail(message);
     } else {
         console.log(message)
     }
+    if (exit) process.exit(1);
 }
 
 export function stopSpinner(spinner) {
