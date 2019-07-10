@@ -63,7 +63,8 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
     try{
         startSpinner(spinner, 'Starting Botfront...')
         await shellAsync(command, { silent: !verbose });
-        await waitForService('botfront');
+        if (spinner) { await waitForService('botfront'); }
+        else { await wait(20000); process.exit(0); }
         stopSpinner()
         const serviceUrl = getServiceUrl('botfront');
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
