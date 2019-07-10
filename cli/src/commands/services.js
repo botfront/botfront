@@ -142,14 +142,14 @@ export async function dockerComposeCommand(service, {name, action}, verbose, wor
     spinner.succeed(`Done. ${message}`);
 }
 
-export function dockerComposeFollow(commander, workingDir) {
+export function dockerComposeFollow({ ci = false }, workingDir) {
     if (workingDir) shell.cd(workingDir)
     if (!isProjectDir()) {
         const noProjectMessage = `${chalk.yellow.bold('No project found in this directory.')}\nThis command must be executed in your project's root directory.\n`+
         `${chalk.green.bold('TIP: ')}if you just created your project, you probably just have to do ${chalk.cyan.bold('cd <your-project-folder>')} and then retry`;
         return console.log(boxen(noProjectMessage));
     }
-    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} logs -f`;
+    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} logs${!ci ? ' -f' : ''}`;
     shell.exec(command)
 }
 

@@ -50,7 +50,7 @@ program
 
 program
     .command('logs')
-    .option('-v, --verbose', 'Display Docker Compose start-up logs')
+    .option('--ci', 'Print out logs once and do not hook to TTY')
     .description('Display botfront logs. Must be executed in your project\'s directory')
     .action(dockerComposeFollow);
 
