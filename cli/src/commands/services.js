@@ -86,7 +86,7 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
             failSpinner(spinner, `${chalk.red.bold('ERROR:')} Something went wrong. Check the logs above for more information ☝️, or try inspecting the logs with ${chalk.red.cyan('botfront logs')}.`);
         } else {
             stopSpinner(spinner);
-            failSpinner(spinner, 'Couldn\'t start Botfront. Retrying in verbose mode...');
+            failSpinner(spinner, 'Couldn\'t start Botfront. Retrying in verbose mode...', { exit: false });
             return dockerComposeUp({ verbose: true }, workingDir, null, spinner);
         }
     }
@@ -185,10 +185,10 @@ export async function stopRunningProjects(
         }
         if (volumes && volumes.length) await docker.command(`volume rm ${volumes.join(" ")}`)
         if (networks && networks.length) await docker.command(`network rm ${networks.join(" ")}`);
-    } catch(e) {
-        failSpinner(spinner, `Could not stop running project. Run ${chalk.cyan.bold('docker ps | grep -w botfront-')} and then ${chalk.cyan.bold('docker stop <name>')} and ${chalk.cyan.bold('docker rm <name>')} for each running container.\n${chalk.red.bold(e)}\n`);
-    } finally {
         stopSpinner();
+    } catch(e) {
+        stopSpinner();
+        failSpinner(spinner, `Could not stop running project. Run ${chalk.cyan.bold('docker ps | grep -w botfront-')} and then ${chalk.cyan.bold('docker stop <name>')} and ${chalk.cyan.bold('docker rm <name>')} for each running container.\n${chalk.red.bold(e)}\n`);
     }
 }
 

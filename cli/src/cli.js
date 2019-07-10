@@ -122,8 +122,7 @@ async function killAllCommand(cmd) {
             }
             stopSpinner(spinner)
         } catch (e) {
-            failSpinner(spinner,"Error.")
-            consoleError(e)
+            failSpinner(spinner, e);
         }
         
     }

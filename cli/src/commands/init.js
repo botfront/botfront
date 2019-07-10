@@ -110,9 +110,8 @@ export async function pullDockerImages(images,
         if (download) return succeedSpinner(spinner, 'Docker images ready.');
         return stopSpinner(spinner)
     } catch (e) {
-        consoleError(e)
+        consoleError(e);
         failSpinner(spinner, 'Could not download Docker images');
-        throw(e);
     } finally {
         stopSpinner()
         clearTimeout(timeout);
@@ -127,9 +126,8 @@ export async function removeDockerImages(spinner = ora()) {
         await Promise.all(rmiPromises);
         return succeedSpinner(spinner, 'Docker images removed.');
     } catch (e) {
-        consoleError(e)
+        consoleError(e);
         failSpinner(spinner, 'Could not remove Docker images');
-        throw(e);
     } finally {
         stopSpinner()
     }
@@ -145,9 +143,8 @@ export async function removeDockerContainers(spinner = ora()) {
         await Promise.all(rmPromises);
         return succeedSpinner(spinner, 'Docker containers removed.');
     } catch (e) {
-        consoleError(e)
+        consoleError(e);
         failSpinner(spinner, 'Could not remove Docker containers');
-        throw(e);
     } finally {
         stopSpinner()
     }
