@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.15.0](https://github.com/botfront/botfront/compare/v0.15.0-rc.1...v0.15.0) (2019-07-09)
+
+
+### Bug Fixes
+
+* **empty-storygroup-name:** Story group with empty name is not attempted to save. ([00d0e55](https://github.com/botfront/botfront/commit/00d0e55))
+* commented dangerous db query ([8e3d990](https://github.com/botfront/botfront/commit/8e3d990))
+* fixed error that prevented training ([2b81691](https://github.com/botfront/botfront/commit/2b81691))
+* wrong title in stories ([3135318](https://github.com/botfront/botfront/commit/3135318))
+
+
+### Features
+
+* **intro-stories:** Add intro-stories for the front and backend ([9b1171e](https://github.com/botfront/botfront/commit/9b1171e))
+* **new-train-button:** Add a generic train button ([38a82ae](https://github.com/botfront/botfront/commit/38a82ae))
+* **stories:** Add intro stories at start of a project ([1ae1dd5](https://github.com/botfront/botfront/commit/1ae1dd5))
+* **train-storyGroup:** Only selected stories are trained ([2daa6f0](https://github.com/botfront/botfront/commit/2daa6f0))
+
+
+
 ## [0.15.0-rc.0](https://github.com/botfront/botfront/compare/v0.14.5...v0.15.0-rc.0) (2019-06-23)
 
 

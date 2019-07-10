@@ -1,3 +1,12 @@
+---
+meta:
+  - name: description
+    content: 'Botfront: evaluating your Rasa NLU models'
+  - name: keywords
+    content: botfront stories nlu rasa
+permalink: /rasa/nlu/:slug
+---
+
 # Evaluation
 
 Evaluation gives you aggregate metrics and actionable feedback on your NLU model.
@@ -11,7 +20,7 @@ It is generally advised to keep a portion of your data aside for evaluation purp
 
 Botfront offers several options to evaluate your model and avoids tradeoffs mentioned above.
 
-![Evaluation strategies](../../images/nlu_evaluation_6.png)
+![Evaluation strategies](../../../images/nlu_evaluation_6.png)
 
 ### Using training data
 
@@ -39,15 +48,15 @@ General metrics and actionable feedback on intents. You can see at a glance how 
 
 The view below replaces the usual confusion matrix which we decided to discard because of its impractical use for big NLU models. A 50x50 matrix for 50 intents is very hard to read on a screen and doesn’t convey any insight on actions to perform to fix problems.
 
-![](../../images/nlu_evaluation_1.png)
+![](../../../images/nlu_evaluation_1.png)
 
 A detailed per intent report is also available in the form of a sortable table where you can see which intents are the weakest and require priority actions
 
-![](../../images/nlu_evaluation_2.png)
+![](../../../images/nlu_evaluation_2.png)
 
 ### Entities
 
 Entity extraction is tricky to evaluate and debug. The report shows actionable feedback in the form of failed examples where the expected and actual outputs are compared. With a bit of practice you can quickly understand which problems are solvable and find solutions.
 Similarly, you can see all the prediction errors.
 
-![Evaluation report](../../images/nlu_evaluation_3.png)
+![Evaluation report](../../../images/nlu_evaluation_3.png)

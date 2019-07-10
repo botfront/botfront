@@ -9,6 +9,8 @@ A visual and intuitive platform to build chatbots with Rasa
 
 Botfront is an open source chatbot platform built on top of **Rasa 1.x**.
 
+![Botfront screenshot](botfront/docs/images/botfront-screenshot.jpg)
+
 With Botfront you can:
 
 - Build advanced **multilingual** conversational agents 🌎

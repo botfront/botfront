@@ -29,48 +29,59 @@ module.exports = {
 
         sidebar: [
             {
-                title: 'Users guide', // required
+                title: 'Getting started', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
-                    '/guide/users-guide/setup',
-                    '/guide/users-guide/quick-start',
-                    '/guide/users-guide/branching-conversations',
+                    '/guide/getting-started/setup',
+                    '/guide/getting-started/quick-start',  
+                    '/guide/getting-started/cli',  
                 ],
             },
+            
             {
                 title: 'Admin Guide', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
-                    '/guide/admin/users'
+                    '/guide/admin/'
                 ],
             },
             {
-                title: 'NLU Guide', // required
+                title: 'Developping conversations', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
-                    ['/guide/', 'Intents and Entities'],
-                    '/guide/nlu/training_adding_data',
-                    '/guide/nlu/training',
-                    '/guide/nlu/evaluation',
+                    '/guide/rasa/stories/',
+                    '/guide/rasa/stories/custom_actions',
                 ],
             },
             {
-                title: 'Deployment Guide',   // required
+                title: 'Training NLU', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
-                    '/guide/deployment/',
-                    '/guide/deployment/endpoints',
-                    '/guide/deployment/credentials',
-                ]
+                    ['/guide/rasa/nlu/', 'Intents and Entities'],
+                    '/guide/rasa/nlu/training_adding_data',
+                    '/guide/rasa/nlu/training',
+                    '/guide/rasa/nlu/evaluation',
+                ],
             },
+            // {
+            //     title: 'Deployment Guide',   // required
+            //     // path: '/guide',
+            //     collapsable: false,
+            //     sidebarDepth: 5,
+            //     children: [
+            //         '/guide/deployment/',
+            //         '/guide/deployment/endpoints',
+            //         '/guide/deployment/credentials',
+            //     ]
+            // },
             {
                 title: 'Developers Guide',   // required
                 // path: '/guide',
