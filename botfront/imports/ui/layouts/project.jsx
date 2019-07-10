@@ -17,7 +17,6 @@ import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { setProjectId } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
-import { Stories } from '../../api/story/stories.collection';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
@@ -176,6 +175,8 @@ Project.defaultProps = {
     channel: null,
 };
 
+const readyHandler = handler => (handler);
+
 const ProjectContainer = withTracker((props) => {
     const {
         params: { project_id: projectId },
@@ -186,9 +187,14 @@ const ProjectContainer = withTracker((props) => {
     projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
-    // TODO: use every() instead of chaining &&
-    const ready = Meteor.user() && credentialsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready());
-
+    const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
+    const readyHandlerList = [
+        Meteor.user(),
+        credentialsHandler.ready(),
+        projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready(),
+        introStoryGroupIdHandler.ready(),
+    ];
+    const ready = readyHandlerList.every(readyHandler);
     const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
 
     if (ready && !project) {
