@@ -100,7 +100,7 @@ class Project extends React.Component {
         const {
             showIntercom, intercomId, showChatPane, resizingChatPane,
         } = this.state;
-
+        
         return (
             <div style={{ height: '100vh' }}>
                 {showIntercom && !loading && <Intercom appID={intercomId} {...this.getIntercomUser()} />}
@@ -150,7 +150,7 @@ class Project extends React.Component {
                                 )}
                             </div>
                         )}
-                        {showChatPane && (
+                        {!loading && showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
                                 <ProjectChat channel={channel} triggerChatPane={this.triggerChatPane} projectId={projectId} />
                             </React.Suspense>

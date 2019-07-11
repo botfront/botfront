@@ -142,7 +142,7 @@ class ProjectChat extends React.Component {
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
-                    <Dropdown item icon='bolt'>
+                    <Dropdown item icon='bolt' data-cy='initial-payload-select'>
                         <Dropdown.Menu>
                             {' '}
                             <Dropdown.Header content='Select initial payload' icon='bolt' />
