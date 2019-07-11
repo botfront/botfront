@@ -10,7 +10,7 @@ import Alert from 'react-s-alert';
 import yaml from 'js-yaml';
 import React from 'react';
 import {
-    Placeholder, Header, Menu, Container, Button, Loader, Popup,
+    Placeholder, Header, Menu, Container, Button, Loader, Popup, Image,
 } from 'semantic-ui-react';
 
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
@@ -21,6 +21,7 @@ import { Stories } from '../../api/story/stories.collection';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
+import { GlobalSettings } from '../../api/globalSettings/globalSettings.collection';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -96,7 +97,7 @@ class Project extends React.Component {
 
     render() {
         const {
-            children, projectId, loading, channel, renderLegacyModels,
+            children, projectId, loading, channel, renderLegacyModels, settings,
         } = this.props;
         const {
             showIntercom, intercomId, showChatPane, resizingChatPane,
@@ -106,9 +107,15 @@ class Project extends React.Component {
             <div style={{ height: '100vh' }}>
                 {showIntercom && !loading && <Intercom appID={intercomId} {...this.getIntercomUser()} />}
                 <div className='project-sidebar'>
-                    <Header as='h1' className='logo'>
-                        Botfront.
-                    </Header>
+                    {(settings && settings.settings && settings.settings.public && settings.settings.public.logoUrl) ? (
+                        <Header as='h1' className='logo'>
+                            <Image src={!loading ? settings.settings.public.logoUrl : ''} centered className='custom-logo' />
+                        </Header>
+                    ) : (
+                        <Header as='h1' className='logo'>
+                            Botfront.
+                        </Header>
+                    )}
                     <Header as='h1' className='simple-logo'>
                         B.
                     </Header>
@@ -170,10 +177,12 @@ Project.propTypes = {
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
+    settings: PropTypes.object,
 };
 
 Project.defaultProps = {
     channel: null,
+    settings: {},
 };
 
 const ProjectContainer = withTracker((props) => {
@@ -187,7 +196,9 @@ const ProjectContainer = withTracker((props) => {
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     // TODO: use every() instead of chaining &&
-    const ready = Meteor.user() && credentialsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready());
+    const settingsHandler = Meteor.subscribe('settings');
+    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.logoUrl': 1 } });
+    const ready = Meteor.user() && credentialsHandler.ready() && settingsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready());
 
     const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
 
@@ -217,6 +228,7 @@ const ProjectContainer = withTracker((props) => {
         projectId,
         channel,
         renderLegacyModels,
+        settings,
     };
 })(windowSize(Project));
 
