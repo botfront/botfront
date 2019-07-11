@@ -17,6 +17,12 @@ Slots.deny({
     },
 });
 
+Meteor.startup(() => {
+    if (Meteor.isServer) {
+        Slots._ensureIndex({ projectId: 1, name: 1 }, { unique: true });
+    }
+});
+
 if (Meteor.isServer) {
     Meteor.publish('slots', function(projectId) {
         check(projectId, String);
