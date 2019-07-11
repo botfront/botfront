@@ -1,7 +1,25 @@
-# steps:
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: [ "build",
-#           "-t", "botfront/botfront:$SHORT_SHA",
-#           "."]
+steps:
 
-# timeout: 30m
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['pull', 'turbolent/duckling:latest']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['tag', 'turbolent/duckling:latest', 'botfront/duckling:latest']
+
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - docker pull botfront/botfront:branch-master || exit 0
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",
+          "-t", "botfront:candidate",
+          "--cache-from", "botfront/botfront:branch-master",
+          "/workspace"]
+
+- name: 'botfront/ci-runner:latest'
+  entrypoint: 'bash'
+  args: ['cloudbuild.sh']
+
+timeout: 30m
