@@ -1,7 +1,17 @@
-# steps:
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: [ "build",
-#           "-t", "botfront/botfront:$SHORT_SHA",
-#           "."]
-
-# timeout: 30m
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build',
+          '-t',
+          'botfront-candidate:latest',
+          '.']
+- name: 'docker/compose:1.15.0'
+  args: ['-f',
+          './botfront/cypress/test-project/docker-compose.yml',
+          'up',
+          '-d']
+- name: 'cypress/included:3.4.0'
+  dir: './botfront'
+  env:
+  - 'CYPRESS_VIDEO=false'
+  - 'CYPRESS_baseUrl=http://botfront-app:8888'
+  - 'CYPRESS_MODE=CI_RUN'

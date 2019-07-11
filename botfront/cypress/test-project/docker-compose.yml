@@ -1,0 +1,76 @@
+version: '3.0'
+services:
+  botfront:
+    image: 'botfront-candidate:latest'
+    container_name: botfront-app
+    restart: always
+    volumes:
+      - './models/:/app/models'
+    ports:
+      - '8888:3000'
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+  botfront-api:
+    image: 'botfront/botfront-api:branch-master'
+    container_name: botfront-api
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - '8080:8080'
+    env_file:
+      - .env
+  rasa:
+    image: 'botfront/rasa-for-botfront:branch-master'
+    container_name: botfront-rasa
+    restart: always
+    ports:
+      - '5005:5005'
+    depends_on:
+      - botfront-api
+    volumes:
+      - './models/:/app/models'
+    command:
+      - run
+      - '--enable-api'
+      - '--debug'
+    env_file:
+      - .env
+  actions:
+    image: 'botfront/actions-sdk:latest'
+    container_name: botfront-actions
+    restart: always
+    ports:
+      - '5055:5055'
+    volumes:
+      - './actions:/app/actions'
+    env_file:
+      - .env
+  duckling:
+    image: 'turbolent/duckling:latest'
+    container_name: botfront-duckling
+    restart: always
+    ports:
+      - '8000:8000'
+  mongo:
+    image: 'mongo:latest'
+    container_name: botfront-mongo
+    restart: always
+    volumes:
+      - './botfront-db:/data/db'
+    ports:
+      - '27017:27017'
+    env_file:
+      - .env
+
+networks:
+    default:
+        external:
+          name: cloudbuild
+
+volumes:
+  botfront-db: null

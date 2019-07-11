@@ -1,0 +1,15 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['pull', 'busybox:latest']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['tag', 'busybox:latest', 'botfront-candidate:latest']
+- name: 'docker/compose:1.15.0'
+  args: ['-f',
+          './botfront/cypress/test-project/docker-compose.yml',
+          'up',
+          '-d']
+- name: 'botfront/ci-runner:latest'
+  dir: './botfront'
+  entrypoint: 'bash'
+  args: ['cloudbuild-alt.sh']
+images: ['gcr.io/botfront/gcb-botfront:latest']
