@@ -96,7 +96,9 @@ export const getProjectModelFileName = (projectId, extension = null) => {
     return extension ? `${modelName}.${extension}` : modelName;
 };
 
-export const getProjectModelLocalPath = projectId => path.join(process.env.MODELS_LOCAL_PATH || '/app/models', getProjectModelFileName(projectId, 'tar.gz'));
+export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH || '/app/models';
+
+export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
 
 export const formatMessage = (message) => {
     const bits = message.split('*');
