@@ -1,0 +1,19 @@
+## This triggers the build of the ci-runner image
+
+steps:
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "login",
+        "-u", "$_DOCKER_USERNAME",
+        "-p", "$_DOCKER_PASSWORD",
+  ]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",
+          "-t", "botfront/ci-runner:latest",
+          "/workspace/botfront/cypress"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/ci-runner:latest"]
+
+timeout: 30m
