@@ -3,6 +3,8 @@ import { privateSettingsSchema as basePrivateSettingsSchema, publicSettingsSchem
 
 export const privateSettingsSchema = basePrivateSettingsSchema.extend({
     bfApiHost: { type: String, optional: true },
+    actionsServerUrl: { type: String, optional: true },
+    rasaUrl: { type: String, optional: true },
 });
 
 export const GlobalSettingsSchema = new SimpleSchema(

@@ -58,7 +58,8 @@ class SetupSteps extends React.Component {
                             .then((responses) => {
                                 router.push(`/project/${responses[0]}/nlu/models`);
                             })
-                            .catch(() => {
+                            .catch((e) => {
+                                console.log(e)
                                 router.push({
                                     pathname: '/admin/projects',
                                     state: {
