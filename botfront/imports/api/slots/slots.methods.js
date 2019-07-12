@@ -13,13 +13,24 @@ function validateSchema(slot) {
     }
 }
 
+function handleError(e) {
+    if (e.code === 11000) {
+        throw new Meteor.Error(400, 'Slot already exists');
+    }
+    throw new Meteor.Error(500, 'Server Error');
+}
+
 Meteor.methods({
     'slots.insert'(slot, projectId) {
         check(slot, Object);
         check(projectId, String);
         checkIfCan('stories:w', projectId);
         validateSchema(slot);
-        return Slots.insert(slot);
+        try {
+            return Slots.insert(slot);
+        } catch (e) {
+            return handleError(e);
+        }
     },
 
     'slots.update'(slot, projectId) {
@@ -27,7 +38,11 @@ Meteor.methods({
         check(projectId, String);
         checkIfCan('stories:w', projectId);
         validateSchema(slot);
-        return Slots.update({ _id: slot._id }, { $set: slot });
+        try {
+            return Slots.update({ _id: slot._id }, { $set: slot });
+        } catch (e) {
+            return handleError(e);
+        }
     },
 
     'slots.delete'(slot, projectId) {
