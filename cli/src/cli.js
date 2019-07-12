@@ -16,7 +16,7 @@ import {
     getRunningDockerResources,
     watchFolder,
 } from './commands/services';
-import { wait, isProjectDir, verifySystem, getBotfrontVersion, succeedSpinner, failSpinner, consoleError, stopSpinner } from './utils';
+import { wait, isProjectDir, verifySystem, getBotfrontVersion, succeedSpinner, failSpinner, consoleError, stopSpinner, getLatestVersion, shouldUpdate } from './utils';
 
 const program = require('commander');
 const version = getBotfrontVersion();
@@ -24,7 +24,7 @@ const version = getBotfrontVersion();
 program
     .version(version)
     .description('Botfront CLI')
-    .action(() => console.log(`Unsupported command. Run ${chalk.cyan.bold('botfront --help')} for more information.`));
+    .action(() => console.log(`\n${chalk.red.bold('ERROR:')} Unsupported command. Run ${chalk.cyan.bold('botfront --help')} for more information.\n`));
 
 program
     .command('init')
@@ -85,6 +85,7 @@ program
     .command('docs')
     .description('Open the online documentation in your browser')
     .action(openDocs);
+
 
 async function openDocs() {
     const spinner = ora()

@@ -13,13 +13,25 @@ import boxen from 'boxen';
 import { dockerComposeUp } from './services';
 import { uniqueNamesGenerator } from 'unique-names-generator';
 import {
-    getServices, updateProjectFile, generateDockerCompose, failSpinner, startSpinner, succeedSpinner, verifySystem, consoleError, stopSpinner, getMissingImgs, getContainerNames,
+    getServices,
+    updateProjectFile,
+    generateDockerCompose,
+    failSpinner,
+    startSpinner,
+    succeedSpinner,
+    verifySystem,
+    consoleError,
+    stopSpinner,
+    getMissingImgs,
+    getContainerNames,
+    displayUpdateMessage,
 } from '../utils';
 
 const access = promisify(fs.access);
 const copy = promisify(ncp);
 
 export async function initCommand(cmd) {
+    await displayUpdateMessage();
     try {
         await verifySystem();
         let images = {};

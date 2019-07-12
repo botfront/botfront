@@ -9,9 +9,32 @@ import boxen from 'boxen';
 import { pullDockerImages } from './init';
 import path from 'path';
 import { watch } from 'chokidar';
-import { fixDir, isProjectDir, getComposeFilePath, getServices, getMissingImgs, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize, generateDockerCompose, startSpinner, stopSpinner, failSpinner, succeedSpinner, consoleError, setSpinnerText, setSpinnerInfo, updateEnvFile } from '../utils';
+import {
+    fixDir,
+    isProjectDir,
+    getComposeFilePath,
+    getServices,
+    getMissingImgs,
+    waitForService,
+    getServiceUrl,
+    getComposeWorkingDir,
+    wait,
+    shellAsync,
+    getServiceNames,
+    capitalize,
+    generateDockerCompose,
+    startSpinner,
+    stopSpinner,
+    failSpinner,
+    succeedSpinner,
+    consoleError,
+    setSpinnerText,
+    setSpinnerInfo,
+    updateEnvFile
+} from '../utils';
 
 export async function dockerComposeUp({ verbose = false }, workingDir, spinner = ora()) {
+    await displayUpdateMessage();
     shell.cd(fixDir(workingDir));
     if (!isProjectDir()) {
         const noProjectMessage = `${chalk.yellow.bold('No project found.')} ${chalk.cyan.bold('botfront up')} must be executed from your project\'s directory`;

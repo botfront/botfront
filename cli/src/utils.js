@@ -73,6 +73,28 @@ export function stopSpinner(spinner) {
     }
 }
 
+export async function getLatestVersion() {
+    try {
+        const response = await axios.get('https://registry.npmjs.org/botfront');
+        if (response.status === 200) {
+            return response.data['dist-tags'].latest;
+        }
+        // don't do anything in case of error, just no update message
+    } catch(e) {}
+}
+
+export async function shouldUpdate() {
+    const currentVersion = getBotfrontVersion();
+    const latestVersion = await getLatestVersion();
+    return latestVersion !== currentVersion;
+}
+
+export async function displayUpdateMessage() {
+    if (await shouldUpdate()) {
+        console.log(boxen(`A new version of Botfront is available. Run ${chalk.cyan.bold('npm install -g botfront')} to update.`,  { padding: 1,  margin: 1 }))
+    }
+}
+
 /*
 Augment the botfront.yml file with version and project specific values
 */
