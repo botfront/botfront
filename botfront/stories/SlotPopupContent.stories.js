@@ -1,6 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select } from '@storybook/addon-knobs';
+import { Button } from 'semantic-ui-react'; 
 import SlotPopupContent from '../imports/ui/components/stories/common/SlotPopupContent';
 
 const selectionOne = [
@@ -29,15 +30,20 @@ const selected = {
     textSlot3: { name: 'textSlot3', type: 'text' },
 };
 
+const trigger = <Button color='orange' basic content='Slots' />;
+
 storiesOf('SlotPopupContent', module)
     .addDecorator(withKnobs)
     .add('with no available slots', () => (
-        <SlotPopupContent />
+        <SlotPopupContent
+            trigger={trigger}
+        />
     ))
     .add('with available slots', () => (
         <SlotPopupContent
             available={select('Available slots', selection, selectionOne)}
             value={select('Selected slot', selected, null)}
             onChange={slot => alert(`${slot.name}!!`)}
+            trigger={trigger}
         />
     ));
