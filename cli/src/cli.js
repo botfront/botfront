@@ -24,7 +24,7 @@ const version = getBotfrontVersion();
 program
     .version(version)
     .description('Botfront CLI')
-    .action(() => console.log('test'));
+    .action(() => console.log(`Unsupported command. Run ${chalk.cyan.bold('botfront --help')} for more information.`));
 
 program
     .command('init')
