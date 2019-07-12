@@ -127,6 +127,7 @@ class Settings extends React.Component {
             <Message info icon='question circle' content='Login page background images URLs' />
             <AutoField name='settings.public.backgroundImages' />
             <AutoField name='settings.public.logoUrl' />
+            <AutoField name='settings.public.smallLogoUrl' />
         </Tab.Pane>
     );
 

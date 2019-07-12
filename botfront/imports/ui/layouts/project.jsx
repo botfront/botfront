@@ -116,9 +116,15 @@ class Project extends React.Component {
                             Botfront.
                         </Header>
                     )}
-                    <Header as='h1' className='simple-logo'>
-                        B.
-                    </Header>
+                    {(settings && settings.settings && settings.settings.public && settings.settings.public.smallLogoUrl) ? (
+                        <Header as='h1' className='simple-logo'>
+                            <Image src={!loading ? settings.settings.public.smallLogoUrl : ''} centered className='custom-small-logo' />
+                        </Header>
+                    ) : (
+                        <Header as='h1' className='simple-logo'>
+                            B.
+                        </Header>
+                    )}
                     {loading && this.renderPlaceholder(true, false)}
                     {!loading && (
                         <ProjectSidebarComponent
@@ -197,7 +203,7 @@ const ProjectContainer = withTracker((props) => {
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     // TODO: use every() instead of chaining &&
     const settingsHandler = Meteor.subscribe('settings');
-    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.logoUrl': 1 } });
+    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1 } });
     const ready = Meteor.user() && credentialsHandler.ready() && settingsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready());
 
     const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
