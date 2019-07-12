@@ -85,11 +85,6 @@ program
     .command('docs')
     .description('Open the online documentation in your browser')
     .action(openDocs);
-
-program
-    .command('x')
-    .description('Open the online documentation in your browser')
-    .action(getProjectVersion);
     
 async function openDocs() {
     const spinner = ora()
