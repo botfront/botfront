@@ -1,8 +1,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select } from '@storybook/addon-knobs';
-import { Button } from 'semantic-ui-react'; 
+import { Button } from 'semantic-ui-react';
 import SlotPopupContent from '../imports/ui/components/stories/common/SlotPopupContent';
+import DashedButton from '../imports/ui/components/stories/common/DashedButton';
 
 const selectionOne = [
     { name: 'textSlot1', type: 'text' }, { name: 'textSlot2', type: 'text' }, { name: 'textSlot3', type: 'text' },
@@ -30,7 +31,7 @@ const selected = {
     textSlot3: { name: 'textSlot3', type: 'text' },
 };
 
-const trigger = <Button color='orange' basic content='Slots' />;
+const trigger = <DashedButton color='orange'>Slot</DashedButton>;
 
 storiesOf('SlotPopupContent', module)
     .addDecorator(withKnobs)

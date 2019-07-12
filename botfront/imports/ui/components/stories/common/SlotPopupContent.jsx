@@ -5,7 +5,6 @@ import {
     Dropdown, Button, Popup,
 } from 'semantic-ui-react';
 import { Link } from 'react-router';
-import './style.css';
 import { groupBy } from 'lodash';
 
 const SlotPopupContent = (props) => {
