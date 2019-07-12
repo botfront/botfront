@@ -29,17 +29,18 @@
     "boxen": "^4.1.0",
     "chalk": "^2.4.2",
     "check-node-version": "^4.0.1",
+    "chokidar": "^3",
     "commander": "^2.20.0",
     "docker-cli-js": "^2.5.2",
     "esm": "^3.2.25",
+    "fs-extra": "^8.1.0",
     "inquirer": "^6.3.1",
     "js-yaml": "^3.13.1",
     "ncp": "^2.0.0",
     "open": "^6.3.0",
     "ora": "^3.4.0",
     "shelljs": "~0.8.3",
-    "unique-names-generator": "^3.0.0",
-    "chokidar": "^3"
+    "unique-names-generator": "^3.0.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

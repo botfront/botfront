@@ -83,14 +83,24 @@ export async function getLatestVersion() {
     } catch(e) {}
 }
 
-export async function shouldUpdate() {
+export function getProjectVersion(workingDir) {
+    return getProjectConfig(fixDir(null)).version;
+}
+
+export function shouldUpdateProject() {
+    const botfrontVersion = getBotfrontVersion();
+    const projectVersion = getProjectVersion();
+    return botfrontVersion !== projectVersion;
+}
+
+export async function shouldUpdateNpmPackage() {
     const currentVersion = getBotfrontVersion();
     const latestVersion = await getLatestVersion();
     return latestVersion !== currentVersion;
 }
 
 export async function displayUpdateMessage() {
-    if (await shouldUpdate()) {
+    if (await shouldUpdateNpmPackage()) {
         console.log(boxen(`A new version of Botfront is available. Run ${chalk.cyan.bold('npm install -g botfront')} to update.`,  { padding: 1,  margin: 1 }))
     }
 }
@@ -100,7 +110,9 @@ Augment the botfront.yml file with version and project specific values
 */
 export async function updateProjectFile(projectAbsPath, images) {
     const config = getProjectConfig(projectAbsPath);
-    config.version = getBotfrontVersion();
+    if (!config.version) {
+        config.version = getBotfrontVersion();
+    }
     config.images.current = JSON.parse(JSON.stringify(config.images.default)); // deep copy
     Object.keys(config.images.current).forEach(service => {
         if (images[service]) config.images.current[service] = images[service];

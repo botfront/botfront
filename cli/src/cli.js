@@ -16,7 +16,7 @@ import {
     getRunningDockerResources,
     watchFolder,
 } from './commands/services';
-import { wait, isProjectDir, verifySystem, getBotfrontVersion, succeedSpinner, failSpinner, consoleError, stopSpinner, getLatestVersion, shouldUpdate } from './utils';
+import { wait, isProjectDir, verifySystem, getBotfrontVersion, succeedSpinner, failSpinner, consoleError, stopSpinner, getLatestVersion, shouldUpdateNpmPackage, getProjectVersion } from './utils';
 
 const program = require('commander');
 const version = getBotfrontVersion();
@@ -86,7 +86,11 @@ program
     .description('Open the online documentation in your browser')
     .action(openDocs);
 
-
+program
+    .command('x')
+    .description('Open the online documentation in your browser')
+    .action(getProjectVersion);
+    
 async function openDocs() {
     const spinner = ora()
     spinner.start(`Opening ${chalk.green.bold('https://docs.botfront.io')} in your browser...`)
