@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import 'brace/theme/github';
 import 'brace/mode/text';
+import { Can } from '../../../lib/scopes';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 
@@ -58,84 +59,87 @@ const StoryEditor = ({
                             }
                             onRename(newTitle);
                         }}
+                        disabled={disabled}
                     />
                 </Menu.Item>
-                <Menu.Item position='right'>
-                    <Popup
-                        trigger={(
-                            <Icon
-                                name='dolly'
-                                color='grey'
-                                link
-                                data-cy='move-story'
-                            />
-                        )}
-                        content={(
-                            <ConfirmPopup
-                                title='Move story to :'
-                                content={(
-                                    <Dropdown
-                                        button
-                                        openOnFocus
-                                        search
-                                        basic
-                                        placeholder='Select a group'
-                                        fluid
-                                        selection
-                                        value={moveDestination}
-                                        options={groupNames}
-                                        onChange={(e, data) => {
-                                            setMoveDestination(data.value);
-                                        }}
-                                        data-cy='move-story-dropdown'
-                                    />
-                                )}
-                                onYes={() => {
-                                    if (moveDestination) {
-                                        openMovePopup(false);
-                                        onMove(moveDestination);
-                                    }
-                                }}
-                                onNo={() => openMovePopup(false)}
-                            />
-                        )}
-                        on='click'
-                        open={movePopupOpened}
-                        onOpen={() => openMovePopup(true)}
-                        onClose={() => openMovePopup(false)}
-                    />
-                    <Icon
-                        name='clone'
-                        color='grey'
-                        link
-                        data-cy='duplicate-story'
-                        onClick={onClone}
-                    />
-                    <Popup
-                        trigger={(
-                            <Icon
-                                name='trash'
-                                color='grey'
-                                link
-                                data-cy='delete-story'
-                            />
-                        )}
-                        content={(
-                            <ConfirmPopup
-                                title='Delete story ?'
-                                onYes={() => {
-                                    openDeletePopup(false);
-                                    onDelete();
-                                }}
-                                onNo={() => openDeletePopup(false)}
-                            />
-                        )}
-                        on='click'
-                        open={deletePopupOpened}
-                        onOpen={() => openDeletePopup(true)}
-                        onClose={() => openDeletePopup(false)}
-                    />
-                </Menu.Item>
+                <Can I='stories:w'>
+                    <Menu.Item position='right'>
+                        <Popup
+                            trigger={(
+                                <Icon
+                                    name='dolly'
+                                    color='grey'
+                                    link
+                                    data-cy='move-story'
+                                />
+                            )}
+                            content={(
+                                <ConfirmPopup
+                                    title='Move story to :'
+                                    content={(
+                                        <Dropdown
+                                            button
+                                            openOnFocus
+                                            search
+                                            basic
+                                            placeholder='Select a group'
+                                            fluid
+                                            selection
+                                            value={moveDestination}
+                                            options={groupNames}
+                                            onChange={(e, data) => {
+                                                setMoveDestination(data.value);
+                                            }}
+                                            data-cy='move-story-dropdown'
+                                        />
+                                    )}
+                                    onYes={() => {
+                                        if (moveDestination) {
+                                            openMovePopup(false);
+                                            onMove(moveDestination);
+                                        }
+                                    }}
+                                    onNo={() => openMovePopup(false)}
+                                />
+                            )}
+                            on='click'
+                            open={movePopupOpened}
+                            onOpen={() => openMovePopup(true)}
+                            onClose={() => openMovePopup(false)}
+                        />
+                        <Icon
+                            name='clone'
+                            color='grey'
+                            link
+                            data-cy='duplicate-story'
+                            onClick={onClone}
+                        />
+                        <Popup
+                            trigger={(
+                                <Icon
+                                    name='trash'
+                                    color='grey'
+                                    link
+                                    data-cy='delete-story'
+                                />
+                            )}
+                            content={(
+                                <ConfirmPopup
+                                    title='Delete story ?'
+                                    onYes={() => {
+                                        openDeletePopup(false);
+                                        onDelete();
+                                    }}
+                                    onNo={() => openDeletePopup(false)}
+                                />
+                            )}
+                            on='click'
+                            open={deletePopupOpened}
+                            onOpen={() => openDeletePopup(true)}
+                            onClose={() => openDeletePopup(false)}
+                        />
+                    </Menu.Item>
+                </Can>
             </Menu>
             <Segment attached='bottom'>
                 <AceEditor

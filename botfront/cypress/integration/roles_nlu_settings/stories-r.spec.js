@@ -35,12 +35,13 @@ describe('stories:r permissions', function() {
         cy.contains('Slots');
     });
 
-    it('should NOT be able add stories', function() {
+    it('should NOT be able add stories, delete and update stories', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.contains('TestName').click();
         cy.get('[data-cy=add-item]').should('not.exist');
         cy.get('[data-cy=add-story]').should('not.exist');
         cy.get('[data-cy=delete-story]').should('not.exist');
+        cy.dataCy('story-title').should('be.disabled');
     });
 
     it('should NOT be able edit and add slots', function() {

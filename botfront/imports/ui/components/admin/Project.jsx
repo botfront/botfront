@@ -28,7 +28,20 @@ class Project extends React.Component {
 
     updateProject = (project) => {
         if (project._id) {
-            Meteor.call('project.update', project, this.methodCallback());
+            Meteor.call('project.update', project, wrapMeteorCallback((err) => {
+                if (!err) {
+                    Meteor.callWithPromise(
+                        'nlu.insert',
+                        {
+                            name: 'Default Model',
+                            language: project.defaultLanguage,
+                            published: true,
+                        },
+                        project._id,
+                    );
+                    browserHistory.goBack();
+                }
+            }));
         } else {
             Meteor.call('project.insert', project, wrapMeteorCallback((err, result) => {
                 if (!err) {
@@ -68,7 +81,7 @@ class Project extends React.Component {
                                 onSubmit={p => this.updateProject(p)}
                                 model={project}
                             >
-                                <AutoField name='name' />
+                                <AutoField name='name' data-cy='project-name' />
                                 {projectsSchema.allowsKey('namespace') && (
                                     <InfoField
                                         name='namespace'
@@ -82,9 +95,9 @@ class Project extends React.Component {
                                 {projectsSchema.allowsKey('apiKey') && (
                                     <InfoField name='apiKey' label='API key' info='Botfront API key' />
                                 )}
-                                <AutoField name='disabled' />
+                                <AutoField name='disabled' data-cy='disable' />
                                 <ErrorsField />
-                                <SubmitField />
+                                <SubmitField data-cy='submit-field' />
                             </AutoForm>
                         </Segment>
                     )}
@@ -94,7 +107,7 @@ class Project extends React.Component {
                                 <Header content='Delete project' />
                                 {!project.disabled && <Message info content='A project must be disabled to be deletable' />}
                                 <br />
-                                <Button icon='trash' disabled={!project.disabled} negative content='Delete project' onClick={() => this.setState({ confirmOpen: true })} />
+                                <Button icon='trash' disabled={!project.disabled} negative content='Delete project' onClick={() => this.setState({ confirmOpen: true })} data-cy='delete-project' />
                                 <Confirm
                                     open={confirmOpen}
                                     header={`Delete project ${project.name}?`}
@@ -134,6 +147,7 @@ const ProjectContainer = withTracker(({ params }) => {
                     namespace: 1,
                     disabled: 1,
                     apiKey: 1,
+                    defaultLanguage: 1,
                 },
             },
         ).fetch();
