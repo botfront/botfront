@@ -1,8 +1,11 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select } from '@storybook/addon-knobs';
+import Context from '../imports/ui/components/stories/common/Context';
 import SlotPopupContent from '../imports/ui/components/stories/common/SlotPopupContent';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
+
+const noSlots = [];
 
 const selectionOne = [
     { name: 'textSlot1', type: 'text' }, { name: 'textSlot2', type: 'text' }, { name: 'textSlot3', type: 'text' },
@@ -21,7 +24,9 @@ const selectionThree = [
     { name: 'unfeatSlot1', type: 'unfeaturized' }, { name: 'unfeatSlot2', type: 'unfeaturized' }, { name: 'unfeatSlot3', type: 'unfeaturized' },
 ];
 
-const selection = { selectionOne, selectionTwo, selectionThree };
+const selection = {
+    noSlots, selectionOne, selectionTwo, selectionThree,
+};
 
 const selected = {
     None: null,
@@ -34,14 +39,17 @@ const trigger = <DashedButton color='orange'>Slot</DashedButton>;
 
 storiesOf('SlotPopupContent', module)
     .addDecorator(withKnobs)
-    .add('with no available slots', () => (
-        <SlotPopupContent
-            trigger={trigger}
-        />
+    .addDecorator(story => (
+        <Context.Provider
+            value={{
+                slots: select('Available slots', selection, noSlots),
+            }}
+        >
+            {story()}
+        </Context.Provider>
     ))
-    .add('with available slots', () => (
+    .add('default', () => (
         <SlotPopupContent
-            available={select('Available slots', selection, selectionOne)}
             value={select('Selected slot', selected, null)}
             onChange={slot => alert(`${slot.name}!!`)}
             trigger={trigger}

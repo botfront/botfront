@@ -1,18 +1,17 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-// import { Context } from 'context';
 import {
     Dropdown, Button, Popup,
 } from 'semantic-ui-react';
 import { Link } from 'react-router';
 import { groupBy } from 'lodash';
+import Context from './Context';
 
 const SlotPopupContent = (props) => {
     const {
-        value: active, onChange, available, trigger,
+        value: active, onChange, trigger,
     } = props;
-    const { slots: slotsFromContext, projectId } = { slots: [], projectId: 'bf' }; // useContext(Context);
-    const slots = [...available, ...slotsFromContext];
+    const { slots, projectId } = useContext(Context);
 
     if (!slots.length) {
         return (
@@ -74,14 +73,12 @@ const SlotPopupContent = (props) => {
 SlotPopupContent.propTypes = {
     value: PropTypes.string,
     onChange: PropTypes.func,
-    available: PropTypes.arrayOf(PropTypes.object),
     trigger: PropTypes.element.isRequired,
 };
 
 SlotPopupContent.defaultProps = {
     value: null,
     onChange: () => {},
-    available: [],
 };
 
 export default SlotPopupContent;

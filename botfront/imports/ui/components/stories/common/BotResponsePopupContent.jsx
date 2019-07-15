@@ -1,17 +1,16 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-// import { Context } from 'context';
 import {
-    Dropdown, Button, Modal,
+    Dropdown, Button, Modal, Search,
 } from 'semantic-ui-react';
 import './style.less';
+import Context from './Context';
 
 const BotResponsePopupContent = (props) => {
     const {
-        onSelect, onCreate, trigger, available,
+        onSelect, onCreate, trigger,
     } = props;
-    const { responses: responsesFromContext } = { responses: [] }; // useContext(Context);
-    const responses = [...available, ...responsesFromContext];
+    const { responses } = useContext(Context);
     const [modalOpen, setModalOpen] = useState(false);
 
     return (
@@ -36,8 +35,9 @@ const BotResponsePopupContent = (props) => {
             </Modal>
             <Dropdown trigger={trigger} className='dropdown-button-trigger'>
                 <Dropdown.Menu style={{ top: 'calc(100% + 5px)' }}>
+                    <Dropdown.Header style={{ margin: '0.6em' }}>Select from existing</Dropdown.Header>
                     <Dropdown.Item>
-                        <Button fluid color='green' content='Select from existing' onClick={() => setModalOpen(true)} />
+                        <Search fluid onClick={() => setModalOpen(true)} />
                     </Dropdown.Item>
                     <Dropdown.Divider style={{ margin: '0' }} />
                     <Dropdown.Header style={{ margin: '0.6em' }}>Or use a template</Dropdown.Header>
@@ -57,7 +57,6 @@ BotResponsePopupContent.propTypes = {
     value: PropTypes.string,
     onSelect: PropTypes.func,
     onCreate: PropTypes.func,
-    available: PropTypes.arrayOf(PropTypes.object),
     trigger: PropTypes.element.isRequired,
 };
 
@@ -65,7 +64,6 @@ BotResponsePopupContent.defaultProps = {
     value: null,
     onSelect: () => {},
     onCreate: () => {},
-    available: [],
 };
 
 export default BotResponsePopupContent;
