@@ -1,7 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select } from '@storybook/addon-knobs';
-import { Button } from 'semantic-ui-react';
 import SlotPopupContent from '../imports/ui/components/stories/common/SlotPopupContent';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
 
