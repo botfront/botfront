@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Dropdown, Button, Modal, Search,
+    Dropdown, Modal, Search,
 } from 'semantic-ui-react';
 import './style.less';
 import Context from './Context';
@@ -18,6 +18,7 @@ const BotResponsePopupContent = (props) => {
             <Modal
                 size='tiny'
                 open={modalOpen}
+                onClose={() => setModalOpen(false)}
             >
                 <Modal.Header>Select from existing</Modal.Header>
                 <Modal.Content>
