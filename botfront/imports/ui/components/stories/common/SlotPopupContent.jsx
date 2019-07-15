@@ -9,7 +9,7 @@ import Context from './Context';
 
 const SlotPopupContent = (props) => {
     const {
-        value: active, onChange, trigger,
+        value: active, onSelect, trigger,
     } = props;
     const { slots, projectId } = useContext(Context);
 
@@ -52,7 +52,7 @@ const SlotPopupContent = (props) => {
                                         <>
                                             <Dropdown.Divider style={{ margin: '0' }} />
                                             <Dropdown.Item
-                                                onClick={() => onChange(s)}
+                                                onClick={() => onSelect(s)}
                                                 active={activeName === s.name}
                                                 key={s.name}
                                             >
@@ -72,13 +72,13 @@ const SlotPopupContent = (props) => {
 
 SlotPopupContent.propTypes = {
     value: PropTypes.string,
-    onChange: PropTypes.func,
+    onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
 };
 
 SlotPopupContent.defaultProps = {
     value: null,
-    onChange: () => {},
+    onSelect: () => {},
 };
 
 export default SlotPopupContent;

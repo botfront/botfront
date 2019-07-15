@@ -5,7 +5,7 @@ import './style.less';
 
 const ActionPopupContent = (props) => {
     const {
-        onChange, trigger,
+        onSelect, trigger,
     } = props;
 
     const [isOpen, setIsOpen] = useState();
@@ -22,8 +22,8 @@ const ActionPopupContent = (props) => {
         >
             <p className='all-caps-header'>Enter name</p>
             <div>
-                <form onSubmit={(e) => { e.preventDefault(); setActionName(null); setIsOpen(false); onChange(actionName); }}>
-                    <input value={actionName} onChange={e => setActionName(e.target.value)} />
+                <form onSubmit={(e) => { e.preventDefault(); setActionName(null); setIsOpen(false); onSelect(actionName); }}>
+                    <input value={actionName} onSelect={e => setActionName(e.target.value)} />
                 </form>
             </div>
         </Popup>
@@ -31,12 +31,12 @@ const ActionPopupContent = (props) => {
 };
 
 ActionPopupContent.propTypes = {
-    onChange: PropTypes.func,
+    onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
 };
 
 ActionPopupContent.defaultProps = {
-    onChange: () => {},
+    onSelect: () => {},
 };
 
 export default ActionPopupContent;

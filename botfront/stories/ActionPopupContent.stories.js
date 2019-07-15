@@ -10,7 +10,7 @@ storiesOf('ActionPopupContent', module)
     .addDecorator(withKnobs)
     .add('default', () => (
         <ActionPopupContent
-            onChange={action => alert(`${action}!!`)}
+            onSelect={action => alert(`${action}!!`)}
             trigger={trigger}
         />
     ));

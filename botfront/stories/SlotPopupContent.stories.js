@@ -51,7 +51,7 @@ storiesOf('SlotPopupContent', module)
     .add('default', () => (
         <SlotPopupContent
             value={select('Selected slot', selected, null)}
-            onChange={slot => alert(`${slot.name}!!`)}
+            onSelect={slot => alert(`${slot.name}!!`)}
             trigger={trigger}
         />
     ));
