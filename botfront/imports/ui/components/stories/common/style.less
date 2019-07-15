@@ -34,4 +34,13 @@ each(@basic-colors, {
         border-color: @value;
         background-color: screen(@value, #eeeeee);
     }
+    .dashed.@{key}:active {
+        background-color: screen(@value, #cccccc);
+    }
+})
+
+each(@text-sizes, {
+    .dashed.@{key} {
+        font-size: @value;
+    }
 })

@@ -4,7 +4,6 @@ import BotResponsePopupContent from './BotResponsePopupContent';
 import ActionPopupContent from './ActionPopupContent';
 import SlotPopupContent from './SlotPopupContent';
 import DashedButton from './DashedButton';
-import './style.less';
 
 const AddStoryLine = (props) => {
     const {

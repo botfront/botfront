@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 
 const DashedButton = (props) => {
     const {
-        children, color, ...rest
+        children, color, size, ...rest
     } = props;
     return (
         <>
             <button
                 type='button'
-                className={`dashed ${color}`}
+                className={`dashed ${color} ${size}`}
                 {...rest}
             >
                 {children || <>&nbsp;</>}
@@ -20,11 +20,13 @@ const DashedButton = (props) => {
 
 DashedButton.propTypes = {
     color: PropTypes.string.isRequired,
+    size: PropTypes.string,
     children: PropTypes.any,
 };
 
 DashedButton.defaultProps = {
     children: null,
+    size: 'small',
 };
 
 export default DashedButton;

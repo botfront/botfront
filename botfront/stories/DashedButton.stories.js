@@ -20,8 +20,24 @@ const color = {
     botfrontBlue: 'botfront-blue',
 };
 
+const size = {
+    mini: 'mini',
+    tiny: 'tiny',
+    small: 'small',
+    medium: 'medium',
+    large: 'large',
+    big: 'big',
+    huge: 'huge',
+    massive: 'massive',
+}
+
 storiesOf('DashedButton', module)
     .addDecorator(withKnobs)
     .add('default', () => (
-        <DashedButton content='Slots' color={select('color', color, 'orange')}>{text('text', 'Click me')}</DashedButton>
+        <DashedButton
+            color={select('color', color, 'orange')}
+            size={select('size', size, 'small')}
+        >
+            {text('text', 'Click me')}
+        </DashedButton>
     ));
