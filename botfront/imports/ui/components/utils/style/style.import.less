@@ -1,3 +1,5 @@
+@import '../../../../../client/variables.less';
+
 .trigger {
   display: inline;
 
@@ -30,5 +32,61 @@
   label {
     display: inline-block;
     margin-right: 4px;
+  }
+}
+
+.entity-container {
+  display: inline-block;
+  border-style: solid;
+  border-color: @entity-teal; 
+  border-width: 1px;
+  border-radius: 4px;
+  position: relative;
+  top: 1px;
+  .entity {
+    display: inline-block;
+  }
+
+  .mini-entity-text {
+    background-color: @entity-teal;
+    padding: 4px 3px 3px 6px;
+    font-weight: normal;
+    color: white;
+    font-size: @mini;
+  }
+
+  .tiny-entity-text {
+    background-color: @entity-teal;
+    padding: 5px 5px 3px 10px;
+    font-weight: bold;
+    color: white;
+    font-size: @tiny;
+  }
+  
+  .mini-entity-value {
+    background-color: white;
+    padding: 4px 6px 3px 3px;
+    border-radius: 0px 4px 4px 0px;
+    font-weight: normal;
+    color: black;
+    font-size: @mini;
+  }
+  
+  .tiny-entity-value {
+    background-color: white;
+    padding: 5px 10px 3px 5px;
+    border-radius: 0px 4px 4px 0px;
+    font-weight: bold;
+    color: black;
+    font-size: @tiny;
+  }
+}
+
+.entity-container:hover {
+  .mini-entity-text {
+    background-color: @entity-teal-hover;
+  }
+  .tiny-entity-text {
+    background-color: @entity-teal-hover;
   }
 }

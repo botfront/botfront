@@ -14,6 +14,8 @@
 @grey           : #767676;
 @black          : #1B1C1D;
 @botfront-blue  : #011E56;
+@entity-teal    : #00b5ad;
+@entity-teal-hover: #00aca4;
 
 @basic-colors: 
     red @red,
@@ -51,12 +53,13 @@
 @huge            : unit( round(@hugeSize * @emSize) / @emSize, rem);
 @massive         : unit( round(@massiveSize * @emSize) / @emSize, rem);
 
-@text-sizes:
-    mini @mini,
-    tiny @tiny,
-    small @small,
-    medium @medium,
-    large @large,
-    big @big,
-    huge @huge,
-    massive @massive;
+@text-sizes: {
+    mini: @mini;
+    tiny: @tiny;
+    small: @small;
+    medium: @medium;
+    large: @large;
+    big: @big;
+    huge: @huge;
+    massive: @massive;
+}
