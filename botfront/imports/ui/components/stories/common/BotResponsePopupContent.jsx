@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {
     Dropdown, Modal, Search,
 } from 'semantic-ui-react';
-import './style.less';
 import Context from './Context';
 
 const BotResponsePopupContent = (props) => {

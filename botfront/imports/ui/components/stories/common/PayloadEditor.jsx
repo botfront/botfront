@@ -5,7 +5,6 @@ import IntentDropdown from '../../nlu/common/IntentDropdown';
 import EntityDropdown from '../../nlu/common/EntityDropdown';
 import TrashBin from '../../nlu/common/TrashBin';
 import DashedButton from './DashedButton';
-import './style.less';
 import Context from './Context';
 
 const PayloadEditor = (props) => {

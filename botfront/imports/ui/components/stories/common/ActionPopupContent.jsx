@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Input } from 'semantic-ui-react';
-import './style.less';
 
 const ActionPopupContent = (props) => {
     const {
