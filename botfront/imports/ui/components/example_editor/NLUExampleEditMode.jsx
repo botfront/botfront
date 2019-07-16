@@ -17,7 +17,6 @@ import getColor from '../../../lib/getColors';
 import NLUExampleTester from './NLUExampleTester';
 import { ExampleTextEditor } from './ExampleTextEditor';
 import { examplePropType } from '../utils/ExampleUtils';
-import './style.less';
 
 const styleEditMode = {
     backgroundColor: 'rgb(247, 247, 247)',

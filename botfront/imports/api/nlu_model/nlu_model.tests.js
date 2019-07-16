@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 
-import { renameIntentsInTemplates } from './nlu_model';
+import { renameIntentsInTemplates } from './nlu_model.utils';
 
 // several intents
 // several intents in one nlu property

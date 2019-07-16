@@ -6,7 +6,6 @@ import { Label } from 'semantic-ui-react';
 
 import InlineSearch from '../utils/InlineSearch';
 import { entityPropType } from '../utils/EntityUtils';
-import './style.less';
 
 const isSynonym = (entity, text) => (entity.value !== text);
 

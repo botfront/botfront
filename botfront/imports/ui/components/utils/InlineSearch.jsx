@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Menu, Popup } from 'semantic-ui-react';
 
 import TextInput from './TextInput';
-import './style/style.less';
 
 function SearchMenuItem({ name, activeName, onItemClick }) {
     function onClick() {

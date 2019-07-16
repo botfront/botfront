@@ -2,8 +2,6 @@ import { Dropdown } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import './IntentDropdown.less';
-
 function IntentDropdown({
     onChange, onAddItem, options, intent, autofocus,
 }) {

@@ -6,7 +6,6 @@ import { Image, Icon } from 'semantic-ui-react';
 
 import UploadDropzone from './UploadDropzone';
 import { wrapMeteorCallback } from './Errors.jsx';
-import './style/ImageField.less';
 
 class ImageField extends React.Component {
     constructor(props) {
