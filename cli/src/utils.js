@@ -79,8 +79,11 @@ export async function getLatestVersion() {
         if (response.status === 200) {
             return response.data['dist-tags'].latest;
         }
-        // don't do anything in case of error, just no update message
-    } catch(e) {}
+        // If the call fails we just return the current version
+        return getBotfrontVersion();
+    } catch(e) {
+        return getBotfrontVersion();
+    }
 }
 
 export function getProjectVersion(workingDir) {
@@ -100,9 +103,11 @@ export async function shouldUpdateNpmPackage() {
 }
 
 export async function displayUpdateMessage() {
-    if (await shouldUpdateNpmPackage()) {
+    const shouldUpdate = await shouldUpdateNpmPackage();
+    if (shouldUpdate) {
         console.log(boxen(`A new version of Botfront is available. Run ${chalk.cyan.bold('npm install -g botfront')} to update.`,  { padding: 1,  margin: 1 }))
     }
+    return shouldUpdate;
 }
 
 /*

@@ -31,7 +31,7 @@ const access = promisify(fs.access);
 const copy = promisify(ncp);
 
 export async function initCommand(cmd) {
-    await displayUpdateMessage();
+    if (await displayUpdateMessage()) return;
     try {
         await verifySystem();
         let images = {};
