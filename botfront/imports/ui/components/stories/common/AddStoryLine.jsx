@@ -19,6 +19,7 @@ const AddStoryLine = (props) => {
             <ActionPopupContent
                 onSelect={action => onSelectAction(action)}
                 trigger={<DashedButton color='pink'>Action</DashedButton>}
+                style={{ paddingRight: '3px' }}
             />
             <SlotPopupContent
                 onSelect={slot => onSelectSlot(slot)}
