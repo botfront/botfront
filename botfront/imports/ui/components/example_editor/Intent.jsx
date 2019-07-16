@@ -4,7 +4,6 @@ import requiredIf from 'react-required-if';
 import { Label } from 'semantic-ui-react';
 
 import InlineSearch from '../utils/InlineSearch';
-import './style.less';
 
 export default function Intent({
     intent,

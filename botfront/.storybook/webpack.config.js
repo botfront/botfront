@@ -1,3 +1,5 @@
+const resolve = require('path').resolve;
+
 module.exports = async ({ config, mode }) => {
     // `mode` has a value of 'DEVELOPMENT' or 'PRODUCTION'
     // You can change the configuration based on that.
@@ -9,6 +11,13 @@ module.exports = async ({ config, mode }) => {
         use: ['style-loader', 'css-loader', 'less-loader'],
     });
 
+    // allows loading icon fonts imported in main.less
+    config.module.rules.push({
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+        loaders: ['file-loader'],
+        include: resolve(__dirname, '../'),
+    });
+    
     // Return the altered config
     return config;
 };

@@ -12,7 +12,6 @@ import {
 } from 'uniforms-semantic';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
-import './style.less';
 
 class LoginComponent extends React.Component {
     loginFormSchema = new SimpleSchema(

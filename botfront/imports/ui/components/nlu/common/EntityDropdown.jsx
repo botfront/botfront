@@ -2,7 +2,6 @@ import { Dropdown } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import './EntityDropdown.less';
 import { entityPropType } from '../../utils/EntityUtils';
 
 function EntityDropdown({

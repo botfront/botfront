@@ -3,7 +3,6 @@ import {
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
-import './style.less';
 
 class Browser extends React.Component {
     constructor(props) {

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import requiredIf from 'react-required-if';
 import { Input } from 'semantic-ui-react';
-import './style/style.less';
 
 export default class TextInput extends React.Component {
     static toSize(size) {

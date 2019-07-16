@@ -6,7 +6,6 @@ import { Comment, Label, Message } from 'semantic-ui-react';
 
 import UserUtteredEventViewer from '../example_editor/UserUtteredEventViewer';
 import ExampleUtils from '../utils/ExampleUtils';
-import './style.less';
 
 function BotResponse({ type, text, data, key }) {
     if (!text && !data) {

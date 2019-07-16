@@ -8,7 +8,6 @@ import {
 import { Projects } from '../../../../../api/project/project.collection';
 import { NLUModels as NLUModelsCollection } from '../../../../../api/nlu_model/nlu_model.collection';
 import NLUCriteria from './NLUCriteria';
-import './NLUCriteriaEditor.less';
 import { isEntityValid } from '../../../../../lib/utils';
 
 class NLUCriteriaEditor extends React.Component {

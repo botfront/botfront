@@ -10,7 +10,6 @@ import {
 import 'react-s-alert/dist/s-alert-default.css';
 
 import { wrapMeteorCallback } from '../../utils/Errors';
-import './style/style.less';
 
 export default class ChitChat extends React.Component {
     constructor(props) {
