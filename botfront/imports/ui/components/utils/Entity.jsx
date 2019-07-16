@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
     Popup,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import './style/style.less';
 import EntityDropdown from '../nlu/common/EntityDropdown';
+import { EntityContext } from './Context';
 
 const handleOnChange = (data, changeDropDownValue, onChangeEntity) => {
     changeDropDownValue(data.value);
@@ -13,14 +14,14 @@ const handleOnChange = (data, changeDropDownValue, onChangeEntity) => {
 
 function Entity({
     value,
-    options,
     onChangeEntity,
     size,
     allowAdditions,
     allowEditing,
 }) {
-    options.push(value.value);
-    const [dropDownValue, changeDropDownValue] = useState(value.value);
+    const { options } = useContext(EntityContext);
+    options.push(value.entity);
+    const [dropDownValue, changeDropDownValue] = useState(value.entity);
     return (
         <Popup
             trigger={
@@ -30,7 +31,7 @@ function Entity({
                             {dropDownValue}
                         </div>
                         <div className={`${size}-entity-value entity`}>
-                            {value.entity}
+                            {value.value}
                         </div>
                     </div>
 
@@ -53,7 +54,6 @@ function Entity({
 Entity.propTypes = {
     onChangeEntity: PropTypes.func,
     size: PropTypes.string,
-    options: PropTypes.array.isRequired,
     value: PropTypes.string.isRequired,
     allowAdditions: PropTypes.bool,
     allowEditing: PropTypes.bool,
