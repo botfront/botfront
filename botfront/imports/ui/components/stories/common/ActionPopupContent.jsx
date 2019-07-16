@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from 'semantic-ui-react';
+import { Popup, Input } from 'semantic-ui-react';
 import './style.less';
 
 const ActionPopupContent = (props) => {
@@ -20,10 +20,10 @@ const ActionPopupContent = (props) => {
             onOpen={() => { setIsOpen(true); }}
             onClose={() => { setIsOpen(false); }}
         >
-            <p className='all-caps-header'>Enter name</p>
+            <p className='all-caps-header'>Enter an action name</p>
             <div>
                 <form onSubmit={(e) => { e.preventDefault(); setActionName(null); setIsOpen(false); onSelect(actionName); }}>
-                    <input value={actionName} onSelect={e => setActionName(e.target.value)} />
+                    <Input value={actionName} onChange={e => setActionName(e.target.value)} />
                 </form>
             </div>
         </Popup>
