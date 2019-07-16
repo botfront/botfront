@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import shell from 'shelljs';
+import yaml from 'js-yaml';
 import fs from 'fs';
 import ncp from 'ncp';
 import path from 'path';
@@ -63,13 +64,7 @@ export async function initCommand(cmd) {
 
 async function copyTemplateFilesToProjectDir(targetAbsolutePath, images) {
     try {
-        const currentFileUrl = import.meta.url;
-        console.log(__dirname)
-        console.log(currentFileUrl)
-        console.log(new URL(currentFileUrl))
-        console.log(new URL(currentFileUrl).pathname)
         const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
-        console.log(templateDir)
         await access(templateDir, fs.constants.R_OK);
         await copy(templateDir, targetAbsolutePath, {
             clobber: false
@@ -110,7 +105,7 @@ export async function pullDockerImages(images,
 export async function removeDockerImages(spinner = ora()) {  
     const docker = new Docker({});
     startSpinner(spinner, 'Removing Docker images...')
-    const rmiPromises = getServices().map(i => docker.command(`rmi ${i}`).catch(()=>{}));
+    const rmiPromises = getServices(dockerComposePath).map(i => docker.command(`rmi ${i}`).catch(()=>{}));
     try {
         await Promise.all(rmiPromises);
         return succeedSpinner(spinner, 'Docker images removed.');
@@ -125,8 +120,10 @@ export async function removeDockerImages(spinner = ora()) {
 
 export async function removeDockerContainers(spinner = ora()) {  
     const docker = new Docker({});
-    startSpinner(spinner, 'Removing Docker containers...')
-    const rmPromises = getContainerNames().map(i => docker.command(`rm ${i}`).catch(()=>{}));
+    // startSpinner(spinner, 'Removing Docker containers...')
+    const composePath = path.resolve(__dirname, '..', '..', 'project-template', '.botfront', 'docker-compose-template.yml');
+    const { services } = yaml.safeLoad(fs.readFileSync(composePath), 'utf-8');
+    const rmPromises = getContainerNames(null, services).map(i => docker.command(`rm ${i}`).catch(()=>{}));
     try {
         await Promise.all(rmPromises);
         return succeedSpinner(spinner, 'Docker containers removed.');
