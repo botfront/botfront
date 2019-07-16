@@ -15,22 +15,21 @@
 @black          : #1B1C1D;
 @botfront-blue  : #011E56;
 
-@basic-colors: {
-    red: @red;
-    orange: @orange;
-    yellow: @yellow;
-    olive: @olive;
-    green: @green;
-    teal: @teal;
-    blue: @blue;
-    violet: @violet;
-    purple: @purple;
-    pink: @pink;
-    brown: @brown;
-    grey: @grey;
-    black: @black;
-    botfront-blue: @botfront-blue;
-}
+@basic-colors: 
+    red @red,
+    orange @orange,
+    yellow @yellow,
+    olive @olive,
+    green @green,
+    teal @teal,
+    blue @blue,
+    violet @violet,
+    purple @purple,
+    pink @pink,
+    brown @brown,
+    grey @grey,
+    black @black,
+    botfront-blue @botfront-blue;
 
 @emSize          : 14px;
 
@@ -52,13 +51,12 @@
 @huge            : unit( round(@hugeSize * @emSize) / @emSize, rem);
 @massive         : unit( round(@massiveSize * @emSize) / @emSize, rem);
 
-@text-sizes: {
-    mini: @mini;
-    tiny: @tiny;
-    small: @small;
-    medium: @medium;
-    large: @large;
-    big: @big;
-    huge: @huge;
-    massive: @massive;
-}
+@text-sizes:
+    mini @mini,
+    tiny @tiny,
+    small @small,
+    medium @medium,
+    large @large,
+    big @big,
+    huge @huge,
+    massive @massive;
