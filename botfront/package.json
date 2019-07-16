@@ -98,7 +98,7 @@
     "eslint-plugin-meteor": "^5.1.0",
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
-    "less": "^3.9.0",
+    "less": "2.5.0",
     "less-loader": "^5.0.0",
     "license-checker": "^25.0.1",
     "vuepress": "^1.0.2",
