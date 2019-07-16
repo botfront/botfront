@@ -64,7 +64,12 @@ export async function initCommand(cmd) {
 async function copyTemplateFilesToProjectDir(targetAbsolutePath, images) {
     try {
         const currentFileUrl = import.meta.url;
-        const templateDir = path.resolve(new URL(currentFileUrl).pathname, '../../../project-template');
+        console.log(__dirname)
+        console.log(currentFileUrl)
+        console.log(new URL(currentFileUrl))
+        console.log(new URL(currentFileUrl).pathname)
+        const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
+        console.log(templateDir)
         await access(templateDir, fs.constants.R_OK);
         await copy(templateDir, targetAbsolutePath, {
             clobber: false
