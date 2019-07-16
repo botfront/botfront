@@ -12,8 +12,8 @@ import inquirer from 'inquirer';
 import boxen from 'boxen';
 import { dockerComposeUp } from './services';
 import { uniqueNamesGenerator } from 'unique-names-generator';
-import { 
-    getServices, updateProjectFile, generateDockerCompose, failSpinner, startSpinner, succeedSpinner, verifySystem, consoleError, stopSpinner, getMissingImgs, getContainerNames 
+import {
+    getServices, updateProjectFile, generateDockerCompose, failSpinner, startSpinner, succeedSpinner, verifySystem, consoleError, stopSpinner, getMissingImgs, getContainerNames,
 } from '../utils';
 
 const access = promisify(fs.access);
