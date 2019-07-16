@@ -28,19 +28,29 @@
     font-weight: bold;
 }
 
-each(@basic-colors, {
-    .dashed.@{key} {
-        color: @value;
-        border-color: @value;
-        background-color: screen(@value, #eeeeee);
+.createcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
+    @name: extract(extract(@basic-colors, @i), 1);
+    @color: extract(extract(@basic-colors, @i), 2);
+    .dashed.@{name} {
+        color: @color;
+        border-color: @color;
+        background-color: screen(@color, #eeeeee);
     }
-    .dashed.@{key}:active {
-        background-color: screen(@value, #cccccc);
+    .dashed.@{name}:active {
+        background-color: screen(@color, #cccccc);
     }
-})
+    .createcolorclasses(@i + 1);
+}
 
-each(@text-sizes, {
-    .dashed.@{key} {
-        font-size: @value;
+.createcolorclasses();
+
+.createsizeclasses(@i:1) when(@i <= length(@text-sizes)) {
+    @name: extract(extract(@text-sizes, @i), 1);
+    @size: extract(extract(@text-sizes, @i), 2);
+    .dashed.@{name} {
+        font-size: @size;
     }
-})
+    .createsizeclasses(@i + 1);
+}
+
+.createsizeclasses();
