@@ -100,7 +100,7 @@ class Project extends React.Component {
         const {
             showIntercom, intercomId, showChatPane, resizingChatPane,
         } = this.state;
-        
+
         return (
             <div style={{ height: '100vh' }}>
                 {showIntercom && !loading && <Intercom appID={intercomId} {...this.getIntercomUser()} />}
@@ -175,8 +175,6 @@ Project.defaultProps = {
     channel: null,
 };
 
-const readyHandler = handler => (handler);
-
 const ProjectContainer = withTracker((props) => {
     const {
         params: { project_id: projectId },
@@ -188,6 +186,7 @@ const ProjectContainer = withTracker((props) => {
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
+    const readyHandler = handler => (handler);
     const readyHandlerList = [
         Meteor.user(),
         credentialsHandler.ready(),
