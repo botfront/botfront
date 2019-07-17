@@ -4,7 +4,7 @@ const modelName = 'aModel';
 const modelLang = 'fr';
 let modelId = '';
 
-describe('Bot responses', function() {
+describe('Accessibility', function() {
     beforeEach(function () {
         cy.login();
     });
@@ -34,7 +34,7 @@ describe('Bot responses', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
         cy.contains('Training Data').click();
         cy.contains('Chit Chat').click();
-        cy.get('[role=combobox]').eq(1).click();
+        cy.get('[data-cy=select-chit-chat]').click();
         cy.get('[role=listbox].menu').contains('basics.yes').click();
         cy.get('[role=listbox].menu').contains('basics.time').click();
         cy.get('[role=listbox].menu').contains('basics.no').click();

@@ -2,7 +2,7 @@
 
 const slotName = 'slotOne';
 
-describe('stories', function() {
+describe('slots', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
     });
@@ -14,9 +14,8 @@ describe('stories', function() {
 
     function createSlot() {
         cy.dataCy('add-slot').click();
+        cy.contains('float').click();
         cy.dataCy('new-slot-editor').get('input').first().type(slotName);
-        cy.dataCy('type-field').click();
-        cy.get('[role=listbox]').contains('text').click();
         cy.dataCy('save-button').click();
     }
 
@@ -39,8 +38,6 @@ describe('stories', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('slots-tab').click();
         createSlot();
-        cy.dataCy('type-field').click();
-        cy.get('[role=listbox]').contains('float').click();
         cy.dataCy('save-button').click();
         cy.contains('Min value');
         cy.dataCy('slot-editor').get('input').eq(2).type('100');

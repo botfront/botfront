@@ -82,6 +82,7 @@ export default class ChitChat extends React.Component {
                         <br />
 
                         <Dropdown
+                            data-cy='select-chit-chat'
                             placeholder='Select chit chat intents'
                             multiple
                             selection
