@@ -95,12 +95,17 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
 
 export const getStoriesAndDomain = (projectId) => {
     const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
-    let mappingTriggers = policies
+    const mappingTriggers = policies
         .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
-        .map(policy => policy.triggers.map(trigger => trigger.action))
+        .map(policy => policy.triggers.map((trigger) => {
+            if (!trigger.extra_actions) return [trigger.action];
+            return [...trigger.extra_actions, trigger.action];
+        }))
+        .reduce((coll, curr) => coll.concat(curr), [])
         .reduce((coll, curr) => coll.concat(curr), []);
-    mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
-    const mappingStory = `* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
+    const mappingStory = mappingTriggers.length
+        ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
+        : '';
     const storyGroupsIds = StoryGroups.find(
         { projectId, selected: true },
         { fields: { _id: 1 } },
@@ -121,7 +126,9 @@ export const getStoriesAndDomain = (projectId) => {
     }
 
     const storiesForRasa = [`## mapping_story\n${mappingStory}`, ...stories.map(story => `## ${story.title}\n${story.story}`)];
-    const storiesForDomain = [mappingStory, ...stories.map(story => story.story)];
+    const storiesForDomain = mappingStory.length
+        ? [mappingStory, ...stories.map(story => story.story)]
+        : stories.map(story => story.story);
     
     
     const slots = Slots.find({ projectId }).fetch();
