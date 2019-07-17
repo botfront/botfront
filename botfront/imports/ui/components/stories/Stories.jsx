@@ -8,7 +8,6 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
 import { can } from '../../../lib/scopes';
-import './style.less';
 
 class Stories extends React.Component {
     constructor(props) {

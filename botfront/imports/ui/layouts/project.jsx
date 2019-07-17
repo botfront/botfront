@@ -17,7 +17,6 @@ import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { setProjectId } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
-import { Stories } from '../../api/story/stories.collection';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
@@ -164,7 +163,7 @@ class Project extends React.Component {
                                 )}
                             </div>
                         )}
-                        {showChatPane && (
+                        {!loading && showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
                                 <ProjectChat channel={channel} triggerChatPane={this.triggerChatPane} projectId={projectId} />
                             </React.Suspense>
@@ -201,11 +200,18 @@ const ProjectContainer = withTracker((props) => {
     projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
-    // TODO: use every() instead of chaining &&
     const settingsHandler = Meteor.subscribe('settings');
     const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1 } });
-    const ready = Meteor.user() && credentialsHandler.ready() && settingsHandler.ready() && (projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready());
-
+    const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
+    const readyHandler = handler => (handler);
+    const readyHandlerList = [
+        Meteor.user(),
+        credentialsHandler.ready(),
+        settingsHandler.ready(),
+        projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready(),
+        introStoryGroupIdHandler.ready(),
+    ];
+    const ready = readyHandlerList.every(readyHandler);
     const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
 
     if (ready && !project) {

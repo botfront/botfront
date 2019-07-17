@@ -18,11 +18,11 @@ describe('Train Button', function() {
         cy.get('.active > #not-selected').click();
         cy.contains('Partial Training');
         cy.dataCy('train-button').trigger('mouseover');
-        cy.contains('Train NLU and stories from 1 focussed story group');
+        cy.contains('Train NLU and stories from 1 focused story group.');
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
 
         cy.dataCy('train-button').trigger('mouseover');
-        cy.contains('Train NLU and stories from 1 focussed story group');
+        cy.contains('Train NLU and stories from 1 focused story group.');
         cy.visit(`/project/${this.bf_project_id}/stories`);
         // Cleaning the state
         cy.contains('storyGroupOne').click();

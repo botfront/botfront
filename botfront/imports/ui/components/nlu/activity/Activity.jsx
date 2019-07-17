@@ -13,7 +13,6 @@ import OutOfScope from './OutOfScope';
 import ActivityActions from './ActivityActions';
 import { Loading } from '../../utils/Utils';
 import { ActivityCollection } from '../../../../api/activity';
-import './style.less';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { getAllSmartTips } from '../../../../lib/smart_tips';
 import { can } from '../../../../api/roles/roles';
