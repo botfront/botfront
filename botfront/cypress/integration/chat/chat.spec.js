@@ -75,6 +75,7 @@ describe('chat side panel handling', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.contains('Intro stories').click();
         cy.dataCy('add-story').click();
+        cy.wait(500);
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('story-editor')
             .get('textarea').eq(1)
