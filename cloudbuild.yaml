@@ -1,22 +1,18 @@
 steps:
 
 - name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build',
+          '-t', 'botfront:candidate',
+          '/workspace']
+
+- name: 'gcr.io/cloud-builders/docker'
   args: ['pull', 'turbolent/duckling:latest']
 
 - name: 'gcr.io/cloud-builders/docker'
   args: ['tag', 'turbolent/duckling:latest', 'botfront/duckling:latest']
 
 - name: 'gcr.io/cloud-builders/docker'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - docker pull botfront/botfront:branch-master || exit 0
-
-- name: 'gcr.io/cloud-builders/docker'
-  args: [ "build",
-          "-t", "botfront:candidate",
-          "--cache-from", "botfront/botfront:branch-master",
-          "/workspace"]
+  args: ['pull', 'cypress/included:3.4.0']
 
 - name: 'botfront/ci-runner:latest'
   entrypoint: 'bash'

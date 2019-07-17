@@ -8,7 +8,6 @@ cd /workspace
 
 ### Run botfront using candidate image
 botfront init --ci --path ultimate_test --img-botfront botfront:candidate
-docker pull cypress/included:3.4.0
 sleep 1m
 
 ### Connect a cypress container to same network and run
