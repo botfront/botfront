@@ -10,6 +10,7 @@ import { StoryValidator } from '../../../lib/story_validation';
 import { wrapMeteorCallback } from '../utils/Errors';
 import Chat from './Chat';
 import { Stories } from '../../../api/story/stories.collection';
+import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 
 class ProjectChat extends React.Component {
     constructor(props) {
@@ -71,9 +72,12 @@ class ProjectChat extends React.Component {
     };
 
     handleLangChange = (e, { value }) => {
-        this.setState({
-            selectedLanguage: value,
-        }, () => this.handleReloadChat());
+        this.setState(
+            {
+                selectedLanguage: value,
+            },
+            () => this.handleReloadChat(),
+        );
     };
 
     rerenderChatComponent = () => {
@@ -85,15 +89,35 @@ class ProjectChat extends React.Component {
         }));
     };
 
-    renderEntities = entities => entities.map(e => (
-        <Label basic color='teal'>
-            <Label.Detail>{e.entity}</Label.Detail>
-            {e.value}
-        </Label>
-    ));
-
     handleChangePayload = (e, { value }) => {
         this.setState({ selectedPayload: value }, () => this.handleReloadChat());
+    };
+
+    getEntityDisplayValues = (stringPayLoad) => {
+        let entities = /([^{]*) *({.*}|)/.exec(stringPayLoad)[2];
+        const entitiesDisplay = [];
+        if (!!entities) {
+            entities = JSON.parse(entities);
+            const entitiesParsed = Object.keys(entities);
+            entitiesParsed.forEach((key) => {
+                entitiesDisplay.push(
+                    <Label key={key}>
+                        {key}
+                        <Label.Detail>{entities[key]}</Label.Detail>
+                    </Label>,
+                );
+            });
+        }
+        return entitiesDisplay;
+    };
+
+    getIntentDisplayValue = (stringPayLoad) => {
+        const intent = /([^{]*) *({.*}|)/.exec(stringPayLoad)[1];
+        return (
+            <Label color='purple'>
+                {intent.substring(1, intent.length)}
+            </Label>
+        );
     }
 
     renderPayloadOptions = () => {
@@ -101,7 +125,10 @@ class ProjectChat extends React.Component {
         const { selectedPayload } = this.state;
         const items = initPayloads.map(p => (
             <Dropdown.Item key={p.stringPayload} onClick={this.handleChangePayload} value={p.stringPayload} selected={p.stringPayload === selectedPayload}>
-                <code>{p.stringPayload}</code>
+                <>
+                    {this.getIntentDisplayValue(p.stringPayload)}
+                    {this.getEntityDisplayValues(p.stringPayload)}
+                </>
             </Dropdown.Item>
         ));
         return items;
@@ -111,13 +138,11 @@ class ProjectChat extends React.Component {
         const {
             key, socketUrl, languageOptions, selectedLanguage, noChannel, path, selectedPayload,
         } = this.state;
-        const {
-            triggerChatPane, projectId, loading,
-        } = this.props;
+        const { triggerChatPane, projectId, loading } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
-                    <Dropdown item icon='bolt'>
+                    <Dropdown item icon='bolt' data-cy='initial-payload-select'>
                         <Dropdown.Menu>
                             {' '}
                             <Dropdown.Header content='Select initial payload' icon='bolt' />
@@ -187,8 +212,9 @@ ProjectChat.defaultProps = {
 const ProjectChatContainer = withTracker(({ projectId }) => {
     const storiesHandler = Meteor.subscribe('stories.intro', projectId);
     let initPayloads = [];
+    const { _id: IntroGroupId } = StoryGroups.findOne({ introStory: true, projectId }, { fields: { _id: 1 } });
     if (storiesHandler.ready()) {
-        const initStories = Stories.find({}).fetch();
+        const initStories = Stories.find({ storyGroupId: IntroGroupId }).fetch();
         initStories.forEach((s) => {
             initPayloads = [...initPayloads, ...new StoryValidator(s.story).extractDialogAct()];
         });

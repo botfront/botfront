@@ -2,10 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Widget } from 'rasa-webchat';
 
-import {
-    Menu, Icon, Dropdown, Popup, Message, Label, Input,
-} from 'semantic-ui-react';
-
 class Chat extends React.Component {
     // WARNING
     // Returns false, because for some uninvestigated reason, Widget creates
@@ -24,26 +20,16 @@ class Chat extends React.Component {
             initialPayLoad,
         } = this.props;
         return (
-            <>
-                {/* <Menu vertical fluid>
-                    <Menu.Item>
-                        <Label basic color='violet'>
-                            intent
-                        </Label>
-                    </Menu.Item>
-                </Menu> */}
-                <Widget
-                    interval={0}
-                    initPayload={initialPayLoad}
-                    socketUrl={socketUrl}
-                    socketPath={path}
-                    inputTextFieldHint='Try out your chatbot...'
-                    hideWhenNotConnected={false}
-                    customData={{ language }}
-                    embedded
-                />
-            </>
-            
+            <Widget
+                interval={0}
+                initPayload={initialPayLoad}
+                socketUrl={socketUrl}
+                socketPath={path}
+                inputTextFieldHint='Try out your chatbot...'
+                hideWhenNotConnected={false}
+                customData={{ language }}
+                embedded
+            />
         );
     }
 }
