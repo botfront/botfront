@@ -126,7 +126,6 @@ class ProjectInfo extends React.Component {
 
     render() {
         const { project, modelLanguages, ready } = this.props;
-        console.log(project)
         const { saving, value } = this.state;
         const projectsSchema = Projects.simpleSchema();
         const hasProjectWritePermission = !can('project-settings:w', project._id);

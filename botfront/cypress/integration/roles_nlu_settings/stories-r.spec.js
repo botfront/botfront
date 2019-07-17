@@ -35,19 +35,20 @@ describe('stories:r permissions', function() {
         cy.contains('Slots');
     });
 
-    it('should NOT be able add stories', function() {
+    it('should NOT be able add stories, delete and update stories', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.contains('TestName').click();
         cy.get('[data-cy=add-item]').should('not.exist');
         cy.get('[data-cy=add-story]').should('not.exist');
         cy.get('[data-cy=delete-story]').should('not.exist');
+        cy.dataCy('story-title').should('be.disabled');
     });
 
     it('should NOT be able edit and add slots', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.contains('Slots').click();
         cy.get('[data-cy=add-slot]').should('not.exist');
-        cy.get('[data-cy=type-field]').should('have.class', 'disabled');
+        cy.get('[data-cy=slot-name]').should('have.class', 'disabled');
         cy.get('[data-cy=save-button]').should('not.exist');
     });
 

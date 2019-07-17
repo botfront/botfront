@@ -171,6 +171,7 @@ class Stories extends React.Component {
         return (
             (storyGroupSelected || introStory) && (
                 <StoriesEditor
+                    disabled={!can('stories:w', projectId)}
                     storyGroup={storyGroupSelected || introStory}
                     onSaving={this.handleSavingStories}
                     onSaved={this.handleSavedStories}

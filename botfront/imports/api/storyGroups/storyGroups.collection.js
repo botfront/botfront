@@ -30,7 +30,7 @@ Meteor.startup(() => {
 if (Meteor.isServer) {
     Meteor.publish('storiesGroup', function(projectId) {
         check(projectId, String);
-        checkIfCan('stories:r', projectId);
+        checkIfCan(['stories:r', 'nlu-model:x'], projectId);
         if (!StoryGroups.findOne({ projectId, introStory: true })) {
             createIntroStoryGroup(projectId);
         }

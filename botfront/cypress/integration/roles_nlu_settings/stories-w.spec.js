@@ -25,9 +25,9 @@ describe('stories:w permissions', function() {
     it('should be able add stories and then delete it', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         // Check that it actually reaches the route
-        cy.get('[data-cy=add-item]').click();
-        cy.get('[data-cy=add-item] input').click().type('StoryDelete{enter}');
-
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input').find('input').type('StoryDelete{enter}');
+        cy.contains('StoryDelete').click();
         cy.get('[data-cy=add-story]').should('exist');
         cy.get('[data-cy=delete-story]').click({ force: true });
         cy.get('[data-cy=confirm-yes]').click({ force: true });
@@ -66,9 +66,9 @@ describe('stories:w permissions', function() {
                 _id: 'DELETESTORY',
                 projectId: this.bf_project_id,
                 storyGroupId: 'TODELETE',
-                story: '## Test Story',
+                story: '* replace_with_intent',
+                title: 'Test Story',
             },
-            this.bf_project_id,
         ]).then((result) => {
             expect(result).to.be.a('string');
         });
@@ -79,7 +79,6 @@ describe('stories:w permissions', function() {
                 name: 'Test Story',
                 projectId: this.bf_project_id,
             },
-            this.bf_project_id,
         ]).then((result) => {
             expect(result).to.equal(1);
         });
@@ -90,7 +89,6 @@ describe('stories:w permissions', function() {
                 projectId: this.bf_project_id,
                 storyGroupId: 'TODELETE',
             },
-            this.bf_project_id,
         ]).then((result) => {
             expect(result).to.equal(1);
         });
@@ -101,7 +99,6 @@ describe('stories:w permissions', function() {
                 name: 'Test Story',
                 projectId: this.bf_project_id,
             },
-            this.bf_project_id,
         ]).then((result) => {
             expect(result).to.equal(1);
         });
@@ -112,7 +109,6 @@ describe('stories:w permissions', function() {
                 projectId: this.bf_project_id,
                 storyGroupId: 'TODELETE',
             },
-            this.bf_project_id,
         ]).then((result) => {
             expect(result).to.equal(1);
         });

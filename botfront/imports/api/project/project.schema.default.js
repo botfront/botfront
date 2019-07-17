@@ -1,5 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { TemplateSchema } from './response.schema';
+import { languages } from '../../lib/languages';
 
 export const ProjectsSchema = new SimpleSchema({
     name: {
@@ -16,7 +17,7 @@ export const ProjectsSchema = new SimpleSchema({
     nluThreshold: {
         type: Number, defaultValue: 0.75, min: 0.5, max: 0.95,
     },
-    defaultLanguage: { type: String, optional: true },
+    defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },
     nlu_models: { type: Array, defaultValue: [] },
