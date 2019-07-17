@@ -30,15 +30,6 @@ class Project extends React.Component {
         if (project._id) {
             Meteor.call('project.update', project, wrapMeteorCallback((err) => {
                 if (!err) {
-                    Meteor.callWithPromise(
-                        'nlu.insert',
-                        {
-                            name: 'Default Model',
-                            language: project.defaultLanguage,
-                            published: true,
-                        },
-                        project._id,
-                    );
                     browserHistory.goBack();
                 }
             }));

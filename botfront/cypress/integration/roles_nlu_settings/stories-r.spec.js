@@ -48,7 +48,7 @@ describe('stories:r permissions', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.contains('Slots').click();
         cy.get('[data-cy=add-slot]').should('not.exist');
-        cy.get('[data-cy=type-field]').should('have.class', 'disabled');
+        cy.get('[data-cy=slot-name]').should('have.class', 'disabled');
         cy.get('[data-cy=save-button]').should('not.exist');
     });
 
