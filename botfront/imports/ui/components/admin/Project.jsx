@@ -86,6 +86,7 @@ class Project extends React.Component {
                                     <InfoField
                                         name='namespace'
                                         label='Namespace'
+                                        data-cy='project-namespace'
                                         info='The namespace to be used for Kubernetes and Google Cloud. Must be composed of only lower case letters, dashes, and underscores.'
                                         disabled={!!namespace}
                                     />

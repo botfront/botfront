@@ -19,5 +19,12 @@ export const getDefaultInstance = ({ _id, apiKey }) => {
         };
     }
 
-    return null;
+    return {
+        name: 'Default',
+        host: 'https://replaceThatUrl/nlu',
+        token: apiKey,
+        adminOnly: true,
+        projectId: _id,
+        type: ['nlu'],
+    };
 };
