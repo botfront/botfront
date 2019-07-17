@@ -109,8 +109,8 @@ describe('chat side panel handling', function() {
 
         // Select the story group
         cy.get('.active > #not-selected').click();
-        cy.dataCy('train-button').click();
-        cy.wait(10000);
+        // cy.dataCy('train-button').click();
+        // cy.wait(10000);
 
         cy.dataCy('open-chat').click();
         cy.dataCy('initial-payload-select').click();
