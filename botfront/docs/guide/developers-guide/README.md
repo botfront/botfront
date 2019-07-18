@@ -39,13 +39,11 @@ The test suite starts by testing the setup process **and will wipe the database*
 
 ## Developing with Docker Compose
 
-Until we provide a better way...
+Follow those instructions to develop Botfront while interacting with all the services via docker-compose:
 
-1. Set the `MODELS_LOCAL_PATH` environment variable in your shell with for example `export MODELS_LOCAL_PATH=~/botfront-projects/s`
-2. Start Botfront locally with `meteor npm start`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
-3. In settings > endpoints: change domain names to `localhost`. Don't change ports
-4. In settings > more settings > docker-compose change API host to `http://host.docker.internal:8080`
-5. Create a Botfront projet with `botfront init`. Don't start it
-6. In `.botfront/botfront.yml`,  set the `bf_project_id` with the project ID of the locally running Botfront
-7. In `.botfront/botfront.yml`, set the `mongo_url` to `mongodb://host.docker.internal:3001/meteor`
-8. Start the Botfront project with `botfront up`
+1. Reset meteor (**this will wipe the database**) with `meteor reset`
+2. Set the `MODELS_LOCAL_PATH` environment variable in your shell with for example `export MODELS_LOCAL_PATH=~/botfront-projects/s`
+3. Start Botfront locally with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
+4. Create a Botfront projet with `botfront init`. Don't start it
+5. In `.botfront/botfront.yml`, set the `mongo_url` to `mongodb://host.docker.internal:3001/meteor`
+6. Start the Botfront project with `botfront up`

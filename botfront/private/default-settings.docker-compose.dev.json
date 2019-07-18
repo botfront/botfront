@@ -8,9 +8,9 @@
             ]
         },
         "private": {
-            "rasaUrl": "http://rasa:5005",
-            "bfApiHost": "http://botfront-api:8080",
-            "actionsServerUrl": "http://actions:5055/webhook",
+            "rasaUrl": "http://localhost:5005",
+            "bfApiHost": "http://localhost:8080",
+            "actionsServerUrl": "http://localhost:5055/webhook",
             "defaultEndpoints": "nlg:\n  url: '{BF_API_HOST}/project/{BF_PROJECT_ID}/nlg'\naction_endpoint:\n  url: '{ACTIONS_URL}'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: '{BF_API_HOST}'\n  project_id: '{BF_PROJECT_ID}'",
             "defaultCredentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
             "defaultPolicies": "policies:\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy"

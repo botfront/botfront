@@ -8,6 +8,8 @@ export default [
         render: () => (
             <Tab.Pane>
                 <InfoField name='settings.private.bfApiHost' label='Botfront API host' fontSize={12} />
+                <InfoField name='settings.private.actionsServerUrl' label='Action server base URL' fontSize={12} />
+                <InfoField name='settings.private.rasaUrl' label='rasa server URL' fontSize={12} />
             </Tab.Pane>
         ),
     },

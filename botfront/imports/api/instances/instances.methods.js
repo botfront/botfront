@@ -6,8 +6,9 @@ import yaml from 'js-yaml';
 import axios from 'axios';
 import fs from 'fs';
 import { promisify } from 'util';
+import path from 'path';
 import {
-    getAxiosError, getProjectModelFileName, getProjectModelLocalPath, getModelIdsFromProjectId,
+    getAxiosError, getModelIdsFromProjectId, getProjectModelLocalFolder, getProjectModelLocalPath, getProjectModelFileName,
 } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
@@ -197,6 +198,7 @@ if (Meteor.isServer) {
                     },
                 },
             ).fetch();
+
             const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 }).policies;
             const nlu = {};
             const config = {};
@@ -224,6 +226,7 @@ if (Meteor.isServer) {
                     stories,
                     nlu,
                     config,
+                    fixed_model_name: getProjectModelFileName(projectId),
                 };
                 const trainingClient = axios.create({
                     baseURL: instance.host,
@@ -231,14 +234,17 @@ if (Meteor.isServer) {
                     responseType: 'arraybuffer',
                 });
                 const trainingResponse = await trainingClient.post('/model/train', payload);
-                try {
-                    await promisify(fs.writeFile)(getProjectModelLocalPath(projectId), trainingResponse.data, 'binary');
-                } catch (e) {
-                    console.log(`Could not save trained model to ${location}:${e}`);
-                }
-                
+
                 if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
-                    await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
+                    const { headers: { filename } } = trainingResponse;
+                    const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
+                    try {
+                        await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
+                    } catch (e) {
+                        console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
+                    }
+                    
+                    await client.put('/model', { model_file: trainedModelPath });
                     const modelIds = getModelIdsFromProjectId(projectId);
                     ActivityCollection.update({ modelId: { $in: modelIds }, validated: true }, { $set: { validated: false } }, { multi: true });
                 }
