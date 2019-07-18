@@ -45,7 +45,7 @@ describe('stories', function() {
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('story-editor')
             .get('textarea')
-            .type(`{selectall}{backspace}${testText}`, { force: true });
+            .type(` {selectall}{backspace}${testText}`, { force: true });
         cy.wait(300);
         cy.contains(storyGroupTwo).click({ force: true });
         cy.wait(200);
@@ -118,7 +118,7 @@ describe('stories', function() {
         cy.dataCy('add-item-input').find('input').type(`${storyGroupTwo}{enter}`);
         cy.contains(storyGroupOne).click();
         cy.wait(200);
-        cy.dataCy('story-title').type('{selectall}{backspace}newTitle');
+        cy.dataCy('story-title').type(' {selectall}{backspace}newTitle');
         cy.contains(storyGroupTwo).click();
         cy.dataCy('delete-story')
             .click();

@@ -38,7 +38,6 @@ describe('slots', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.dataCy('slots-tab').click();
         createSlot();
-        cy.dataCy('save-button').click();
         cy.contains('Min value');
         cy.dataCy('slot-editor').get('input').eq(2).type('100');
         cy.contains('Max value');

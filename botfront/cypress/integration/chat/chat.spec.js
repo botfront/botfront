@@ -79,7 +79,7 @@ describe('chat side panel handling', function() {
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('story-editor')
             .get('textarea').eq(1)
-            .type(`{selectall}{backspace}${testText}`, { force: true });
+            .type(` {selectall}{backspace}${testText}`, { force: true });
 
         cy.dataCy('train-button').click();
         cy.wait(10000);
