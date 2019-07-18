@@ -123,7 +123,7 @@ export class StoryValidator {
 
     validateStories = () => {
         for (this.line; this.line < this.stories.length; this.line += 1) {
-            const line = this.stories[this.line].replace(/ *<!--.*--> */g, '');
+            const line = this.stories[this.line].replace(/ *<!--.*--> */g, ' ');
             if (trimStart(line).length !== 0) {
                 try {
                     [this.prefix, this.content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
