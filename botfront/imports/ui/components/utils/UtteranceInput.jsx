@@ -21,7 +21,7 @@ const handleOnBlur = (onValidate, text) => {
 };
 
 function UtteranceInput({
-    placeholder, size, value, onValidate,
+    placeholder, size, value, onValidate, fluid,
 }) {
     const [text, changeText] = useState(value);
     return (
@@ -29,6 +29,7 @@ function UtteranceInput({
             value={text}
             placeholder={placeholder}
             size={size}
+            fluid={fluid}
             onChange={(e, data) => handleOnChange(data, changeText)}
             onKeyDown={e => handleKeyDown(e, onValidate, text)}
             onBlur={() => handleOnBlur(onValidate, text)}
@@ -41,6 +42,7 @@ UtteranceInput.propTypes = {
     size: PropTypes.string,
     value: PropTypes.string,
     onValidate: PropTypes.func,
+    fluid: PropTypes.bool,
 };
 
 UtteranceInput.defaultProps = {
@@ -48,6 +50,7 @@ UtteranceInput.defaultProps = {
     size: 'mini',
     value: '',
     onValidate: () => {},
+    fluid: false,
 };
 
 export default UtteranceInput;
