@@ -75,10 +75,11 @@ describe('chat side panel handling', function() {
         cy.visit(`/project/${this.bf_project_id}/stories`);
         cy.contains('Intro stories').click();
         cy.dataCy('add-story').click();
+        cy.wait(500);
         cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('story-editor')
             .get('textarea').eq(1)
-            .type(`{selectall}{backspace}${testText}`, { force: true });
+            .type(` {selectall}{backspace}${testText}`, { force: true });
 
         cy.dataCy('train-button').click();
         cy.wait(10000);
@@ -109,8 +110,8 @@ describe('chat side panel handling', function() {
 
         // Select the story group
         cy.get('.active > #not-selected').click();
-        cy.dataCy('train-button').click();
-        cy.wait(10000);
+        // cy.dataCy('train-button').click();
+        // cy.wait(10000);
 
         cy.dataCy('open-chat').click();
         cy.dataCy('initial-payload-select').click();
