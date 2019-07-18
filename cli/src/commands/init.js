@@ -5,7 +5,6 @@ import fs from 'fs-extra';
 import ncp from 'ncp';
 import path from 'path';
 import { promisify } from 'util';
-import { URL } from 'url';
 import { Docker } from 'docker-cli-js';
 import ora from 'ora';
 import inquirer from 'inquirer';
