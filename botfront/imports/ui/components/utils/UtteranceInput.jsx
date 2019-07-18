@@ -1,38 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
-const handleOnChange = (data, changeText) => {
-    changeText(data.value);
-};
-
-const handleKeyDown = (event, onValidate, text) => {
-    const trimmedText = text.trim();
-    if (event.key === 'Enter' && trimmedText !== '') {
-        onValidate(trimmedText);
-    }
-};
-
-const handleOnBlur = (onValidate, text) => {
-    const trimmedText = text.trim();
-    if (trimmedText !== '') {
-        onValidate(trimmedText);
-    }
-};
-
 function UtteranceInput({
-    placeholder, size, value, onValidate, fluid,
+    placeholder, size, value, onValidate, fluid, onChange,
 }) {
-    const [text, changeText] = useState(value);
+    function testWhiteText() {
+        const trimmedText = value.trim();
+        if (trimmedText !== '') {
+            return trimmedText;
+        }
+        return false;
+    }
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter' && testWhiteText()) {
+            onValidate();
+        }
+    };
+
+    const handleOnBlur = () => {
+        if (testWhiteText()) {
+            onValidate();
+        }
+    };
     return (
         <Input
-            value={text}
+            value={value}
             placeholder={placeholder}
             size={size}
             fluid={fluid}
-            onChange={(e, data) => handleOnChange(data, changeText)}
-            onKeyDown={e => handleKeyDown(e, onValidate, text)}
-            onBlur={() => handleOnBlur(onValidate, text)}
+            onChange={(_e, data) => onChange(data.value)}
+            onKeyDown={e => handleKeyDown(e)}
+            onBlur={() => handleOnBlur()}
         />
     );
 }
@@ -43,6 +43,7 @@ UtteranceInput.propTypes = {
     value: PropTypes.string,
     onValidate: PropTypes.func,
     fluid: PropTypes.bool,
+    onChange: PropTypes.func.isRequired,
 };
 
 UtteranceInput.defaultProps = {

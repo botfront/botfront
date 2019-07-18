@@ -1,18 +1,31 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { storiesOf } from '@storybook/react';
 import {
     withKnobs, text, select, boolean,
 } from '@storybook/addon-knobs';
 import UtteranceInput from '../imports/ui/components/utils/UtteranceInput';
 
+function UtteranceInputWrapped(props) {
+    const [utterance, setUtterance] = useState('test');
+    return (
+        <UtteranceInput {...props} value={utterance} onChange={setUtterance} />
+    );
+}
+
 storiesOf('UtteranceInput', module)
     .addDecorator(withKnobs)
-    .add('default', () => <UtteranceInput />)
-    .add('with value', () => <UtteranceInput value='a test value' />)
+    .add('default', () => (
+        <UtteranceInputWrapped />
+    ))
+    .add('with value', () => <UtteranceInputWrapped value='a test value' />)
     .add('with props', () => (
-        <UtteranceInput
+        <UtteranceInputWrapped
             placeholder={text('placeholder', 'User says')}
-            size={select('size', ['mini', 'small', 'medium', 'large', 'big', 'huge', 'massive'], 'mini')}
+            size={select(
+                'size',
+                ['mini', 'small', 'medium', 'large', 'big', 'huge', 'massive'],
+                'mini',
+            )}
             fluid={boolean('fluid', false)}
         />
     ));
