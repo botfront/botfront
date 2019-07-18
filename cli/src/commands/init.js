@@ -80,8 +80,8 @@ export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, 
         const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
         await access(templateDir, fs.constants.R_OK);
         if (update){
-            await fs.copy(path.join(templateDir, '.botfront', 'botfront.yml'), path.join(targetAbsolutePath, '.botfront', 'botfront.yml'))
-            await fs.copy(path.join(templateDir, '.botfront', 'docker-compose-template.yml'), path.join(targetAbsolutePath, '.botfront', 'docker-compose-template.yml') )    
+            await fs.copy(path.join(templateDir, '.botfront', 'botfront.yml'), path.join(targetAbsolutePath, '.botfront', 'botfront.yml'));
+            await fs.copy(path.join(templateDir, '.botfront', 'docker-compose-template.yml'), path.join(targetAbsolutePath, '.botfront', 'docker-compose-template.yml'));
         } else {
             await copy(templateDir, targetAbsolutePath, { clobber: false });
         }
