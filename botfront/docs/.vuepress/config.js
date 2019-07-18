@@ -25,7 +25,7 @@ module.exports = {
         editLinkText: '🖊️ Edit this page on Github!',
         lastUpdated: 'Last Updated',
         
-        nav: [{ text: 'Guide', link: '/guide/users-guide/quick-start/' }, { text: 'Github', link: 'https://github.com/botfront/botfront' }, { text: 'Botfront website', link: 'https://botfront.io' } ],
+        nav: [{ text: 'Guide', link: '/guide/getting-started/setup' }, { text: 'Github', link: 'https://github.com/botfront/botfront' }, { text: 'Botfront website', link: 'https://botfront.io' } ],
 
         sidebar: [
             {

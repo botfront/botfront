@@ -6,8 +6,9 @@ import yaml from 'js-yaml';
 import axios from 'axios';
 import fs from 'fs';
 import { promisify } from 'util';
+import path from 'path';
 import {
-    getAxiosError, getProjectModelLocalPath, getModelIdsFromProjectId, uploadFileToGcs,
+    getAxiosError, getModelIdsFromProjectId, uploadFileToGcs, getProjectModelLocalFolder, getProjectModelFileName,
 } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
@@ -97,12 +98,17 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
 
 export const getStoriesAndDomain = (projectId) => {
     const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
-    let mappingTriggers = policies
+    const mappingTriggers = policies
         .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
-        .map(policy => policy.triggers.map(trigger => trigger.action))
+        .map(policy => policy.triggers.map((trigger) => {
+            if (!trigger.extra_actions) return [trigger.action];
+            return [...trigger.extra_actions, trigger.action];
+        }))
+        .reduce((coll, curr) => coll.concat(curr), [])
         .reduce((coll, curr) => coll.concat(curr), []);
-    mappingTriggers = mappingTriggers.length ? `\n - ${mappingTriggers.join('\n  - ')}` : '';
-    const mappingStory = `* mapping_intent\n  - action_botfront_mapping_follow_up${mappingTriggers}`;
+    const mappingStory = mappingTriggers.length
+        ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
+        : '';
     const storyGroupsIds = StoryGroups.find(
         { projectId, selected: true },
         { fields: { _id: 1 } },
@@ -123,7 +129,9 @@ export const getStoriesAndDomain = (projectId) => {
     }
 
     const storiesForRasa = [`## mapping_story\n${mappingStory}`, ...stories.map(story => `## ${story.title}\n${story.story}`)];
-    const storiesForDomain = [mappingStory, ...stories.map(story => story.story)];
+    const storiesForDomain = mappingStory.length
+        ? [mappingStory, ...stories.map(story => story.story)]
+        : stories.map(story => story.story);
     
     
     const slots = Slots.find({ projectId }).fetch();
@@ -201,6 +209,7 @@ if (Meteor.isServer) {
                     },
                 },
             ).fetch();
+
             const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 }).policies;
             const nlu = {};
             const config = {};
@@ -228,6 +237,7 @@ if (Meteor.isServer) {
                     stories,
                     nlu,
                     config,
+                    fixed_model_name: getProjectModelFileName(projectId),
                 };
                 const trainingClient = axios.create({
                     baseURL: instance.host,
@@ -235,16 +245,17 @@ if (Meteor.isServer) {
                     responseType: 'arraybuffer',
                 });
                 const trainingResponse = await trainingClient.post('/model/train', payload);
-                const location = getProjectModelLocalPath(projectId);
+                const { headers: { filename } } = trainingResponse;
+                const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
                 try {
-                    await promisify(fs.writeFile)(getProjectModelLocalPath(projectId), trainingResponse.data, 'binary');
+                    await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
                 } catch (e) {
-                    console.log(`Could not save trained model to ${location}:${e}`);
+                    console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
                 }
 
                 if (trainingResponse.status === 200) {
                     if (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose') {
-                        await client.put('/model', { model_file: getProjectModelLocalPath(projectId) });
+                        await client.put('/model', { model_file: trainedModelPath });
                     }
 
                     if (process.env.ORCHESTRATOR === 'gke') {
@@ -252,7 +263,7 @@ if (Meteor.isServer) {
                         const { deployment: { config: { gcp_models_bucket = null } = {} } = {} } = deployment;
                         
                         if (gcp_models_bucket) {
-                            await uploadFileToGcs(getProjectModelLocalPath(projectId), gcp_models_bucket);
+                            await uploadFileToGcs(trainedModelPath, gcp_models_bucket);
                         }
                     }
                     const modelIds = getModelIdsFromProjectId(projectId);

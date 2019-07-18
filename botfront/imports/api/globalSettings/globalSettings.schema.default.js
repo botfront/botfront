@@ -4,7 +4,9 @@ import SimpleSchema from 'simpl-schema';
 import { validateYaml } from '../../lib/utils';
 
 export const privateSettingsSchema = new SimpleSchema({
-    defaultEndpoints: { type: String, custom: validateYaml, optional: true, defaultValue: '' },
+    defaultEndpoints: {
+        type: String, custom: validateYaml, optional: true, defaultValue: '',
+    },
     defaultCredentials: { type: String, custom: validateYaml, optional: true },
     defaultRules: { type: String, custom: validateYaml, optional: true },
     defaultPolicies: { type: String, custom: validateYaml, optional: true },
@@ -13,7 +15,9 @@ export const privateSettingsSchema = new SimpleSchema({
 
 export const publicSettingsSchema = new SimpleSchema({
     reCatpchaSiteKey: { type: String, optional: true },
-    defaultNLUConfig: { type: String, custom: validateYaml, optional: true, defaultValue: '' },
+    defaultNLUConfig: {
+        type: String, custom: validateYaml, optional: true, defaultValue: '',
+    },
     chitChatProjectId: { type: String, optional: true },
     docUrl: { type: String, defaultValue: 'https://docs.botfront.io' },
     backgroundImages: { type: Array, defaultValue: [] },

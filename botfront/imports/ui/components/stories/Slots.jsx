@@ -104,6 +104,7 @@ class Slots extends React.Component {
                                         icon='add'
                                         button
                                         className='icon'
+                                        data-cy='add-slot'
                                     >
                                         <Dropdown.Menu>
                                             <Dropdown.Header content='Choose a slot type' />
