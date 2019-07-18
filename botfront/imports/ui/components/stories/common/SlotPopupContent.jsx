@@ -33,10 +33,10 @@ const SlotPopupContent = (props) => {
     return (
         <Dropdown trigger={trigger} className='dropdown-button-trigger'>
             <Dropdown.Menu style={{ top: 'calc(100% + 5px)' }}>
-                <Dropdown.Header style={{ margin: '0.6em' }}>Select a slot</Dropdown.Header>
+                <Dropdown.Header>Select a slot</Dropdown.Header>
                 { cats.map(c => (
                     <>
-                        <Dropdown.Divider style={{ margin: '0' }} />
+                        <Dropdown.Divider />
                         <Dropdown.Item
                             active={activeType === c}
                         >
@@ -50,7 +50,7 @@ const SlotPopupContent = (props) => {
                                 >
                                     { slotsByCat[c].map(s => (
                                         <>
-                                            <Dropdown.Divider style={{ margin: '0' }} />
+                                            <Dropdown.Divider />
                                             <Dropdown.Item
                                                 onClick={() => onSelect(s)}
                                                 active={activeName === s.name}

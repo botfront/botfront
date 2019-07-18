@@ -35,12 +35,12 @@ const BotResponsePopupContent = (props) => {
             </Modal>
             <Dropdown trigger={trigger} className='dropdown-button-trigger'>
                 <Dropdown.Menu style={{ top: 'calc(100% + 5px)' }}>
-                    <Dropdown.Header style={{ margin: '0.6em' }}>Select from existing</Dropdown.Header>
+                    <Dropdown.Header>Select from existing</Dropdown.Header>
                     <Dropdown.Item>
-                        <Search fluid onClick={() => setModalOpen(true)} />
+                        <Search fluid placeholder='Search responses...' onClick={() => setModalOpen(true)} />
                     </Dropdown.Item>
-                    <Dropdown.Divider style={{ margin: '0' }} />
-                    <Dropdown.Header style={{ margin: '0.6em' }}>Or use a template</Dropdown.Header>
+                    <Dropdown.Divider />
+                    <Dropdown.Header>Or use a template</Dropdown.Header>
                     <Dropdown.Item onClick={() => onCreate('text')}>Text</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreate('image')}>Image</Dropdown.Item>
