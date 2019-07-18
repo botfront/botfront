@@ -153,28 +153,10 @@ export async function createProject(targetDirectory, images, ci = false) {
         await copyTemplateFilesToProjectDir(projectAbsPath, images);
         await pullDockerImages(await getMissingImgs(), spinner);
         
-        console.log('\n\n        🎉 🎈 ${chalk.green.bold(\'Your project is READY\')}! 🎉 🎈\n');
-        let message = 'Useful commands:\n\n' +
-                        `\u2022 Run ${chalk.cyan.bold('botfront up')} to start your project \n` +
-                        `\u2022 Run ${chalk.cyan.bold('botfront --help')} to see all you can do with the CLI\n` +
-                        `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation`;
-        if (projectCreatedInAnotherDir) {
-            message += `\n\n${chalk.yellow('IMPORTANT: ')} Your project was created in the ${chalk.bold(targetDirectory)} folder.
-            \nRun ${chalk.cyan.bold(`cd ${targetDirectory}`)} before executing Botfront commands.`;
-        }
-                    
-        console.log(boxen(message, { padding: 1 }) + '\n');
-        
-        if (!ci) {
-            const { start } = await inquirer.prompt({
-                type: 'confirm',
-                name: 'start',
-                message: `${chalk.green.bold('Start your project?')}`,
-                default: true,
-            });
-            if (start) dockerComposeUp({ verbose: false }, null, spinner)
-        }
+        const message = `${chalk.green.bold('Your project has been created.')}\n\n` +
+                        `Run ${chalk.cyan.bold(`cd ${targetDirectory} && botfront up`)} to start it.`
 
+        console.log(boxen(message, { padding: 1 }) + '\n');
         if (ci) dockerComposeUp({ verbose: false }, null, null)
     } catch (e) {
         consoleError(e)
