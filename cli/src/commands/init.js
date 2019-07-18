@@ -1,11 +1,10 @@
 import chalk from 'chalk';
 import shell from 'shelljs';
 import yaml from 'js-yaml';
-import fs from 'fs';
+import fs from 'fs-extra';
 import ncp from 'ncp';
 import path from 'path';
 import { promisify } from 'util';
-import { URL } from 'url';
 import { Docker } from 'docker-cli-js';
 import ora from 'ora';
 import inquirer from 'inquirer';
@@ -13,13 +12,25 @@ import boxen from 'boxen';
 import { dockerComposeUp } from './services';
 import { uniqueNamesGenerator } from 'unique-names-generator';
 import {
-    getServices, updateProjectFile, generateDockerCompose, failSpinner, startSpinner, succeedSpinner, verifySystem, consoleError, stopSpinner, getMissingImgs, getContainerNames,
+    getServices,
+    updateProjectFile,
+    generateDockerCompose,
+    failSpinner,
+    startSpinner,
+    succeedSpinner,
+    verifySystem,
+    consoleError,
+    stopSpinner,
+    getMissingImgs,
+    getContainerNames,
+    displayUpdateMessage,
 } from '../utils';
 
 const access = promisify(fs.access);
 const copy = promisify(ncp);
 
 export async function initCommand(cmd) {
+    if (await displayUpdateMessage()) return;
     try {
         await verifySystem();
         let images = {};
@@ -64,11 +75,17 @@ export async function initCommand(cmd) {
     }
 }
 
-async function copyTemplateFilesToProjectDir(targetAbsolutePath, images) {
+export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, update) {
     try {
         const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
         await access(templateDir, fs.constants.R_OK);
-        await copy(templateDir, targetAbsolutePath, { clobber: false });
+        if (update){
+            await fs.copy(path.join(templateDir, '.botfront', 'botfront.yml'), path.join(targetAbsolutePath, '.botfront', 'botfront.yml'));
+            await fs.copy(path.join(templateDir, '.botfront', 'docker-compose-template.yml'), path.join(targetAbsolutePath, '.botfront', 'docker-compose-template.yml'));
+        } else {
+            await copy(templateDir, targetAbsolutePath, { clobber: false });
+        }
+        
         updateProjectFile(targetAbsolutePath, images)
         generateDockerCompose()
     } catch (e) {

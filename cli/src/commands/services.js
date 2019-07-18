@@ -6,16 +6,52 @@ import ora from 'ora';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import boxen from 'boxen';
-import { pullDockerImages } from './init';
+import { pullDockerImages, copyTemplateFilesToProjectDir } from './init';
 import path from 'path';
 import { watch } from 'chokidar';
-import { fixDir, isProjectDir, getComposeFilePath, getServices, getMissingImgs, waitForService, getServiceUrl, getComposeWorkingDir, wait, shellAsync, getServiceNames, capitalize, generateDockerCompose, startSpinner, stopSpinner, failSpinner, succeedSpinner, consoleError, setSpinnerText, setSpinnerInfo, updateEnvFile } from '../utils';
+import {
+    fixDir,
+    isProjectDir,
+    getComposeFilePath,
+    getServices,
+    getMissingImgs,
+    waitForService,
+    getServiceUrl,
+    getComposeWorkingDir,
+    wait,
+    shellAsync,
+    getServiceNames,
+    capitalize,
+    generateDockerCompose,
+    startSpinner,
+    stopSpinner,
+    failSpinner,
+    succeedSpinner,
+    consoleError,
+    setSpinnerText,
+    setSpinnerInfo,
+    updateEnvFile,
+    shouldUpdateProject,
+    displayUpdateMessage,
+} from '../utils';
 
 export async function dockerComposeUp({ verbose = false }, workingDir, spinner = ora()) {
-    shell.cd(fixDir(workingDir));
+    await displayUpdateMessage();
+    const projectAbsPath = fixDir(workingDir);
+    shell.cd(projectAbsPath);
     if (!isProjectDir()) {
         const noProjectMessage = `${chalk.yellow.bold('No project found.')} ${chalk.cyan.bold('botfront up')} must be executed from your project\'s directory`;
         return console.log(noProjectMessage);
+    }
+    if (shouldUpdateProject()) {
+        const { upgrade } = await inquirer.prompt({
+            type: 'confirm',
+            name: 'upgrade',
+            message: `Your project was created with an older version of Botfront. Would you like to upgrade it?`,
+        });
+        if (upgrade) {
+            await copyTemplateFilesToProjectDir(projectAbsPath, {}, true);
+        }
     }
     updateEnvFile(process.cwd());
     generateDockerCompose();
