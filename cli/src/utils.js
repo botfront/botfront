@@ -181,9 +181,9 @@ export function getExternalPort(serviceName, dir) {
     return getService(serviceName, dir).ports[0].split(':')[0];
 }
 
-export function getContainerNames(dir) {
-    const services = getComposeFile(dir).services;
-    return Object.keys(services).map(s => services[s].container_name);
+export function getContainerNames(dir, services) {
+    let svcs = services || getComposeFile(dir).services;
+    return Object.keys(svcs).map(s => services[s].container_name);
 }
 
 export function getServiceUrl(serviceName) {
