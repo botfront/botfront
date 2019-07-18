@@ -35,6 +35,7 @@
 
 @emSize          : 14px;
 
+@microSize       : (10 / 14);
 @miniSize        : (11 / 14);
 @tinySize        : (12 / 14);
 @smallSize       : (13 / 14);
@@ -44,6 +45,7 @@
 @hugeSize        : (20 / 14);
 @massiveSize     : (24 / 14);
 
+@micro           : unit( round(@microSize * @emSize) / @emSize, rem);
 @mini            : unit( round(@miniSize * @emSize) / @emSize, rem);
 @tiny            : unit( round(@tinySize * @emSize) / @emSize, rem);
 @small           : unit( round(@smallSize * @emSize) / @emSize, rem);
@@ -53,13 +55,13 @@
 @huge            : unit( round(@hugeSize * @emSize) / @emSize, rem);
 @massive         : unit( round(@massiveSize * @emSize) / @emSize, rem);
 
-@text-sizes: {
-    mini: @mini;
-    tiny: @tiny;
-    small: @small;
-    medium: @medium;
-    large: @large;
-    big: @big;
-    huge: @huge;
-    massive: @massive;
-}
+@text-sizes:
+    micro @micro,
+    mini @mini,
+    tiny @tiny,
+    small @small,
+    medium @medium,
+    large @large,
+    big @big,
+    huge @huge,
+    massive @massive;

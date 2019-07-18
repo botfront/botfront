@@ -1,68 +1,54 @@
-import React, { useState, useContext } from 'react';
-import {
-    Popup,
-} from 'semantic-ui-react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import './style/style.less';
-import EntityDropdown from '../nlu/common/EntityDropdown';
-import { EntityContext } from './Context';
-
-const handleOnChange = (data, changeDropDownValue, onChangeEntity) => {
-    changeDropDownValue(data.value);
-    onChangeEntity(data.value);
-};
+import EntityPopup from '../example_editor/EntityPopup';
+import { ConversationOptionsContext } from './Context';
 
 function Entity({
     value,
-    onChangeEntity,
+    onChange,
+    onDelete,
     size,
-    allowAdditions,
     allowEditing,
+    deleteable,
 }) {
-    const { options } = useContext(EntityContext);
-    options.push(value.entity);
-    const [dropDownValue, changeDropDownValue] = useState(value.entity);
+    const { entities } = useContext(ConversationOptionsContext);
     return (
-        <Popup
-            trigger={
-                (
-                    <div className='entity-container'>
-                        <div className={`${size}-entity-text entity`}>
-                            {dropDownValue}
-                        </div>
-                        <div className={`${size}-entity-value entity`}>
-                            {value.value}
-                        </div>
+        <EntityPopup
+            entity={value}
+            onAddOrChange={(event, data) => onChange(data.value)}
+            onDelete={() => onDelete(value)}
+            options={entities.map(e => ({ text: e.entity, value: e.entity }))}
+            deletable={deleteable}
+            length={value.end - value.start}
+            trigger={(
+                <div className='entity-container'>
+                    <div className={`${size}-entity-text entity`}>
+                        {value.entity}
                     </div>
-
-                )}
-            content={
-                (
-                    <EntityDropdown
-                        options={options.map(option => ({ value: option }))}
-                        entity={dropDownValue}
-                        onChange={(e, data) => handleOnChange(data, changeDropDownValue, onChangeEntity)}
-                        allowAdditions={allowAdditions}
-                    />
-                )}
-            on='click'
+                    <div className={`${size}-entity-value entity`}>
+                        {value.value}
+                    </div>
+                </div>
+            )}
+            key={`${value.start}${value.end}`}
             disabled={!allowEditing}
         />
     );
 }
 
 Entity.propTypes = {
-    onChangeEntity: PropTypes.func,
+    onChange: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
     size: PropTypes.string,
-    value: PropTypes.string.isRequired,
-    allowAdditions: PropTypes.bool,
+    deleteable: PropTypes.bool,
+    value: PropTypes.object.isRequired,
     allowEditing: PropTypes.bool,
 };
 
 Entity.defaultProps = {
-    onChangeEntity: () => {},
+    onDelete: () => {},
     size: 'mini',
-    allowAdditions: true,
+    deleteable: false,
     allowEditing: false,
 };
 

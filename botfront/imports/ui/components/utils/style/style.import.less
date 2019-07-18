@@ -1,4 +1,4 @@
-@import '../../../../../client/variables.less';
+@import '../../../../../client/variables.import.less';
 
 .trigger {
   display: inline;
@@ -35,6 +35,10 @@
   }
 }
 
+#intent {
+  margin: 0px 3px 0px 3px;
+}
+
 .entity-container {
   display: inline-block;
   border-style: solid;
@@ -42,7 +46,8 @@
   border-width: 1px;
   border-radius: 4px;
   position: relative;
-  top: 1px;
+  top: 0.09rem;
+  margin: 0px 3px 0px 3px; 
   .entity {
     display: inline-block;
   }
@@ -52,7 +57,7 @@
     padding: 4px 3px 3px 6px;
     font-weight: normal;
     color: white;
-    font-size: @mini;
+    font-size: @micro;
   }
 
   .tiny-entity-text {
@@ -69,7 +74,7 @@
     border-radius: 0px 4px 4px 0px;
     font-weight: normal;
     color: black;
-    font-size: @mini;
+    font-size: @micro;
   }
   
   .tiny-entity-value {

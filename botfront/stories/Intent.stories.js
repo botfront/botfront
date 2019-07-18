@@ -2,28 +2,15 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Label } from 'semantic-ui-react';
 import { withKnobs, boolean, select } from '@storybook/addon-knobs';
+import Intent from '../imports/ui/components/utils/Intent';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
-import Entity from '../imports/ui/components/utils/Entity';
 
-storiesOf('Entity', module)
+storiesOf('Intent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
         <ConversationOptionsContext.Provider
             value={{
-                entities: [
-                    {
-                        start: 9,
-                        end: 15,
-                        value: 'This',
-                        entity: 'entity1',
-                    },
-                    {
-                        start: 16,
-                        end: 20,
-                        value: 'entity',
-                        entity: 'entity4',
-                    },
-                ],
+                intents: ['Intent 1', 'Intent 2', 'Intent 3'],
             }}
         >
             {story()}
@@ -33,18 +20,15 @@ storiesOf('Entity', module)
     .add('with props', () => (
         <div>
             Some random text
-            <Entity
-                value={{
-                    start: 16, end: 20, value: 'text', entity: 'entity4',
-                }}
+            <Intent
+                value='Intent 1'
                 size={select(
                     'size',
                     ['mini', 'tiny'],
                     'mini',
                 )}
                 allowEditing={boolean('allowEditing', false)}
-                deleteable={boolean('deleteable', false)}
+                allowAdditions={boolean('allowAdditions', false)}
             />
-            Some more randdom text
         </div>
     ));
