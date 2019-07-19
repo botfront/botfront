@@ -33,6 +33,18 @@ const responses = [
     { name: 'doodoo' },
 ];
 
+const availableActions = {
+    selectionOne: {
+        action: true, slot: true,
+    },
+    selectionTwo: {
+        userUtterance: true,
+    },
+    selectionThree: {
+        userUtterance: true, botUtterance: true, action: true, slot: true,
+    },
+};
+
 storiesOf('AddStoryLine', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
@@ -47,6 +59,8 @@ storiesOf('AddStoryLine', module)
     ))
     .add('default', () => (
         <AddStoryLine
+            availableActions={select('Available actions', availableActions, availableActions.selectionOne)}
+            onClickUserUtterance={() => alert('user says!!')}
             onSelectResponse={r => alert(`${r.name}!!`)}
             onCreateResponse={r => alert(`${r}!!`)}
             onSelectAction={action => alert(`${action}!!`)}

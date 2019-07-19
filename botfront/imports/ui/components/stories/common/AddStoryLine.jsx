@@ -7,33 +7,64 @@ import DashedButton from './DashedButton';
 
 const AddStoryLine = (props) => {
     const {
-        onSelectResponse, onCreateResponse, onSelectAction, onSelectSlot,
+        availableActions: {
+            userUtterance, botUtterance, action, slot,
+        },
+        onSelectResponse,
+        onCreateResponse,
+        onSelectAction,
+        onSelectSlot,
+        onClickUserUtterance,
     } = props;
     return (
         <div>
-            <BotResponsePopupContent
-                onSelect={r => onSelectResponse(r)}
-                onCreate={r => onCreateResponse(r)}
-                trigger={<DashedButton color='green'>Bot Response</DashedButton>}
-            />
-            <ActionPopupContent
-                onSelect={action => onSelectAction(action)}
-                trigger={<DashedButton color='pink'>Action</DashedButton>}
-                style={{ paddingRight: '3px' }}
-            />
-            <SlotPopupContent
-                onSelect={slot => onSelectSlot(slot)}
-                trigger={<DashedButton color='orange'>Slot</DashedButton>}
-            />
+            { userUtterance && (
+                <DashedButton
+                    color='blue'
+                    onClick={onClickUserUtterance}
+                >
+                    User says:
+                </DashedButton>
+            )}
+            { botUtterance && (
+                <BotResponsePopupContent
+                    onSelect={r => onSelectResponse(r)}
+                    onCreate={r => onCreateResponse(r)}
+                    trigger={<DashedButton color='green'>Bot Response</DashedButton>}
+                />
+            )}
+            { action && (
+                <ActionPopupContent
+                    onSelect={a => onSelectAction(a)}
+                    trigger={<DashedButton color='pink'>Action</DashedButton>}
+                    style={{ paddingRight: '3px' }}
+                />
+            )}
+            { slot && (
+                <SlotPopupContent
+                    onSelect={s => onSelectSlot(s)}
+                    trigger={<DashedButton color='orange'>Slot</DashedButton>}
+                />
+            )}
         </div>
     );
 };
 
 AddStoryLine.propTypes = {
-    onSelectResponse: PropTypes.func.isRequired,
-    onCreateResponse: PropTypes.func.isRequired,
-    onSelectAction: PropTypes.func.isRequired,
-    onSelectSlot: PropTypes.func.isRequired,
+    availableActions: PropTypes.object.isRequired,
+    onClickUserUtterance: PropTypes.func,
+    onSelectResponse: PropTypes.func,
+    onCreateResponse: PropTypes.func,
+    onSelectAction: PropTypes.func,
+    onSelectSlot: PropTypes.func,
+};
+
+AddStoryLine.defaultProps = {
+    onClickUserUtterance: () => {},
+    onSelectResponse: () => {},
+    onCreateResponse: () => {},
+    onSelectAction: () => {},
+    onSelectSlot: () => {},
 };
 
 export default AddStoryLine;
