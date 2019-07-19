@@ -3,6 +3,17 @@ import PropTypes from 'prop-types';
 import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 
+function handleEntityChange(value, newValue, entity, onChange) {
+    let { entities } = value;
+    entities = entities.map((e) => {
+        if (entity.value === e.value) {
+            return { ...e, entity: newValue };
+        }
+        return e;
+    });
+    return onChange({ ...value, entities });
+}
+
 function UserUtteranceViewer({
     value, size, onChange, allowEditing,
 }) {
@@ -12,7 +23,7 @@ function UserUtteranceViewer({
     if (!!text) {
         const textArray = text.split(' ');
         const checkDoubleEntity = [];
-        entities.forEach((entity, entityIndex) => {
+        entities.forEach((entity) => {
             let textSlice = text.substring(entity.start, entity.end + 1);
             if (!checkDoubleEntity.includes(textSlice)) {
                 checkDoubleEntity.push(textSlice);
@@ -31,14 +42,14 @@ function UserUtteranceViewer({
                                 size={size}
                                 allowEditing={allowEditing}
                                 deletable={allowEditing}
-                                onChange={() => onChange({
-                                    ...value,
-                                    entities: [...value.entities, entity],
-                                })
-                                }
+                                onChange={newValue => handleEntityChange(value, newValue, entity, onChange)}
                                 onDelete={() => onChange({
                                     ...value,
-                                    entities: [...value.entities.splice(entityIndex)],
+                                    entities: [
+                                        ...value.entities.filter(
+                                            e => e.value !== word,
+                                        ),
+                                    ],
                                 })
                                 }
                             />,
