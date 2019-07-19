@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import PayloadEditor from '../imports/ui/components/stories/common/PayloadEditor';
 import Context from '../imports/ui/components/stories/common/Context';
@@ -29,7 +29,19 @@ const handleChange = pl => alert(`
     ${pl.entities.length ? `Entities: ${pl.entities.map(e => `
         ${e.entity} ${e.entityValue ? `(${e.entityValue})` : ''}`)}
     ` : ''}
-    `)
+    `);
+
+const PayloadEditorWrapped = (props) => {
+    const { value } = props;
+    const [payload, setPayload] = useState(value);
+    return (
+        <PayloadEditor
+            {...props}
+            value={payload}
+            onChange={(pl) => { setPayload(pl); handleChange(pl); }}
+        />
+    );
+}
 
 storiesOf('PayloadEditor', module)
     .addDecorator(story => (
@@ -40,20 +52,17 @@ storiesOf('PayloadEditor', module)
         </Context.Provider>
     ))
     .add('noVal', () => (
-        <PayloadEditor
+        <PayloadEditorWrapped
             value={none}
-            onChange={handleChange}
         />
     ))
     .add('value1', () => (
-        <PayloadEditor
+        <PayloadEditorWrapped
             value={value1}
-            onChange={handleChange}
         />
     ))
     .add('value2', () => (
-        <PayloadEditor
+        <PayloadEditorWrapped
             value={value2}
-            onChange={handleChange}
         />
     ));

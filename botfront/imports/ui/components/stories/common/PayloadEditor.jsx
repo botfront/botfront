@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Icon, Input } from 'semantic-ui-react';
 import IntentDropdown from '../../nlu/common/IntentDropdown';
@@ -9,13 +9,7 @@ import Context from './Context';
 
 const PayloadEditor = (props) => {
     const { intents: availableIntents, entities: availableEntities } = useContext(Context);
-    const { value: { intent: propIntent, entities: propEntities }, onChange } = props;
-    const [intent, setIntent] = useState(propIntent);
-    const [entities, setEntities] = useState(propEntities);
-    useEffect(() => {
-        setIntent(propIntent);
-        setEntities(propEntities);
-    }, [propIntent, propEntities]);
+    const { value: { intent, entities }, onChange } = props;
 
     return (
         <div>
@@ -26,7 +20,7 @@ const PayloadEditor = (props) => {
                         <IntentDropdown
                             options={availableIntents}
                             allowAdditions={false}
-                            onChange={(event, { value }) => { setIntent(value); onChange({ intent: value, entities }); }}
+                            onChange={(event, { value }) => { onChange({ intent: value, entities }); }}
                             intent={intent}
                             autofocus={!intent}
                         />
@@ -45,7 +39,6 @@ const PayloadEditor = (props) => {
                                         { ...entity, entity: value, value },
                                         ...entities.slice(i + 1),
                                     ];
-                                    setEntities(newEnts);
                                     onChange({ intent, entities: newEnts });
                                 }}
                                 entity={entity}
@@ -62,7 +55,6 @@ const PayloadEditor = (props) => {
                                         { ...entity, entityValue: value },
                                         ...entities.slice(i + 1),
                                     ];
-                                    setEntities(newEnts);
                                     onChange({ intent, entities: newEnts });
                                 }}
                                 style={{ width: 'calc(100% - 32px)' }}
@@ -74,7 +66,6 @@ const PayloadEditor = (props) => {
                                         ...entities.slice(0, i),
                                         ...entities.slice(i + 1),
                                     ];
-                                    setEntities(newEnts);
                                     onChange({ intent, entities: newEnts });
                                 }}
                             />
@@ -88,7 +79,10 @@ const PayloadEditor = (props) => {
                         <DashedButton
                             color='blue'
                             size='mini'
-                            onClick={() => setEntities([...entities, { entity: null, value: null, entityValue: null }])}
+                            onClick={() => onChange({
+                                intent,
+                                entities: [...entities, { entity: null, value: null, entityValue: null }],
+                            })}
                         >
                             <Icon name='plus' />Add entity
                         </DashedButton>
