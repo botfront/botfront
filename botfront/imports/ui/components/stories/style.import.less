@@ -185,3 +185,67 @@
     transform: scale(1, 1);
   }
 }
+
+.label-container {
+  display: inline-block;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 4px;
+  position: relative;
+  top: 0.09rem;
+  margin: 0px 3px 0px 3px; 
+  .label-context {
+    display: inline-block;
+  }
+
+  .mini-label-text {
+    padding: 4px 3px 3px 6px;
+    font-weight: normal;
+    color: white;
+    font-size: @micro;
+  }
+
+  .tiny-label-text {
+    padding: 5px 5px 3px 10px;
+    font-weight: bold;
+    color: white;
+    font-size: @tiny;
+  }
+  
+  .mini-label-value {
+    background-color: white;
+    padding: 4px 6px 3px 3px;
+    border-radius: 0px 4px 4px 0px;
+    font-weight: normal;
+    color: black;
+    font-size: @micro;
+  }
+  
+  .tiny-label-value {
+    background-color: white;
+    padding: 5px 10px 3px 5px;
+    border-radius: 0px 4px 4px 0px;
+    font-weight: bold;
+    color: black;
+    font-size: @tiny;
+  }
+}
+
+.label-container.action {
+  border-color: @action-color; 
+  .mini-label-text.action {
+    background-color: @action-color;
+  }
+  .tiny-label-text.action {
+    background-color: @action-color;
+  }
+}
+
+.label-container.action:hover {
+  .mini-label-text {
+    background-color: @action-hover;
+  }
+  .tiny-label-text {
+    background-color: @action-hover;
+  }
+}
