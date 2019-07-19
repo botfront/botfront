@@ -45,6 +45,27 @@ const availableActions = {
     },
 };
 
+const intents = [
+    { text: 'intent1', value: 'intent1' },
+    { text: 'intent2', value: 'intent2' },
+    { text: 'intent3', value: 'intent3' },
+    { text: 'intent4', value: 'intent4' },
+];
+
+const entities = [
+    { entity: 'entity1', value: 'entity1' },
+    { entity: 'entity2', value: 'entity2' },
+    { entity: 'entity3', value: 'entity3' },
+    { entity: 'entity4', value: 'entity4' },
+];
+
+const alertPayload = pl => alert(`
+    Intent: ${pl.intent}
+    ${pl.entities.length ? `Entities: ${pl.entities.map(e => `
+        ${e.entity} ${e.entityValue ? `(${e.entityValue})` : ''}`)}
+    ` : ''}
+    `);
+
 storiesOf('AddStoryLine', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
@@ -52,6 +73,8 @@ storiesOf('AddStoryLine', module)
             value={{
                 slots: select('Available slots', selection, noSlots),
                 responses,
+                intents,
+                entities,
             }}
         >
             {story()}
@@ -61,7 +84,8 @@ storiesOf('AddStoryLine', module)
         <AddStoryLine
             availableActions={select('Available actions', availableActions, availableActions.selectionOne)}
             noButtonResponse={boolean('Disable button responses', false)}
-            onClickUserUtterance={() => alert('user says!!')}
+            onCreateUtteranceFromInput={() => alert('from input!!')}
+            onCreateUtteranceFromPayload={u => alertPayload(u)}
             onSelectResponse={r => alert(`${r.name}!!`)}
             onCreateResponse={r => alert(`${r}!!`)}
             onSelectAction={action => alert(`${action}!!`)}

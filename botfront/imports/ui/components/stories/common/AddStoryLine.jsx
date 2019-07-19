@@ -4,6 +4,7 @@ import BotResponsePopupContent from './BotResponsePopupContent';
 import ActionPopupContent from './ActionPopupContent';
 import SlotPopupContent from './SlotPopupContent';
 import DashedButton from './DashedButton';
+import UserUtterancePopupContent from './UserUtterancePopupContent';
 
 const AddStoryLine = (props) => {
     const {
@@ -15,17 +16,17 @@ const AddStoryLine = (props) => {
         onCreateResponse,
         onSelectAction,
         onSelectSlot,
-        onClickUserUtterance,
+        onCreateUtteranceFromInput,
+        onCreateUtteranceFromPayload,
     } = props;
     return (
         <div>
             { userUtterance && (
-                <DashedButton
-                    color='blue'
-                    onClick={onClickUserUtterance}
-                >
-                    User says:
-                </DashedButton>
+                <UserUtterancePopupContent
+                    trigger={<DashedButton color='blue'>User says:</DashedButton>}
+                    onCreateFromInput={onCreateUtteranceFromInput}
+                    onCreateFromPayload={u => onCreateUtteranceFromPayload(u)}
+                />
             )}
             { botUtterance && (
                 <BotResponsePopupContent
@@ -54,7 +55,8 @@ const AddStoryLine = (props) => {
 
 AddStoryLine.propTypes = {
     availableActions: PropTypes.object.isRequired,
-    onClickUserUtterance: PropTypes.func,
+    onCreateUtteranceFromInput: PropTypes.func,
+    onCreateUtteranceFromPayload: PropTypes.func,
     onSelectResponse: PropTypes.func,
     onCreateResponse: PropTypes.func,
     onSelectAction: PropTypes.func,
@@ -63,7 +65,8 @@ AddStoryLine.propTypes = {
 };
 
 AddStoryLine.defaultProps = {
-    onClickUserUtterance: () => {},
+    onCreateUtteranceFromInput: () => {},
+    onCreateUtteranceFromPayload: () => {},
     onSelectResponse: () => {},
     onCreateResponse: () => {},
     onSelectAction: () => {},
