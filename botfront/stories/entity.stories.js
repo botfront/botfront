@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { Label } from 'semantic-ui-react';
 import { withKnobs, boolean, select } from '@storybook/addon-knobs';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
-import Entity from '../imports/ui/components/utils/Entity';
+import Entity from '../imports/ui/components/utils/EntityLabel';
 
 storiesOf('Entity', module)
     .addDecorator(withKnobs)
@@ -43,7 +43,7 @@ storiesOf('Entity', module)
                     'mini',
                 )}
                 allowEditing={boolean('allowEditing', false)}
-                deleteable={boolean('deleteable', false)}
+                deletable={boolean('deletable', false)}
             />
             Some more randdom text
         </div>

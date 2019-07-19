@@ -1,9 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { Label } from 'semantic-ui-react';
 import { withKnobs, boolean, select } from '@storybook/addon-knobs';
 import UserUtteranceViewer from '../imports/ui/components/utils/UserUtteranceViewer';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+
+function UserUtteranceViewerWrapped(props) {
+    const [utterance, setUtterance] = useState({
+        text: 'This is an intent that is an entity',
+        intent: 'intent',
+        entities: [
+            {
+                start: 0,
+                end: 3,
+                value: 'This',
+                entity: 'entity1',
+            },
+            {
+                start: 11,
+                end: 16,
+                value: 'intent',
+                entity: 'entity2',
+            },
+            {
+                start: 29,
+                end: 34,
+                value: 'entity',
+                entity: 'entity2',
+            },
+        ],
+    });
+    return (
+        <UserUtteranceViewer {...props} value={utterance} onChange={setUtterance} />
+    );
+}
 
 storiesOf('UserUtteranceViewer', module)
     .addDecorator(withKnobs)
@@ -32,37 +62,12 @@ storiesOf('UserUtteranceViewer', module)
     ))
     .addDecorator(renderLabel => <Label>{renderLabel()}</Label>)
     .add('with props', () => (
-        <UserUtteranceViewer
-            value={{
-                text: 'This is an intent that is an entity',
-                intent: 'intent',
-                entities: [
-                    {
-                        start: 0,
-                        end: 3,
-                        value: 'This',
-                        entity: 'entity1',
-                    },
-                    {
-                        start: 11,
-                        end: 16,
-                        value: 'intent',
-                        entity: 'entity2',
-                    },
-                    {
-                        start: 29,
-                        end: 34,
-                        value: 'entity',
-                        entity: 'entity2',
-                    },
-                ],
-            }}
+        <UserUtteranceViewerWrapped
             size={select(
                 'size',
                 ['mini', 'tiny'],
                 'mini',
             )}
-            deleteableEntity={boolean('deleteable', false)}
-            allowEditing={boolean('allowEditing', false)}
+            allowEditing={boolean('allowEditing', true)}
         />
     ));

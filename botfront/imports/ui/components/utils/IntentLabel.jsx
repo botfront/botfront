@@ -30,7 +30,7 @@ function Intent({
                     />
                 )
             }
-            on='click'
+            hoverable
             position='top right'
             disabled={!allowEditing}
         />

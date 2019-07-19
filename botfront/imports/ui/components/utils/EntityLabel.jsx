@@ -9,16 +9,16 @@ function Entity({
     onDelete,
     size,
     allowEditing,
-    deleteable,
+    deletable,
 }) {
     const { entities } = useContext(ConversationOptionsContext);
     return (
         <EntityPopup
             entity={value}
             onAddOrChange={(event, data) => onChange(data.value)}
-            onDelete={() => onDelete(value)}
+            onDelete={() => onDelete()}
             options={entities.map(e => ({ text: e.entity, value: e.entity }))}
-            deletable={deleteable}
+            deletable={deletable}
             length={value.end - value.start}
             trigger={(
                 <div className='entity-container'>
@@ -40,7 +40,7 @@ Entity.propTypes = {
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func,
     size: PropTypes.string,
-    deleteable: PropTypes.bool,
+    deletable: PropTypes.bool,
     value: PropTypes.object.isRequired,
     allowEditing: PropTypes.bool,
 };
@@ -48,7 +48,7 @@ Entity.propTypes = {
 Entity.defaultProps = {
     onDelete: () => {},
     size: 'mini',
-    deleteable: false,
+    deletable: false,
     allowEditing: false,
 };
 

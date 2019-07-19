@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Intent from './Intent';
-import Entity from './Entity';
+import Intent from './IntentLabel';
+import Entity from './EntityLabel';
 
-function UserUtteranceViewer({ value, size, onChange, allowEditing, deleteableEntity }) {
+function UserUtteranceViewer({
+    value, size, onChange, allowEditing,
+}) {
     // Intent will always be placed at the end
     const { text, intent, entities } = value;
     const displayArray = [];
@@ -28,9 +30,17 @@ function UserUtteranceViewer({ value, size, onChange, allowEditing, deleteableEn
                                 }}
                                 size={size}
                                 allowEditing={allowEditing}
-                                deleteable={deleteableEntity}
-                                onChange={() => onChange({ ...value, entities: [...value.entities, entity] })}
-                                onDelete={() => onChange({ ...value, entities: [...value.entities.splice(entityIndex)] })}
+                                deletable={allowEditing}
+                                onChange={() => onChange({
+                                    ...value,
+                                    entities: [...value.entities, entity],
+                                })
+                                }
+                                onDelete={() => onChange({
+                                    ...value,
+                                    entities: [...value.entities.splice(entityIndex)],
+                                })
+                                }
                             />,
                         );
                         textSlice = '';
@@ -56,7 +66,8 @@ function UserUtteranceViewer({ value, size, onChange, allowEditing, deleteableEn
                         entity: entity.entity,
                     }}
                     size={size}
-                    allowEditing={false}
+                    allowEditing={allowEditing}
+                    deletable={allowEditing}
                 />,
             );
         });
@@ -65,7 +76,15 @@ function UserUtteranceViewer({ value, size, onChange, allowEditing, deleteableEn
     return (
         <div>
             {displayArray}
-            {intent && <Intent value={intent} size={size} allowEditing={allowEditing} allowAdditions onChange={() => onChange({ ...value, intent: [...value.intent, intent] })} />}
+            {intent && (
+                <Intent
+                    value={intent}
+                    size={size}
+                    allowEditing={allowEditing}
+                    allowAdditions
+                    onChange={newIntent => onChange({ ...value, intent: newIntent })}
+                />
+            )}
         </div>
     );
 }
@@ -75,14 +94,12 @@ UserUtteranceViewer.propTypes = {
     size: PropTypes.string,
     allowEditing: PropTypes.bool,
     onChange: PropTypes.func,
-    deleteableEntity: PropTypes.bool,
 };
 
 UserUtteranceViewer.defaultProps = {
     size: 'mini',
     allowEditing: true,
     onChange: () => {},
-    deleteableEntity: false,
 };
 
 export default UserUtteranceViewer;

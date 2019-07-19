@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Label } from 'semantic-ui-react';
 import { withKnobs, boolean, select } from '@storybook/addon-knobs';
-import Intent from '../imports/ui/components/utils/Intent';
+import Intent from '../imports/ui/components/utils/IntentLabel';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 
 storiesOf('Intent', module)
