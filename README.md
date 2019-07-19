@@ -10,7 +10,7 @@
 
 Botfront is an open source chatbot platform built on top of **Rasa**.
 
-![Botfront screenshot](botfront/docs/images/botfront-screenshot.jpg)
+![Botfront screenshot](/botfront/docs/images/botfront-screenshot.jpg)
 
 With Botfront you can:
 
