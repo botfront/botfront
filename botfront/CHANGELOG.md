@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.1](https://github.com/botfront/botfront/compare/v0.15.0...v0.15.1) (2019-07-19)
+
+
+### Bug Fixes
+
+* **domain generation:** no hard coded action in domain ([#126](https://github.com/botfront/botfront/issues/126)) ([c205e31](https://github.com/botfront/botfront/commit/c205e31))
+* **initalPayload:** removed bug where other stories were also present for initialPayload ([3c85144](https://github.com/botfront/botfront/commit/3c85144))
+* uncompatible model version due to rasa-for-bf version ([#130](https://github.com/botfront/botfront/issues/130)) ([9eee0fb](https://github.com/botfront/botfront/commit/9eee0fb))
+* **utterance-viewer:** Fix onChange and onDelete for utteranceviewer ([20be977](https://github.com/botfront/botfront/commit/20be977))
+
+
+### Features
+
+* **cli:** CLI suggests to update the npm package and to update projects ([#112](https://github.com/botfront/botfront/issues/112)) ([2fc3b7c](https://github.com/botfront/botfront/commit/2fc3b7c))
+* **entity:** Add a generic entity component ([682edc3](https://github.com/botfront/botfront/commit/682edc3))
+* **utterance-input:**  Add utterance input ([67e6615](https://github.com/botfront/botfront/commit/67e6615))
+* **utterance-viewer:**  Add Intent, Entity, and UtteranceViewer component ([d0fadd1](https://github.com/botfront/botfront/commit/d0fadd1))
+* **UtteranceInput:** add fluid prop ([a841be6](https://github.com/botfront/botfront/commit/a841be6))
+* scripts to help with release automation ([#131](https://github.com/botfront/botfront/issues/131)) ([5559df4](https://github.com/botfront/botfront/commit/5559df4))
+* unique slot names ([3a179ed](https://github.com/botfront/botfront/commit/3a179ed))
+
+
+### Tests
+
+* fix accessibility and slots test ([#125](https://github.com/botfront/botfront/issues/125)) ([035c1fc](https://github.com/botfront/botfront/commit/035c1fc))
+
+
+
 ## [0.15.0](https://github.com/botfront/botfront/compare/v0.15.0-rc.1...v0.15.0) (2019-07-09)
 
 
