@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs } from '@storybook/addon-knobs';
+import { withKnobs, boolean } from '@storybook/addon-knobs';
 import Context from '../imports/ui/components/stories/common/Context';
 import BotResponsePopupContent from '../imports/ui/components/stories/common/BotResponsePopupContent';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
@@ -25,5 +25,6 @@ storiesOf('BotResponsePopupContent', module)
             onSelect={r => alert(`${r.name}!!`)}
             onCreate={r => alert(`${r}!!`)}
             trigger={trigger}
+            noButtonResponse={boolean('Disable button responses', false)}
         />
     ));

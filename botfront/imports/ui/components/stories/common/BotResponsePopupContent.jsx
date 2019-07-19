@@ -7,7 +7,7 @@ import Context from './Context';
 
 const BotResponsePopupContent = (props) => {
     const {
-        onSelect, onCreate, trigger,
+        onSelect, onCreate, trigger, noButtonResponse,
     } = props;
     const { responses } = useContext(Context);
     const [modalOpen, setModalOpen] = useState(false);
@@ -42,11 +42,11 @@ const BotResponsePopupContent = (props) => {
                     <Dropdown.Divider />
                     <Dropdown.Header>Or use a template</Dropdown.Header>
                     <Dropdown.Item onClick={() => onCreate('text')}>Text</Dropdown.Item>
-                    <Dropdown.Item onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
+                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreate('image')}>Image</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreate('video')}>Video</Dropdown.Item>
-                    <Dropdown.Item onClick={() => onCreate('carousel')}>Carousel</Dropdown.Item>
-                    <Dropdown.Item onClick={() => onCreate('button')}>Button template</Dropdown.Item>
+                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')}>Carousel</Dropdown.Item>
+                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('button')}>Button template</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         </>
@@ -58,10 +58,12 @@ BotResponsePopupContent.propTypes = {
     onSelect: PropTypes.func,
     onCreate: PropTypes.func,
     trigger: PropTypes.element.isRequired,
+    noButtonResponse: PropTypes.bool,
 };
 
 BotResponsePopupContent.defaultProps = {
     value: null,
+    noButtonResponse: false,
     onSelect: () => {},
     onCreate: () => {},
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs, select } from '@storybook/addon-knobs';
+import { withKnobs, select, boolean } from '@storybook/addon-knobs';
 import AddStoryLine from '../imports/ui/components/stories/common/AddStoryLine';
 import Context from '../imports/ui/components/stories/common/Context';
 
@@ -60,6 +60,7 @@ storiesOf('AddStoryLine', module)
     .add('default', () => (
         <AddStoryLine
             availableActions={select('Available actions', availableActions, availableActions.selectionOne)}
+            noButtonResponse={boolean('Disable button responses', false)}
             onClickUserUtterance={() => alert('user says!!')}
             onSelectResponse={r => alert(`${r.name}!!`)}
             onCreateResponse={r => alert(`${r}!!`)}

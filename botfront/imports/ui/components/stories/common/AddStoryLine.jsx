@@ -10,6 +10,7 @@ const AddStoryLine = (props) => {
         availableActions: {
             userUtterance, botUtterance, action, slot,
         },
+        noButtonResponse,
         onSelectResponse,
         onCreateResponse,
         onSelectAction,
@@ -30,6 +31,7 @@ const AddStoryLine = (props) => {
                 <BotResponsePopupContent
                     onSelect={r => onSelectResponse(r)}
                     onCreate={r => onCreateResponse(r)}
+                    noButtonResponse={noButtonResponse}
                     trigger={<DashedButton color='green'>Bot Response</DashedButton>}
                 />
             )}
@@ -57,6 +59,7 @@ AddStoryLine.propTypes = {
     onCreateResponse: PropTypes.func,
     onSelectAction: PropTypes.func,
     onSelectSlot: PropTypes.func,
+    noButtonResponse: PropTypes.bool,
 };
 
 AddStoryLine.defaultProps = {
@@ -65,6 +68,7 @@ AddStoryLine.defaultProps = {
     onCreateResponse: () => {},
     onSelectAction: () => {},
     onSelectSlot: () => {},
+    noButtonResponse: false,
 };
 
 export default AddStoryLine;
