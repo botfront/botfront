@@ -1,14 +1,14 @@
 <div align="center">
 
-<!-- [![Release](https://img.shields.io/github/release/botfront/botfront.svg)](https://github.com/botfront/botfront/releases) 
+[![Release](https://img.shields.io/npm/v/botfront.svg)](https://www.npmjs.com/package/botfront) 
 [![License](https://img.shields.io/badge/license-AGPLv3-blue.svg?style=flat)](https://github.com/botfront/botfront/blob/master/LICENSE)
-[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/botfront) -->
+[![Ask your questions on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/botfront)
 
 </div>
 
 # Botfront
 
-Botfront is an open source chatbot platform built on top of **Rasa 1.x**.
+Botfront is an open source chatbot platform built on top of **Rasa**.
 
 ![Botfront screenshot](botfront/docs/images/botfront-screenshot.jpg)
 
