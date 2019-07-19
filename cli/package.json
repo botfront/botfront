@@ -21,7 +21,7 @@
   ],
   "preferGlobal": true,
   "author": "Botfront",
-  "license": "AGPL v3",
+  "licence": "AGPL-3.0-only",
   "dependencies": {
     "arg": "^4.1.0",
     "axios": "^0.19.0",
