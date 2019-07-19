@@ -38,3 +38,4 @@ cp ../botfront/CHANGELOG.md ../
 
 # Copy the main readme to the CLI so it is shown in npmjs.com
 cp ../README.md ../cli/.
+

@@ -110,7 +110,8 @@
   },
   "standard-version": {
     "scripts": {
-      "postchangelog": "../scripts/postbump_routine.sh"
+      "postchangelog": "../scripts/post_bump.sh",
+      "postcommit": "../scripts/post_commit.sh"
     }
   },
   "postcss": {
