@@ -84,7 +84,7 @@ describe('nlu-data:w role permissions', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
         cy.get('.nlu-menu-activity').click();
         cy.get('[data-cy=process-in-bulk]').should('exist');
-        cy.get('[data-cy=trashbin]').should('exist');
+        cy.get('[data-cy=trash]').should('exist');
         // TODO: Add test for change entity, currently cypress does not allow to select text
         cy.get('[data-cy=intent-label]').trigger('mouseover');
         cy.get('[data-cy=intent-popup]').should('exist');
@@ -116,7 +116,7 @@ describe('nlu-data:w role permissions', function() {
         cy.get('[data-cy=intent-popup]').should('exist');
         cy.get('[data-cy=intent-dropdown]').eq(0).should('not.have.class', 'disabled');
         cy.contains('Save').should('not.have.class', 'disabled');
-        cy.get('[data-cy=trashbin]').click();
+        cy.get('[data-cy=trash]').click();
     });
 
     it('should be able to add, edit and delete Synonym and Gazette', function() {
@@ -151,7 +151,7 @@ describe('nlu-data:w role permissions', function() {
             .type(`{selectall}{del}${editedValues}`);
         cy.contains('Synonyms').click();
         getSynonymRow(editedValues)
-            .find('[data-cy=trashbin] .viewOnHover')
+            .find('[data-cy=trash] .viewOnHover')
             .click({ force: true });
         cy.contains(editedValues).should('not.exist');
         cy.contains('Gazette').click();
@@ -178,7 +178,7 @@ describe('nlu-data:w role permissions', function() {
             .type(`{selectall}{del}${editedValues}`);
         cy.contains('Gazette').click();
         getSynonymRow(editedValues)
-            .find('[data-cy=trashbin] .viewOnHover')
+            .find('[data-cy=trash] .viewOnHover')
             .click({ force: true });
         cy.contains(editedValues).should('not.exist');
     });

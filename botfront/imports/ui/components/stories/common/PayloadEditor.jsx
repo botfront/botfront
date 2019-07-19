@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Grid, Icon, Input } from 'semantic-ui-react';
 import IntentDropdown from '../../nlu/common/IntentDropdown';
 import EntityDropdown from '../../nlu/common/EntityDropdown';
-import TrashBin from '../../nlu/common/TrashBin';
+import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import DashedButton from './DashedButton';
 import Context from './Context';
 
@@ -59,7 +59,8 @@ const PayloadEditor = (props) => {
                                 }}
                                 style={{ width: 'calc(100% - 32px)' }}
                             />
-                            <TrashBin
+                            <FloatingIconButton
+                                icon='trash'
                                 style={{ lineHeight: '2.5em' }}
                                 onClick={() => {
                                     const newEnts = [
