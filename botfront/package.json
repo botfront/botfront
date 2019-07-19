@@ -108,6 +108,11 @@
     "vuepress": "^1.0.2",
     "webpack": "^4.28.4"
   },
+  "standard-version": {
+    "scripts": {
+      "postchangelog": "../scripts/postbump_routine.sh"
+    }
+  },
   "postcss": {
     "plugins": {
       "autoprefixer": {
