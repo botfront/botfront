@@ -2,7 +2,8 @@
   "name": "botfront",
   "version": "0.15.0",
   "private": true,
-  "licence": "AGPL-3.0-only",
+  "repository": "https://github.com/botfront/botfront",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "start": "meteor run",
     "start:docker-compose": "BF_PROJECT_ID=bf ORCHESTRATOR=docker-compose meteor run",
