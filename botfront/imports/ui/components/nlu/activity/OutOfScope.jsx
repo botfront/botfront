@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import { can } from '../../../../lib/scopes';
-import TrashBin from '../common/TrashBin';
+import FloatingIconButton from '../common/FloatingIconButton';
 import IntentViewer from '../models/IntentViewer';
 import NLUExampleText from '../../example_editor/NLUExampleText';
 import { wrapMeteorCallback } from '../../utils/Errors';
@@ -89,7 +89,7 @@ class OutOfScope extends React.Component {
                                 )}
                             />
                         )}
-                        <TrashBin onClick={() => this.onDelete(utterance)} />
+                        <FloatingIconButton name='trash' onClick={() => this.onDelete(utterance)} />
                     </div>
                 );
             },

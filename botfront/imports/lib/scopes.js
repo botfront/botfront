@@ -1,13 +1,10 @@
 /* eslint-disable import/order */
-import { Projects } from '../api/project/project.collection';
+// import { Projects } from '../api/project/project.collection';
 import React from 'react';
 
 let canExport = () => true;
 let checkIfCanExport = () => {};
-let getScopesForUserExport = () => {
-    const projects = Projects.find({}, { fields: {} }).fetch();
-    return projects.map(project => project._id);
-};
+let getScopesForUserExport = () => {};
 let areScopeReadyExport = () => true;
 let setScopesExport = () => {};
 let CanExport = props => (

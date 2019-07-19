@@ -1,4 +1,5 @@
 const resolve = require('path').resolve;
+const webpack = require('webpack');
 
 module.exports = async ({ config, mode }) => {
     // `mode` has a value of 'DEVELOPMENT' or 'PRODUCTION'
@@ -17,7 +18,10 @@ module.exports = async ({ config, mode }) => {
         loaders: ['file-loader'],
         include: resolve(__dirname, '../'),
     });
-    
+
+    config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/scopes/, resolve(__dirname, './emptyMethods')),
+    );
     // Return the altered config
     return config;
 };
