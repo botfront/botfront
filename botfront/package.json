@@ -2,6 +2,7 @@
   "name": "botfront",
   "version": "0.15.0",
   "private": true,
+  "licence": "AGPL-3.0-only",
   "scripts": {
     "start": "meteor run",
     "start:gke": "ORCHESTRATOR=gke meteor run",
@@ -109,6 +110,11 @@
     "selenium-webdriver": "^3.0.0-beta-2",
     "vuepress": "^1.0.2",
     "webpack": "^4.28.4"
+  },
+  "standard-version": {
+    "scripts": {
+      "postcommit": "../scripts/post_commit.sh"
+    }
   },
   "postcss": {
     "plugins": {

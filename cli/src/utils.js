@@ -73,12 +73,51 @@ export function stopSpinner(spinner) {
     }
 }
 
+export async function getLatestVersion() {
+    try {
+        const response = await axios.get('https://registry.npmjs.org/botfront');
+        if (response.status === 200) {
+            return response.data['dist-tags'].latest;
+        }
+        // If the call fails we just return the current version
+        return getBotfrontVersion();
+    } catch(e) {
+        return getBotfrontVersion();
+    }
+}
+
+export function getProjectVersion(workingDir) {
+    return getProjectConfig(fixDir(null)).version;
+}
+
+export function shouldUpdateProject() {
+    const botfrontVersion = getBotfrontVersion();
+    const projectVersion = getProjectVersion();
+    return botfrontVersion !== projectVersion;
+}
+
+export async function shouldUpdateNpmPackage() {
+    const currentVersion = getBotfrontVersion();
+    const latestVersion = await getLatestVersion();
+    return latestVersion !== currentVersion;
+}
+
+export async function displayUpdateMessage() {
+    const shouldUpdate = await shouldUpdateNpmPackage();
+    if (shouldUpdate) {
+        console.log(boxen(`A new version of Botfront is available. Run ${chalk.cyan.bold('npm install -g botfront')} to update.`,  { padding: 1,  margin: 1 }))
+    }
+    return shouldUpdate;
+}
+
 /*
 Augment the botfront.yml file with version and project specific values
 */
 export async function updateProjectFile(projectAbsPath, images) {
     const config = getProjectConfig(projectAbsPath);
-    config.version = getBotfrontVersion();
+    if (!config.version) {
+        config.version = getBotfrontVersion();
+    }
     config.images.current = JSON.parse(JSON.stringify(config.images.default)); // deep copy
     Object.keys(config.images.current).forEach(service => {
         if (images[service]) config.images.current[service] = images[service];
@@ -181,9 +220,9 @@ export function getExternalPort(serviceName, dir) {
     return getService(serviceName, dir).ports[0].split(':')[0];
 }
 
-export function getContainerNames(dir) {
-    const services = getComposeFile(dir).services;
-    return Object.keys(services).map(s => services[s].container_name);
+export function getContainerNames(dir, services) {
+    let svcs = services || getComposeFile(dir).services;
+    return Object.keys(svcs).map(s => services[s].container_name);
 }
 
 export function getServiceUrl(serviceName) {

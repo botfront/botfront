@@ -128,6 +128,7 @@ export class StoryValidator {
                 try {
                     [this.prefix, this.content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
                     this.prefix = trimStart(this.prefix);
+                    this.content = trimEnd(this.content);
                     if (this.prefix === '* ') {
                         // new intent
                         this.validateIntent();

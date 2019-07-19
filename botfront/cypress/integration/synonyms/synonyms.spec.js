@@ -115,7 +115,7 @@ describe('synonym', function() {
         it('should delete the created synonym', function() {
             visitSynonyms(this.bf_project_id);
             getSynonymRow()
-                .find('[data-cy=trashbin] .viewOnHover')
+                .find('[data-cy=trash] .viewOnHover')
                 .click({ force: true });
             cy.get('body').should('not.contain', sortedSynonymsValues);
             cy.contains(sortedSynonymsValues).should('not.exist');

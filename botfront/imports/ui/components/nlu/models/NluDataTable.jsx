@@ -15,7 +15,7 @@ import IntentNameEditor from './IntentViewer';
 import 'react-select/dist/react-select.css'; // Is it used somewhere?
 import Filters from './Filters';
 import { can } from '../../../../lib/scopes';
-import TrashBin from '../common/TrashBin';
+import FloatingIconButton from '../common/FloatingIconButton';
 
 export default class NluDataTable extends React.Component {
     constructor(props) {
@@ -138,7 +138,8 @@ export default class NluDataTable extends React.Component {
                 accessor: '_id',
                 filterable: false,
                 Cell: props => (
-                    <TrashBin
+                    <FloatingIconButton
+                        icon='trash'
                         onClick={() => onDeleteExample(props.value)}
                     />
                 ),

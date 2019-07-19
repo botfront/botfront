@@ -107,7 +107,7 @@ describe('nlu tagging in training data', function() {
     });
 
     it('should delete the training data', function() {
-        cy.get('.rt-tbody .rt-tr:first [data-cy=trashbin] .viewOnHover').click({ force: true });
+        cy.get('.rt-tbody .rt-tr:first [data-cy=trash] .viewOnHover').click({ force: true });
         cy.get('.rt-tbody .rt-tr:first').should('not.contain', utterance);
     });
 

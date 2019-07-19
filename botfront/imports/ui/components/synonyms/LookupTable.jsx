@@ -9,7 +9,7 @@ import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
 import LookupTableEditorViewer from './LookupTableListEditorViewer';
 import { can, Can } from '../../../lib/scopes';
-import TrashBin from '../nlu/common/TrashBin';
+import FloatingIconButton from '../nlu/common/FloatingIconButton';
 
 export default class LookupTable extends React.Component {
     getColumns() {
@@ -61,7 +61,8 @@ export default class LookupTable extends React.Component {
                 width: 35,
                 className: 'center',
                 Cell: ({ value }) => (
-                    <TrashBin
+                    <FloatingIconButton
+                        icon='trash'
                         onClick={() => onItemDeleted(value)}
                     />
                 ),

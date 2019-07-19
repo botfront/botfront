@@ -2,25 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from 'semantic-ui-react';
 
-export default function TrashBin(props) {
-    const { onClick, style: propStyle } = props;
-    const style = {
-        width: '16px',
-        float: 'right',
-        lineHeight: '24px',
-        textAlign: 'left',
-        ...propStyle,
-    };
+export default function FloatingIconButton(props) {
+    const { onClick, style, icon } = props;
 
     return (
         <div
             style={style}
-            data-cy='trashbin'
+            className='floating-icon-button'
+            data-cy={icon}
         >
             <Icon
                 size='small'
                 color='grey'
-                name='trash'
+                name={icon}
                 link
                 className='viewOnHover'
                 onClick={onClick}
@@ -29,11 +23,12 @@ export default function TrashBin(props) {
     );
 }
 
-TrashBin.propTypes = {
+FloatingIconButton.propTypes = {
     onClick: PropTypes.func.isRequired,
     style: PropTypes.object,
+    icon: PropTypes.string.isRequired,
 };
 
-TrashBin.defaultProps = {
+FloatingIconButton.defaultProps = {
     style: {},
 };
