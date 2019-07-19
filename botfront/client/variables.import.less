@@ -14,6 +14,8 @@
 @grey           : #767676;
 @black          : #1B1C1D;
 @botfront-blue  : #011E56;
+@entity-teal    : #00b5ad;
+@entity-teal-hover: #00aca4;
 
 @basic-colors: 
     red @red,
@@ -33,6 +35,7 @@
 
 @emSize          : 14px;
 
+@microSize       : (10 / 14);
 @miniSize        : (11 / 14);
 @tinySize        : (12 / 14);
 @smallSize       : (13 / 14);
@@ -42,6 +45,7 @@
 @hugeSize        : (20 / 14);
 @massiveSize     : (24 / 14);
 
+@micro           : unit( round(@microSize * @emSize) / @emSize, rem);
 @mini            : unit( round(@miniSize * @emSize) / @emSize, rem);
 @tiny            : unit( round(@tinySize * @emSize) / @emSize, rem);
 @small           : unit( round(@smallSize * @emSize) / @emSize, rem);
@@ -52,6 +56,7 @@
 @massive         : unit( round(@massiveSize * @emSize) / @emSize, rem);
 
 @text-sizes:
+    micro @micro,
     mini @mini,
     tiny @tiny,
     small @small,
