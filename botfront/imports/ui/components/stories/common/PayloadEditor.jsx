@@ -27,7 +27,7 @@ const PayloadEditor = (props) => {
                     </Grid.Column>
                 </Grid.Row>
                 { entities.map((entity, i) => (
-                    <Grid.Row style={{ paddingBottom: '0' }}>
+                    <Grid.Row style={{ paddingBottom: '0' }} className='hoverTarget'>
                         <Grid.Column>
                             <EntityDropdown
                                 key={`entityfield-for-${entity.entity}`}
