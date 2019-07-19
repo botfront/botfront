@@ -10,7 +10,7 @@ import 'react-select/dist/react-select.css';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { Instances } from '../../../../api/instances/instances.collection';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import TrashBin from '../common/TrashBin';
+import FloatingIconButton from '../common/FloatingIconButton';
 import SmartTip from './SmartTip';
 import { ActivityCollection } from '../../../../api/activity';
 
@@ -66,7 +66,7 @@ export default class ActivityDataTable extends React.Component {
                 return (
                     <div>
                         {action}
-                        {!isReInterpreting && <TrashBin onClick={() => this.onDelete(utterance)} />}
+                        {!isReInterpreting && <FloatingIconButton icon='trash' onClick={() => this.onDelete(utterance)} />}
                     </div>
                 );
             },
