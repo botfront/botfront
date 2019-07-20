@@ -6,10 +6,10 @@ steps:
   args: ['build', '-f', './ci/Dockerfile.meteor', '-t', 'meteor-runner', './ci']
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['run', '-v', '$(pwd):/botfront', '-t', 'meteor-runner', 'meteor', 'reset']
+  args: ['run', '-v', '/workspace/botfront:/botfront', '-t', 'meteor-runner', 'meteor', 'reset']
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['run', '-v', '$(pwd):/botfront', '-t', 'meteor-runner', 'meteor', 'npm', 'install']
+  args: ['run', '-v', '/workspace/botfront:/botfront', '-t', 'meteor-runner', 'meteor', 'npm', 'install']
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['run', '-v', '$(pwd):/botfront', '-t', 'meteor-runner', 'meteor', 'npm', 'run', 'ci']
+  args: ['run', '-v', '/workspace/botfront:/botfront', '-t', 'meteor-runner', 'meteor', 'npm', 'run', 'ci']
