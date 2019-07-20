@@ -3,7 +3,7 @@ steps:
   args: ['build', '-f', './ci/Dockerfile.ubuntu-curl', '-t', 'script-runner', '.']
 - name: 'script-runner'
   args: ['bash', './ci/install_meteor.bash']
-- name: 'gcr.io/cloud-builders/npm'
-  args: ['--prefix', './botfront/', 'install']
-- name: 'gcr.io/cloud-builders/npm'
-  args: ['--prefix', './botfront/', 'run', 'ci']
+- name: 'ubuntu'
+  args: ['bash', 'cd', 'botfront', '&& ', 'meteor', 'npm', 'install']
+- name: 'ubuntu'
+  args: ['bash', 'cd', 'botfront', '&& ', 'meteor', 'npm', 'start', 'ci']
