@@ -1,5 +1,5 @@
 steps:
-- name: 'botfront/meteor-base'
+- name: 'gcr.io/cloud-builders/meteor-base'
   # volumes:
   # - name: 'vol1'
   #   path: '$(pwd)/botfront'
