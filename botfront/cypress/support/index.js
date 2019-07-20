@@ -20,8 +20,8 @@ import 'cypress-plugin-retries';
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-Cypress.Commands.add('login', (email = 'test@test.com', password = 'Aaaaaaaa00') => {
-    cy.visit('/');
+Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
+    if (visit) cy.visit('/');
     cy.window().then(
         ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
             Meteor.logout((err) => {
@@ -75,14 +75,8 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
 });
 
 Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => {
-    cy.MeteorCall('nlu.insert', [
-        {
-            name: `${name}`,
-            language: `${language}`,
-            description: `${description}`,
-        },
-        `${projectId}`,
-    ]);
+    return cy.window()
+        .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId));
 });
 
 Cypress.Commands.add('MeteorCall', (method, args) => {
@@ -186,6 +180,24 @@ Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
         projectId,
         key,
     ));
+});
+
+Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', defaultLanguage = 'en') => {
+    const project = {
+        _id: projectId,
+        name,
+        defaultLanguage,
+    };
+    return cy.visit('/')
+        .then(() => cy.window())
+        .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project))
+        .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
+});
+
+Cypress.Commands.add('deleteProject', (projectId) => {
+    return cy.visit('/')
+        .then(() => cy.window())
+        .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId));
 });
 
 Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));

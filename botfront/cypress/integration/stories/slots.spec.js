@@ -4,18 +4,24 @@ const slotName = 'slotOne';
 
 describe('slots', function() {
     before(function() {
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
+        cy.createProject('bf', 'My Project', 'fr');
+    });
+
+    after(function() {
+        cy.deleteProject('bf');
     });
 
     beforeEach(function() {
         cy.login();
     });
 
-
     function createSlot() {
         cy.dataCy('add-slot').click();
         cy.contains('float').click();
-        cy.dataCy('new-slot-editor').get('input').first().type(slotName);
+        cy.dataCy('new-slot-editor')
+            .get('input')
+            .first()
+            .type(slotName);
         cy.dataCy('save-button').click();
     }
 
@@ -26,7 +32,7 @@ describe('slots', function() {
     }
 
     it('should be able to add and delete a slot', function() {
-        cy.visit(`/project/${this.bf_project_id}/stories`);
+        cy.visit('/project/bf/stories');
         cy.dataCy('slots-tab').click();
         createSlot();
         cy.dataCy('slot-editor');
@@ -35,16 +41,25 @@ describe('slots', function() {
     });
 
     it('should be able to add a min and max value to a float slot', function() {
-        cy.visit(`/project/${this.bf_project_id}/stories`);
+        cy.visit('/project/bf/stories');
         cy.dataCy('slots-tab').click();
         createSlot();
         cy.contains('Min value');
-        cy.dataCy('slot-editor').get('input').eq(2).type('100');
+        cy.dataCy('slot-editor')
+            .get('input')
+            .eq(2)
+            .type('100');
         cy.contains('Max value');
-        cy.dataCy('slot-editor').get('input').eq(3).type('0');
+        cy.dataCy('slot-editor')
+            .get('input')
+            .eq(3)
+            .type('0');
         cy.dataCy('save-button').click();
         cy.dataCy('errors-field');
-        cy.dataCy('slot-editor').get('input').eq(3).type('200');
+        cy.dataCy('slot-editor')
+            .get('input')
+            .eq(3)
+            .type('200');
         cy.dataCy('save-button').click();
         cy.dataCy('errors-field').should('not.exist');
         deleteSlot();
