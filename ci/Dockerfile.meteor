@@ -1,2 +1,5 @@
 FROM botfront/meteor-base
 VOLUME /botfront
+RUN cd /botfront
+RUN meteor npm install
+RUN meteor npm start ci

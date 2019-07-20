@@ -1,15 +1,11 @@
 steps:
 - name: 'botfront/meteor-base'
+  volumes:
+  - name: 'vol1'
+    path: '$(pwd)/botfront'
   args: ['build', '-f', './ci/Dockerfile.meteor', '-t', 'meteor-runner', '.']
 - name: 'meteor-runner'
-  dir: './botfront'
+  dir: ' $(pwd)/botfront'
   volumes:
   - name: 'vol1'
-    path: './botfront'
-  args: ['bash', 'meteor', 'npm', 'install']
-- name: 'meteor-runner'
-  dir: './botfront'
-  volumes:
-  - name: 'vol1'
-    path: './botfront'
-  args: ['bash', 'meteor', 'npm', 'start', 'ci']
+    path: '$(pwd)/botfront'
