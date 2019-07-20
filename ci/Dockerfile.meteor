@@ -1,4 +1,3 @@
 FROM botfront/meteor-base
 VOLUME /botfront
-COPY run_meteor.bash .
-ENTRYPOINT ["bash","run_meteor.bash"]
+WORKDIR /botfront/botfront

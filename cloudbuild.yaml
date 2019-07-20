@@ -4,8 +4,12 @@ steps:
   # - name: 'vol1'
   #   path: '$(pwd)/botfront'
   args: ['build', '-f', './ci/Dockerfile.meteor', '-t', 'meteor-runner', './ci']
-- name: 'meteor-runner'
-  dir: '/workspace/botfront'
-  # volumes:
-  # - name: 'vol1'
-  #   path: '$(pwd)/botfront'
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['run', '-v', '$(pwd):/botfront', '-t', 'meteor-runner', 'meteor', 'reset']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['run', '-v', '$(pwd):/botfront', '-t', 'meteor-runner', 'meteor', 'npm', 'install']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['run', '-v', '$(pwd):/botfront', '-t', 'meteor-runner', 'meteor', 'npm', 'run', 'ci']
