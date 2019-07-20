@@ -1,7 +1,7 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-f', '.ci/Dockerfile.ubuntu-curl', '-t', 'script-runner', '.']
+  args: ['build', '-f', './ci/Dockerfile.ubuntu-curl', '-t', 'script-runner', '.']
 - name: 'script-runner'
-  args: ['bash', '.ci//install_meteor.bash']
+  args: ['bash', './ci/install_meteor.bash']
 - name: 'gcr.io/cloud-builders/npm'
   args: ['run', 'ci']
