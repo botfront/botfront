@@ -19,25 +19,22 @@ import './commands';
 import 'cypress-plugin-retries';
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
-
-Cypress.Commands.add('login', (email = 'test@test.com', password = 'Aaaaaaaa00') => {
-    cy.visit('/');
-    cy.window()
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.logout((err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            }),
-        )
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-            }),
-        );
+Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
+    if (visit) cy.visit('/');
+    cy.window().then(
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.logout((err) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        }),
+    ).then(
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+        }),
+    );
 
     // cy.window();
 });
@@ -133,14 +130,8 @@ Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, des
     });
 });
 Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => {
-    cy.MeteorCall('nlu.insert', [
-        {
-            name: `${name}`,
-            language: `${language}`,
-            description: `${description}`,
-        },
-        `${projectId}`,
-    ]);
+    return cy.window()
+        .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId));
 });
 
 Cypress.Commands.add('MeteorCall', (method, args) => {
@@ -236,6 +227,24 @@ Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
 
 Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
     cy.window().then(({ Meteor }) => Meteor.call('project.deleteTemplate', projectId, key));
+});
+
+Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', defaultLanguage = 'en') => {
+    const project = {
+        _id: projectId,
+        name,
+        defaultLanguage,
+    };
+    return cy.visit('/')
+        .then(() => cy.window())
+        .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project))
+        .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
+});
+
+Cypress.Commands.add('deleteProject', (projectId) => {
+    return cy.visit('/')
+        .then(() => cy.window())
+        .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId));
 });
 
 Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));

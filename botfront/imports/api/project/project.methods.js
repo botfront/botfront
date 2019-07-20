@@ -13,6 +13,8 @@ import { createDeployment } from '../deployment/deployment.methods';
 import { Deployments } from '../deployment/deployment.collection';
 import { checkIfCan } from '../../lib/scopes';
 import { createIntroStoryGroup } from '../storyGroups/storyGroups.methods';
+import { StoryGroups } from '../storyGroups/storyGroups.collection';
+import { Stories } from '../story/stories.collection';
 
 if (Meteor.isServer) {
     Meteor.methods({
@@ -61,6 +63,8 @@ if (Meteor.isServer) {
                 CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
                 Credentials.remove({ projectId: project._id }); // Delete credentials
                 Endpoints.remove({ projectId: project._id }); // Delete endpoints
+                StoryGroups.remove({ projectId });
+                Stories.remove({ projectId });
                 Projects.remove({ _id: projectId }); // Delete project
                 Deployments.remove({ projectId }); // Delete deployment
                 // Delete project related permissions for users (note: the role package does not provide

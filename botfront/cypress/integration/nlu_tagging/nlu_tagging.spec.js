@@ -11,50 +11,37 @@
 // }
 
 const utterance = 'whatever this is a testing utterance';
-const modelName = 'nluTaggingModel';
-const modelLang = 'fr';
 const intentName = 'KPI';
 const secondIntent = 'chitchat.greet';
 const newIntent = 'test';
 const newRenameIntent = 'KKPPII';
 const secondEntity = 'ENT2';
 const newEntity = 'myNewEntity';
-let modelId = '';
 
 describe('nlu tagging in training data', function() {
     before(function() {
-        cy.login();
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
-        cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModelProgramatically(
-                id,
-                modelName,
-                modelLang,
-                'my nlu tagging testing model',
-            ).then((result) => {
-                modelId = result;
-                cy.visit(`/project/${id}/nlu/model/${modelId}`);
+        cy.createProject('bf', 'My Project', 'fr')
+            .then(() => {
+                cy.login();
+                cy.visit('/project/bf/nlu/models');
                 cy.get('.nlu-menu-settings').click();
                 cy.contains('Import').click();
                 cy.fixture('nlu_import.json', 'utf8').then((content) => {
                     cy.get('.file-dropzone').upload(content, 'data.json');
                 });
-            
+        
                 cy.contains('Import Training Data').click();
             });
-        });
-        cy.logout();
     });
 
     beforeEach(function() {
-        cy.logout();
         cy.login();
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
     });
 
     after(function() {
-        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+        cy.deleteProject('bf');
     });
 
     it('Should add training data', function() {
@@ -107,14 +94,16 @@ describe('nlu tagging in training data', function() {
     });
 
     it('should delete the training data', function() {
-        cy.get('.rt-tbody .rt-tr:first [data-cy=trash] .viewOnHover').click({ force: true });
+        cy.get('.rt-tbody .rt-tr:first [data-cy=trash] .viewOnHover').click({
+            force: true,
+        });
         cy.get('.rt-tbody .rt-tr:first').should('not.contain', utterance);
     });
 
     // it('should be able to rename an intent and rename intents in bot responses at the same time', function() {
     //     // We start by adding a bot response with intentName
     //     cy.get(
-    //         `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
+    //         `[href="/project/bf/dialogue/templates"] > .item`,
     //     ).click({ force: true });
     //     cy.contains('Add bot response').click();
     //     cy.get('.ui.toggle.checkbox').click();
@@ -134,7 +123,7 @@ describe('nlu tagging in training data', function() {
     //     cy.get('[data-cy=remove-response-1]').should('not.exist');
 
     //     // Then we go in training data
-    //     cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+    //     cy.visit(`/project/bf/nlu/models`);
     //     cy.contains('Training Data').click();
 
     //     // And create a training data with an intent of intentName
@@ -163,7 +152,7 @@ describe('nlu tagging in training data', function() {
 
     //     // We check that the bot response has indeed NOT been modified
     //     cy.get(
-    //         `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
+    //         `[href="/project/bf/dialogue/templates"] > .item`,
     //     ).click({ force: true });
     //     cy.get('.toggle-nlu-criteria').click();
     //     cy.get('.nlu-criteria-filter').type(newRenameIntent);
@@ -173,7 +162,7 @@ describe('nlu tagging in training data', function() {
     //     // Cool
 
     //     // Then we go back in training data
-    //     cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+    //     cy.visit(`/project/bf/nlu/models`);
     //     // cy.get('.card:first button.primary', { timeout: 10000 }).click();
     //     cy.contains('Training Data').click();
 
@@ -206,7 +195,7 @@ describe('nlu tagging in training data', function() {
 
     //     // checking that this time, the bot response intent has been renamed
     //     cy.get(
-    //         `[href="/project/${this.bf_project_id}/dialogue/templates"] > .item`,
+    //         `[href="/project/bf/dialogue/templates"] > .item`,
     //     ).click({ force: true });
     //     cy.get('.toggle-nlu-criteria').click();
     //     cy.get('.nlu-criteria-filter').type(newRenameIntent);
@@ -228,7 +217,7 @@ describe('nlu tagging in training data', function() {
 
         cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
 
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
         // cy.get('[data-cy=trigger-entity-names]').click();
 
@@ -247,7 +236,7 @@ describe('nlu tagging in training data', function() {
 
         cy.get('.rt-tbody .rt-tr:first').contains(newEntity);
 
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
         // cy.get('[data-cy=trigger-entity-names]').click();
 

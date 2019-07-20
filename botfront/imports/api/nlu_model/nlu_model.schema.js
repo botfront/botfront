@@ -65,13 +65,13 @@ export const TrainingDataSchema = new SimpleSchema({
     'regex_features.$.pattern': String,
 });
 export const NLUModelSchema = new SimpleSchema({
-    name: { type: String },
+    name: { type: String, optional: true },
     language: {
         type: String,
         // TODO: make a lighter languages document
         allowedValues: Object.keys(languages),
     },
-    published: { type: Boolean, defaultValue: false },
+    published: { type: Boolean, defaultValue: false, optional: true },
     description: { type: String, optional: true },
     config: { type: String, optional: true },
 

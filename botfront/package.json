@@ -1,26 +1,26 @@
 {
   "name": "botfront",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "private": true,
-  "licence": "AGPL-3.0-only",
+  "repository": "https://github.com/botfront/botfront",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "start": "meteor run",
     "start:gke": "ORCHESTRATOR=gke meteor run",
     "debug-old": "meteor run --inspect",
     "start:docker-compose": "BF_PROJECT_ID=bf ORCHESTRATOR=docker-compose meteor run",
     "start:docker-compose.dev": "DEV_MODE=true BF_PROJECT_ID=bf ORCHESTRATOR=docker-compose meteor run",
+    "test-watch": "TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
     "debug": "meteor run --inspect-brk=9229",
-    "cy:run": "CYPRESS_RETRIES=2 npx cypress run",
+    "test:e2e": "CYPRESS_RETRIES=2 npx cypress run",
+    "ci": "start-server-and-test start http://localhost:3000 test:e2e",
     "docs:dev": "npx vuepress dev docs",
     "docs:build": "npx vuepress build docs",
-    "test-watch": "TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
-    "postinstall": "cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./public/ && cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./client/",
     "licenses:summary": "license-checker --summary",
     "licenses:csv": "license-checker --csv --out botfront-licenses.csv",
     "release": "standard-version",
     "storybook": "start-storybook",
-    "test": "meteor test --driver-package=practicalmeteor:mocha --port 3010",
-    "test-debug": "meteor test --inspect --driver-package=practicalmeteor:mocha --port 3010"
+    "postinstall": "cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./public/ && cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./client/"
   },
   "dependencies": {
     "@babel/runtime": "^7.4.5",
@@ -79,6 +79,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",
+    "@commitlint/cli": "8.1.0",
+    "@commitlint/config-conventional": "8.1.0",
     "@meteorjs/eslint-config-meteor": "^1.0.5",
     "@storybook/addon-knobs": "^5.1.9",
     "@storybook/react": "^5.1.9",
@@ -92,7 +94,7 @@
     "babel-loader": "^8.0.6",
     "chromedriver": "^2.46.0",
     "commitizen": "^3.0.7",
-    "commitlint": "^7.5.2",
+    "commitlint": "8.1.0",
     "core-js": "^2.5.3",
     "cypress": "^3.4.0",
     "cypress-plugin-retries": "^1.2.2",
@@ -104,12 +106,19 @@
     "eslint-plugin-meteor": "^5.1.0",
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
+    "husky": "2.7.0",
     "less": "2.5.0",
     "less-loader": "^5.0.0",
     "license-checker": "^25.0.1",
-    "selenium-webdriver": "^3.0.0-beta-2",
+    "selenium-webdriver": "3.6.0",
+    "start-server-and-test": "^1.9.1",
     "vuepress": "^1.0.2",
     "webpack": "^4.28.4"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   },
   "standard-version": {
     "scripts": {
