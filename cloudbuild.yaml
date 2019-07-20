@@ -3,7 +3,7 @@ steps:
   # volumes:
   # - name: 'vol1'
   #   path: '$(pwd)/botfront'
-  args: ['build', '-f', './ci/Dockerfile.meteor', '-t', 'meteor-runner', '.']
+  args: ['build', '-f', './ci/Dockerfile.meteor', '-t', 'meteor-runner', './ci']
 - name: 'meteor-runner'
   dir: '/workspace/botfront'
   # volumes:
