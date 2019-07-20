@@ -4,4 +4,4 @@ steps:
 - name: 'script-runner'
   args: ['bash', './ci/install_meteor.bash']
 - name: 'gcr.io/cloud-builders/npm'
-  args: ['run', 'ci']
+  args: ['--prefix', './botfront/', 'run', 'ci']
