@@ -1,15 +1,15 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-f', './ci/Dockerfile.curl', '-t', 'meteor-installer', '.']
-- name: 'meteor-installer'
+- name: 'botfront/meteor-base'
+  args: ['build', '-f', './ci/Dockerfile.meteor', '-t', 'meteor-runner', '.']
+- name: 'meteor-runner'
+  dir: './botfront'
   volumes:
   - name: 'vol1'
-    path: '/'
-  args: ['bash', './ci/install_meteor.bash']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-f', './ci/Dockerfile.run', '-t', 'meteor-runner', '.']
+    path: './botfront'
+  args: ['bash', 'meteor', 'npm', 'install']
 - name: 'meteor-runner'
+  dir: './botfront'
   volumes:
-  - name: 'vol2'
-    path: '/'
-  args: ['bash', './ci/run_meteor.bash']
+  - name: 'vol1'
+    path: './botfront'
+  args: ['bash', 'meteor', 'npm', 'start', 'ci']

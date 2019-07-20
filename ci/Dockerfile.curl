@@ -1,3 +1,0 @@
-FROM ubuntu
-VOLUME /
-RUN apt-get -q update && apt-get install -qqy curl
