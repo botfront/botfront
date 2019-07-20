@@ -1,17 +1,8 @@
 /* eslint-disable no-undef */
-let modelId = '';
 
 describe('NLU Batch Insert', function() {
     before(function() {
-        cy.visit('/');
-        cy.login();
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
-        cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModelProgramatically(id, 'MyModel', 'fr', 'My Description')
-                .then((result) => {
-                    modelId = result;
-                });
-        });
+        cy.createProject('bf', 'My Project', 'fr');
     });
 
     beforeEach(function() {
@@ -20,11 +11,11 @@ describe('NLU Batch Insert', function() {
     });
 
     after(function() {
-        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+        cy.deleteProject('bf');
     });
 
     it('Should add and delete multiple examples', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.visit('/project/bf/nlu/models');
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\ncoucou\nsalut');
@@ -59,17 +50,17 @@ describe('NLU Synonyms', function() {
     });
 
     before(function() {
-        cy.login();
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
-        cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModelProgramatically(id, 'MyModel', 'fr', 'My Description')
-                .then((result) => {
-                    modelId = result;
-                });
-        });
+        cy.visit('/')
+            // .then(() => cy.deleteProject('bf'))
+            .then(() => cy.createProject('bf', 'My Project', 'fr'))
     });
+
+    after(function() {
+        cy.deleteProject('bf');
+    });
+
     it('Should add, edit, delete synonyms', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.visit('/project/bf/nlu/models');
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Synonyms').click();
         // Add a synonym
@@ -127,9 +118,5 @@ describe('NLU Synonyms', function() {
         cy.get(':nth-child(1) > .rt-tr')
             .find('[data-cy=trash] .viewOnHover')
             .click({ force: true });
-    });
-
-    after(function() {
-        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
     });
 });

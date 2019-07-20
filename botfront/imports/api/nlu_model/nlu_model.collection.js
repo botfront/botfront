@@ -14,12 +14,6 @@ NLUModels.deny({
     remove() { return true; },
 });
 
-Meteor.startup(() => {
-    if (Meteor.isServer) {
-        NLUModels._ensureIndex({ _id: 1, published: 1 });
-    }
-});
-
 if (Meteor.isServer) {
     Meteor.publish('nlu_models', function (modelId) {
         check(modelId, String);

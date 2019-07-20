@@ -1,27 +1,19 @@
 /* eslint-disable no-undef */
-const modelName = 'myModel';
 const gazetteName = 'growth';
 const gazetteValues = 'raise, increase, augmentation';
 const sortedGazetteValues = 'augmentation, increase, raise';
 
-const visitGazette = (projectId, modelId) => {
-    cy.visit(`/project/${projectId}/nlu/model/${modelId}`);
+const visitGazette = (projectId) => {
+    cy.visit(`/project/${projectId}/nlu/models`);
     cy.contains('Training Data').click();
     cy.contains('Gazette').click();
 };
-let modelId = '';
+
 const getGazetteRow = () => cy.contains(sortedGazetteValues).closest('.rt-tr');
 
 describe('gazette', function() {
     before(function() {
-        cy.login();
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
-        cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModelProgramatically(id, modelName, 'fr', 'my description')
-                .then((result) => {
-                    modelId = result;
-                });
-        });
+        cy.createProject('bf', 'My Project', 'fr');
     });
     
     beforeEach(function() {
@@ -33,13 +25,12 @@ describe('gazette', function() {
     });
 
     after(function() {
-        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+        cy.deleteProject('bf');
     });
 
-    
     describe('adding a gazette', function() {
         it('should create a gazette with supplied parameters', function() {
-            visitGazette(this.bf_project_id, modelId);
+            visitGazette('bf');
             cy.get('.input.entity-synonym input').type(gazetteName);
             cy.get('textarea.entity-synonym-values').type(gazetteValues);
             cy.contains('Add').click();
@@ -56,7 +47,7 @@ describe('gazette', function() {
 
     describe('editing a gazette', function() {
         it('should change gazette mode', function() {
-            visitGazette(this.bf_project_id, modelId);
+            visitGazette('bf');
             getGazetteRow()
                 .children()
                 .eq(2)
@@ -73,7 +64,7 @@ describe('gazette', function() {
         });
 
         it('should edit the gazette examples', function() {
-            visitGazette(this.bf_project_id, modelId);
+            visitGazette('bf');
             getGazetteRow()
                 .children()
                 .eq(1)
@@ -91,7 +82,7 @@ describe('gazette', function() {
         });
 
         it('should remove the values and fail removing it without crashing', function() {
-            visitGazette(this.bf_project_id, modelId);
+            visitGazette('bf');
             getGazetteRow()
                 .children()
                 .eq(1)
@@ -128,7 +119,7 @@ describe('gazette', function() {
 
     describe('deleting Gazette', function() {
         it('should delete the created gazette', function() {
-            visitGazette(this.bf_project_id, modelId);
+            visitGazette('bf');
             getGazetteRow()
                 .find('[data-cy=trash] .viewOnHover')
                 .click({ force: true });

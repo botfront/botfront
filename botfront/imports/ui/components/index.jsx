@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { can, getScopesForUser, areScopeReady } from '../../lib/scopes';
+import { Projects } from '../../api/project/project.collection';
 
 class Index extends React.Component {
     componentDidMount() {
@@ -21,23 +22,21 @@ class Index extends React.Component {
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    const projects = getScopesForUser(Meteor.userId(), 'owner');
-                    if (projects.length === 0) {
-                        router.push('/404');
-                    } else {
-                        router.push(`/project/${projects[0]}/nlu/models`);
-                    }
+                    const projectIds = getScopesForUser(Meteor.userId(), 'owner');
+                    if (projectIds.length === 0) router.push('/404');
+                    const projects = Projects.find({ _id: { $in: projectIds } }, { fields: { name: 1 } }).fetch();
+                    const projectsWithoutChitchat = projects.filter(({ name }) => !name.match('chitchat'));
+                    if (projectsWithoutChitchat.length === 0) router.push('/404');
+                    router.push(`/project/${projectsWithoutChitchat[0]._id}/nlu/models`);
                 }
             });
         } else {
             router.push('/login/');
         }
-    }
+    };
 
     render() {
-        return (
-            <div />
-        );
+        return <div />;
     }
 }
 

@@ -1,12 +1,10 @@
 /* eslint-disable no-undef */
-const modelName = 'myModel';
 const synonymName = 'growth';
 const synonymValues = 'raise, increase, augmentation';
 const sortedSynonymsValues = 'augmentation, increase, raise';
-let modelId = '';
 
 const visitSynonyms = (projectId) => {
-    cy.visit(`/project/${projectId}/nlu/model/${modelId}`);
+    cy.visit(`/project/${projectId}/nlu/models`);
     cy.contains('Training Data').click();
     cy.contains('Synonyms').click();
 };
@@ -15,18 +13,12 @@ const getSynonymRow = () => cy.contains(sortedSynonymsValues).closest('.rt-tr');
 
 describe('synonym', function() {
     before(function() {
-        cy.login();
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
-        cy.get('@bf_project_id').then((id) => {
-            cy.createNLUModelProgramatically(
-                id,
-                modelName,
-                'fr',
-                'my nlu tagging testing model',
-            ).then((result) => {
-                modelId = result;
-            });
-        });
+        cy.createProject('bf', 'My Project', 'fr');
+    });
+
+
+    after(function() {
+        cy.deleteProject('bf');
     });
 
     beforeEach(function() {
@@ -39,7 +31,7 @@ describe('synonym', function() {
 
     describe('adding a synonym', function() {
         it('should create a synonym with supplied parameters', function() {
-            visitSynonyms(this.bf_project_id);
+            visitSynonyms('bf');
             cy.get('.input.entity-synonym input').type(synonymName);
             cy.contains('Add').should('have.class', 'disabled');
             cy.get('textarea.entity-synonym-values').type(`${synonymValues},{backspace},,`);
@@ -58,7 +50,7 @@ describe('synonym', function() {
 
     describe('editing a synonym', function() {
         it('should edit the synonym values', function() {
-            visitSynonyms(this.bf_project_id);
+            visitSynonyms('bf');
             getSynonymRow()
                 .children()
                 .eq(1)
@@ -76,7 +68,7 @@ describe('synonym', function() {
         });
 
         it('should remove the values and fail removing it without crashing', function() {
-            visitSynonyms(this.bf_project_id);
+            visitSynonyms('bf');
             getSynonymRow()
                 .children()
                 .eq(1)
@@ -113,13 +105,13 @@ describe('synonym', function() {
 
     describe('deleting Synonyms', function() {
         it('should delete the created synonym', function() {
-            visitSynonyms(this.bf_project_id);
+            visitSynonyms('bf');
             getSynonymRow()
                 .find('[data-cy=trash] .viewOnHover')
                 .click({ force: true });
             cy.get('body').should('not.contain', sortedSynonymsValues);
             cy.contains(sortedSynonymsValues).should('not.exist');
-            cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
+            cy.deleteNLUModelProgramatically(null, 'bf', 'fr');
         });
     });
 });

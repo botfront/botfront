@@ -2,7 +2,11 @@
 
 describe('Docker Compose', function() {
     before(function() {
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
+        cy.createProject('bf', 'My Project', 'fr');
+    });
+
+    after(function() {
+        cy.deleteProject('bf');
     });
 
     beforeEach(function() {
@@ -14,7 +18,7 @@ describe('Docker Compose', function() {
     });
 
     it('Docker compose should exist in more settings', function() {
-        cy.visit(`/project/${this.bf_project_id}/settings`);
+        cy.visit('/project/bf/settings');
         cy.contains('More Settings').click();
         cy.contains('Docker Compose').should('exist');
     });
