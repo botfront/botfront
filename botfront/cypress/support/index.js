@@ -234,21 +234,21 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         _id: projectId,
         name,
         defaultLanguage,
+        namespace: projectId,
     };
     return cy.visit('/')
         .then(() => cy.window())
-        .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project))
+        .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project, true)) // true is used to bypass role check. CI env must be set when running Botfront
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
 });
 
 Cypress.Commands.add('deleteProject', (projectId) => {
     return cy.visit('/')
         .then(() => cy.window())
-        .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId));
+        .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, true));
 });
 
 Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
-
 Cypress.Commands.add(
     'upload',
     {
@@ -256,7 +256,6 @@ Cypress.Commands.add(
     },
     (subject, file, fileName) => {
         // we need access window to create a file below
-
         cy.window().then((window) => {
             const blob = new Blob([JSON.stringify(file, null, 2)], { type: 'text/plain;charset=utf-8' });
             // Please note that we need to create a file using window.File,

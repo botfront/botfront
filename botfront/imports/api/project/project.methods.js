@@ -18,9 +18,10 @@ import { Stories } from '../story/stories.collection';
 
 if (Meteor.isServer) {
     Meteor.methods({
-        async 'project.insert'(item) {
+        async 'project.insert'(item, bypassWithCI) {
             check(item, Object);
-            checkIfCan('global-admin');
+            check(bypassWithCI, Match.Optional(Boolean));
+            checkIfCan('global-admin', null, null, { bypassWithCI });
             let _id;
             try {
                 _id = Projects.insert(item);
@@ -50,9 +51,10 @@ if (Meteor.isServer) {
             }
         },
 
-        'project.delete'(projectId) {
+        'project.delete'(projectId, bypassWithCI) {
             check(projectId, String);
-            checkIfCan('global-admin');
+            check(bypassWithCI, Match.Optional(Boolean));
+            checkIfCan('global-admin', null, null, { bypassWithCI });
 
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
             if (!project) throw new Meteor.Error('Project not found');
