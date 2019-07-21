@@ -1,7 +1,9 @@
-# steps:
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: [ "build",
-#           "-t", "botfront/botfront:$SHORT_SHA",
-#           "."]
-
-# timeout: 30m
+steps:
+- name: node:10.15.1
+  dir: /workspace/botfront
+  entrypoint: npm
+  args: ['install']
+- name: node:10.15.1
+  dir: /workspace/botfront
+  entrypoint: npm
+  args: ['install']

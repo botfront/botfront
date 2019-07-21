@@ -1,0 +1,112 @@
+version: '3.0'
+services:
+  # cypress:
+  #   image: cypress/included:3.4.0
+  #   restart: on-failure
+  #   working_dir: /e2e
+  #   volumes:
+  #     - ../botfront/:/e2e
+  #   depends_on: 
+  #     - botfront
+  #   environment:
+  #   - CYPRESS_RETRIES=2
+  #   - CYPRESS_VIDEO=true
+  #   - CYPRESS_MODE="CI_RUN"
+  #   - CYPRESS_baseUrl=http://botfront:3000
+
+  #   docker run -it --rm \
+  # -v $ROOT/botfront:/botfront \
+  # -w /botfront \
+  # -e CYPRESS_RETRIES=2 \
+  # -e CYPRESS_VIDEO=true \
+  # -e CYPRESS_MODE="CI_RUN" \
+  # -e CYPRESS_baseUrl="http://host.docker.internal:8888" \
+  # --entrypoint cypress \
+  # cypress/included:3.4.0 run
+  botfront:
+    image: 'botfront/botfront:v0.15.1'
+    container_name: botfront-app
+    restart: always
+    networks:
+      - botfront-network
+    volumes:
+      - './models/:/app/models'
+    ports:
+      - '8888:3000'
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:3000"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+  # botfront-api:
+  #   image: 'botfront/botfront-api:v0.15.1'
+  #   container_name: botfront-api
+  #   networks:
+  #     - botfront-network
+  #   restart: always
+  #   depends_on:
+  #     - mongo
+  #   ports:
+  #     - '8080:8080'
+  #   env_file:
+  #     - .env
+  # rasa:
+  #   image: 'botfront/rasa-for-botfront:v1.1.5-b3'
+  #   container_name: botfront-rasa
+  #   networks:
+  #     - botfront-network
+  #   restart: always
+  #   ports:
+  #     - '5005:5005'
+  #   depends_on:
+  #     - botfront-api
+  #   volumes:
+  #     - './models/:/app/models'
+  #   command:
+  #     - run
+  #     - '--enable-api'
+  #     - '--debug'
+  #   env_file:
+  #     - .env
+  # actions:
+  #   image: 'botfront/actions-sdk:latest'
+  #   container_name: botfront-actions
+  #   networks:
+  #     - botfront-network
+  #   restart: always
+  #   ports:
+  #     - '5055:5055'
+  #   volumes:
+  #     - './actions:/app/actions'
+  #   env_file:
+  #     - .env
+  # duckling:
+  #   image: 'botfront/duckling:latest'
+  #   container_name: botfront-duckling
+  #   networks:
+  #     - botfront-network
+  #   restart: always
+  #   ports:
+  #     - '8000:8000'
+  mongo:
+    image: 'mongo:latest'
+    container_name: botfront-mongo
+    restart: always
+    networks:
+      - botfront-network
+    volumes:
+      - './botfront-db:/data/db'
+    ports:
+      - '27017:27017'
+    env_file:
+      - .env
+networks:
+  botfront-network: {}
+volumes:
+  botfront-db: null
