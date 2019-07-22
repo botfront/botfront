@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import {
     Dropdown, Modal, Search,
 } from 'semantic-ui-react';
-import Context from './Context';
+import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsePopupContent = (props) => {
     const {
-        onSelect, onCreate, trigger, noButtonResponse,
+        onSelect, onCreate, trigger, noButtonResponse, limitedSelection,
     } = props;
-    const { responses } = useContext(Context);
+    const { responses } = useContext(ConversationOptionsContext);
     const [modalOpen, setModalOpen] = useState(false);
 
     return (
@@ -43,10 +43,14 @@ const BotResponsePopupContent = (props) => {
                     <Dropdown.Header>Or use a template</Dropdown.Header>
                     <Dropdown.Item onClick={() => onCreate('text')}>Text</Dropdown.Item>
                     <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
-                    <Dropdown.Item onClick={() => onCreate('image')}>Image</Dropdown.Item>
-                    <Dropdown.Item onClick={() => onCreate('video')}>Video</Dropdown.Item>
-                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')}>Carousel</Dropdown.Item>
-                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('button')}>Button template</Dropdown.Item>
+                    {!limitedSelection
+                        && <>
+                            <Dropdown.Item onClick={() => onCreate('image')}>Image</Dropdown.Item>
+                            <Dropdown.Item onClick={() => onCreate('video')}>Video</Dropdown.Item>
+                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')}>Carousel</Dropdown.Item>
+                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('button')}>Button template</Dropdown.Item>
+                        </>
+                    }
                 </Dropdown.Menu>
             </Dropdown>
         </>
@@ -59,11 +63,13 @@ BotResponsePopupContent.propTypes = {
     onCreate: PropTypes.func,
     trigger: PropTypes.element.isRequired,
     noButtonResponse: PropTypes.bool,
+    limitedSelection: PropTypes.bool,
 };
 
 BotResponsePopupContent.defaultProps = {
     value: null,
     noButtonResponse: false,
+    limitedSelection: false,
     onSelect: () => {},
     onCreate: () => {},
 };
