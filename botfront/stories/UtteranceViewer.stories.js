@@ -7,24 +7,36 @@ import { ConversationOptionsContext } from '../imports/ui/components/utils/Conte
 
 function UserUtteranceViewerWrapped(props) {
     const [utterance, setUtterance] = useState({
-        text: 'This is an This that is an entity',
+        text: 'This is an intent that is an entity',
         intent: 'intent',
         entities: [
             {
                 start: 0,
-                end: 3,
+                end: 4,
                 value: 'This',
                 entity: 'entity1',
             },
             {
-                start: 11,
-                end: 14,
-                value: 'This',
+                start: 8,
+                end: 10,
+                value: 'an',
                 entity: 'entity2',
             },
             {
-                start: 27,
-                end: 32,
+                start: 11,
+                end: 17,
+                value: 'intent',
+                entity: 'entity2',
+            },
+            {
+                start: 26,
+                end: 28,
+                value: 'an',
+                entity: 'entity2',
+            },
+            {
+                start: 29,
+                end: 35,
                 value: 'entity',
                 entity: 'entity2',
             },

@@ -9,6 +9,8 @@ function UserUtteranceViewer({
     // Intent will always be placed at the end
     const { text, intent, entities } = value;
     const displayArray = [];
+    const textObject = {}; // An object with start, end and value of each word in the text
+    const entitiesStart = entities.map(entity => entity.start);
 
     function handleEntityChange(newValue, entity) {
         const newEntities = entities.map((e) => {
@@ -20,56 +22,65 @@ function UserUtteranceViewer({
         return onChange({ ...value, entities: newEntities });
     }
 
+    // Creating textObject
     if (!!text) {
-        const textArray = text.split(' ');
-        entities.forEach((entity) => {
-            let textSlice = text.substring(entity.start, entity.end + 1);
-            textArray.forEach((word, index) => {
-                if (word === textSlice) {
-                    textArray.splice(
-                        index,
-                        1,
-                        <Entity
-                            value={{
-                                start: entity.start,
-                                end: entity.end,
-                                value: entity.value,
-                                entity: entity.entity,
-                            }}
-                            size={size}
-                            allowEditing={allowEditing}
-                            deletable={allowEditing}
-                            onChange={newValue => handleEntityChange(newValue, entity)}
-                            onDelete={() => onChange({
-                                ...value,
-                                entities: [
-                                    ...value.entities.filter(e => e.value !== word),
-                                ],
-                            })
-                            }
-                        />,
-                    );
-                    textSlice = '';
+        for (let char = 0; char < text.length; char += 1) {
+            const startChar = char;
+            for (let endChar = startChar; endChar < text.length; endChar += 1) {
+                if (text.charAt(endChar) === ' ' || endChar === text.length - 1) {
+                    if (endChar === text.length - 1) {
+                        textObject[startChar] = [
+                            text.substring(startChar, endChar + 1),
+                            endChar + 1,
+                        ];
+                    } else {
+                        textObject[startChar] = [
+                            text.substring(startChar, endChar),
+                            endChar,
+                        ];
+                    }
+                    
+                    char = endChar;
+                    break;
                 }
-            });
-        });
-        textArray.forEach((word) => {
-            if (typeof word === 'string') {
-                displayArray.push(`${word} `);
+            }
+        }
+    
+        // Creating displayArray from textObject and entities array.
+        Object.keys(textObject).forEach((entry) => {
+            if (entitiesStart.includes(parseInt(entry, 10))) {
+                entities.forEach((entity) => {
+                    // eslint-disable-next-line eqeqeq
+                    if (entity.start == entry) {
+                        displayArray.push(
+                            <Entity
+                                value={entity}
+                                size={size}
+                                allowEditing={allowEditing}
+                                deletable={allowEditing}
+                                onChange={newValue => handleEntityChange(newValue, entity)}
+                                onDelete={() => onChange({
+                                    ...value,
+                                    entities: [
+                                        ...value.entities.filter(
+                                            e => e.value !== textObject[entry][0],
+                                        ),
+                                    ],
+                                })
+                                }
+                            />,
+                        );
+                    }
+                });
             } else {
-                displayArray.push(word);
+                displayArray.push(`${textObject[entry][0]} `);
             }
         });
     } else {
         entities.forEach((entity) => {
             displayArray.push(
                 <Entity
-                    entity={{
-                        start: entity.start,
-                        end: entity.end,
-                        value: entity.value,
-                        entity: entity.entity,
-                    }}
+                    value={entity}
                     size={size}
                     allowEditing={allowEditing}
                     deletable={allowEditing}
@@ -77,7 +88,7 @@ function UserUtteranceViewer({
             );
         });
     }
-
+    
     return (
         <div>
             {displayArray}
