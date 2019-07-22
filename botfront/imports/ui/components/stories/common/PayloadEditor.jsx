@@ -74,7 +74,7 @@ const PayloadEditor = (props) => {
                     </Grid.Row>
                 ))}
             </Grid>
-            { availableEntities.length > entities.length
+            { availableEntities.length > entities.length && entities.every(e => e.entityValue && e.entityValue.trim() !== '')
                 ? (
                     <div style={{ paddingTop: '2em' }}>
                         <DashedButton
