@@ -16,19 +16,25 @@ const exampleOne = {
             entity: 'from',
         },
     ],
-    text: 'I come from Paris.',
+    text: `I come from Paris. Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
 };
 
 const UtteranceContainerWrapped = (props) => {
     const [status, setStatus] = useState(null);
+    const { value: initValue, ...rest } = props;
+    const [value, setValue] = useState(initValue);
     if (!status) {
         return (
             <UtteranceContainer
-                {...props}
-                onInputNewUserUtterance={u => setStatus(`New user utterance: ${u}!!`)}
-                onInputNewBotResponse={u => setStatus(`New bot response: ${u}!!`)}
+                {...rest}
+                onInputUserUtterance={u => setStatus(`New user utterance: ${u}!!`)}
+                onInputBotResponse={u => setStatus(`New bot response: ${u}!!`)}
+                onChange={v => setValue(v)}
+                onSave={() => setStatus(`Edited!: ${value.text}`)}
                 onDelete={() => setStatus('delete !')}
                 onAbort={() => setStatus('abort!')}
+                value={value}
             />
         );
     }
