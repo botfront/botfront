@@ -1,21 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Grid, Icon, Input } from 'semantic-ui-react';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UtteranceInput from '../../utils/UtteranceInput';
 import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 
 const UtteranceContainer = (props) => {
     const {
-        agent, value, onInputNewUserUtterance, onInputNewBotResponse, onDelete, onAbort,
+        agent, value, onInputUserUtterance, onInputBotResponse, onDelete, onAbort,
+        onChange, onSave,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const [input, setInput] = useState();
+    const container = useRef();
     useEffect(() => {
         setMode(!value ? 'input' : 'view');
     }, value);
 
+    const excludedTarget = e => (
+        // Check class of element that triggered blur against excluded classNames.
+        ['trash'].some(t => !!e.relatedTarget && e.relatedTarget.className.split(' ').includes(t))
+    );
+
     const render = () => {
+        if (mode === 'edit') {
+            container.current.focus();
+        }
         if (mode === 'input') {
             return (
                 <UtteranceInput
@@ -24,28 +33,38 @@ const UtteranceContainer = (props) => {
                     value={input}
                     onChange={u => setInput(u)}
                     onValidate={() => {
-                        if (agent === 'bot') onInputNewBotResponse(input);
-                        else onInputNewUserUtterance(input);
+                        if (agent === 'bot') onInputBotResponse(input);
+                        else onInputUserUtterance(input);
                     }}
                 />
             );
         }
-        if (agent === 'user') {
-            return (
-                <UserUtteranceViewer
-                    value={value}
-                    allowEditing={mode === 'edit'}
-                    size='mini'
-                    // onChange={() => onChangeValue()}
-                />
-            );
-        }
         return (
-            <div>{`Bot response ${mode}`}</div>
+            <div
+                ref={container}
+                className='focus-box'
+                role='textbox'
+                tabIndex={0}
+                onMouseDown={(e) => { e.preventDefault(); }}
+                onBlur={(e) => { if (mode === 'edit' && !excludedTarget(e)) onSave(); }}
+            >
+                {agent === 'user'
+                    ? (
+                        <UserUtteranceViewer
+                            value={value}
+                            allowEditing={mode === 'edit'}
+                            size='mini'
+                            onChange={v => onChange(v)}
+                        />
+                    )
+                    : `Bot response ${mode}`
+                }
+            </div>
         );
     };
 
     return (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events
         <div
             className='utterance-container'
             mode={mode}
@@ -69,8 +88,10 @@ const UtteranceContainer = (props) => {
 UtteranceContainer.propTypes = {
     agent: PropTypes.oneOf(['bot', 'user']).isRequired,
     value: PropTypes.object,
-    onInputNewUserUtterance: PropTypes.func.isRequired,
-    onInputNewBotResponse: PropTypes.func.isRequired,
+    onInputUserUtterance: PropTypes.func.isRequired,
+    onInputBotResponse: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
+    onSave: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
 };
