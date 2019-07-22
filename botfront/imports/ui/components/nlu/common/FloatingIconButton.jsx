@@ -15,6 +15,7 @@ export default function FloatingIconButton(props) {
                 size='small'
                 color='grey'
                 name={icon}
+                tabIndex={0}
                 link
                 className='viewOnHover'
                 onClick={onClick}

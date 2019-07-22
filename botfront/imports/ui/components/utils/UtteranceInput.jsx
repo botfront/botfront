@@ -3,7 +3,7 @@ import { Input } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
 function UtteranceInput({
-    placeholder, size, value, onValidate, fluid, onChange,
+    placeholder, size, value, onValidate, fluid, onChange, excludedTargets,
 }) {
     function testWhiteText() {
         const trimmedText = value.trim();
@@ -13,14 +13,19 @@ function UtteranceInput({
         return false;
     }
 
+    const excludedTarget = e => (
+        // Check class of element that triggered blur against excluded classNames.
+        excludedTargets.some(t => !!e.relatedTarget && e.relatedTarget.className.split(' ').includes(t))
+    );
+
     const handleKeyDown = (event) => {
         if (event.key === 'Enter' && testWhiteText()) {
             onValidate();
         }
     };
 
-    const handleOnBlur = () => {
-        if (testWhiteText()) {
+    const handleOnBlur = (event) => {
+        if (!excludedTarget(event) && testWhiteText()) {
             onValidate();
         }
     };
@@ -32,7 +37,7 @@ function UtteranceInput({
             fluid={fluid}
             onChange={(_e, data) => onChange(data.value)}
             onKeyDown={e => handleKeyDown(e)}
-            onBlur={() => handleOnBlur()}
+            onBlur={e => handleOnBlur(e)}
         />
     );
 }
@@ -44,6 +49,7 @@ UtteranceInput.propTypes = {
     onValidate: PropTypes.func,
     fluid: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
+    excludedTargets: PropTypes.arrayOf(PropTypes.string),
 };
 
 UtteranceInput.defaultProps = {
@@ -52,6 +58,7 @@ UtteranceInput.defaultProps = {
     value: '',
     onValidate: () => {},
     fluid: false,
+    excludedTargets: ['trash'],
 };
 
 export default UtteranceInput;
