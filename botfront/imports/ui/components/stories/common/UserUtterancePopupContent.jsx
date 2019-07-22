@@ -12,6 +12,13 @@ const UserUtterancePopupContent = (props) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [payload, setPayload] = useState({ intent: null, entities: [] });
 
+    const payloadValid = () => {
+        if (!payload.intent) return false;
+        if (payload.entities.length
+            && payload.entities.some(e => !e.entity || !e.entityValue || e.entityValue.trim() === '')) return false;
+        return true;
+    };
+
     return (
         <>
             <Modal
@@ -26,8 +33,11 @@ const UserUtterancePopupContent = (props) => {
                     <Button
                         content='Save'
                         color='green'
+                        disabled={!payloadValid()}
                         onClick={(e) => {
-                            e.preventDefault(); setModalOpen(false); onCreateFromPayload(payload);
+                            e.preventDefault();
+                            setModalOpen(false);
+                            onCreateFromPayload(payload);
                         }}
                     />
                     <Button
