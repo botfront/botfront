@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select, boolean } from '@storybook/addon-knobs';
 import AddStoryLine from '../imports/ui/components/stories/common/AddStoryLine';
-import Context from '../imports/ui/components/stories/common/Context';
+import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 
 const noSlots = [];
 
@@ -69,7 +69,7 @@ const alertPayload = pl => alert(`
 storiesOf('AddStoryLine', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
-        <Context.Provider
+        <ConversationOptionsContext.Provider
             value={{
                 slots: select('Available slots', selection, noSlots),
                 responses,
@@ -78,7 +78,7 @@ storiesOf('AddStoryLine', module)
             }}
         >
             {story()}
-        </Context.Provider>
+        </ConversationOptionsContext.Provider>
     ))
     .add('default', () => (
         <AddStoryLine

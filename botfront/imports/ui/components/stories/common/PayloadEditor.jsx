@@ -5,10 +5,10 @@ import IntentDropdown from '../../nlu/common/IntentDropdown';
 import EntityDropdown from '../../nlu/common/EntityDropdown';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import DashedButton from './DashedButton';
-import Context from './Context';
+import { ConversationOptionsContext } from '../../utils/Context';
 
 const PayloadEditor = (props) => {
-    const { intents: availableIntents, entities: availableEntities } = useContext(Context);
+    const { intents: availableIntents, entities: availableEntities } = useContext(ConversationOptionsContext);
     const { value: { intent, entities }, onChange } = props;
 
     return (

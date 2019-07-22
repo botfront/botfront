@@ -5,13 +5,13 @@ import {
 } from 'semantic-ui-react';
 import { Link } from 'react-router';
 import { groupBy } from 'lodash';
-import Context from './Context';
+import { ConversationOptionsContext } from '../../utils/Context';
 
 const SlotPopupContent = (props) => {
     const {
         value: active, onSelect, trigger,
     } = props;
-    const { slots, projectId } = useContext(Context);
+    const { slots, projectId } = useContext(ConversationOptionsContext);
 
     if (!slots.length) {
         return (

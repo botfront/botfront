@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import PayloadEditor from '../imports/ui/components/stories/common/PayloadEditor';
-import Context from '../imports/ui/components/stories/common/Context';
+import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 
 const intents = [
     { text: 'intent1', value: 'intent1' },
@@ -45,11 +45,11 @@ const PayloadEditorWrapped = (props) => {
 
 storiesOf('PayloadEditor', module)
     .addDecorator(story => (
-        <Context.Provider
+        <ConversationOptionsContext.Provider
             value={{ intents, entities }}
         >
             {story()}
-        </Context.Provider>
+        </ConversationOptionsContext.Provider>
     ))
     .add('noVal', () => (
         <PayloadEditorWrapped

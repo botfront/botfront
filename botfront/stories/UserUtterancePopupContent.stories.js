@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs } from '@storybook/addon-knobs';
-import Context from '../imports/ui/components/stories/common/Context';
+import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 import UserUtterancePopupContent from '../imports/ui/components/stories/common/UserUtterancePopupContent';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
 
@@ -31,9 +31,9 @@ const trigger = <DashedButton color='blue'>User says:</DashedButton>;
 storiesOf('UserUtterancePopupContent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
-        <Context.Provider value={{ intents, entities }}>
+        <ConversationOptionsContext.Provider value={{ intents, entities }}>
             {story()}
-        </Context.Provider>
+        </ConversationOptionsContext.Provider>
     ))
     .add('default', () => (
         <UserUtterancePopupContent

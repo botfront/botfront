@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select } from '@storybook/addon-knobs';
-import Context from '../imports/ui/components/stories/common/Context';
+import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 import SlotPopupContent from '../imports/ui/components/stories/common/SlotPopupContent';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
 
@@ -40,13 +40,13 @@ const trigger = <DashedButton color='orange'>Slot</DashedButton>;
 storiesOf('SlotPopupContent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
-        <Context.Provider
+        <ConversationOptionsContext.Provider
             value={{
                 slots: select('Available slots', selection, noSlots),
             }}
         >
             {story()}
-        </Context.Provider>
+        </ConversationOptionsContext.Provider>
     ))
     .add('default', () => (
         <SlotPopupContent
