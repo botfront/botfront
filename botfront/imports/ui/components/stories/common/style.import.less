@@ -1,3 +1,8 @@
+.story-visual-editor {
+    display: flex;
+    flex-direction: column;
+}
+
 .ui.search {
     .prompt {
         border-radius: 0.28571429rem;
@@ -83,17 +88,36 @@ div.add-entity-wrap {
 .bot-responses-modal.content button {
     cursor: pointer;
 .utterance-container {
-    position: relative;
+    display: flex;
     min-height: 2.5em;
+    justify-content: space-between;
     width: 80%;
-    padding: 2px;
+    padding: 0.2em;
     border: 1px solid transparent;
     border-radius: 0.28571429rem;
+    transition: 0.2s;
 
     .inner {
         display: inline-block;
         line-height: 1;
-        width: calc(100% - 3px);
+        width: 100%;
+        margin: 0 0.4em 0 0;
+    }
+    .floating-icon-button {
+        width: 0;
+        opacity: 0;
+        transition: 0.2s;
+    }
+}
+
+.utterance-container:hover {
+    width: ~"calc(80% + 16px)";
+    .viewOnHover {
+        visibility: visible;
+    }
+    .floating-icon-button {
+        width: 16px;
+        opacity: 1;
     }
 }
 
@@ -103,19 +127,6 @@ div.add-entity-wrap {
 
 .utterance-container[agent="user"] {
     background: rgba(0, 0, 0, 0.08);
-}
-
-.utterance-container[mode="view"]:hover {
-    border: 1px solid @blue;
-    .viewOnHover.edit {
-        visibility: visible;
-    }
-}
-
-.utterance-container:not([mode="view"]) {
-    .viewOnHover.trash {
-        visibility: visible;
-    }
 }
 
 .createcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
