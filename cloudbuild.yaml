@@ -1,9 +1,27 @@
 steps:
-- name: node:10.15.1
-  dir: /workspace/botfront
-  entrypoint: npm
-  args: ['install']
-- name: node:10.15.1
-  dir: /workspace/botfront
-  entrypoint: npm
-  args: ['install']
+- name: botfront/docker-compose-builder
+  dir: /worspace/ci
+  args: ['up']
+- name: ubuntu
+  args: ['sleep', '20']
+- name: docker
+  dir: /worspace/ci
+  args:
+  - -v
+  - --network="ci_botfront-network"
+  - /worspace/botfront/botfront:/botfront
+  - -w
+  - /botfront
+  - -e
+  - CYPRESS_RETRIES=3
+  - -e
+  - CYPRESS_MODE="CI_RUN"
+  - -e
+  - CYPRESS_MODE="CI_RUN"
+  - -e
+  - CYPRESS_baseUrl="http://botfront:3000"
+  - --entrypoint
+  - cypress
+  - botfront/cypress-retries:3.4.0
+  - run
+  
