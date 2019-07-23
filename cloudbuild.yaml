@@ -4,7 +4,7 @@ steps:
   args: ['up', '-d']
 - name: ubuntu
   args: ['sleep', '20']
-- name: docker
+- name: gcr.io/cloud-builders/docker
   dir: ci/
   args:
   - -v
@@ -14,8 +14,6 @@ steps:
   - /botfront
   - -e
   - CYPRESS_RETRIES=3
-  - -e
-  - CYPRESS_MODE="CI_RUN"
   - -e
   - CYPRESS_MODE="CI_RUN"
   - -e
