@@ -6,7 +6,7 @@ import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 
 const UtteranceContainer = (props) => {
     const {
-        agent, value, onInputUserUtterance, onInputBotResponse, onDelete, onAbort,
+        value, onInput, onDelete, onAbort,
         onChange,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
@@ -19,29 +19,21 @@ const UtteranceContainer = (props) => {
         if (mode === 'input') {
             return (
                 <UtteranceInput
-                    placeholder={agent === 'bot' ? 'Bot says...' : 'User says...'}
+                    placeholder='User says...'
                     fluid
                     value={input}
                     onChange={u => setInput(u)}
-                    onValidate={() => {
-                        if (agent === 'bot') onInputBotResponse(input);
-                        else onInputUserUtterance(input);
-                    }}
-                />
-            );
-        }
-        if (agent === 'user') {
-            return (
-                <UserUtteranceViewer
-                    value={value}
-                    allowEditing
-                    size='mini'
-                    onChange={v => onChange(v)}
+                    onValidate={() => onInput(input)}
                 />
             );
         }
         return (
-            <div>{`Bot response ${mode}`}</div>
+            <UserUtteranceViewer
+                value={value}
+                allowEditing
+                size='mini'
+                onChange={v => onChange(v)}
+            />
         );
     };
 
@@ -49,7 +41,7 @@ const UtteranceContainer = (props) => {
         <div
             className='utterance-container'
             mode={mode}
-            agent={agent}
+            agent='user'
         >
             <div className='inner'>
                 {render()}
@@ -66,10 +58,8 @@ const UtteranceContainer = (props) => {
 };
 
 UtteranceContainer.propTypes = {
-    agent: PropTypes.oneOf(['bot', 'user']).isRequired,
     value: PropTypes.object,
-    onInputUserUtterance: PropTypes.func.isRequired,
-    onInputBotResponse: PropTypes.func.isRequired,
+    onInput: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
