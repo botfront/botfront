@@ -1,11 +1,11 @@
 steps:
-- name: botfront/docker-compose-builder
-  dir: /worspace/ci
+- name: gcr.io/$PROJECT_ID/docker-compose
+  dir: ci/
   args: ['up']
 - name: ubuntu
   args: ['sleep', '20']
 - name: docker
-  dir: /worspace/ci
+  dir: ci/
   args:
   - -v
   - --network="ci_botfront-network"
