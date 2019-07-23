@@ -8,8 +8,8 @@ steps:
   dir: ci/
   args:
   - -v
-  - --network="ci_botfront-network"
   - /worspace/botfront/botfront:/botfront
+  - --network="ci_botfront-network"
   - -w
   - /botfront
   - -e
