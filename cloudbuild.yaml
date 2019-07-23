@@ -1,7 +1,7 @@
 steps:
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: ci/
-  args: ['up']
+  args: ['up', '-d']
 - name: ubuntu
   args: ['sleep', '20']
 - name: docker
