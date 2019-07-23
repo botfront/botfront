@@ -12,14 +12,26 @@ function UserUtteranceViewer({
     const textObject = {}; // An object with start, end and value of each word in the text
     const entitiesStart = entities.map(entity => entity.start);
 
-    function handleEntityChange(newValue, entity) {
-        const newEntities = entities.map((e) => {
-            if (entity.start === e.start && entity.end === e.end) {
-                return { ...e, entity: newValue };
-            }
-            return e;
+    function handleEntityChange(newValue, entityIndex) {
+        return onChange({
+            ...value,
+            entities: entities.map((e, index) => {
+                if (entityIndex === index) {
+                    return { ...e, entity: newValue };
+                }
+                return e;
+            }),
         });
-        return onChange({ ...value, entities: newEntities });
+    }
+
+    function handleEntityDeletion(index) {
+        onChange({
+            ...value,
+            entities: [
+                ...value.entities.slice(0, index),
+                ...value.entities.slice(index + 1),
+            ],
+        });
     }
 
     // Creating textObject
@@ -39,35 +51,27 @@ function UserUtteranceViewer({
                             endChar,
                         ];
                     }
-                    
+
                     char = endChar;
                     break;
                 }
             }
         }
-    
+
         // Creating displayArray from textObject and entities array.
         Object.keys(textObject).forEach((entry) => {
             if (entitiesStart.includes(parseInt(entry, 10))) {
-                entities.forEach((entity) => {
-                    // eslint-disable-next-line eqeqeq
-                    if (entity.start == entry) {
+                entities.forEach((entity, index) => {
+                    // eslint-disable-next-line
+                    if (entity.value === textObject[entry][0] && entity.start == entry) {
                         displayArray.push(
                             <Entity
                                 value={entity}
                                 size={size}
                                 allowEditing={allowEditing}
                                 deletable={allowEditing}
-                                onChange={newValue => handleEntityChange(newValue, entity)}
-                                onDelete={() => onChange({
-                                    ...value,
-                                    entities: [
-                                        ...value.entities.filter(
-                                            e => e.value !== textObject[entry][0],
-                                        ),
-                                    ],
-                                })
-                                }
+                                onChange={newValue => handleEntityChange(newValue, index)}
+                                onDelete={() => handleEntityDeletion(index)}
                             />,
                         );
                     }
@@ -77,18 +81,20 @@ function UserUtteranceViewer({
             }
         });
     } else {
-        entities.forEach((entity) => {
+        entities.forEach((entity, index) => {
             displayArray.push(
                 <Entity
                     value={entity}
                     size={size}
                     allowEditing={allowEditing}
                     deletable={allowEditing}
+                    onDelete={() => handleEntityDeletion(index)}
+                    onChange={newValue => handleEntityChange(newValue, index)}
                 />,
             );
         });
     }
-    
+
     return (
         <div>
             {displayArray}
