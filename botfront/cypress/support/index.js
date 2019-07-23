@@ -88,23 +88,23 @@ Cypress.Commands.add('MeteorCall', (method, args) => {
     );
 });
 
-Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, description) => {
-    let modelId = '';
-    cy.createNLUModelProgramatically(projectId, name, language, description)
-        .then((result) => {
-            modelId = result;
-            cy.fixture('bf_project_id.txt').then((id) => {
-                cy.visit(`/project/${id}/nlu/model/${modelId}`);
-            });
-            cy.get('.nlu-menu-settings').click();
-            cy.contains('Import').click();
-            cy.fixture('nlu_import.json', 'utf8').then((content) => {
-                cy.get('.file-dropzone').upload(content, 'data.json');
-            });
+// Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, description) => {
+//     let modelId = '';
+//     cy.createNLUModelProgramatically(projectId, name, language, description)
+//         .then((result) => {
+//             modelId = result;
+//             cy.fixture('bf_project_id.txt').then((id) => {
+//                 cy.visit(`/project/${id}/nlu/model/${modelId}`);
+//             });
+//             cy.get('.nlu-menu-settings').click();
+//             cy.contains('Import').click();
+//             cy.fixture('nlu_import.json', 'utf8').then((content) => {
+//                 cy.get('.file-dropzone').upload(content, 'data.json');
+//             });
         
-            cy.contains('Import Training Data').click();
-        });
-});
+//             cy.contains('Import Training Data').click();
+//         });
+// });
 
 Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.visit(`/project/${projectId}/nlu/models`);

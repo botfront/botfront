@@ -1,4 +1,8 @@
 steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",
+          "-t", "botfront/botfront:branch-$BRANCH_NAME",
+          "."]
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: ci/
   args: ['up', '--abort-on-container-exit', '--exit-code-from', 'e2e']

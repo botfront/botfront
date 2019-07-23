@@ -11,7 +11,9 @@ RUN echo "whoami: $(whoami)"
 RUN npm config -g set user $(whoami)
 RUN npm install -g "cypress@${CYPRESS_VERSION}"
 RUN npm install -g cypress-plugin-retries
+RUN npm install -g js-yaml
 RUN npm link cypress-plugin-retries
+RUN npm link js-yaml
 RUN cypress verify
 # Cypress cache and installed version
 RUN cypress cache path

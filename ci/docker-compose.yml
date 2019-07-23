@@ -13,7 +13,6 @@ services:
       - botfront
     environment:
     - CYPRESS_RETRIES=2
-    - CYPRESS_VIDEO=true
     - BOTFRONT_HOST=botfront:3000
     - CYPRESS_baseUrl=http://botfront:3000
 
