@@ -20,7 +20,7 @@ const AddStoryLine = (props) => {
         onCreateUtteranceFromPayload,
     } = props;
     return (
-        <div>
+        <div className='add-story-line'>
             { userUtterance && (
                 <UserUtterancePopupContent
                     trigger={<DashedButton color='blue'>User says:</DashedButton>}
@@ -33,6 +33,7 @@ const AddStoryLine = (props) => {
                     onSelect={r => onSelectResponse(r)}
                     onCreate={r => onCreateResponse(r)}
                     noButtonResponse={noButtonResponse}
+                    limitedSelection
                     trigger={<DashedButton color='green'>Bot Response</DashedButton>}
                 />
             )}
@@ -40,7 +41,6 @@ const AddStoryLine = (props) => {
                 <ActionPopupContent
                     onSelect={a => onSelectAction(a)}
                     trigger={<DashedButton color='pink'>Action</DashedButton>}
-                    style={{ paddingRight: '3px' }}
                 />
             )}
             { slot && (

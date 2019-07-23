@@ -32,7 +32,7 @@ const SlotPopupContent = (props) => {
 
     return (
         <Dropdown trigger={trigger} className='dropdown-button-trigger'>
-            <Dropdown.Menu style={{ top: 'calc(100% + 5px)' }}>
+            <Dropdown.Menu className='first-column'>
                 <Dropdown.Header>Select a slot</Dropdown.Header>
                 { cats.map(c => (
                     <>
@@ -46,7 +46,7 @@ const SlotPopupContent = (props) => {
                                 fluid
                             >
                                 <Dropdown.Menu
-                                    style={{ left: 'calc(100% + 23px)' }}
+                                    className='second-column'
                                 >
                                     { slotsByCat[c].map(s => (
                                         <>

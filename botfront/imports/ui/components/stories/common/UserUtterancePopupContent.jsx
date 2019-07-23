@@ -49,7 +49,7 @@ const UserUtterancePopupContent = (props) => {
                 </Modal.Actions>
             </Modal>
             <Dropdown trigger={trigger} className='dropdown-button-trigger'>
-                <Dropdown.Menu style={{ top: 'calc(100% + 5px)' }}>
+                <Dropdown.Menu className='first-column'>
                     <Dropdown.Item onClick={() => setModalOpen(true)}>From payload</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreateFromInput()}>From input</Dropdown.Item>
                 </Dropdown.Menu>

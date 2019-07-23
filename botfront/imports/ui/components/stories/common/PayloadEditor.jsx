@@ -14,8 +14,8 @@ const PayloadEditor = (props) => {
     return (
         <div>
             <h4>Payload</h4>
-            <Grid columns={2}>
-                <Grid.Row style={{ paddingBottom: '0' }}>
+            <Grid columns={2} className='story-payload-editor'>
+                <Grid.Row>
                     <Grid.Column>
                         <IntentDropdown
                             options={availableIntents}
@@ -27,7 +27,7 @@ const PayloadEditor = (props) => {
                     </Grid.Column>
                 </Grid.Row>
                 { entities.map((entity, i) => (
-                    <Grid.Row style={{ paddingBottom: '0' }} className='hoverTarget'>
+                    <Grid.Row className='hoverTarget'>
                         <Grid.Column>
                             <EntityDropdown
                                 key={`entityfield-for-${entity.entity}`}
@@ -57,11 +57,9 @@ const PayloadEditor = (props) => {
                                     ];
                                     onChange({ intent, entities: newEnts });
                                 }}
-                                style={{ width: 'calc(100% - 32px)' }}
                             />
                             <FloatingIconButton
                                 icon='trash'
-                                style={{ lineHeight: '2.5em' }}
                                 onClick={() => {
                                     const newEnts = [
                                         ...entities.slice(0, i),
@@ -76,7 +74,7 @@ const PayloadEditor = (props) => {
             </Grid>
             { availableEntities.length > entities.length && entities.every(e => e.entityValue && e.entityValue.trim() !== '')
                 ? (
-                    <div style={{ paddingTop: '2em' }}>
+                    <div className='add-entity-wrap'>
                         <DashedButton
                             color='blue'
                             size='mini'

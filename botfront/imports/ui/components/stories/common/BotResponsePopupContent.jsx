@@ -20,11 +20,10 @@ const BotResponsePopupContent = (props) => {
                 onClose={() => setModalOpen(false)}
             >
                 <Modal.Header>Select from existing</Modal.Header>
-                <Modal.Content>
+                <Modal.Content className='bot-responses-modal'>
                     { responses.map(r => (
                         <button
                             type='button'
-                            style={{ cursor: 'pointer' }}
                             onClick={(e) => { e.preventDefault(); setModalOpen(false); onSelect(r); }}
                             key={r.name}
                         >
@@ -34,7 +33,7 @@ const BotResponsePopupContent = (props) => {
                 </Modal.Content>
             </Modal>
             <Dropdown trigger={trigger} className='dropdown-button-trigger'>
-                <Dropdown.Menu style={{ top: 'calc(100% + 5px)' }}>
+                <Dropdown.Menu className='first-column'>
                     <Dropdown.Header>Select from existing</Dropdown.Header>
                     <Dropdown.Item>
                         <Search fluid placeholder='Search responses...' onClick={() => setModalOpen(true)} />

@@ -27,7 +27,6 @@
     min-height: 1em;
     border: 1.5px dotted;
     vertical-align: baseline;
-    font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     margin: 0em 0.75em 0em 0em;
     padding: 0.78571429em 1.5em 0.78571429em;
     text-transform: none;
@@ -48,6 +47,33 @@
     font-size: 0.78571429em;
     font-weight: bold;
     text-align: left;
+}
+
+.dropdown-button-trigger .menu.transition.visible.first-column {
+    top: ~"calc(100% + 5px)";
+    .second-column {
+        left: ~"calc(100% + 23px)";
+    }
+}
+
+.story-payload-editor.ui.grid>.row {
+    padding-bottom: 0;
+    .column {
+        div.ui.input {
+            width: ~"calc(100% - 32px)";
+        }
+        .floating-icon-button {
+            line-height: 2.5em;
+        }
+    }
+}
+
+div.add-entity-wrap {
+    padding-top: 2em;
+}
+
+.bot-responses-modal.content button {
+    cursor: pointer;
 }
 
 .createcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
