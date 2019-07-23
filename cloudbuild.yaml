@@ -1,25 +1,5 @@
 steps:
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: ci/
-  args: ['up', '-d']
-- name: ubuntu
-  args: ['sleep', '20']
-- name: gcr.io/cloud-builders/docker
-  dir: ci/
-  args:
-  - -v
-  - /worspace/botfront/botfront:/botfront
-  - --network="ci_botfront-network"
-  - -w
-  - /botfront
-  - -e
-  - CYPRESS_RETRIES=3
-  - -e
-  - CYPRESS_MODE="CI_RUN"
-  - -e
-  - CYPRESS_baseUrl="http://botfront:3000"
-  - --entrypoint
-  - cypress
-  - botfront/cypress-retries:3.4.0
-  - run
+  args: ['up', '--abort-on-container-exit', '--exit-code-from', 'e2e']
   
