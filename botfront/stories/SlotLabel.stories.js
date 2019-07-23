@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select } from '@storybook/addon-knobs';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
-import SlotPopupContent from '../imports/ui/components/stories/common/SlotPopupContent';
-import DashedButton from '../imports/ui/components/stories/common/DashedButton';
+import SlotLabel from '../imports/ui/components/stories/SlotLabel';
 
 const noSlots = [];
 
@@ -17,7 +16,7 @@ const selectionTwo = [
     { name: 'listSlot1', type: 'list' }, { name: 'listSlot2', type: 'list' }, { name: 'listSlot3', type: 'list' },
 ];
 
-export const selectionThree = [
+const selectionThree = [
     ...selectionTwo,
     { name: 'boolSlot1', type: 'bool' }, { name: 'boolSlot2', type: 'bool' }, { name: 'boolSlot3', type: 'bool' },
 ];
@@ -32,9 +31,19 @@ const selected = {
     textSlot3: { name: 'textSlot3', type: 'text' },
 };
 
-const trigger = <DashedButton color='orange'>Slot</DashedButton>;
+function SlotLabelWrapped(props) {
+    // Here the user of the component needs to paas the initialValue of slot for the slotValue
+    const [defaultAction, setActionName] = useState({ type: 'text', name: 'textSlot1', slotValue: 'null' });
+    return (
+        <SlotLabel
+            {...props}
+            value={defaultAction}
+            onChange={setActionName}
+        />
+    );
+}
 
-storiesOf('SlotPopupContent', module)
+storiesOf('Slot Label', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
         <ConversationOptionsContext.Provider
@@ -46,10 +55,5 @@ storiesOf('SlotPopupContent', module)
         </ConversationOptionsContext.Provider>
     ))
     .add('default', () => (
-        <SlotPopupContent
-            value={select('Selected slot', selected, null)}
-            // eslint-disable-next-line no-alert
-            onSelect={slot => alert(`${slot.name} & ${slot.slotValue}!!`)}
-            trigger={trigger}
-        />
+        <SlotLabelWrapped size={select('size', ['mini', 'tiny'])} value={select('Selected slot', selected, null)}/>
     ));

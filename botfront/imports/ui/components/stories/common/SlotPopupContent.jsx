@@ -11,8 +11,8 @@ const SlotPopupContent = (props) => {
     const {
         value: active, onSelect, trigger,
     } = props;
-    const { slots, projectId } = useContext(ConversationOptionsContext);
-
+    // Context API should provide the categories
+    const { slots, projectId, categories = ['category1', 'category2'] } = useContext(ConversationOptionsContext);
     if (!slots.length) {
         return (
             <Popup trigger={trigger} wide on='click'>
@@ -26,9 +26,16 @@ const SlotPopupContent = (props) => {
         );
     }
 
-    const { name: activeName, type: activeType } = active || { name: null, type: null };
+    const { name: activeName, type: activeType, slotValue } = active || { name: null, type: null, slotValue: null };
     const slotsByCat = groupBy(slots, s => s.type);
     const cats = Object.keys(slotsByCat);
+
+    function getSlotValue(type) {
+        if (type === 'bool') return [true, false];
+        if (type === 'text') return ['set', 'null'];
+        if (type === 'list') return ['empty', 'not-empty'];
+        return categories;
+    }
 
     return (
         <Dropdown trigger={trigger} className='dropdown-button-trigger'>
@@ -52,11 +59,32 @@ const SlotPopupContent = (props) => {
                                         <>
                                             <Dropdown.Divider />
                                             <Dropdown.Item
-                                                onClick={() => onSelect(s)}
                                                 active={activeName === s.name}
                                                 key={s.name}
                                             >
-                                                {s.name}
+                                                <Dropdown
+                                                    text={s.name}
+                                                    key={`slotcat-${s}`}
+                                                    fluid
+                                                >
+                                                    <Dropdown.Menu
+                                                        className='third-column'
+                                                    >
+                                                        { getSlotValue(c).map(content => (
+                                                            <>
+                                                                <Dropdown.Divider />
+                                                                <Dropdown.Item
+                                                                    onClick={() => onSelect({ ...s, slotValue: content })}
+                                                                    active={slotValue === content}
+                                                                    key={s.slotValue}
+                                                                    className='color-column'
+                                                                >
+                                                                    {content.toString()}
+                                                                </Dropdown.Item>
+                                                            </>
+                                                        )) }
+                                                    </Dropdown.Menu>
+                                                </Dropdown>
                                             </Dropdown.Item>
                                         </>
                                     )) }

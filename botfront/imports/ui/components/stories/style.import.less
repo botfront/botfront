@@ -192,6 +192,7 @@
   border-width: 1px;
   border-radius: 4px;
   position: relative;
+  line-height: 1;
   top: 0.09rem;
   margin: 0px 3px 0px 3px; 
   .label-context {
@@ -229,6 +230,10 @@
     color: black;
     font-size: @tiny;
   }
+
+  .slot-content {
+    color: #2185d0;
+  }
 }
 
 .label-container.action {
@@ -249,3 +254,23 @@
     background-color: @action-hover;
   }
 }
+
+.label-container.slot {
+  border-color: @slot-color; 
+  .mini-label-text.slot {
+    background-color: @slot-color;
+  }
+  .tiny-label-text.slot {
+    background-color: @slot-color;
+  }
+}
+
+.label-container.slot:hover {
+  .mini-label-text {
+    background-color: @slot-hover;
+  }
+  .tiny-label-text {
+    background-color: @slot-hover;
+  }
+}
+
