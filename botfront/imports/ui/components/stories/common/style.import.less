@@ -1,0 +1,104 @@
+.ui.search {
+    .prompt {
+        border-radius: 0.28571429rem;
+    }
+}
+
+.dropdown.dropdown-button-trigger .menu .header {
+    margin: 0.5em 0;
+}
+.dropdown.dropdown-button-trigger .menu .divider {
+    margin: 0;
+}
+
+.dropdown-button-trigger > i {
+    display: none;
+}
+
+.hoverTarget:hover {
+    .viewOnHover {
+        visibility: visible;
+    }
+}
+
+.dashed {
+    cursor: pointer;
+    display: inline-block;
+    min-height: 1em;
+    border: 1.5px dotted;
+    vertical-align: baseline;
+    margin: 0em 0.75em 0em 0em;
+    padding: 0.78571429em 1.5em 0.78571429em;
+    text-transform: none;
+    line-height: 1em;
+    font-style: normal;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 0.28571429rem;
+    font-weight: normal;
+}
+
+.dashed:focus {
+    outline: none;
+}
+
+.all-caps-header {
+    text-transform: uppercase;
+    font-size: 0.78571429em;
+    font-weight: bold;
+    text-align: left;
+}
+
+.dropdown-button-trigger .menu.transition.visible.first-column {
+    top: ~"calc(100% + 5px)";
+    .second-column {
+        left: ~"calc(100% + 23px)";
+    }
+}
+
+.story-payload-editor.ui.grid>.row {
+    padding-bottom: 0;
+    .column {
+        div.ui.input {
+            width: ~"calc(100% - 32px)";
+        }
+        .floating-icon-button {
+            line-height: 2.5em;
+        }
+    }
+}
+
+div.add-entity-wrap {
+    padding-top: 2em;
+}
+
+.bot-responses-modal.content button {
+    cursor: pointer;
+}
+
+.createcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
+    @name: extract(extract(@basic-colors, @i), 1);
+    @color: extract(extract(@basic-colors, @i), 2);
+    .dashed.@{name} {
+        color: @color;
+        border-color: @color;
+        background-color: screen(@color, #eeeeee);
+    }
+    .dashed.@{name}:active {
+        background-color: screen(@color, #cccccc);
+    }
+    .createcolorclasses(@i + 1);
+}
+
+.createcolorclasses();
+
+.createsizeclasses(@i:1) when(@i <= length(@text-sizes)) {
+    @name: extract(extract(@text-sizes, @i), 1);
+    @size: extract(extract(@text-sizes, @i), 2);
+    .dashed.@{name} {
+        font-size: @size;
+    }
+    .createsizeclasses(@i + 1);
+}
+
+.createsizeclasses();
