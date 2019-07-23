@@ -14,11 +14,9 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
 import './commands';
-import 'cypress-plugin-retries';
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+
+require('cypress-plugin-retries');
 
 Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
     if (visit) cy.visit('/');
