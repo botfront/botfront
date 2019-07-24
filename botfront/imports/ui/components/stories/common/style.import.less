@@ -11,9 +11,8 @@
     flex-direction: column;
     border: 1px solid transparent;
     border-radius: 0.28571429rem;
-    margin: 0.2em 0;
     padding: 0.2em;
-    transition: 0.2s;
+    transition: 0.1s;
 
     .flex-right {
         display: inline-flex;
@@ -25,7 +24,7 @@
 
         .viewOnHover {
             opacity: 0;
-            transition: 0.2s;
+            transition: 0.1s;
         }
 
         .response-name {
@@ -35,7 +34,7 @@
             text-align: right;
             opacity: 0;
             visibility: hidden;
-            transition: 0.2s;
+            transition: 0.1s;
         }
     }
 }
@@ -55,9 +54,41 @@
     }
 }
 
-.floating-icon-button[data-cy="ellipsis horizontal"]:hover+.responses-container {
+.floating-icon-button[data-cy="ellipsis horizontal"]:hover+.responses-container::before {
+    content: '';
+    display: block;
     border-top: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 0;
+    width: 100%;
+}
+
+.responses-container+.floating-icon-button[data-cy="ellipsis horizontal"]:hover {
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.floating-icon-button[data-cy="ellipsis horizontal"] {
+    width: 200px;
+    height: 5px;
+    transition: 0.1s;
+    transition-delay: 0.2s;
+    .viewOnHover.ellipsis {
+        text-align: left;
+        width: 200px;
+        opacity: 0;
+        transition-delay: 0.4s;
+        outline: none;
+    }
+    .viewOnHover.ellipsis::before {
+        left: 30px;
+        position: relative;
+    }
+}
+.floating-icon-button[data-cy="ellipsis horizontal"]:hover {
+    height: 20px;
+    width: 100%;
+    .viewOnHover.ellipsis {
+        opacity: 1;
+        visibility: visible;
+    }
 }
 
 .ui.search {
@@ -104,6 +135,11 @@
     outline: none;
 }
 
+.add-story-line {
+    margin: 0.8em 0;
+    outline: none;
+}
+
 .all-caps-header {
     text-transform: uppercase;
     font-size: 0.78571429em;
@@ -130,25 +166,6 @@
     }
 }
 
-.floating-icon-button[data-cy="ellipsis horizontal"] {
-    width: 200px;
-    height: 5px;
-    padding-left: 30px;
-    transition: 0.2s;
-    transition-delay: 0.2s;
-    .viewOnHover.ellipsis {
-        opacity: 0;
-        transition-delay: 0.5s;
-    }
-}
-.floating-icon-button[data-cy="ellipsis horizontal"]:hover {
-    height: 20px;
-    .viewOnHover.ellipsis {
-        opacity: 1;
-        visibility: visible;
-    }
-}
-
 div.add-entity-wrap {
     padding-top: 2em;
 }
@@ -159,7 +176,7 @@ div.add-entity-wrap {
 .utterance-container {
     display: inline-flex;
     min-height: 2em;
-    margin: 0.2em 0;
+    margin: 0.0125em 0;
     justify-content: space-between;
     width: max-content;
     max-width: 80%;
@@ -183,7 +200,7 @@ div.add-entity-wrap {
         width: 0;
         opacity: 0;
         transition: 0s;
-        transition: opacity 0.2s;
+        transition: opacity 0.1s;
     }
 }
 

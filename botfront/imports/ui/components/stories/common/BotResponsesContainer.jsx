@@ -1,28 +1,29 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
+import BotResponsePopupContent from './BotResponsePopupContent';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsesContainer = (props) => {
-    const { name, onDeleteResponse, onDeleteAllResponses } = props;
+    const {
+        name, onDeleteResponse, onDeleteAllResponses,
+    } = props;
     const { responses } = useContext(ConversationOptionsContext);
-    const sequence = responses[name];
+    const sequence = responses.filter(r => r.name === name)[0].data;
 
-    const renderAddLine = (i) => {
-        const options = ['yo'];
-        if (!options.length) return null;
-        return (
-            <FloatingIconButton icon='ellipsis horizontal' />
-        );
-    };
+    const renderAddLine = () => (
+        <FloatingIconButton
+            icon='ellipsis horizontal'
+            size='medium'
+        />
+    );
 
     const renderResponse = (r, i, a) => (
-        <>
+        <React.Fragment key={i + r}>
             <div className='flex-right'>
                 <div
                     className='utterance-container'
                     agent='bot'
-                    key={i + r}
                 >
                     <div className='inner'>
                         { r }
@@ -45,10 +46,10 @@ const BotResponsesContainer = (props) => {
                 )}
             </div>
             {renderAddLine(i)}
-        </>
+        </React.Fragment>
     );
 
-    if (!responses[name].length) onDeleteAllResponses();
+    if (sequence && !sequence.length) onDeleteAllResponses();
 
     return (
         <div
