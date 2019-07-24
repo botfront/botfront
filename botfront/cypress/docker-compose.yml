@@ -6,14 +6,15 @@ services:
     volumes:
       - ../cypress.json:/app/cypress.json
       - ../cypress:/app/cypress
-      - ../imports:/app/imports
+      - ../imports/lib:/app/imports/lib
+      - ../imports/api:/app/imports/api
     depends_on: 
       - botfront
     env_file:
       - .env.cypress
 
   botfront:
-    image: gcr.io/botfront-project/botfront:e2e
+    image: botfront-local
     container_name: botfront-app
     restart: always
     # volumes:
