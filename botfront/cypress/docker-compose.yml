@@ -1,18 +1,16 @@
 version: '3.7'
 services:
   e2e:
-    image: gcr.io/botfront-project/cypress-runner
+    image: gcr.io/botfront-project/cypress-runner:3.4.0
     volumes:
-      - ./botfront:/app
-      - ./botfront/cypress:/app/cypress
-      - ./botfront/cypress.json:/app/cypress.json
+      - ../:/app
     depends_on: 
       - botfront
     env_file:
       - .env.cypress
 
   botfront:
-    image: 'gcr.io/botfront-project/botfront:e2e'
+    image: gcr.io/botfront-project/botfront:e2e
     container_name: botfront-app
     restart: always
     # volumes:

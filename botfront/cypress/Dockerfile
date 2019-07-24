@@ -2,8 +2,8 @@ FROM cypress/base:10
 WORKDIR /app
 
 # dependencies will be installed only if the package files change
-COPY ./botfront/package.json .
-COPY ./botfront/package-lock.json .
+COPY package.json .
+COPY package-lock.json .
 
 # by setting CI environment variable we switch the Cypress install messages
 # to small "started / finished" and avoid 1000s of lines of progress messages
@@ -15,8 +15,8 @@ RUN npm ci
 # to avoid verifying again when running the tests
 RUN npx cypress verify
 RUN mkdir /scripts
-COPY  ./scripts/wait-for-it.sh /scripts/
+COPY  ./wait-for-it.sh /scripts/
 RUN chmod +x /scripts/wait-for-it.sh 
-
+ENV WAIT_FOR_TIMEOUT=90
 ENTRYPOINT ["/bin/bash"]
-CMD ["-c", "/scripts/wait-for-it.sh $BOTFRONT_HOST -s -t 90 -- npx cypress run"]
+CMD ["-c", "/scripts/wait-for-it.sh $BOTFRONT_HOST -s -t $WAIT_FOR_TIMEOUT -- npx cypress run"]
