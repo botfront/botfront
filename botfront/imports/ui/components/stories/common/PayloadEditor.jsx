@@ -18,7 +18,7 @@ const PayloadEditor = (props) => {
                 <Grid.Row>
                     <Grid.Column>
                         <IntentDropdown
-                            options={availableIntents}
+                            options={availableIntents.map(i => ({ text: i, value: i }))}
                             allowAdditions={false}
                             onChange={(event, { value }) => { onChange({ intent: value, entities }); }}
                             intent={intent}
@@ -31,7 +31,11 @@ const PayloadEditor = (props) => {
                         <Grid.Column>
                             <EntityDropdown
                                 key={`entityfield-for-${entity.entity}`}
-                                options={availableEntities.filter(e => e.entity === entity.entity || !entities.map(f => f.entity).includes(e.entity))}
+                                options={
+                                    availableEntities
+                                        .filter(e => e === entity.entity || !entities.map(f => f.entity).includes(e))
+                                        .map(e => ({ entity: e, value: e }))
+                                }
                                 allowAdditions={false}
                                 onChange={(event, { value }) => {
                                     const newEnts = [
