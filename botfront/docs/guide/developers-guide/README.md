@@ -23,14 +23,14 @@ Meteor comes with its own Node.js and NPM. When installing dependencies, it is b
 
 
 ## Documentation
-- Run the documentation locally: `npm run docs:dev`
-- Build the documentation : `npm run docs:build`
+- Run the documentation locally: `meteor npm run docs:dev`
+- Build the documentation : `meteor npm run docs:build`
 
 The docs are built with [Vuepress](https://vuepress.vuejs.org)
 
 
 ## Running and writing tests
-You can run our integration test suite with `npx cypress run` or interactively with `npx cypress open`
+You can run our integration test suite with `meteor npx cypress run` or interactively with `meteor npx cypress open`
 
 ::: warning Don't run tests if you have valuable data in your DB
 The test suite starts by testing the setup process **and will wipe the database**. 
