@@ -23,8 +23,8 @@ Meteor comes with its own Node.js and NPM. When installing dependencies, it is b
 
 
 ## Documentation
-- Run the documentation locally: `npm run docs:dev`
-- Build the documentation : `npm run docs:build`
+- Run the documentation locally: `meteor npm run docs:dev`
+- Build the documentation : `meteor npm run docs:build`
 
 The docs are built with [Vuepress](https://vuepress.vuejs.org)
 

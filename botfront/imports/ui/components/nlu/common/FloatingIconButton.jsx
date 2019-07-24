@@ -15,6 +15,9 @@ export default function FloatingIconButton(props) {
                 size='small'
                 color='grey'
                 name={icon}
+                // https://stackoverflow.com/questions/42764494/blur-event-relatedtarget-returns-null
+                // this prop allows the icon to become focused
+                tabIndex={0}
                 link
                 className='viewOnHover'
                 onClick={onClick}
