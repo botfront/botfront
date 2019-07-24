@@ -15,8 +15,62 @@ import { createIntroStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
+import { getStories } from '../story/stories.methods';
+import { StoryValidator } from '../../lib/story_validation';
 
 if (Meteor.isServer) {
+    const extractDomainFromStories = (stories) => {
+        let domains = stories.map((story) => {
+            const val = new StoryValidator(story);
+            val.validateStories();
+            return val.extractDomain();
+        });
+        domains = domains.reduce((d1, d2) => ({
+            entities: new Set([...d1.entities, ...d2.entities]),
+            intents: new Set([...d1.intents, ...d2.intents]),
+        }));
+        return {
+            intents: domains.intents,
+            entities: domains.entities,
+        };
+    };
+
+    const getExamplesFromTrainingData = (projectId) => {
+        let intents = [];
+        let entities = [];
+        // Get all the Nlu model ids belonging to the project
+        const { nlu_models: nluModelIds } = Projects.findOne(
+            { _id: projectId },
+            { fields: { nlu_models: 1 } },
+        );
+        const models = NLUModels.find(
+            { _id: { $in: nluModelIds } },
+            { fields: { training_data: 1 } },
+        ).fetch();
+
+        // get commmon examples from the training data
+        let commonExamples = models.map(model => model.training_data.common_examples);
+
+        if (commonExamples.length !== 0) {
+            commonExamples = commonExamples.reduce((acc, x) => acc.concat(x));
+
+            // extract intents from common examples
+            intents = commonExamples.map(example => example.intent);
+
+            // extract entities from common examples
+            entities = commonExamples.map(example => example.entities);
+
+            if (entities.length !== 0) {
+                entities = entities.reduce((acc, x) => acc.concat(x));
+                entities = entities.map(entity => entity.entity);
+            }
+            return {
+                intents: new Set(intents),
+                entities: new Set(entities),
+            };
+        }
+    };
+
     Meteor.methods({
         async 'project.insert'(item) {
             check(item, Object);
@@ -72,7 +126,7 @@ if (Meteor.isServer) {
 
         'project.markTrainingStarted'(projectId) {
             check(projectId, String);
-    
+
             try {
                 return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
             } catch (e) {
@@ -84,7 +138,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(status, String);
             check(error, Match.Optional(String));
-    
+
             try {
                 const set = { training: { status, endTime: new Date() } };
                 if (error) {
@@ -93,6 +147,31 @@ if (Meteor.isServer) {
                 return Projects.update({ _id: projectId }, { $set: set });
             } catch (e) {
                 throw e;
+            }
+        },
+
+        async 'project.getEntitiesAndIntents'(projectId) {
+            check(projectId, String);
+
+            try {
+                const stories = await getStories(projectId);
+                const {
+                    intents: intentSetFromDomain = new Set(),
+                    entities: entitiesSetFromDomain = new Set(),
+                } = stories.length !== 0 ? extractDomainFromStories(stories.map(story => story.story)) : {};
+                const {
+                    intents: intentSetFromTraining,
+                    entities: entitiesSetFromTraining,
+                } = getExamplesFromTrainingData(projectId);
+
+                const intents = Array.from(new Set([...intentSetFromDomain, ...intentSetFromTraining]));
+                const entities = Array.from(new Set([...entitiesSetFromDomain, ...entitiesSetFromTraining]));
+                return {
+                    intents,
+                    entities,
+                };
+            } catch (error) {
+                throw error;
             }
         },
     });

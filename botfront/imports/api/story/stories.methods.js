@@ -18,4 +18,14 @@ Meteor.methods({
         check(story, Object);
         return Stories.remove(story);
     },
+
+    'stories.getStories'(projectId) {
+        check(projectId, String);
+        return Stories.find({ projectId }).fetch();
+    },
 });
+
+export const getStories = async (projectId) => {
+    const result = await Meteor.callWithPromise('stories.getStories', projectId);
+    return result;
+};
