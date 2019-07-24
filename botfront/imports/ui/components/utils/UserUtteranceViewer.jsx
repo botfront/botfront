@@ -10,8 +10,13 @@ function UserUtteranceViewer({
     const textContent = []; // an ordered list of the utterance cut down into text and entities.
     // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
     const sortedEntities = entities
-        .map((entity, index) => ({ ...entity, index }))
-        .sort((a, b) => a.start - b.start);
+        ? entities
+            .map((entity, index) => ({ ...entity, index }))
+            .sort((a, b) => {
+                if (a.start && b.start) return a.start - b.start;
+                return 0;
+            })
+        : [];
 
     // if there is no text we can just get the sorted entities.
     if (!text) {
@@ -26,8 +31,24 @@ function UserUtteranceViewer({
         const currentText = {
             type: 'text',
         };
+
+        const addChar = (index) => {
+            const tempText = currentText.text;
+            currentText.text = tempText
+                ? tempText.concat(text.charAt(index))
+                : text.charAt(index);
+            if (!tempText) {
+                currentText.start = index;
+            }
+        };
+
         for (let i = 0; i < text.length; i += 1) {
-            if (sortedEntities[0].start === i) {
+            if (i === text.length - 1) {
+                addChar(i);
+                textContent.push({ ...currentText });
+                break;
+            }
+            if (sortedEntities[0] && sortedEntities[0].start === i) {
                 i = sortedEntities[0].end - 1;
                 if (currentText.text) {
                     textContent.push({ ...currentText });
@@ -39,20 +60,10 @@ function UserUtteranceViewer({
                 });
                 sortedEntities.shift();
             } else {
-                const tempText = currentText.text;
-                currentText.text = tempText
-                    ? tempText.concat(text.charAt(i))
-                    : text.charAt(i);
-                if (tempText) {
-                    currentText.start = i;
-                }
+                addChar(i);
             }
         }
     }
-
-    // console.log(textContent);
-
-    // return <div>test</div>;
 
     function handleEntityChange(newValue, entityIndex) {
         return onChange({
@@ -87,6 +98,7 @@ function UserUtteranceViewer({
                         <Entity
                             value={element}
                             size={size}
+                            key={element.start}
                             allowEditing={allowEditing}
                             deletable={allowEditing}
                             onDelete={() => handleEntityDeletion(element.index)}
