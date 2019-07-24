@@ -30,7 +30,7 @@ The docs are built with [Vuepress](https://vuepress.vuejs.org)
 
 
 ## Running and writing tests
-You can run our integration test suite with `meteor npx cypress run` or interactively with `meteor npx cypress open`
+You can run our integration test suite with `npx cypress run` or interactively with `npx cypress open`
 
 ::: warning Don't run tests if you have valuable data in your DB
 The test suite starts by testing the setup process **and will wipe the database**. 
