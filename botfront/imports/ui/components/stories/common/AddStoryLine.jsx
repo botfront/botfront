@@ -27,7 +27,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             ref={ref}
             tabIndex={0}
             role='menuitem'
-            onBlur={onBlur}
+            onBlur={e => onBlur(e)}
         >
             { userUtterance && (
                 <UserUtterancePopupContent

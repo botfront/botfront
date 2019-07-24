@@ -114,7 +114,11 @@ class StoryVisualEditor extends React.Component {
                     onCreateResponse={r => alert(`${r}!!`)}
                     onSelectAction={action => alert(`${action}!!`)}
                     onSelectSlot={slot => alert(`${slot.name}!!`)}
-                    onBlur={() => this.setState({ lineInsertIndex: null })}
+                    onBlur={({ target }) => {
+                        if (!this.addStoryCursor.current.contains(target)) {
+                            this.setState({ lineInsertIndex: null });
+                        }
+                    }}
                 />
             );
         }
