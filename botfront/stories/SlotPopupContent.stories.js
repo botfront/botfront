@@ -22,7 +22,7 @@ export const selectionThree = [
     { name: 'boolSlot1', type: 'bool' }, { name: 'boolSlot2', type: 'bool' }, { name: 'boolSlot3', type: 'bool' },
 ];
 
-const selection = {
+export const selection = {
     noSlots, selectionOne, selectionTwo, selectionThree,
 };
 
