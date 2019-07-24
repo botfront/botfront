@@ -13,7 +13,7 @@ services:
       - .env.cypress
 
   botfront:
-    image: gcr.io/botfront-project/botfront:e2e
+    image: bf:latest
     container_name: botfront-app
     restart: always
     # volumes:

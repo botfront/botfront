@@ -7,8 +7,11 @@ steps:
   - --destination=gcr.io/$PROJECT_ID/cypress-runner:3.4.0
   - --cache=true
   - --cache-ttl=24h
-- name: 'gcr.io/cloud-builders/docker'
-  args: [ "build", "-t", "botfront/botfront:e2e", "."]
+- name: 'gcr.io/kaniko-project/executor:latest'
+  args:
+  - --destination=gcr.io/$PROJECT_ID/botfront:e2e
+  - --cache=true
+  - --cache-ttl=12h
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: /workspace/botfront/cypress
   args:
@@ -17,6 +20,3 @@ steps:
     - --exit-code-from
     - e2e
 timeout: 2700s
-images:
-   - gcr.io/$PROJECT_ID/botfront:e2e
-   - gcr.io/$PROJECT_ID/cypress-runner:3.4.0
