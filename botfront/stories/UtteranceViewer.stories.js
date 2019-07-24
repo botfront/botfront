@@ -7,7 +7,7 @@ import { ConversationOptionsContext } from '../imports/ui/components/utils/Conte
 
 function UserUtteranceViewerWrapped(props) {
     const [utterance, setUtterance] = useState({
-        text: 'This is an intent that is an entity',
+        text: 'This is an intent that is an,entity',
         intent: 'intent',
         entities: [
             {
@@ -42,9 +42,7 @@ function UserUtteranceViewerWrapped(props) {
             },
         ],
     });
-    return (
-        <UserUtteranceViewer {...props} value={utterance} onChange={setUtterance} />
-    );
+    return <UserUtteranceViewer {...props} value={utterance} onChange={setUtterance} />;
 }
 
 storiesOf('UserUtteranceViewer', module)
@@ -53,20 +51,7 @@ storiesOf('UserUtteranceViewer', module)
         <ConversationOptionsContext.Provider
             value={{
                 intents: ['Intent 1', 'Intent 2', 'Intent 3'],
-                entities: [
-                    {
-                        start: 9,
-                        end: 15,
-                        value: 'This',
-                        entity: 'entity1',
-                    },
-                    {
-                        start: 16,
-                        end: 20,
-                        value: 'entity',
-                        entity: 'entity4',
-                    },
-                ],
+                entities: ['entity1', 'entity4'],
             }}
         >
             {story()}
@@ -75,11 +60,7 @@ storiesOf('UserUtteranceViewer', module)
     .addDecorator(renderLabel => <Label>{renderLabel()}</Label>)
     .add('with props', () => (
         <UserUtteranceViewerWrapped
-            size={select(
-                'size',
-                ['mini', 'tiny'],
-                'mini',
-            )}
+            size={select('size', ['mini', 'tiny'], 'mini')}
             allowEditing={boolean('allowEditing', true)}
         />
     ));

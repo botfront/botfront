@@ -10,20 +10,7 @@ storiesOf('Entity', module)
     .addDecorator(story => (
         <ConversationOptionsContext.Provider
             value={{
-                entities: [
-                    {
-                        start: 9,
-                        end: 15,
-                        value: 'This',
-                        entity: 'entity1',
-                    },
-                    {
-                        start: 16,
-                        end: 20,
-                        value: 'entity',
-                        entity: 'entity4',
-                    },
-                ],
+                entities: ['entity1', 'entity4'],
             }}
         >
             {story()}
@@ -35,13 +22,12 @@ storiesOf('Entity', module)
             Some random text
             <Entity
                 value={{
-                    start: 16, end: 20, value: 'text', entity: 'entity4',
+                    start: 16,
+                    end: 20,
+                    value: 'text',
+                    entity: 'entity4',
                 }}
-                size={select(
-                    'size',
-                    ['mini', 'tiny'],
-                    'mini',
-                )}
+                size={select('size', ['mini', 'tiny'], 'mini')}
                 allowEditing={boolean('allowEditing', false)}
                 deletable={boolean('deletable', false)}
             />

@@ -17,7 +17,7 @@ function Entity({
             entity={value}
             onAddOrChange={(event, data) => onChange(data.value)}
             onDelete={() => onDelete()}
-            options={entities.map(e => ({ text: e.entity, value: e.entity }))}
+            options={entities.map(e => ({ text: e, value: e }))}
             deletable={deletable}
             length={value.end - value.start}
             trigger={(

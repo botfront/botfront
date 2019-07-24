@@ -6,11 +6,53 @@ import Entity from './EntityLabel';
 function UserUtteranceViewer({
     value, size, onChange, allowEditing,
 }) {
-    // Intent will always be placed at the end
     const { text, intent, entities } = value;
-    const displayArray = [];
-    const textObject = {}; // An object with start, end and value of each word in the text
-    const entitiesStart = entities.map(entity => entity.start);
+    const textContent = []; // an ordered list of the utterance cut down into text and entities.
+    // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
+    const sortedEntities = entities
+        .map((entity, index) => ({ ...entity, index }))
+        .sort((a, b) => a.start - b.start);
+
+    // if there is no text we can just get the sorted entities.
+    if (!text) {
+        sortedEntities.forEach((entity) => {
+            textContent.push({
+                ...entity,
+                type: 'entity',
+            });
+        });
+        // If there is a text, we get text elements and entities, sorted in order of appearance.
+    } else {
+        const currentText = {
+            type: 'text',
+        };
+        for (let i = 0; i < text.length; i += 1) {
+            if (sortedEntities[0].start === i) {
+                i = sortedEntities[0].end - 1;
+                if (currentText.text) {
+                    textContent.push({ ...currentText });
+                    delete currentText.text;
+                }
+                textContent.push({
+                    ...sortedEntities[0],
+                    type: 'entity',
+                });
+                sortedEntities.shift();
+            } else {
+                const tempText = currentText.text;
+                currentText.text = tempText
+                    ? tempText.concat(text.charAt(i))
+                    : text.charAt(i);
+                if (tempText) {
+                    currentText.start = i;
+                }
+            }
+        }
+    }
+
+    // console.log(textContent);
+
+    // return <div>test</div>;
 
     function handleEntityChange(newValue, entityIndex) {
         return onChange({
@@ -34,70 +76,26 @@ function UserUtteranceViewer({
         });
     }
 
-    // Creating textObject
-    if (!!text) {
-        for (let char = 0; char < text.length; char += 1) {
-            const startChar = char;
-            for (let endChar = startChar; endChar < text.length; endChar += 1) {
-                if (text.charAt(endChar) === ' ' || endChar === text.length - 1) {
-                    if (endChar === text.length - 1) {
-                        textObject[startChar] = [
-                            text.substring(startChar, endChar + 1),
-                            endChar + 1,
-                        ];
-                    } else {
-                        textObject[startChar] = [
-                            text.substring(startChar, endChar),
-                            endChar,
-                        ];
-                    }
-
-                    char = endChar;
-                    break;
-                }
-            }
-        }
-
-        // Creating displayArray from textObject and entities array.
-        Object.keys(textObject).forEach((entry) => {
-            if (entitiesStart.includes(parseInt(entry, 10))) {
-                entities.forEach((entity, index) => {
-                    // eslint-disable-next-line
-                    if (entity.value === textObject[entry][0] && entity.start == entry) {
-                        displayArray.push(
-                            <Entity
-                                value={entity}
-                                size={size}
-                                allowEditing={allowEditing}
-                                deletable={allowEditing}
-                                onChange={newValue => handleEntityChange(newValue, index)}
-                                onDelete={() => handleEntityDeletion(index)}
-                            />,
-                        );
-                    }
-                });
-            } else {
-                displayArray.push(`${textObject[entry][0]} `);
-            }
-        });
-    } else {
-        entities.forEach((entity, index) => {
-            displayArray.push(
-                <Entity
-                    value={entity}
-                    size={size}
-                    allowEditing={allowEditing}
-                    deletable={allowEditing}
-                    onDelete={() => handleEntityDeletion(index)}
-                    onChange={newValue => handleEntityChange(newValue, index)}
-                />,
-            );
-        });
-    }
-
     return (
         <div>
-            {displayArray}
+            {textContent.map((element) => {
+                if (element.type === 'text') {
+                    return <span key={element.start}>{element.text}</span>;
+                }
+                if (element.type === 'entity') {
+                    return (
+                        <Entity
+                            value={element}
+                            size={size}
+                            allowEditing={allowEditing}
+                            deletable={allowEditing}
+                            onDelete={() => handleEntityDeletion(element.index)}
+                            onChange={newValue => handleEntityChange(newValue, element.index)
+                            }
+                        />
+                    );
+                }
+            })}
             {intent && (
                 <Intent
                     value={intent}
