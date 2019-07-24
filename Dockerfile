@@ -35,6 +35,7 @@ RUN apk --no-cache --virtual .node-gyp-compilation-dependencies add \
 # Copy in entrypoint
 COPY --from=0 $SCRIPTS_FOLDER $SCRIPTS_FOLDER/
 COPY ./entrypoint.sh $SCRIPTS_FOLDER
+RUN chmod +x $SCRIPTS_FOLDER/entrypoint.sh
 
 # Copy in app bundle
 COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
