@@ -29,7 +29,7 @@ class TrainButton extends React.Component {
             <Button
                 color='blue'
                 icon='grid layout'
-                content='Train Everything'
+                content='Train everything'
                 labelPosition='left'
                 disabled={isTraining(project) || !instance}
                 loading={isTraining(project)}
@@ -44,7 +44,7 @@ class TrainButton extends React.Component {
                     <Button
                         color='yellow'
                         icon='eye'
-                        content='Partial Training'
+                        content='Partial training'
                         labelPosition='left'
                         disabled={isTraining(project) || !instance}
                         loading={isTraining(project)}
