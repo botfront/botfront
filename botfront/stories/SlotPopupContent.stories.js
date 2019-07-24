@@ -24,7 +24,7 @@ export const selectionThree = [
     { name: 'unfeatSlot1', type: 'unfeaturized' }, { name: 'unfeatSlot2', type: 'unfeaturized' }, { name: 'unfeatSlot3', type: 'unfeaturized' },
 ];
 
-const selection = {
+export const selection = {
     noSlots, selectionOne, selectionTwo, selectionThree,
 };
 
