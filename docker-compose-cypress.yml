@@ -1,27 +1,20 @@
-version: '3.0'
+version: '3.7'
 services:
   e2e:
-    image: botfront/cypress-wait-and-retry:3.4.0
-    networks:
-      - botfront-network
-    working_dir: /e2e
-    # command:
-    #   -  "sleep 60 && cypress run"
+    image: gcr.io/botfront-project/cypress-runner
     volumes:
-      - ../botfront/:/e2e
+      - ./botfront:/app
+      - ./botfront/cypress:/app/cypress
+      - ./botfront/cypress.json:/app/cypress.json
     depends_on: 
       - botfront
-    environment:
-    - CYPRESS_RETRIES=2
-    - BOTFRONT_HOST=botfront:3000
-    - CYPRESS_baseUrl=http://botfront:3000
+    env_file:
+      - .env.cypress
 
   botfront:
-    image: 'botfront/botfront:v0.15.1'
+    image: 'gcr.io/botfront-project/botfront:e2e'
     container_name: botfront-app
     restart: always
-    networks:
-      - botfront-network
     # volumes:
     #   - './models/:/app/models'
     ports:
@@ -29,7 +22,7 @@ services:
     depends_on:
       - mongo
     env_file:
-      - .env
+      - .env.cypress
     environment:
       PORT: 3000
   # botfront-api:
@@ -86,15 +79,8 @@ services:
     image: 'mongo:latest'
     container_name: botfront-mongo
     restart: always
-    networks:
-      - botfront-network
-    # volumes:
-    #   - './botfront-db:/data/db'
     ports:
       - '27017:27017'
     env_file:
-      - .env
-networks:
-  botfront-network: {}
-# volumes:
-#   botfront-db: null
+      - .env.cypress
+

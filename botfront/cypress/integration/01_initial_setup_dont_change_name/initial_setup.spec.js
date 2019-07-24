@@ -8,10 +8,7 @@ describe('intial setup', function() {
     });
 
     after(function() {
-        // cy.fixture('bf_project_id.txt').as('bf_project_id');
-        // cy.get('@bf_project_id').then((id) => {
-        cy.deleteProject('bf');
-        // });
+        
     });
 
     it('Should create projects when completing the initial setup', () => {
@@ -61,9 +58,12 @@ describe('intial setup', function() {
         cy.get('[data-cy=email-consent]').click();
 
         cy.wait(5000);
-
+        cy.url().then((url) => {
+            const id = url.match(/project\/(.*?)\/nlu/i)[1];
+            cy.deleteProject(id);
+        });
         // cy.url().then((url) => {
-        //     // This gets the project id
+        // This gets the project id
         //     const id = url.match(/project\/(.*?)\/nlu/i)[1];
         //     cy.writeFile('cypress/fixtures/bf_project_id.txt', id);
         // });
