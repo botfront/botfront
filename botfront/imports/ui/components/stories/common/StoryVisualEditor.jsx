@@ -4,26 +4,69 @@ import { Label } from 'semantic-ui-react';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
+import AddStoryLine from './AddStoryLine';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 class StoryVisualEditor extends React.Component {
+    state = {
+        lineInsertIndex: null,
+    }
+
+    addStoryCursor = React.createRef();
+
+    componentDidUpdate(prevProps, prevState) {
+        const { lineInsertIndex } = this.state;
+        if (lineInsertIndex && lineInsertIndex !== prevState.lineInsertIndex) {
+            this.addStoryCursor.current.focus();
+        }
+    }
+
     handleDeleteLine = (i) => {
         const { story, updateStory } = this.props;
         updateStory([...story.slice(0, i), ...story.slice(i + 1)]);
     }
 
-    handleDeleteResponse = (name, i) => {
+    handleDeleteResponse = (name, j) => {
         const { updateResponses } = this.props;
         const { responses } = this.context;
-        const newResponses = { ...responses };
-        newResponses[name] = [...responses[name].slice(0, i), ...responses[name].slice(i + 1)];
+        const i = responses.map(r => r.name).indexOf(name);
+        const newResponses = [
+            ...responses.slice(0, i),
+            {
+                name: responses[i].name,
+                data: [...responses[i].data.slice(0, j), ...responses[i].data.slice(j + 1)],
+            },
+            ...responses.slice(i + 1),
+        ];
         updateResponses(newResponses);
     };
 
+    handleChangeUserUtterance = (i, v) => {
+        const { story, updateStory } = this.props;
+        const updatedLine = {
+            type: 'user',
+            data: [v],
+        };
+        updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
+    }
+
+    handleNewUserUtterance = (i, v) => {
+        const { story, updateStory } = this.props;
+        const updatedLine = {
+            type: 'user',
+            data: [this.parseUtterance(v)],
+        };
+        updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
+    }
+
+    parseUtterance = u => ({
+        text: u,
+        intent: 'dummdumm',
+    });
+
     renderOtherLine = (i, l) => (
-        <>
+        <React.Fragment key={i + l.data.name}>
             <div
-                key={i + l.data.name}
                 className='utterance-container'
                 agent={l.type}
             >
@@ -31,7 +74,7 @@ class StoryVisualEditor extends React.Component {
                     <Label color={l.type === 'action' ? 'pink' : 'orange'}>
                         {l.type}: {l.data.name}
                         {Object.keys(l.data).filter(k => k !== 'name')
-                            .map(k => <>, {k}: {l.data[k]} </>)
+                            .map(k => <span key={l.data.name + k}>, {k}: {l.data[k]} </span>)
                         }
                     </Label>
                 </div>
@@ -41,45 +84,72 @@ class StoryVisualEditor extends React.Component {
                 />
             </div>
             {this.renderAddLine(i)}
-        </>
+        </React.Fragment>
     );
 
+    newLineOptions = () => ({
+        userUtterance: true, botUtterance: true, action: true, slot: true,
+    });
+
     renderAddLine = (i) => {
-        const { newLineOptions } = this.props;
-        const options = newLineOptions(i);
-        if (!options.length) return null;
+        const { lineInsertIndex } = this.state;
+        const options = this.newLineOptions(i);
+
+        const alertPayload = pl => alert(`
+        Intent: ${pl.intent}
+        ${pl.entities.length ? `Entities: ${pl.entities.map(e => `
+            ${e.entity} ${e.entityValue ? `(${e.entityValue})` : ''}`)}
+        ` : ''}
+        `);
+
+        if (!Object.keys(options).length) return null;
+        if (lineInsertIndex === i) {
+            return (
+                <AddStoryLine
+                    ref={this.addStoryCursor}
+                    availableActions={options}
+                    onCreateUtteranceFromInput={() => alert('from input!!')}
+                    onCreateUtteranceFromPayload={u => alertPayload(u)}
+                    onSelectResponse={r => alert(`${r.name}!!`)}
+                    onCreateResponse={r => alert(`${r}!!`)}
+                    onSelectAction={action => alert(`${action}!!`)}
+                    onSelectSlot={slot => alert(`${slot.name}!!`)}
+                    onBlur={() => this.setState({ lineInsertIndex: null })}
+                />
+            );
+        }
         return (
-            <FloatingIconButton icon='ellipsis horizontal' />
+            <FloatingIconButton icon='ellipsis horizontal' size='medium' onClick={() => this.setState({ lineInsertIndex: i })} />
         );
     };
 
     render() {
         const { story } = this.props;
-
         const lines = story.map((l, i) => {
             if (!['bot', 'user'].includes(l.type)) return this.renderOtherLine(i, l); // placeholder for slots and actions
             if (l.type === 'bot') {
                 return (
-                    <>
+                    <React.Fragment key={i + l.data.name}>
                         <BotResponsesContainer
-                            key={i + l.data.name}
                             name={l.data.name}
                             onDeleteAllResponses={() => this.handleDeleteLine(i)}
                             onDeleteResponse={j => this.handleDeleteResponse(l.data.name, j)}
                         />
                         {this.renderAddLine(i)}
-                    </>
+                    </React.Fragment>
                 );
             }
             return (
-                <>
+                <React.Fragment key={i + l.data[0].intent}>
                     <UserUtteranceContainer
-                        key={i + l.data[0].intent}
                         value={l.data[0]} // for now, data is a singleton
+                        onChange={v => this.handleChangeUserUtterance(i, v)}
+                        onInput={v => this.handleNewUserUtterance(i, v)}
                         onDelete={() => this.handleDeleteLine(i)}
+                        onAbort={() => this.handleDeleteLine(i)}
                     />
                     {this.renderAddLine(i)}
-                </>
+                </React.Fragment>
             );
         });
 
@@ -97,7 +167,6 @@ class StoryVisualEditor extends React.Component {
 StoryVisualEditor.propTypes = {
     updateStory: PropTypes.func.isRequired,
     updateResponses: PropTypes.func.isRequired,
-    newLineOptions: PropTypes.func,
     story: PropTypes.arrayOf(
         PropTypes.oneOfType([
             PropTypes.shape({
@@ -138,7 +207,6 @@ StoryVisualEditor.contextType = ConversationOptionsContext;
 
 StoryVisualEditor.defaultProps = {
     story: [],
-    newLineOptions: (i) => ['yo'],
 };
 
 export default StoryVisualEditor;

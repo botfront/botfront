@@ -6,71 +6,36 @@ import {
 } from '@storybook/addon-knobs';
 import StoryVisualEditor from '../imports/ui/components/stories/common/StoryVisualEditor';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
-import { selectionThree as slots } from './SlotPopupContent.stories';
+import { slots, intents, entities } from './AddStoryLine.stories';
+import { utterances } from './UserUtteranceContainer.stories';
 
-const responsesOne = {
-    utter_yay: ['YAY!!', 'BOO!'],
-    utter_boo: ['I love peanutes too', 'Can I call you l8r', '<3'],
-};
+const responsesOne = [
+    {
+        name: 'utter_yay',
+        data: ['YAY!!', 'BOO!', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'],
+    },
+    {
+        name: 'utter_boo',
+        data: ['I love peanutes too', 'Can I call you l8r', '<3'],
+    },
+];
 
 const storyOne = [
     { type: 'action', data: { name: 'bebe' } },
     { type: 'slot', data: { value: 'ha', name: 'bebe2' } },
     {
         type: 'user',
-        data: [
-            {
-                intent: 'I_want_peanuts_on_my_sundae',
-                entities: [
-                    {
-                        start: 7,
-                        end: 14,
-                        value: 'peanuts',
-                        entity: 'food',
-                    },
-                    {
-                        start: 43,
-                        end: 50,
-                        value: 'peanuts',
-                        entity: 'food',
-                    },
-                ],
-                text: 'I love peanuts all night long. Do you love peanuts as much as me? Ok ?',
-            },
-        ],
+        data: [utterances.utteranceOne],
     },
     { type: 'bot', data: { name: 'utter_yay' } },
     {
         type: 'user',
-        data: [
-            {
-                intent: 'I_come_from',
-                entities: [
-                    {
-                        start: 12,
-                        end: 17,
-                        value: 'Paris',
-                        entity: 'from',
-                    },
-                ],
-                text: `I come from Paris. Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
-            },
-        ],
+        data: [utterances.utteranceTwo],
     },
     { type: 'bot', data: { name: 'utter_boo' } },
     {
         type: 'user',
-        data: [
-            {
-                intent: 'I_dislike_the_green_stuff',
-                entities: [],
-                text: `On the first day of the chase, Ahab smells the whale, climbs the mast, and sights Moby Dick. He claims the doubloon for himself, and orders all
-boats to lower except for Starbuck's. The whale bites Ahab's boat in two, tosses the captain out of it, and scatters the crew. On the second day of the chase,
-Ahab leaves Starbuck in charge of the Pequod. Moby Dick smashes the three boats that seek him into splinters and tangles their lines. Ahab is rescued, but his ivory leg and Fedallah are lost.
-Starbuck begs Ahab to desist, but Ahab vows to slay the white whale, even if he would have to dive through the globe itself to get his revenge.`,
-            },
-        ],
+        data: [utterances.utteranceThree],
     },
 ];
 
@@ -82,8 +47,8 @@ const StoryVisualEditorWrapped = ({ story: s }) => {
         <ConversationOptionsContext.Provider
             value={{
                 slots,
-                entities: [],
-                intents: [],
+                entities,
+                intents,
                 responses,
             }}
         >
