@@ -6,6 +6,7 @@ services:
     volumes:
       - ../cypress.json:/app/cypress.json
       - ../cypress:/app/cypress
+      - ../import:/app/import
     depends_on: 
       - botfront
     env_file:

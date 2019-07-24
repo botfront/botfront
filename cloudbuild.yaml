@@ -1,16 +1,17 @@
 
 steps:
-- name: 'gcr.io/kaniko-project/executor:latest'
-  dir: /workspace/botfront/cypress
-  args:
-  - --destination=gcr.io/$PROJECT_ID/cypress-runner:3.4.0
-  - --cache=true
-  - --cache-ttl=24h
-- name: 'gcr.io/kaniko-project/executor:latest'
-  args:
-  - --destination=gcr.io/$PROJECT_ID/botfront:e2e
-  - --cache=true
-  - --cache-ttl=12h
+# - name: 'gcr.io/kaniko-project/executor:latest'
+#   dir: /workspace/botfront/cypress
+#   args:
+#   - --context=/workspace/botfront/cypress
+#   - --destination=gcr.io/$PROJECT_ID/cypress-runner:3.4.0
+#   - --cache=true
+#   - --cache-ttl=24h
+# - name: 'gcr.io/kaniko-project/executor:latest'
+#   args:
+#   - --destination=gcr.io/$PROJECT_ID/botfront:e2e
+#   - --cache=true
+#   - --cache-ttl=12h
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build", "-t", "gcr.io/$PROJECT_ID/botfront:e2e", "."]
 - name: gcr.io/$PROJECT_ID/docker-compose
