@@ -12,6 +12,7 @@
   "private": true,
   "devDependencies": {
     "cypress": "3.4.0",
-    "js-yaml": "^3.13.1"
+    "js-yaml": "^3.13.1",
+    "cypress-plugin-retries": "1.2.2"
   }
 }

@@ -14,6 +14,8 @@ RUN npm ci
 # running this command separately from "cypress run" will also cache its result
 # to avoid verifying again when running the tests
 RUN npx cypress verify
+RUN pwd
+RUN echo text && ls -al
 RUN mkdir /scripts
 COPY  ./wait-for-it.sh /scripts/
 RUN chmod +x /scripts/wait-for-it.sh 
