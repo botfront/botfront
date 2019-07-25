@@ -16,7 +16,8 @@ steps:
     - --abort-on-container-exit
     - --exit-code-from
     - e2e
-timeout: 2700s
+
+timeout: 3600s
 images:
     - gcr.io/$PROJECT_ID/cypress-runner:3.4.0
 # options:
