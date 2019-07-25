@@ -75,10 +75,50 @@ class StoryVisualEditor extends React.Component {
         updateStory([...story.slice(0, i + 1), data, ...story.slice(i + 1)]);
     }
 
+    handleCreateSequence = (i, template) => {
+        this.setState({ lineInsertIndex: null });
+        const { story, updateStory, updateResponses } = this.props;
+        const { responses } = this.context;
+        const name = this.findResponseName();
+        const newResponse = {
+            name,
+            data: [template],
+        };
+        updateResponses(responses.concat([newResponse]));
+        const newLine = {
+            type: 'bot',
+            data: { name },
+        };
+        updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
+    }
+
+    handleCreateResponse = (name, j, template) => {
+        const { updateResponses } = this.props;
+        const { responses } = this.context;
+        const i = responses.map(r => r.name).indexOf(name);
+        const newResponses = [
+            ...responses.slice(0, i),
+            {
+                name: responses[i].name,
+                data: [...responses[i].data.slice(0, j + 1), template, ...responses[i].data.slice(j + 1)],
+            },
+            ...responses.slice(i + 1),
+        ];
+        updateResponses(newResponses);
+    }
+
     parseUtterance = u => ({
         text: u,
-        intent: 'dummdumm',
+        intent: 'dummdummIntent',
     });
+
+    findResponseName = () => {
+        const { responses } = this.context;
+        const unnamedResponses = responses
+            .map(r => r.name)
+            .filter(r => r.indexOf('newResponse') === 0);
+        return `newResponse${unnamedResponses.length + 1}`;
+    }
 
     renderOtherLine = (i, l) => (
         <React.Fragment key={i + l.data.name}>
@@ -119,8 +159,8 @@ class StoryVisualEditor extends React.Component {
                     availableActions={options}
                     onCreateUtteranceFromInput={() => this.handleCreateUtterance(i)}
                     onCreateUtteranceFromPayload={pl => this.handleCreateUtterance(i, pl)}
-                    onSelectResponse={() => {}}
-                    onCreateResponse={(r) => { this.setState({ lineInsertIndex: null }); alert(`${r}!!`); }}
+                    onSelectResponse={() => {}} // not needed for now since disableExisting is on
+                    onCreateResponse={template => this.handleCreateSequence(i, template)}
                     onSelectAction={action => this.handleCreateSlotOrAction(i, { type: 'action', data: { name: action } })}
                     onSelectSlot={slot => this.handleCreateSlotOrAction(i, { type: 'slot', data: slot })}
                     onBlur={({ relatedTarget }) => {
@@ -151,6 +191,7 @@ class StoryVisualEditor extends React.Component {
                             name={l.data.name}
                             onDeleteAllResponses={() => this.handleDeleteLine(i)}
                             onDeleteResponse={j => this.handleDeleteResponse(l.data.name, j)}
+                            onCreateResponse={(j, template) => this.handleCreateResponse(l.data.name, j, template)}
                         />
                         {this.renderAddLine(i)}
                     </React.Fragment>

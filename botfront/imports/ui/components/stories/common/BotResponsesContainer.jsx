@@ -6,7 +6,7 @@ import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsesContainer = (props) => {
     const {
-        name, onDeleteResponse, onDeleteAllResponses,
+        name, onDeleteResponse, onCreateResponse, onDeleteAllResponses,
     } = props;
     const { responses } = useContext(ConversationOptionsContext);
     const sequence = responses.filter(r => r.name === name)[0].data;
@@ -24,8 +24,8 @@ const BotResponsesContainer = (props) => {
         }
         return (
             <BotResponsePopupContent
-                onSelect={() => {}}
-                onCreate={(r) => { setPopupOpen(null); alert(`${r}!!`); }}
+                onSelect={() => {}} // not needed for now
+                onCreate={(template) => { setPopupOpen(null); onCreateResponse(i, template); }}
                 onClose={() => setPopupOpen(null)}
                 limitedSelection
                 disableExisting
@@ -88,6 +88,7 @@ const BotResponsesContainer = (props) => {
 BotResponsesContainer.propTypes = {
     name: PropTypes.string.isRequired,
     onDeleteResponse: PropTypes.func.isRequired,
+    onCreateResponse: PropTypes.func.isRequired,
     onDeleteAllResponses: PropTypes.func.isRequired,
 };
 
