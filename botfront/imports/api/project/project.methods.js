@@ -176,5 +176,16 @@ if (Meteor.isServer) {
                 throw error;
             }
         },
+
+        async 'project.getSlots'(projectId) {
+            check(projectId, String);
+
+            try {
+                const slots = await Meteor.callWithPromise('slots.getSlots', projectId);
+                return slots;
+            } catch (error) {
+                throw error;
+            }
+        },
     });
 }
