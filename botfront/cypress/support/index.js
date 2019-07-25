@@ -14,11 +14,9 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
 import './commands';
-import 'cypress-plugin-retries';
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+require('cypress-plugin-retries');
+
 Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
     if (visit) cy.visit('/');
     cy.window().then(
@@ -145,23 +143,23 @@ Cypress.Commands.add('MeteorCall', (method, args) => {
     );
 });
 
-Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, description) => {
-    let modelId = '';
-    cy.createNLUModelProgramatically(projectId, name, language, description)
-        .then((result) => {
-            modelId = result;
-            cy.fixture('bf_project_id.txt').then((id) => {
-                cy.visit(`/project/${id}/nlu/model/${modelId}`);
-            });
-            cy.get('.nlu-menu-settings').click();
-            cy.contains('Import').click();
-            cy.fixture('nlu_import.json', 'utf8').then((content) => {
-                cy.get('.file-dropzone').upload(content, 'data.json');
-            });
+// Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, description) => {
+//     let modelId = '';
+//     cy.createNLUModelProgramatically(projectId, name, language, description)
+//         .then((result) => {
+//             modelId = result;
+//             cy.fixture('bf_project_id.txt').then((id) => {
+//                 cy.visit(`/project/${id}/nlu/model/${modelId}`);
+//             });
+//             cy.get('.nlu-menu-settings').click();
+//             cy.contains('Import').click();
+//             cy.fixture('nlu_import.json', 'utf8').then((content) => {
+//                 cy.get('.file-dropzone').upload(content, 'data.json');
+//             });
         
-            cy.contains('Import Training Data').click();
-        });
-});
+//             cy.contains('Import Training Data').click();
+//         });
+// });
 
 Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.visit(`/project/${projectId}/nlu/models`);

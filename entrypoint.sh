@@ -31,3 +31,4 @@ echo 'Starting app...'
 cd $APP_BUNDLE_FOLDER/bundle
 
 exec "$@"
+
