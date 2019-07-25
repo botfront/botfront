@@ -59,6 +59,16 @@ class StoryVisualEditor extends React.Component {
         updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
     }
 
+    handleCreateUtteranceFromInput = (i) => {
+        this.setState({ lineInsertIndex: null });
+        const { story, updateStory } = this.props;
+        const newLine = {
+            type: 'user',
+            data: [null],
+        };
+        updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
+    }
+
     parseUtterance = u => ({
         text: u,
         intent: 'dummdumm',
@@ -108,9 +118,9 @@ class StoryVisualEditor extends React.Component {
                 <AddStoryLine
                     ref={this.addStoryCursor}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => { this.setState({ lineInsertIndex: null }); alert('from input!!'); }}
+                    onCreateUtteranceFromInput={() => this.handleCreateUtteranceFromInput(i)}
                     onCreateUtteranceFromPayload={(u) => { this.setState({ lineInsertIndex: null }); alertPayload(u); }}
-                    onSelectResponse={(r) => { this.setState({ lineInsertIndex: null }); alert(`${r.name}!!`); }}
+                    onSelectResponse={() => {}}
                     onCreateResponse={(r) => { this.setState({ lineInsertIndex: null }); alert(`${r}!!`); }}
                     onSelectAction={(action) => { this.setState({ lineInsertIndex: null }); alert(`${action}!!`); }}
                     onSelectSlot={(slot) => { this.setState({ lineInsertIndex: null }); alert(`${slot.name}!!`); }}
@@ -148,7 +158,7 @@ class StoryVisualEditor extends React.Component {
                 );
             }
             return (
-                <React.Fragment key={i + l.data[0].intent}>
+                <React.Fragment key={i + (l.data[0] ? l.data[0].intent : '')}>
                     <UserUtteranceContainer
                         value={l.data[0]} // for now, data is a singleton
                         onChange={v => this.handleChangeUserUtterance(i, v)}
