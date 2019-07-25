@@ -7,7 +7,7 @@ import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsePopupContent = (props) => {
     const {
-        onSelect, onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose,
+        onSelect, onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose, disableExisting,
     } = props;
     const { responses } = useContext(ConversationOptionsContext);
     const [modalOpen, setModalOpen] = useState(false);
@@ -20,6 +20,7 @@ const BotResponsePopupContent = (props) => {
     return (
         <>
             <Modal
+                tabIndex={0}
                 size='tiny'
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
@@ -41,16 +42,21 @@ const BotResponsePopupContent = (props) => {
                 trigger={trigger}
                 className='dropdown-button-trigger'
                 defaultOpen={defaultOpen}
-                tabIndex={0}
                 onClose={() => setCloseNext(true)}
             >
                 <Dropdown.Menu className='first-column'>
-                    <Dropdown.Header>Select from existing</Dropdown.Header>
-                    <Dropdown.Item>
-                        <Search fluid placeholder='Search responses...' onClick={() => setModalOpen(true)} />
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Header>Or use a template</Dropdown.Header>
+                    { !disableExisting
+                        ? (
+                            <>
+                                <Dropdown.Header>Select from existing</Dropdown.Header>
+                                <Dropdown.Item onClick={() => setModalOpen(true)}>
+                                    <Search fluid placeholder='Search responses...' />
+                                </Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Header>Or use a template</Dropdown.Header>
+                            </>
+                        ) : <Dropdown.Header>Use a template</Dropdown.Header>
+                    }
                     <Dropdown.Item onClick={() => onCreate('text')}>Text</Dropdown.Item>
                     <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
                     {!limitedSelection
@@ -76,6 +82,7 @@ BotResponsePopupContent.propTypes = {
     limitedSelection: PropTypes.bool,
     defaultOpen: PropTypes.bool,
     onClose: PropTypes.func,
+    disableExisting: PropTypes.func,
 };
 
 BotResponsePopupContent.defaultProps = {
@@ -83,6 +90,7 @@ BotResponsePopupContent.defaultProps = {
     noButtonResponse: false,
     limitedSelection: false,
     defaultOpen: false,
+    disableExisting: false,
     onSelect: () => {},
     onCreate: () => {},
     onClose: () => {},

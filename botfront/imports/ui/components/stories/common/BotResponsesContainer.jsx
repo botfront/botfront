@@ -28,6 +28,7 @@ const BotResponsesContainer = (props) => {
                 onCreate={(r) => { setPopupOpen(null); alert(`${r}!!`); }}
                 onClose={() => setPopupOpen(null)}
                 limitedSelection
+                disableExisting
                 defaultOpen
                 trigger={(
                     <FloatingIconButton
