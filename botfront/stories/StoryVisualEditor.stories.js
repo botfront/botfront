@@ -8,17 +8,7 @@ import StoryVisualEditor from '../imports/ui/components/stories/common/StoryVisu
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 import { slots, intents, entities } from './AddStoryLine.stories';
 import { utterances } from './UserUtteranceContainer.stories';
-
-const responsesOne = [
-    {
-        name: 'utter_yay',
-        data: ['YAY!!', 'BOO!', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'],
-    },
-    {
-        name: 'utter_boo',
-        data: ['I love peanutes too', 'Can I call you l8r', '<3'],
-    },
-];
+import { responses as responseFixtures } from './BotResponseContainer.stories';
 
 const storyOne = [
     { type: 'action', data: { name: 'bebe' } },
@@ -41,7 +31,7 @@ const storyOne = [
 
 const StoryVisualEditorWrapped = ({ story: s }) => {
     const [story, setStory] = useState(s);
-    const [responses, setResponses] = useState(responsesOne);
+    const [responses, setResponses] = useState(responseFixtures);
 
     return (
         <ConversationOptionsContext.Provider
@@ -50,6 +40,7 @@ const StoryVisualEditorWrapped = ({ story: s }) => {
                 entities,
                 intents,
                 responses,
+                lang: 'en',
             }}
         >
             <div
