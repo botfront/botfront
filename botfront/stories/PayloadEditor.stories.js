@@ -3,19 +3,9 @@ import { storiesOf } from '@storybook/react';
 import PayloadEditor from '../imports/ui/components/stories/common/PayloadEditor';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 
-const intents = [
-    { text: 'intent1', value: 'intent1' },
-    { text: 'intent2', value: 'intent2' },
-    { text: 'intent3', value: 'intent3' },
-    { text: 'intent4', value: 'intent4' },
-];
+export const intents = ['intent1', 'intent2', 'intent3', 'intent4'];
 
-const entities = [
-    { entity: 'entity1', value: 'entity1' },
-    { entity: 'entity2', value: 'entity2' },
-    { entity: 'entity3', value: 'entity3' },
-    { entity: 'entity4', value: 'entity4' },
-];
+export const entities = ['entity1', 'entity2', 'entity3', 'entity4'];
 
 const none = { intent: null, entities: [] };
 const value1 = {
@@ -41,7 +31,7 @@ const PayloadEditorWrapped = (props) => {
             onChange={(pl) => { setPayload(pl); handleChange(pl); }}
         />
     );
-}
+};
 
 storiesOf('PayloadEditor', module)
     .addDecorator(story => (
