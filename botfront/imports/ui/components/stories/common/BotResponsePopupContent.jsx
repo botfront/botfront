@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
     Dropdown, Modal, Search,
@@ -11,6 +11,11 @@ const BotResponsePopupContent = (props) => {
     } = props;
     const { responses } = useContext(ConversationOptionsContext);
     const [modalOpen, setModalOpen] = useState(false);
+    const [closeNext, setCloseNext] = useState(false);
+
+    useEffect(() => {
+        if (closeNext && !modalOpen) onClose();
+    }, [closeNext]);
 
     return (
         <>
@@ -32,7 +37,13 @@ const BotResponsePopupContent = (props) => {
                     ))}
                 </Modal.Content>
             </Modal>
-            <Dropdown trigger={trigger} className='dropdown-button-trigger' defaultOpen={defaultOpen} tabIndex={0} onClose={onClose}>
+            <Dropdown
+                trigger={trigger}
+                className='dropdown-button-trigger'
+                defaultOpen={defaultOpen}
+                tabIndex={0}
+                onClose={() => setCloseNext(true)}
+            >
                 <Dropdown.Menu className='first-column'>
                     <Dropdown.Header>Select from existing</Dropdown.Header>
                     <Dropdown.Item>
