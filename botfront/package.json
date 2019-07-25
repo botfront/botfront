@@ -57,6 +57,7 @@
     "react-scrollbar": "^0.5.6",
     "react-select": "^1.2.1",
     "react-split-pane": "^0.1.87",
+    "react-syntax-highlighter": "^11.0.2",
     "react-table": "^6.8.6",
     "react-transition-group": "^2.4.0",
     "react-window-size": "^1.2.2",
