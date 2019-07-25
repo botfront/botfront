@@ -69,6 +69,12 @@ class StoryVisualEditor extends React.Component {
         updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
     }
 
+    handleCreateSlotOrAction = (i, data) => {
+        this.setState({ lineInsertIndex: null });
+        const { story, updateStory } = this.props;
+        updateStory([...story.slice(0, i + 1), data, ...story.slice(i + 1)]);
+    }
+
     parseUtterance = u => ({
         text: u,
         intent: 'dummdumm',
@@ -115,8 +121,8 @@ class StoryVisualEditor extends React.Component {
                     onCreateUtteranceFromPayload={pl => this.handleCreateUtterance(i, pl)}
                     onSelectResponse={() => {}}
                     onCreateResponse={(r) => { this.setState({ lineInsertIndex: null }); alert(`${r}!!`); }}
-                    onSelectAction={(action) => { this.setState({ lineInsertIndex: null }); alert(`${action}!!`); }}
-                    onSelectSlot={(slot) => { this.setState({ lineInsertIndex: null }); alert(`${slot.name}!!`); }}
+                    onSelectAction={action => this.handleCreateSlotOrAction(i, { type: 'action', data: { name: action } })}
+                    onSelectSlot={slot => this.handleCreateSlotOrAction(i, { type: 'slot', data: slot })}
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
                         const popups = Array.from(document.querySelectorAll('.popup'));
