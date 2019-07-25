@@ -82,7 +82,7 @@ BotResponsePopupContent.propTypes = {
     limitedSelection: PropTypes.bool,
     defaultOpen: PropTypes.bool,
     onClose: PropTypes.func,
-    disableExisting: PropTypes.func,
+    disableExisting: PropTypes.bool,
 };
 
 BotResponsePopupContent.defaultProps = {

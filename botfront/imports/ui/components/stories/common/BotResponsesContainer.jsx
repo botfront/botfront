@@ -24,7 +24,7 @@ const BotResponsesContainer = (props) => {
         }
         return (
             <BotResponsePopupContent
-                onSelect={(r) => { setPopupOpen(null); alert(`${r.name}!!`); }}
+                onSelect={() => {}}
                 onCreate={(r) => { setPopupOpen(null); alert(`${r}!!`); }}
                 onClose={() => setPopupOpen(null)}
                 limitedSelection
