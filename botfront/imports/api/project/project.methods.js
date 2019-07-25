@@ -15,11 +15,10 @@ import { createIntroStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
-import { getStories } from '../story/stories.methods';
 import { StoryValidator } from '../../lib/story_validation';
 
 if (Meteor.isServer) {
-    const extractDomainFromStories = (stories) => {
+    export const extractDomainFromStories = (stories) => {
         let domains = stories.map((story) => {
             const val = new StoryValidator(story);
             val.validateStories();
@@ -35,31 +34,15 @@ if (Meteor.isServer) {
         };
     };
 
-    const getExamplesFromTrainingData = (projectId) => {
+    export const extractData = (models) => {
+        const trainingExamples = models.map(model => model.training_data.common_examples);
         let intents = [];
         let entities = [];
-        // Get all the Nlu model ids belonging to the project
-        const { nlu_models: nluModelIds } = Projects.findOne(
-            { _id: projectId },
-            { fields: { nlu_models: 1 } },
-        );
-        const models = NLUModels.find(
-            { _id: { $in: nluModelIds } },
-            { fields: { training_data: 1 } },
-        ).fetch();
-
-        // get commmon examples from the training data
-        let commonExamples = models.map(model => model.training_data.common_examples);
-
-        if (commonExamples.length !== 0) {
-            commonExamples = commonExamples.reduce((acc, x) => acc.concat(x));
-
-            // extract intents from common examples
-            intents = commonExamples.map(example => example.intent);
-
-            // extract entities from common examples
-            entities = commonExamples.map(example => example.entities);
-
+        if (trainingExamples.length !== 0) {
+            const trainingData = trainingExamples.reduce((acc, x) => acc.concat(x));
+            // extract intents and entities from common examples of training data
+            intents = trainingData.map(example => example.intent);
+            entities = trainingData.map(example => example.entities);
             if (entities.length !== 0) {
                 entities = entities.reduce((acc, x) => acc.concat(x));
                 entities = entities.map(entity => entity.entity);
@@ -69,6 +52,25 @@ if (Meteor.isServer) {
                 entities: new Set(entities),
             };
         }
+        // return empty set if training data is empty
+        return {
+            intents: new Set(),
+            entities: new Set(),
+        };
+    };
+
+    export const getExamplesFromTrainingData = (projectId) => {
+        // Get all the Nlu model ids belonging to the project
+        const { nlu_models: nluModelIds } = Projects.findOne(
+            { _id: projectId },
+            { fields: { nlu_models: 1 } },
+        );
+        const models = NLUModels.find(
+            { _id: { $in: nluModelIds } },
+            { fields: { training_data: 1 } },
+        ).fetch();
+        // returns extracted entities and intents
+        return extractData(models);
     };
 
     Meteor.methods({
@@ -154,7 +156,7 @@ if (Meteor.isServer) {
             check(projectId, String);
 
             try {
-                const stories = await getStories(projectId);
+                const stories = await Meteor.callWithPromise('stories.getStories', projectId);
                 const {
                     intents: intentSetFromDomain = new Set(),
                     entities: entitiesSetFromDomain = new Set(),

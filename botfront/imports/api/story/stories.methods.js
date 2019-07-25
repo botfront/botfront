@@ -24,8 +24,3 @@ Meteor.methods({
         return Stories.find({ projectId }).fetch();
     },
 });
-
-export const getStories = async (projectId) => {
-    const result = await Meteor.callWithPromise('stories.getStories', projectId);
-    return result;
-};
