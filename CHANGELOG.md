@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.2](https://github.com/botfront/botfront/compare/v0.15.1...v0.15.2) (2019-07-25)
+
+
+### Bug Fixes
+
+* **deps:** re-add react-syntax-highlighter ([3cf562c](https://github.com/botfront/botfront/commit/3cf562c))
+* **utterance-viewer:** fix entity recall logic ([3beb473](https://github.com/botfront/botfront/commit/3beb473))
+
+
+### Features
+
+* **UtteranceInput:** add excludedTarget prop to exclude some blur triggers ([dff4587](https://github.com/botfront/botfront/commit/dff4587))
+
+
+### Tests
+
+* fix all cypress tests ([#135](https://github.com/botfront/botfront/issues/135)) ([78639b7](https://github.com/botfront/botfront/commit/78639b7))
+
+
+
 ### [0.15.1](https://github.com/botfront/botfront/compare/v0.15.0...v0.15.1) (2019-07-19)
 
 
