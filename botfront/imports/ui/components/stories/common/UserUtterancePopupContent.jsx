@@ -22,9 +22,9 @@ const UserUtterancePopupContent = (props) => {
     return (
         <>
             <Modal
+                tabIndex={0}
                 size='tiny'
                 open={modalOpen}
-                onClose={() => { setModalOpen(false); onCreateFromPayload(payload); }}
             >
                 <Modal.Content>
                     <PayloadEditor onChange={setPayload} value={payload} />

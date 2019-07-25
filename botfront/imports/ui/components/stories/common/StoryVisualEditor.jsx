@@ -108,16 +108,20 @@ class StoryVisualEditor extends React.Component {
                 <AddStoryLine
                     ref={this.addStoryCursor}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => alert('from input!!')}
-                    onCreateUtteranceFromPayload={u => alertPayload(u)}
-                    onSelectResponse={r => alert(`${r.name}!!`)}
-                    onCreateResponse={r => alert(`${r}!!`)}
-                    onSelectAction={action => alert(`${action}!!`)}
-                    onSelectSlot={slot => alert(`${slot.name}!!`)}
+                    onCreateUtteranceFromInput={() => { this.setState({ lineInsertIndex: null }); alert('from input!!'); }}
+                    onCreateUtteranceFromPayload={(u) => { this.setState({ lineInsertIndex: null }); alertPayload(u); }}
+                    onSelectResponse={(r) => { this.setState({ lineInsertIndex: null }); alert(`${r.name}!!`); }}
+                    onCreateResponse={(r) => { this.setState({ lineInsertIndex: null }); alert(`${r}!!`); }}
+                    onSelectAction={(action) => { this.setState({ lineInsertIndex: null }); alert(`${action}!!`); }}
+                    onSelectSlot={(slot) => { this.setState({ lineInsertIndex: null }); alert(`${slot.name}!!`); }}
                     onBlur={({ relatedTarget }) => {
-                        if (!this.addStoryCursor.current.contains(relatedTarget)) {
-                            this.setState({ lineInsertIndex: null });
-                        }
+                        const modals = Array.from(document.querySelectorAll('.modal'));
+                        const popups = Array.from(document.querySelectorAll('.popup'));
+                        if (!(
+                            this.addStoryCursor.current.contains(relatedTarget)
+                            || modals.some(m => m.contains(relatedTarget))
+                            || popups.some(m => m.contains(relatedTarget)) || (relatedTarget && relatedTarget.tagName === 'INPUT')
+                        )) { this.setState({ lineInsertIndex: null }); }
                     }}
                 />
             );

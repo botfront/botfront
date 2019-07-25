@@ -84,7 +84,7 @@ const PayloadEditor = (props) => {
                             size='mini'
                             onClick={() => onChange({
                                 intent,
-                                entities: [...entities, { entity: null, value: null, entityValue: null }],
+                                entities: [...entities, { entity: null, value: null, entityValue: '' }],
                             })}
                         >
                             <Icon name='plus' />Add entity
@@ -102,7 +102,7 @@ PayloadEditor.propTypes = {
 
 PayloadEditor.defaultProps = {
     onChange: () => {},
-    value: { intent: null, entities: [] },
+    value: { intent: '', entities: [] },
 };
 
 export default PayloadEditor;

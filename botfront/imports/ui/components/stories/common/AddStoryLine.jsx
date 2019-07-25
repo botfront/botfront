@@ -42,6 +42,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     onCreate={r => onCreateResponse(r)}
                     noButtonResponse={noButtonResponse}
                     limitedSelection
+                    disableExisting
                     trigger={<DashedButton color='green' size={size}>Bot Response</DashedButton>}
                 />
             )}
