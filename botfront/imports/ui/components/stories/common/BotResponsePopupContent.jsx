@@ -7,7 +7,7 @@ import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsePopupContent = (props) => {
     const {
-        onSelect, onCreate, trigger, noButtonResponse, limitedSelection,
+        onSelect, onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose,
     } = props;
     const { responses } = useContext(ConversationOptionsContext);
     const [modalOpen, setModalOpen] = useState(false);
@@ -32,7 +32,7 @@ const BotResponsePopupContent = (props) => {
                     ))}
                 </Modal.Content>
             </Modal>
-            <Dropdown trigger={trigger} className='dropdown-button-trigger'>
+            <Dropdown trigger={trigger} className='dropdown-button-trigger' defaultOpen={defaultOpen} tabIndex={0} onClose={onClose}>
                 <Dropdown.Menu className='first-column'>
                     <Dropdown.Header>Select from existing</Dropdown.Header>
                     <Dropdown.Item>
@@ -63,14 +63,18 @@ BotResponsePopupContent.propTypes = {
     trigger: PropTypes.element.isRequired,
     noButtonResponse: PropTypes.bool,
     limitedSelection: PropTypes.bool,
+    defaultOpen: PropTypes.bool,
+    onClose: PropTypes.func,
 };
 
 BotResponsePopupContent.defaultProps = {
     value: null,
     noButtonResponse: false,
     limitedSelection: false,
+    defaultOpen: false,
     onSelect: () => {},
     onCreate: () => {},
+    onClose: () => {},
 };
 
 export default BotResponsePopupContent;

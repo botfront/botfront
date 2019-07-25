@@ -54,14 +54,16 @@
     }
 }
 
-.floating-icon-button[data-cy="ellipsis horizontal"]:hover+.responses-container::before {
+.floating-icon-button[data-cy="ellipsis horizontal"]:hover+.responses-container::before,
+.floating-icon-button[data-cy="ellipsis horizontal"].visible+.responses-container::before {
     content: '';
     display: block;
     border-top: 1px solid rgba(0, 0, 0, 0.2);
     width: 100%;
 }
 
-.responses-container+.floating-icon-button[data-cy="ellipsis horizontal"]:hover {
+.responses-container+.floating-icon-button[data-cy="ellipsis horizontal"]:hover,
+.responses-container+.floating-icon-button[data-cy="ellipsis horizontal"].visible {
     border-top: 1px solid rgba(0, 0, 0, 0.2);
 }
 
@@ -82,7 +84,8 @@
         position: relative;
     }
 }
-.floating-icon-button[data-cy="ellipsis horizontal"]:hover {
+.floating-icon-button[data-cy="ellipsis horizontal"]:hover,
+.floating-icon-button[data-cy="ellipsis horizontal"].visible {
     height: 20px;
     width: 100%;
     .viewOnHover.ellipsis {
