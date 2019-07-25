@@ -11,16 +11,16 @@ function UserUtteranceViewerWrapped(props) {
         intent: 'intent',
         entities: [
             {
-                start: 0,
-                end: 4,
-                value: 'This',
-                entity: 'entity1',
-            },
-            {
                 start: 8,
                 end: 10,
                 value: 'an',
                 entity: 'entity2',
+            },
+            {
+                start: 0,
+                end: 4,
+                value: 'This',
+                entity: 'entity1',
             },
             {
                 start: 11,
