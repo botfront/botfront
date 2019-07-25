@@ -59,12 +59,12 @@ class StoryVisualEditor extends React.Component {
         updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
     }
 
-    handleCreateUtteranceFromInput = (i) => {
+    handleCreateUtterance = (i, pl) => {
         this.setState({ lineInsertIndex: null });
         const { story, updateStory } = this.props;
         const newLine = {
             type: 'user',
-            data: [null],
+            data: [pl || null],
         };
         updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
     }
@@ -105,21 +105,14 @@ class StoryVisualEditor extends React.Component {
         const { lineInsertIndex } = this.state;
         const options = this.newLineOptions(i);
 
-        const alertPayload = pl => alert(`
-        Intent: ${pl.intent}
-        ${pl.entities.length ? `Entities: ${pl.entities.map(e => `
-            ${e.entity} ${e.entityValue ? `(${e.entityValue})` : ''}`)}
-        ` : ''}
-        `);
-
         if (!Object.keys(options).length) return null;
         if (lineInsertIndex === i) {
             return (
                 <AddStoryLine
                     ref={this.addStoryCursor}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => this.handleCreateUtteranceFromInput(i)}
-                    onCreateUtteranceFromPayload={(u) => { this.setState({ lineInsertIndex: null }); alertPayload(u); }}
+                    onCreateUtteranceFromInput={() => this.handleCreateUtterance(i)}
+                    onCreateUtteranceFromPayload={pl => this.handleCreateUtterance(i, pl)}
                     onSelectResponse={() => {}}
                     onCreateResponse={(r) => { this.setState({ lineInsertIndex: null }); alert(`${r}!!`); }}
                     onSelectAction={(action) => { this.setState({ lineInsertIndex: null }); alert(`${action}!!`); }}
