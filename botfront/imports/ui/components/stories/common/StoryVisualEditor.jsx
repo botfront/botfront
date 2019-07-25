@@ -16,7 +16,7 @@ class StoryVisualEditor extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         const { lineInsertIndex } = this.state;
-        if (lineInsertIndex && lineInsertIndex !== prevState.lineInsertIndex) {
+        if ((lineInsertIndex || lineInsertIndex === 0) && lineInsertIndex !== prevState.lineInsertIndex) {
             this.addStoryCursor.current.focus();
         }
     }
@@ -114,8 +114,8 @@ class StoryVisualEditor extends React.Component {
                     onCreateResponse={r => alert(`${r}!!`)}
                     onSelectAction={action => alert(`${action}!!`)}
                     onSelectSlot={slot => alert(`${slot.name}!!`)}
-                    onBlur={({ target }) => {
-                        if (!this.addStoryCursor.current.contains(target)) {
+                    onBlur={({ relatedTarget }) => {
+                        if (!this.addStoryCursor.current.contains(relatedTarget)) {
                             this.setState({ lineInsertIndex: null });
                         }
                     }}

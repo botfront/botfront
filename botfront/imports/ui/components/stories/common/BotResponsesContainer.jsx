@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import BotResponsePopupContent from './BotResponsePopupContent';
@@ -10,13 +10,36 @@ const BotResponsesContainer = (props) => {
     } = props;
     const { responses } = useContext(ConversationOptionsContext);
     const sequence = responses.filter(r => r.name === name)[0].data;
+    const [popupOpen, setPopupOpen] = useState(null);
 
-    const renderAddLine = () => (
-        <FloatingIconButton
-            icon='ellipsis horizontal'
-            size='medium'
-        />
-    );
+    const renderAddLine = (i) => {
+        if (popupOpen !== i) {
+            return (
+                <FloatingIconButton
+                    icon='ellipsis horizontal'
+                    size='medium'
+                    onClick={() => setPopupOpen(i)}
+                />
+            );
+        }
+        return (
+            <BotResponsePopupContent
+                onSelect={(r) => { setPopupOpen(null); alert(`${r.name}!!`); }}
+                onCreate={(r) => { setPopupOpen(null); alert(`${r}!!`); }}
+                onClose={() => setPopupOpen(null)}
+                limitedSelection
+                defaultOpen
+                trigger={(
+                    <FloatingIconButton
+                        icon='ellipsis horizontal'
+                        visible
+                        size='medium'
+                        onClick={() => setPopupOpen(i)}
+                    />
+                )}
+            />
+        );
+    };
 
     const renderResponse = (r, i, a) => (
         <React.Fragment key={i + r}>
@@ -56,7 +79,7 @@ const BotResponsesContainer = (props) => {
             className='responses-container'
         >
             {renderAddLine(-1)}
-            {sequence.map((r, i, a) => renderResponse(r, i, a))}
+            {sequence.map(renderResponse)}
         </div>
     );
 };
