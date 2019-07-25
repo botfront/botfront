@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Label } from 'semantic-ui-react';
+import { update as _update } from 'lodash';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
@@ -26,18 +27,19 @@ class StoryVisualEditor extends React.Component {
         updateStory([...story.slice(0, i), ...story.slice(i + 1)]);
     }
 
+    updateSequence = (responses, name, lang, updater) => {
+        const i = responses.map(r => r.key).indexOf(name);
+        const j = responses[i].values.map(v => v.lang).indexOf(lang);
+        const path = `[${i}].values[${j}].sequence`;
+        const newResponses = [...responses];
+        return _update(newResponses, path, updater);
+    }
+
     handleDeleteResponse = (name, j) => {
         const { updateResponses } = this.props;
-        const { responses } = this.context;
-        const i = responses.map(r => r.name).indexOf(name);
-        const newResponses = [
-            ...responses.slice(0, i),
-            {
-                name: responses[i].name,
-                data: [...responses[i].data.slice(0, j), ...responses[i].data.slice(j + 1)],
-            },
-            ...responses.slice(i + 1),
-        ];
+        const { responses, lang } = this.context;
+        const updater = sequence => ([...sequence.slice(0, j), ...sequence.slice(j + 1)]);
+        const newResponses = this.updateSequence(responses, name, lang, updater);
         updateResponses(newResponses);
     };
 
@@ -78,32 +80,28 @@ class StoryVisualEditor extends React.Component {
     handleCreateSequence = (i, template) => {
         this.setState({ lineInsertIndex: null });
         const { story, updateStory, updateResponses } = this.props;
-        const { responses } = this.context;
-        const name = this.findResponseName();
+        const { responses, lang } = this.context;
+        const key = this.findResponseName();
         const newResponse = {
-            name,
-            data: [template],
+            key,
+            values: [{
+                lang,
+                sequence: [{ content: template }],
+            }],
         };
         updateResponses(responses.concat([newResponse]));
         const newLine = {
             type: 'bot',
-            data: { name },
+            data: { name: key },
         };
         updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
     }
 
     handleCreateResponse = (name, j, template) => {
         const { updateResponses } = this.props;
-        const { responses } = this.context;
-        const i = responses.map(r => r.name).indexOf(name);
-        const newResponses = [
-            ...responses.slice(0, i),
-            {
-                name: responses[i].name,
-                data: [...responses[i].data.slice(0, j + 1), template, ...responses[i].data.slice(j + 1)],
-            },
-            ...responses.slice(i + 1),
-        ];
+        const { responses, lang } = this.context;
+        const updater = sequence => ([...sequence.slice(0, j + 1), { content: template }, ...sequence.slice(j + 1)]);
+        const newResponses = this.updateSequence(responses, name, lang, updater);
         updateResponses(newResponses);
     }
 
@@ -115,9 +113,9 @@ class StoryVisualEditor extends React.Component {
     findResponseName = () => {
         const { responses } = this.context;
         const unnamedResponses = responses
-            .map(r => r.name)
-            .filter(r => r.indexOf('newResponse') === 0);
-        return `newResponse${unnamedResponses.length + 1}`;
+            .map(r => r.key)
+            .filter(r => r.indexOf('utter_new') === 0);
+        return `utter_new_${unnamedResponses.length + 1}`;
     }
 
     renderOtherLine = (i, l) => (

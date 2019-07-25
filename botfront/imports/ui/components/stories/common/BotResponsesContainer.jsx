@@ -8,8 +8,11 @@ const BotResponsesContainer = (props) => {
     const {
         name, onDeleteResponse, onCreateResponse, onDeleteAllResponses,
     } = props;
-    const { responses } = useContext(ConversationOptionsContext);
-    const sequence = responses.filter(r => r.name === name)[0].data;
+    const { responses, lang } = useContext(ConversationOptionsContext);
+    console.log(responses)
+    const { sequence } = responses
+        .filter(r => r.key === name)[0].values
+        .filter(v => v.lang === lang)[0];
     const [popupOpen, setPopupOpen] = useState(null);
 
     const renderAddLine = (i) => {
@@ -50,7 +53,7 @@ const BotResponsesContainer = (props) => {
                     agent='bot'
                 >
                     <div className='inner'>
-                        { r }
+                        { r.content }
                     </div>
                     <FloatingIconButton
                         icon='trash'
