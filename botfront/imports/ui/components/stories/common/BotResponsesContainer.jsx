@@ -45,7 +45,7 @@ const BotResponsesContainer = (props) => {
     const renderResponse = (r, i, a) => (
         <React.Fragment key={i + r}>
             <div className='flex-right'>
-                <div
+                <div /* start placeholder for bot response container */
                     className='utterance-container'
                     agent='bot'
                 >
@@ -56,7 +56,7 @@ const BotResponsesContainer = (props) => {
                         icon='trash'
                         onClick={() => onDeleteResponse(i)}
                     />
-                </div>
+                </div> {/* start placeholder for bot response container */}
                 { i === 0 && a.length > 1 && (
                     <FloatingIconButton
                         icon='trash'
