@@ -57,7 +57,7 @@ describe('Project Settings', function() {
         });
 
         it('NLU threshold can be set', function() {
-            cy.visit(`/project/${this.bf_project_id}/settings`);
+            cy.visit('/project/bf/settings');
             cy.get('[data-cy=change-nlu-threshold] input').click().type('{backspace}{backspace}{backspace}{backspace}0.56');
             cy.get('[data-cy=save-changes]').click();
             cy.get('[data-cy=change-nlu-threshold] input').should('have.value', '0.56');

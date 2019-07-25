@@ -3,7 +3,7 @@ import { Roles } from 'meteor/modweb:roles';
 export const can = (permission, projectId, userId, options) => {
     const bypassWithCI = { options };
     // Cypress code can bypass roles if the bypassWithCI is true and the CI env is set.
-    if (!!bypassWithCI && !!process.env.CI) return true;
+    if (!!bypassWithCI && (!!process.env.CI || !!process.env.DEV_MODE)) return true;
     return Roles.userIsInRole(userId || Meteor.userId(), permission, projectId);
 };
 

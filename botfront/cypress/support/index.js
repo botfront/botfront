@@ -13,8 +13,8 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
-
 import './commands';
+
 require('cypress-plugin-retries');
 
 Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {

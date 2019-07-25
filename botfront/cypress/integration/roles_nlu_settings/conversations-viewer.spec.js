@@ -2,23 +2,16 @@
 
 const email = 'conversationsr@test.ia';
 
-describe('conversations:r role permissions', function() {
-    before(function() {
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
-        cy.fixture('bf_model_id.txt').as('bf_model_id');
-        cy.login();
-        cy.get('@bf_project_id').then((id) => {
-            cy.createUser('conversations:r', email, ['conversations:r'], id);
-            cy.addTestConversation(id);
-        });
-        cy.logout();
-    });
-
+describe('conversations-viewer role permissions', function() {
     beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'fr');
+        cy.createUser('conversations-viewer', email, ['conversations-viewer'], 'bf');
+        cy.addTestConversation('bf');
         cy.loginTestUser(email);
     });
 
-    after(function() {
+    afterEach(function() {
+        cy.deleteProject('bf');
         cy.deleteUser(email);
         cy.removeTestConversation();
     });

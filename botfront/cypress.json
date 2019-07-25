@@ -11,6 +11,7 @@
     "watchForFileChanges": false,
     "numTestsKeptInMemory": 2 ,
     "viewportHeight": 660,
-    "viewportWidth": 1000
+    "viewportWidth": 1000,
+    "ignoreTestFiles": ["**/roles_nlu_settings/*.js", "**/docker-compose/*.js"]
   }
   

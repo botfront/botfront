@@ -35,14 +35,15 @@ class Index extends React.Component {
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    if (can('global-admin', undefined, Meteor.userId())) return router.push('/admin/projects');
-                    
-                    const projectIds = getScopesForUser(Meteor.userId(), 'owner');
-                    if (projectIds.length === 0) router.push('/404');
-                    const projects = Projects.find({ _id: { $in: projectIds } }, { fields: { name: 1 } }).fetch();
-                    const projectsWithoutChitchat = projects.filter(({ name }) => !name.match('chitchat'));
-                    if (projectsWithoutChitchat.length === 0) router.push('/404');
-                    router.push(this.roleRouting(projectsWithoutChitchat[0]));
+                    if (can('global-admin', undefined, Meteor.userId())) router.push('/admin/projects');
+                    else {
+                        const projects = getScopesForUser(Meteor.userId(), '');
+                        if (projects.length === 0) {
+                            router.push('/404');
+                        } else {
+                            router.push(this.roleRouting(projects[0]));
+                        }
+                    }
                 }
             });
         } else {
