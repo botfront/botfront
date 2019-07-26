@@ -35,9 +35,10 @@ echo "Version $PACKAGE_VERSION set in botfront.yml"
 
 # Copy the changelog at the root level
 cp ../botfront/CHANGELOG.md ../
-
+echo "Copy of CHANGELOG at the root of the project"
 # Copy the main readme to the CLI so it is shown in npmjs.com
 cp ../README.md ../cli/.
+echo "Copy of README in the CLI project"
 
 # Amend release commit with new and changed files
 git add ../CHANGELOG.md 
