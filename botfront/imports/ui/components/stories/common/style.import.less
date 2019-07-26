@@ -3,6 +3,10 @@
     flex-direction: column;
     width: 100%;
     padding: 3px;
+
+    .floating-icon-button {
+        margin: 0;
+    }
 }
 
 .responses-container {
@@ -12,15 +16,10 @@
     border: 1px solid transparent;
     border-radius: 0.28571429rem;
     padding: 0.2em;
-    transition: 0.1s;
 
     .flex-right {
         display: inline-flex;
         justify-content: space-between;
-
-        .floating-icon-button {
-            margin: 0;
-        }
 
         .viewOnHover {
             opacity: 0;
@@ -41,16 +40,18 @@
 
 .responses-container:hover {
    border: 1px solid rgba(0, 0, 0, 0.2);
+
+   .viewOnHover {
+       opacity: 0.8;
+       visibility: visible;
+   }
    
-   .flex-right {
-        .viewOnHover {
-            opacity: 0.5;
-            visibility: visible;
-        }
-        .response-name {
-            opacity: 0.5;
-            visibility: visible;
-        }
+   .flex-right > .floating-icon-button > .viewOnHover {
+        opacity: 0.5;
+    }
+    .flex-right > .response-name {
+        visibility: visible;
+        opacity: 0.5;
     }
 }
 
@@ -189,7 +190,7 @@ div.add-entity-wrap {
     cursor: pointer;
 }
 .utterance-container {
-    display: inline-flex;
+    display: flex;
     min-height: 2em;
     margin: 0.0125em 0;
     justify-content: space-between;
@@ -198,7 +199,6 @@ div.add-entity-wrap {
     padding: 0.2em;
     border: 1px solid transparent;
     border-radius: 0.28571429rem;
-    transition: 0s;
 
     .inner {
         display: inline-block;
@@ -211,11 +211,10 @@ div.add-entity-wrap {
             max-width: 100%;
         }
     }
+    
     .floating-icon-button {
         width: 0;
         opacity: 0;
-        transition: 0s;
-        transition: opacity 0.1s;
     }
 }
 
@@ -237,6 +236,10 @@ div.add-entity-wrap {
 .utterance-container:not([agent="user"]) {
     margin-left: 16px;
     background: rgba(0, 0, 0, 0.04);
+}
+
+.utterance-container[agent="na"] {
+    background: none;
 }
 
 .utterance-container[agent="user"] {

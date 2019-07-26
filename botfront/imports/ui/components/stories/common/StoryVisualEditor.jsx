@@ -131,16 +131,27 @@ class StoryVisualEditor extends React.Component {
         return `utter_new_${unnamedResponses.length + 1}`;
     }
 
+    handleChangeActionOrSlot = (type, i, data) => {
+        const { story, updateStory } = this.props;
+        updateStory([...story.slice(0, i), { type, data }, ...story.slice(i + 1)]);
+    }
+
     renderActionLine = (i, l) => (
         <React.Fragment key={i + l.data.name}>
-            <ActionLabel value={l.data.name} />
+            <div className='utterance-container' agent='na'>
+                <ActionLabel value={l.data.name} onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })} />
+                <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} />
+            </div>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
 
     renderSlotLine = (i, l) => (
         <React.Fragment key={i + l.data.name}>
-            <SlotLabel value={l.data} />
+            <div className='utterance-container' agent='na'>
+                <SlotLabel value={l.data} onChange={v => this.handleChangeActionOrSlot('slot', i, v)} />
+                <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} />
+            </div>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
