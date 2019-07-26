@@ -19,6 +19,7 @@
 @import '../imports/ui/components/account/style.import.less';
 @import '../imports/ui/components/example_editor/style.import.less';
 @import '../imports/ui/components/stories/common/style.import.less';
+@import '../imports/ui/components/stories/common/QuickReply.import.less';
 
 @sidebar-bg: rgb(45, 47, 74);
 @sidebar-size: 190px;
@@ -88,27 +89,27 @@ html {
 
 /* configure input padding */
 
-.ui.label {
-    display: inline-flex;
-    width: max-content;
-    max-width: 100%;
-    overflow: hidden;
+// .ui.label {
+//     display: inline-flex;
+//     width: max-content;
+//     max-width: 100%;
+//     overflow: hidden;
 
-    .ui.input {
-        color: inherit;
-        font-weight: inherit;
+//     .ui.input {
+//         color: inherit;
+//         font-weight: inherit;
 
-        input {
-            border: 0;
-            color: inherit;
-            font-weight: inherit;
-        }
-    }
+//         input {
+//             border: 0;
+//             color: inherit;
+//             font-weight: inherit;
+//         }
+//     }
 
-    p {
-        display: inline-block;
-    }
-}
+//     p {
+//         display: inline-block;
+//     }
+// }
 
 /* reduce top margin NLU examples */
 .ui.top.attached.label:first-child + :not(.attached), .ui.top.attached.label + [class*="right floated"] + * {

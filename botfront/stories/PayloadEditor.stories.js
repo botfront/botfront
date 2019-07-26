@@ -1,16 +1,16 @@
+/* eslint-disable no-alert */
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import PayloadEditor from '../imports/ui/components/stories/common/PayloadEditor';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 
 export const intents = ['intent1', 'intent2', 'intent3', 'intent4'];
-
 export const entities = ['entity1', 'entity2', 'entity3', 'entity4'];
 
 const none = { intent: null, entities: [] };
 const value1 = {
     intent: 'intent1',
-    entities: [{ entity: 'entity3', value: 'entity3', entityValue: 'HOHO' }, { entity: 'entity4', value: 'entity4', entityValue: 'HEHE' }],
+    entities: [{ entity: 'entity3', value: 'HOHO' }, { entity: 'entity4', value: 'HEHE' }],
 };
 const value2 = { intent: 'intent2', entities: [] };
 

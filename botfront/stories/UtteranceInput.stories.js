@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import {
     withKnobs, text, select, boolean,
