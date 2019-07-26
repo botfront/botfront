@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Label } from 'semantic-ui-react';
 import { update as _update } from 'lodash';
 import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
 import AddStoryLine from './AddStoryLine';
+import ActionLabel from '../ActionLabel';
+import SlotLabel from '../SlotLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 class StoryVisualEditor extends React.Component {
@@ -130,25 +131,16 @@ class StoryVisualEditor extends React.Component {
         return `utter_new_${unnamedResponses.length + 1}`;
     }
 
-    renderOtherLine = (i, l) => (
+    renderActionLine = (i, l) => (
         <React.Fragment key={i + l.data.name}>
-            <div
-                className='utterance-container'
-                agent={l.type}
-            >
-                <div className='inner'>
-                    <Label color={l.type === 'action' ? 'pink' : 'orange'}>
-                        {l.type}: {l.data.name}
-                        {Object.keys(l.data).filter(k => k !== 'name')
-                            .map(k => <span key={l.data.name + k}>, {k}: {l.data[k]} </span>)
-                        }
-                    </Label>
-                </div>
-                <FloatingIconButton
-                    icon='trash'
-                    onClick={() => this.handleDeleteLine(i)}
-                />
-            </div>
+            <ActionLabel value={l.data.name} />
+            {this.renderAddLine(i)}
+        </React.Fragment>
+    );
+
+    renderSlotLine = (i, l) => (
+        <React.Fragment key={i + l.data.name}>
+            <SlotLabel value={l.data} />
             {this.renderAddLine(i)}
         </React.Fragment>
     );
@@ -193,7 +185,8 @@ class StoryVisualEditor extends React.Component {
     render() {
         const { story } = this.props;
         const lines = story.map((l, i) => {
-            if (!['bot', 'user'].includes(l.type)) return this.renderOtherLine(i, l); // placeholder for slots and actions
+            if (l.type === 'action') return this.renderActionLine(i, l);
+            if (l.type === 'slot') return this.renderSlotLine(i, l);
             if (l.type === 'bot') {
                 return (
                     <React.Fragment key={i + l.data.name}>

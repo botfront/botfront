@@ -12,7 +12,7 @@ import { responses as responseFixtures } from './BotResponseContainer.stories';
 
 const storyOne = [
     { type: 'action', data: { name: 'bebe' } },
-    { type: 'slot', data: { value: 'ha', name: 'bebe2' } },
+    { type: 'slot', data: { type: 'categorical', slotValue: 'ha', name: 'bebe2' } },
     {
         type: 'user',
         data: [utterances.utteranceOne],
