@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 import { Popup, Input } from 'semantic-ui-react';
 
 const ActionPopupContent = (props) => {
-    const {
-        onSelect, trigger,
-    } = props;
-
+    const { onSelect, trigger } = props;
     const [isOpen, setIsOpen] = useState();
     const [actionName, setActionName] = useState();
 
@@ -17,8 +14,12 @@ const ActionPopupContent = (props) => {
             wide
             on='click'
             open={isOpen}
-            onOpen={() => { setIsOpen(true); }}
-            onClose={() => { setIsOpen(false); }}
+            onOpen={() => {
+                setIsOpen(true);
+            }}
+            onClose={() => {
+                setIsOpen(false);
+            }}
         >
             <p className='all-caps-header'>Enter an action name</p>
             <div>

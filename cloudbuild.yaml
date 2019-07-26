@@ -1,7 +1,24 @@
-# steps:
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: [ "build",
-#           "-t", "botfront/botfront:$SHORT_SHA",
-#           "."]
 
-# timeout: 30m
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",  "-t", "botfront-local", "."]
+- name: 'gcr.io/kaniko-project/executor:latest'
+  dir: /workspace/botfront/cypress
+  args:
+  - --context=/workspace/botfront/cypress
+  - --destination=gcr.io/$PROJECT_ID/cypress-runner:3.4.0
+  - --cache=true
+  - --cache-ttl=24h
+- name: gcr.io/$PROJECT_ID/docker-compose
+  dir: /workspace/botfront/cypress
+  args:
+    - up
+    - --abort-on-container-exit
+    - --exit-code-from
+    - e2e
+
+timeout: 3600s
+images:
+    - gcr.io/$PROJECT_ID/cypress-runner:3.4.0
+# options:
+#     machineType: 'N1_HIGHCPU_32'

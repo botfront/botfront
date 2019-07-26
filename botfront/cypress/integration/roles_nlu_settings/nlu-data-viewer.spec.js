@@ -1,36 +1,22 @@
 /* eslint-disable no-undef */
-let modelId = '';
 const email = 'nludatar@test.ia';
-
+const projectId = 'bf'
 describe('nlu-data:r role permissions', function() {
-    before(function() {
-        cy.fixture('bf_project_id.txt').as('bf_project_id');
-        cy.fixture('bf_model_id.txt').as('bf_model_id');
-        cy.login();
-        cy.get('@bf_project_id').then((id) => {
-            cy.createUser('nlu-data:r', email, ['nlu-data:r'], id);
-            cy.createNLUModelProgramatically(id, 'MyModel', 'fr', 'My Description')
-                .then((result) => {
-                    modelId = result;
-                    cy.addTrainingData(result, 'fr');
-                    cy.addTestActivity(modelId);
-                });
-        });
-        cy.logout();
-    });
-
     beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'fr');
+        cy.createUser('nlu-viewer', email, ['nlu-viewer'], projectId);
+        cy.addTestConversation(projectId);
         cy.loginTestUser(email);
     });
 
-    after(function() {
-        cy.removeTestActivity(modelId);
+    afterEach(function() {
+        cy.removeTestConversation();
+        cy.deleteProject(projectId);
         cy.deleteUser(email);
-        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'fr');
     });
 
     it('should be able to access nlu model menu tabs -> activity, training-data and evaluation', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('.nlu-menu-activity').should('exist');
         cy.get('.nlu-menu-training-data').should('exist');
         cy.get('.nlu-menu-evaluation').should('exist');
@@ -39,14 +25,14 @@ describe('nlu-data:r role permissions', function() {
 
     // For the Activity tab
     it('should render activities and playground', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('.nlu-menu-activity').should('exist');
         cy.get('#playground').should('exist');
         cy.get('.ReactTable').should('exist');
     });
 
     it('should not be able to change intent, validate or expand entries', function () {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('[data-cy=model-selector]').click();
         cy.get('[data-cy=model-selector] input').type('French{enter}');
         cy.get('[data-cy=process-in-bulk]').should('not.exist');
@@ -63,11 +49,11 @@ describe('nlu-data:r role permissions', function() {
     it('should be able to reinterpet intents', function() {
         // Logs the admin
         cy.login();
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('[data-cy=train-button]').click();
         // logs back our test user
         cy.loginTestUser(email);
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('.nlu-menu-activity').click();
         cy.get('.rt-td.right').first().click();
         cy.get('[data-cy=re-interpret-button]').should('exist');
@@ -75,7 +61,7 @@ describe('nlu-data:r role permissions', function() {
 
     // For the training tab
     it('should render training tab, Statistics and API || Chit Chat and Insert many should not be present', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Statistics').should('exist');
         cy.contains('API').should('exist');
@@ -84,7 +70,7 @@ describe('nlu-data:r role permissions', function() {
     });
 
     it('should not be able to expand rows in the Examples, delete button, add synonyms and add Gazette should not be present', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('.nlu-menu-training-data').click();
         cy.get('div.rt-td.rt-expandable').should('not.exist');
         cy.get('.nlu-delete-example').should('not.exist');
@@ -98,14 +84,14 @@ describe('nlu-data:r role permissions', function() {
 
     // For Evaluation
     it('buttons for evaluation should not be rendered', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('.nlu-menu-evaluation').click();
         cy.get('[data-cy=select-training-button]').should('not.exist');
         cy.get('[data-cy=start-evaluation]').should('not.exist');
     });
 
     it('should not show the add gazette and add synonyms rows', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.contains('Training Data').click();
         cy.contains('Gazette').click();
         cy.get('[data-cy=add-item-row]').should('not.exist');
@@ -115,27 +101,27 @@ describe('nlu-data:r role permissions', function() {
 
     it('should not be able to call forbidden methods', function() {
         cy.MeteorCall('nlu.upsertEntityGazette', [
-            this.bf_model_id,
+            projectId,
             { what: 'ever' },
         ]).then(err => expect(err.error).to.equal('403'));
 
         cy.MeteorCall('nlu.deleteEntitySynonym', [
-            this.bf_model_id,
+            projectId,
             'whatever',
         ]).then(err => expect(err.error).to.equal('403'));
 
         cy.MeteorCall('nlu.deleteEntityGazette', [
-            this.bf_model_id,
+            projectId,
             'whatever',
         ]).then(err => expect(err.error).to.equal('403'));
 
         cy.MeteorCall('nlu.upsertEntitySynonym', [
-            this.bf_model_id,
+            projectId,
             { what: 'ever' },
         ]).then(err => expect(err.error).to.equal('403'));
 
         cy.MeteorCall('nlu.updateExample', [
-            this.bf_model_id,
+            projectId,
             {
                 entities: [],
                 intent: 'Test Intent',
@@ -146,21 +132,21 @@ describe('nlu-data:r role permissions', function() {
         });
 
         cy.MeteorCall('activity.updateExamples', [
-            [{ modelId: this.bf_model_id, _id: 'will not be added' }],
+            [{ modelId: projectId, _id: 'will not be added' }],
         ]).then(err => expect(err.error).to.equal('403'));
 
         cy.MeteorCall('nlu.insertExamples', [
-            this.bf_model_id,
+            projectId,
             [],
         ]).then(err => expect(err.error).to.equal('403'));
 
         cy.MeteorCall('nlu.deleteExample', [
-            this.bf_model_id,
+            projectId,
             'whatever',
         ]).then(err => expect(err.error).to.equal('403'));
 
         cy.MeteorCall('activity.deleteExamples', [
-            this.bf_model_id,
+            projectId,
             ['TestActivity'],
         ]).then((err) => {
             expect(err.error).to.equal('403');
@@ -168,7 +154,7 @@ describe('nlu-data:r role permissions', function() {
     });
 
     it('should display a model settings (but not change them)', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('Pipeline').click();
         cy.get('form').within(() => {
@@ -180,7 +166,7 @@ describe('nlu-data:r role permissions', function() {
     });
 
     it('should not display import tab in settings', function() {
-        cy.visit(`/project/${this.bf_project_id}/nlu/model/${this.bf_model_id}`);
+        cy.visit(`/project/${projectId}/nlu/models`);
         cy.get('[data-cy=settings-in-model]').click();
         cy.contains('Import').should('not.exist');
     });

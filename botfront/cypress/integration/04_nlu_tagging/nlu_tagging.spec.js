@@ -19,32 +19,27 @@ const secondEntity = 'ENT2';
 const newEntity = 'myNewEntity';
 
 describe('nlu tagging in training data', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'fr')
-            .then(() => {
-                cy.login();
-                cy.visit('/project/bf/nlu/models');
-                cy.get('.nlu-menu-settings').click();
-                cy.contains('Import').click();
-                cy.fixture('nlu_import.json', 'utf8').then((content) => {
-                    cy.get('.file-dropzone').upload(content, 'data.json');
-                });
-        
-                cy.contains('Import Training Data').click();
-            });
-    });
+    before(function() {});
 
     beforeEach(function() {
-        cy.login();
-        cy.visit('/project/bf/nlu/models');
-        cy.contains('Training Data').click();
+        cy.createProject('bf', 'My Project', 'fr').then(() => {
+            cy.login();
+            cy.visit('/project/bf/nlu/models');
+            cy.get('.nlu-menu-settings').click();
+            cy.contains('Import').click();
+            cy.fixture('nlu_import.json', 'utf8').then((content) => {
+                cy.get('.file-dropzone').upload(content, 'data.json');
+            });
+            cy.contains('Import Training Data').click();
+        });
     });
 
-    after(function() {
+    afterEach(function() {
         cy.deleteProject('bf');
     });
 
     it('Should add training data', function() {
+        cy.visit('/project/bf/nlu/models');
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type(utterance);
         cy.get('.purple > .ui').click();
@@ -53,20 +48,25 @@ describe('nlu tagging in training data', function() {
             .contains(intentName)
             .click();
         cy.get('[data-cy=save-button]').click();
-    });
-
-    it('should be able to change the intent with a popup', function() {
+        cy.visit('/project/bf/nlu/models');
         cy.get('.rt-tbody .rt-tr:first').should('contain', utterance);
         cy.get('.rt-tbody .rt-tr:first')
-            .contains(intentName)
+            .contains(intentName).should('exist');
+    });
+
+    // TODO: this test doesn't test anything
+    it('should be able to change the intent with a popup', function() {
+        cy.visit('/project/bf/nlu/models');
+        cy.get('.rt-tbody .rt-tr:first')
+            .contains('chitchat.presentation')
             .trigger('mouseover');
 
         cy.get('[data-cy=intent-dropdown]').click();
         cy.get('[data-cy=intent-dropdown]')
-            .contains(secondIntent)
+            .contains('chitchat.tell_me_a_joke')
             .click();
 
-        cy.get('.rt-tbody .rt-tr:first').contains(secondIntent);
+        cy.get('.rt-tbody .rt-tr:first').contains('chitchat.tell_me_a_joke');
 
         // This doesn't work ( as in the popup never disappears)
         // cy.get('.rt-tbody .rt-tr:first').contains(utterance).trigger('mouseover').click();
@@ -75,9 +75,9 @@ describe('nlu tagging in training data', function() {
     });
 
     it('should be able to change the intent with a new intent', function() {
-        cy.get('.rt-tbody .rt-tr:first').should('contain', utterance);
+        cy.visit('/project/bf/nlu/models');
         cy.get('.rt-tbody .rt-tr:first')
-            .contains(secondIntent)
+            .contains('chitchat.presentation')
             .trigger('mouseover');
 
         cy.get('[data-cy=intent-dropdown]').click();
@@ -85,15 +85,16 @@ describe('nlu tagging in training data', function() {
 
         cy.get('.rt-tbody .rt-tr:first').contains(newIntent);
 
-        cy.wait(1000);
-        cy.get('.rt-tbody .rt-tr:first')
-            .contains(utterance)
-            .click();
+        // cy.wait(1000);
+        // cy.get('.rt-tbody .rt-tr:first')
+        //     .contains(utterance)
+        //     .click();
 
         // cy.get('[data-cy=intent-popup]').should('not.exist');
     });
 
     it('should delete the training data', function() {
+        cy.visit('/project/bf/nlu/models');
         cy.get('.rt-tbody .rt-tr:first [data-cy=trash] .viewOnHover').click({
             force: true,
         });
@@ -204,6 +205,7 @@ describe('nlu tagging in training data', function() {
     // });
 
     it('should be able to change an entity with a popup', function() {
+        cy.visit('/project/bf/nlu/models');
         cy.get('.rt-tbody .rt-tr:first')
             .contains('Matthieu')
             .trigger('mouseover');
@@ -225,6 +227,7 @@ describe('nlu tagging in training data', function() {
     });
 
     it('should be able to change an entity with a popup to a new entity', function() {
+        cy.visit('/project/bf/nlu/models');
         cy.get('.rt-tbody .rt-tr:first')
             .contains('Matthieu')
             .trigger('mouseover');

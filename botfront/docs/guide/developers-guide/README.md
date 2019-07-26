@@ -20,8 +20,6 @@ Meteor comes with its own Node.js and NPM. When installing dependencies, it is b
 - With default settings: `meteor npm start`
 
 
-
-
 ## Documentation
 - Run the documentation locally: `meteor npm run docs:dev`
 - Build the documentation : `meteor npm run docs:build`
@@ -39,11 +37,11 @@ The test suite starts by testing the setup process **and will wipe the database*
 
 ## Developing with Docker Compose
 
-Follow those instructions to develop Botfront while interacting with all the services via docker-compose:
+Follow those instructions to develop Botfront while interacting with all the services exposed by `docker-compose`:
 
-1. Reset meteor (**this will wipe the database**) with `meteor reset`
-2. Set the `MODELS_LOCAL_PATH` environment variable in your shell with for example `export MODELS_LOCAL_PATH=~/botfront-projects/s`
-3. Start Botfront locally with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
-4. Create a Botfront projet with `botfront init`. Don't start it
-5. In `.botfront/botfront.yml`, set the `mongo_url` to `mongodb://host.docker.internal:3001/meteor`
-6. Start the Botfront project with `botfront up`
+1. Create a Botfront projet with `botfront init` 
+2. in your project, edit `.botfront/botfront.yml` and replace all hosts by `localhost`
+3. Start your project with `botfront up` 
+4. Reset meteor from Botfront root folder with `meteor reset`.  (**this will wipe the database**)
+5. Set the `MODELS_LOCAL_PATH` environment variable in your shell with for example `export MODELS_LOCAL_PATH=~/your-botfront-project/models`
+6. Run Botfront with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000)

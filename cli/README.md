@@ -1,9 +1,8 @@
-<div align="center">
+# Botfront.
 
-[![Release](https://img.shields.io/npm/v/botfront.svg)](https://www.npmjs.com/package/botfront) 
-[![License](https://img.shields.io/badge/license-AGPLv3-blue.svg?style=flat)](https://github.com/botfront/botfront/blob/master/LICENSE)
-[![Ask your questions on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/botfront)
 
+A visual and intuitive platform to build chatbots with Rasa
+![Botfront screenshot](botfront/docs/images/botfront-screenshot-shadow.png)
 </div>
 
 # Botfront
@@ -20,7 +19,9 @@ With Botfront you can:
 - Create and edit your bot responses 👩‍🎨
 - Monitor conversations, review and annotate incoming NLU utterances 👌
 
+## Version Control
 
+Clone the project as usual then run `git push -u origin master` to set origin as the default remote. **Don't miss this step** or you might push on the open source repo by accident.
 ### Getting started
 
 Just...
@@ -35,9 +36,6 @@ And...
 botfront
 ```
 
-### Getting help
-- [Read the documentation](https://docs.botfront.io)
-- Get answers on the [Spectrum community](https://spectrum.chat/botfront)
+Then run `git remote add upstream https://github.com/botfront/botfront` to add the open source repo as another remote source.
 
-### License
-Botfront is [AGPLv3](https://github.com/botfront/botfront/blob/master/LICENSE) licensed. You can read the licence [here](https://github.com/botfront/botfront/blob/master/LICENSE).
+Now, everytime you want to integrate the latest changes from the open source repo, just run `git pull upstream stable`
