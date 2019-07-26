@@ -13,7 +13,7 @@ const BotResponseContainer = (props) => {
     const [input, setInput] = useState();
     useEffect(() => {
         setMode(value.text.trim() === '' ? 'edit' : 'view');
-    }, value);
+    }, [value]);
 
     const render = () => {
         if (mode === 'edit') {

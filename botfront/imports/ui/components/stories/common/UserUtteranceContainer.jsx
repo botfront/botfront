@@ -13,7 +13,7 @@ const UtteranceContainer = (props) => {
     const [input, setInput] = useState();
     useEffect(() => {
         setMode(!value ? 'input' : 'view');
-    }, value);
+    }, [value]);
 
     const render = () => {
         if (mode === 'input') {
