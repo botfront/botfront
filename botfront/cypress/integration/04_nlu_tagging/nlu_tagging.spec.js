@@ -19,22 +19,21 @@ const secondEntity = 'ENT2';
 const newEntity = 'myNewEntity';
 
 describe('nlu tagging in training data', function() {
-    before(function() {});
-
     beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr').then(() => {
-            cy.login();
-            cy.visit('/project/bf/nlu/models');
-            cy.get('.nlu-menu-settings').click();
-            cy.contains('Import').click();
-            cy.fixture('nlu_import.json', 'utf8').then((content) => {
-                cy.get('.file-dropzone').upload(content, 'data.json');
-            });
-            cy.contains('Import Training Data').click();
+        cy.createProject('bf', 'My Project', 'fr');
+        cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
+        cy.loginTestUser('admin@bf.com');
+        cy.visit('/project/bf/nlu/models');
+        cy.get('.nlu-menu-settings').click();
+        cy.contains('Import').click();
+        cy.fixture('nlu_import.json', 'utf8').then((content) => {
+            cy.get('.file-dropzone').upload(content, 'data.json');
         });
+        cy.contains('Import Training Data').click();
     });
 
     afterEach(function() {
+        cy.deleteUser('admin@bf.com');
         cy.deleteProject('bf');
     });
 

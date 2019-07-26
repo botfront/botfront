@@ -8,7 +8,6 @@ describe('intial setup', function() {
     });
 
     after(function() {
-        
     });
 
     it('Should create projects when completing the initial setup', () => {

@@ -6,12 +6,15 @@ const initialText = '* replace_with_intent';
 const testText = '* my_intent';
 
 describe('stories', function() {
-    afterEach(function() {
-        cy.deleteProject('bf');
+    beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'fr');
+        cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
+        cy.loginTestUser('admin@bf.com');
     });
 
-    beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
+    afterEach(function() {
+        cy.deleteUser('admin@bf.com');
+        cy.deleteProject('bf');
     });
 
     function clickStoryGroup(group) {
