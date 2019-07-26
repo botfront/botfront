@@ -1,7 +1,9 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import BotResponsePopupContent from './BotResponsePopupContent';
+import BotResponseContainer from './BotResponseContainer';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsesContainer = (props) => {
@@ -9,10 +11,10 @@ const BotResponsesContainer = (props) => {
         name, onDeleteResponse, onCreateResponse, onDeleteAllResponses,
     } = props;
     const { responses, lang } = useContext(ConversationOptionsContext);
-    console.log(responses)
-    const { sequence } = responses
+    const sequence = responses
         .filter(r => r.key === name)[0].values
-        .filter(v => v.lang === lang)[0];
+        .filter(v => v.lang === lang)[0].sequence
+        .map(r => yamlLoad(r.content));
     const [popupOpen, setPopupOpen] = useState(null);
 
     const renderAddLine = (i) => {
@@ -48,18 +50,11 @@ const BotResponsesContainer = (props) => {
     const renderResponse = (r, i, a) => (
         <React.Fragment key={i + r}>
             <div className='flex-right'>
-                <div /* start placeholder for bot response container */
-                    className='utterance-container'
-                    agent='bot'
-                >
-                    <div className='inner'>
-                        { r.content }
-                    </div>
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => onDeleteResponse(i)}
-                    />
-                </div> {/* start placeholder for bot response container */}
+                <BotResponseContainer
+                    value={r}
+                    onDelete={() => onDeleteResponse(i)}
+                    onAbort={() => onDeleteResponse(i)}
+                />
                 { i === 0 && a.length > 1 && (
                     <FloatingIconButton
                         icon='trash'
@@ -77,11 +72,8 @@ const BotResponsesContainer = (props) => {
     );
 
     if (sequence && !sequence.length) onDeleteAllResponses();
-
     return (
-        <div
-            className='responses-container'
-        >
+        <div className='responses-container'>
             {renderAddLine(-1)}
             {sequence.map(renderResponse)}
         </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Label } from 'semantic-ui-react';
 import { update as _update } from 'lodash';
+import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
@@ -86,7 +87,7 @@ class StoryVisualEditor extends React.Component {
             key,
             values: [{
                 lang,
-                sequence: [{ content: template }],
+                sequence: [{ content: this.defaultTemplate(template) }],
             }],
         };
         updateResponses(responses.concat([newResponse]));
@@ -100,9 +101,15 @@ class StoryVisualEditor extends React.Component {
     handleCreateResponse = (name, j, template) => {
         const { updateResponses } = this.props;
         const { responses, lang } = this.context;
-        const updater = sequence => ([...sequence.slice(0, j + 1), { content: template }, ...sequence.slice(j + 1)]);
+        const updater = sequence => ([...sequence.slice(0, j + 1), { content: this.defaultTemplate(template) }, ...sequence.slice(j + 1)]);
         const newResponses = this.updateSequence(responses, name, lang, updater);
         updateResponses(newResponses);
+    }
+
+    defaultTemplate = (template) => {
+        if (template === 'text') { return yamlDump({ text: '' }); }
+        if (template === 'qr') { return yamlDump({ text: '', buttons: [] }); }
+        return false;
     }
 
     parseUtterance = u => ({

@@ -9,17 +9,17 @@ const BotResponseContainer = (props) => {
         value, onInput, onDelete, onAbort,
         onChange,
     } = props;
-    const [mode, setMode] = useState(!value ? 'input' : 'view');
+    const [mode, setMode] = useState(value.text.trim() === '' ? 'edit' : 'view');
     const [input, setInput] = useState();
     useEffect(() => {
-        setMode(!value ? 'input' : 'view');
+        setMode(value.text.trim() === '' ? 'edit' : 'view');
     }, value);
 
     const render = () => {
-        if (mode === 'input') {
+        if (mode === 'edit') {
             return (
                 <UtteranceInput
-                    placeholder='User says...'
+                    placeholder='Bot says...'
                     fluid
                     value={input}
                     onChange={u => setInput(u)}
@@ -41,7 +41,7 @@ const BotResponseContainer = (props) => {
         <div
             className='utterance-container'
             mode={mode}
-            agent='user'
+            agent='bot'
         >
             <div className='inner'>
                 {render()}
@@ -49,7 +49,7 @@ const BotResponseContainer = (props) => {
             <FloatingIconButton
                 icon='trash'
                 onClick={() => {
-                    if (mode === 'input') return onAbort();
+                    if (mode === 'edit') return onAbort();
                     return onDelete();
                 }}
             />
