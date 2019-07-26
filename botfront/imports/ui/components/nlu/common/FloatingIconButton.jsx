@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { Icon } from 'semantic-ui-react';
 
 export default function FloatingIconButton(props) {
-    const { onClick, style, icon } = props;
+    const {
+        onClick, style, icon, size: sizeProp, color,
+    } = props;
+    const size = sizeProp === 'medium' ? null : { size: sizeProp };
 
     return (
         <div
@@ -12,8 +15,8 @@ export default function FloatingIconButton(props) {
             data-cy={icon}
         >
             <Icon
-                size='small'
-                color='grey'
+                {...size}
+                color={color}
                 name={icon}
                 // https://stackoverflow.com/questions/42764494/blur-event-relatedtarget-returns-null
                 // this prop allows the icon to become focused
@@ -30,8 +33,12 @@ FloatingIconButton.propTypes = {
     onClick: PropTypes.func.isRequired,
     style: PropTypes.object,
     icon: PropTypes.string.isRequired,
+    size: PropTypes.string,
+    color: PropTypes.string,
 };
 
 FloatingIconButton.defaultProps = {
     style: {},
+    size: 'small',
+    color: 'grey',
 };
