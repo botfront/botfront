@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {
     Dropdown, Button, Popup,
 } from 'semantic-ui-react';
@@ -9,10 +10,17 @@ import { ConversationOptionsContext } from '../../utils/Context';
 
 const SlotPopupContent = (props) => {
     const {
-        value: active, onSelect, trigger,
+        value: active, onSelect, trigger, projectId,
     } = props;
-    // Context API should provide the categories
-    const { slots, projectId, categories = ['category1', 'category2'] } = useContext(ConversationOptionsContext);
+    const { slots } = useContext(ConversationOptionsContext);
+    
+    function extractCategories(slotsData) {
+        const categories = slotsData.filter(slot => slot.type === 'categorical').flatMap((slot) => {
+            return slot.categories;
+        });
+        return [...new Set(categories)];
+    }
+
     if (!slots.length) {
         return (
             <Popup trigger={trigger} wide on='click'>
@@ -34,7 +42,7 @@ const SlotPopupContent = (props) => {
         if (type === 'bool') return [true, false];
         if (type === 'text') return ['set', 'null'];
         if (type === 'list') return ['empty', 'not-empty'];
-        return categories;
+        return extractCategories(slots);
     }
 
     return (
@@ -99,6 +107,7 @@ const SlotPopupContent = (props) => {
 };
 
 SlotPopupContent.propTypes = {
+    projectId: PropTypes.string.isRequired,
     value: PropTypes.string,
     onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
@@ -109,4 +118,8 @@ SlotPopupContent.defaultProps = {
     onSelect: () => {},
 };
 
-export default SlotPopupContent;
+const mapStateToProps = state => ({
+    projectId: state.get('projectId'),
+});
+
+export default connect(mapStateToProps)(SlotPopupContent);
