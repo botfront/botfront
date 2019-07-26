@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.3](https://github.com/botfront/botfront/compare/v0.15.2...v0.15.3) (2019-07-26)
+
+
+### Features
+
+* **FloatingIconButton:** add color & size props ([f0060b2](https://github.com/botfront/botfront/commit/f0060b2))
+* postinstall script starts botfront right after npm install ([7998c31](https://github.com/botfront/botfront/commit/7998c31))
+
+
+
 ### [0.15.2](https://github.com/botfront/botfront/compare/v0.15.1...v0.15.2) (2019-07-25)
 
 
