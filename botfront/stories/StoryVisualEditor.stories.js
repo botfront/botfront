@@ -41,6 +41,7 @@ const StoryVisualEditorWrapped = ({ story: s }) => {
                 intents,
                 responses,
                 lang: 'en',
+                updateResponses: setResponses,
             }}
         >
             <div
@@ -64,7 +65,6 @@ const StoryVisualEditorWrapped = ({ story: s }) => {
                     <StoryVisualEditor
                         story={story}
                         updateStory={setStory}
-                        updateResponses={setResponses}
                     />
                 </div>
             </div>

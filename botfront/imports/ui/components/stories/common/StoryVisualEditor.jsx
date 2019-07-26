@@ -37,8 +37,7 @@ class StoryVisualEditor extends React.Component {
     }
 
     handleDeleteResponse = (name, j) => {
-        const { updateResponses } = this.props;
-        const { responses, lang } = this.context;
+        const { responses, lang, updateResponses } = this.context;
         const updater = sequence => ([...sequence.slice(0, j), ...sequence.slice(j + 1)]);
         const newResponses = this.updateSequence(responses, name, lang, updater);
         updateResponses(newResponses);
@@ -80,8 +79,8 @@ class StoryVisualEditor extends React.Component {
 
     handleCreateSequence = (i, template) => {
         this.setState({ lineInsertIndex: null });
-        const { story, updateStory, updateResponses } = this.props;
-        const { responses, lang } = this.context;
+        const { story, updateStory } = this.props;
+        const { responses, lang, updateResponses } = this.context;
         const key = this.findResponseName();
         const newResponse = {
             key,
@@ -99,8 +98,7 @@ class StoryVisualEditor extends React.Component {
     }
 
     handleCreateResponse = (name, j, template) => {
-        const { updateResponses } = this.props;
-        const { responses, lang } = this.context;
+        const { responses, lang, updateResponses } = this.context;
         const updater = sequence => ([...sequence.slice(0, j + 1), { content: this.defaultTemplate(template) }, ...sequence.slice(j + 1)]);
         const newResponses = this.updateSequence(responses, name, lang, updater);
         updateResponses(newResponses);
@@ -229,7 +227,6 @@ class StoryVisualEditor extends React.Component {
 
 StoryVisualEditor.propTypes = {
     updateStory: PropTypes.func.isRequired,
-    updateResponses: PropTypes.func.isRequired,
     story: PropTypes.arrayOf(
         PropTypes.oneOfType([
             PropTypes.shape({
@@ -272,4 +269,5 @@ StoryVisualEditor.defaultProps = {
     story: [],
 };
 
+export const { updateSequence } = StoryVisualEditor.prototype;
 export default StoryVisualEditor;
