@@ -8,7 +8,7 @@ import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsesContainer = (props) => {
     const {
-        name, onDeleteResponse, onCreateResponse, onDeleteAllResponses,
+        name, onDeleteResponse, onCreateResponse, onDeleteAllResponses, onChangeResponse,
     } = props;
     const { responses, lang } = useContext(ConversationOptionsContext);
     const sequence = responses
@@ -54,6 +54,7 @@ const BotResponsesContainer = (props) => {
                     value={r}
                     onDelete={() => onDeleteResponse(i)}
                     onAbort={() => onDeleteResponse(i)}
+                    onChange={content => onChangeResponse(i, content)}
                 />
                 { i === 0 && a.length > 1 && (
                     <FloatingIconButton
@@ -85,6 +86,7 @@ BotResponsesContainer.propTypes = {
     onDeleteResponse: PropTypes.func.isRequired,
     onCreateResponse: PropTypes.func.isRequired,
     onDeleteAllResponses: PropTypes.func.isRequired,
+    onChangeResponse: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {

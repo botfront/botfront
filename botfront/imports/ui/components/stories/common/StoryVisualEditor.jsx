@@ -104,6 +104,13 @@ class StoryVisualEditor extends React.Component {
         updateResponses(newResponses);
     }
 
+    handleChangeResponse = (name, j, content) => {
+        const { responses, lang, updateResponses } = this.context;
+        const updater = sequence => ([...sequence.slice(0, j), { content: yamlDump(content) }, ...sequence.slice(j + 1)]);
+        const newResponses = this.updateSequence(responses, name, lang, updater);
+        updateResponses(newResponses);
+    }
+
     defaultTemplate = (template) => {
         if (template === 'text') { return yamlDump({ text: '' }); }
         if (template === 'qr') { return yamlDump({ text: '', buttons: [] }); }
@@ -195,6 +202,7 @@ class StoryVisualEditor extends React.Component {
                             onDeleteAllResponses={() => this.handleDeleteLine(i)}
                             onDeleteResponse={j => this.handleDeleteResponse(l.data.name, j)}
                             onCreateResponse={(j, template) => this.handleCreateResponse(l.data.name, j, template)}
+                            onChangeResponse={(j, content) => this.handleChangeResponse(l.data.name, j, content)}
                         />
                         {this.renderAddLine(i)}
                     </React.Fragment>

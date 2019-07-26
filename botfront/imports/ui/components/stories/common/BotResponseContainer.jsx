@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UtteranceInput from '../../utils/UtteranceInput';
-import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort,
-        onChange,
+        value, onDelete, onAbort, onChange,
     } = props;
     const [mode, setMode] = useState(value.text.trim() === '' ? 'edit' : 'view');
     const [input, setInput] = useState();
@@ -23,17 +21,12 @@ const BotResponseContainer = (props) => {
                     fluid
                     value={input}
                     onChange={u => setInput(u)}
-                    onValidate={() => onInput(input)}
+                    onValidate={() => { if (input.trim() !== '') { setMode('view'); onChange({ text: input }); } }}
                 />
             );
         }
         return (
-            <UserUtteranceViewer
-                value={value}
-                allowEditing
-                size='mini'
-                onChange={v => onChange(v)}
-            />
+            <div>{value.text}</div>
         );
     };
 
@@ -59,7 +52,6 @@ const BotResponseContainer = (props) => {
 
 BotResponseContainer.propTypes = {
     value: PropTypes.object,
-    onInput: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
