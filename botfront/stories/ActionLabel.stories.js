@@ -17,7 +17,6 @@ function ActionLabelWrapped(props) {
 
 storiesOf('Action Label', module)
     .addDecorator(withKnobs)
-    .addDecorator(renderLabel => <Label>{renderLabel()}</Label>)
     .add('default', () => (
         <ActionLabelWrapped size={select('size', ['mini', 'tiny'])} />
     ));
