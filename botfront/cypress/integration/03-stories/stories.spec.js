@@ -168,11 +168,11 @@ describe('stories', function() {
             .type('{backspace}{backspace}{backspace}{enter}');
         cy.contains('storyGroup').should('exist');
         // Initially none of the story groups are selected, therefore content in the train button should be 'Train'
-        cy.contains('Train Everything');
+        cy.contains('Train everything');
         cy.get('.active > #not-selected').click({ force: true });
         cy.get('#not-selected').click({ force: true });
         // Text in the train button should change after all the stories are selected
-        cy.contains('Partial Training');
+        cy.contains('Partial training');
 
         cy.contains('storyGroup').click({ force: true });
         cy.dataCy('delete-story').click({ force: true });
