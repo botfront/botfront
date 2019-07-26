@@ -3,6 +3,7 @@ import { storiesOf } from '@storybook/react';
 import {
     withKnobs, select,
 } from '@storybook/addon-knobs';
+import { load as yamlLoad } from 'js-yaml';
 import { Message, Image } from 'semantic-ui-react';
 import BotResponseContainer from '../imports/ui/components/stories/common/BotResponseContainer';
 
@@ -30,20 +31,28 @@ const responseTwo = {
     }],
 };
 
+const virginTextResponse = {
+    key: 'utter_new_1',
+    values: [{
+        lang: 'en',
+        sequence: [
+            { content: 'text: \'\'' },
+        ],
+    }],
+};
+
 export const responses = [responseOne, responseTwo];
 
 const BotResponseContainerWrapped = (props) => {
     const [status, setStatus] = useState(null);
     const { value: initValue, ...rest } = props;
-    const [value, setValue] = useState(initValue);
-    
+    const [value, setValue] = useState(yamlLoad(initValue.values[0].sequence[0].content));
+
     if (!status) {
         return (
             <div className='story-visual-editor'>
                 <BotResponseContainer
                     {...rest}
-                    onInput={u => setStatus(`New user utterance: ${u}!!`)}
-                    onChange={v => setValue(v)}
                     onDelete={() => setStatus('delete !')}
                     onAbort={() => setStatus('abort!')}
                     value={value}
@@ -62,7 +71,7 @@ const BotResponseContainerWrapped = (props) => {
 storiesOf('BotResponseContainer', module)
     .addDecorator(withKnobs)
     .add('w/o value', () => (
-        <BotResponseContainerWrapped />
+        <BotResponseContainerWrapped value={virginTextResponse} />
     ))
     .add('w/ value', () => (
         <BotResponseContainerWrapped
