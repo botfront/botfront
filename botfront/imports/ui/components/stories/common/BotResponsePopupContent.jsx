@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
     Dropdown, Modal, Search,
@@ -7,14 +7,20 @@ import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsePopupContent = (props) => {
     const {
-        onSelect, onCreate, trigger, noButtonResponse, limitedSelection,
+        onSelect, onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose, disableExisting,
     } = props;
     const { responses } = useContext(ConversationOptionsContext);
     const [modalOpen, setModalOpen] = useState(false);
+    const [closeNext, setCloseNext] = useState(false);
+
+    useEffect(() => {
+        if (closeNext && !modalOpen) onClose();
+    }, [closeNext]);
 
     return (
         <>
             <Modal
+                tabIndex={0}
                 size='tiny'
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
@@ -32,14 +38,25 @@ const BotResponsePopupContent = (props) => {
                     ))}
                 </Modal.Content>
             </Modal>
-            <Dropdown trigger={trigger} className='dropdown-button-trigger'>
+            <Dropdown
+                trigger={trigger}
+                className='dropdown-button-trigger'
+                defaultOpen={defaultOpen}
+                onClose={() => setCloseNext(true)}
+            >
                 <Dropdown.Menu className='first-column'>
-                    <Dropdown.Header>Select from existing</Dropdown.Header>
-                    <Dropdown.Item>
-                        <Search fluid placeholder='Search responses...' onClick={() => setModalOpen(true)} />
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Header>Or use a template</Dropdown.Header>
+                    { !disableExisting
+                        ? (
+                            <>
+                                <Dropdown.Header>Select from existing</Dropdown.Header>
+                                <Dropdown.Item onClick={() => setModalOpen(true)}>
+                                    <Search fluid placeholder='Search responses...' />
+                                </Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Header>Or use a template</Dropdown.Header>
+                            </>
+                        ) : <Dropdown.Header>Use a template</Dropdown.Header>
+                    }
                     <Dropdown.Item onClick={() => onCreate('text')}>Text</Dropdown.Item>
                     <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
                     {!limitedSelection
@@ -63,14 +80,20 @@ BotResponsePopupContent.propTypes = {
     trigger: PropTypes.element.isRequired,
     noButtonResponse: PropTypes.bool,
     limitedSelection: PropTypes.bool,
+    defaultOpen: PropTypes.bool,
+    onClose: PropTypes.func,
+    disableExisting: PropTypes.bool,
 };
 
 BotResponsePopupContent.defaultProps = {
     value: null,
     noButtonResponse: false,
     limitedSelection: false,
+    defaultOpen: false,
+    disableExisting: false,
     onSelect: () => {},
     onCreate: () => {},
+    onClose: () => {},
 };
 
 export default BotResponsePopupContent;

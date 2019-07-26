@@ -89,7 +89,7 @@ class OutOfScope extends React.Component {
                                 )}
                             />
                         )}
-                        <FloatingIconButton name='trash' onClick={() => this.onDelete(utterance)} />
+                        <FloatingIconButton icon='trash' onClick={() => this.onDelete(utterance)} />
                     </div>
                 );
             },

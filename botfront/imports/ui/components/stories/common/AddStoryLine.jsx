@@ -6,7 +6,7 @@ import SlotPopupContent from './SlotPopupContent';
 import DashedButton from './DashedButton';
 import UserUtterancePopupContent from './UserUtterancePopupContent';
 
-const AddStoryLine = (props) => {
+const AddStoryLine = React.forwardRef((props, ref) => {
     const {
         availableActions: {
             userUtterance, botUtterance, action, slot,
@@ -18,12 +18,20 @@ const AddStoryLine = (props) => {
         onSelectSlot,
         onCreateUtteranceFromInput,
         onCreateUtteranceFromPayload,
+        size,
+        onBlur,
     } = props;
     return (
-        <div className='add-story-line'>
+        <div
+            className='add-story-line'
+            ref={ref}
+            tabIndex={0}
+            role='menuitem'
+            onBlur={e => onBlur(e)}
+        >
             { userUtterance && (
                 <UserUtterancePopupContent
-                    trigger={<DashedButton color='blue'>User says:</DashedButton>}
+                    trigger={<DashedButton color='blue' size={size}>User says:</DashedButton>}
                     onCreateFromInput={onCreateUtteranceFromInput}
                     onCreateFromPayload={u => onCreateUtteranceFromPayload(u)}
                 />
@@ -34,24 +42,25 @@ const AddStoryLine = (props) => {
                     onCreate={r => onCreateResponse(r)}
                     noButtonResponse={noButtonResponse}
                     limitedSelection
-                    trigger={<DashedButton color='green'>Bot Response</DashedButton>}
+                    disableExisting
+                    trigger={<DashedButton color='green' size={size}>Bot Response</DashedButton>}
                 />
             )}
             { action && (
                 <ActionPopupContent
                     onSelect={a => onSelectAction(a)}
-                    trigger={<DashedButton color='pink'>Action</DashedButton>}
+                    trigger={<DashedButton color='pink' size={size}>Action</DashedButton>}
                 />
             )}
             { slot && (
                 <SlotPopupContent
                     onSelect={s => onSelectSlot(s)}
-                    trigger={<DashedButton color='orange'>Slot</DashedButton>}
+                    trigger={<DashedButton color='orange' size={size}>Slot</DashedButton>}
                 />
             )}
         </div>
     );
-};
+});
 
 AddStoryLine.propTypes = {
     availableActions: PropTypes.object.isRequired,
@@ -62,6 +71,8 @@ AddStoryLine.propTypes = {
     onSelectAction: PropTypes.func,
     onSelectSlot: PropTypes.func,
     noButtonResponse: PropTypes.bool,
+    size: PropTypes.string,
+    onBlur: PropTypes.func,
 };
 
 AddStoryLine.defaultProps = {
@@ -72,6 +83,8 @@ AddStoryLine.defaultProps = {
     onSelectAction: () => {},
     onSelectSlot: () => {},
     noButtonResponse: false,
+    size: 'mini',
+    onBlur: () => {},
 };
 
 export default AddStoryLine;

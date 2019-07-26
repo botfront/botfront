@@ -9,6 +9,7 @@ const ActionPopupContent = (props) => {
 
     return (
         <Popup
+            tabIndex={0}
             trigger={trigger}
             wide
             on='click'
