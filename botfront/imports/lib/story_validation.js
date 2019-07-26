@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-return-assign */
 import { safeDump as yamlDump } from 'js-yaml';
 
 const trimStart = str => str.replace(/^\s+/, '');
@@ -37,7 +39,9 @@ export class StoryValidator {
     };
 
     raiseStoryException = (code) => {
-        this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.line + 1, code));
+        this.exceptions.push(
+            new StoryException(...this.exceptionMessages[code], this.line + 1, code),
+        );
     };
 
     validateUtter = () => {
@@ -63,13 +67,28 @@ export class StoryValidator {
 
     exceptionMessages = {
         prefix: ['error', 'Lines should start with `* ` or `- `'],
-        intent: ['error', 'User utterances (intents) should look like this: `* MyIntent` or `* MyIntent{"entity": "value"}`'],
+        intent: [
+            'error',
+            'User utterances (intents) should look like this: `* MyIntent` or `* MyIntent{"entity": "value"}`',
+        ],
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`'],
-        have_intent: ['warning', 'Bot actions should usually be found in a user utterance (intent) block.'],
+        have_intent: [
+            'warning',
+            'Bot actions should usually be found in a user utterance (intent) block.',
+        ],
         empty_story: ['warning', 'Story closed without defining any interactions.'],
-        empty_intent: ['warning', 'User utterance (intent) block closed without defining any bot action.'],
-        action_name: ['warning', 'Actions should look like this: `- action_...`, `- utter_...`, `- slot{...}` or `- form{...}`.'],
-        declare_form: ['warning', 'Form calls (`- form{"name": "MyForm"}`) should be preceded by matching `- MyForm`.'],
+        empty_intent: [
+            'warning',
+            'User utterance (intent) block closed without defining any bot action.',
+        ],
+        action_name: [
+            'warning',
+            'Actions should look like this: `- action_...`, `- utter_...`, `- slot{...}` or `- form{...}`.',
+        ],
+        declare_form: [
+            'warning',
+            'Form calls (`- form{"name": "MyForm"}`) should be preceded by matching `- MyForm`.',
+        ],
     };
 
     validateIntent = () => {
@@ -126,7 +145,9 @@ export class StoryValidator {
             const line = this.stories[this.line].replace(/ *<!--.*--> */g, ' ');
             if (trimStart(line).length !== 0) {
                 try {
-                    [this.prefix, this.content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
+                    [this.prefix, this.content] = /(^ *\* |^ *- )(.*)/
+                        .exec(line)
+                        .slice(1, 3);
                     this.prefix = trimStart(this.prefix);
                     this.content = trimEnd(this.content);
                     if (this.prefix === '* ') {
@@ -173,7 +194,10 @@ export class StoryValidator {
                 };
                 if (entities && entities !== '') {
                     const parsed = JSON.parse(entities);
-                    entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
+                    entities = Object.keys(parsed).map(key => ({
+                        entity: key,
+                        value: parsed[key],
+                    }));
                 } else {
                     entities = [];
                 }
@@ -187,6 +211,30 @@ export class StoryValidator {
     };
 }
 
+export const stringPayloadToObject = function(stringPayload) {
+    const payloadRegex = /([^{]*) *({.*}|)/;
+    const matches = payloadRegex.exec(stringPayload.substring(1));
+    const intent = matches[1];
+    let entities = matches[2];
+    const objectPayload = {
+        intent,
+        entities: [],
+    };
+    if (entities && entities !== '') {
+        const parsed = JSON.parse(entities);
+        entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
+    } else {
+        entities = [];
+    }
+    objectPayload.entities = entities;
+    return objectPayload;
+};
+
+export const objectPayloadToString = function({ intent, entities }) {
+    const entitiesMap = entities ? entities.reduce((map, obj) => (map[obj.entity] = obj.value, map), {}) : {};
+    const entitiesString = Object.keys(entitiesMap).length > 0 ? JSON.stringify(entitiesMap) : '';
+    return `/${intent}${entitiesString}`;
+};
 function addSlots(slots) {
     const slotsToAdd = {};
     if (!slots) return {};

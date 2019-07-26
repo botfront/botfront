@@ -1,0 +1,42 @@
+.quick-reply {
+  cursor: pointer;
+  display: inline-block;
+  min-height: 1em;
+  border: solid 1.5px #2185d0;
+  vertical-align: baseline;
+  margin: 0em 0.75em 0em 0em;
+  padding: 0.78571429em 1.5em 0.78571429em;
+  text-transform: none;
+  line-height: 0.75em;
+  font-style: normal;
+  text-align: center;
+  color: #2185d0;
+  text-decoration: none;
+  border-radius: 2rem;
+  font-weight: normal;
+  outline: none;
+
+  &.invalid {
+    border: dotted  1.5px ;
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+i.grey.icon.add-quick-reply {
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.response-button-editor {
+  &.ui.grid>.row {
+    padding-bottom: 0.4em;
+  }
+
+  .ui.selection.dropdown{
+    min-width: 0;
+  }
+  
+  .payload-title {
+    font-size: .97857143em !important;
+  }
+}
