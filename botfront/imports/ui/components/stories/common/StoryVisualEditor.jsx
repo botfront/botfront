@@ -53,16 +53,7 @@ class StoryVisualEditor extends React.Component {
         updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
     }
 
-    handleNewUserUtterance = (i, v) => {
-        const { story, updateStory } = this.props;
-        const updatedLine = {
-            type: 'user',
-            data: [this.parseUtterance(v)],
-        };
-        updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
-    }
-
-    handleCreateUtterance = (i, pl) => {
+    handleCreateUserUtterance = (i, pl) => {
         this.setState({ lineInsertIndex: null });
         const { story, updateStory } = this.props;
         const newLine = {
@@ -170,8 +161,8 @@ class StoryVisualEditor extends React.Component {
                 <AddStoryLine
                     ref={this.addStoryCursor}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => this.handleCreateUtterance(i)}
-                    onCreateUtteranceFromPayload={pl => this.handleCreateUtterance(i, pl)}
+                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(i)}
+                    onCreateUtteranceFromPayload={pl => this.handleCreateUserUtterance(i, pl)}
                     onSelectResponse={() => {}} // not needed for now since disableExisting is on
                     onCreateResponse={template => this.handleCreateSequence(i, template)}
                     onSelectAction={action => this.handleCreateSlotOrAction(i, { type: 'action', data: { name: action } })}
@@ -217,7 +208,7 @@ class StoryVisualEditor extends React.Component {
                     <UserUtteranceContainer
                         value={line.data[0]} // for now, data is a singleton
                         onChange={v => this.handleChangeUserUtterance(i, v)}
-                        onInput={v => this.handleNewUserUtterance(i, v)}
+                        onInput={v => this.handleChangeUserUtterance(i, this.parseUtterance(v))}
                         onDelete={() => this.handleDeleteLine(i)}
                         onAbort={() => this.handleDeleteLine(i)}
                     />
