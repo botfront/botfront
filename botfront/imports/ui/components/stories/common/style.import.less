@@ -9,6 +9,21 @@
     }
 }
 
+.action-name-form {
+    position: relative;
+
+    .action-name-prefix {
+        position: absolute;
+        z-index: 100;
+        left: 0.67857143em;
+        top: ~"calc(calc(100% - 2em) - 1px)";
+        color: @grey;
+    }
+    .action-name-prefix + .input input {
+        padding-left: 6.5ch;
+    }
+}
+
 .responses-container {
     display: inline-flex;
     width: 100%;
@@ -108,8 +123,25 @@
     margin: 0;
 }
 
-.dropdown-button-trigger {
+.dropdown-button-trigger.dropdown {
     width: max-content;
+    .menu.transition.visible {
+        top: ~"calc(100% + 5px)";
+    }
+    .menu {
+        .item.dropdown {            // add class dropdown to items containing dropdowns
+            padding: 0 !important;
+        }
+        .item.dropdown > .dropdown {
+            padding: .78571429rem 1.14285714rem;
+        }
+        .dropdown > .menu {
+            left: ~"calc(100% + 7px)";
+        }
+        .color-column {
+            color: #2185d0;
+        }
+    }
 }
 
 .dropdown-button-trigger > i {
@@ -153,21 +185,6 @@
     font-size: 0.78571429em;
     font-weight: bold;
     text-align: left;
-}
-
-.dropdown-button-trigger .menu.transition.visible.first-column {
-    top: ~"calc(100% + 5px)";
-    .second-column {
-        left: ~"calc(100% + 23px)";
-
-        .third-column {
-            left: ~"calc(100% + 23px)";
-
-            .color-column {
-                color: #2185d0;
-            }
-        }
-    }
 }
 
 .story-payload-editor.ui.grid>.row {
