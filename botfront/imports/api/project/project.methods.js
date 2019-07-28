@@ -15,8 +15,64 @@ import { createIntroStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
+import { StoryValidator } from '../../lib/story_validation';
 
 if (Meteor.isServer) {
+    export const extractDomainFromStories = (stories) => {
+        let domains = stories.map((story) => {
+            const val = new StoryValidator(story);
+            val.validateStories();
+            return val.extractDomain();
+        });
+        domains = domains.reduce((d1, d2) => ({
+            entities: new Set([...d1.entities, ...d2.entities]),
+            intents: new Set([...d1.intents, ...d2.intents]),
+        }));
+        return {
+            intents: domains.intents,
+            entities: domains.entities,
+        };
+    };
+
+    export const extractData = (models) => {
+        const trainingExamples = models.map(model => model.training_data.common_examples);
+        let intents = [];
+        let entities = [];
+        if (trainingExamples.length !== 0) {
+            const trainingData = trainingExamples.reduce((acc, x) => acc.concat(x));
+            // extract intents and entities from common examples of training data
+            intents = trainingData.map(example => example.intent);
+            entities = trainingData.map(example => example.entities);
+            if (entities.length !== 0) {
+                entities = entities.reduce((acc, x) => acc.concat(x));
+                entities = entities.map(entity => entity.entity);
+            }
+            return {
+                intents: new Set(intents),
+                entities: new Set(entities),
+            };
+        }
+        // return empty set if training data is empty
+        return {
+            intents: new Set(),
+            entities: new Set(),
+        };
+    };
+
+    export const getExamplesFromTrainingData = (projectId) => {
+        // Get all the Nlu model ids belonging to the project
+        const { nlu_models: nluModelIds } = Projects.findOne(
+            { _id: projectId },
+            { fields: { nlu_models: 1 } },
+        );
+        const models = NLUModels.find(
+            { _id: { $in: nluModelIds } },
+            { fields: { training_data: 1 } },
+        ).fetch();
+        // returns extracted entities and intents
+        return extractData(models);
+    };
+
     Meteor.methods({
         async 'project.insert'(item) {
             check(item, Object);
@@ -72,7 +128,7 @@ if (Meteor.isServer) {
 
         'project.markTrainingStarted'(projectId) {
             check(projectId, String);
-    
+
             try {
                 return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
             } catch (e) {
@@ -84,7 +140,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(status, String);
             check(error, Match.Optional(String));
-    
+
             try {
                 const set = { training: { status, endTime: new Date() } };
                 if (error) {
@@ -93,6 +149,42 @@ if (Meteor.isServer) {
                 return Projects.update({ _id: projectId }, { $set: set });
             } catch (e) {
                 throw e;
+            }
+        },
+
+        async 'project.getEntitiesAndIntents'(projectId) {
+            check(projectId, String);
+
+            try {
+                const stories = await Meteor.callWithPromise('stories.getStories', projectId);
+                const {
+                    intents: intentSetFromDomain = new Set(),
+                    entities: entitiesSetFromDomain = new Set(),
+                } = stories.length !== 0 ? extractDomainFromStories(stories.map(story => story.story)) : {};
+                const {
+                    intents: intentSetFromTraining,
+                    entities: entitiesSetFromTraining,
+                } = getExamplesFromTrainingData(projectId);
+
+                const intents = Array.from(new Set([...intentSetFromDomain, ...intentSetFromTraining]));
+                const entities = Array.from(new Set([...entitiesSetFromDomain, ...entitiesSetFromTraining]));
+                return {
+                    intents,
+                    entities,
+                };
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async 'project.getSlots'(projectId) {
+            check(projectId, String);
+
+            try {
+                const slots = await Meteor.callWithPromise('slots.getSlots', projectId);
+                return slots;
+            } catch (error) {
+                throw error;
             }
         },
     });

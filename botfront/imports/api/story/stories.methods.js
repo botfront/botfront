@@ -18,4 +18,9 @@ Meteor.methods({
         check(story, Object);
         return Stories.remove(story);
     },
+
+    'stories.getStories'(projectId) {
+        check(projectId, String);
+        return Stories.find({ projectId }).fetch();
+    },
 });
