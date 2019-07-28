@@ -4,4 +4,5 @@ export const ConversationOptionsContext = React.createContext({
     entities: [],
     intents: [],
     slots: [],
+    language: 'en',
 });

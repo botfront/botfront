@@ -17,7 +17,7 @@ class StoryVisualEditor extends React.Component {
 
     addStoryCursor = React.createRef();
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
         if ((lineInsertIndex || lineInsertIndex === 0) && lineInsertIndex !== prevState.lineInsertIndex) {
             this.addStoryCursor.current.focus();
@@ -184,27 +184,27 @@ class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
-        const lines = story.map((l, i) => {
-            if (l.type === 'action') return this.renderActionLine(i, l);
-            if (l.type === 'slot') return this.renderSlotLine(i, l);
-            if (l.type === 'bot') {
+        const lines = story.map((line, i) => {
+            if (line.type === 'action') return this.renderActionLine(i, line);
+            if (line.type === 'slot') return this.renderSlotLine(i, line);
+            if (line.type === 'bot') {
                 return (
-                    <React.Fragment key={i + l.data.name}>
+                    <React.Fragment key={i + line.data.name}>
                         <BotResponsesContainer
-                            name={l.data.name}
+                            name={line.data.name}
                             onDeleteAllResponses={() => this.handleDeleteLine(i)}
-                            onDeleteResponse={j => this.handleDeleteResponse(l.data.name, j)}
-                            onCreateResponse={(j, template) => this.handleCreateResponse(l.data.name, j, template)}
-                            onChangeResponse={(j, content) => this.handleChangeResponse(l.data.name, j, content)}
+                            onDeleteResponse={j => this.handleDeleteResponse(line.data.name, j)}
+                            onCreateResponse={(j, template) => this.handleCreateResponse(line.data.name, j, template)}
+                            onChangeResponse={(j, content) => this.handleChangeResponse(line.data.name, j, content)}
                         />
                         {this.renderAddLine(i)}
                     </React.Fragment>
                 );
             }
             return (
-                <React.Fragment key={i + (l.data[0] ? l.data[0].intent : '')}>
+                <React.Fragment key={i + (line.data[0] ? line.data[0].intent : '')}>
                     <UserUtteranceContainer
-                        value={l.data[0]} // for now, data is a singleton
+                        value={line.data[0]} // for now, data is a singleton
                         onChange={v => this.handleChangeUserUtterance(i, v)}
                         onInput={v => this.handleNewUserUtterance(i, v)}
                         onDelete={() => this.handleDeleteLine(i)}

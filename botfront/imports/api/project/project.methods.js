@@ -165,6 +165,7 @@ if (Meteor.isServer) {
 
         async 'project.getEntitiesAndIntents'(projectId) {
             check(projectId, String);
+            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
 
             try {
                 const stories = await Meteor.callWithPromise('stories.getStories', projectId);
@@ -188,8 +189,20 @@ if (Meteor.isServer) {
             }
         },
 
+        async 'project.getDefaultLanguage'(projectId) {
+            check(projectId, String);
+            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
+            try {
+                const { defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { defaultLanguage: 1 } });
+                return defaultLanguage;
+            } catch (error) {
+                throw error;
+            }
+        },
+
         async 'project.getSlots'(projectId) {
             check(projectId, String);
+            checkIfCan(['stories:r'], projectId);
 
             try {
                 const slots = await Meteor.callWithPromise('slots.getSlots', projectId);

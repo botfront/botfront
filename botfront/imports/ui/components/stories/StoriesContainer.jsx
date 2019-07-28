@@ -1,13 +1,9 @@
 import {
-    Container,
-    Placeholder,
-    Menu,
-    Icon,
-    Popup,
-    Label,
+    Container, Placeholder, Menu, Icon, Popup, Label,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Meteor } from 'meteor/meteor';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -17,8 +13,10 @@ import { Instances } from '../../../api/instances/instances.collection';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
+import { wrapMeteorCallback } from '../utils/Errors';
 import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
+import { ConversationOptionsContext } from '../utils/Context';
 
 const Stories = React.lazy(() => import('./Stories'));
 const SlotsEditor = React.lazy(() => import('./Slots'));
@@ -35,6 +33,68 @@ function StoriesContainer(props) {
     } = props;
 
     const [activeItem, setActiveItem] = useState('stories');
+    const [availableIntents, setAvailableIntents] = useState([]);
+    const [availableEntities, setAvailableEntities] = useState([]);
+    const [availableSlots, setAvailableSlots] = useState([]);
+    const [language, setLanguage] = useState('en');
+
+    useEffect(() => {
+        Meteor.call(
+            'project.getEntitiesAndIntents',
+            projectId,
+            wrapMeteorCallback((err, res) => {
+                if (!err) {
+                    setAvailableEntities(res.entities);
+                    setAvailableIntents(res.intents);
+                }
+            }),
+        );
+        Meteor.call(
+            'project.getSlots',
+            projectId,
+            wrapMeteorCallback((err, res) => {
+                if (!err) {
+                    setAvailableSlots(res);
+                }
+            }),
+        );
+        Meteor.call(
+            'project.getDefaultLanguage',
+            projectId,
+            wrapMeteorCallback((err, res) => setLanguage(res)),
+        );
+    }, []);
+
+    function getResponse(key) {
+        Meteor.call('project.findTemplate', projectId, key);
+    }
+
+    function updateResponse(response, callback) {
+        Meteor.call(
+            'project.updateTemplate',
+            projectId,
+            response.key,
+            response,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
+    function insertResponse(response, callback) {
+        Meteor.call(
+            'project.insertTemplate',
+            projectId,
+            response,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
+    function addIntent(intent) {
+        setAvailableIntents(availableIntents.push(intent));
+    }
+
+    function addEntity(entity) {
+        setAvailableEntities(availableEntities.push(entity));
+    }
 
     function RenderPlaceHolder() {
         return (
@@ -56,7 +116,19 @@ function StoriesContainer(props) {
     }
 
     return (
-        <>
+        <ConversationOptionsContext.Provider
+            value={{
+                intents: availableIntents,
+                entities: availableEntities,
+                slots: availableSlots,
+                language,
+                insertResponse,
+                updateResponse,
+                getResponse,
+                addEntity,
+                addIntent,
+            }}
+        >
             <PageMenu title='Stories' icon='book'>
                 <Menu.Menu position='right'>
                     <Menu.Item>
@@ -76,9 +148,7 @@ function StoriesContainer(props) {
                                         basic
                                         content={(
                                             <div>
-                                                {`Trained ${moment(
-                                                    endTime,
-                                                ).fromNow()}`}
+                                                {`Trained ${moment(endTime).fromNow()}`}
                                             </div>
                                         )}
                                         style={{
@@ -117,7 +187,11 @@ function StoriesContainer(props) {
                         )}
                     </Menu.Item>
                     <Menu.Item>
-                        <TrainButton project={project} instance={instance} projectId={projectId} />
+                        <TrainButton
+                            project={project}
+                            instance={instance}
+                            projectId={projectId}
+                        />
                     </Menu.Item>
                 </Menu.Menu>
             </PageMenu>
@@ -142,10 +216,7 @@ function StoriesContainer(props) {
                 {activeItem === 'stories' && (
                     <React.Suspense fallback={RenderPlaceHolder()}>
                         {ready ? (
-                            <Stories
-                                projectId={projectId}
-                                storyGroups={storyGroups}
-                            />
+                            <Stories projectId={projectId} storyGroups={storyGroups} />
                         ) : (
                             RenderPlaceHolder()
                         )}
@@ -161,7 +232,7 @@ function StoriesContainer(props) {
                     </React.Suspense>
                 )}
             </Container>
-        </>
+        </ConversationOptionsContext.Provider>
     );
 }
 
