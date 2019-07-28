@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file. See [standa
 * upload model to GCS if GKE and Core bucket present ([5bd9595](https://github.com/botfront/botfront/commit/5bd9595))
 * useless code changes ([e767c1a](https://github.com/botfront/botfront/commit/e767c1a))
 * wrong channel name in default settings ([f5dad8a](https://github.com/botfront/botfront/commit/f5dad8a))
+### [0.15.3](https://github.com/botfront/botfront/compare/v0.15.2...v0.15.3) (2019-07-26)
 
 
 ### Features
@@ -118,6 +119,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 ### 0.14.1 (2019-05-07)
+* **FloatingIconButton:** add color & size props ([f0060b2](https://github.com/botfront/botfront/commit/f0060b2))
+* postinstall script starts botfront right after npm install ([7998c31](https://github.com/botfront/botfront/commit/7998c31))
 
 
 
