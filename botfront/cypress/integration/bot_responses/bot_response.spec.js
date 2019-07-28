@@ -12,20 +12,22 @@ const templateFormats = [
 ];
 
 describe('Bot responses', function() {
+    before(function() {
+        cy.createProject('bf', 'My Project', 'fr');
+        cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
+        cy.createNLUModelProgramatically('bf', '', 'de');
+    });
+
     beforeEach(function() {
-        cy.login();
+        cy.loginTestUser('admin@bf.com');
     });
 
     afterEach(function() {
         cy.logout();
     });
 
-    before(function() {
-        cy.createProject('bf', 'My Project', 'fr')
-            .then(() => cy.createNLUModelProgramatically('bf', '', 'de'));
-    });
-
     after(function() {
+        cy.deleteUser('admin@bf.com');
         cy.deleteProject('bf');
     });
 
