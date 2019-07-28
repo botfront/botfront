@@ -21,4 +21,9 @@ Meteor.methods({
         checkIfCan('stories:w', story.projectId);
         return Stories.remove(story);
     },
+
+    'stories.getStories'(projectId) {
+        check(projectId, String);
+        return Stories.find({ projectId }).fetch();
+    },
 });
