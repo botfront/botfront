@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { update as _update } from 'lodash';
 import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
+import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
@@ -25,8 +26,8 @@ class StoryVisualEditor extends React.Component {
     }
 
     handleDeleteLine = (i) => {
-        const { story, updateStory } = this.props;
-        updateStory([...story.slice(0, i), ...story.slice(i + 1)]);
+        const { story } = this.props;
+        story.deleteLine(i);
     }
 
     updateSequence = (responses, name, lang, updater) => {
@@ -45,33 +46,32 @@ class StoryVisualEditor extends React.Component {
     };
 
     handleChangeUserUtterance = (i, v) => {
-        const { story, updateStory } = this.props;
-        const updatedLine = {
-            type: 'user',
-            data: [v],
-        };
-        updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
+        const { story } = this.props;
+        const updatedLine = { type: 'user', data: [v] };
+        story.replaceLine(i, updatedLine);
     }
 
     handleCreateUserUtterance = (i, pl) => {
         this.setState({ lineInsertIndex: null });
-        const { story, updateStory } = this.props;
-        const newLine = {
-            type: 'user',
-            data: [pl || null],
-        };
-        updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
+        const { story } = this.props;
+        const newLine = { type: 'user', data: [pl || null] };
+        story.insertLine(i, newLine);
+    }
+
+    handleChangeActionOrSlot = (type, i, data) => {
+        const { story } = this.props;
+        story.replaceLine(i, { type, data });
     }
 
     handleCreateSlotOrAction = (i, data) => {
         this.setState({ lineInsertIndex: null });
-        const { story, updateStory } = this.props;
-        updateStory([...story.slice(0, i + 1), data, ...story.slice(i + 1)]);
+        const { story } = this.props;
+        story.insertLine(i, data);
     }
 
     handleCreateSequence = (i, template) => {
         this.setState({ lineInsertIndex: null });
-        const { story, updateStory } = this.props;
+        const { story } = this.props;
         const { responses, lang, updateResponses } = this.context;
         const key = this.findResponseName();
         const newResponse = {
@@ -82,11 +82,8 @@ class StoryVisualEditor extends React.Component {
             }],
         };
         updateResponses(responses.concat([newResponse]));
-        const newLine = {
-            type: 'bot',
-            data: { name: key },
-        };
-        updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
+        const newLine = { type: 'bot', data: { name: key } };
+        story.insertLine(i, newLine);
     }
 
     handleCreateResponse = (name, j, template) => {
@@ -120,11 +117,6 @@ class StoryVisualEditor extends React.Component {
             .map(r => r.key)
             .filter(r => r.indexOf('utter_new') === 0);
         return `utter_new_${unnamedResponses.length + 1}`;
-    }
-
-    handleChangeActionOrSlot = (type, i, data) => {
-        const { story, updateStory } = this.props;
-        updateStory([...story.slice(0, i), { type, data }, ...story.slice(i + 1)]);
     }
 
     renderActionLine = (i, l) => (
@@ -186,27 +178,27 @@ class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
-        const lines = story.map((line, i) => {
-            if (line.type === 'action') return this.renderActionLine(i, line);
-            if (line.type === 'slot') return this.renderSlotLine(i, line);
-            if (line.type === 'bot') {
+        const lines = story.lines.map((line, i) => {
+            if (line.gui.type === 'action') return this.renderActionLine(i, line.gui);
+            if (line.gui.type === 'slot') return this.renderSlotLine(i, line.gui);
+            if (line.gui.type === 'bot') {
                 return (
-                    <React.Fragment key={i + line.data.name}>
+                    <React.Fragment key={i + line.gui.data.name}>
                         <BotResponsesContainer
-                            name={line.data.name}
+                            name={line.gui.data.name}
                             onDeleteAllResponses={() => this.handleDeleteLine(i)}
-                            onDeleteResponse={j => this.handleDeleteResponse(line.data.name, j)}
-                            onCreateResponse={(j, template) => this.handleCreateResponse(line.data.name, j, template)}
-                            onChangeResponse={(j, content) => this.handleChangeResponse(line.data.name, j, content)}
+                            onDeleteResponse={j => this.handleDeleteResponse(line.gui.data.name, j)}
+                            onCreateResponse={(j, template) => this.handleCreateResponse(line.gui.data.name, j, template)}
+                            onChangeResponse={(j, content) => this.handleChangeResponse(line.gui.data.name, j, content)}
                         />
                         {this.renderAddLine(i)}
                     </React.Fragment>
                 );
             }
             return (
-                <React.Fragment key={i + (line.data[0] ? line.data[0].intent : '')}>
+                <React.Fragment key={i + (line.gui.data[0] ? line.gui.data[0].intent : '')}>
                     <UserUtteranceContainer
-                        value={line.data[0]} // for now, data is a singleton
+                        value={line.gui.data[0]} // for now, data is a singleton
                         onChange={v => this.handleChangeUserUtterance(i, v)}
                         onInput={v => this.handleChangeUserUtterance(i, this.parseUtterance(v))}
                         onDelete={() => this.handleDeleteLine(i)}
@@ -229,8 +221,7 @@ class StoryVisualEditor extends React.Component {
 }
 
 StoryVisualEditor.propTypes = {
-    updateStory: PropTypes.func.isRequired,
-    story: PropTypes.arrayOf(
+    /* story: PropTypes.arrayOf(
         PropTypes.oneOfType([
             PropTypes.shape({
                 type: 'bot',
@@ -263,7 +254,8 @@ StoryVisualEditor.propTypes = {
                 ),
             }),
         ]),
-    ),
+    ), */
+    story: PropTypes.instanceOf(StoryController),
 };
 
 StoryVisualEditor.contextType = ConversationOptionsContext;

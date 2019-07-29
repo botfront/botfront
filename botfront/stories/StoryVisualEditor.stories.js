@@ -5,6 +5,7 @@ import { storiesOf } from '@storybook/react';
 import {
     withKnobs,
 } from '@storybook/addon-knobs';
+import { StoryController } from '../imports/lib/story_controller';
 import StoryVisualEditor from '../imports/ui/components/stories/common/StoryVisualEditor';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 import { slots, intents, entities } from './AddStoryLine.stories';
@@ -12,9 +13,9 @@ import { utterances } from './UserUtteranceContainer.stories';
 import { responses as responseFixtures } from './BotResponseContainer.stories';
 import store from '../imports/ui/store/store';
 
-const storyOne = [
-    { type: 'action', data: { name: 'bebe' } },
-    { type: 'slot', data: { type: 'categorical', slotValue: 'ha', name: 'bebe2' } },
+/* const storyOne = [
+    { type: 'action', data: { name: 'action_bebe' } },
+    { type: 'slot', data: { type: 'categorical', slotValue: 'cat1a', name: 'catSlot1' } },
     {
         type: 'user',
         data: [utterances.utteranceOne],
@@ -29,10 +30,26 @@ const storyOne = [
         type: 'user',
         data: [utterances.utteranceThree],
     },
-];
+]; */
+
+const storyOne = `    - action_bebe
+    - slot{"catSlot1": "cat1a"}
+* I_come_from{"from": "Paris"}
+    - utter_yay
+* I_want_peanuts_on_my_sundae
+    - utter_boo
+* Im_summarizing_Moby_Dick`;
 
 const StoryVisualEditorWrapped = ({ story: s }) => {
-    const [story, setStory] = useState(s);
+    const [story, setStory] = useState(
+        new StoryController(
+            s,
+            slots,
+            () => {
+                setStory(Object.assign(Object.create(story), story));
+            },
+        ),
+    );
     const [responses, setResponses] = useState(responseFixtures);
 
     return (
@@ -64,10 +81,7 @@ const StoryVisualEditorWrapped = ({ story: s }) => {
                         background: '#fff',
                     }}
                 >
-                    <StoryVisualEditor
-                        story={story}
-                        updateStory={setStory}
-                    />
+                    <StoryVisualEditor story={story} />
                 </div>
             </div>
         </ConversationOptionsContext.Provider>
