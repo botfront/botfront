@@ -296,37 +296,35 @@ class Stories extends React.Component {
                                 Create detailed use case scenarios for your bot using multiple stories.
                             </Message>
                         ) : (
-                            <Grid.Row columns={2}>
-                                <Grid.Column width={8}>
-                                    <Message info size='small' style={{ float: 'left' }}>
-                                        The Intro stories group contains the initial
-                                        messages that would be sent to users when they
-                                        start chatting with your bot.
-                                    </Message>
-                                </Grid.Column>
-                                <Grid.Column width={4}>
-                                    <Button.Group floated='right' size='large'>
-                                        <Button
-                                            className={`${editor === 'MARKDOWN' ? 'editor selected-editor' : 'editor left'}`}
-                                            icon
-                                            onClick={() => {
-                                                this.setState({ editor: 'MARKDOWN' });
-                                            }}
-                                        >
-                                            <Icon name='code' />
-                                        </Button>
-                                        <Button
-                                            className={`${editor === 'VISUAL' ? 'editor selected-editor' : 'editor right'}`}
-                                            icon
-                                            onClick={() => {
-                                                this.setState({ editor: 'VISUAL' });
-                                            }}
-                                        >
-                                            <Icon name='commenting' />
-                                        </Button>
-                                    </Button.Group>
-                                </Grid.Column>
-                            </Grid.Row>
+                            <div className='stories-toggles'>
+                                <Message info size='small'>
+                                    The Intro stories group contains the initial
+                                    messages that would be sent to users when they
+                                    start chatting with your bot.
+                                </Message>
+                                <Button.Group>
+                                    <Button
+                                        icon
+                                        color={editor === 'MARKDOWN' ? 'black' : 'grey'}
+                                        basic
+                                        onClick={() => {
+                                            this.setState({ editor: 'MARKDOWN' });
+                                        }}
+                                    >
+                                        <Icon name='code' />
+                                    </Button>
+                                    <Button
+                                        color={editor === 'VISUAL' ? 'black' : 'grey'}
+                                        basic
+                                        icon
+                                        onClick={() => {
+                                            this.setState({ editor: 'VISUAL' });
+                                        }}
+                                    >
+                                        <Icon name='commenting' />
+                                    </Button>
+                                </Button.Group>
+                            </div>
                         )}
                     </Grid.Column>
                 </Grid.Row>
