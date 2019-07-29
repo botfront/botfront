@@ -1,5 +1,5 @@
 import {
-    Grid, Message, Menu, Icon,
+    Grid, Message, Menu, Icon, Button,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -19,6 +19,7 @@ class Stories extends React.Component {
             saving: false,
             validationErrors: false,
             storyGroupNameSelected: '',
+            editor: 'MARKDOWN',
         };
     }
 
@@ -167,10 +168,13 @@ class Stories extends React.Component {
 
     renderStoryEditor = (storyGroupFiltered, introStory, storySelected) => {
         const { projectId, storyGroups } = this.props;
+        const { editor } = this.state;
         const storyGroupSelected = storyGroupFiltered[storySelected];
+       
         return (
             (storyGroupSelected || introStory) && (
                 <StoriesEditor
+                    editor={editor}
                     disabled={!can('stories:w', projectId)}
                     storyGroup={storyGroupSelected || introStory}
                     onSaving={this.handleSavingStories}
@@ -238,6 +242,7 @@ class Stories extends React.Component {
             saving,
             validationErrors,
             storyGroupNameSelected,
+            editor,
         } = this.state;
         const introStory = storyGroups.find(
             storyGroup => storyGroup.introStory,
@@ -291,11 +296,37 @@ class Stories extends React.Component {
                                 Create detailed use case scenarios for your bot using multiple stories.
                             </Message>
                         ) : (
-                            <Message info size='small'>
-                                The Intro stories group contains the initial
-                                messages that would be sent to users when they
-                                start chatting with your bot.
-                            </Message>
+                            <Grid.Row columns={2}>
+                                <Grid.Column width={8}>
+                                    <Message info size='small' style={{ float: 'left' }}>
+                                        The Intro stories group contains the initial
+                                        messages that would be sent to users when they
+                                        start chatting with your bot.
+                                    </Message>
+                                </Grid.Column>
+                                <Grid.Column width={4}>
+                                    <Button.Group floated='right' size='large'>
+                                        <Button
+                                            className={`${editor === 'MARKDOWN' ? 'editor selected-editor' : 'editor left'}`}
+                                            icon
+                                            onClick={() => {
+                                                this.setState({ editor: 'MARKDOWN' });
+                                            }}
+                                        >
+                                            <Icon name='code' />
+                                        </Button>
+                                        <Button
+                                            className={`${editor === 'VISUAL' ? 'editor selected-editor' : 'editor right'}`}
+                                            icon
+                                            onClick={() => {
+                                                this.setState({ editor: 'VISUAL' });
+                                            }}
+                                        >
+                                            <Icon name='commenting' />
+                                        </Button>
+                                    </Button.Group>
+                                </Grid.Column>
+                            </Grid.Row>
                         )}
                     </Grid.Column>
                 </Grid.Row>
