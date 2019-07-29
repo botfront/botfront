@@ -19,6 +19,11 @@ export const TrainingExampleSchema = new SimpleSchema({
     'entities.$.end': SimpleSchema.Integer,
     'entities.$.entity': String,
     'entities.$.value': String,
+    updatedAt: {
+        type: Date,
+        optional: true,
+        autoValue: () => new Date(),
+    },
 });
 
 export const TrainingDataSchema = new SimpleSchema({

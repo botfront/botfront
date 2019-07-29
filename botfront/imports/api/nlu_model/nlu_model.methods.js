@@ -397,6 +397,53 @@ if (Meteor.isServer) {
             }
         },
 
+        async 'nlu.getUtteranceFromPayload'(projectId, payload, lang = 'en') {
+            check(projectId, String);
+            check(lang, String);
+            check(payload, Object);
+
+            if (!payload.intent) throw new Meteor.Error('400', 'Intent missing from payload');
+            const { nlu_models: nluModelIds } = Projects.findOne(
+                { _id: projectId },
+                { fields: { nlu_models: 1 } },
+            );
+
+            const entitiesQuery = [];
+            if (payload.entities && payload.entities.length) {
+                entitiesQuery.push({ $match: { 'training_data.common_examples.entities': { $size: payload.entities.length } } });
+                payload.entities.forEach((entity) => {
+                    entitiesQuery.push({ $match: { 'training_data.common_examples.entities.entity': entity && entity.entity } });
+                });
+            } else {
+                entitiesQuery.push({ $match: { 'training_data.common_examples.entities': { $size: 0 } } });
+            }
+
+            const models = await NLUModels.aggregate([
+                { $match: { language: lang, _id: { $in: nluModelIds } } },
+                {
+                    $project: {
+                        'training_data.common_examples': {
+                            $filter: {
+                                input: '$training_data.common_examples',
+                                as: 'training_data',
+                                cond: { $eq: ['$$training_data.intent', payload.intent] },
+                            },
+                        },
+                    },
+                },
+                { $unwind: '$training_data.common_examples' },
+                ...entitiesQuery,
+                { $sort: { 'training_data.common_examples.updatedAt': -1 } },
+            ]).toArray();
+
+            const model = models[0];
+
+            if (!model) throw new Meteor.Error('400', 'No corresponding model');
+            if (model.training_data && !model.training_data.common_examples.text) throw new Meteor.Error('400', 'No correponding utterance');
+
+            return model.training_data.common_examples.text;
+        },
+
         async 'nlu.chitChatSetup'() {
             checkIfCan('global-admin');
             try {
