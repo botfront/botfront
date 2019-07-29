@@ -38,6 +38,8 @@ function StoriesContainer(props) {
     const [availableSlots, setAvailableSlots] = useState([]);
     const [language, setLanguage] = useState('en');
 
+    // By passing an empty array as the second argument to this useEffect
+    // We make it so UseEffect is only called once, onMount
     useEffect(() => {
         Meteor.call(
             'project.getEntitiesAndIntents',
@@ -50,20 +52,16 @@ function StoriesContainer(props) {
             }),
         );
         Meteor.call(
-            'project.getSlots',
-            projectId,
-            wrapMeteorCallback((err, res) => {
-                if (!err) {
-                    setAvailableSlots(res);
-                }
-            }),
-        );
-        Meteor.call(
             'project.getDefaultLanguage',
             projectId,
             wrapMeteorCallback((err, res) => setLanguage(res)),
         );
     }, []);
+
+    // This effect is triggered everytime the slot prop changes
+    useEffect(() => {
+        setAvailableSlots(slots);
+    }, [slots]);
 
     function getResponse(key) {
         Meteor.call('project.findTemplate', projectId, key);
