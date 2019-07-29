@@ -3,6 +3,7 @@ import {
     Container, Menu, Button, Icon,
 } from 'semantic-ui-react';
 import { Link, browserHistory } from 'react-router';
+import matchSorter from 'match-sorter';
 import { Meteor } from 'meteor/meteor';
 import ReactTable from 'react-table';
 import PropTypes from 'prop-types';
@@ -12,11 +13,17 @@ import { Projects } from '../../../api/project/project.collection';
 import { PageMenu } from '../utils/Utils';
 
 class ProjectsList extends React.Component {
+    filterItem = (filter, rows, filterKey) => {
+        if (matchSorter([rows], filter.value, { keys: [filterKey] }).length > 0) return true;
+        return false;
+    }
+
     getColumns = () => [
         {
             id: 'name',
             accessor: 'name',
             filterable: true,
+            filterMethod: (filter, rows) => (this.filterItem(filter, rows, 'name')),
             Header: 'Name',
             Cell: props => (
                 <Link to={`/project/${props.original._id}/nlu/models`}>{props.value}</Link>
@@ -26,6 +33,7 @@ class ProjectsList extends React.Component {
             id: 'id',
             accessor: '_id',
             filterable: true,
+            filterMethod: (filter, rows) => (this.filterItem(filter, rows, 'id')),
             Header: 'ID',
         },
         {

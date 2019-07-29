@@ -235,6 +235,7 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         namespace: projectId,
     };
     return cy.visit('/')
+        .then(() => cy.login())
         .then(() => cy.window())
         .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project, true)) // true is used to bypass role check. CI env must be set when running Botfront
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
@@ -242,6 +243,7 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
 
 Cypress.Commands.add('deleteProject', (projectId) => {
     return cy.visit('/')
+        .then(() => cy.login())
         .then(() => cy.window())
         .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, true));
 });

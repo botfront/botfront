@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
+import matchSorter from 'match-sorter';
 import PropTypes from 'prop-types';
 import {
     Container, Table, Menu, Button, Icon,
@@ -18,12 +19,18 @@ class UsersList extends React.Component {
         </Table.Row>
     ));
 
+    filterItem = (filter, rows, filterKey) => {
+        if (matchSorter([rows], filter.value, { keys: [filterKey] }).length > 0) return true;
+        return false;
+    }
+
     getColumns = () => [
         {
             Header: 'Last Name',
             id: 'lastname',
             accessor: 'profile.lastName',
             filterable: true,
+            filterMethod: (filter, rows) => (this.filterItem(filter, rows, 'lastname')),
             Cell: props => (
                 <Link to={`/admin/user/${props.original._id}`}>{props.value}</Link>
             ),
@@ -33,6 +40,7 @@ class UsersList extends React.Component {
             id: 'firstname',
             accessor: 'profile.firstName',
             filterable: true,
+            filterMethod: (filter, rows) => (this.filterItem(filter, rows, 'firstname')),
             Cell: props => (
                 <Link to={`/admin/user/${props.original._id}`}>{props.value}</Link>
             ),
@@ -42,6 +50,7 @@ class UsersList extends React.Component {
             id: 'email',
             accessor: 'emails[0].address',
             filterable: true,
+            filterMethod: (filter, rows) => (this.filterItem(filter, rows, 'email')),
             Cell: props => (
                 <Link to={`/admin/user/${props.original._id}`}>{props.value}</Link>
             ),
