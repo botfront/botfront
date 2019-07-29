@@ -1,5 +1,5 @@
 import {
-    Grid, Message, Menu, Icon,
+    Grid, Message, Menu, Icon, Button,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -19,6 +19,7 @@ class Stories extends React.Component {
             saving: false,
             validationErrors: false,
             storyGroupNameSelected: '',
+            editor: 'MARKDOWN',
         };
     }
 
@@ -167,10 +168,13 @@ class Stories extends React.Component {
 
     renderStoryEditor = (storyGroupFiltered, introStory, storySelected) => {
         const { projectId, storyGroups } = this.props;
+        const { editor } = this.state;
         const storyGroupSelected = storyGroupFiltered[storySelected];
+       
         return (
             (storyGroupSelected || introStory) && (
                 <StoriesEditor
+                    editor={editor}
                     disabled={!can('stories:w', projectId)}
                     storyGroup={storyGroupSelected || introStory}
                     onSaving={this.handleSavingStories}
@@ -238,6 +242,7 @@ class Stories extends React.Component {
             saving,
             validationErrors,
             storyGroupNameSelected,
+            editor,
         } = this.state;
         const introStory = storyGroups.find(
             storyGroup => storyGroup.introStory,
@@ -286,17 +291,41 @@ class Stories extends React.Component {
                         </Menu>
                     </Grid.Column>
                     <Grid.Column width={12} className='story-name-parent'>
-                        {storySelected !== -1 ? (
-                            <Message info size='small'>
-                                Create detailed use case scenarios for your bot using multiple stories.
-                            </Message>
-                        ) : (
-                            <Message info size='small'>
-                                The Intro stories group contains the initial
-                                messages that would be sent to users when they
-                                start chatting with your bot.
-                            </Message>
-                        )}
+                        <div className='stories-toggles'>
+                            {storySelected !== -1 ? (
+                                <Message info size='small'>
+                                    Create detailed use case scenarios for your bot using multiple stories.
+                                </Message>
+                            ) : (
+                                <Message info size='small'>
+                                    The Intro stories group contains the initial
+                                    messages that would be sent to users when they
+                                    start chatting with your bot.
+                                </Message>
+                            )}
+                            <Button.Group>
+                                <Button
+                                    icon
+                                    color={editor === 'MARKDOWN' ? 'black' : 'grey'}
+                                    basic
+                                    onClick={() => {
+                                        this.setState({ editor: 'MARKDOWN' });
+                                    }}
+                                >
+                                    <Icon name='code' />
+                                </Button>
+                                <Button
+                                    color={editor === 'VISUAL' ? 'black' : 'grey'}
+                                    basic
+                                    icon
+                                    onClick={() => {
+                                        this.setState({ editor: 'VISUAL' });
+                                    }}
+                                >
+                                    <Icon name='commenting' />
+                                </Button>
+                            </Button.Group>
+                        </div>
                     </Grid.Column>
                 </Grid.Row>
 
