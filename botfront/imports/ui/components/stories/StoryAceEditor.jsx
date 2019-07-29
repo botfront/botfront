@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import StoryVisualEditor from './common/StoryVisualEditor';
+import { StoryController } from '../../../lib/story_controller';
 import 'brace/theme/github';
 import 'brace/mode/text';
 import { Can } from '../../../lib/scopes';
@@ -184,7 +185,7 @@ const StoryEditor = ({
 };
 
 StoryEditor.propTypes = {
-    story: PropTypes.string.isRequired,
+    story: PropTypes.instanceOf(StoryController).isRequired,
     disabled: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,

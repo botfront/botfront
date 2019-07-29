@@ -18,9 +18,11 @@ const trigger = <DashedButton color='blue'>User says:</DashedButton>;
 storiesOf('UserUtterancePopupContent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
-        <ConversationOptionsContext.Provider value={{ intents, entities }}>
-            {story()}
-        </ConversationOptionsContext.Provider>
+        <div className='story-visual-editor'>
+            <ConversationOptionsContext.Provider value={{ intents, entities }}>
+                {story()}
+            </ConversationOptionsContext.Provider>
+        </div>
     ))
     .add('default', () => (
         <UserUtterancePopupContent

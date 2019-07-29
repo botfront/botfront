@@ -37,13 +37,15 @@ const trigger = <DashedButton color='orange'>Slot</DashedButton>;
 storiesOf('SlotPopupContent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
-        <ConversationOptionsContext.Provider
-            value={{
-                slots: select('Available slots', selection, noSlots),
-            }}
-        >
-            {story()}
-        </ConversationOptionsContext.Provider>
+        <div className='story-visual-editor'>
+            <ConversationOptionsContext.Provider
+                value={{
+                    slots: select('Available slots', selection, noSlots),
+                }}
+            >
+                {story()}
+            </ConversationOptionsContext.Provider>
+        </div>
     ))
     .add('default', () => (
         <SlotPopupContent
