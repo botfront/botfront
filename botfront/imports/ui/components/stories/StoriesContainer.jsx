@@ -86,6 +86,16 @@ function StoriesContainer(props) {
         );
     }
 
+    function getUtteranceFromPayload(payload, callback) {
+        Meteor.call(
+            'nlu.getUtteranceFromPayload',
+            projectId,
+            payload,
+            language,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
     function addIntent(intent) {
         setAvailableIntents(availableIntents.push(intent));
     }
@@ -125,6 +135,7 @@ function StoriesContainer(props) {
                 getResponse,
                 addEntity,
                 addIntent,
+                getUtteranceFromPayload,
             }}
         >
             <PageMenu title='Stories' icon='book'>
