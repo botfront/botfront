@@ -285,9 +285,18 @@ export class StoryController {
         else this.notifyUpdate();
     };
 
-    setMd = (content) => {
+    /* setMd = (content) => {
         this.md = content;
         this.validateStory();
+        return this.exceptions;
+    } */
+
+    setMd = (content) => {
+        const priorContent = this.md;
+        this.md = content;
+        this.validateStory();
+        if (!this.exceptions.length && this.saveUpdate) this.saveUpdate(this.md);
+        // this.md = priorContent;
         return this.exceptions;
     }
 

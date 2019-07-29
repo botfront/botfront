@@ -95,12 +95,8 @@ function StoriesEditor(props) {
         newErrors[index] = exceptions;
         setErrors(newErrors);
 
-        if (exceptions.length) {
-            onError();
-            // We save the story only if there are no errors
-            return;
-        }
-        saveStory({ ...stories[index], story: newStory });
+        if (exceptions.length) onError();
+        // saveStory({ ...stories[index], story: newStory });
     }
 
     function handeStoryDeletion(index) {
