@@ -10,25 +10,11 @@ class StoryException {
 export class StoryController {
     constructor(story, slots, notifyUpdate) {
         this.domain = {
-            entities: new Set(),
-            intents: new Set(),
-            actions: new Set(),
             slots: this.getSlots(slots),
-            forms: new Set(),
-            templates: {},
         };
-        this.lines = story
-            .split('\n')
-            .filter(l => l.trim() !== '')
-            .map(l => ({ md: l, gui: {} }));
-        this.prefix = null;
-        this.content = null;
-        this.intent = null;
-        this.response = null;
-        this.form = null;
-        this.exceptions = [];
-        this.validateStory();
+        this.md = story;
         this.notifyUpdate = notifyUpdate;
+        this.validateStory();
     }
 
     getSlots = (slots) => {
@@ -58,6 +44,12 @@ export class StoryController {
         });
         return slotsToAdd;
     }
+
+    splitLines = () => (
+        this.md.split('\n')
+            .filter(l => l.trim() !== '')
+            .map(l => ({ md: l, gui: {} }))
+    )
 
     hasInvalidChars = (str) => {
         if (str.match(/[ /]/)) {
@@ -136,6 +128,7 @@ export class StoryController {
     };
 
     exceptionMessages = {
+        no_empty: ['error', 'Don\'t leave story empty'],
         prefix: ['error', 'Lines should start with `* ` or `- `'],
         invalid_char: ['error', 'Found an invalid character'],
         intent: ['error', 'User utterances should look like this: `* MyIntent` or `* MyIntent{"entity": "value"}`'],
@@ -205,7 +198,8 @@ export class StoryController {
     };
 
     validateStory = () => {
-        this.idx = 0;
+        this.reset();
+        if (!this.md.replace(/\s/g, '').length) this.raiseStoryException('no_empty');
         for (this.idx; this.idx < this.lines.length; this.idx += 1) {
             const line = this.lines[this.idx].md.replace(/ *<!--.*--> */g, ' ');
             if (line.trim().length !== 0) {
@@ -225,6 +219,25 @@ export class StoryController {
             }
         }
     };
+
+    reset = () => {
+        this.domain = {
+            entities: new Set(),
+            intents: new Set(),
+            actions: new Set(),
+            slots: this.domain.slots,
+            forms: new Set(),
+            templates: {},
+        };
+        this.prefix = null;
+        this.content = null;
+        this.intent = null;
+        this.response = null;
+        this.form = null;
+        this.exceptions = [];
+        this.idx = 0;
+        this.lines = this.splitLines();
+    }
 
     toMd = (line) => {
         try {
@@ -252,18 +265,27 @@ export class StoryController {
 
     deleteLine = (i) => {
         this.lines = [...this.lines.slice(0, i), ...this.lines.slice(i + 1)];
+        this.md = this.lines.map(l => l.md).join('\n');
         this.notifyUpdate();
     };
 
     insertLine = (i, content) => {
         this.lines = [...this.lines.slice(0, i + 1), this.generateMdLine(i, content), ...this.lines.slice(i + 1)];
+        this.md = this.lines.map(l => l.md).join('\n');
         this.notifyUpdate();
     };
 
     replaceLine = (i, content) => {
         this.lines = [...this.lines.slice(0, i), this.generateMdLine(i, content), ...this.lines.slice(i + 1)];
+        this.md = this.lines.map(l => l.md).join('\n');
         this.notifyUpdate();
     };
+
+    setMd = (content) => {
+        this.md = content;
+        this.validateStory();
+        return this.exceptions;
+    }
 
     getPossibleInsertions = (i) => {
         // placeholder for future method
