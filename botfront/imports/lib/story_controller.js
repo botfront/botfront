@@ -8,12 +8,13 @@ class StoryException {
 }
 
 export class StoryController {
-    constructor(story, slots, notifyUpdate) {
+    constructor(story, slots, notifyUpdate, saveUpdate = null) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.md = story;
         this.notifyUpdate = notifyUpdate;
+        this.saveUpdate = saveUpdate;
         this.validateStory();
     }
 
@@ -266,19 +267,22 @@ export class StoryController {
     deleteLine = (i) => {
         this.lines = [...this.lines.slice(0, i), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.notifyUpdate();
+        if (this.saveUpdate) this.saveUpdate(this.md);
+        else this.notifyUpdate();
     };
 
     insertLine = (i, content) => {
         this.lines = [...this.lines.slice(0, i + 1), this.generateMdLine(i, content), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.notifyUpdate();
+        if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
+        else this.notifyUpdate();
     };
 
     replaceLine = (i, content) => {
         this.lines = [...this.lines.slice(0, i), this.generateMdLine(i, content), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.notifyUpdate();
+        if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
+        else this.notifyUpdate();
     };
 
     setMd = (content) => {

@@ -119,21 +119,21 @@ class StoryVisualEditor extends React.Component {
         return `utter_new_${unnamedResponses.length + 1}`;
     }
 
-    renderActionLine = (i, l) => (
+    renderActionLine = (i, l, deletable = true) => (
         <React.Fragment key={i + l.data.name}>
             <div className='utterance-container' agent='na'>
                 <ActionLabel value={l.data.name} onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })} />
-                <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} />
+                { deletable && <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} /> }
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
 
-    renderSlotLine = (i, l) => (
+    renderSlotLine = (i, l, deletable = true) => (
         <React.Fragment key={i + l.data.name}>
             <div className='utterance-container' agent='na'>
                 <SlotLabel value={l.data} onChange={v => this.handleChangeActionOrSlot('slot', i, v)} />
-                <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} />
+                { deletable && <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} /> }
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
@@ -178,14 +178,16 @@ class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
+        const deletable = story.lines.length > 1;
         const lines = story.lines.map((line, i) => {
-            if (line.gui.type === 'action') return this.renderActionLine(i, line.gui);
-            if (line.gui.type === 'slot') return this.renderSlotLine(i, line.gui);
+            if (line.gui.type === 'action') return this.renderActionLine(i, line.gui, deletable);
+            if (line.gui.type === 'slot') return this.renderSlotLine(i, line.gui, deletable);
             if (line.gui.type === 'bot') {
                 return (
                     <React.Fragment key={i + line.gui.data.name}>
                         <BotResponsesContainer
                             name={line.gui.data.name}
+                            deletable={deletable}
                             onDeleteAllResponses={() => this.handleDeleteLine(i)}
                             onDeleteResponse={j => this.handleDeleteResponse(line.gui.data.name, j)}
                             onCreateResponse={(j, template) => this.handleCreateResponse(line.gui.data.name, j, template)}
@@ -198,6 +200,7 @@ class StoryVisualEditor extends React.Component {
             return (
                 <React.Fragment key={i + (line.gui.data[0] ? line.gui.data[0].intent : '')}>
                     <UserUtteranceContainer
+                        deletable={deletable}
                         value={line.gui.data[0]} // for now, data is a singleton
                         onChange={v => this.handleChangeUserUtterance(i, v)}
                         onInput={v => this.handleChangeUserUtterance(i, this.parseUtterance(v))}

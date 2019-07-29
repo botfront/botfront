@@ -9,6 +9,7 @@ import { ConversationOptionsContext } from '../../utils/Context';
 const BotResponsesContainer = (props) => {
     const {
         name, onDeleteResponse, onCreateResponse, onDeleteAllResponses, onChangeResponse,
+        deletable,
     } = props;
     const { responses, lang } = useContext(ConversationOptionsContext);
     const sequence = responses
@@ -51,12 +52,13 @@ const BotResponsesContainer = (props) => {
         <React.Fragment key={i + r}>
             <div className='flex-right'>
                 <BotResponseContainer
+                    deletable={deletable || a.length > 1}
                     value={r}
                     onDelete={() => onDeleteResponse(i)}
                     onAbort={() => onDeleteResponse(i)}
                     onChange={content => onChangeResponse(i, content)}
                 />
-                { i === 0 && a.length > 1 && (
+                { i === 0 && deletable && a.length > 1 && (
                     <FloatingIconButton
                         icon='trash'
                         onClick={onDeleteAllResponses}
@@ -82,6 +84,7 @@ const BotResponsesContainer = (props) => {
 };
 
 BotResponsesContainer.propTypes = {
+    deletable: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onDeleteResponse: PropTypes.func.isRequired,
     onCreateResponse: PropTypes.func.isRequired,
@@ -90,6 +93,7 @@ BotResponsesContainer.propTypes = {
 };
 
 BotResponsesContainer.defaultProps = {
+    deletable: true,
 };
 
 export default BotResponsesContainer;

@@ -123,6 +123,32 @@ function StoriesContainer(props) {
         );
     }
 
+    const responseOne = {
+        key: 'utter_yay',
+        values: [{
+            lang: 'en',
+            sequence: [
+                { content: 'text: YAY!!' },
+                { content: 'text: BOO!!' },
+                { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+            ],
+        }],
+    };
+    
+    const responseTwo = {
+        key: 'utter_boo',
+        values: [{
+            lang: 'en',
+            sequence: [
+                { content: 'text: I love peanutes too' },
+                { content: 'text: Can I call you l8r' },
+                { content: 'text: <3' },
+            ],
+        }],
+    };
+
+    const [responses, setResponses] = useState([responseOne, responseTwo]); // temp fix
+
     return (
         <ConversationOptionsContext.Provider
             value={{
@@ -136,6 +162,9 @@ function StoriesContainer(props) {
                 addEntity,
                 addIntent,
                 getUtteranceFromPayload,
+                responses, // temp fix
+                lang: 'en', // temp fix
+                updateResponses: setResponses, // temp fix
             }}
         >
             <PageMenu title='Stories' icon='book'>

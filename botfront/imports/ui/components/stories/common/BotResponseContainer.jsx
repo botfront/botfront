@@ -5,7 +5,7 @@ import UtteranceInput from '../../utils/UtteranceInput';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onAbort, onChange,
+        value, onDelete, onAbort, onChange, deletable,
     } = props;
     const [mode, setMode] = useState(value.text.trim() === '' ? 'edit' : 'view');
     const [input, setInput] = useState();
@@ -39,18 +39,21 @@ const BotResponseContainer = (props) => {
             <div className='inner'>
                 {render()}
             </div>
-            <FloatingIconButton
-                icon='trash'
-                onClick={() => {
-                    if (mode === 'edit') return onAbort();
-                    return onDelete();
-                }}
-            />
+            { deletable && (
+                <FloatingIconButton
+                    icon='trash'
+                    onClick={() => {
+                        if (mode === 'edit') return onAbort();
+                        return onDelete();
+                    }}
+                />
+            )}
         </div>
     );
 };
 
 BotResponseContainer.propTypes = {
+    deletable: PropTypes.bool,
     value: PropTypes.object,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
@@ -59,6 +62,7 @@ BotResponseContainer.propTypes = {
 
 BotResponseContainer.defaultProps = {
     value: null,
+    deletable: true,
 };
 
 export default BotResponseContainer;

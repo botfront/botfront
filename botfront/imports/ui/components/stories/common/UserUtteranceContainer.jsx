@@ -7,7 +7,7 @@ import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 const UtteranceContainer = (props) => {
     const {
         value, onInput, onDelete, onAbort,
-        onChange,
+        onChange, deletable,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const [input, setInput] = useState();
@@ -47,18 +47,21 @@ const UtteranceContainer = (props) => {
             <div className='inner'>
                 {render()}
             </div>
-            <FloatingIconButton
-                icon='trash'
-                onClick={() => {
-                    if (mode === 'input') return onAbort();
-                    return onDelete();
-                }}
-            />
+            { deletable && (
+                <FloatingIconButton
+                    icon='trash'
+                    onClick={() => {
+                        if (mode === 'input') return onAbort();
+                        return onDelete();
+                    }}
+                />
+            )}
         </div>
     );
 };
 
 UtteranceContainer.propTypes = {
+    deletable: PropTypes.bool,
     value: PropTypes.object,
     onInput: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
@@ -68,6 +71,7 @@ UtteranceContainer.propTypes = {
 
 UtteranceContainer.defaultProps = {
     value: null,
+    deletable: true,
 };
 
 export default UtteranceContainer;

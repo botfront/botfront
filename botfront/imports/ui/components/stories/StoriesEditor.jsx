@@ -30,10 +30,22 @@ function StoriesEditor(props) {
         storyGroup,
         projectId,
         groupNames,
+        editor,
     } = props;
 
+    function saveStory(story) {
+        onSaving();
+        Meteor.call(
+            'stories.update',
+            story,
+            wrapMeteorCallback(() => {
+                onSaved();
+            }),
+        );
+    }
+
     const updateEditedStories = () => {
-        stories.forEach((story) => {
+        stories.forEach((story, index) => {
             if (editedStories[story._id] === undefined) {
                 editedStories[story._id] = new StoryController(
                     story.story,
@@ -44,6 +56,7 @@ function StoriesEditor(props) {
                             [story._id]: Object.assign(Object.create(editedStories[story._id]), editedStories[story._id]),
                         });
                     },
+                    newContent => saveStory({ ...stories[index], story: newContent }),
                 );
             }
         });
@@ -72,17 +85,6 @@ function StoriesEditor(props) {
         const stateErrors = [...errors];
         stateErrors.splice(index, 1);
         setErrors(stateErrors);
-    }
-
-    function saveStory(story) {
-        onSaving();
-        Meteor.call(
-            'stories.update',
-            story,
-            wrapMeteorCallback(() => {
-                onSaved();
-            }),
-        );
     }
 
     function handleStoryChange(newStory, index) {
@@ -173,7 +175,7 @@ function StoriesEditor(props) {
 
     const editors = stories.map((story, index) => (
         <StoryAceEditor
-            story={editedStories[story._id].md}
+            story={editedStories[story._id]}
             annotations={
                 (!!errors[index] ? true : undefined)
                 && (!!errors[index].length ? true : undefined)
@@ -195,6 +197,7 @@ function StoriesEditor(props) {
             )}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
             onClone={() => handleDuplicateStory(index)}
+            editor={editor}
         />
     ));
     return (
@@ -225,11 +228,13 @@ StoriesEditor.propTypes = {
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
+    editor: PropTypes.string,
 };
 
 StoriesEditor.defaultProps = {
     disabled: false,
     stories: [],
+    editor: 'MARKDOWN',
 };
 
 export default withTracker((props) => {
