@@ -440,8 +440,8 @@ if (Meteor.isServer) {
 
             if (!model) throw new Meteor.Error('400', 'No corresponding model');
             if (model.training_data && !model.training_data.common_examples.text) throw new Meteor.Error('400', 'No correponding utterance');
-
-            return model.training_data.common_examples.text;
+            const { text, intent, entities } = model.training_data.common_examples;
+            return { text, intent, entities };
         },
 
         async 'nlu.chitChatSetup'() {

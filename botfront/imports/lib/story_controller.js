@@ -12,6 +12,7 @@ export class StoryController {
         this.domain = {
             slots: this.getSlots(slots),
         };
+        this.lastValidMd = story;
         this.md = story;
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
@@ -219,7 +220,13 @@ export class StoryController {
                 }
             }
         }
+        if (!this.exceptions.length) this.lastValidMd = this.md;
     };
+
+    revertToLastValidMd = () => {
+        this.md = this.lastValidMd;
+        this.notifyUpdate();
+    }
 
     reset = () => {
         this.domain = {
@@ -292,11 +299,10 @@ export class StoryController {
     } */
 
     setMd = (content) => {
-        const priorContent = this.md;
+        if (!this.exceptions.length) this.lastValidMd = this.md;
         this.md = content;
         this.validateStory();
         if (!this.exceptions.length && this.saveUpdate) this.saveUpdate(this.md);
-        // this.md = priorContent;
         return this.exceptions;
     }
 

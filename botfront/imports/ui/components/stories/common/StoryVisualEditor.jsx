@@ -18,6 +18,10 @@ class StoryVisualEditor extends React.Component {
 
     addStoryCursor = React.createRef();
 
+    componentDidMount() {
+        this.fetchTextForPayloads();
+    }
+
     componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
         if ((lineInsertIndex || lineInsertIndex === 0) && lineInsertIndex !== prevState.lineInsertIndex) {
@@ -104,6 +108,18 @@ class StoryVisualEditor extends React.Component {
         if (template === 'text') { return yamlDump({ text: '' }); }
         if (template === 'qr') { return yamlDump({ text: '', buttons: [] }); }
         return false;
+    }
+
+    fetchTextForPayloads = () => {
+        const { story } = this.props;
+        const { getUtteranceFromPayload } = this.context;
+        story.lines.filter(line => line.gui.type === 'user').forEach((line, i) => {
+            if (typeof line.gui.data[0].text === 'undefined') {
+                getUtteranceFromPayload(line.gui.data[0], (err, data) => {
+                    if (!err) story.replaceLine(i, { type: 'user', data: [data] });
+                });
+            }
+        });
     }
 
     parseUtterance = u => ({
