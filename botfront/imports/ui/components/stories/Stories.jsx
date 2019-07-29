@@ -291,41 +291,41 @@ class Stories extends React.Component {
                         </Menu>
                     </Grid.Column>
                     <Grid.Column width={12} className='story-name-parent'>
-                        {storySelected !== -1 ? (
-                            <Message info size='small'>
-                                Create detailed use case scenarios for your bot using multiple stories.
-                            </Message>
-                        ) : (
-                            <div className='stories-toggles'>
+                        <div className='stories-toggles'>
+                            {storySelected !== -1 ? (
+                                <Message info size='small'>
+                                    Create detailed use case scenarios for your bot using multiple stories.
+                                </Message>
+                            ) : (
                                 <Message info size='small'>
                                     The Intro stories group contains the initial
                                     messages that would be sent to users when they
                                     start chatting with your bot.
                                 </Message>
-                                <Button.Group>
-                                    <Button
-                                        icon
-                                        color={editor === 'MARKDOWN' ? 'black' : 'grey'}
-                                        basic
-                                        onClick={() => {
-                                            this.setState({ editor: 'MARKDOWN' });
-                                        }}
-                                    >
-                                        <Icon name='code' />
-                                    </Button>
-                                    <Button
-                                        color={editor === 'VISUAL' ? 'black' : 'grey'}
-                                        basic
-                                        icon
-                                        onClick={() => {
-                                            this.setState({ editor: 'VISUAL' });
-                                        }}
-                                    >
-                                        <Icon name='commenting' />
-                                    </Button>
-                                </Button.Group>
-                            </div>
-                        )}
+                            )}
+                            <Button.Group>
+                                <Button
+                                    icon
+                                    color={editor === 'MARKDOWN' ? 'black' : 'grey'}
+                                    basic
+                                    onClick={() => {
+                                        this.setState({ editor: 'MARKDOWN' });
+                                    }}
+                                >
+                                    <Icon name='code' />
+                                </Button>
+                                <Button
+                                    color={editor === 'VISUAL' ? 'black' : 'grey'}
+                                    basic
+                                    icon
+                                    onClick={() => {
+                                        this.setState({ editor: 'VISUAL' });
+                                    }}
+                                >
+                                    <Icon name='commenting' />
+                                </Button>
+                            </Button.Group>
+                        </div>
                     </Grid.Column>
                 </Grid.Row>
 
