@@ -8,11 +8,11 @@ class StoryException {
 }
 
 export class StoryController {
-    constructor(story, slots, notifyUpdate, saveUpdate = null) {
+    constructor(story, slots, notifyUpdate = () => {}, saveUpdate = null) {
         this.domain = {
             slots: this.getSlots(slots),
         };
-        this.lastValidMd = story;
+        this.unsafeMd = story;
         this.md = story;
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
@@ -220,13 +220,7 @@ export class StoryController {
                 }
             }
         }
-        if (!this.exceptions.length) this.lastValidMd = this.md;
     };
-
-    revertToLastValidMd = () => {
-        this.md = this.lastValidMd;
-        this.notifyUpdate();
-    }
 
     reset = () => {
         this.domain = {
@@ -274,6 +268,7 @@ export class StoryController {
     deleteLine = (i) => {
         this.lines = [...this.lines.slice(0, i), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
+        this.unsafeMd = this.md;
         if (this.saveUpdate) this.saveUpdate(this.md);
         else this.notifyUpdate();
     };
@@ -281,6 +276,7 @@ export class StoryController {
     insertLine = (i, content) => {
         this.lines = [...this.lines.slice(0, i + 1), this.generateMdLine(i, content), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
+        this.unsafeMd = this.md;
         if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
         else this.notifyUpdate();
     };
@@ -288,22 +284,20 @@ export class StoryController {
     replaceLine = (i, content) => {
         this.lines = [...this.lines.slice(0, i), this.generateMdLine(i, content), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
+        this.unsafeMd = this.md;
         if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
         else this.notifyUpdate();
     };
 
-    /* setMd = (content) => {
-        this.md = content;
-        this.validateStory();
-        return this.exceptions;
-    } */
+    setUnsafeMd = (content) => {
+        this.unsafeMd = content;
+    }
 
     setMd = (content) => {
-        if (!this.exceptions.length) this.lastValidMd = this.md;
         this.md = content;
+        this.unsafeMd = content;
         this.validateStory();
-        if (!this.exceptions.length && this.saveUpdate) this.saveUpdate(this.md);
-        return this.exceptions;
+        if (this.saveUpdate) this.saveUpdate(this.md);
     }
 
     getPossibleInsertions = (i) => {

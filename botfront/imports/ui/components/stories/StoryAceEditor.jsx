@@ -161,7 +161,7 @@ const StoryEditor = ({
                         maxLines={Infinity}
                         fontSize={12}
                         onChange={onChange}
-                        value={story.md}
+                        value={story.unsafeMd}
                         showPrintMargin={false}
                         showGutter
                         annotations={annotations}

@@ -88,8 +88,7 @@ class StoryVisualEditor extends React.Component {
     }
 
     fetchTextForPayloads = () => {
-        const { story } = this.props;
-        const { getUtteranceFromPayload } = this.context;
+        const { story, getUtteranceFromPayload } = this.props;
         story.lines.filter(line => line.gui.type === 'user').forEach((line, i) => {
             if (typeof line.gui.data[0].text === 'undefined') {
                 getUtteranceFromPayload(line.gui.data[0], (err, data) => {
@@ -243,9 +242,8 @@ StoryVisualEditor.propTypes = {
     story: PropTypes.instanceOf(StoryController),
     insertResponse: PropTypes.func.isRequired,
     language: PropTypes.string.isRequired,
+    getUtteranceFromPayload: PropTypes.func.isRequired,
 };
-
-StoryVisualEditor.contextType = ConversationOptionsContext;
 
 StoryVisualEditor.defaultProps = {
     story: [],
@@ -259,6 +257,7 @@ export default props => (
                 {...props}
                 insertResponse={value.insertResponse}
                 language={value.language}
+                getUtteranceFromPayload={value.getUtteranceFromPayload}
             />
         )}
     </ConversationOptionsContext.Consumer>

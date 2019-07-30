@@ -438,8 +438,7 @@ if (Meteor.isServer) {
 
             const model = models[0];
 
-            if (!model) throw new Meteor.Error('400', 'No corresponding model');
-            if (model.training_data && !model.training_data.common_examples.text) throw new Meteor.Error('400', 'No correponding utterance');
+            if (!model || !model.training_data || !model.training_data.common_examples.text) throw new Meteor.Error('400', 'No correponding utterance');
             const { text, intent, entities } = model.training_data.common_examples;
             return { text, intent, entities };
         },

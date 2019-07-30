@@ -89,14 +89,16 @@ function StoriesEditor(props) {
 
     function handleStoryChange(newStory, index) {
         // console.log('handle story change');
-        const exceptions = editedStories[stories[index]._id].setMd(newStory);
+        editedStories[stories[index]._id].setUnsafeMd(newStory);
+        const newVal = new StoryController(newStory, slots);
+        newVal.validateStory();
 
         const newErrors = [...errors];
-        newErrors[index] = exceptions;
+        newErrors[index] = newVal.exceptions;
         setErrors(newErrors);
 
-        if (exceptions.length) onError();
-        // saveStory({ ...stories[index], story: newStory });
+        if (newVal.exceptions.length) onError();
+        else editedStories[stories[index]._id].setMd(newStory);
     }
 
     function handeStoryDeletion(index) {
