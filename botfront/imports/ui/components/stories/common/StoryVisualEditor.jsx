@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
-import { safeLoad, safeDump } from 'js-yaml';
+import { safeDump } from 'js-yaml';
 import { promisify } from 'util';
 
 import { StoryController } from '../../../../lib/story_controller';
@@ -91,7 +91,8 @@ class StoryVisualEditor extends React.Component {
 
     fetchTextForPayloads = () => {
         const { story, getUtteranceFromPayload } = this.props;
-        story.lines.filter(line => line.gui.type === 'user').forEach((line, i) => {
+        story.lines.forEach((line, i) => {
+            if (!(line.gui.type === 'user')) return;
             if (typeof line.gui.data[0].text === 'undefined') {
                 getUtteranceFromPayload(line.gui.data[0], (err, data) => {
                     if (!err) story.replaceLine(i, { type: 'user', data: [data] });
