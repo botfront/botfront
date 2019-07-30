@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { safeLoad } from 'js-yaml';
-
+import { promisify } from 'util';
 import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
@@ -40,9 +40,12 @@ class StoryVisualEditor extends React.Component {
         story.deleteLine(i);
     }
 
-    handleChangeUserUtterance = (i, v) => {
+    handleChangeUserUtterance = async (i, v) => {
         const { story } = this.props;
-        const updatedLine = { type: 'user', data: [v] };
+        const data = typeof v === 'string'
+            ? await this.parseUtterance(v)
+            : v;
+        const updatedLine = { type: 'user', data: [data] };
         story.replaceLine(i, updatedLine);
     }
 
@@ -96,13 +99,18 @@ class StoryVisualEditor extends React.Component {
         });
     }
 
-    parseUtterance = u => ({
-        text: u,
-        intent: 'dummdummIntent',
-    });
+    parseUtterance = async (utterance) => {
+        const { parseUtterance: rasaParse } = this.props;
+        try {
+            const { intent, entities, text } = await promisify(rasaParse)(utterance);
+            return { intent: intent.name, entities, text };
+        } catch (err) {
+            return { text: utterance, intent: 'error' };
+        }
+    };
 
     renderActionLine = (i, l, deletable = true) => (
-        <React.Fragment key={i + l.data.name}>
+        <React.Fragment key={`action${i + l.data.name}`}>
             <div className='utterance-container' agent='na'>
                 <ActionLabel value={l.data.name} onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })} />
                 { deletable && <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} /> }
@@ -112,7 +120,7 @@ class StoryVisualEditor extends React.Component {
     );
 
     renderSlotLine = (i, l, deletable = true) => (
-        <React.Fragment key={i + l.data.name}>
+        <React.Fragment key={`slot${i + l.data.name}`}>
             <div className='utterance-container' agent='na'>
                 <SlotLabel value={l.data} onChange={v => this.handleChangeActionOrSlot('slot', i, v)} />
                 { deletable && <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} /> }
@@ -166,7 +174,7 @@ class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, deletable);
             if (line.gui.type === 'bot') {
                 return (
-                    <React.Fragment key={index + line.gui.data.name}>
+                    <React.Fragment key={`bot${index + line.gui.data.name}`}>
                         <BotResponsesContainer
                             name={line.gui.data.name}
                             deletable={deletable}
@@ -177,12 +185,12 @@ class StoryVisualEditor extends React.Component {
                 );
             }
             return (
-                <React.Fragment key={index + (line.gui.data[0] ? line.gui.data[0].intent : '')}>
+                <React.Fragment key={`user${index + (line.gui.data[0] ? line.gui.data[0].intent : shortid.generate())}`}>
                     <UserUtteranceContainer
                         deletable={deletable}
                         value={line.gui.data[0]} // for now, data is a singleton
                         onChange={v => this.handleChangeUserUtterance(index, v)}
-                        onInput={v => this.handleChangeUserUtterance(index, this.parseUtterance(v))}
+                        onInput={v => this.handleChangeUserUtterance(index, v)}
                         onDelete={() => this.handleDeleteLine(index)}
                         onAbort={() => this.handleDeleteLine(index)}
                     />
@@ -241,6 +249,7 @@ StoryVisualEditor.propTypes = {
     insertResponse: PropTypes.func.isRequired,
     language: PropTypes.string.isRequired,
     getUtteranceFromPayload: PropTypes.func.isRequired,
+    parseUtterance: PropTypes.func.isRequired,
 };
 
 StoryVisualEditor.defaultProps = {
@@ -256,6 +265,7 @@ export default props => (
                 insertResponse={value.insertResponse}
                 language={value.language}
                 getUtteranceFromPayload={value.getUtteranceFromPayload}
+                parseUtterance={value.parseUtterance}
             />
         )}
     </ConversationOptionsContext.Consumer>

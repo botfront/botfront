@@ -101,6 +101,16 @@ function StoriesContainer(props) {
         );
     }
 
+    function parseUtterance(utterance, callback) {
+        Meteor.call(
+            'rasa.parse',
+            instance,
+            [{ text: utterance, lang: language }],
+            true,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
     function addIntent(intent) {
         setAvailableIntents(availableIntents.push(intent));
     }
@@ -167,6 +177,7 @@ function StoriesContainer(props) {
                 addEntity,
                 addIntent,
                 getUtteranceFromPayload,
+                parseUtterance,
                 responses, // temp fix
                 lang: 'en', // temp fix
                 updateResponses: setResponses, // temp fix
