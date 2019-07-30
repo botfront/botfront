@@ -50,6 +50,27 @@ const StoryVisualEditorWrapped = ({ story: s }) => {
     );
     const [responses, setResponses] = useState(responseFixtures);
 
+    const getUtteranceFromPayload = u => ({
+        ...u, text: 'recovered from db',
+    });
+
+    const parseUtterance = u => ({
+        intent: '-',
+        text: u,
+    });
+
+    const getResponse = key => ({
+        key,
+        values: [{
+            lang: 'en',
+            sequence: [
+                { content: 'text: fetched response!!' },
+                { content: 'text: fetched response!!' },
+                { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+            ],
+        }],
+    });
+
     return (
         <Provider store={store}>
             <ConversationOptionsContext.Provider
@@ -60,6 +81,9 @@ const StoryVisualEditorWrapped = ({ story: s }) => {
                     responses,
                     lang: 'en',
                     updateResponses: setResponses,
+                    getUtteranceFromPayload,
+                    parseUtterance,
+                    getResponse,
                 }}
             >
                 <div
