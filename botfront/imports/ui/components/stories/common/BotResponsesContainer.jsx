@@ -6,30 +6,53 @@ import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import { ConversationOptionsContext } from '../../utils/Context';
 import BotResponsePopupContent from './BotResponsePopupContent';
 import BotResponseContainer from './BotResponseContainer';
+import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
-    const {
-        name,
-        onDeleteAllResponses,
-        deletable,
-    } = props;
-    const {
-        language, getResponse, updateResponse, insertResponse,
-    } = useContext(
+    const { name, onDeleteAllResponses, deletable } = props;
+    const { getResponse, updateResponse, insertResponse } = useContext(
         ConversationOptionsContext,
     );
+
+    const [template, setTemplate] = useState(null);
+    const getSequence = () => {
+        if (!template) return [];
+        return template.values[0].sequence;
+    };
+
+    const setSequence = (newSequence) => {
+        const newTemplate = {
+            ...template,
+            values: [
+                {
+                    ...template.values[0],
+                    sequence: newSequence,
+                },
+            ],
+        };
+        setTemplate(newTemplate);
+        updateResponse(newTemplate);
+    };
 
     useEffect(() => {
         if (!/^(utter_)/.test(name)) return;
         getResponse(name, (err, res) => {
-            console.log(err, res);
+            if (!err) setTemplate(res.templates[0]);
         });
     }, []);
 
-    // const sequence = responses
-    //     .filter(r => r.key === name)[0]
-    //     .values.filter(v => v.lang === lang)[0]
-    //     .sequence.map(r => yamlLoad(r.content));
+    const handleCreateReponse = (index, responseType) => {
+        const newSequence = [...getSequence()];
+        newSequence.splice(index, 0, defaultTemplate(responseType));
+        setSequence(newSequence);
+    };
+
+    const handleChangeResponse = (newResponse, index) => {
+        const newSequence = [...getSequence()];
+        newSequence[index] = { content: newResponse };
+        setSequence(newSequence);
+    };
+
     const [popupOpen, setPopupOpen] = useState(null);
 
     const renderAddLine = (index) => {
@@ -45,9 +68,9 @@ const BotResponsesContainer = (props) => {
         return (
             <BotResponsePopupContent
                 onSelect={() => {}} // not needed for now
-                onCreate={(template) => {
+                onCreate={(responseType) => {
                     setPopupOpen(null);
-                    onCreateResponse(index, template);
+                    handleCreateReponse(index, responseType);
                 }}
                 onClose={() => setPopupOpen(null)}
                 limitedSelection
@@ -70,15 +93,14 @@ const BotResponsesContainer = (props) => {
             <div className='flex-right'>
                 <BotResponseContainer
                     deletable={deletable || sequenceArray.length > 1}
-                    value={response}
+                    value={response.content ? yamlLoad(response.content) : { text: '' }}
                     onDelete={() => {}}
                     onAbort={() => {}}
-                    onChange={content => {}}
+                    onChange={content => handleChangeResponse(yamlDump(content), index)}
                 />
-                {index === 0 && deletable && sequenceArray.length > 1 && (
+                {/* {index === 0 && deletable && sequenceArray.length > 1 && (
                     <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
-                )}
-                {index === sequenceArray.length - 1 && <div className='response-name'>{name}</div>}
+                )} */}
             </div>
             {renderAddLine(index)}
         </React.Fragment>
@@ -88,7 +110,8 @@ const BotResponsesContainer = (props) => {
     return (
         <div className='responses-container'>
             {renderAddLine(-1)}
-            {/* {sequence.map(renderResponse)} */}
+            {getSequence().map(renderResponse)}
+            <div className='response-name'>{name}</div>
         </div>
     );
 };

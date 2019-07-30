@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { update as _update } from 'lodash';
-import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import shortid from 'shortid';
+import { safeLoad } from 'js-yaml';
 
 import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
@@ -13,6 +12,11 @@ import ActionLabel from '../ActionLabel';
 import SlotLabel from '../SlotLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
 
+export const defaultTemplate = (template) => {
+    if (template === 'text') { return safeLoad({ text: '' }); }
+    if (template === 'qr') { return safeLoad({ text: '', buttons: [] }); }
+    return false;
+};
 class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
@@ -68,7 +72,7 @@ class StoryVisualEditor extends React.Component {
             key,
             values: [
                 {
-                    sequence: [{ content: this.defaultTemplate(template) }],
+                    sequence: [{ content: defaultTemplate(template) }],
                     lang: language,
                 },
             ],
@@ -80,12 +84,6 @@ class StoryVisualEditor extends React.Component {
             }
         });
     };
-
-    defaultTemplate = (template) => {
-        if (template === 'text') { return yamlDump({ text: '' }); }
-        if (template === 'qr') { return yamlDump({ text: '', buttons: [] }); }
-        return false;
-    }
 
     fetchTextForPayloads = () => {
         const { story, getUtteranceFromPayload } = this.props;

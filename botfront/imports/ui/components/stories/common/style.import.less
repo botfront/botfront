@@ -61,11 +61,12 @@
 
 .responses-container {
     display: inline-flex;
-    width: 100%;
     flex-direction: column;
     border: 1px solid transparent;
-    border-radius: 0.28571429rem;
+    border-radius: 4px;
     padding: 0.2em;
+    margin: 10px;
+    min-height: 40px;
 
     .flex-right {
         display: inline-flex;
@@ -76,20 +77,22 @@
             transition: 0.1s;
         }
 
-        .response-name {
-            color: @grey;
-            font-size: @mini;
-            align-self: flex-end;
-            text-align: right;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.1s;
-        }
+    }
+    
+    .response-name {
+        color: @grey;
+        font-size: @mini;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.1s;
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
     }
 }
 
 .responses-container:hover {
-   border: 1px solid rgba(0, 0, 0, 0.2);
+   border: 1px solid rgba(0, 0, 0, 0.1);
 
    .viewOnHover {
        opacity: 0.8;
@@ -99,7 +102,7 @@
    .flex-right > .floating-icon-button > .viewOnHover {
         opacity: 0.5;
     }
-    .flex-right > .response-name {
+    .response-name {
         visibility: visible;
         opacity: 0.5;
     }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UtteranceInput from '../../utils/UtteranceInput';
 
@@ -7,8 +8,10 @@ const BotResponseContainer = (props) => {
     const {
         value, onDelete, onAbort, onChange, deletable,
     } = props;
+
     const [mode, setMode] = useState(value.text.trim() === '' ? 'edit' : 'view');
-    const [input, setInput] = useState();
+    const [input, setInput] = useState('');
+
     useEffect(() => {
         setMode(value.text.trim() === '' ? 'edit' : 'view');
     }, [value]);
@@ -54,14 +57,13 @@ const BotResponseContainer = (props) => {
 
 BotResponseContainer.propTypes = {
     deletable: PropTypes.bool,
-    value: PropTypes.object,
+    value: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
 };
 
 BotResponseContainer.defaultProps = {
-    value: null,
     deletable: true,
 };
 

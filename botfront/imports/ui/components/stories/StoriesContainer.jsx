@@ -63,7 +63,7 @@ function StoriesContainer(props) {
         setAvailableSlots(slots);
     }, [slots]);
 
-    function getResponse(key, callback) {
+    function getResponse(key, callback = () => {}) {
         Meteor.call(
             'project.findTemplate',
             projectId,
@@ -72,7 +72,7 @@ function StoriesContainer(props) {
         );
     }
 
-    function updateResponse(response, callback) {
+    function updateResponse(response, callback = () => {}) {
         Meteor.call(
             'project.updateTemplate',
             projectId,
@@ -82,7 +82,7 @@ function StoriesContainer(props) {
         );
     }
 
-    function insertResponse(response, callback) {
+    function insertResponse(response, callback = () => {}) {
         Meteor.call(
             'project.insertTemplate',
             projectId,
@@ -91,7 +91,7 @@ function StoriesContainer(props) {
         );
     }
 
-    function getUtteranceFromPayload(payload, callback) {
+    function getUtteranceFromPayload(payload, callback = () => {}) {
         Meteor.call(
             'nlu.getUtteranceFromPayload',
             projectId,

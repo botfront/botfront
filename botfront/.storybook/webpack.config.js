@@ -20,8 +20,12 @@ module.exports = async ({ config, mode }) => {
     });
 
     config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(/scopes/, resolve(__dirname, './emptyMethods')),
+        new webpack.NormalModuleReplacementPlugin(
+            /scopes/,
+            resolve(__dirname, './emptyMethods'),
+        ),
     );
+
     // Return the altered config
     return config;
 };
