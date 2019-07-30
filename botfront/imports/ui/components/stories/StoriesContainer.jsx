@@ -97,7 +97,7 @@ function StoriesContainer(props) {
             projectId,
             payload,
             language,
-            wrapMeteorCallback((err, res) => callback(err, res)),
+            (err, res) => callback(err, res),
         );
     }
 
