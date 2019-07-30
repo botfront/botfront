@@ -244,7 +244,11 @@ export class StoryController {
     toMd = (line) => {
         try {
             if (['action', 'bot'].includes(line.type)) return `    - ${line.data.name}`;
-            if (line.type === 'slot') return `    - slot{"${line.data.name}": "${line.data.slotValue}"}`;
+            if (line.type === 'slot') {
+                const newLine = {};
+                newLine[line.data.name] = line.data.slotValue;
+                return `    - slot${JSON.stringify(newLine)}`;
+            }
             if (line.type === 'user') {
                 const disjuncts = line.data.map((d) => {
                     if (!d) return 'tempIntent';
@@ -339,6 +343,7 @@ export class StoryController {
                 output.push({ objectPayload, stringPayload: `/${stringPayload}` });
             });
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.log(e);
         }
         return output;
