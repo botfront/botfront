@@ -55,18 +55,18 @@ if (Meteor.isServer) {
             check(lang, String);
 
             try {
-                const template = Projects.findOne({
+                let template = Projects.findOne({
                     _id: projectId,
                     templates: { $elemMatch: { key, 'values.lang': lang } },
                 }, { fields: { 'values.content': 1, 'values.yaml': 1 } });
                 if (!template) {
+                    template = {
+                        key,
+                        values: [{ sequence: [], lang }],
+                    };
                     Projects.update({ _id: projectId }, {
-                        $addToSet: {
-                            templates: [{
-                                key,
-                                values: { locale: 'en_US' },
-                            }],
-                        },
+                        $push: { templates: template },
+                        $set: { responsesUpdatedAt: Date.now() },
                     });
                 }
                 return template;

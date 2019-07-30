@@ -1,37 +1,54 @@
-import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types';
 import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
+import React, { useContext, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
+import { ConversationOptionsContext } from '../../utils/Context';
 import BotResponsePopupContent from './BotResponsePopupContent';
 import BotResponseContainer from './BotResponseContainer';
-import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsesContainer = (props) => {
     const {
-        name, onDeleteResponse, onCreateResponse, onDeleteAllResponses, onChangeResponse,
+        name,
+        onDeleteAllResponses,
         deletable,
     } = props;
-    const { responses, lang } = useContext(ConversationOptionsContext);
-    const sequence = responses
-        .filter(r => r.key === name)[0].values
-        .filter(v => v.lang === lang)[0].sequence
-        .map(r => yamlLoad(r.content));
+    const {
+        language, getResponse, updateResponse, insertResponse,
+    } = useContext(
+        ConversationOptionsContext,
+    );
+
+    useEffect(() => {
+        if (!/^(utter_)/.test(name)) return;
+        getResponse(name, (err, res) => {
+            console.log(err, res);
+        });
+    }, []);
+
+    // const sequence = responses
+    //     .filter(r => r.key === name)[0]
+    //     .values.filter(v => v.lang === lang)[0]
+    //     .sequence.map(r => yamlLoad(r.content));
     const [popupOpen, setPopupOpen] = useState(null);
 
-    const renderAddLine = (i) => {
-        if (popupOpen !== i) {
+    const renderAddLine = (index) => {
+        if (popupOpen !== index) {
             return (
                 <FloatingIconButton
                     icon='ellipsis horizontal'
                     size='medium'
-                    onClick={() => setPopupOpen(i)}
+                    onClick={() => setPopupOpen(index)}
                 />
             );
         }
         return (
             <BotResponsePopupContent
                 onSelect={() => {}} // not needed for now
-                onCreate={(template) => { setPopupOpen(null); onCreateResponse(i, template); }}
+                onCreate={(template) => {
+                    setPopupOpen(null);
+                    onCreateResponse(index, template);
+                }}
                 onClose={() => setPopupOpen(null)}
                 limitedSelection
                 disableExisting
@@ -41,44 +58,37 @@ const BotResponsesContainer = (props) => {
                         icon='ellipsis horizontal'
                         visible
                         size='medium'
-                        onClick={() => setPopupOpen(i)}
+                        onClick={() => setPopupOpen(index)}
                     />
                 )}
             />
         );
     };
 
-    const renderResponse = (r, i, a) => (
-        <React.Fragment key={i + r}>
+    const renderResponse = (response, index, sequenceArray) => (
+        <React.Fragment key={index}>
             <div className='flex-right'>
                 <BotResponseContainer
-                    deletable={deletable || a.length > 1}
-                    value={r}
-                    onDelete={() => onDeleteResponse(i)}
-                    onAbort={() => onDeleteResponse(i)}
-                    onChange={content => onChangeResponse(i, content)}
+                    deletable={deletable || sequenceArray.length > 1}
+                    value={response}
+                    onDelete={() => {}}
+                    onAbort={() => {}}
+                    onChange={content => {}}
                 />
-                { i === 0 && deletable && a.length > 1 && (
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={onDeleteAllResponses}
-                    />
+                {index === 0 && deletable && sequenceArray.length > 1 && (
+                    <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
                 )}
-                { i === a.length - 1 && (
-                    <div className='response-name'>
-                        {name}
-                    </div>
-                )}
+                {index === sequenceArray.length - 1 && <div className='response-name'>{name}</div>}
             </div>
-            {renderAddLine(i)}
+            {renderAddLine(index)}
         </React.Fragment>
     );
 
-    if (sequence && !sequence.length) onDeleteAllResponses();
+    // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
         <div className='responses-container'>
             {renderAddLine(-1)}
-            {sequence.map(renderResponse)}
+            {/* {sequence.map(renderResponse)} */}
         </div>
     );
 };
@@ -86,10 +96,7 @@ const BotResponsesContainer = (props) => {
 BotResponsesContainer.propTypes = {
     deletable: PropTypes.bool,
     name: PropTypes.string.isRequired,
-    onDeleteResponse: PropTypes.func.isRequired,
-    onCreateResponse: PropTypes.func.isRequired,
     onDeleteAllResponses: PropTypes.func.isRequired,
-    onChangeResponse: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {

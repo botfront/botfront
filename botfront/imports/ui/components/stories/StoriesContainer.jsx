@@ -63,8 +63,13 @@ function StoriesContainer(props) {
         setAvailableSlots(slots);
     }, [slots]);
 
-    function getResponse(key) {
-        Meteor.call('project.findTemplate', projectId, key);
+    function getResponse(key, callback) {
+        Meteor.call(
+            'project.findTemplate',
+            projectId,
+            key,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
     }
 
     function updateResponse(response, callback) {
