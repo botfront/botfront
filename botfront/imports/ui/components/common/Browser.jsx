@@ -86,7 +86,7 @@ class Browser extends React.Component {
             <Menu.Item
                 key={index.toString()}
                 name={item[nameAccessor]}
-                className={indexProp === index ? 'selected-blue' : ''}
+                className={indexProp === index ? 'selected-blue blur' : ''}
                 active={indexProp === index}
                 onClick={() => this.handleClickMenuItem(index)}
                 link={indexProp !== index}
