@@ -63,11 +63,16 @@ function StoriesContainer(props) {
         setAvailableSlots(slots);
     }, [slots]);
 
-    function getResponse(key) {
-        Meteor.call('project.findTemplate', projectId, key);
+    function getResponse(key, callback = () => {}) {
+        Meteor.call(
+            'project.findTemplate',
+            projectId,
+            key,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
     }
 
-    function updateResponse(response, callback) {
+    function updateResponse(response, callback = () => {}) {
         Meteor.call(
             'project.updateTemplate',
             projectId,
@@ -77,7 +82,7 @@ function StoriesContainer(props) {
         );
     }
 
-    function insertResponse(response, callback) {
+    function insertResponse(response, callback = () => {}) {
         Meteor.call(
             'project.insertTemplate',
             projectId,
@@ -86,12 +91,22 @@ function StoriesContainer(props) {
         );
     }
 
-    function getUtteranceFromPayload(payload, callback) {
+    function getUtteranceFromPayload(payload, callback = () => {}) {
         Meteor.call(
             'nlu.getUtteranceFromPayload',
             projectId,
             payload,
             language,
+            (err, res) => callback(err, res),
+        );
+    }
+
+    function parseUtterance(utterance, callback) {
+        Meteor.call(
+            'rasa.parse',
+            instance,
+            [{ text: utterance, lang: language }],
+            true,
             wrapMeteorCallback((err, res) => callback(err, res)),
         );
     }
@@ -123,6 +138,32 @@ function StoriesContainer(props) {
         );
     }
 
+    const responseOne = {
+        key: 'utter_yay',
+        values: [{
+            lang: 'en',
+            sequence: [
+                { content: 'text: YAY!!' },
+                { content: 'text: BOO!!' },
+                { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+            ],
+        }],
+    };
+    
+    const responseTwo = {
+        key: 'utter_boo',
+        values: [{
+            lang: 'en',
+            sequence: [
+                { content: 'text: I love peanutes too' },
+                { content: 'text: Can I call you l8r' },
+                { content: 'text: <3' },
+            ],
+        }],
+    };
+
+    const [responses, setResponses] = useState([responseOne, responseTwo]); // temp fix
+
     return (
         <ConversationOptionsContext.Provider
             value={{
@@ -136,6 +177,10 @@ function StoriesContainer(props) {
                 addEntity,
                 addIntent,
                 getUtteranceFromPayload,
+                parseUtterance,
+                responses, // temp fix
+                lang: 'en', // temp fix
+                updateResponses: setResponses, // temp fix
             }}
         >
             <PageMenu title='Stories' icon='book'>

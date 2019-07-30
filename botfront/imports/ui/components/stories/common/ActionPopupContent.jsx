@@ -5,7 +5,7 @@ import { Popup, Input } from 'semantic-ui-react';
 const ActionPopupContent = (props) => {
     const { onSelect, trigger } = props;
     const [isOpen, setIsOpen] = useState();
-    const [actionName, setActionName] = useState();
+    const [actionName, setActionName] = useState('action_');
 
     return (
         <Popup
@@ -22,16 +22,17 @@ const ActionPopupContent = (props) => {
             }}
         >
             <p className='all-caps-header'>Enter an action name</p>
-            <div>
+            <div className='action-name-form'>
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();
-                        setActionName(null);
+                        setActionName('action_');
                         setIsOpen(false);
-                        if (actionName && actionName !== '') onSelect(actionName);
+                        if (actionName && actionName !== 'action_') onSelect(actionName);
                     }}
                 >
-                    <Input value={actionName} onChange={e => setActionName(e.target.value.trim())} autoFocus />
+                    <div className='action-name-prefix'>action_</div>
+                    <Input value={actionName.replace(/^action_/, '')} onChange={e => setActionName(`action_${e.target.value.trim()}`)} autoFocus />
                 </form>
             </div>
         </Popup>

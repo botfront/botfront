@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { update as _update } from 'lodash';
-import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
+import shortid from 'shortid';
+import { safeDump } from 'js-yaml';
+import { promisify } from 'util';
+
+import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
@@ -10,12 +13,21 @@ import ActionLabel from '../ActionLabel';
 import SlotLabel from '../SlotLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
 
+export const defaultTemplate = (template) => {
+    if (template === 'text') { return { text: '' }; }
+    if (template === 'qr') { return { text: '', buttons: [] }; }
+    return false;
+};
 class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
     }
 
     addStoryCursor = React.createRef();
+
+    componentDidMount() {
+        this.fetchTextForPayloads();
+    }
 
     componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
@@ -25,122 +37,96 @@ class StoryVisualEditor extends React.Component {
     }
 
     handleDeleteLine = (i) => {
-        const { story, updateStory } = this.props;
-        updateStory([...story.slice(0, i), ...story.slice(i + 1)]);
+        const { story } = this.props;
+        story.deleteLine(i);
     }
 
-    updateSequence = (responses, name, lang, updater) => {
-        const i = responses.map(r => r.key).indexOf(name);
-        const j = responses[i].values.map(v => v.lang).indexOf(lang);
-        const path = `[${i}].values[${j}].sequence`;
-        const newResponses = [...responses];
-        return _update(newResponses, path, updater);
+    handleChangeUserUtterance = async (i, v) => {
+        const { story } = this.props;
+        const data = typeof v === 'string'
+            ? await this.parseUtterance(v)
+            : v;
+        const updatedLine = { type: 'user', data: [data] };
+        story.replaceLine(i, updatedLine);
     }
 
-    handleDeleteResponse = (name, j) => {
-        const { responses, lang, updateResponses } = this.context;
-        const updater = sequence => ([...sequence.slice(0, j), ...sequence.slice(j + 1)]);
-        const newResponses = this.updateSequence(responses, name, lang, updater);
-        updateResponses(newResponses);
-    };
-
-    handleChangeUserUtterance = (i, v) => {
-        const { story, updateStory } = this.props;
-        const updatedLine = {
-            type: 'user',
-            data: [v],
-        };
-        updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
-    }
-
-    handleNewUserUtterance = (i, v) => {
-        const { story, updateStory } = this.props;
-        const updatedLine = {
-            type: 'user',
-            data: [this.parseUtterance(v)],
-        };
-        updateStory([...story.slice(0, i), updatedLine, ...story.slice(i + 1)]);
-    }
-
-    handleCreateUtterance = (i, pl) => {
+    handleCreateUserUtterance = (i, pl) => {
         this.setState({ lineInsertIndex: null });
-        const { story, updateStory } = this.props;
-        const newLine = {
-            type: 'user',
-            data: [pl || null],
-        };
-        updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
+        const { story } = this.props;
+        const newLine = { type: 'user', data: [pl || null] };
+        story.insertLine(i, newLine);
+    }
+
+    handleChangeActionOrSlot = (type, i, data) => {
+        const { story } = this.props;
+        story.replaceLine(i, { type, data });
     }
 
     handleCreateSlotOrAction = (i, data) => {
         this.setState({ lineInsertIndex: null });
-        const { story, updateStory } = this.props;
-        updateStory([...story.slice(0, i + 1), data, ...story.slice(i + 1)]);
+        const { story } = this.props;
+        story.insertLine(i, data);
     }
 
-    handleCreateSequence = (i, template) => {
+    handleCreateSequence = (index, template) => {
         this.setState({ lineInsertIndex: null });
-        const { story, updateStory } = this.props;
-        const { responses, lang, updateResponses } = this.context;
-        const key = this.findResponseName();
-        const newResponse = {
+        const { story, language, insertResponse } = this.props;
+        const key = `utter_${shortid.generate()}`;
+        const newTemplate = {
             key,
-            values: [{
-                lang,
-                sequence: [{ content: this.defaultTemplate(template) }],
-            }],
+            values: [
+                {
+                    sequence: [{ content: safeDump(defaultTemplate(template)) }],
+                    lang: language,
+                },
+            ],
         };
-        updateResponses(responses.concat([newResponse]));
-        const newLine = {
-            type: 'bot',
-            data: { name: key },
-        };
-        updateStory([...story.slice(0, i + 1), newLine, ...story.slice(i + 1)]);
+        insertResponse(newTemplate, (err) => {
+            if (!err) {
+                const newLine = { type: 'bot', data: { name: key } };
+                story.insertLine(index, newLine);
+            }
+        });
+    };
+
+    fetchTextForPayloads = () => {
+        const { story, getUtteranceFromPayload } = this.props;
+        story.lines.forEach((line, i) => {
+            if (!(line.gui.type === 'user')) return;
+            if (typeof line.gui.data[0].text === 'undefined') {
+                getUtteranceFromPayload(line.gui.data[0], (err, data) => {
+                    if (!err) story.replaceLine(i, { type: 'user', data: [data] });
+                });
+            }
+        });
     }
 
-    handleCreateResponse = (name, j, template) => {
-        const { responses, lang, updateResponses } = this.context;
-        const updater = sequence => ([...sequence.slice(0, j + 1), { content: this.defaultTemplate(template) }, ...sequence.slice(j + 1)]);
-        const newResponses = this.updateSequence(responses, name, lang, updater);
-        updateResponses(newResponses);
-    }
+    parseUtterance = async (utterance) => {
+        const { parseUtterance: rasaParse } = this.props;
+        try {
+            const { intent, entities, text } = await promisify(rasaParse)(utterance);
+            return { intent: intent.name || '-', entities, text };
+        } catch (err) {
+            return { text: utterance, intent: '-' };
+        }
+    };
 
-    handleChangeResponse = (name, j, content) => {
-        const { responses, lang, updateResponses } = this.context;
-        const updater = sequence => ([...sequence.slice(0, j), { content: yamlDump(content) }, ...sequence.slice(j + 1)]);
-        const newResponses = this.updateSequence(responses, name, lang, updater);
-        updateResponses(newResponses);
-    }
-
-    defaultTemplate = (template) => {
-        if (template === 'text') { return yamlDump({ text: '' }); }
-        if (template === 'qr') { return yamlDump({ text: '', buttons: [] }); }
-        return false;
-    }
-
-    parseUtterance = u => ({
-        text: u,
-        intent: 'dummdummIntent',
-    });
-
-    findResponseName = () => {
-        const { responses } = this.context;
-        const unnamedResponses = responses
-            .map(r => r.key)
-            .filter(r => r.indexOf('utter_new') === 0);
-        return `utter_new_${unnamedResponses.length + 1}`;
-    }
-
-    renderActionLine = (i, l) => (
-        <React.Fragment key={i + l.data.name}>
-            <ActionLabel value={l.data.name} />
+    renderActionLine = (i, l, deletable = true) => (
+        <React.Fragment key={`action${i + l.data.name}`}>
+            <div className='utterance-container' agent='na'>
+                <ActionLabel value={l.data.name} onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })} />
+                { deletable && <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} /> }
+            </div>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
 
-    renderSlotLine = (i, l) => (
-        <React.Fragment key={i + l.data.name}>
-            <SlotLabel value={l.data} />
+    renderSlotLine = (i, l, deletable = true) => (
+        <React.Fragment key={`slot${i + l.data.name}`}>
+            <div className='utterance-container' agent='na'>
+                <SlotLabel value={l.data} onChange={v => this.handleChangeActionOrSlot('slot', i, v)} />
+                { deletable && <FloatingIconButton icon='trash' onClick={() => this.handleDeleteLine(i)} /> }
+            </div>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
@@ -151,16 +137,17 @@ class StoryVisualEditor extends React.Component {
 
     renderAddLine = (i) => {
         const { lineInsertIndex } = this.state;
+        const { story } = this.props;
         const options = this.newLineOptions(i);
 
         if (!Object.keys(options).length) return null;
-        if (lineInsertIndex === i) {
+        if (lineInsertIndex === i || (!lineInsertIndex && lineInsertIndex !== 0 && i === story.lines.length - 1)) {
             return (
                 <AddStoryLine
                     ref={this.addStoryCursor}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => this.handleCreateUtterance(i)}
-                    onCreateUtteranceFromPayload={pl => this.handleCreateUtterance(i, pl)}
+                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(i)}
+                    onCreateUtteranceFromPayload={pl => this.handleCreateUserUtterance(i, pl)}
                     onSelectResponse={() => {}} // not needed for now since disableExisting is on
                     onCreateResponse={template => this.handleCreateSequence(i, template)}
                     onSelectAction={action => this.handleCreateSlotOrAction(i, { type: 'action', data: { name: action } })}
@@ -184,33 +171,33 @@ class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
-        const lines = story.map((line, i) => {
-            if (line.type === 'action') return this.renderActionLine(i, line);
-            if (line.type === 'slot') return this.renderSlotLine(i, line);
-            if (line.type === 'bot') {
+        const deletable = story.lines.length > 1;
+        const lines = story.lines.map((line, index) => {
+            if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, deletable);
+            if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, deletable);
+            if (line.gui.type === 'bot') {
                 return (
-                    <React.Fragment key={i + line.data.name}>
+                    <React.Fragment key={`bot${index + line.gui.data.name}`}>
                         <BotResponsesContainer
-                            name={line.data.name}
-                            onDeleteAllResponses={() => this.handleDeleteLine(i)}
-                            onDeleteResponse={j => this.handleDeleteResponse(line.data.name, j)}
-                            onCreateResponse={(j, template) => this.handleCreateResponse(line.data.name, j, template)}
-                            onChangeResponse={(j, content) => this.handleChangeResponse(line.data.name, j, content)}
+                            name={line.gui.data.name}
+                            deletable={deletable}
+                            onDeleteAllResponses={() => this.handleDeleteLine(index)}
                         />
-                        {this.renderAddLine(i)}
+                        {this.renderAddLine(index)}
                     </React.Fragment>
                 );
             }
             return (
-                <React.Fragment key={i + (line.data[0] ? line.data[0].intent : '')}>
+                <React.Fragment key={`user${index + (line.gui.data[0] ? line.gui.data[0].intent : shortid.generate())}`}>
                     <UserUtteranceContainer
-                        value={line.data[0]} // for now, data is a singleton
-                        onChange={v => this.handleChangeUserUtterance(i, v)}
-                        onInput={v => this.handleNewUserUtterance(i, v)}
-                        onDelete={() => this.handleDeleteLine(i)}
-                        onAbort={() => this.handleDeleteLine(i)}
+                        deletable={deletable}
+                        value={line.gui.data[0]} // for now, data is a singleton
+                        onChange={v => this.handleChangeUserUtterance(index, v)}
+                        onInput={v => this.handleChangeUserUtterance(index, v)}
+                        onDelete={() => this.handleDeleteLine(index)}
+                        onAbort={() => this.handleDeleteLine(index)}
                     />
-                    {this.renderAddLine(i)}
+                    {this.renderAddLine(index)}
                 </React.Fragment>
             );
         });
@@ -227,8 +214,7 @@ class StoryVisualEditor extends React.Component {
 }
 
 StoryVisualEditor.propTypes = {
-    updateStory: PropTypes.func.isRequired,
-    story: PropTypes.arrayOf(
+    /* story: PropTypes.arrayOf(
         PropTypes.oneOfType([
             PropTypes.shape({
                 type: 'bot',
@@ -261,14 +247,29 @@ StoryVisualEditor.propTypes = {
                 ),
             }),
         ]),
-    ),
+    ), */
+    story: PropTypes.instanceOf(StoryController),
+    insertResponse: PropTypes.func.isRequired,
+    language: PropTypes.string.isRequired,
+    getUtteranceFromPayload: PropTypes.func.isRequired,
+    parseUtterance: PropTypes.func.isRequired,
 };
-
-StoryVisualEditor.contextType = ConversationOptionsContext;
 
 StoryVisualEditor.defaultProps = {
     story: [],
 };
 
-export const { updateSequence } = StoryVisualEditor.prototype;
-export default StoryVisualEditor;
+
+export default props => (
+    <ConversationOptionsContext.Consumer>
+        {value => (
+            <StoryVisualEditor
+                {...props}
+                insertResponse={value.insertResponse}
+                language={value.language}
+                getUtteranceFromPayload={value.getUtteranceFromPayload}
+                parseUtterance={value.parseUtterance}
+            />
+        )}
+    </ConversationOptionsContext.Consumer>
+);

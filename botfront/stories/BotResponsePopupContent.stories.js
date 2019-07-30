@@ -16,9 +16,11 @@ const trigger = <DashedButton color='green'>Bot Response</DashedButton>;
 storiesOf('BotResponsePopupContent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
-        <ConversationOptionsContext.Provider value={{ responses }}>
-            {story()}
-        </ConversationOptionsContext.Provider>
+        <div className='story-visual-editor'>
+            <ConversationOptionsContext.Provider value={{ responses }}>
+                {story()}
+            </ConversationOptionsContext.Provider>
+        </div>
     ))
     .add('default', () => (
         <BotResponsePopupContent

@@ -12,7 +12,7 @@ export default function SlotLabel({ value, onChange, size }) {
                         {type}
                     </div>
                     <div className={`${size}-label-value label-context slot`}>
-                        {name}:&nbsp; <span className='slot-content'>{slotValue.toString()}</span>
+                        {name}:&nbsp; <span className='slot-content'>{slotValue}</span>
                     </div>
                 </div>
             )}

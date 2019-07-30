@@ -47,16 +47,18 @@ const size = {
 storiesOf('AddStoryLine', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
-        <ConversationOptionsContext.Provider
-            value={{
-                slots,
-                responses,
-                intents,
-                entities,
-            }}
-        >
-            {story()}
-        </ConversationOptionsContext.Provider>
+        <div className='story-visual-editor'>
+            <ConversationOptionsContext.Provider
+                value={{
+                    slots,
+                    responses,
+                    intents,
+                    entities,
+                }}
+            >
+                {story()}
+            </ConversationOptionsContext.Provider>
+        </div>
     ))
     .add('default', () => (
         <AddStoryLine

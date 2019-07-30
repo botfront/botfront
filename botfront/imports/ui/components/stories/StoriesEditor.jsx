@@ -2,19 +2,21 @@ import {
     Container, Button,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { can } from '../../../lib/scopes';
 
 import { Stories } from '../../../api/story/stories.collection';
-import { StoryValidator } from '../../../lib/story_validation';
+import { StoryController } from '../../../lib/story_controller';
+import { ConversationOptionsContext } from '../utils/Context';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryAceEditor from './StoryAceEditor';
 
 function StoriesEditor(props) {
     const [errors, setErrors] = useState([]);
     // This state is only used to store edited stories
-    const [storyTexts, setStoryTexts] = useState([]);
+    const [editedStories, setEditedStories] = useState({});
+    const { slots } = useContext(ConversationOptionsContext);
 
     const {
         stories,
@@ -28,7 +30,37 @@ function StoriesEditor(props) {
         storyGroup,
         projectId,
         groupNames,
+        editor,
     } = props;
+
+    function saveStory(story) {
+        onSaving();
+        Meteor.call(
+            'stories.update',
+            story,
+            wrapMeteorCallback(() => {
+                onSaved();
+            }),
+        );
+    }
+
+    const updateEditedStories = () => {
+        stories.forEach((story, index) => {
+            if (editedStories[story._id] === undefined) {
+                editedStories[story._id] = new StoryController(
+                    story.story,
+                    slots,
+                    () => {
+                        setEditedStories({
+                            ...editedStories,
+                            [story._id]: Object.assign(Object.create(editedStories[story._id]), editedStories[story._id]),
+                        });
+                    },
+                    newContent => saveStory({ ...stories[index], story: newContent }),
+                );
+            }
+        });
+    };
 
     // This effect listen to changes on errors and notifies
     // the parent component if no errors were detected
@@ -45,7 +77,7 @@ function StoriesEditor(props) {
     // This effect resets the state if the storyGroup being displayed changed
     useEffect(() => {
         // console.log('use effect');
-        setStoryTexts([]);
+        setEditedStories({});
         setErrors([]);
     }, [storyGroup]);
 
@@ -53,49 +85,20 @@ function StoriesEditor(props) {
         const stateErrors = [...errors];
         stateErrors.splice(index, 1);
         setErrors(stateErrors);
-        const stateStoryTexts = [...storyTexts];
-        stateStoryTexts.splice(index, 1);
-        setStoryTexts(stateStoryTexts);
-    }
-
-    function saveStory(story) {
-        onSaving();
-        Meteor.call(
-            'stories.update',
-            story,
-            wrapMeteorCallback(() => {
-                onSaved();
-            }),
-        );
     }
 
     function handleStoryChange(newStory, index) {
         // console.log('handle story change');
-        const newTexts = [...storyTexts];
-        newTexts[index] = newStory;
-        setStoryTexts(newTexts);
-        const validator = new StoryValidator(newStory);
-        validator.validateStories();
-
-        if (!newStory.replace(/\s/g, '').length) {
-            validator.exceptions.push({
-                type: 'error',
-                // this ensures that the error is on the last line
-                line: newStory.split('\n').length,
-                message: 'don\'t leave the story empty.',
-            });
-        }
+        editedStories[stories[index]._id].setUnsafeMd(newStory);
+        const newVal = new StoryController(newStory, slots);
+        newVal.validateStory();
 
         const newErrors = [...errors];
-        newErrors[index] = validator.exceptions;
+        newErrors[index] = newVal.exceptions;
         setErrors(newErrors);
 
-        if (validator.exceptions.length) {
-            onError();
-            // We save the story only if there are no errors
-            return;
-        }
-        saveStory({ ...stories[index], story: newStory });
+        if (newVal.exceptions.length) onError();
+        else editedStories[stories[index]._id].setMd(newStory);
     }
 
     function handeStoryDeletion(index) {
@@ -106,6 +109,9 @@ function StoriesEditor(props) {
             toBeDeletedStory,
             wrapMeteorCallback((err) => {
                 if (!err) {
+                    // delete entry in editedStories
+                    const newEditedStories = editedStories; delete newEditedStories[toBeDeletedStory._id];
+                    setEditedStories(newEditedStories);
                     // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
@@ -119,11 +125,11 @@ function StoriesEditor(props) {
         Meteor.call(
             'stories.update',
             { ...stories[index], title: newTitle },
-            wrapMeteorCallback(),
         );
     }
 
     function handleMoveStory(newGroupId, index) {
+        const toBeMovedStory = stories[index];
         if (newGroupId === stories[index].storyGroupId) {
             return;
         }
@@ -133,6 +139,9 @@ function StoriesEditor(props) {
             { ...stories[index], storyGroupId: newGroupId },
             wrapMeteorCallback((err) => {
                 if (!err) {
+                    // delete entry in editedStories
+                    const newEditedStories = editedStories; delete newEditedStories[toBeMovedStory._id];
+                    setEditedStories(newEditedStories);
                     // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
@@ -160,13 +169,11 @@ function StoriesEditor(props) {
         );
     }
 
+    updateEditedStories();
+
     const editors = stories.map((story, index) => (
         <StoryAceEditor
-            story={
-                storyTexts[index] !== undefined
-                    ? storyTexts[index]
-                    : story.story
-            }
+            story={editedStories[story._id]}
             annotations={
                 (!!errors[index] ? true : undefined)
                 && (!!errors[index].length ? true : undefined)
@@ -188,6 +195,7 @@ function StoriesEditor(props) {
             )}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
             onClone={() => handleDuplicateStory(index)}
+            editor={editor}
         />
     ));
     return (
@@ -218,11 +226,13 @@ StoriesEditor.propTypes = {
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
+    editor: PropTypes.string,
 };
 
 StoriesEditor.defaultProps = {
     disabled: false,
     stories: [],
+    editor: 'MARKDOWN',
 };
 
 export default withTracker((props) => {

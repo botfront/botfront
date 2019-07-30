@@ -13,7 +13,7 @@ const selectionOne = [
 
 const selectionTwo = [
     ...selectionOne,
-    { name: 'catSlot1', type: 'categorical' }, { name: 'catSlot2', type: 'categorical' }, { name: 'catSlot3', type: 'categorical' },
+    { name: 'catSlot1', type: 'categorical', categories: ['cat1a', 'cat1b'] }, { name: 'catSlot2', type: 'categorical', categories: ['cat2a', 'cat2b'] }, { name: 'catSlot3', type: 'categorical', categories: ['cat3a', 'cat3b'] },
     { name: 'listSlot1', type: 'list' }, { name: 'listSlot2', type: 'list' }, { name: 'listSlot3', type: 'list' },
 ];
 
@@ -37,13 +37,15 @@ const trigger = <DashedButton color='orange'>Slot</DashedButton>;
 storiesOf('SlotPopupContent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
-        <ConversationOptionsContext.Provider
-            value={{
-                slots: select('Available slots', selection, noSlots),
-            }}
-        >
-            {story()}
-        </ConversationOptionsContext.Provider>
+        <div className='story-visual-editor'>
+            <ConversationOptionsContext.Provider
+                value={{
+                    slots: select('Available slots', selection, noSlots),
+                }}
+            >
+                {story()}
+            </ConversationOptionsContext.Provider>
+        </div>
     ))
     .add('default', () => (
         <SlotPopupContent

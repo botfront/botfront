@@ -47,27 +47,27 @@ const SlotPopupContent = (props) => {
 
     return (
         <Dropdown trigger={trigger} className='dropdown-button-trigger'>
-            <Dropdown.Menu className='first-column'>
+            <Dropdown.Menu>
                 <Dropdown.Header>Select a slot</Dropdown.Header>
                 { cats.map(c => (
                     <>
                         <Dropdown.Divider />
                         <Dropdown.Item
                             active={activeType === c}
+                            className='dropdown'
                         >
                             <Dropdown
                                 text={c}
                                 key={`slotcat-${c}`}
                                 fluid
                             >
-                                <Dropdown.Menu
-                                    className='second-column'
-                                >
+                                <Dropdown.Menu>
                                     { slotsByCat[c].map(s => (
                                         <>
                                             <Dropdown.Divider />
                                             <Dropdown.Item
                                                 active={activeName === s.name}
+                                                className='dropdown'
                                                 key={s.name}
                                             >
                                                 <Dropdown
@@ -75,9 +75,7 @@ const SlotPopupContent = (props) => {
                                                     key={`slotcat-${s}`}
                                                     fluid
                                                 >
-                                                    <Dropdown.Menu
-                                                        className='third-column'
-                                                    >
+                                                    <Dropdown.Menu>
                                                         { getSlotValue(c).map(content => (
                                                             <>
                                                                 <Dropdown.Divider />

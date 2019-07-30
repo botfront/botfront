@@ -58,9 +58,9 @@ const BotResponsePopupContent = (props) => {
                         ) : <Dropdown.Header>Use a template</Dropdown.Header>
                     }
                     <Dropdown.Item onClick={() => onCreate('text')}>Text</Dropdown.Item>
-                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
                     {!limitedSelection
                         && <>
+                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
                             <Dropdown.Item onClick={() => onCreate('image')}>Image</Dropdown.Item>
                             <Dropdown.Item onClick={() => onCreate('video')}>Video</Dropdown.Item>
                             <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')}>Carousel</Dropdown.Item>
