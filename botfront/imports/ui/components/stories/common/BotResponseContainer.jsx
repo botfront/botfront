@@ -10,10 +10,11 @@ const BotResponseContainer = (props) => {
     } = props;
 
     const [mode, setMode] = useState(value.text.trim() === '' ? 'edit' : 'view');
-    const [input, setInput] = useState('');
+    const [input, setInput] = useState(value.text);
 
     useEffect(() => {
         setMode(value.text.trim() === '' ? 'edit' : 'view');
+        setInput(value.text);
     }, [value]);
 
     const render = () => {
@@ -24,25 +25,27 @@ const BotResponseContainer = (props) => {
                     fluid
                     value={input}
                     onChange={u => setInput(u)}
-                    onValidate={() => { if (input.trim() !== '') { setMode('view'); onChange({ text: input }); } }}
+                    onValidate={() => {
+                        if (input.trim() !== '') {
+                            setMode('view');
+                            onChange({ text: input });
+                        }
+                    }}
                 />
             );
         }
         return (
-            <div>{value.text}</div>
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+            <div role='button' onClick={() => setMode('edit')} tabIndex={0}>
+                {value.text}
+            </div>
         );
     };
 
     return (
-        <div
-            className='utterance-container'
-            mode={mode}
-            agent='bot'
-        >
-            <div className='inner'>
-                {render()}
-            </div>
-            { deletable && (
+        <div className='utterance-container' mode={mode} agent='bot'>
+            <div className='inner'>{render()}</div>
+            {deletable && (
                 <FloatingIconButton
                     icon='trash'
                     onClick={() => {

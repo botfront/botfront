@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
-import { safeLoad } from 'js-yaml';
+import { safeLoad, safeDump } from 'js-yaml';
 import { promisify } from 'util';
+
 import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
@@ -13,8 +14,8 @@ import SlotLabel from '../SlotLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 export const defaultTemplate = (template) => {
-    if (template === 'text') { return safeLoad({ text: '' }); }
-    if (template === 'qr') { return safeLoad({ text: '', buttons: [] }); }
+    if (template === 'text') { return { text: '' }; }
+    if (template === 'qr') { return { text: '', buttons: [] }; }
     return false;
 };
 class StoryVisualEditor extends React.Component {
@@ -75,7 +76,7 @@ class StoryVisualEditor extends React.Component {
             key,
             values: [
                 {
-                    sequence: [{ content: defaultTemplate(template) }],
+                    sequence: [{ content: safeDump(defaultTemplate(template)) }],
                     lang: language,
                 },
             ],

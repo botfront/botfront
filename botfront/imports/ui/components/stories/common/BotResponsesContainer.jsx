@@ -10,7 +10,7 @@ import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
     const { name, onDeleteAllResponses, deletable } = props;
-    const { getResponse, updateResponse, insertResponse } = useContext(
+    const { getResponse, updateResponse } = useContext(
         ConversationOptionsContext,
     );
 
@@ -31,7 +31,18 @@ const BotResponsesContainer = (props) => {
             ],
         };
         setTemplate(newTemplate);
-        updateResponse(newTemplate);
+        const templateToUpload = {
+            ...template,
+            values: [
+                {
+                    ...template.values[0],
+                    sequence: newTemplate.values[0].sequence.filter(
+                        response => yamlLoad(response.content).text,
+                    ),
+                },
+            ],
+        };
+        updateResponse(templateToUpload);
     };
 
     useEffect(() => {
@@ -43,13 +54,23 @@ const BotResponsesContainer = (props) => {
 
     const handleCreateReponse = (index, responseType) => {
         const newSequence = [...getSequence()];
-        newSequence.splice(index, 0, defaultTemplate(responseType));
+        newSequence.splice(index + 1, 0, yamlDump(defaultTemplate(responseType)));
         setSequence(newSequence);
     };
 
     const handleChangeResponse = (newResponse, index) => {
         const newSequence = [...getSequence()];
         newSequence[index] = { content: newResponse };
+        setSequence(newSequence);
+    };
+
+    const handleDeleteResponse = (index) => {
+        const newSequence = [...getSequence()];
+        newSequence.splice(index, 1);
+        if (!newSequence.length) {
+            onDeleteAllResponses();
+            return;
+        }
         setSequence(newSequence);
     };
 
@@ -94,7 +115,7 @@ const BotResponsesContainer = (props) => {
                 <BotResponseContainer
                     deletable={deletable || sequenceArray.length > 1}
                     value={response.content ? yamlLoad(response.content) : { text: '' }}
-                    onDelete={() => {}}
+                    onDelete={() => handleDeleteResponse(index)}
                     onAbort={() => {}}
                     onChange={content => handleChangeResponse(yamlDump(content), index)}
                 />
