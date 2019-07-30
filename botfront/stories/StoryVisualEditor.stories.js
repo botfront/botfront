@@ -3,7 +3,6 @@ import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 import { withKnobs } from '@storybook/addon-knobs';
-import { Provider } from 'react-redux';
 import store from '../imports/ui/store/store';
 import { StoryController } from '../imports/lib/story_controller';
 import StoryVisualEditor from '../imports/ui/components/stories/common/StoryVisualEditor';
@@ -11,7 +10,6 @@ import { ConversationOptionsContext } from '../imports/ui/components/utils/Conte
 import { slots, intents, entities } from './AddStoryLine.stories';
 import { utterances } from './UserUtteranceContainer.stories';
 import { responses as responseFixtures } from './BotResponseContainer.stories';
-import store from '../imports/ui/store/store';
 
 /* const storyOne = [
     { type: 'action', data: { name: 'action_bebe' } },
