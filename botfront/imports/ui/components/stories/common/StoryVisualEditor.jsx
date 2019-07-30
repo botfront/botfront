@@ -140,7 +140,7 @@ class StoryVisualEditor extends React.Component {
         const options = this.newLineOptions(i);
 
         if (!Object.keys(options).length) return null;
-        if (lineInsertIndex === i || (!lineInsertIndex && i === story.lines.length - 1)) {
+        if (lineInsertIndex === i || (!lineInsertIndex && lineInsertIndex !== 0 && i === story.lines.length - 1)) {
             return (
                 <AddStoryLine
                     ref={this.addStoryCursor}
