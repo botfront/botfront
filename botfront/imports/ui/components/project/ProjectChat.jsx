@@ -120,10 +120,22 @@ class ProjectChat extends React.Component {
         );
     }
 
+    // TODO add unit tests for this funtion
+    getUniquePayloads = (payLoads) => {
+        const result = Array.from(new Set(payLoads.map(p => p.stringPayload))).map(stringPayload => (
+            {
+                stringPayload,
+                objectPayload: payLoads.find(p => p.stringPayload === stringPayload).objectPayload,
+            }
+        ));
+        return result;
+    };
+
     renderPayloadOptions = () => {
         const { initPayloads } = this.props;
         const { selectedPayload } = this.state;
-        const items = initPayloads.map(p => (
+        const uniquePayloads = this.getUniquePayloads(initPayloads);
+        const items = uniquePayloads.map(p => (
             <Dropdown.Item key={p.stringPayload} onClick={this.handleChangePayload} value={p.stringPayload} selected={p.stringPayload === selectedPayload}>
                 <>
                     {this.getIntentDisplayValue(p.stringPayload)}
