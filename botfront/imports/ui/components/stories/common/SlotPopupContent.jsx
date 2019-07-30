@@ -39,7 +39,7 @@ const SlotPopupContent = (props) => {
     const cats = Object.keys(slotsByCat);
 
     function getSlotValue(type) {
-        if (type === 'bool') return [true, false];
+        if (type === 'bool') return ['true', 'false'];
         if (type === 'text') return ['set', 'null'];
         if (type === 'list') return ['empty', 'not-empty'];
         return extractCategories(slots);
@@ -87,7 +87,7 @@ const SlotPopupContent = (props) => {
                                                                     key={s.slotValue}
                                                                     className='color-column'
                                                                 >
-                                                                    {content.toString()}
+                                                                    {content}
                                                                 </Dropdown.Item>
                                                             </>
                                                         )) }

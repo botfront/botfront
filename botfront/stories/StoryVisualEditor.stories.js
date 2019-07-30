@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 import {
@@ -9,6 +10,7 @@ import { ConversationOptionsContext } from '../imports/ui/components/utils/Conte
 import { slots, intents, entities } from './AddStoryLine.stories';
 import { utterances } from './UserUtteranceContainer.stories';
 import { responses as responseFixtures } from './BotResponseContainer.stories';
+import store from '../imports/ui/store/store';
 
 const storyOne = [
     { type: 'action', data: { name: 'bebe' } },
@@ -83,5 +85,7 @@ StoryVisualEditorWrapped.defaultProps = {
 storiesOf('StoryVisualEditor', module)
     .addDecorator(withKnobs)
     .add('default', () => (
-        <StoryVisualEditorWrapped story={storyOne} />
+        <Provider store={store}>
+            <StoryVisualEditorWrapped story={storyOne} />
+        </Provider>
     ));
