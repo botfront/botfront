@@ -24,7 +24,7 @@ const UtteranceContainer = (props) => {
                     value={input}
                     onChange={u => setInput(u)}
                     onValidate={() => onInput(input)}
-                    onDelete={onDelete}
+                    onDelete={() => onAbort()}
                 />
             );
         }
