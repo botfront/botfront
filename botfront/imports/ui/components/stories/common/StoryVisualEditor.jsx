@@ -19,14 +19,11 @@ export const defaultTemplate = (template) => {
     return false;
 };
 class StoryVisualEditor extends React.Component {
-    addStoryCursor = React.createRef();
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            lineInsertIndex: props.story.lines.length - 1,
-        };
+    state = {
+        lineInsertIndex: null,
     }
+
+    addStoryCursor = React.createRef();
 
     componentDidMount() {
         this.fetchTextForPayloads();
@@ -54,8 +51,8 @@ class StoryVisualEditor extends React.Component {
     }
 
     handleCreateUserUtterance = (i, pl) => {
+        this.setState({ lineInsertIndex: null });
         const { story } = this.props;
-        this.setState({ lineInsertIndex: story.lines.length - 1 });
         const newLine = { type: 'user', data: [pl || null] };
         story.insertLine(i, newLine);
     }
@@ -66,14 +63,14 @@ class StoryVisualEditor extends React.Component {
     }
 
     handleCreateSlotOrAction = (i, data) => {
+        this.setState({ lineInsertIndex: null });
         const { story } = this.props;
-        this.setState({ lineInsertIndex: story.lines.length - 1 });
         story.insertLine(i, data);
     }
 
     handleCreateSequence = (index, template) => {
+        this.setState({ lineInsertIndex: null });
         const { story, language, insertResponse } = this.props;
-        this.setState({ lineInsertIndex: story.lines.length - 1 });
         const key = `utter_${shortid.generate()}`;
         const newTemplate = {
             key,
@@ -143,7 +140,7 @@ class StoryVisualEditor extends React.Component {
         const options = this.newLineOptions(i);
 
         if (!Object.keys(options).length) return null;
-        if (lineInsertIndex === i) {
+        if (lineInsertIndex === i || (!lineInsertIndex && i === story.lines.length - 1)) {
             return (
                 <AddStoryLine
                     ref={this.addStoryCursor}
@@ -161,7 +158,7 @@ class StoryVisualEditor extends React.Component {
                             this.addStoryCursor.current.contains(relatedTarget)
                             || modals.some(m => m.contains(relatedTarget))
                             || popups.some(m => m.contains(relatedTarget)) || (relatedTarget && relatedTarget.tagName === 'INPUT')
-                        )) { this.setState({ lineInsertIndex: story.lines.length - 1 }); }
+                        )) { this.setState({ lineInsertIndex: null }); }
                     }}
                 />
             );
