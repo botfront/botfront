@@ -31,7 +31,7 @@ const ActionPopupContent = (props) => {
                         if (actionName && actionName !== '') onSelect(actionName);
                     }}
                 >
-                    <Input value={actionName} onChange={e => setActionName(e.target.value.trim())} />
+                    <Input value={actionName} onChange={e => setActionName(e.target.value.trim())} autoFocus />
                 </form>
             </div>
         </Popup>
