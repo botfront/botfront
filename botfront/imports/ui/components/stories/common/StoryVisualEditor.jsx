@@ -103,9 +103,9 @@ class StoryVisualEditor extends React.Component {
         const { parseUtterance: rasaParse } = this.props;
         try {
             const { intent, entities, text } = await promisify(rasaParse)(utterance);
-            return { intent: intent.name, entities, text };
+            return { intent: intent.name || '-', entities, text };
         } catch (err) {
-            return { text: utterance, intent: 'error' };
+            return { text: utterance, intent: '-' };
         }
     };
 
