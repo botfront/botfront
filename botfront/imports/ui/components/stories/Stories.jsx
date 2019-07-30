@@ -305,8 +305,8 @@ class Stories extends React.Component {
                             )}
                             <Button.Group>
                                 <Button
+                                    className={editor === 'MARKDOWN' ? '' : 'not-selected-editor'}
                                     icon
-                                    color={editor === 'MARKDOWN' ? 'black' : 'grey'}
                                     basic
                                     onClick={() => {
                                         this.setState({ editor: 'MARKDOWN' });
@@ -315,9 +315,9 @@ class Stories extends React.Component {
                                     <Icon name='code' />
                                 </Button>
                                 <Button
-                                    color={editor === 'VISUAL' ? 'black' : 'grey'}
-                                    basic
+                                    className={editor === 'VISUAL' ? '' : 'not-selected-editor'}
                                     icon
+                                    basic
                                     onClick={() => {
                                         this.setState({ editor: 'VISUAL' });
                                     }}
