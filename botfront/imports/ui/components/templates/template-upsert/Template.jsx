@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import {
-    Container, Icon, Menu, Step,
+    Container, Icon, Menu,
 } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import React from 'react';
@@ -18,22 +18,16 @@ import slugify from 'slugify';
 import { TemplateSchema } from '../../../../api/project/response.schema';
 import { Projects } from '../../../../api/project/project.collection';
 import SequenceField from './SequenceField';
-import Match from './NLUCriteria/MatchField';
 import TemplateValuesField from './TemplateValuesField';
 import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import TemplateValueItemField from './TemplateValueItemField';
 import { setWorkingLanguage } from '../../../store/actions/actions';
-import FollowUp from './NLUCriteria/FollowUp';
 import DisplayIf from '../../DisplayIf';
-import NLUCriteriaCheckboxField from './NLUCriteria/NLUCriteriaCheckboxField';
 
 class Template extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            activeStep: 'criteria',
-        };
 
         const { workingLanguage, changeWorkingLanguage, languages } = this.props;
 
@@ -116,9 +110,8 @@ class Template extends React.Component {
 
     render() {
         const {
-            template, projectId, languages: langs, edit,
+            template, languages: langs, edit,
         } = this.props;
-        const { activeStep } = this.state;
         return (
             <>
                 {this.renderMenu(template)}
@@ -133,40 +126,6 @@ class Template extends React.Component {
                             </DisplayIf>
 
                             <br />
-
-                            <NLUCriteriaCheckboxField> 
-                                <>
-                                    <Step.Group widths={3}>
-                                        <Step
-                                            name='criteria'
-                                            title='Trigger'
-                                            description='NLU criteria associated with this response'
-                                            onClick={() => this.setState({ activeStep: 'criteria' })}
-                                            active={activeStep === 'criteria'}
-                                            completed={template && !!template.match}
-                                        />
-                                        <Step
-                                            name='content'
-                                            title='Content'
-                                            description='Sequence of messages'
-                                            onClick={() => this.setState({ activeStep: 'content' })}
-                                            active={activeStep === 'content'}
-                                            completed={template && !!template.values.length}
-                                        />
-                                        <Step
-                                            name='followup'
-                                            title='Follow-up'
-                                            description='Action to perform when response is sent'
-                                            onClick={() => this.setState({ activeStep: 'followup' })}
-                                            active={activeStep === 'followup'}
-                                            completed={template && !!template.match}
-                                        />
-                                    </Step.Group>
-                                    {activeStep === 'criteria' && <Match name='match' projectId={projectId} />}
-                                    {activeStep === 'content' && this.renderContentFields(langs)}
-                                    {activeStep === 'followup' && <FollowUp name='followUp' />}
-                                </>
-                            </NLUCriteriaCheckboxField>
                             <br />
                             <DisplayIf condition={context => context.model.match == null}>
                                 <>

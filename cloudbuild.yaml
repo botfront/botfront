@@ -6,7 +6,7 @@ steps:
   dir: /workspace/botfront/cypress
   args:
   - --context=/workspace/botfront/cypress
-  - --destination=gcr.io/$PROJECT_ID/cypress-runner:3.4.0
+  - --destination=gcr.io/$PROJECT_ID/cypress-runner:3.4.1
   - --cache=true
   - --cache-ttl=24h
 - name: gcr.io/$PROJECT_ID/docker-compose
@@ -19,6 +19,6 @@ steps:
 
 timeout: 3600s
 images:
-    - gcr.io/$PROJECT_ID/cypress-runner:3.4.0
+    - gcr.io/$PROJECT_ID/cypress-runner:3.4.1
 # options:
 #     machineType: 'N1_HIGHCPU_32'

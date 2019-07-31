@@ -22,7 +22,12 @@ export const TrainingExampleSchema = new SimpleSchema({
     updatedAt: {
         type: Date,
         optional: true,
-        autoValue: () => new Date(),
+        // eslint-disable-next-line consistent-return
+        autoValue() {
+            if (!this.isSet && this.operator !== '$pull') { // this check here is necessary!
+                return new Date();
+            }
+        },
     },
 });
 
