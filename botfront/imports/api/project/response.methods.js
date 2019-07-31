@@ -1,4 +1,5 @@
 import { find, intersectionBy, sortBy } from 'lodash';
+import { safeDump } from 'js-yaml';
 import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
 import { formatError } from '../../lib/utils';
@@ -69,7 +70,11 @@ if (Meteor.isServer) {
                 if (!template) {
                     template = {
                         key,
-                        values: [{ sequence: [], lang }],
+                        values: [
+                            { sequence: [
+                                { content: safeDump({ text: key }) },
+                            ], lang },
+                        ],
                     };
                     Projects.update(
                         { _id: projectId },
@@ -78,6 +83,17 @@ if (Meteor.isServer) {
                             $set: { responsesUpdatedAt: Date.now() },
                         },
                     );
+                    // template = Projects.findOne(
+                    //     {
+                    //         _id: projectId,
+                    //         templates: { $elemMatch: { key, 'values.lang': lang } },
+                    //     },
+                    //     {
+                    //         fields: {
+                    //             templates: { $elemMatch: { key, 'values.lang': lang } },
+                    //         },
+                    //     },
+                    // );
                 }
                 return template;
             } catch (e) {
