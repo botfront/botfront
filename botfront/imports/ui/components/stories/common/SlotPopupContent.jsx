@@ -13,20 +13,28 @@ const SlotPopupContent = (props) => {
         value: active, onSelect, trigger, projectId,
     } = props;
     const { slots } = useContext(ConversationOptionsContext);
-    
+
     function extractCategories(slotsData) {
-        const categories = slotsData.filter(slot => slot.type === 'categorical').flatMap((slot) => {
-            return slot.categories;
-        });
+        const categories = slotsData
+            .filter(slot => slot.type === 'categorical')
+            .flatMap(slot => slot.categories);
         return [...new Set(categories)];
     }
 
     if (!slots.length) {
         return (
             <Popup trigger={trigger} wide on='click'>
-                <p>Go to the <strong>Slot</strong> tab to create your first slot!</p>
+                <p>
+                    Go to the <strong>Slot</strong> tab to create your first
+                    slot!
+                </p>
                 <div>
-                    <Link to={{ pathname: `/project/${projectId}/stories`, state: { activeItem: 'slots' } }}>
+                    <Link
+                        to={{
+                            pathname: `/project/${projectId}/stories`,
+                            state: { activeItem: 'slots' },
+                        }}
+                    >
                         <Button fluid color='orange' content='Go to slots' />
                     </Link>
                 </div>
@@ -34,7 +42,11 @@ const SlotPopupContent = (props) => {
         );
     }
 
-    const { name: activeName, type: activeType, slotValue } = active || { name: null, type: null, slotValue: null };
+    const { name: activeName, type: activeType, slotValue } = active || {
+        name: null,
+        type: null,
+        slotValue: null,
+    };
     const slotsByCat = groupBy(slots, s => s.type);
     const cats = Object.keys(slotsByCat);
 
@@ -48,10 +60,9 @@ const SlotPopupContent = (props) => {
     return (
         <Dropdown trigger={trigger} className='dropdown-button-trigger'>
             <Dropdown.Menu>
-                <Dropdown.Header>Select a slot</Dropdown.Header>
-                { cats.map(c => (
+                <Dropdown.Item>Select a slot</Dropdown.Item>
+                {cats.map(c => (
                     <>
-                        <Dropdown.Divider />
                         <Dropdown.Item
                             active={activeType === c}
                             className='dropdown'
@@ -62,11 +73,13 @@ const SlotPopupContent = (props) => {
                                 fluid
                             >
                                 <Dropdown.Menu>
-                                    { slotsByCat[c].map(s => (
+                                    {slotsByCat[c].map(s => (
                                         <>
-                                            <Dropdown.Divider />
                                             <Dropdown.Item
-                                                active={activeName === s.name}
+                                                active={
+                                                    activeName
+                                                    === s.name
+                                                }
                                                 className='dropdown'
                                                 key={s.name}
                                             >
@@ -76,29 +89,41 @@ const SlotPopupContent = (props) => {
                                                     fluid
                                                 >
                                                     <Dropdown.Menu>
-                                                        { getSlotValue(c).map(content => (
-                                                            <>
-                                                                <Dropdown.Divider />
+                                                        {getSlotValue(
+                                                            c,
+                                                        ).map(
+                                                            content => (
                                                                 <Dropdown.Item
-                                                                    onClick={() => onSelect({ ...s, slotValue: content })}
-                                                                    active={slotValue === content}
-                                                                    key={s.slotValue}
+                                                                    onClick={() => onSelect(
+                                                                        {
+                                                                            ...s,
+                                                                            slotValue: content,
+                                                                        },
+                                                                    )
+                                                                    }
+                                                                    active={
+                                                                        slotValue
+                                                                        === content
+                                                                    }
+                                                                    key={
+                                                                        s.slotValue
+                                                                    }
                                                                     className='color-column'
                                                                 >
                                                                     {content.toString()}
                                                                 </Dropdown.Item>
-                                                            </>
-                                                        )) }
+                                                            ),
+                                                        )}
                                                     </Dropdown.Menu>
                                                 </Dropdown>
                                             </Dropdown.Item>
                                         </>
-                                    )) }
+                                    ))}
                                 </Dropdown.Menu>
                             </Dropdown>
                         </Dropdown.Item>
                     </>
-                )) }
+                ))}
             </Dropdown.Menu>
         </Dropdown>
     );
