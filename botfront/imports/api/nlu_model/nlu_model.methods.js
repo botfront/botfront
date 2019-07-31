@@ -410,12 +410,27 @@ if (Meteor.isServer) {
 
             const entitiesQuery = [];
             if (payload.entities && payload.entities.length) {
-                entitiesQuery.push({ $match: { 'training_data.common_examples.entities': { $size: payload.entities.length } } });
+                entitiesQuery.push({
+                    $match: {
+                        'training_data.common_examples.entities': {
+                            $size: payload.entities.length,
+                        },
+                    },
+                });
                 payload.entities.forEach((entity) => {
-                    entitiesQuery.push({ $match: { 'training_data.common_examples.entities.entity': entity && entity.entity } });
+                    entitiesQuery.push({
+                        $match: {
+                            'training_data.common_examples.entities.entity':
+                                entity && entity.entity,
+                            'training_data.common_examples.entities.value':
+                                entity && entity.value,
+                        },
+                    });
                 });
             } else {
-                entitiesQuery.push({ $match: { 'training_data.common_examples.entities': { $size: 0 } } });
+                entitiesQuery.push({
+                    $match: { 'training_data.common_examples.entities': { $size: 0 } },
+                });
             }
 
             const models = await NLUModels.aggregate([
@@ -438,7 +453,11 @@ if (Meteor.isServer) {
 
             const model = models[0];
 
-            if (!model || !model.training_data || !model.training_data.common_examples.text) throw new Meteor.Error('400', 'No correponding utterance');
+            if (
+                !model
+                || !model.training_data
+                || !model.training_data.common_examples.text
+            ) throw new Meteor.Error('400', 'No correponding utterance');
             const { text, intent, entities } = model.training_data.common_examples;
             return { text, intent, entities };
         },
