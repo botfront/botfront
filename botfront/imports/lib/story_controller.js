@@ -243,11 +243,11 @@ export class StoryController {
 
     toMd = (line) => {
         try {
-            if (['action', 'bot'].includes(line.type)) return `    - ${line.data.name}`;
+            if (['action', 'bot'].includes(line.type)) return `  - ${line.data.name}`;
             if (line.type === 'slot') {
                 const newLine = {};
                 newLine[line.data.name] = line.data.slotValue;
-                return `    - slot${JSON.stringify(newLine)}`;
+                return `  - slot${JSON.stringify(newLine)}`;
             }
             if (line.type === 'user') {
                 const disjuncts = line.data.map((d) => {
