@@ -37,4 +37,27 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "push", "botfront/botfront:latest"]
 
-timeout: 60m
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - kms
+  - decrypt
+  - --ciphertext-file=npmrc.enc
+  - --plaintext-file=/root/.npmrc
+  - --location=global
+  - --keyring=my-keyring
+  - --key=npm-key
+  volumes:
+  - name: 'home'
+    path: /root/
+
+- name: 'gcr.io/cloud-builders/npm'
+  args:
+    - publish
+  dir: cli
+  env:
+  - HOME=/root/
+  volumes:
+  - name: 'home'
+    path: /root/
+
+timeout: 3600s
