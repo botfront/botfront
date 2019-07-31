@@ -15,6 +15,14 @@ All notable changes to this project will be documented in this file. See [standa
 
 * **context-helper:** add entities and intent generation function ([ffecc52](https://github.com/botfront/botfront/commit/ffecc52))
 
+
+### Tests
+
+* add unit test for intent and entity extraction ([4b500e1](https://github.com/botfront/botfront/commit/4b500e1))
+* fixed typos ([8025a2e](https://github.com/botfront/botfront/commit/8025a2e))
+
+
+
 ### [0.15.3](https://github.com/botfront/botfront/compare/v0.15.2...v0.15.3) (2019-07-26)
 
 
