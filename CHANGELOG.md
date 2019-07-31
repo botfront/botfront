@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.4](https://github.com/botfront/botfront/compare/v0.15.3...v0.15.4) (2019-07-31)
+
+
+### Bug Fixes
+
+* missing cloudbuild image update ([5185489](https://github.com/botfront/botfront/commit/5185489))
+* set correct initial version in default model ([a2dd24c](https://github.com/botfront/botfront/commit/a2dd24c))
+
+
+### Features
+
+* **context-helper:** add entities and intent generation function ([ffecc52](https://github.com/botfront/botfront/commit/ffecc52))
+
 ### [0.15.3](https://github.com/botfront/botfront/compare/v0.15.2...v0.15.3) (2019-07-26)
 
 
