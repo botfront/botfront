@@ -131,22 +131,12 @@ class StoryVisualEditor extends React.Component {
         </React.Fragment>
     );
 
-    newLineOptions = (storyLine) => {
-        if (storyLine && storyLine.gui.type === 'user') {
-            return {
-                userUtterance: false,
-                botUtterance: true,
-                action: true,
-                slot: true,
-            };
-        }
-        return {
-            userUtterance: true,
-            botUtterance: true,
-            action: true,
-            slot: true,
-        };
-    };
+    newLineOptions = storyLine => ({
+        userUtterance: storyLine && storyLine.gui.type !== 'user',
+        botUtterance: true,
+        action: true,
+        slot: true,
+    });
 
     renderAddLine = (i) => {
         const { lineInsertIndex } = this.state;

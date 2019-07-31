@@ -273,6 +273,7 @@ function UserUtteranceViewer({
                     />
                 );
             })}
+            <> &nbsp; </>
             {intent && (
                 <Intent
                     value={intent}
