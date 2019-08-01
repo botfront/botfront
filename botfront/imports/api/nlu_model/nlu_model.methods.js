@@ -401,7 +401,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(lang, String);
             check(payload, Object);
-
+            checkIfCan(['nlu-data:r', 'stories:r', 'responses:r'], projectId);
             if (!payload.intent) throw new Meteor.Error('400', 'Intent missing from payload');
             const { nlu_models: nluModelIds } = Projects.findOne(
                 { _id: projectId },

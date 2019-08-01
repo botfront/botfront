@@ -55,6 +55,7 @@ Meteor.methods({
 
     'slots.getSlots'(projectId) {
         check(projectId, String);
+        checkIfCan(['stories:r'], projectId);
         return Slots.find({ projectId }).fetch();
     },
 });
