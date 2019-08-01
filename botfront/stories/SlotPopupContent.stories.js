@@ -1,7 +1,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { Provider } from 'react-redux';
 import { withKnobs, select } from '@storybook/addon-knobs';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+import store from '../imports/ui/store/store';
 import SlotPopupContent from '../imports/ui/components/stories/common/SlotPopupContent';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
 
@@ -48,10 +50,12 @@ storiesOf('SlotPopupContent', module)
         </div>
     ))
     .add('default', () => (
-        <SlotPopupContent
-            value={select('Selected slot', selected, null)}
-            // eslint-disable-next-line no-alert
-            onSelect={slot => alert(`${slot.name} & ${slot.slotValue}!!`)}
-            trigger={trigger}
-        />
+        <Provider store={store}>
+            <SlotPopupContent
+                value={select('Selected slot', selected, null)}
+                // eslint-disable-next-line no-alert
+                onSelect={slot => alert(`${slot.name} & ${slot.slotValue}!!`)}
+                trigger={trigger}
+            />
+        </Provider>
     ));
