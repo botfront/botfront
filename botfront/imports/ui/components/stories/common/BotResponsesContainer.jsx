@@ -49,13 +49,7 @@ const BotResponsesContainer = (props) => {
         if (!/^(utter_)/.test(name)) return;
         getResponse(name, (err, res) => {
             if (!err) {
-                if (!res.templates) {
-                    getResponse(name, (err2, res2) => {
-                        if (!err2) setTemplate(res2.templates[0]);
-                    });
-                    return;
-                }
-                setTemplate(res.templates[0]);
+                setTemplate(res);
             }
         });
     }, []);

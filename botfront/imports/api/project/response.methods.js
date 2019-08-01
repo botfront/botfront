@@ -71,9 +71,12 @@ if (Meteor.isServer) {
                     template = {
                         key,
                         values: [
-                            { sequence: [
-                                { content: safeDump({ text: key }) },
-                            ], lang },
+                            {
+                                sequence: [
+                                    { content: safeDump({ text: key }) },
+                                ],
+                                lang,
+                            },
                         ],
                     };
                     Projects.update(
@@ -83,19 +86,9 @@ if (Meteor.isServer) {
                             $set: { responsesUpdatedAt: Date.now() },
                         },
                     );
-                    // template = Projects.findOne(
-                    //     {
-                    //         _id: projectId,
-                    //         templates: { $elemMatch: { key, 'values.lang': lang } },
-                    //     },
-                    //     {
-                    //         fields: {
-                    //             templates: { $elemMatch: { key, 'values.lang': lang } },
-                    //         },
-                    //     },
-                    // );
+                    return template;
                 }
-                return template;
+                return template.templates[0];
             } catch (e) {
                 throw new Meteor.Error(e);
             }
