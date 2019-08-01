@@ -48,7 +48,9 @@ const BotResponsesContainer = (props) => {
     useEffect(() => {
         if (!/^(utter_)/.test(name)) return;
         getResponse(name, (err, res) => {
-            if (!err) setTemplate(res.templates[0]);
+            if (!err) {
+                setTemplate(res);
+            }
         });
     }, []);
 
