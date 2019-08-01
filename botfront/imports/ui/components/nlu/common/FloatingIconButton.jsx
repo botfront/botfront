@@ -11,7 +11,7 @@ export default function FloatingIconButton(props) {
     return (
         <div
             style={style}
-            className={`floating-icon-button${visible ? ' visible' : ''}`}
+            className={`floating-icon-button${visible ? ' visible' : ''} ${icon}`}
             data-cy={icon}
         >
             <Icon
