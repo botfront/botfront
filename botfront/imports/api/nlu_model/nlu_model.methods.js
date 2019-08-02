@@ -18,6 +18,12 @@ import { setGazetteDefaults } from '../../ui/components/synonyms/GazetteConfig';
 import { Projects } from '../project/project.collection';
 import { checkIfCan } from '../../lib/scopes';
 
+const getModelWithTrainingData = (chitChatProjectId, language) => {
+    const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
+    const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { 'training_data.common_examples': 1 } });
+    return model;
+};
+
 Meteor.methods({
     'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
@@ -184,12 +190,11 @@ if (Meteor.isServer) {
             if (!chitChatProjectId) {
                 throw ReferenceError('Chitchat project not set in global settings');
             }
-            const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
-            const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { 'training_data.common_examples': 1 } });
+            const model = getModelWithTrainingData(chitChatProjectId, language);
 
             return model ? sortBy(uniq(model.training_data.common_examples.map(e => e.intent))) : [];
         },
-
+       
         'nlu.addChitChatToTrainingData'(modelId, language, intents) {
             check(modelId, String);
             check(language, String);
@@ -201,8 +206,7 @@ if (Meteor.isServer) {
                 throw ReferenceError('Chitchat project not set in global settings');
             }
 
-            const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
-            const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { 'training_data.common_examples': 1 } });
+            const model = getModelWithTrainingData(chitChatProjectId, language);
             // eslint-disable-next-line camelcase
             const { training_data: { common_examples = [] } = {} } = model || {};
 
