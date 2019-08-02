@@ -15,19 +15,15 @@ If it's not the case, see [Installing requirements](#installing-requirements) fi
 
 
 ## Installation
-In your terminal:
+Run the following command in your terminal:
 
 ```bash
 npm install -g botfront
 ```
 
-Then...
+When installation is complete Botfront will propose you to create your first project.
 
-```bash
-botfront
-```
-
-And follow the instructions to create a project. After a long while (there's a lot to download) Botfront will open in your browser and invite you to set up your project.
+At any time you can access the Botfront menu to create or run a project by running `botfront` in your shell.
 
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/setup.mp4" type="video/mp4">
