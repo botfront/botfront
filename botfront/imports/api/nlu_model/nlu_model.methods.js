@@ -8,11 +8,21 @@ import { formatError, getProjectIdFromModelId } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
-import { checkNoEmojisInExamples, checkNoDuplicatesInExamples, renameIntentsInTemplates, getNluModelLanguages } from './nlu_model.utils';
+import {
+    checkNoEmojisInExamples,
+    checkNoDuplicatesInExamples,
+    renameIntentsInTemplates,
+    getNluModelLanguages,
+} from './nlu_model.utils';
 import { setGazetteDefaults } from '../../ui/components/synonyms/GazetteConfig';
 import { Projects } from '../project/project.collection';
-import { Instances } from '../instances/instances.collection';
 import { checkIfCan } from '../../lib/scopes';
+
+const getModelWithTrainingData = (chitChatProjectId, language) => {
+    const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
+    const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { 'training_data.common_examples': 1 } });
+    return model;
+};
 
 Meteor.methods({
     'nlu.insertExamples'(modelId, items) {
@@ -101,33 +111,6 @@ Meteor.methods({
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
 
-    'nlu.markTrainingStarted'(modelId) {
-        check(modelId, String);
-        checkIfCan('nlu-model:x', getProjectIdFromModelId(modelId));
-
-        try {
-            return NLUModels.update({ _id: modelId }, { $set: { training: { status: 'training', startTime: new Date() } } });
-        } catch (e) {
-            throw e;
-        }
-    },
-
-    'nlu.markTrainingStopped'(modelId, status, error) {
-        check(modelId, String);
-        check(status, String);
-        check(error, Match.Optional(String));
-        checkIfCan('nlu-model:x', getProjectIdFromModelId(modelId));
-
-        try {
-            const set = { training: { status, endTime: new Date() } };
-            if (error) {
-                set.training.message = error;
-            }
-            return NLUModels.update({ _id: modelId }, { $set: set });
-        } catch (e) {
-            throw e;
-        }
-    },
 });
 
 if (Meteor.isServer) {
@@ -225,12 +208,11 @@ if (Meteor.isServer) {
             if (!chitChatProjectId) {
                 throw ReferenceError('Chitchat project not set in global settings');
             }
-            const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
-            const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { 'training_data.common_examples': 1 } });
+            const model = getModelWithTrainingData(chitChatProjectId, language);
 
             return model ? sortBy(uniq(model.training_data.common_examples.map(e => e.intent))) : [];
         },
-
+       
         'nlu.addChitChatToTrainingData'(modelId, language, intents) {
             check(modelId, String);
             check(language, String);
@@ -242,8 +224,8 @@ if (Meteor.isServer) {
                 throw ReferenceError('Chitchat project not set in global settings');
             }
 
-            const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
-            const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { 'training_data.common_examples': 1 } });
+            const model = getModelWithTrainingData(chitChatProjectId, language);
+            // eslint-disable-next-line camelcase
             const { training_data: { common_examples = [] } = {} } = model || {};
 
             Meteor.call('nlu.insertExamples', modelId, common_examples.filter(({ intent }) => intents.indexOf(intent) >= 0));
@@ -269,7 +251,9 @@ if (Meteor.isServer) {
                 ops[command] = {};
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
                     // remove perfect duplicates before adding ids
+                    // eslint-disable-next-line no-param-reassign
                     nluData.common_examples = uniqWith(nluData.common_examples, isEqual).map(e => ExampleUtils.stripBare(e));
+                    // eslint-disable-next-line no-return-assign
                     nluData.common_examples.forEach(e => (e._id = uuidv4()));
                     checkNoDuplicatesInExamples(nluData.common_examples);
                     checkNoEmojisInExamples(JSON.stringify(nluData.common_examples));
