@@ -14,8 +14,8 @@ import SlotLabel from '../SlotLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 export const defaultTemplate = (template) => {
-    if (template === 'text') { return { text: '' }; }
-    if (template === 'qr') { return { text: '', buttons: [] }; }
+    if (template === 'text') { return { text: 'click to edit me' }; }
+    if (template === 'qr') { return { text: 'click to edit me', buttons: [] }; }
     return false;
 };
 class StoryVisualEditor extends React.Component {
@@ -168,7 +168,7 @@ class StoryVisualEditor extends React.Component {
             );
         }
         return (
-            <FloatingIconButton icon='ellipsis horizontal' size='medium' onClick={() => this.setState({ lineInsertIndex: i })} />
+            <FloatingIconButton icon='ellipsis horizontal' className='ellipsis horizontal' size='medium' onClick={() => this.setState({ lineInsertIndex: i })} />
         );
     };
 

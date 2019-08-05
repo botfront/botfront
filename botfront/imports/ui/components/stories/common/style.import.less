@@ -3,9 +3,15 @@
     flex-direction: column;
     width: 100%;
     padding: 3px;
+    padding-left: 30px;
 
     .item {
         overflow: visible;
+    }
+
+    .utterance-container {
+        margin-top: 4px;
+        margin-bottom: 4px;
     }
 
     .floating-icon-button {
@@ -77,9 +83,28 @@
     flex-direction: column;
     border: 1px solid transparent;
     border-radius: 4px;
-    padding: 0.2em;
-    margin: 10px;
+    padding: 4px;
+    margin: 10px 30px 10px 0;
     min-height: 40px;
+
+    .utterance-container.bot-response {
+        input {
+            padding-top: 1px;
+            outline: none;
+            background-color: transparent;
+            border: none;
+            border-color: transparent;
+            margin-left: 6px;
+            border-bottom: 1px solid transparent;
+            &:hover {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+            }
+
+            &::focus {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+            }
+        }
+    }
 
     .flex-right {
         display: inline-flex;
@@ -127,20 +152,7 @@
     }
 }
 
-.floating-icon-button[data-cy="ellipsis horizontal"]:hover+.responses-container::before,
-.floating-icon-button[data-cy="ellipsis horizontal"].visible+.responses-container::before {
-    content: '';
-    display: block;
-    border-top: 1px solid rgba(0, 0, 0, 0.2);
-    width: 100%;
-}
-
-.responses-container+.floating-icon-button[data-cy="ellipsis horizontal"]:hover,
-.responses-container+.floating-icon-button[data-cy="ellipsis horizontal"].visible {
-    border-top: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.floating-icon-button[data-cy="ellipsis horizontal"] {
+.floating-icon-button.ellipsis.horizontal {
     width: 200px;
     height: 5px;
     transition: 0.1s;
@@ -152,18 +164,18 @@
         transition-delay: 0.4s;
         outline: none;
     }
+
     .viewOnHover.ellipsis::before {
         left: 30px;
         position: relative;
     }
-}
-.floating-icon-button[data-cy="ellipsis horizontal"]:hover,
-.floating-icon-button[data-cy="ellipsis horizontal"].visible {
-    height: 20px;
-    width: 100%;
-    .viewOnHover.ellipsis {
-        opacity: 1;
-        visibility: visible;
+
+    &:hover, &.visible {
+        height: 20px;
+        .viewOnHover.ellipsis {
+            opacity: 1;
+            visibility: visible;
+        }
     }
 }
 
@@ -248,11 +260,15 @@ div.add-entity-wrap {
 //        white-space: pre;
         line-height: 1.2;
         width: 100%;
-        margin: auto 4px auto 4px;
+        margin: auto 4px auto 0px;
         .input {
             width: 1000ch;
             max-width: 100%;
         }
+    }
+
+    .entity-container {
+        margin-left: 4px;
     }
     
     .floating-icon-button {
@@ -273,14 +289,6 @@ div.add-entity-wrap {
     .inner {
         width: ~"calc(100% - 20px)";
 
-    }
-}
-
-.utterance-container.bot-response .inner {
-    border-bottom: 1px solid transparent;
-    :hover {
-        border-bottom: 1px solid #d6d6d6;
-        outline: none;
     }
 }
 
