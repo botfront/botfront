@@ -11,7 +11,7 @@ import ExampleUtils from '../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { checkIfCan } from './scopes';
 
-export const getConfig = (model, instance) => {
+export const getConfig = (model) => {
     const config = yaml.safeLoad(model.config);
     if (!config.pipeline) {
         throw new Meteor.Error('Please set a configuration');
@@ -27,26 +27,12 @@ export const getConfig = (model, instance) => {
 
     config.language = model.language;
     const apiHost = GlobalSettings.findOne({ _id: 'SETTINGS' }).settings.private.bfApiHost;
-    if (!instance.type || !instance.type.includes('nlu')) {
-        config.pipeline.unshift({
-            name: 'rasa_addons.nlu.components.language_setter.LanguageSetter',
-            language: config.language,
-        });
-    }
-
     if (model.logActivity && apiHost) {
-        if (instance.type && instance.type.includes('nlu')) {
-            config.pipeline.push({
-                name: 'components.botfront.activity_logger.ActivityLogger',
-                url: `${apiHost}/log-utterance`,
-            });
-        } else {
-            config.pipeline.push({
-                params: { modelId: model._id },
-                name: 'rasa_addons.nlu.components.http_logger.HttpLogger',
-                url: `${apiHost}/log-utterance`,
-            });
-        }
+        config.pipeline.push({
+            params: { modelId: model._id },
+            name: 'rasa_addons.nlu.components.http_logger.HttpLogger',
+            url: `${apiHost}/log-utterance`,
+        });
     }
     return yaml.dump(config);
 };

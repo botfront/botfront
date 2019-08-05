@@ -40,41 +40,24 @@ export default class NLUExampleTester extends React.Component {
         const { text } = this.state;
         const {
             instance,
-            model: { language: lang, _id: modelId },
-            projectId,
+            model: { language: lang },
         } = this.props;
         if (text == null || text.length === 0) {
             this.setState({ text: '', example: null, clickable: false });
             return;
         }
 
-        if (instance.type === 'nlu') {
-            Meteor.call(
-                'nlu.parse',
-                projectId,
-                modelId,
-                instance,
-                [{ q: text, nolog: 'true' }],
-                true,
-                wrapMeteorCallback((err, example) => {
-                    if (err) return this.setState({ example: { text: err.error }, clickable: false });
-                    Object.assign(example, { intent: example.intent ? example.intent.name : null });
-                    return this.setState({ example, clickable: true });
-                }),
-            );
-        } else {
-            Meteor.call(
-                'rasa.parse',
-                instance,
-                [{ text, lang }],
-                true,
-                wrapMeteorCallback((err, example) => {
-                    if (err) return this.setState({ example: { text: err.error }, clickable: false });
-                    Object.assign(example, { intent: example.intent ? example.intent.name : null });
-                    return this.setState({ example, clickable: true });
-                }),
-            );
-        }
+        Meteor.call(
+            'rasa.parse',
+            instance,
+            [{ text, lang }],
+            true,
+            wrapMeteorCallback((err, example) => {
+                if (err) return this.setState({ example: { text: err.error }, clickable: false });
+                Object.assign(example, { intent: example.intent ? example.intent.name : null });
+                return this.setState({ example, clickable: true });
+            }),
+        );
     };
 
     onDone = () => {
