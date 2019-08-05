@@ -27,6 +27,10 @@ export const getConfig = (model) => {
 
     config.language = model.language;
     const apiHost = GlobalSettings.findOne({ _id: 'SETTINGS' }).settings.private.bfApiHost;
+    config.pipeline.unshift({
+        name: 'rasa_addons.nlu.components.language_setter.LanguageSetter',
+        language: config.language,
+    });
     if (model.logActivity && apiHost) {
         config.pipeline.push({
             params: { modelId: model._id },
