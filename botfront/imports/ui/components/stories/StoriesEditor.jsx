@@ -75,15 +75,6 @@ function StoriesEditor(props) {
         const validator = new StoryValidator(newStory);
         validator.validateStories();
 
-        if (!newStory.replace(/\s/g, '').length) {
-            validator.exceptions.push({
-                type: 'error',
-                // this ensures that the error is on the last line
-                line: newStory.split('\n').length,
-                message: 'don\'t leave the story empty.',
-            });
-        }
-
         const newErrors = [...errors];
         newErrors[index] = validator.exceptions;
         setErrors(newErrors);
