@@ -64,15 +64,18 @@
 
 .action-name-form {
     position: relative;
-
+    color: @grey;
     .action-name-prefix {
         position: absolute;
         z-index: 100;
         left: 0.67857143em;
-        top: ~"calc(calc(100% - 2em) - 1px)";
-        color: @grey;
+        top: ~"calc(calc(100% - 2em) - 0.55px)";
     }
     .action-name-prefix + .input input {
+        color: @grey;
+        &:focus {
+            color: @grey;
+        }
         padding-left: 6.5ch;
     }
 }
