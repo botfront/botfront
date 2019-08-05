@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Statistic, Tab } from 'semantic-ui-react';
+import { Statistic, Tab, Grid } from 'semantic-ui-react';
+
 
 export default class Statistics extends React.Component {
     renderStatistics() {
@@ -25,11 +26,78 @@ export default class Statistics extends React.Component {
         ));
     }
 
+    renderEntityDistribution = () => {
+        const { model } = this.props;
+        const GET_ENTITY_DISTRIBUTION = gql`
+            query EntityDistribution($modelId: String!) {
+                entityDistribution(modelId: $modelId) {
+                    entity
+                    count
+                }
+            }
+        `;
+
+        return (
+            <Query query={GET_ENTITY_DISTRIBUTION} variables={{ modelId: model._id }}>
+                {({ loading, error, data: { entityDistribution } }) => {
+                    if (loading) return 'Loading...';
+                    if (error) return `Error! ${error.message}`;
+                    return (
+                        <EntityDistributionWidget
+                            data={entityDistribution.map(({ entity, count }) => ({
+                                id: entity,
+                                label: entity,
+                                value: count,
+                            }))}
+                        />
+                    );
+                }}
+            </Query>
+        );
+    };
+
+    renderIntentDistribution = () => {
+        const { model } = this.props;
+        const GET_INTENT_DISTRIBUTION = gql`
+            query IntentDistribution($modelId: String!) {
+            intentDistribution(modelId: $modelId) {
+                intent
+                count
+            }
+        }
+    `;
+
+        return (
+            <Query query={GET_INTENT_DISTRIBUTION} variables={{ modelId: model._id }}>
+                {({ loading, error, data: { intentDistribution } }) => {
+                    if (loading) return 'Loading...';
+                    if (error) return `Error! ${error.message}`;
+                    return (
+                        <IntentDistributionWidget
+                            data={intentDistribution.map(({ intent, count }) => ({
+                                id: intent,
+                                label: intent,
+                                value: count,
+                            }))}
+                        />
+                    );
+                }}
+            </Query>
+        );
+    };
+
     render() {
         return (
             <Tab.Pane>
-                <Statistic.Group widths='four'>{this.renderStatistics()}
-                </Statistic.Group>
+                <Statistic.Group widths='four'>{this.renderStatistics()}</Statistic.Group>
+                <Grid>
+                    <Grid.Row style={{ height: 500 }}>
+                        <Grid.Column width={8} style={{ height: 500 }}>{this.renderIntentDistribution()}</Grid.Column>
+                        <Grid.Column width={8} style={{ height: 500 }}>{this.renderEntityDistribution()}</Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                
+                
             </Tab.Pane>
         );
     }
