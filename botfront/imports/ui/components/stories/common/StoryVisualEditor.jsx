@@ -132,7 +132,8 @@ class StoryVisualEditor extends React.Component {
     );
 
     newLineOptions = storyLine => ({
-        userUtterance: storyLine && storyLine.gui.type !== 'user',
+        // userUtterance: storyLine && storyLine.gui.type !== 'user',
+        userUtterance: true,
         botUtterance: true,
         action: true,
         slot: true,

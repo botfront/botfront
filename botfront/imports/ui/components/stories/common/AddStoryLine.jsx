@@ -31,7 +31,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         >
             { userUtterance && (
                 <UserUtterancePopupContent
-                    trigger={<DashedButton color='blue' size={size}>User says:</DashedButton>}
+                    trigger={<DashedButton color='blue' size={size}>User</DashedButton>}
                     onCreateFromInput={onCreateUtteranceFromInput}
                     onCreateFromPayload={u => onCreateUtteranceFromPayload(u)}
                 />
@@ -43,7 +43,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     noButtonResponse={noButtonResponse}
                     limitedSelection
                     disableExisting
-                    trigger={<DashedButton color='green' size={size}>Bot Response</DashedButton>}
+                    trigger={<DashedButton color='green' size={size}>Bot</DashedButton>}
                 />
             )}
             { action && (
