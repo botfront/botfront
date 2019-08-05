@@ -21,11 +21,20 @@
     
     .dropdown-button-trigger.dropdown {
         width: max-content;
-
+        
         .menu.transition.visible {
             top: ~"calc(100% + 5px)";
-            .item.dropdown {            // add class dropdown to items containing dropdowns
-                padding: 0 !important;
+            border: 0px;
+            .item {
+                background-color: white !important;
+                border: solid 1px #eeeeee;
+                border-radius: 2px;
+                &:hover {
+                    background-color: #eeeeee !important;
+                }
+                &.dropdown {            // add class dropdown to items containing dropdowns
+                    padding: 0 !important;
+                }
             }
             .item.dropdown > .dropdown {
                 padding: .78571429rem 1.14285714rem;
@@ -35,6 +44,9 @@
             }
             .color-column {
                 color: #2185d0;
+                background-color: white !important;
+                border-right: solid 1px #eeeeee;
+                border-bottom: solid 1px #eeeeee;
             }
         }
     }
