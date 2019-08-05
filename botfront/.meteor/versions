@@ -3,6 +3,7 @@ accounts-password@1.5.1
 aldeed:collection2@3.0.2
 aldeed:schema-index@3.0.0
 allow-deny@1.1.0
+apollo@3.0.1
 audit-argument-checks@1.0.7
 autoupdate@1.6.0
 babel-compiler@7.3.4

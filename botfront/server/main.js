@@ -39,6 +39,7 @@ import '../imports/api/orchestration/orchestration.methods.js';
 import '../imports/lib/scopes';
 import '../imports/api/importExport/import.methods';
 import '../imports/api/importExport/export.methods';
+import '../imports/startup/server/apollo';
 
 
 import './migrations';
