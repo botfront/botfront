@@ -39,6 +39,7 @@ if (Meteor.isServer) {
 
     Meteor.publish('introStoryGroup', function(projectId) {
         check(projectId, String);
+        checkIfCan('stories:r', projectId);
         if (!StoryGroups.findOne({ projectId, introStory: true })) {
             createIntroStoryGroup(projectId);
         }

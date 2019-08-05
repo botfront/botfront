@@ -29,6 +29,7 @@ if (Meteor.isServer) {
 
     Meteor.publish('stories.intro', function(projectId) {
         check(projectId, String);
+        checkIfCan('stories:r', projectId);
         const { _id: storyGroupId } = StoryGroups.findOne({ introStory: true, projectId }, { fields: { _id: 1 } });
         return Stories.find({ projectId, storyGroupId });
     });

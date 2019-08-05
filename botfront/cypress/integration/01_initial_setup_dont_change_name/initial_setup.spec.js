@@ -56,7 +56,7 @@ describe('intial setup', function() {
 
         cy.get('[data-cy=email-consent]').click();
 
-        cy.wait(5000);
+        cy.wait(7000);
         cy.url().then((url) => {
             const id = url.match(/project\/(.*?)\/nlu/i)[1];
             cy.deleteProject(id);
