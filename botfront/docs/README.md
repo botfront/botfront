@@ -12,9 +12,5 @@ footer:  Copyright © 9300-2038 Quebec Inc. 2019
 ### As Easy as...
 
 ```bash
-# install
 npm install -g botfront 
-
-# create/launch a project
-botfront
 ```

@@ -10,8 +10,11 @@ permalink: /getting-started/:slug
 # Setup
 
 ## Requirements
-You should have recent versions of Docker and Node.js installed on your computer. 
-If it's not the case, see [Installing requirements](#installing-requirements) first.
+- Linux or OSX (Windowns is currently not supported, but [help is welcome](https://github.com/botfront/botfront/issues/115))
+- A recent version of Docker
+- A recent version of Node.js
+
+See the [Installing requirements](#installing-requirements) section.
 
 
 ## Installation
