@@ -27,31 +27,10 @@ if (Meteor.isServer) {
     });
 
     Meteor.methods({
-        'instance.insert'(item) {
-            check(item, Object);
-            checkIfCan('project-admin', item.projectId);
-            return Instances.insert(item);
-        },
-
         'instance.update'(item) {
             check(item, Object);
             checkIfCan('project-admin', item.projectId);
             return Instances.update({ _id: item._id }, { $set: item });
-        },
-
-        'instance.remove'(itemId, projectId) {
-            check(itemId, String);
-            check(projectId, String);
-            checkIfCan('project-admin', projectId);
-            return Instances.remove({ _id: itemId });
-        },
-
-        'instance.findByType'(projectId, type) {
-            check(type, String);
-            check(projectId, String);
-            checkIfCan('project-admin', projectId);
-            if (type !== 'core' && type !== 'nlu') throw new Meteor.Error('400', 'unknown type');
-            return Instances.findOne({ projectId, type: { $in: [type] } });
         },
     });
 }
