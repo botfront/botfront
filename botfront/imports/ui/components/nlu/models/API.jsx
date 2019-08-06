@@ -31,18 +31,10 @@ class API extends React.Component {
 
     getCodeString() {
         const {
-            instance: { host, token, type },
-            model: { _id: modelId, language: lang },
-            projectId,
+            instance: { host, token },
+            model: { language: lang },
         } = this.props;
         const { query, reftime, tz } = this.state;
-        if (type === 'nlu') {
-            let url = `${host}/parse?q=${query}&model=${modelId}&project=${projectId}`;
-            if (tz) url += `&timezone=${tz}`;
-            if (reftime) url += `&reference_time=${reftime}`;
-            if (token) url += `&token=${token}`;
-            return `curl -X GET '${url}'`;
-        }
 
         const url = `${host}/model/parse`;
         const queryparams = {};
@@ -74,8 +66,6 @@ class API extends React.Component {
 
     parseNlu = () => {
         const {
-            projectId,
-            model,
             model: { language },
             instance,
         } = this.props;
@@ -87,10 +77,6 @@ class API extends React.Component {
         const queryParams = { q: query };
         if (tz) Object.assign(queryParams, { timezone: tz });
         if (reftime > 0) Object.assign(queryParams, { reference_time: reftime });
-
-        if (instance.type === 'nlu') {
-            return Meteor.call('nlu.parse', projectId, model._id, instance, [queryParams], true, (err, output) => this.setState({ output }));
-        }
 
         return Meteor.call('rasa.parse', instance, [{ text: query, lang: language }], true, (err, output) => this.setState({ output }));
     };
@@ -142,7 +128,6 @@ class API extends React.Component {
 API.propTypes = {
     model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
-    projectId: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({

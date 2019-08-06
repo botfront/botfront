@@ -161,7 +161,7 @@ const StoryEditor = ({
                         maxLines={Infinity}
                         fontSize={12}
                         onChange={onChange}
-                        value={story.unsafeMd}
+                        value={story ? story.unsafeMd : ''}
                         showPrintMargin={false}
                         showGutter
                         annotations={annotations}
@@ -185,7 +185,7 @@ const StoryEditor = ({
 };
 
 StoryEditor.propTypes = {
-    story: PropTypes.instanceOf(StoryController).isRequired,
+    story: PropTypes.instanceOf(StoryController),
     disabled: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
@@ -200,6 +200,7 @@ StoryEditor.propTypes = {
 
 StoryEditor.defaultProps = {
     disabled: false,
+    story: null,
     annotations: [],
     editor: 'MARKDOWN',
 };

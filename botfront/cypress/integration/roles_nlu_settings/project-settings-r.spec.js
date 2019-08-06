@@ -90,16 +90,5 @@ describe('project-settings:r role permissions', function() {
         cy.contains('Instance').click();
         cy.get('[data-cy=save-instance]').should('be.disabled');
         // For meteor call
-        cy.MeteorCall('instance.insert', [
-            {
-                _id: 'TODELETE',
-                projectId: this.bf_project_id,
-                host: 'http://host.docker.internal:5000',
-                type: ['core'],
-                name: 'Test Name',
-            },
-        ]).then((result) => {
-            expect(result.error).to.be.equals('403');
-        });
     });
 });

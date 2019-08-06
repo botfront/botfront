@@ -172,7 +172,7 @@ if (Meteor.isServer) {
                 const {
                     intents: intentSetFromDomain = new Set(),
                     entities: entitiesSetFromDomain = new Set(),
-                } = stories.length !== 0 ? extractDomainFromStories(stories.map(story => story.story)) : {};
+                } = stories.length !== 0 ? extractDomainFromStories(stories.map(story => story.story || '')) : {};
                 const {
                     intents: intentSetFromTraining,
                     entities: entitiesSetFromTraining,

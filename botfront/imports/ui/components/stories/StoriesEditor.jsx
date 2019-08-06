@@ -1,6 +1,4 @@
-import {
-    Container, Button,
-} from 'semantic-ui-react';
+import { Container, Button } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
@@ -48,12 +46,15 @@ function StoriesEditor(props) {
         stories.forEach((story, index) => {
             if (editedStories[story._id] === undefined) {
                 editedStories[story._id] = new StoryController(
-                    story.story,
+                    story.story || '',
                     slots,
                     () => {
                         setEditedStories({
                             ...editedStories,
-                            [story._id]: Object.assign(Object.create(editedStories[story._id]), editedStories[story._id]),
+                            [story._id]: Object.assign(
+                                Object.create(editedStories[story._id]),
+                                editedStories[story._id],
+                            ),
                         });
                     },
                     newContent => saveStory({ ...stories[index], story: newContent }),
@@ -61,6 +62,10 @@ function StoriesEditor(props) {
             }
         });
     };
+
+    if (Object.keys(editedStories).length === 0) {
+        updateEditedStories();
+    }
 
     // This effect listen to changes on errors and notifies
     // the parent component if no errors were detected
@@ -81,6 +86,10 @@ function StoriesEditor(props) {
         setErrors([]);
     }, [storyGroup]);
 
+    useEffect(() => {
+        updateEditedStories();
+    });
+
     function spliceStoryState(index) {
         const stateErrors = [...errors];
         stateErrors.splice(index, 1);
@@ -89,6 +98,23 @@ function StoriesEditor(props) {
 
     function handleStoryChange(newStory, index) {
         // console.log('handle story change');
+        if (!editedStories[stories[index]._id]) {
+            editedStories[stories[index]._id] = new StoryController(
+                newStory,
+                slots,
+                () => {
+                    setEditedStories({
+                        ...editedStories,
+                        [stories[index]._id]: Object.assign(
+                            Object.create(editedStories[stories[index]._id]),
+                            editedStories[stories[index]._id],
+                        ),
+                    });
+                },
+                newContent => saveStory({ ...stories[index], story: newContent }),
+            );
+            return;
+        }
         editedStories[stories[index]._id].setUnsafeMd(newStory);
         const newVal = new StoryController(newStory, slots);
         newVal.validateStory();
@@ -110,7 +136,8 @@ function StoriesEditor(props) {
             wrapMeteorCallback((err) => {
                 if (!err) {
                     // delete entry in editedStories
-                    const newEditedStories = editedStories; delete newEditedStories[toBeDeletedStory._id];
+                    const newEditedStories = editedStories;
+                    delete newEditedStories[toBeDeletedStory._id];
                     setEditedStories(newEditedStories);
                     // deletes group if no stories left
                     if (stories.length === 1) {
@@ -122,10 +149,7 @@ function StoriesEditor(props) {
     }
 
     function handleStoryRenaming(newTitle, index) {
-        Meteor.call(
-            'stories.update',
-            { ...stories[index], title: newTitle },
-        );
+        Meteor.call('stories.update', { ...stories[index], title: newTitle });
     }
 
     function handleMoveStory(newGroupId, index) {
@@ -140,7 +164,8 @@ function StoriesEditor(props) {
             wrapMeteorCallback((err) => {
                 if (!err) {
                     // delete entry in editedStories
-                    const newEditedStories = editedStories; delete newEditedStories[toBeMovedStory._id];
+                    const newEditedStories = editedStories;
+                    delete newEditedStories[toBeMovedStory._id];
                     setEditedStories(newEditedStories);
                     // deletes group if no stories left
                     if (stories.length === 1) {
@@ -169,8 +194,6 @@ function StoriesEditor(props) {
         );
     }
 
-    updateEditedStories();
-
     const editors = stories.map((story, index) => (
         <StoryAceEditor
             story={editedStories[story._id]}
@@ -190,9 +213,7 @@ function StoriesEditor(props) {
             onDelete={() => handeStoryDeletion(index)}
             key={index}
             title={story.title}
-            groupNames={groupNames.filter(
-                name => name.text !== storyGroup.name,
-            )}
+            groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
             onClone={() => handleDuplicateStory(index)}
             editor={editor}
@@ -202,11 +223,18 @@ function StoriesEditor(props) {
         <>
             {editors}
             <Container textAlign='center'>
-                {
-                    can('stories:w', projectId) && (
-                        <Button icon='add' basic name='add' onClick={() => onAddNewStory(stories.length + 1)} size='medium' data-cy='add-story' color='black' content='Add a story' />
-                    )
-                }
+                {can('stories:w', projectId) && (
+                    <Button
+                        icon='add'
+                        basic
+                        name='add'
+                        onClick={() => onAddNewStory(stories.length + 1)}
+                        size='medium'
+                        data-cy='add-story'
+                        color='black'
+                        content='Add a story'
+                    />
+                )}
             </Container>
         </>
     );
@@ -238,11 +266,7 @@ StoriesEditor.defaultProps = {
 export default withTracker((props) => {
     const { storyGroup, projectId } = props;
     // We're using a specific subscription so we don't fetch too much at once
-    const storiesHandler = Meteor.subscribe(
-        'stories.inGroup',
-        projectId,
-        storyGroup._id,
-    );
+    const storiesHandler = Meteor.subscribe('stories.inGroup', projectId, storyGroup._id);
 
     return {
         ready: storiesHandler.ready(),

@@ -100,26 +100,5 @@ describe('project writer role permissions', function() {
         cy.visit(`/project/${this.bf_project_id}/settings`);
         cy.contains('Instance').click();
         cy.get('[data-cy=save-instance]').click();
-
-        // Dummy instance is created for test
-        cy.MeteorCall('instance.insert', [
-            {
-                _id: 'TODELETE',
-                projectId: this.bf_project_id,
-                host: 'http://host.docker.internal:5000',
-                name: 'Test Name',
-            },
-        ]).then(() => {
-            cy.MeteorCall('instance.update', [
-                {
-                    _id: 'TODELETE',
-                    projectId: this.bf_project_id,
-                    host: 'http://rasa:5005',
-                    name: 'Test Name',
-                },
-            ]).then((result) => {
-                expect(result).to.be.equals(1);
-            });
-        });
     });
 });
