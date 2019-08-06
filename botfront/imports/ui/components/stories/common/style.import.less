@@ -92,21 +92,34 @@
     min-height: 40px;
 
     .utterance-container.bot-response {
-        input {
+        min-width: 50%;
+        .inner {
+            width: 95%;
+            min-width: 95%;
+        }
+        textarea {
+            width: 100%;
             padding-top: 1px;
             outline: none;
             background-color: transparent;
+            resize: none !important;
             border: none;
             border-color: transparent;
             margin-left: 6px;
             border-bottom: 1px solid transparent;
             &:hover {
                 border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+                // resize: horizontal !important;
             }
 
             &::focus {
                 border-bottom: 1px solid rgba(0, 0, 0, 0.4);
             }
+        }
+
+        .floating-icon-button {
+            margin-left: 4px;
+            margin-top: 3px;
         }
     }
 

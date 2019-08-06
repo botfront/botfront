@@ -47,6 +47,7 @@
     "rasa-webchat": "mrbot-ai/rasa-webchat#0.5.8",
     "react": "^16.8.6",
     "react-ace": "^6.1.4",
+    "react-autosize-textarea": "^7.0.0",
     "react-debounce-input": "^3.2.0",
     "react-document-title": "^2.0.3",
     "react-dom": "^16.8.6",

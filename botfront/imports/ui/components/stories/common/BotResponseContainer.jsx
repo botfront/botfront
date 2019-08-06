@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import TextareaAutosize from 'react-autosize-textarea';
 
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 
@@ -15,7 +16,8 @@ const BotResponseContainer = (props) => {
     }, [value]);
 
     const render = () => (
-        <input
+        <TextareaAutosize
+            className='bot-response-input'
             role='button'
             tabIndex={0}
             value={input}
