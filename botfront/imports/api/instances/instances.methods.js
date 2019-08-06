@@ -21,6 +21,7 @@ import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { ActivityCollection } from '../activity';
+import { checkStoryNotEmpty } from '../story/stories.methods';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -130,7 +131,7 @@ export const getStoriesAndDomain = (projectId) => {
     const storiesForRasa = [
         `## mapping_story\n${mappingStory}`,
         ...stories
-            .filter(story => (story.story && !!story.story.replace(/\s/g, '').length))
+            .filter(checkStoryNotEmpty)
             .map(story => `## ${story.title}\n${story.story}`),
     ];
     const storiesForDomain = mappingStory.length
