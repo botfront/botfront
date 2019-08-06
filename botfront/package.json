@@ -7,7 +7,7 @@
   "scripts": {
     "start": "meteor run",
     "start:gke": "ORCHESTRATOR=gke meteor run",
-    "start:gke.dev": "DEV_MODE=true ORCHESTRATOR=gke meteor run",
+    "start:gke.dev": "DEV_MODE=true BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=gke meteor run",
     "debug-old": "meteor run --inspect",
     "start:docker-compose": "BF_PROJECT_ID=bf ORCHESTRATOR=docker-compose meteor run",
     "start:docker-compose.dev": "DEV_MODE=true BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
