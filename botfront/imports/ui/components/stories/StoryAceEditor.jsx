@@ -168,7 +168,7 @@ const StoryEditor = ({
 };
 
 StoryEditor.propTypes = {
-    story: PropTypes.string.isRequired,
+    story: PropTypes.string,
     disabled: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
@@ -182,6 +182,7 @@ StoryEditor.propTypes = {
 
 StoryEditor.defaultProps = {
     disabled: false,
+    story: '',
     annotations: [],
 };
 

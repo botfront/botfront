@@ -71,7 +71,7 @@ describe('chat side panel handling', function() {
         cy.contains('Intro stories').click();
         cy.dataCy('add-story').click();
         cy.wait(500);
-        cy.dataCy('story-editor').contains(initialText);
+        cy.dataCy('story-editor').should('have.lengthOf', 2);
         cy.dataCy('story-editor')
             .get('textarea')
             .eq(1)

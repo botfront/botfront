@@ -4,6 +4,7 @@ export const StorySchema = new SimpleSchema({
     story: {
         type: String,
         trim: false,
+        optional: true,
     },
     title: {
         type: String,

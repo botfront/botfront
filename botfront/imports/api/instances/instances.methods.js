@@ -21,6 +21,7 @@ import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { ActivityCollection } from '../activity';
+import { checkStoryNotEmpty } from '../story/stories.methods';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -95,7 +96,9 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
 };
 
 export const getStoriesAndDomain = (projectId) => {
-    const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
+    const { policies } = yaml.safeLoad(
+        CorePolicies.findOne({ projectId }, { policies: 1 }).policies,
+    );
     const mappingTriggers = policies
         .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
         .map(policy => policy.triggers.map((trigger) => {
@@ -110,7 +113,9 @@ export const getStoriesAndDomain = (projectId) => {
     const storyGroupsIds = StoryGroups.find(
         { projectId, selected: true },
         { fields: { _id: 1 } },
-    ).fetch().map(storyGroup => storyGroup._id);
+    )
+        .fetch()
+        .map(storyGroup => storyGroup._id);
 
     let stories;
 
@@ -120,18 +125,19 @@ export const getStoriesAndDomain = (projectId) => {
             { fields: { story: 1, title: 1 } },
         ).fetch();
     } else {
-        stories = Stories.find(
-            { projectId },
-            { fields: { story: 1, title: 1 } },
-        ).fetch();
+        stories = Stories.find({ projectId }, { fields: { story: 1, title: 1 } }).fetch();
     }
 
-    const storiesForRasa = [`## mapping_story\n${mappingStory}`, ...stories.map(story => `## ${story.title}\n${story.story}`)];
+    const storiesForRasa = [
+        `## mapping_story\n${mappingStory}`,
+        ...stories
+            .filter(checkStoryNotEmpty)
+            .map(story => `## ${story.title}\n${story.story}`),
+    ];
     const storiesForDomain = mappingStory.length
-        ? [mappingStory, ...stories.map(story => story.story)]
-        : stories.map(story => story.story);
-    
-    
+        ? [mappingStory, ...stories.map(story => story.story || '')]
+        : stories.map(story => story.story || '');
+
     const slots = Slots.find({ projectId }).fetch();
     return {
         stories: storiesForRasa.join('\n'),

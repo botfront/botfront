@@ -3,6 +3,8 @@ import { check } from 'meteor/check';
 
 import { Stories } from './stories.collection';
 
+export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
+
 Meteor.methods({
     'stories.insert'(story) {
         check(story, Object);
