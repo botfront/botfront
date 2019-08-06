@@ -4,13 +4,14 @@ meta:
     content: 'Botfront tutorial: setup Botfront and start building your Rasa chatbot'
   - name: keywords
     content: botfront stories nlu rasa
-permalink: /getting-started/:slug
+permalink: /getting-started/:slugs
 ---
 
 # Setup
 
 ## Requirements
-- Linux or OSX (Windowns is currently not supported, but [help is welcome](https://github.com/botfront/botfront/issues/115))
+- Linux or OSX (Windows is currently not supported, but [help is welcome](https://github.com/botfront/botfront/issues/115))
+- Chrome (some issues with other browsers)
 - A recent version of Docker
 - A recent version of Node.js
 
