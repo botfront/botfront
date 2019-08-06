@@ -29,41 +29,14 @@ describe('chat side panel handling', function() {
         cy.get('[data-cy=chat-pane]').should('not.exist');
     });
 
-    // Removed for now because now we only have have one typeless instance at the begining
-    // it('should remove the core instance and the chat should display a message', function() {
-    //     cy.visit(`/project/${this.bf_project_id}/settings`);
-
-    //     cy.contains('Instances').click();
-    //     cy.get('[data-cy=edit-instance]').eq(0).click();
-    //     cy.get('i.delete.icon').click();
-    //     cy.get('[data-cy=type-selector] input').type('nlu{enter}');
-    //     cy.get('[data-cy=save-instance]').click();
-
-    //     cy.visit(`/project/${this.bf_project_id}/nlu/model/${modelId}`);
-    //     cy.get('[data-cy=open-chat]').click();
-    //     cy.get('[data-cy=no-core-instance-message]');
-    //     cy.get('[data-cy=settings-link]').click();
-    //     cy.get('[data-cy=chat-pane]').should('not.exist');
-
-    //     cy.contains('Instances').click();
-    //     cy.get('[data-cy=edit-instance]').eq(0).click();
-    //     cy.get('i.delete.icon').click();
-    //     cy.get('[data-cy=type-selector] input').type('core{enter}');
-    //     cy.get('[data-cy=save-instance]').click();
-
-    //     cy.get('[data-cy=open-chat]').click();
-    //     cy.get('[data-cy=no-core-instance-message]').should('not.exist');
-    // });
-
-    // it('should not crash when changing language', function() {
-    //     cy.visit('/project/bf/dialogue/templates');
-
-    //     cy.get('[data-cy=open-chat]').click();
-    //     cy.get('[data-cy=chat-language-option]').click();
-    //     cy.get('[data-cy=chat-language-option] .visible.menu')
-    //         .contains('en')
-    //         .click();
-    // });
+    it('should not crash when changing language', function() {
+        cy.visit('/project/bf/dialogue/templates');
+        cy.get('[data-cy=open-chat]').click();
+        cy.get('[data-cy=chat-language-option]').click();
+        cy.get('[data-cy=chat-language-option] .visible.menu')
+            .contains('en')
+            .click();
+    });
 
     // For this test to pass train button should be working
     it('should be able to select initial payload', function() {
@@ -122,5 +95,30 @@ describe('chat side panel handling', function() {
 
         cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
+    });
+
+    it('Correct bot response to follow utterance input', function() {
+        // Uncomment below 4 lines while testing on local developer environment
+        // Adjust instance address accordingly
+        // cy.visit('/project/bf/settings');
+        // cy.contains('Instance').click();
+        // cy.get('input').eq(1).click({ force: true }).type('{selectAll}{backspace}http://localhost:5005');
+        // cy.contains('Save Changes').click();
+        // Go to stories and add an intent and response
+        cy.visit('/project/bf/stories');
+        cy.dataCy('story-editor')
+            .get('textarea')
+            .focus()
+            .type('\n* basics.test\n  - utter_test', { force: true });
+        // Train and wait for training to finish
+        cy.get('[data-cy=train-button]').click();
+        cy.wait(10000);
+        // Open chat and type intent
+        cy.get('[data-cy=open-chat]').click();
+        cy.get('input.new-message').click().type('/basics.test{enter}');
+        cy.visit('/project/bf/nlu/models');
+        cy.get('[data-cy=open-chat]').click();
+        // Verify response
+        cy.contains('utter_test');
     });
 });
