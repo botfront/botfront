@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { safeDump } from 'js-yaml';
-import { promisify } from 'util';
 
 import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
@@ -110,7 +109,7 @@ class StoryVisualEditor extends React.Component {
     parseUtterance = async (utterance) => {
         const { parseUtterance: rasaParse } = this.props;
         try {
-            const { intent, entities, text } = await promisify(rasaParse)(utterance);
+            const { intent, entities, text } = await rasaParse(utterance);
             return { intent: intent.name || '-', entities, text };
         } catch (err) {
             return { text: utterance, intent: '-' };

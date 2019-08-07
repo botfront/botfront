@@ -101,13 +101,12 @@ function StoriesContainer(props) {
         );
     }
 
-    function parseUtterance(utterance, callback) {
-        Meteor.call(
+    function parseUtterance(utterance) {
+        return Meteor.callWithPromise(
             'rasa.parse',
             instance,
             [{ text: utterance, lang: language }],
             true,
-            wrapMeteorCallback((err, res) => callback(err, res)),
         );
     }
 
