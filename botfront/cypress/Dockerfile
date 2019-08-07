@@ -1,3 +1,7 @@
+##########################################################################
+# This Dockerfile builds a Cypress image used by the docker-compose file #
+##########################################################################
+
 FROM cypress/base:10
 WORKDIR /app
 

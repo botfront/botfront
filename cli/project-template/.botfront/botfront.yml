@@ -6,6 +6,10 @@ images:
     duckling: botfront/duckling:latest
     mongo: mongo:latest
     actions: botfront/actions-sdk:latest
+
+# The .env file is generated from the following section. 
+# You can add/edit environment variable here. 
+# Note that they will be upper cased in the generated .env file
 env:
   bf_project_id: bf
   mongo_url: mongodb://mongo:27017/bf

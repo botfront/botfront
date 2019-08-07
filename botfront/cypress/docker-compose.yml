@@ -1,3 +1,7 @@
+###########################################
+# This docker-compose file is only for CI #
+###########################################
+
 version: '3.7'
 services:
   e2e:
@@ -10,8 +14,10 @@ services:
       - ../imports/api:/app/imports/api
     depends_on: 
       - botfront
-    env_file:
-      - .env.cypress
+    environment: 
+      - BOTFRONT_HOST=botfront:3000
+      - CYPRESS_baseUrl=http://botfront:3000
+      - CYPRESS_RETRIES=2
 
   botfront:
     image: botfront-local
@@ -23,40 +29,48 @@ services:
       - '8888:3000'
     depends_on:
       - mongo
-    env_file:
-      - .env.cypress
     environment:
-      PORT: 3000
-  # botfront-api:
-  #   image: 'botfront/botfront-api:v0.15.1'
-  #   container_name: botfront-api
-  #   networks:
-  #     - botfront-network
-  #   restart: always
-  #   depends_on:
-  #     - mongo
-  #   ports:
-  #     - '8080:8080'
-  #   env_file:
-  #     - .env
-  # rasa:
-  #   image: 'botfront/rasa-for-botfront:v1.1.5-b3'
-  #   container_name: botfront-rasa
-  #   networks:
-  #     - botfront-network
-  #   restart: always
-  #   ports:
-  #     - '5005:5005'
-  #   depends_on:
-  #     - botfront-api
-  #   volumes:
-  #     - './models/:/app/models'
-  #   command:
-  #     - run
-  #     - '--enable-api'
-  #     - '--debug'
-  #   env_file:
-  #     - .env
+      - PORT=3000
+      - BF_PROJECT_ID=bf
+      - NODE_ENV=test
+      - MONGO_URL=mongodb://mongo:27017/bf
+      - ORCHESTRATOR=docker-compose
+      - ROOT_URL=http://botfront:3000
+
+  botfront-api:
+    image: 'botfront/botfront-api:v0.15.1'
+    container_name: botfront-api
+    restart: always
+    networks:
+      - test-network
+    depends_on:
+      - mongo
+    ports:
+      - '8080:8080'
+    environment: 
+      # NODE_ENV must not be set to test because it would use the mongo mem server which we don't want here
+      - MONGO_URL=mongodb://mongo:27017/bf
+
+  rasa:
+    image: 'botfront/rasa-for-botfront:v1.1.7-bf.3'
+    container_name: botfront-rasa
+    restart: always
+    networks:
+      - test-network
+    ports:
+      - '5005:5005'
+    depends_on:
+      - botfront-api
+    volumes:
+      - './mounted/models/:/app/models'
+    command:
+      - run
+      - '--enable-api'
+      - '--debug'
+    environment:
+      - BF_URL=http://botfront-api:8080
+      - BF_PROJECT_ID=bf
+      
   # actions:
   #   image: 'botfront/actions-sdk:latest'
   #   container_name: botfront-actions
@@ -83,6 +97,6 @@ services:
     restart: always
     ports:
       - '27017:27017'
-    env_file:
-      - .env.cypress
+    environment: 
+      - MONGO_INITDB_DATABASE=bf
 
