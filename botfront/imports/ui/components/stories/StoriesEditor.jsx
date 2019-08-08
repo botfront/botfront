@@ -42,31 +42,6 @@ function StoriesEditor(props) {
         );
     }
 
-    const updateEditedStories = () => {
-        stories.forEach((story, index) => {
-            if (editedStories[story._id] === undefined) {
-                editedStories[story._id] = new StoryController(
-                    story.story || '',
-                    slots,
-                    () => {
-                        setEditedStories({
-                            ...editedStories,
-                            [story._id]: Object.assign(
-                                Object.create(editedStories[story._id]),
-                                editedStories[story._id],
-                            ),
-                        });
-                    },
-                    newContent => saveStory({ ...stories[index], story: newContent }),
-                );
-            }
-        });
-    };
-
-    if (Object.keys(editedStories).length === 0) {
-        updateEditedStories();
-    }
-
     // This effect listen to changes on errors and notifies
     // the parent component if no errors were detected
     useEffect(() => {
@@ -86,10 +61,6 @@ function StoriesEditor(props) {
         setErrors([]);
     }, [storyGroup]);
 
-    useEffect(() => {
-        updateEditedStories();
-    });
-
     function spliceStoryState(index) {
         const stateErrors = [...errors];
         stateErrors.splice(index, 1);
@@ -99,20 +70,6 @@ function StoriesEditor(props) {
     function handleStoryChange(newStory, index) {
         // console.log('handle story change');
         if (!editedStories[stories[index]._id]) {
-            editedStories[stories[index]._id] = new StoryController(
-                newStory,
-                slots,
-                () => {
-                    setEditedStories({
-                        ...editedStories,
-                        [stories[index]._id]: Object.assign(
-                            Object.create(editedStories[stories[index]._id]),
-                            editedStories[stories[index]._id],
-                        ),
-                    });
-                },
-                newContent => saveStory({ ...stories[index], story: newContent }),
-            );
             return;
         }
         editedStories[stories[index]._id].setUnsafeMd(newStory);
@@ -194,31 +151,46 @@ function StoriesEditor(props) {
         );
     }
 
-    const editors = stories.map((story, index) => (
-        <StoryAceEditor
-            story={editedStories[story._id]}
-            annotations={
-                (!!errors[index] ? true : undefined)
-                && (!!errors[index].length ? true : undefined)
-                && errors[index].map(error => ({
-                    row: error.line - 1,
-                    type: error.type,
-                    text: error.message,
-                    column: 0,
-                }))
-            }
-            disabled={disabled}
-            onChange={data => handleStoryChange(data, index)}
-            onRename={newTitle => handleStoryRenaming(newTitle, index)}
-            onDelete={() => handeStoryDeletion(index)}
-            key={index}
-            title={story.title}
-            groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
-            onMove={newGroupId => handleMoveStory(newGroupId, index)}
-            onClone={() => handleDuplicateStory(index)}
-            editor={editor}
-        />
-    ));
+    const editors = stories.map((story, index) => {
+        let storyController = editedStories[story._id];
+        if (!storyController) {
+            storyController = new StoryController(
+                story.story || '',
+                slots,
+                () => {},
+                newContent => saveStory({ ...stories[index], story: newContent }),
+            );
+            setEditedStories({
+                ...editedStories,
+                [story._id]: storyController,
+            });
+        }
+        return (
+            <StoryAceEditor
+                story={storyController}
+                annotations={
+                    (!!errors[index] ? true : undefined)
+                    && (!!errors[index].length ? true : undefined)
+                    && errors[index].map(error => ({
+                        row: error.line - 1,
+                        type: error.type,
+                        text: error.message,
+                        column: 0,
+                    }))
+                }
+                disabled={disabled}
+                onChange={data => handleStoryChange(data, index)}
+                onRename={newTitle => handleStoryRenaming(newTitle, index)}
+                onDelete={() => handeStoryDeletion(index)}
+                key={story._id}
+                title={story.title}
+                groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
+                onMove={newGroupId => handleMoveStory(newGroupId, index)}
+                onClone={() => handleDuplicateStory(index)}
+                editor={editor}
+            />
+        );
+    });
     return (
         <>
             {editors}
