@@ -28,10 +28,6 @@ class StoryVisualEditor extends React.Component {
 
     addStoryCursor = React.createRef();
 
-    componentDidMount() {
-        this.fetchTextForPayloads();
-    }
-
     componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
         if (
@@ -93,20 +89,6 @@ class StoryVisualEditor extends React.Component {
         });
     };
 
-    fetchTextForPayloads = () => {
-        const { story, getUtteranceFromPayload } = this.props;
-        if (!story) return;
-        story.lines.forEach((line, i) => {
-            if (!(line.gui.type === 'user')) return;
-            if (!line.gui.data[0]) return;
-            if (typeof line.gui.data[0].text === 'undefined') {
-                getUtteranceFromPayload(line.gui.data[0], (err, data) => {
-                    if (!err) story.replaceLine(i, { type: 'user', data: [data] });
-                });
-            }
-        });
-    };
-
     parseUtterance = async (utterance) => {
         const { parseUtterance: rasaParse } = this.props;
         try {
@@ -154,6 +136,7 @@ class StoryVisualEditor extends React.Component {
         </React.Fragment>
     );
 
+    // eslint-disable-next-line no-unused-vars
     newLineOptions = storyLine => ({
         // userUtterance: storyLine && storyLine.gui.type !== 'user',
         userUtterance: true,
@@ -304,7 +287,6 @@ StoryVisualEditor.propTypes = {
     story: PropTypes.instanceOf(StoryController),
     insertResponse: PropTypes.func.isRequired,
     language: PropTypes.string.isRequired,
-    getUtteranceFromPayload: PropTypes.func.isRequired,
     parseUtterance: PropTypes.func.isRequired,
     addUtteranceToTrainingData: PropTypes.func.isRequired,
 };
@@ -320,7 +302,6 @@ export default props => (
                 {...props}
                 insertResponse={value.insertResponse}
                 language={value.language}
-                getUtteranceFromPayload={value.getUtteranceFromPayload}
                 parseUtterance={value.parseUtterance}
                 addUtteranceToTrainingData={value.addUtteranceToTrainingData}
             />

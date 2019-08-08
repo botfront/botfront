@@ -12,11 +12,18 @@ const UtteranceContainer = (props) => {
         value, onInput, onDelete, onAbort, onChange, deletable,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
-    const { parseUtterance } = useContext(ConversationOptionsContext);
+    const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
+    const [fetchedData, setFetchedData] = useState(value || null);
+
     useEffect(() => {
         setMode(!value ? 'input' : 'view');
+        if (value) {
+            getUtteranceFromPayload(value, (err, data) => {
+                if (!err) setFetchedData(data);
+            });
+        }
     }, [value]);
 
     const validateInput = async () => {
@@ -61,7 +68,7 @@ const UtteranceContainer = (props) => {
         }
         return (
             <UserUtteranceViewer
-                value={value}
+                value={fetchedData || value}
                 disableEditing
                 size='mini'
                 onChange={v => onChange(v)}

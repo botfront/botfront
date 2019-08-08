@@ -1,15 +1,13 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Dropdown, Modal, Search,
+    Dropdown, Search,
 } from 'semantic-ui-react';
-import { ConversationOptionsContext } from '../../utils/Context';
 
 const BotResponsePopupContent = (props) => {
     const {
-        onSelect, onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose, disableExisting,
+        onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose, disableExisting,
     } = props;
-    const { responses } = useContext(ConversationOptionsContext);
     const [modalOpen, setModalOpen] = useState(false);
     const [closeNext, setCloseNext] = useState(false);
 
@@ -19,7 +17,7 @@ const BotResponsePopupContent = (props) => {
 
     return (
         <>
-            <Modal
+            {/* <Modal
                 tabIndex={0}
                 size='tiny'
                 open={modalOpen}
@@ -37,7 +35,7 @@ const BotResponsePopupContent = (props) => {
                         </button>
                     ))}
                 </Modal.Content>
-            </Modal>
+            </Modal> */}
             <Dropdown
                 trigger={trigger}
                 className='dropdown-button-trigger'
