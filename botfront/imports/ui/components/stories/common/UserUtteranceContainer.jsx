@@ -1,37 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'semantic-ui-react';
+
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
-import UtteranceInput from '../../utils/UtteranceInput';
 import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
+import { ConversationOptionsContext } from '../../utils/Context';
+import UtteranceInput from '../../utils/UtteranceInput';
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort,
-        onChange, deletable,
+        value, onInput, onDelete, onAbort, onChange, deletable,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
+    const { parseUtterance } = useContext(ConversationOptionsContext);
+    const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
     useEffect(() => {
         setMode(!value ? 'input' : 'view');
     }, [value]);
 
+    const validateInput = async () => {
+        try {
+            const { intent, entities, text } = await parseUtterance(input);
+            setStateValue({ entities, text, intent: intent.name || '-' });
+        } catch (e) {
+            // eslint-disable-next-line no-console
+            console.log(e);
+            setStateValue({ text: input, intent: '-' });
+        }
+    };
+
+    const saveInput = () => {
+        onInput(stateValue);
+    };
+
     const render = () => {
         if (mode === 'input') {
+            if (!stateValue) {
+                return (
+                    <UtteranceInput
+                        placeholder='User says...'
+                        fluid
+                        value={input}
+                        onChange={u => setInput(u)}
+                        onValidate={() => validateInput()}
+                        onDelete={() => onAbort()}
+                    />
+                );
+            }
             return (
-                <UtteranceInput
-                    placeholder='User says...'
-                    fluid
-                    value={input}
-                    onChange={u => setInput(u)}
-                    onValidate={() => onInput(input)}
-                    onDelete={() => onAbort()}
-                />
+                <>
+                    <UserUtteranceViewer
+                        value={stateValue}
+                        size='mini'
+                        onChange={setStateValue}
+                    />
+                    <Button primary onClick={saveInput} content='Save' size='mini' />
+                </>
             );
         }
         return (
             <UserUtteranceViewer
                 value={value}
-                allowEditing
+                disableEditing
                 size='mini'
                 onChange={v => onChange(v)}
             />
@@ -39,15 +70,9 @@ const UtteranceContainer = (props) => {
     };
 
     return (
-        <div
-            className='utterance-container'
-            mode={mode}
-            agent='user'
-        >
-            <div className='inner'>
-                {render()}
-            </div>
-            { deletable && (
+        <div className='utterance-container' mode={mode} agent='user'>
+            <div className='inner'>{render()}</div>
+            {deletable && (
                 <FloatingIconButton
                     icon='trash'
                     onClick={() => {

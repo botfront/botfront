@@ -250,8 +250,8 @@ export class StoryController {
                 return `  - slot${JSON.stringify(newLine)}`;
             }
             if (line.type === 'user') {
+                if (!line.data) return false;
                 const disjuncts = line.data.map((d) => {
-                    if (!d) return 'tempIntent';
                     const entities = (d.entities || [])
                         .filter(e => e instanceof Object); // filter odd undefined entities
                     if (!entities.length) return d.intent;
@@ -263,9 +263,9 @@ export class StoryController {
         return false;
     }
 
-    generateMdLine = (i, content) => {
+    generateMdLine = (content) => {
         const mdContent = this.toMd(content);
-        if (!mdContent) throw new Error(`Error translating line ${i} to Markdown.`);
+        if (!mdContent) return { gui: content, md: '' };
         return { gui: content, md: this.toMd(content) };
     }
 
@@ -278,7 +278,9 @@ export class StoryController {
     };
 
     insertLine = (i, content) => {
-        this.lines = [...this.lines.slice(0, i + 1), this.generateMdLine(i, content), ...this.lines.slice(i + 1)];
+        const newMdLine = this.generateMdLine(content);
+        if (!newMdLine) return;
+        this.lines = [...this.lines.slice(0, i + 1), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
         this.unsafeMd = this.md;
         if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
@@ -286,7 +288,9 @@ export class StoryController {
     };
 
     replaceLine = (i, content) => {
-        this.lines = [...this.lines.slice(0, i), this.generateMdLine(i, content), ...this.lines.slice(i + 1)];
+        const newMdLine = this.generateMdLine(content);
+        if (!newMdLine) return;
+        this.lines = [...this.lines.slice(0, i), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
         this.unsafeMd = this.md;
         if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);

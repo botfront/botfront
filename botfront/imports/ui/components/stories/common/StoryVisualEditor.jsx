@@ -42,34 +42,34 @@ class StoryVisualEditor extends React.Component {
         }
     }
 
-    handleDeleteLine = (i) => {
+    handleDeleteLine = (index) => {
         const { story } = this.props;
-        story.deleteLine(i);
+        story.deleteLine(index);
     };
 
-    handleChangeUserUtterance = async (i, v) => {
-        const { story } = this.props;
-        const data = typeof v === 'string' ? await this.parseUtterance(v) : v;
-        const updatedLine = { type: 'user', data: [data] };
-        story.replaceLine(i, updatedLine);
-    };
+    handleSaveUserUtterance = (index, value) => {
+        const { story, addUtteranceToTrainingData } = this.props;
+        addUtteranceToTrainingData(value);
+        const updatedLine = { type: 'user', data: [value] };
+        story.replaceLine(index, updatedLine);
+    }
 
-    handleCreateUserUtterance = (i, pl) => {
+    handleCreateUserUtterance = (index, payload) => {
         this.setState({ lineInsertIndex: null });
         const { story } = this.props;
-        const newLine = { type: 'user', data: [pl || null] };
-        story.insertLine(i, newLine);
+        const newLine = { type: 'user', data: [payload || null] };
+        story.insertLine(index, newLine);
     };
 
-    handleChangeActionOrSlot = (type, i, data) => {
+    handleChangeActionOrSlot = (type, index, data) => {
         const { story } = this.props;
-        story.replaceLine(i, { type, data });
+        story.replaceLine(index, { type, data });
     };
 
-    handleCreateSlotOrAction = (i, data) => {
+    handleCreateSlotOrAction = (index, data) => {
         this.setState({ lineInsertIndex: null });
         const { story } = this.props;
-        story.insertLine(i, data);
+        story.insertLine(index, data);
     };
 
     handleCreateSequence = (index, template) => {
@@ -98,6 +98,7 @@ class StoryVisualEditor extends React.Component {
         if (!story) return;
         story.lines.forEach((line, i) => {
             if (!(line.gui.type === 'user')) return;
+            if (!line.gui.data[0]) return;
             if (typeof line.gui.data[0].text === 'undefined') {
                 getUtteranceFromPayload(line.gui.data[0], (err, data) => {
                     if (!err) story.replaceLine(i, { type: 'user', data: [data] });
@@ -161,31 +162,35 @@ class StoryVisualEditor extends React.Component {
         slot: true,
     });
 
-    renderAddLine = (i) => {
+    renderAddLine = (index) => {
         const { lineInsertIndex } = this.state;
         const { story } = this.props;
-        const options = this.newLineOptions(story.lines[i]);
+        const options = this.newLineOptions(story.lines[index]);
 
         if (!Object.keys(options).length) return null;
         if (
-            lineInsertIndex === i
-            || (!lineInsertIndex && lineInsertIndex !== 0 && i === story.lines.length - 1)
+            lineInsertIndex === index
+            || (!lineInsertIndex
+                && lineInsertIndex !== 0
+                && index === story.lines.length - 1)
         ) {
             return (
                 <AddStoryLine
                     ref={this.addStoryCursor}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(i)}
-                    onCreateUtteranceFromPayload={pl => this.handleCreateUserUtterance(i, pl)
+                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)
+                    }
+                    onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)
                     }
                     onSelectResponse={() => {}} // not needed for now since disableExisting is on
-                    onCreateResponse={template => this.handleCreateSequence(i, template)}
-                    onSelectAction={action => this.handleCreateSlotOrAction(i, {
+                    onCreateResponse={template => this.handleCreateSequence(index, template)
+                    }
+                    onSelectAction={action => this.handleCreateSlotOrAction(index, {
                         type: 'action',
                         data: { name: action },
                     })
                     }
-                    onSelectSlot={slot => this.handleCreateSlotOrAction(i, { type: 'slot', data: slot })
+                    onSelectSlot={slot => this.handleCreateSlotOrAction(index, { type: 'slot', data: slot })
                     }
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
@@ -209,7 +214,7 @@ class StoryVisualEditor extends React.Component {
                 icon='ellipsis horizontal'
                 className='ellipsis horizontal'
                 size='medium'
-                onClick={() => this.setState({ lineInsertIndex: i })}
+                onClick={() => this.setState({ lineInsertIndex: index })}
             />
         );
     };
@@ -243,8 +248,7 @@ class StoryVisualEditor extends React.Component {
                     <UserUtteranceContainer
                         deletable={deletable}
                         value={line.gui.data[0]} // for now, data is a singleton
-                        onChange={v => this.handleChangeUserUtterance(index, v)}
-                        onInput={v => this.handleChangeUserUtterance(index, v)}
+                        onInput={v => this.handleSaveUserUtterance(index, v)}
                         onDelete={() => this.handleDeleteLine(index)}
                         onAbort={() => this.handleDeleteLine(index)}
                     />
@@ -302,6 +306,7 @@ StoryVisualEditor.propTypes = {
     language: PropTypes.string.isRequired,
     getUtteranceFromPayload: PropTypes.func.isRequired,
     parseUtterance: PropTypes.func.isRequired,
+    addUtteranceToTrainingData: PropTypes.func.isRequired,
 };
 
 StoryVisualEditor.defaultProps = {
@@ -317,6 +322,7 @@ export default props => (
                 language={value.language}
                 getUtteranceFromPayload={value.getUtteranceFromPayload}
                 parseUtterance={value.parseUtterance}
+                addUtteranceToTrainingData={value.addUtteranceToTrainingData}
             />
         )}
     </ConversationOptionsContext.Consumer>

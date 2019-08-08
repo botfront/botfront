@@ -72,6 +72,16 @@ function StoriesContainer(props) {
         );
     }
 
+    function addUtteranceToTrainingData(utterance, callback = () => {}) {
+        Meteor.call(
+            'nlu.insertExamplesWithLanguage',
+            projectId,
+            language,
+            [utterance],
+            (err, res) => callback(err, res),
+        );
+    }
+
     function updateResponse(response, callback = () => {}) {
         Meteor.call(
             'project.updateTemplate',
@@ -180,6 +190,7 @@ function StoriesContainer(props) {
                 responses, // temp fix
                 lang: 'en', // temp fix
                 updateResponses: setResponses, // temp fix
+                addUtteranceToTrainingData,
             }}
         >
             <PageMenu title='Stories' icon='book'>

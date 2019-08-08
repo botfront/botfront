@@ -7,7 +7,7 @@ import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 
 function UserUtteranceViewer({
-    value, size, onChange, allowEditing,
+    value, size, onChange, disableEditing,
 }) {
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
@@ -188,7 +188,7 @@ function UserUtteranceViewer({
         }
 
         return {
-            anchor: trimmedAnchor,
+            anchor: trimmedAnchor + 1,
             extent: trimmedExtent,
         };
     }
@@ -207,7 +207,7 @@ function UserUtteranceViewer({
             ),
         );
         if (
-            !allowEditing
+            disableEditing
             || selection.anchorNode !== selection.focusNode
             || selection.anchorOffset === selection.focusOffset
             || !selectionBoundary
@@ -243,8 +243,8 @@ function UserUtteranceViewer({
                             value={element}
                             size={size}
                             key={element.start}
-                            allowEditing={allowEditing}
-                            deletable={allowEditing}
+                            allowEditing={!disableEditing}
+                            deletable={!disableEditing}
                             onDelete={() => handleEntityDeletion(element.index)}
                             onChange={newValue => handleEntityChange(newValue, element.index)
                             }
@@ -278,7 +278,7 @@ function UserUtteranceViewer({
                 <Intent
                     value={intent}
                     size={size}
-                    allowEditing={allowEditing}
+                    allowEditing={!disableEditing}
                     allowAdditions
                     onChange={newIntent => onChange({ ...value, intent: newIntent })}
                 />
@@ -290,13 +290,13 @@ function UserUtteranceViewer({
 UserUtteranceViewer.propTypes = {
     value: PropTypes.object.isRequired,
     size: PropTypes.string,
-    allowEditing: PropTypes.bool,
+    disableEditing: PropTypes.bool,
     onChange: PropTypes.func,
 };
 
 UserUtteranceViewer.defaultProps = {
     size: 'mini',
-    allowEditing: true,
+    disableEditing: false,
     onChange: () => {},
 };
 
