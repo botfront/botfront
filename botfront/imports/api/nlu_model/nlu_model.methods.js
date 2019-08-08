@@ -29,7 +29,7 @@ Meteor.methods({
         check(projectId, String);
         check(language, String);
         check(items, Array);
-        checkIfCan('nlu-admin', projectId);
+        checkIfCan(['nlu-data:w', 'stories:w'], projectId);
         try {
             const modelIds = getModelIdsFromProjectId(projectId);
             const modelId = NLUModels.findOne(

@@ -78,7 +78,7 @@ function StoriesContainer(props) {
             projectId,
             language,
             [utterance],
-            (err, res) => callback(err, res),
+            wrapMeteorCallback((err, res) => callback(err, res)),
         );
     }
 
