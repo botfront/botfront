@@ -1,6 +1,7 @@
 import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { Placeholder } from 'semantic-ui-react';
 
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import { ConversationOptionsContext } from '../../utils/Context';
@@ -10,9 +11,7 @@ import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
     const { name, onDeleteAllResponses, deletable } = props;
-    const { getResponse, updateResponse } = useContext(
-        ConversationOptionsContext,
-    );
+    const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
     const [template, setTemplate] = useState(null);
     const getSequence = () => {
@@ -133,6 +132,12 @@ const BotResponsesContainer = (props) => {
     return (
         <div className='responses-container'>
             {renderAddLine(-1)}
+            {!template && (
+                <Placeholder>
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                </Placeholder>
+            )}
             {getSequence().map(renderResponse)}
             <div className='response-name'>{name}</div>
         </div>
