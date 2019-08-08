@@ -5,13 +5,14 @@
 version: '3.7'
 services:
   e2e:
-    image: gcr.io/botfront-project/cypress-runner:3.4.1
+    image: gcr.io/botfront-project/cypress-runner:latest
     container_name: e2e
     volumes:
       - ../cypress.json:/app/cypress.json
       - ../cypress:/app/cypress
       - ../imports/lib:/app/imports/lib
       - ../imports/api:/app/imports/api
+      - ./mounted/models/:/app/models
     depends_on: 
       - botfront
     environment: 
@@ -20,11 +21,11 @@ services:
       - CYPRESS_RETRIES=2
 
   botfront:
-    image: botfront-local
+    image: botfront/botfront:v0.15.5
     container_name: botfront-app
     restart: always
-    # volumes:
-    #   - './models/:/app/models'
+    volumes:
+      - './mounted/models/:/app/models'
     ports:
       - '8888:3000'
     depends_on:
@@ -41,8 +42,6 @@ services:
     image: 'botfront/botfront-api:v0.15.1'
     container_name: botfront-api
     restart: always
-    networks:
-      - test-network
     depends_on:
       - mongo
     ports:
@@ -52,24 +51,19 @@ services:
       - MONGO_URL=mongodb://mongo:27017/bf
 
   rasa:
-    image: 'botfront/rasa-for-botfront:v1.1.7-bf.3'
+    image: gcr.io/botfront-project/rasa-for-botfront-ci:latest
     container_name: botfront-rasa
     restart: always
-    networks:
-      - test-network
     ports:
       - '5005:5005'
     depends_on:
       - botfront-api
     volumes:
       - './mounted/models/:/app/models'
-    command:
-      - run
-      - '--enable-api'
-      - '--debug'
     environment:
       - BF_URL=http://botfront-api:8080
       - BF_PROJECT_ID=bf
+    
       
   # actions:
   #   image: 'botfront/actions-sdk:latest'
@@ -99,4 +93,7 @@ services:
       - '27017:27017'
     environment: 
       - MONGO_INITDB_DATABASE=bf
+<<<<<<< HEAD
 
+=======
+>>>>>>> ci: rasa waits for API before launching

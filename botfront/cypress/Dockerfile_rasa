@@ -1,0 +1,11 @@
+##########################################################################
+# This Dockerfile builds a Rasa image for integration tests              #
+##########################################################################
+
+FROM botfront/rasa-for-botfront:v1.1.7-bf.3
+ENV WAITFORIT_VERSION="v2.4.1"
+RUN wget -q -O /usr/local/bin/waitforit https://github.com/maxcnunes/waitforit/releases/download/$WAITFORIT_VERSION/waitforit-linux_amd64 \
+    && chmod +x /usr/local/bin/waitforit
+ENV WAITING_FOR_ADDRESS=http://botfront-api:8080/project/bf/endpoints
+ENTRYPOINT ["/bin/bash"]
+CMD ["-c", "waitforit -address=$WAITING_FOR_ADDRESS -status=200 -timeout=300 -debug -- rasa run --enable-api --debug"]
