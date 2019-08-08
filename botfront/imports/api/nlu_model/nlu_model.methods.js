@@ -405,7 +405,7 @@ if (Meteor.isServer) {
                     );
                     // eslint-disable-next-line no-await-in-loop
                     await Meteor.callWithPromise('nlu.import', data[lang].rasa_nlu_data, modelId, true);
-                }import { languages } from '../../lib/languages';
+                }
 
                 GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.public.chitChatProjectId': projectId } });
             } catch (e) {
