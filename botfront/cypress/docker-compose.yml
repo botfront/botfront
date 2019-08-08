@@ -21,7 +21,7 @@ services:
       - CYPRESS_RETRIES=2
 
   botfront:
-    image: botfront/botfront:v0.15.5
+    image: botfront-local
     container_name: botfront-app
     restart: always
     volumes:
