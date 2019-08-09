@@ -11,6 +11,9 @@
     "watchForFileChanges": false,
     "numTestsKeptInMemory": 2 ,
     "viewportHeight": 660,
-    "viewportWidth": 1000
+    "viewportWidth": 1000,
+    "env": {
+      "RASA_URL": "http://localhost:5005"
+    }
   }
   

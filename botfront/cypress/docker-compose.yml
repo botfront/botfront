@@ -18,6 +18,7 @@ services:
     environment: 
       - BOTFRONT_HOST=botfront:3000
       - CYPRESS_baseUrl=http://botfront:3000
+      - CYPRESS_RASA_URL=http://rasa:5005
       - CYPRESS_RETRIES=2
 
   botfront:
