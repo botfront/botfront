@@ -23,12 +23,12 @@ services:
 
   botfront:
     image: botfront-local
-    container_name: botfront-app
+    container_name: botfront-test-app
     restart: always
     volumes:
       - './mounted/models/:/app/models'
-    ports:
-      - '8888:3000'
+    # ports:
+    #   - '8888:3000'
     depends_on:
       - mongo
     environment:
@@ -41,22 +41,22 @@ services:
 
   botfront-api:
     image: 'botfront/botfront-api:v0.15.1'
-    container_name: botfront-api
+    container_name: botfront-test-api
     restart: always
     depends_on:
       - mongo
-    ports:
-      - '8080:8080'
+    # ports:
+    #   - '8080:8080'
     environment: 
       # NODE_ENV must not be set to test because it would use the mongo mem server which we don't want here
       - MONGO_URL=mongodb://mongo:27017/bf
 
   rasa:
     image: gcr.io/botfront-project/rasa-for-botfront-ci:latest
-    container_name: botfront-rasa
+    container_name: botfront-test-rasa
     restart: always
-    ports:
-      - '5005:5005'
+    # ports:
+    #   - '5005:5005'
     depends_on:
       - botfront-api
     volumes:
@@ -68,7 +68,7 @@ services:
       
   # actions:
   #   image: 'botfront/actions-sdk:latest'
-  #   container_name: botfront-actions
+  #   container_name: botfront-test-actions
   #   networks:
   #     - botfront-network
   #   restart: always
@@ -80,7 +80,7 @@ services:
   #     - .env
   # duckling:
   #   image: 'botfront/duckling:latest'
-  #   container_name: botfront-duckling
+  #   container_name: botfront-test-duckling
   #   networks:
   #     - botfront-network
   #   restart: always
@@ -88,10 +88,10 @@ services:
   #     - '8000:8000'
   mongo:
     image: 'mongo:latest'
-    container_name: botfront-mongo
+    container_name: botfront-test-mongo
     restart: always
-    ports:
-      - '27017:27017'
+    # ports:
+    #   - '27017:27017'
     environment: 
       - MONGO_INITDB_DATABASE=bf
 <<<<<<< HEAD

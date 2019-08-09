@@ -104,8 +104,9 @@ if (Meteor.isServer) {
             }
         },
 
-        'project.delete'(projectId) {
+        'project.delete'(projectId, failSilently = false) {
             check(projectId, String);
+            check(failSilently, Boolean);
 
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
             if (!project) throw new Meteor.Error('Project not found');
@@ -122,7 +123,7 @@ if (Meteor.isServer) {
                 Projects.remove({ _id: projectId }); // Delete project
                 Deployments.remove({ projectId }); // Delete deployment
             } catch (e) {
-                throw e;
+                if (!failSilently) throw e;
             }
         },
 
