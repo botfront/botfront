@@ -342,7 +342,7 @@ Stories.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-    storyMode: state.get('projectId'),
+    storyMode: state.get('storyMode'),
     storyGroupCurrent: state.get('storyGroupCurrent'),
 });
 
