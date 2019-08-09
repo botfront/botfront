@@ -8,7 +8,7 @@ describe('intial setup', function() {
     });
 
     after(function() {
-        
+        cy.deleteProject('bf');
     });
 
     it('Should create projects when completing the initial setup', () => {

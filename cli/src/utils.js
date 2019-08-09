@@ -124,11 +124,6 @@ export async function updateProjectFile(projectAbsPath, images) {
     });
     fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
     
-    // Rename default model
-    const templateModelFile = path.join(fixDir(projectAbsPath), 'models', DEFAULT_MODEL_FILENAME);
-    const projectModelFile = path.join(fixDir(projectAbsPath), 'models', `model-${config.env.bf_project_id}.tar.gz`)
-    if (!fs.existsSync(projectModelFile)) fs.renameSync(templateModelFile, projectModelFile);
-    
     updateEnvFile(projectAbsPath);
 }
 
