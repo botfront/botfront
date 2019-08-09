@@ -232,7 +232,7 @@ StoriesEditor.propTypes = {
 StoriesEditor.defaultProps = {
     disabled: false,
     stories: [],
-    editor: 'MARKDOWN',
+    editor: 'markdown',
 };
 
 export default withTracker((props) => {

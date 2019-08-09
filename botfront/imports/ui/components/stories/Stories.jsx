@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { setStoryGroup } from '../../store/actions/actions';
+import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
@@ -22,7 +22,6 @@ class Stories extends React.Component {
             saving: false,
             validationErrors: false,
             storyGroupNameSelected: '',
-            editor: 'MARKDOWN',
         };
     }
 
@@ -171,14 +170,13 @@ class Stories extends React.Component {
     };
 
     renderStoryEditor = (storyGroupFiltered, introStory, storySelected) => {
-        const { projectId, storyGroups } = this.props;
-        const { editor } = this.state;
+        const { projectId, storyGroups, storyMode } = this.props;
         const storyGroupSelected = storyGroupFiltered[storySelected];
-       
+
         return (
             (storyGroupSelected || introStory) && (
                 <StoriesEditor
-                    editor={editor}
+                    editor={storyMode}
                     disabled={!can('stories:w', projectId)}
                     storyGroup={storyGroupSelected || introStory}
                     onSaving={this.handleSavingStories}
@@ -233,13 +231,14 @@ class Stories extends React.Component {
     };
 
     render() {
-        const { storyGroups, projectId } = this.props;
+        const {
+            storyGroups, projectId, changeStoryMode, storyMode,
+        } = this.props;
         const {
             storyIndex,
             saving,
             validationErrors,
             storyGroupNameSelected,
-            editor,
         } = this.state;
         const introStory = storyGroups.find(storyGroup => storyGroup.introStory);
         const storyGroupFiltered = storyGroups
@@ -286,32 +285,41 @@ class Stories extends React.Component {
                         <div className='stories-toggles'>
                             {storySelected !== -1 ? (
                                 <Message info size='small'>
-                                    Create detailed use case scenarios for your bot using multiple stories.
+                                    Create detailed use case scenarios for your bot using
+                                    multiple stories.
                                 </Message>
                             ) : (
                                 <Message info size='small'>
-                                    The Intro stories group contains the initial
-                                    messages that would be sent to users when they
-                                    start chatting with your bot.
+                                    The Intro stories group contains the initial messages
+                                    that would be sent to users when they start chatting
+                                    with your bot.
                                 </Message>
                             )}
                             <Button.Group>
                                 <Button
-                                    className={editor === 'MARKDOWN' ? '' : 'not-selected-editor'}
+                                    className={
+                                        storyMode === 'markdown'
+                                            ? ''
+                                            : 'not-selected-editor'
+                                    }
                                     icon
                                     basic
                                     onClick={() => {
-                                        this.setState({ editor: 'MARKDOWN' });
+                                        changeStoryMode('markdown');
                                     }}
                                 >
                                     <Icon name='code' />
                                 </Button>
                                 <Button
-                                    className={editor === 'VISUAL' ? '' : 'not-selected-editor'}
+                                    className={
+                                        storyMode === 'visual'
+                                            ? ''
+                                            : 'not-selected-editor'
+                                    }
                                     icon
                                     basic
                                     onClick={() => {
-                                        this.setState({ editor: 'VISUAL' });
+                                        changeStoryMode('visual');
                                     }}
                                 >
                                     <Icon name='commenting' />
@@ -365,7 +373,9 @@ Stories.propTypes = {
     projectId: PropTypes.string.isRequired,
     storyGroups: PropTypes.array.isRequired,
     storyGroupCurrent: PropTypes.number,
+    storyMode: PropTypes.string.isRequired,
     changeStoryGroup: PropTypes.func.isRequired,
+    changeStoryMode: PropTypes.func.isRequired,
 };
 
 Stories.defaultProps = {
@@ -379,6 +389,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     changeStoryGroup: setStoryGroup,
+    changeStoryMode: setStoryMode,
 };
 
 export default connect(

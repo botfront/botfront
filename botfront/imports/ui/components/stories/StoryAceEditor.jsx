@@ -149,7 +149,7 @@ const StoryEditor = ({
         <div className='story-editor' data-cy='story-editor'>
             {renderMenu()}
             <Segment attached='bottom'>
-                { editorType === 'MARKDOWN' ? (
+                { editorType !== 'visual' ? (
                     <AceEditor
                         readOnly={disabled}
                         onLoad={setEditor}
@@ -202,7 +202,7 @@ StoryEditor.defaultProps = {
     disabled: false,
     story: null,
     annotations: [],
-    editor: 'MARKDOWN',
+    editor: 'markdown',
 };
 
 export default StoryEditor;
