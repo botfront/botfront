@@ -205,16 +205,15 @@ class StoryVisualEditor extends React.Component {
     render() {
         const { story } = this.props;
         if (!story) return <div className='story-visual-editor' />;
-        const deletable = story.lines.length > 1;
         const lines = story.lines.map((line, index) => {
-            if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, deletable);
-            if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, deletable);
+            if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, true);
+            if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, true);
             if (line.gui.type === 'bot') {
                 return (
                     <React.Fragment key={`bot${index + line.gui.data.name}`}>
                         <BotResponsesContainer
                             name={line.gui.data.name}
-                            deletable={deletable}
+                            deletable
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
                         />
                         {this.renderAddLine(index)}
@@ -229,7 +228,7 @@ class StoryVisualEditor extends React.Component {
                             : shortid.generate())}`}
                 >
                     <UserUtteranceContainer
-                        deletable={deletable}
+                        deletable
                         value={line.gui.data[0]} // for now, data is a singleton
                         onInput={v => this.handleSaveUserUtterance(index, v)}
                         onDelete={() => this.handleDeleteLine(index)}
