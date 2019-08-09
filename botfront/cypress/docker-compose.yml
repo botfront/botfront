@@ -94,7 +94,3 @@ services:
     #   - '27017:27017'
     environment: 
       - MONGO_INITDB_DATABASE=bf
-<<<<<<< HEAD
-
-=======
->>>>>>> ci: rasa waits for API before launching
