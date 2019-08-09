@@ -8,7 +8,7 @@ describe('intial setup', function() {
     });
 
     after(function() {
-        cy.deleteProject('bf');
+        
     });
 
     it('Should create projects when completing the initial setup', () => {
@@ -59,9 +59,14 @@ describe('intial setup', function() {
 
         cy.wait(5000);
         cy.url().then((url) => {
+<<<<<<< HEAD
             cy.url().should('include', '/stories');
             const id = url.match(/project\/(.*?)\/stories/i)[1];
             cy.deleteProject(id);
+=======
+            const id = url.match(/project\/(.*?)\/nlu/i)[1];
+            cy.deleteProject('bf');
+>>>>>>> test: delete project after setup
         });
         // cy.url().then((url) => {
         // This gets the project id
