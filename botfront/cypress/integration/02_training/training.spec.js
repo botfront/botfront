@@ -5,7 +5,6 @@ describe('Training', function() {
         positions.map(p => cy.contains(group).click(p, { force: true }));
     }
 
-
     function importData(langCode, langName) {
         cy.visit('/project/bf/nlu/models');
         cy.get('[data-cy=model-selector]').click();
@@ -22,7 +21,6 @@ describe('Training', function() {
 
     function createFrenchModelWithData() {
         cy.createNLUModelProgramatically('bf', '', 'fr');
-        // Selecting French model
         importData('fr', 'French');
     }
     
@@ -111,12 +109,12 @@ describe('Training', function() {
         importData('en', 'English');
         createFrenchModelWithData();
         createStories();
+        // Open chat and type intent
+        cy.get('[data-cy=open-chat]').click();
         // Train and wait for training to finish
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000); // wait a bit so the state changes to disabled
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
-        // Open chat and type intent
-        cy.get('[data-cy=open-chat]').click();
         testChat('en', 'hi', 'utter_hi');
         testChat('fr', 'salut', 'utter_hi');
     });

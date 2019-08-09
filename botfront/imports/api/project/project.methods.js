@@ -109,11 +109,9 @@ if (Meteor.isServer) {
             check(failSilently, Match.Optional(Boolean));
 
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-            if (!project) {
-                if (!failSilently) throw new Meteor.Error('Project not found');
-                return;
-            }
+
             try {
+                if (!project) throw new Meteor.Error('Project not found');
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
                 ActivityCollection.remove({ modelId: { $in: project.nlu_models } }); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
