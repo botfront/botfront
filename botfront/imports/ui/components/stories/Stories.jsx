@@ -1,9 +1,11 @@
 import {
     Grid, Message, Menu, Icon, Button,
 } from 'semantic-ui-react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { setStoryGroup } from '../../store/actions/actions';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
@@ -12,10 +14,11 @@ import { can } from '../../../lib/scopes';
 class Stories extends React.Component {
     constructor(props) {
         super(props);
+        const { storyGroupCurrent } = this.props;
         this.state = {
             // storyIndex is used to track the index of element in the browser component
             // storyGroupNameSelected used to track the storygroup to be displayed by the storyEditor
-            storyIndex: -1,
+            storyIndex: storyGroupCurrent,
             saving: false,
             validationErrors: false,
             storyGroupNameSelected: '',
@@ -56,11 +59,13 @@ class Stories extends React.Component {
     };
 
     handleMenuChange = (index) => {
+        const { changeStoryGroup } = this.props;
         this.setState({
             storyIndex: index,
             validationErrors: false,
             storyGroupNameSelected: '',
         });
+        changeStoryGroup(index);
     };
 
     handleSavingStories = () => {
@@ -93,9 +98,7 @@ class Stories extends React.Component {
                 } ${indexOfNewStory}`,
                 projectId,
                 storyGroupId: `${
-                    !!introStoryGroup
-                        ? introStoryGroup._id
-                        : storyGroups[storyIndex]._id
+                    !!introStoryGroup ? introStoryGroup._id : storyGroups[storyIndex]._id
                 }`,
             },
             wrapMeteorCallback(),
@@ -139,7 +142,9 @@ class Stories extends React.Component {
 
     handleIntroStoryClick = (event) => {
         event.preventDefault();
+        const { changeStoryGroup } = this.props;
         this.setState({ storyIndex: -1, storyGroupNameSelected: '' });
+        changeStoryGroup(-1);
     };
 
     sortAlphabetically = (a, b) => a.name.localeCompare(b.name);
@@ -149,21 +154,20 @@ class Stories extends React.Component {
         this.handleStoryGroupSelect(introStory);
     };
 
-    storyGroupSelected = (
-        storyIndex,
-        storyGroupNameSelected,
-        storyGroupFiltered,
-    ) => {
+    storyGroupSelected = (storyIndex, storyGroupNameSelected, storyGroupFiltered) => {
+        const { changeStoryGroup } = this.props;
         if (
             storyGroupNameSelected === ''
-            || (storyGroupFiltered[storyIndex]
-                && storyGroupFiltered[storyIndex].name) === storyGroupNameSelected
+            || (storyGroupFiltered[storyIndex] && storyGroupFiltered[storyIndex].name)
+                === storyGroupNameSelected
         ) {
             return storyIndex;
         }
-        return storyGroupFiltered.findIndex(
+        const newIndex = storyGroupFiltered.findIndex(
             storyGroup => storyGroup.name === storyGroupNameSelected,
         );
+        changeStoryGroup(newIndex);
+        return newIndex;
     };
 
     renderStoryEditor = (storyGroupFiltered, introStory, storySelected) => {
@@ -181,16 +185,10 @@ class Stories extends React.Component {
                     onSaved={this.handleSavedStories}
                     onError={this.handleError}
                     onErrorResolved={this.handleErrorResolved}
-                    onAddNewStory={index => this.handleNewStory(
-                        storyGroupSelected || introStory,
-                        index,
-                    )
+                    onAddNewStory={index => this.handleNewStory(storyGroupSelected || introStory, index)
                     }
                     projectId={projectId}
-                    onDeleteGroup={() => this.handleDeleteGroup(
-                        storySelected,
-                        storyGroupFiltered,
-                    )
+                    onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)
                     }
                     groupNames={storyGroups.map(group => ({
                         text: group.name,
@@ -226,10 +224,9 @@ class Stories extends React.Component {
         return (
             numberOfSelectedStoryGroups >= 1 && (
                 <Message warning>
-                    You’re currently focusing on {numberOfSelectedStoryGroups}{' '}
-                    story group{plural && 's'} and only{' '}
-                    {plural ? 'those' : 'that'} story group{plural && 's'} will
-                    be trained. {link}
+                    You’re currently focusing on {numberOfSelectedStoryGroups} story group
+                    {plural && 's'} and only {plural ? 'those' : 'that'} story group
+                    {plural && 's'} will be trained. {link}
                 </Message>
             )
         );
@@ -244,9 +241,7 @@ class Stories extends React.Component {
             storyGroupNameSelected,
             editor,
         } = this.state;
-        const introStory = storyGroups.find(
-            storyGroup => storyGroup.introStory,
-        );
+        const introStory = storyGroups.find(storyGroup => storyGroup.introStory);
         const storyGroupFiltered = storyGroups
             .filter(storyGroup => !storyGroup.introStory)
             .sort(this.sortAlphabetically);
@@ -266,9 +261,7 @@ class Stories extends React.Component {
                             fluid
                             onClick={this.handleIntroStoryClick}
                             className={`intro-story ${
-                                storySelected === -1
-                                    ? 'selected-intro-story'
-                                    : ''
+                                storySelected === -1 ? 'selected-intro-story' : ''
                             }`}
                         >
                             <Menu.Item
@@ -283,8 +276,7 @@ class Stories extends React.Component {
                                             : 'not-selected'
                                     }`}
                                     name='eye'
-                                    onClick={e => this.handleIntroClick(e, introStory)
-                                    }
+                                    onClick={e => this.handleIntroClick(e, introStory)}
                                 />
                                 <span>Intro stories</span>
                             </Menu.Item>
@@ -372,6 +364,24 @@ class Stories extends React.Component {
 Stories.propTypes = {
     projectId: PropTypes.string.isRequired,
     storyGroups: PropTypes.array.isRequired,
+    storyGroupCurrent: PropTypes.number,
+    changeStoryGroup: PropTypes.func.isRequired,
 };
 
-export default Stories;
+Stories.defaultProps = {
+    storyGroupCurrent: -1,
+};
+
+const mapStateToProps = state => ({
+    storyMode: state.get('projectId'),
+    storyGroupCurrent: state.get('storyGroupCurrent'),
+});
+
+const mapDispatchToProps = {
+    changeStoryGroup: setStoryGroup,
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(Stories);

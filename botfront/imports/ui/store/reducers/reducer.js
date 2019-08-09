@@ -9,6 +9,8 @@ const initialState = Map({
     templatesTableFilter: '',
     templatesTableShowMatching: false,
     workingLanguage: 'en',
+    storyMode: 'markdown',
+    storyGroupCurrent: -1,
 });
 
 export default function reducer(state = initialState, action) {
@@ -20,9 +22,16 @@ export default function reducer(state = initialState, action) {
         case types.CHANGE_FILTER_TEMPLATES_TABLE:
             return state.set('templatesTableFilter', action.filter);
         case types.TOGGLE_MATCHING_TEMPLATES_TABLE:
-            return state.set('templatesTableShowMatching', !state.get('templatesTableShowMatching'));
+            return state.set(
+                'templatesTableShowMatching',
+                !state.get('templatesTableShowMatching'),
+            );
         case types.SET_WORKING_LANGUAGE:
             return state.set('workingLanguage', action.workingLanguage);
+        case types.SET_STORY_GROUP:
+            return state.set('storyGroupCurrent', action.groupIndex);
+        case types.SET_STORY_MODE:
+            return state.set('storyMode', action.mode);
         default:
             return state;
     }
