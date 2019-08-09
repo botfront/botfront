@@ -57,7 +57,7 @@ describe('Training', function() {
 
     before(function() {
         // just in case it's not deleted
-        // cy.deleteProject('bf', true);
+        cy.deleteProject('bf');
     });
 
     beforeEach(function() {
