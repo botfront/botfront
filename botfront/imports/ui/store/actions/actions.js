@@ -33,3 +33,17 @@ export function setWorkingLanguage(workingLanguage) {
         workingLanguage,
     };
 }
+
+export function setStoryMode(mode) {
+    return {
+        type: types.SET_STORY_MODE,
+        mode,
+    };
+}
+
+export function setStoryGroup(groupIndex) {
+    return {
+        type: types.SET_STORY_GROUP,
+        groupIndex,
+    };
+}
