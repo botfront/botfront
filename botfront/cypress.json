@@ -11,7 +11,8 @@
     "watchForFileChanges": false,
     "numTestsKeptInMemory": 2 ,
     "viewportHeight": 900,
-    "viewportWidth": 1800,
+    "viewportWidth": 1800, 
+    "ignoreTestFile":["**/training.spec.js"],
     "env": {
       "RASA_URL": "http://localhost:5005"
     }
