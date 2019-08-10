@@ -56,7 +56,7 @@ class SetupSteps extends React.Component {
                             Meteor.callWithPromise('nlu.chitChatSetup'),
                         ])
                             .then((responses) => {
-                                router.push(`/project/${responses[0]}/nlu/models`);
+                                router.push(`/project/${responses[0]}/stories`);
                             })
                             .catch((e) => {
                                 console.log(e)

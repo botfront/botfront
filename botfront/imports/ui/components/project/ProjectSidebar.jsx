@@ -24,6 +24,9 @@ class ProjectSidebar extends React.Component {
                         <Menu.Header style={{ marginBottom: '20px' }}>Project</Menu.Header>
                         <ProjectsDropdown currentProjectId={projectId} onProjectChange={handleChangeProject} />
                     </Menu.Item>
+                    <Link to={`/project/${projectId}/stories`}>
+                        <Menu.Item name='Stories' icon='book' />
+                    </Link>
                     <Link to={`/project/${projectId}/nlu/models`}>
                         <Menu.Item name='NLU' icon='grid layout' />
                     </Link>
@@ -35,13 +38,9 @@ class ProjectSidebar extends React.Component {
                     <Link to={`/project/${projectId}/dialogue/templates`}>
                         <Menu.Item name='Responses' icon='comment' />
                     </Link>
-                    <Link to={`/project/${projectId}/stories`}>
-                        <Menu.Item name='Stories' icon='book' />
-                    </Link>
                     <Link to={`/project/${projectId}/dialogue/conversations/p/1`}>
                         <Menu.Item name='Conversations' icon='comments' />
                     </Link>
-                    
                     <Link to={`/project/${projectId}/settings`}>
                         <Menu.Item name='Settings' icon='setting' />
                     </Link>

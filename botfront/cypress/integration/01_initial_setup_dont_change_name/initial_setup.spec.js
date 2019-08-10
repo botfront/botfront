@@ -3,7 +3,7 @@
 describe('intial setup', function() {
     before(function() {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
-            cy.exec('mongo meteor --host localhost:3001 --eval "db.dropDatabase();"');
+            cy.exec('mongo meteor --host localhost:27017 --eval "db.dropDatabase();"');
         }
     });
 
@@ -59,7 +59,8 @@ describe('intial setup', function() {
 
         cy.wait(5000);
         cy.url().then((url) => {
-            const id = url.match(/project\/(.*?)\/nlu/i)[1];
+            cy.url().should('include', '/stories');
+            const id = url.match(/project\/(.*?)\/stories/i)[1];
             cy.deleteProject(id);
         });
         // cy.url().then((url) => {
