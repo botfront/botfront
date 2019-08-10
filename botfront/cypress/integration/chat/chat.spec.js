@@ -5,20 +5,22 @@ const testText = '* my_intent OR my_intent2{enter}  - utter_test';
 
 describe('chat side panel handling', function() {
     before(function() {
-        cy.createProject('bf', 'My Project', 'fr')
-            .then(() => cy.createNLUModelProgramatically('bf', '', 'en'));
+       
     });
 
     beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'fr');
+        cy.createNLUModelProgramatically('bf', '', 'en');
         cy.login();
     });
 
     afterEach(function() {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     after(function() {
-        cy.deleteProject('bf');
+        
     });
 
     it('opens and close the chat', function() {
@@ -56,6 +58,7 @@ describe('chat side panel handling', function() {
         cy.dataCy('initial-payload-select')
             .get('.visible.menu')
             .contains('my_intent2');
+
         cy.dataCy('initial-payload-select')
             .get('.visible.menu')
             .contains('my_intent')
