@@ -39,31 +39,31 @@ services:
       - ORCHESTRATOR=docker-compose
       - ROOT_URL=http://botfront:3000
 
-  botfront-api:
-    image: 'botfront/botfront-api:v0.15.1'
-    container_name: botfront-test-api
-    restart: always
-    depends_on:
-      - mongo
-    # ports:
-    #   - '8080:8080'
-    environment: 
-      # NODE_ENV must not be set to test because it would use the mongo mem server which we don't want here
-      - MONGO_URL=mongodb://mongo:27017/bf
+  # botfront-api:
+  #   image: 'botfront/botfront-api:v0.15.1'
+  #   container_name: botfront-test-api
+  #   restart: always
+  #   depends_on:
+  #     - mongo
+  #   # ports:
+  #   #   - '8080:8080'
+  #   environment: 
+  #     # NODE_ENV must not be set to test because it would use the mongo mem server which we don't want here
+  #     - MONGO_URL=mongodb://mongo:27017/bf
 
-  rasa:
-    image: gcr.io/botfront-project/rasa-for-botfront-ci:latest
-    container_name: botfront-test-rasa
-    restart: always
-    # ports:
-    #   - '5005:5005'
-    depends_on:
-      - botfront-api
-    volumes:
-      - './mounted/models/:/app/models'
-    environment:
-      - BF_URL=http://botfront-api:8080
-      - BF_PROJECT_ID=bf
+  # rasa:
+  #   image: gcr.io/botfront-project/rasa-for-botfront-ci:latest
+  #   container_name: botfront-test-rasa
+  #   restart: always
+  #   # ports:
+  #   #   - '5005:5005'
+  #   depends_on:
+  #     - botfront-api
+  #   volumes:
+  #     - './mounted/models/:/app/models'
+  #   environment:
+  #     - BF_URL=http://botfront-api:8080
+  #     - BF_PROJECT_ID=bf
     
       
   # actions:
