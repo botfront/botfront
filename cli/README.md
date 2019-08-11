@@ -21,18 +21,10 @@ With Botfront you can:
 - Monitor conversations, review and annotate incoming NLU utterances 👌
 
 
-### Getting started
-
-Just...
+### Install
 
 ```bash
 npm install -g botfront
-```
-
-And...
-
-```bash
-botfront
 ```
 
 ### Getting help
