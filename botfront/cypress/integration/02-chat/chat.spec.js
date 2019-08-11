@@ -5,20 +5,22 @@ const testText = '* my_intent OR my_intent2{enter}  - utter_test';
 
 describe('chat side panel handling', function() {
     before(function() {
-        cy.createProject('bf', 'My Project', 'fr')
-            .then(() => cy.createNLUModelProgramatically('bf', '', 'en'));
+        cy.deleteProject('bf');
     });
 
     beforeEach(function() {
-        cy.login();
+        cy.createProject('bf', 'My Project', 'fr')
+            .then(() => cy.createNLUModelProgramatically('bf', '', 'en'))
+            .then(() => cy.login());
     });
 
     afterEach(function() {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     after(function() {
-        cy.deleteProject('bf');
+        
     });
 
     it('opens and close the chat', function() {
@@ -56,6 +58,7 @@ describe('chat side panel handling', function() {
         cy.dataCy('initial-payload-select')
             .get('.visible.menu')
             .contains('my_intent2');
+
         cy.dataCy('initial-payload-select')
             .get('.visible.menu')
             .contains('my_intent')
@@ -95,30 +98,5 @@ describe('chat side panel handling', function() {
 
         cy.dataCy('delete-story').click();
         cy.dataCy('confirm-yes').click();
-    });
-
-    it('Correct bot response to follow utterance input', function() {
-        // Uncomment below 4 lines while testing on local developer environment
-        // Adjust instance address accordingly
-        // cy.visit('/project/bf/settings');
-        // cy.contains('Instance').click();
-        // cy.get('input').eq(1).click({ force: true }).type('{selectAll}{backspace}http://localhost:5005');
-        // cy.contains('Save Changes').click();
-        // Go to stories and add an intent and response
-        cy.visit('/project/bf/stories');
-        cy.dataCy('story-editor')
-            .get('textarea')
-            .focus()
-            .type('\n* basics.test\n  - utter_test', { force: true });
-        // Train and wait for training to finish
-        cy.get('[data-cy=train-button]').click();
-        cy.wait(10000);
-        // Open chat and type intent
-        cy.get('[data-cy=open-chat]').click();
-        cy.get('input.new-message').click().type('/basics.test{enter}');
-        cy.visit('/project/bf/nlu/models');
-        cy.get('[data-cy=open-chat]').click();
-        // Verify response
-        cy.contains('utter_test');
     });
 });

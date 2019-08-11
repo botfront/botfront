@@ -4,7 +4,7 @@ import shortid from 'shortid';
 import {
     uniq, uniqBy, sortBy, intersectionBy, find, uniqWith, isEqual,
 } from 'lodash';
-import { formatError, getProjectIdFromModelId } from '../../lib/utils';
+import { formatError, getProjectIdFromModelId, getModelIdsFromProjectId } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
@@ -25,6 +25,23 @@ const getModelWithTrainingData = (chitChatProjectId, language) => {
 };
 
 Meteor.methods({
+    async 'nlu.insertExamplesWithLanguage'(projectId, language, items) {
+        check(projectId, String);
+        check(language, String);
+        check(items, Array);
+        checkIfCan('nlu-admin', projectId);
+        try {
+            const modelIds = getModelIdsFromProjectId(projectId);
+            const modelId = NLUModels.findOne(
+                { _id: { $in: modelIds }, language },
+                { fields: { _id: 1 } },
+            )._id;
+            return await Meteor.callWithPromise('nlu.insertExamples', modelId, items.map(ExampleUtils.prepareExample));
+        } catch (e) {
+            throw formatError(e);
+        }
+    },
+    
     'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
         check(items, Array);
@@ -389,6 +406,7 @@ if (Meteor.isServer) {
                     // eslint-disable-next-line no-await-in-loop
                     await Meteor.callWithPromise('nlu.import', data[lang].rasa_nlu_data, modelId, true);
                 }
+
                 GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.public.chitChatProjectId': projectId } });
             } catch (e) {
                 throw formatError(e);

@@ -10,7 +10,11 @@
     "defaultCommandTimeout": 10000,
     "watchForFileChanges": false,
     "numTestsKeptInMemory": 2 ,
-    "viewportHeight": 660,
-    "viewportWidth": 1000
+    "viewportHeight": 900,
+    "viewportWidth": 1800, 
+    "ignoreTestFiles":["**/training.spec.js"],
+    "env": {
+      "RASA_URL": "http://localhost:5005"
+    }
   }
   

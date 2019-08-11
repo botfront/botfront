@@ -195,7 +195,7 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
 Cypress.Commands.add('deleteProject', (projectId) => {
     return cy.visit('/')
         .then(() => cy.window())
-        .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId));
+        .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, true));
 });
 
 Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));

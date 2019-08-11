@@ -3,13 +3,23 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",  "-t", "botfront-local", "."]
 
-- name: 'gcr.io/kaniko-project/executor:latest'
-  dir: /workspace/botfront/cypress
-  args:
-  - --context=/workspace/botfront/cypress
-  - --destination=gcr.io/$PROJECT_ID/cypress-runner:3.4.0
-  - --cache=true
-  - --cache-ttl=24h
+# - name: 'gcr.io/kaniko-project/executor:latest'
+#   dir: /workspace/botfront/cypress
+#   args:
+#   - --dockerfile=Dockerfile_cypress  
+#   - --context=/workspace/botfront/cypress
+#   - --destination=gcr.io/$PROJECT_ID/cypress-runner:latest
+#   - --cache=true
+#   - --cache-ttl=24h
+
+# - name: 'gcr.io/kaniko-project/executor:latest'
+#   dir: /workspace/botfront/cypress
+#   args:
+#   - --dockerfile=Dockerfile_rasa
+#   - --context=/workspace/botfront/cypress
+#   - --destination=gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
+#   - --cache=true
+#   - --cache-ttl=24h
 
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: /workspace/botfront/cypress

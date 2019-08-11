@@ -104,12 +104,14 @@ if (Meteor.isServer) {
             }
         },
 
-        'project.delete'(projectId) {
+        'project.delete'(projectId, failSilently = false) {
             check(projectId, String);
+            check(failSilently, Match.Optional(Boolean));
 
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-            if (!project) throw new Meteor.Error('Project not found');
+
             try {
+                if (!project) throw new Meteor.Error('Project not found');
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
                 ActivityCollection.remove({ modelId: { $in: project.nlu_models } }); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
@@ -122,7 +124,7 @@ if (Meteor.isServer) {
                 Projects.remove({ _id: projectId }); // Delete project
                 Deployments.remove({ projectId }); // Delete deployment
             } catch (e) {
-                throw e;
+                if (!failSilently) throw e;
             }
         },
 

@@ -3,7 +3,7 @@
 describe('intial setup', function() {
     before(function() {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
-            cy.exec('mongo meteor --host localhost:27017 --eval "db.dropDatabase();"');
+            cy.exec('mongo bf --host localhost:27017 --eval "db.dropDatabase();"');
         }
     });
 
@@ -14,14 +14,7 @@ describe('intial setup', function() {
     it('Should create projects when completing the initial setup', () => {
         cy.visit('/');
         cy.url().should('be', '/setup/welcome');
-
-        cy.visit('/login');
-
-        cy.url().should('be', '/setup/welcome');
-
         cy.get('[data-cy=start-setup]').click();
-
-        cy.url().should('be', '/setup/account');
 
         cy.get('#uniforms-0000-0001').type('Testing');
         cy.get('#uniforms-0000-0003').type('McTest');
