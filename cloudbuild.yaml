@@ -31,4 +31,4 @@ steps:
 timeout: 3600s
 images:
     - gcr.io/$PROJECT_ID/cypress-runner:latest
-    - gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
+    # - gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
