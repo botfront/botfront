@@ -5,13 +5,13 @@ const testText = '* my_intent OR my_intent2{enter}  - utter_test';
 
 describe('chat side panel handling', function() {
     before(function() {
-       
+        cy.deleteProject('bf');
     });
 
     beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-        cy.createNLUModelProgramatically('bf', '', 'en');
-        cy.login();
+        cy.createProject('bf', 'My Project', 'fr')
+            .then(() => cy.createNLUModelProgramatically('bf', '', 'en'))
+            .then(() => cy.login());
     });
 
     afterEach(function() {

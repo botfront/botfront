@@ -1,0 +1,19 @@
+{
+    "_id": "SETTINGS",
+    "settings": {
+        "public": {
+            "defaultNLUConfig": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
+            "backgroundImages": [
+                "https://source.unsplash.com/collection/315548/2400x1500"
+            ]
+        },
+        "private": {
+            "rasaUrl": "http://rasa:5005",
+            "bfApiHost": "http://botfront-api:8080",
+            "actionsServerUrl": "http://localhost:5055/webhook",
+            "defaultEndpoints": "nlg:\n  url: 'http://localhost:8080/project/{BF_PROJECT_ID}/nlg'\naction_endpoint:\n  url: '{ACTIONS_URL}'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://localhost:8080'\n  project_id: '{BF_PROJECT_ID}'",
+            "defaultCredentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://rasa:5005\n  socket_path: '/socket.io/'",
+            "defaultPolicies": "policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy"
+        }
+    }
+}

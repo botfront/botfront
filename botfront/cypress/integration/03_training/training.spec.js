@@ -69,7 +69,6 @@ describe('Training', function() {
         cy.deleteProject('bf');
     });
     
-
     it('Should train and serve a model containing only stories (no NLU) and adding a language should work', function() {
         createStories();
         // Train and wait for training to finish
