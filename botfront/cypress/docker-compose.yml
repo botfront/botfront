@@ -36,7 +36,7 @@ services:
       - BF_PROJECT_ID=bf
       - NODE_ENV=test
       - MONGO_URL=mongodb://mongo:27017/bf
-      - ORCHESTRATOR=docker-compose
+      - ORCHESTRATOR=gke
       - ROOT_URL=http://botfront:3000
 
   # botfront-api:
