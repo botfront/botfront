@@ -6,7 +6,7 @@ steps:
   dir: /workspace/botfront/cypress
   args:
   - --context=/workspace/botfront/cypress
-  - --destination=gcr.io/$PROJECT_ID/cypress-runner:3.4.0
+  - --destination=gcr.io/$PROJECT_ID/cypress-runner:latest
   - --cache=true
   - --cache-ttl=24h
 
