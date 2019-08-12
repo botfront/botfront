@@ -14,13 +14,6 @@ const SlotPopupContent = (props) => {
     } = props;
     const { slots } = useContext(ConversationOptionsContext);
 
-    function extractCategories(slotsData) {
-        const categories = slotsData
-            .filter(slot => slot.type === 'categorical')
-            .flatMap(slot => slot.categories);
-        return [...new Set(categories)];
-    }
-
     if (!slots.length) {
         return (
             <Popup trigger={trigger} wide on='click'>
@@ -50,11 +43,12 @@ const SlotPopupContent = (props) => {
     const slotsByCat = groupBy(slots, s => s.type);
     const cats = Object.keys(slotsByCat);
 
-    function getSlotValue(type) {
+    function getSlotValue(slot) {
+        const type = { slot };
         if (type === 'bool') return [true, false];
         if (type === 'text') return ['set', 'null'];
         if (type === 'list') return ['empty', 'not-empty'];
-        return extractCategories(slots);
+        return slot.categories;
     }
 
     return (
@@ -90,7 +84,7 @@ const SlotPopupContent = (props) => {
                                                 >
                                                     <Dropdown.Menu>
                                                         {getSlotValue(
-                                                            c,
+                                                            s,
                                                         ).map(
                                                             content => (
                                                                 <Dropdown.Item
