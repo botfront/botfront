@@ -41,6 +41,7 @@ function UtteranceInput({
             onKeyDown={e => handleKeyDown(e)}
             onBlur={e => handleOnBlur(e)}
             autoFocus
+            data-cy='utterance-input'
         />
     );
 }

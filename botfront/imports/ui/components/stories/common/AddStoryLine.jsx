@@ -31,7 +31,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         >
             { userUtterance && (
                 <UserUtterancePopupContent
-                    trigger={<DashedButton color='blue' size={size}>User</DashedButton>}
+                    trigger={<DashedButton color='blue' size={size} data-cy='add-user-line'>User</DashedButton>}
                     onCreateFromInput={onCreateUtteranceFromInput}
                     onCreateFromPayload={u => onCreateUtteranceFromPayload(u)}
                 />
@@ -43,19 +43,19 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     noButtonResponse={noButtonResponse}
                     limitedSelection
                     disableExisting
-                    trigger={<DashedButton color='green' size={size}>Bot</DashedButton>}
+                    trigger={<DashedButton color='green' size={size} data-cy='add-bot-line'>Bot</DashedButton>}
                 />
             )}
             { action && (
                 <ActionPopupContent
                     onSelect={a => onSelectAction(a)}
-                    trigger={<DashedButton color='pink' size={size}>Action</DashedButton>}
+                    trigger={<DashedButton color='pink' size={size} data-cy='add-action-line'>Action</DashedButton>}
                 />
             )}
             { slot && (
                 <SlotPopupContent
                     onSelect={s => onSelectSlot(s)}
-                    trigger={<DashedButton color='orange' size={size}>Slot</DashedButton>}
+                    trigger={<DashedButton color='orange' size={size} data-cy='add-slot-line'>Slot</DashedButton>}
                 />
             )}
         </div>

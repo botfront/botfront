@@ -62,7 +62,7 @@ const UtteranceContainer = (props) => {
                         size='mini'
                         onChange={setStateValue}
                     />
-                    <Button primary onClick={saveInput} content='Save' size='mini' />
+                    <Button primary onClick={saveInput} content='Save' size='mini' data-cy='save-new-user-input' />
                 </>
             );
         }
@@ -71,7 +71,7 @@ const UtteranceContainer = (props) => {
                 value={fetchedData || value}
                 disableEditing
                 size='mini'
-                onChange={v => onChange(v)}
+                // onChange={v => onChange(v)}
             />
         );
     };
@@ -96,7 +96,7 @@ UtteranceContainer.propTypes = {
     deletable: PropTypes.bool,
     value: PropTypes.object,
     onInput: PropTypes.func.isRequired,
-    onChange: PropTypes.func.isRequired,
+    // onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
 };
