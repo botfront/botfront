@@ -20,7 +20,7 @@ const BotResponseContainer = (props) => {
     const render = () => (
         <TextareaAutosize
             ref={focusGrabber}
-            placeholder='text field'
+            placeholder='Type a message'
             role='button'
             autoFocus={autoFocus}
             tabIndex={0}
