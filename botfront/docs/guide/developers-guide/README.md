@@ -41,5 +41,4 @@ Follow those instructions to develop Botfront while interacting with all the ser
 
 1. Create a Botfront projet with `botfront init` 
 2. Start your project with `botfront up`. When Botfront opens on `http://localhost:8888` just close it.
-3. Reset meteor from Botfront root folder with `meteor reset`.  (**this will wipe the database**)
-4. Run Botfront with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
+3. Start Botfront with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000)

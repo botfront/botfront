@@ -10,8 +10,11 @@
     "defaultCommandTimeout": 10000,
     "watchForFileChanges": false,
     "numTestsKeptInMemory": 2 ,
-    "viewportHeight": 660,
-    "viewportWidth": 1000,
-    "ignoreTestFiles": ["**/roles_nlu_settings/*.js", "**/docker-compose/*.js"]
+    "viewportHeight": 900,
+    "viewportWidth": 1800, 
+    "ignoreTestFiles":["**/training.spec.js", "**/roles_nlu_settings/*.js", "**/docker-compose/*.js"],
+    "env": {
+      "RASA_URL": "http://localhost:5005"
+    }
   }
   

@@ -2,10 +2,14 @@ images:
   default:
     botfront: botfront/botfront:v0.15.2-ee.1
     botfront-api: botfront/botfront-api:v0.15.1
-    rasa: botfront/rasa-for-botfront:v1.1.7-bf.3
+    rasa: botfront/rasa-for-botfront:v1.1.7-bf.4
     duckling: botfront/duckling:latest
     mongo: mongo:latest
     actions: botfront/actions-sdk:latest
+
+# The .env file is generated from the following section. 
+# You can add/edit environment variable here. 
+# Note that they will be upper cased in the generated .env file
 env:
   bf_project_id: bf
   mongo_url: mongodb://mongo:27017/bf

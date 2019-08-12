@@ -21,21 +21,14 @@ With Botfront you can:
 
 ## Version Control
 
-Clone the project as usual then run `git push -u origin master` to set origin as the default remote. **Don't miss this step** or you might push on the open source repo by accident.
-### Getting started
-
-Just...
+### Install
 
 ```bash
 npm install -g botfront
 ```
 
-And...
-
-```bash
-botfront
-```
-
-Then run `git remote add upstream https://github.com/botfront/botfront` to add the open source repo as another remote source.
+### Getting help
+- [Read the documentation](https://docs.botfront.io)
+- Get answers on the [Spectrum community](https://spectrum.chat/botfront)
 
 Now, everytime you want to integrate the latest changes from the open source repo, just run `git pull upstream stable`

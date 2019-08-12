@@ -1,3 +1,7 @@
+##########################################################################
+# This Dockerfile builds a Cypress image used by the docker-compose file #
+##########################################################################
+
 FROM cypress/base:10
 WORKDIR /app
 
@@ -14,11 +18,10 @@ RUN npm ci
 # running this command separately from "cypress run" will also cache its result
 # to avoid verifying again when running the tests
 RUN npx cypress verify
-RUN pwd
-RUN echo text && ls -al
-RUN mkdir /scripts
-COPY  ./wait-for-it.sh /scripts/
-RUN chmod +x /scripts/wait-for-it.sh 
-ENV WAIT_FOR_TIMEOUT=90
+
+ENV WAITFORIT_VERSION="v2.4.1"
+RUN curl -o /usr/local/bin/waitforit -sSL https://github.com/maxcnunes/waitforit/releases/download/$WAITFORIT_VERSION/waitforit-linux_amd64 && \
+    chmod +x /usr/local/bin/waitforit
+ENV WAITING_FOR_ADDRESS=http://botfront:3000
 ENTRYPOINT ["/bin/bash"]
-CMD ["-c", "/scripts/wait-for-it.sh $BOTFRONT_HOST -s -t $WAIT_FOR_TIMEOUT -- npx cypress run"]
+CMD ["-c", "waitforit -address=$WAITING_FOR_ADDRESS -status=200 -timeout=300 -retry=2000 -debug -- npx cypress run"]

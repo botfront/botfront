@@ -25,6 +25,11 @@ class ProjectSidebar extends React.Component {
                         <Menu.Header style={{ marginBottom: '20px' }}>Project</Menu.Header>
                         <ProjectsDropdown currentProjectId={projectId} onProjectChange={handleChangeProject} />
                     </Menu.Item>
+                    <Can I='stories:r' projectId={projectId}>
+                        <Link to={`/project/${projectId}/stories`}>
+                            <Menu.Item name='Stories' icon='book' />
+                        </Link>
+                    </Can>
                     <Can I='nlu-data:r' projectId={projectId}>
                         <>
                             <Link to={`/project/${projectId}/nlu/models`}>
@@ -45,11 +50,6 @@ class ProjectSidebar extends React.Component {
                     <Can I='conversations:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/dialogue/conversations/p/1`}>
                             <Menu.Item name='Conversations' icon='comments' />
-                        </Link>
-                    </Can>
-                    <Can I='stories:r' projectId={projectId}>
-                        <Link to={`/project/${projectId}/stories`}>
-                            <Menu.Item name='Stories' icon='book' />
                         </Link>
                     </Can>
                     <Can I='project-settings:r' projectId={projectId}>

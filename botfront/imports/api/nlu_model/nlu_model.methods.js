@@ -41,7 +41,6 @@ Meteor.methods({
             throw formatError(e);
         }
     },
-
     'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
         check(items, Array);
@@ -491,6 +490,7 @@ if (Meteor.isServer) {
                     // eslint-disable-next-line no-await-in-loop
                     await Meteor.callWithPromise('nlu.import', data[lang].rasa_nlu_data, modelId, true);
                 }
+
                 GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.public.chitChatProjectId': projectId } });
             } catch (e) {
                 throw formatError(e);

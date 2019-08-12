@@ -108,14 +108,15 @@ if (Meteor.isServer) {
             }
         },
 
-        'project.delete'(projectId, bypassWithCI) {
+        'project.delete'(projectId, options) {
             check(projectId, String);
-            check(bypassWithCI, Match.Optional(Boolean));
+            check(options, Match.Optional(Object));
+            const { failSilently, bypassWithCI } = options;
             checkIfCan('global-admin', null, null, { bypassWithCI });
-
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-            if (!project) throw new Meteor.Error('Project not found');
+
             try {
+                if (!project) throw new Meteor.Error('Project not found');
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
                 ActivityCollection.remove({ modelId: { $in: project.nlu_models } }); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
@@ -131,7 +132,7 @@ if (Meteor.isServer) {
                 const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
                 projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
             } catch (e) {
-                throw e;
+                if (!failSilently) throw e;
             }
         },
 
