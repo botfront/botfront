@@ -26,7 +26,7 @@ Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password =
                 if (err) {
                     return reject(err);
                 }
-                resolve();
+                return resolve();
             });
         }),
     ).then(
@@ -45,7 +45,7 @@ Cypress.Commands.add('logout', () => {
                 if (err) {
                     return reject(err);
                 }
-                resolve();
+                return resolve();
             });
         }),
     );
@@ -73,7 +73,7 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
 });
 
 Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => cy.window()
-        .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId)));
+    .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId)));
 
 Cypress.Commands.add('MeteorCall', (method, args) => {
     cy.window().then(

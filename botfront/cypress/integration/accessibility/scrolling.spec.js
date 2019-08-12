@@ -44,7 +44,7 @@ describe('Accessibility', function() {
     it('Should scroll the bot responses', function() {
         cy.viewport(1000, 660);
         cy.visit('/project/bf/dialogue/templates');
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 20; i += 1) {
             cy.createResponseFast('bf', `utter_response${i}`);
         }
         cy.wait(3000);
@@ -56,7 +56,7 @@ describe('Accessibility', function() {
         cy.get('[data-cy=left-pane]').then(($node) => {
             expect($node[0].scrollTop).to.equal(300);
         });
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 20; i += 1) {
             cy.deleteResponseFast('bf', `utter_response${i}`);
         }
     });
