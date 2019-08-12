@@ -17,7 +17,7 @@ function set_version_package_files {
 }
 
 function set_version_in_botfront_yaml {
-	search='(botfront\/botfront:v).+'
+	search='(\/botfront:v).+'
 	replace="\1${2}"
 	sed -i ".tmp" -E "s/${search}/${replace}/g" "$1"
 	rm "$1.tmp"
