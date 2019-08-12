@@ -66,7 +66,7 @@ describe('stories:w permissions', function() {
                 _id: 'DELETESTORY',
                 projectId: this.bf_project_id,
                 storyGroupId: 'TODELETE',
-                story: '* replace_with_intent',
+                story: '',
                 title: 'Test Story',
             },
         ]).then((result) => {

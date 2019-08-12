@@ -1,0 +1,73 @@
+steps:
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",  "-t", "botfront-local", "."]
+
+# - name: 'gcr.io/kaniko-project/executor:latest'
+#   dir: /workspace/botfront/cypress
+#   args:
+#   - --dockerfile=Dockerfile_cypress  
+#   - --context=/workspace/botfront/cypress
+#   - --destination=gcr.io/$PROJECT_ID/cypress-runner:latest
+#   - --cache=true
+#   - --cache-ttl=24h
+
+# - name: 'gcr.io/kaniko-project/executor:latest'
+#   dir: /workspace/botfront/cypress
+#   args:
+#   - --dockerfile=Dockerfile_rasa
+#   - --context=/workspace/botfront/cypress
+#   - --destination=gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
+#   - --cache=true
+#   - --cache-ttl=24h
+
+- name: gcr.io/$PROJECT_ID/docker-compose
+  dir: /workspace/botfront/cypress
+  args:
+    - up
+    - --abort-on-container-exit
+    - --exit-code-from
+    - e2e
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "tag", "botfront-local", "botfront/botfront:latest"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "tag", "botfront-local", "botfront/botfront:$TAG_NAME"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "login",
+        "-u", "$_DOCKER_USERNAME",
+        "-p", "$_DOCKER_PASSWORD",
+  ]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/botfront:$TAG_NAME"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/botfront:latest"]
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - kms
+  - decrypt
+  - --ciphertext-file=npmrc.enc
+  - --plaintext-file=/root/.npmrc
+  - --location=global
+  - --keyring=my-keyring
+  - --key=npm-key
+  volumes:
+  - name: 'home'
+    path: /root/
+
+- name: 'gcr.io/cloud-builders/npm'
+  args:
+    - publish
+  dir: cli
+  env:
+  - HOME=/root/
+  volumes:
+  - name: 'home'
+    path: /root/
+
+timeout: 3600s

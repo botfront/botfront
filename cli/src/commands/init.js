@@ -169,9 +169,12 @@ export async function createProject(targetDirectory, images, ci = false) {
     try {
         await copyTemplateFilesToProjectDir(projectAbsPath, images);
         await pullDockerImages(await getMissingImgs(), spinner);
-        
+        let command = 'botfront up';
+        if (projectCreatedInAnotherDir) {
+            command = `cd ${targetDirectory} && ${command}`;
+        }
         const message = `${chalk.green.bold('Your project has been created.')}\n\n` +
-                        `Run ${chalk.cyan.bold(`cd ${targetDirectory} && botfront up`)} to start it.`
+                        `Run ${chalk.cyan.bold(command)} to start it.`
 
         console.log(boxen(message, { padding: 1 }) + '\n');
         if (ci) dockerComposeUp({ verbose: false }, null, null)

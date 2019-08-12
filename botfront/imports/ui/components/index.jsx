@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { can, getScopesForUser, areScopeReady } from '../../lib/scopes';
-import { Projects } from '../../api/project/project.collection';
+import { getScopesForUser, areScopeReady } from '../../lib/scopes';
+import { can } from '../../api/roles/roles';
 
 class Index extends React.Component {
     componentDidMount() {
@@ -18,13 +18,19 @@ class Index extends React.Component {
     }
 
     roleRouting = (pId) => {
+        if (can('stories:r', pId)) {
+            return `/project/${pId}/stories`;
+        }
         if (can('nlu-data:r', pId)) {
             return `/project/${pId}/nlu/models`;
-        } if (can('responses:r', pId)) {
+        }
+        if (can('responses:r', pId)) {
             return `/project/${pId}/dialogue/templates`;
-        } if (can('conversations:r', pId)) {
+        }
+        if (can('conversations:r', pId)) {
             return `/project/${pId}/dialogue/conversations/p/1`;
-        } if (can('project-settings:r', pId)) {
+        }
+        if (can('project-settings:r', pId)) {
             return `/project/${pId}/settings`;
         }
         return ('/404');

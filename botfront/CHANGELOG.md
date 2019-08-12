@@ -2,7 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<<<<<<< HEAD
 ### [0.15.2-ee.1](https://github.com/botfront/botfront/compare/v0.15.2...v0.15.2-ee.1) (2019-07-25)
+=======
+### [0.15.5](https://github.com/botfront/botfront/compare/v0.15.4...v0.15.5) (2019-08-11)
+
+
+### Bug Fixes
+
+* should redirect to stories after setup ([9e1b7c4](https://github.com/botfront/botfront/commit/9e1b7c4))
+
+
+### Features
+
+* easier setup to develop against the docker-compose stack ([630171b](https://github.com/botfront/botfront/commit/630171b))
+* faster sidebar transition ([051448c](https://github.com/botfront/botfront/commit/051448c))
+* save current story group ([41d1f4e](https://github.com/botfront/botfront/commit/41d1f4e))
+
+
+
+### [0.15.4](https://github.com/botfront/botfront/compare/v0.15.3...v0.15.4) (2019-07-31)
+>>>>>>> v0.15.5
 
 
 ### Bug Fixes

@@ -18,6 +18,7 @@ describe('Accessibility', function() {
     });
 
     it('Should scroll into training data', function() {
+        cy.viewport(1000, 660);
         cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
         cy.contains('Chit Chat').click();
@@ -41,6 +42,7 @@ describe('Accessibility', function() {
     });
 
     it('Should scroll the bot responses', function() {
+        cy.viewport(1000, 660);
         cy.visit('/project/bf/dialogue/templates');
         for (let i = 0; i < 20; i++) {
             cy.createResponseFast('bf', `utter_response${i}`);
