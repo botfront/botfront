@@ -56,67 +56,60 @@ const SlotPopupContent = (props) => {
             <Dropdown.Menu>
                 <Dropdown.Header>Select a slot</Dropdown.Header>
                 {cats.map(c => (
-                    <>
-                        <Dropdown.Item
-                            active={activeType === c}
-                            className='dropdown'
+                    <Dropdown.Item
+                        active={activeType === c}
+                        className='dropdown'
+                        key={`slotcat-${c}`}
+                    >
+                        <Dropdown
+                            text={c}
+                            fluid
                         >
-                            <Dropdown
-                                text={c}
-                                key={`slotcat-${c}`}
-                                fluid
-                            >
-                                <Dropdown.Menu>
-                                    {slotsByCat[c].map(s => (
-                                        <>
-                                            <Dropdown.Item
-                                                active={
-                                                    activeName
-                                                    === s.name
-                                                }
-                                                className='dropdown'
-                                                key={s.name}
-                                            >
-                                                <Dropdown
-                                                    text={s.name}
-                                                    key={`slotcat-${s}`}
-                                                    fluid
-                                                >
-                                                    <Dropdown.Menu>
-                                                        {getSlotValue(
-                                                            s,
-                                                        ).map(
-                                                            content => (
-                                                                <Dropdown.Item
-                                                                    onClick={() => onSelect(
-                                                                        {
-                                                                            ...s,
-                                                                            slotValue: content,
-                                                                        },
-                                                                    )
-                                                                    }
-                                                                    active={
-                                                                        slotValue
-                                                                        === content
-                                                                    }
-                                                                    key={
-                                                                        s.slotValue
-                                                                    }
-                                                                    className='color-column'
-                                                                >
-                                                                    {content.toString()}
-                                                                </Dropdown.Item>
-                                                            ),
-                                                        )}
-                                                    </Dropdown.Menu>
-                                                </Dropdown>
-                                            </Dropdown.Item>
-                                        </>
-                                    ))}
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </Dropdown.Item>
-                    </>
+                            <Dropdown.Menu>
+                                {slotsByCat[c].map(s => (
+                                    <Dropdown.Item
+                                        active={
+                                            activeName
+                                            === s.name
+                                        }
+                                        className='dropdown'
+                                        key={`slotname-${s.name}`}
+                                    >
+                                        <Dropdown
+                                            text={s.name}
+                                            fluid
+                                        >
+                                            <Dropdown.Menu>
+                                                {getSlotValue(
+                                                    s,
+                                                ).map(
+                                                    content => (
+                                                        <Dropdown.Item
+                                                            onClick={() => onSelect(
+                                                                {
+                                                                    ...s,
+                                                                    slotValue: content,
+                                                                },
+                                                            )
+                                                            }
+                                                            active={
+                                                                slotValue
+                                                                === content
+                                                            }
+                                                            key={`slotname-${s.name}-value-${content}`}
+                                                            className='color-column'
+                                                        >
+                                                            {content.toString()}
+                                                        </Dropdown.Item>
+                                                    ),
+                                                )}
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    </Dropdown.Item>
+                                ))}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Dropdown.Item>
                 ))}
             </Dropdown.Menu>
         </Dropdown>
