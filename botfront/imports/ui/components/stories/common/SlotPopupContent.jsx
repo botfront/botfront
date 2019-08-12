@@ -54,7 +54,7 @@ const SlotPopupContent = (props) => {
     return (
         <Dropdown trigger={trigger} className='dropdown-button-trigger'>
             <Dropdown.Menu>
-                <Dropdown.Item>Select a slot</Dropdown.Item>
+                <Dropdown.Header>Select a slot</Dropdown.Header>
                 {cats.map(c => (
                     <>
                         <Dropdown.Item
