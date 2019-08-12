@@ -61,14 +61,14 @@ if (Meteor.isServer) {
                 throw e;
             }
         },
-
-        'user.remove'(userId) {
+        // eslint-disable-next-line consistent-return
+        'user.remove'(userId, { failSilently }) {
             checkIfCan('global-admin');
             check(userId, String);
             try {
                 return Meteor.users.remove({ _id: userId });
             } catch (e) {
-                throw e;
+                if (!failSilently) throw e;
             }
         },
 

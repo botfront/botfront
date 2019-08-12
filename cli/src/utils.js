@@ -124,22 +124,20 @@ export async function updateProjectFile(projectAbsPath, images) {
     });
     fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
     
-    // Rename default model
-    const templateModelFile = path.join(fixDir(projectAbsPath), 'models', DEFAULT_MODEL_FILENAME);
-    const projectModelFile = path.join(fixDir(projectAbsPath), 'models', `model-${config.env.bf_project_id}.tar.gz`)
-    if (!fs.existsSync(projectModelFile)) fs.renameSync(templateModelFile, projectModelFile);
-    
     updateEnvFile(projectAbsPath);
 }
 
 export async function updateEnvFile(projectAbsPath) {
     const config = getProjectConfig(projectAbsPath);
-    let enviFileContent = '';
+    let envFileContent = '#################################################################\n';
+    envFileContent +=    '# This file is generated.                                       #\n';
+    envFileContent +=    '# Environment variables can be changed or added in botfront.yml #\n';
+    envFileContent +=    '#################################################################\n\n';
     Object.keys(config.env).forEach(variable => {
-        enviFileContent += `${variable.toUpperCase()}=${config.env[variable]}\n`;
+        envFileContent += `${variable.toUpperCase()}=${config.env[variable]}\n`;
     });
     
-    fs.writeFileSync(getProjectEnvFilePath(projectAbsPath), enviFileContent);
+    fs.writeFileSync(getProjectEnvFilePath(projectAbsPath), envFileContent);
 }
 
 export async function generateDockerCompose(dir) {

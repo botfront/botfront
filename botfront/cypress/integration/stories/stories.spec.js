@@ -2,10 +2,13 @@
 
 const storyGroupOne = 'storyGroupOne';
 const storyGroupTwo = 'storyGroupTwo';
-const initialText = '* replace_with_intent';
 const testText = '* my_intent';
 
 describe('stories', function() {
+    before(function() {
+        cy.deleteProject('bf');
+    });
+
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
         cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
@@ -35,7 +38,6 @@ describe('stories', function() {
         clickStoryGroup(storyGroupOne);
         clickStoryGroup(storyGroupOne);
         cy.dataCy('story-title').should('have.value', storyGroupOne);
-        cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('move-story').click({ force: true });
         cy.dataCy('move-story-dropdown').click({ force: true });
         cy.dataCy('move-story-dropdown')
@@ -91,19 +93,17 @@ describe('stories', function() {
             .type('Group 2 {enter}');
         // Add a story to group 1
         clickStoryGroup('Group 1');
-        // Verify that default story is present
-        cy.dataCy('story-editor').contains(initialText);
         // Edit story content
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
-            .type('xxx', { force: true });
+            .type('* intent', { force: true });
         // Go to group 2
         clickStoryGroup('Group 2');
         // Go back to group 1
         clickStoryGroup('Group 1');
         // We should find the story content we saved...
-        cy.contains(`${initialText}xxx`).should('exist');
+        cy.contains('* intent').should('exist');
     });
 
     it('should be able to duplicate a story', function() {
@@ -113,7 +113,6 @@ describe('stories', function() {
             .find('input')
             .type(`${storyGroupOne}{enter}`);
         cy.wait(200);
-        cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('duplicate-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 2);
         cy.dataCy('delete-story')
@@ -158,7 +157,6 @@ describe('stories', function() {
             .find('input')
             .type(`${storyGroupOne}{enter}`);
         clickStoryGroup(storyGroupOne);
-        cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('story-editor')
             .get('textarea')
             .type(`{selectall}{backspace}${testText}`, { force: true });

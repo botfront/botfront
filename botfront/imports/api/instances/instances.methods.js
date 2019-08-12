@@ -270,6 +270,7 @@ if (Meteor.isServer) {
                         
                         if (gcp_models_bucket) {
                             await uploadFileToGcs(trainedModelPath, gcp_models_bucket);
+                            await client.put('/model', { remote_storage: 'gcs' });
                         }
                     }
                     const modelIds = getModelIdsFromProjectId(projectId);

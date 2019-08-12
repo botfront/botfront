@@ -1,0 +1,28 @@
+{
+  "rasa_nlu_data": {
+    "common_examples": [
+      {
+        "text": "bye",
+        "intent": "chitchat.bye",
+        "entities": []
+      },
+      {
+        "text": "goodbye",
+        "intent": "chitchat.bye",
+        "entities": []
+      },
+      {
+        "text": "hello",
+        "intent": "chitchat.greet",
+        "entities": []
+      },
+      {
+        "text": "hi",
+        "intent": "chitchat.greet",
+        "entities": []
+      }
+    ],
+    "entity_synonyms": [],
+    "fuzzy_gazette": []
+  }
+}
