@@ -104,10 +104,10 @@ if (Meteor.isServer) {
             }
         },
 
-        'project.delete'(projectId, failSilently = false) {
+        'project.delete'(projectId, options) {
             check(projectId, String);
-            check(failSilently, Match.Optional(Boolean));
-
+            check(options, Match.Optional(Object));
+            const { failSilently } = options;
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
 
             try {
