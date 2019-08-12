@@ -26,7 +26,7 @@ Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password =
                 if (err) {
                     return reject(err);
                 }
-                resolve();
+                return resolve();
             });
         }),
     ).then(
@@ -45,7 +45,7 @@ Cypress.Commands.add('logout', () => {
                 if (err) {
                     return reject(err);
                 }
-                resolve();
+                return resolve();
             });
         }),
     );
@@ -72,10 +72,8 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
     cy.get('[data-cy=model-save-button]').click();
 });
 
-Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => {
-    return cy.window()
-        .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId));
-});
+Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => cy.window()
+    .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId)));
 
 Cypress.Commands.add('MeteorCall', (method, args) => {
     cy.window().then(
@@ -192,11 +190,9 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
 });
 
-Cypress.Commands.add('deleteProject', (projectId) => {
-    return cy.visit('/')
-        .then(() => cy.window())
-        .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, true));
-});
+Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
+    .then(() => cy.window())
+    .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, { failSilently: true })));
 
 Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
 
@@ -219,4 +215,3 @@ Cypress.Commands.add(
         });
     },
 );
-
