@@ -20,7 +20,6 @@ const BotResponseContainer = (props) => {
     const render = () => (
         <TextareaAutosize
             ref={focusGrabber}
-            className='bot-response-input'
             placeholder='text field'
             role='button'
             autoFocus={autoFocus}
@@ -39,7 +38,7 @@ const BotResponseContainer = (props) => {
     );
 
     return (
-        <div className='utterance-container bot-response' agent='bot'>
+        <div className='utterance-container bot-response' agent='bot' data-cy='bot-response-input'>
             <div className='inner'>{render()}</div>
             {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
         </div>

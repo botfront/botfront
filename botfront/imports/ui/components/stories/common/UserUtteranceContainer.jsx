@@ -62,7 +62,7 @@ const UtteranceContainer = (props) => {
                         size='mini'
                         onChange={setStateValue}
                     />
-                    <Button primary onClick={saveInput} content='Save' size='mini' />
+                    <Button primary onClick={saveInput} content='Save' size='mini' data-cy='save-new-user-input' />
                 </>
             );
         }

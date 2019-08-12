@@ -18,7 +18,7 @@ function Intent({
     return (
         <Popup
             trigger={
-                <Label id='intent' color='purple' basic={value === '-'} size={size}>{value}</Label>
+                <Label id='intent' color='purple' basic={value === '-'} data-cy='intent-label' size={size}>{value}</Label>
             }
             content={
                 (

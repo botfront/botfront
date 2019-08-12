@@ -55,14 +55,14 @@ const BotResponsePopupContent = (props) => {
                             </>
                         ) : <Dropdown.Header>Use a template</Dropdown.Header>
                     }
-                    <Dropdown.Item onClick={() => onCreate('text')}>Text</Dropdown.Item>
+                    <Dropdown.Item onClick={() => onCreate('text')} data-cy='from-text-template'>Text</Dropdown.Item>
                     {!limitedSelection
                         && <>
-                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')}>Text with buttons (Quick reply)</Dropdown.Item>
-                            <Dropdown.Item onClick={() => onCreate('image')}>Image</Dropdown.Item>
-                            <Dropdown.Item onClick={() => onCreate('video')}>Video</Dropdown.Item>
-                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')}>Carousel</Dropdown.Item>
-                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('button')}>Button template</Dropdown.Item>
+                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')} data-cy='from-qr-template'>Text with buttons (Quick reply)</Dropdown.Item>
+                            <Dropdown.Item onClick={() => onCreate('image')} data-cy='from-image-template'>Image</Dropdown.Item>
+                            <Dropdown.Item onClick={() => onCreate('video')} data-cy='from-video-template'>Video</Dropdown.Item>
+                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')} data-cy='from-carousel-template'>Carousel</Dropdown.Item>
+                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('button')} data-cy='from-button-template'>Button template</Dropdown.Item>
                         </>
                     }
                 </Dropdown.Menu>

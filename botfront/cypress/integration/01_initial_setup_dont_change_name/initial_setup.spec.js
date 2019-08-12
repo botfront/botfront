@@ -3,7 +3,7 @@
 describe('intial setup', function() {
     before(function() {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
-            cy.exec('mongo bf --host localhost:27017 --eval "db.dropDatabase();"');
+            cy.exec('mongo meteor --host localhost:3001 --eval "db.dropDatabase();"');
         }
     });
 

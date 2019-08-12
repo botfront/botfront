@@ -50,8 +50,8 @@ const UserUtterancePopupContent = (props) => {
             </Modal>
             <Dropdown trigger={trigger} className='dropdown-button-trigger'>
                 <Dropdown.Menu className='first-column'>
-                    <Dropdown.Item onClick={() => setModalOpen(true)}>From payload</Dropdown.Item>
-                    <Dropdown.Item onClick={() => onCreateFromInput()}>From input</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setModalOpen(true)} data-cy='user-line-from-payload'>From payload</Dropdown.Item>
+                    <Dropdown.Item onClick={() => onCreateFromInput()} data-cy='user-line-from-input'>From input</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         </>

@@ -302,6 +302,7 @@ class Stories extends React.Component {
                                             ? ''
                                             : 'not-selected-editor'
                                     }
+                                    data-cy='toggle-md'
                                     icon
                                     basic
                                     onClick={() => {
@@ -317,6 +318,7 @@ class Stories extends React.Component {
                                             : 'not-selected-editor'
                                     }
                                     icon
+                                    data-cy='toggle-visual'
                                     basic
                                     onClick={() => {
                                         changeStoryMode('visual');
