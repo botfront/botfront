@@ -14,10 +14,10 @@ import { ConversationOptionsContext } from '../../utils/Context';
 
 export const defaultTemplate = (template) => {
     if (template === 'text') {
-        return { text: 'click to edit me' };
+        return { text: '' };
     }
     if (template === 'qr') {
-        return { text: 'click to edit me', buttons: [] };
+        return { text: '', buttons: [] };
     }
     return false;
 };

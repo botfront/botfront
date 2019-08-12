@@ -14,6 +14,9 @@ const BotResponsesContainer = (props) => {
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
     const [template, setTemplate] = useState(null);
+    const [toBeCreated, setToBeCreated] = useState(null);
+    const [focus, setFocus] = useState(null);
+
     const getSequence = () => {
         if (!template) return [];
         return template.values[0].sequence;
@@ -55,13 +58,8 @@ const BotResponsesContainer = (props) => {
 
     const handleCreateReponse = (index, responseType) => {
         const newSequence = [...getSequence()];
-        newSequence.splice(index + 1, 0, yamlDump(defaultTemplate(responseType)));
-        setSequence(newSequence);
-    };
-
-    const handleChangeResponse = (newResponse, index) => {
-        const newSequence = [...getSequence()];
-        newSequence[index] = { content: newResponse };
+        newSequence.splice(index + 1, 0, { content: yamlDump(defaultTemplate(responseType)) });
+        setFocus(index + 1);
         setSequence(newSequence);
     };
 
@@ -74,6 +72,22 @@ const BotResponsesContainer = (props) => {
         }
         setSequence(newSequence);
     };
+
+    const handleChangeResponse = (newResponse, index, enter) => {
+        if (newResponse.trim() === '') { setFocus(null); return handleDeleteResponse(index); }
+        const newSequence = [...getSequence()];
+        newSequence[index] = { content: yamlDump({ text: newResponse }) };
+        setSequence(newSequence);
+        if (enter) setToBeCreated(index);
+        return true;
+    };
+
+    useEffect(() => {
+        if (toBeCreated || toBeCreated === 0) {
+            handleCreateReponse(toBeCreated, 'text');
+            setToBeCreated(null);
+        }
+    }, [toBeCreated]);
 
     const [popupOpen, setPopupOpen] = useState(null);
 
@@ -118,7 +132,10 @@ const BotResponsesContainer = (props) => {
                     value={response.content ? yamlLoad(response.content) : { text: '' }}
                     onDelete={() => handleDeleteResponse(index)}
                     onAbort={() => {}}
-                    onChange={content => handleChangeResponse(yamlDump(content), index)}
+                    onChange={({ text, enter }) => handleChangeResponse(text, index, enter)}
+                    focus={focus === index}
+                    autoFocus={template.values[0].sequence.length === 1}
+                    onFocus={() => setFocus(index)}
                 />
                 {/* {index === 0 && deletable && sequenceArray.length > 1 && (
                     <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />

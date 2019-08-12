@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import TextareaAutosize from 'react-autosize-textarea';
 
@@ -6,23 +6,35 @@ import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable,
+        value, onDelete, onChange, deletable, focus, onFocus, autoFocus,
     } = props;
 
     const [input, setInput] = useState();
+    const focusGrabber = useRef();
 
     useEffect(() => {
         setInput(value.text);
-    }, [value]);
+        if (focus) focusGrabber.current.focus();
+    }, [value, focus]);
 
     const render = () => (
         <TextareaAutosize
+            ref={focusGrabber}
             className='bot-response-input'
+            placeholder='text field'
             role='button'
+            autoFocus={autoFocus}
             tabIndex={0}
             value={input}
             onChange={event => setInput(event.target.value)}
-            onBlur={() => onChange({ text: input })}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    onChange({ text: input, enter: true });
+                }
+            }}
+            onFocus={() => onFocus()}
+            onBlur={() => onChange({ text: input, enter: false })}
         />
     );
 
@@ -37,12 +49,17 @@ const BotResponseContainer = (props) => {
 BotResponseContainer.propTypes = {
     deletable: PropTypes.bool,
     value: PropTypes.object.isRequired,
+    focus: PropTypes.bool,
+    autoFocus: PropTypes.bool,
+    onFocus: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 
 BotResponseContainer.defaultProps = {
     deletable: true,
+    focus: false,
+    autoFocus: false,
 };
 
 export default BotResponseContainer;
