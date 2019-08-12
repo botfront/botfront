@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.4](https://github.com/botfront/botfront/compare/v0.15.5-ee.3...v0.15.5-ee.4) (2019-08-12)
+
+
+### Bug Fixes
+
+* comment onChange prop for UtteranceContainer ([91372bd](https://github.com/botfront/botfront/commit/91372bd))
+* wrong db initialization ([4988954](https://github.com/botfront/botfront/commit/4988954))
+
+
+### Features
+
+* **bot response:** new bubble on enter ([045bec2](https://github.com/botfront/botfront/commit/045bec2))
+* **bot response input:** change placeholder ([6adefbe](https://github.com/botfront/botfront/commit/6adefbe))
+* disable loading model from bucket ([fa8f4cf](https://github.com/botfront/botfront/commit/fa8f4cf))
+
+
+### Tests
+
+* first test for VisualStoryEditor ([d66a494](https://github.com/botfront/botfront/commit/d66a494))
+* fix ci for ee ([e363f6a](https://github.com/botfront/botfront/commit/e363f6a))
+
+
+
 ### [0.15.5-ee.3](https://github.com/botfront/botfront/compare/v0.15.5-ee.2...v0.15.5-ee.3) (2019-08-12)
 
 
