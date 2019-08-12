@@ -10,7 +10,9 @@ import BotResponseContainer from './BotResponseContainer';
 import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
-    const { name, onDeleteAllResponses, deletable } = props;
+    const {
+        name, onDeleteAllResponses, deletable, exceptions,
+    } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
     const [template, setTemplate] = useState(null);
@@ -147,7 +149,7 @@ const BotResponsesContainer = (props) => {
 
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
-        <div className='responses-container'>
+        <div className='responses-container' exception={exceptions.severity}>
             {renderAddLine(-1)}
             {!template && (
                 <Placeholder>
@@ -165,10 +167,12 @@ BotResponsesContainer.propTypes = {
     deletable: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onDeleteAllResponses: PropTypes.func.isRequired,
+    exceptions: PropTypes.object,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
+    exceptions: { severity: null, messages: [] },
 };
 
 export default BotResponsesContainer;

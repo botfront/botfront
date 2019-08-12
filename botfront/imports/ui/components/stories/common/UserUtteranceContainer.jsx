@@ -9,7 +9,7 @@ import UtteranceInput from '../../utils/UtteranceInput';
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, onChange, deletable,
+        value, onInput, onDelete, onAbort, onChange, deletable, exceptions,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
@@ -77,7 +77,7 @@ const UtteranceContainer = (props) => {
     };
 
     return (
-        <div className='utterance-container' mode={mode} agent='user'>
+        <div className='utterance-container' exception={exceptions.severity} mode={mode} agent='user'>
             <div className='inner'>{render()}</div>
             {deletable && (
                 <FloatingIconButton
@@ -99,11 +99,13 @@ UtteranceContainer.propTypes = {
     // onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
+    exceptions: PropTypes.object,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
     deletable: true,
+    exceptions: { severity: null, messages: [] },
 };
 
 export default UtteranceContainer;

@@ -273,6 +273,7 @@ export class StoryController {
         this.lines = [...this.lines.slice(0, i), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
         this.unsafeMd = this.md;
+        this.validateStory();
         if (this.saveUpdate) this.saveUpdate(this.md);
         else this.notifyUpdate();
     };
@@ -293,6 +294,7 @@ export class StoryController {
         this.lines = [...this.lines.slice(0, i), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
         this.unsafeMd = this.md;
+        this.validateStory();
         if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
         else this.notifyUpdate();
     };
@@ -309,7 +311,17 @@ export class StoryController {
     }
 
     getPossibleInsertions = (i) => {
-        // placeholder for future method
+        const possibleInsertions = {
+            userUtterance: true,
+            botUtterance: true,
+            action: true,
+            slot: true,
+        };
+        const [prev, next] = [this.lines[i], this.lines[i + 1]];
+        if ((prev && prev.gui.type === 'user') || (next && next.gui.type === 'user')) {
+            return { ...possibleInsertions, userUtterance: false };
+        }
+        return possibleInsertions;
     }
 
     extractDomain = () => {
