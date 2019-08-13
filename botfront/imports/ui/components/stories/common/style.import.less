@@ -91,13 +91,14 @@
     color: #212121;
     min-height: 40px;
 
-    .utterance-container.bot-response {
-        min-width: 50%;
+    .utterance-container:hover {
+        width: ~"calc(50% + 20px)";
+    }
+
+    .utterance-container {
+        width: 50%;
         color: #212121;
-        .inner {
-            width: 95%;
-            min-width: 95%;
-        }
+
         textarea {
             width: 100%;
             padding-top: 4px;
@@ -331,7 +332,6 @@ div.add-entity-wrap {
     }
     .inner {
         width: ~"calc(100% - 20px)";
-
     }
 }
 
