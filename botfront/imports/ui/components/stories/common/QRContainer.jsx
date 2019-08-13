@@ -1,61 +1,59 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import TextareaAutosize from 'react-autosize-textarea';
+import QuickReplies from './QuickReplies';
 
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 
-const BotResponseContainer = (props) => {
+const QRContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus,
+        value, onDelete, onChange, deletable,
     } = props;
 
-    const [input, setInput] = useState();
-    const focusGrabber = useRef();
+    const [input, setInput] = useState(value.text);
 
     useEffect(() => {
         setInput(value.text);
-        if (focus) focusGrabber.current.focus();
-    }, [value, focus]);
+    }, [value]);
 
-    const render = () => (
+    const renderText = () => (
         <TextareaAutosize
-            ref={focusGrabber}
             placeholder='Type a message'
             role='button'
             tabIndex={0}
             value={input}
             onChange={event => setInput(event.target.value)}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    onChange({ text: input }, true);
-                }
-            }}
-            onFocus={() => onFocus()}
             onBlur={() => onChange({ text: input }, false)}
+        />
+    );
+
+    const renderButtons = () => (
+        <QuickReplies
+            value={value.buttons}
+            onChange={(newButtons) => { onChange({ buttons: newButtons }, false); }}
         />
     );
 
     return (
         <div className='utterance-container bot-response' agent='bot' data-cy='bot-response-input'>
-            <div className='inner'>{render()}</div>
+            <div className='inner'>
+                {renderText()}
+                {renderButtons()}
+            </div>
             {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
         </div>
     );
 };
 
-BotResponseContainer.propTypes = {
+QRContainer.propTypes = {
     deletable: PropTypes.bool,
     value: PropTypes.object.isRequired,
-    focus: PropTypes.bool,
-    onFocus: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 
-BotResponseContainer.defaultProps = {
+QRContainer.defaultProps = {
     deletable: true,
-    focus: false,
 };
 
-export default BotResponseContainer;
+export default QRContainer;

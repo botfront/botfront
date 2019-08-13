@@ -87,8 +87,7 @@
     flex-direction: column;
     border: 1px solid transparent;
     border-radius: 4px;
-    padding-left: 4px;
-    margin: 0px 30px 0px 0;
+    margin: 0 30px 0 0;
     color: #212121;
     min-height: 40px;
 
@@ -264,6 +263,11 @@ div.add-entity-wrap {
 .bot-responses-modal.content button {
     cursor: pointer;
 }
+
+.utterance-container:last-child { // make up for space taken by ellipsis
+    margin-bottom: 5px;
+}
+
 .utterance-container {
     display: flex;
     min-height: 2em;
@@ -280,7 +284,7 @@ div.add-entity-wrap {
 //        white-space: pre;
         line-height: 1.2;
         width: 100%;
-        margin: auto 4px auto 0px;
+        margin: auto 4px;
 
         span {
             padding-left: 7px;
@@ -295,6 +299,14 @@ div.add-entity-wrap {
             padding-left: 0.8em;
             padding-right: 0.8em;
             margin: 6px;
+        }
+
+        .quick-replies {
+            margin-top: 6px;
+            width: 95%;
+            .last-button {
+                display: inline-block;
+            }
         }
     }
 

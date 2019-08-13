@@ -74,7 +74,6 @@ function ResponseButtonEditor({
                         <Divider />
                         {showDelete && (
                             <Button
-                                danger
                                 basic
                                 color='red'
                                 icon='trash'

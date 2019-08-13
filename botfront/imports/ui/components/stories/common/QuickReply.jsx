@@ -49,11 +49,6 @@ QuickReply.propTypes = {
     }).isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
-    open: PropTypes.func,
-};
-
-QuickReply.defaultProps = {
-    open: false,
 };
 
 export default QuickReply;

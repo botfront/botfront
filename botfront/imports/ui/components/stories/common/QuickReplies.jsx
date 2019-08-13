@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from 'semantic-ui-react';
 import './QuickReply.import.less';
@@ -18,34 +18,39 @@ function QuickReplies({
     value, onChange, min, max,
 }) {
     const [buttons, setButtons] = useState(value);
-    const propagate = () => {
-        if (buttons.every(isButtonValid)) onChange(buttons);
-    };
+
+    useEffect(() => {
+        setButtons(value);
+    }, [value]);
 
     const handleChange = (button, i) => {
-        setButtons([...buttons.slice(0, i), button, ...buttons.slice(i + 1)]);
-        propagate();
+        const newButtons = [...buttons.slice(0, i), button, ...buttons.slice(i + 1)];
+        setButtons(newButtons);
+        if (newButtons.every(isButtonValid)) onChange(newButtons);
     };
 
     const handleAdd = () => {
-        setButtons([
+        const newButtons = [
             ...buttons,
             {
                 title: '',
                 type: 'postback',
                 payload: '',
             },
-        ]);
-        propagate();
+        ];
+        setButtons(newButtons);
+        if (newButtons.every(isButtonValid)) onChange(newButtons);
     };
 
     const handleDelete = (index) => {
-        setButtons([...buttons.slice(0, index), ...buttons.slice(index + 1)]);
-        propagate();
+        const newButtons = [...buttons.slice(0, index), ...buttons.slice(index + 1)];
+        setButtons(newButtons);
+        if (newButtons.every(isButtonValid)) onChange(newButtons);
     };
 
     const quickReplies = buttons.map((b, index) => (
         <QuickReply
+            key={b.title + index}
             value={b}
             onChange={butt => handleChange(butt, index)}
             onDelete={() => handleDelete(index)}
@@ -56,17 +61,20 @@ function QuickReplies({
     ));
 
     return (
-        <>
-            {quickReplies}
-            {buttons.length < max && buttons.every(b => isButtonValid(b)) && (
-                <Icon
-                    className='add-quick-reply'
-                    name='add'
-                    color='grey'
-                    onClick={handleAdd}
-                />
-            )}
-        </>
+        <div className='quick-replies'>
+            {quickReplies.slice(0, quickReplies.length - 1)}
+            <div className='last-button'>
+                {quickReplies[quickReplies.length - 1]}
+                {buttons.length < max && buttons.every(b => isButtonValid(b)) && (
+                    <Icon
+                        className='add-quick-reply'
+                        name='add'
+                        color='grey'
+                        onClick={handleAdd}
+                    />
+                )}
+            </div>
+        </div>
     );
 }
 
@@ -77,7 +85,7 @@ QuickReplies.propTypes = {
             type: PropTypes.oneOf(['postback', 'url']),
             payload: PropTypes.string.isRequired,
         }),
-    ).isRequired,
+    ),
     onChange: PropTypes.func.isRequired,
     min: PropTypes.number,
     max: PropTypes.number,
@@ -86,6 +94,13 @@ QuickReplies.propTypes = {
 QuickReplies.defaultProps = {
     min: 1,
     max: 99,
+    value: [
+        {
+            title: '',
+            type: 'postback',
+            payload: '',
+        },
+    ],
 };
 
 export default QuickReplies;

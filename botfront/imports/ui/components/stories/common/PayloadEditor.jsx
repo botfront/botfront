@@ -104,7 +104,7 @@ const PayloadEditor = (props) => {
                             intent,
                             entities: [
                                 ...getEntitiesInRasaFormat(entities),
-                                { entity: null, value: null },
+                                { entity: '', value: '' },
                             ],
                         })
                         }

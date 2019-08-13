@@ -17,7 +17,16 @@ export const defaultTemplate = (template) => {
         return { text: '' };
     }
     if (template === 'qr') {
-        return { text: '', buttons: [] };
+        return {
+            text: '',
+            buttons: [
+                {
+                    title: '',
+                    type: 'postback',
+                    payload: '',
+                },
+            ],
+        };
     }
     return false;
 };
