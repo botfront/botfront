@@ -38,7 +38,6 @@ import UsersListContainer from '../../ui/components/admin/Users';
 import UserContainer from '../../ui/components/admin/User';
 import AdminLayout from '../../ui/layouts/admin';
 
-
 const client = new ApolloClient({
     uri: '/graphql',
     request: operation => operation.setContext(() => ({
@@ -58,7 +57,7 @@ const authenticate = role => (nextState, replace, callback) => {
                     state: { nextPathname: nextState.location.pathname },
                 });
             } else if (
-                !can('project-viewer', nextState.params.project_id)
+                !can(role || 'project-viewer', nextState.params.project_id)
                 && !can('global-admin')
             ) {
                 replace({
