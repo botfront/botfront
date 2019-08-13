@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+    useState, useEffect, useContext, useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
 
@@ -15,7 +17,9 @@ const UtteranceContainer = (props) => {
     const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
+    const [parsed, setParsed] = useState(false);
     const [fetchedData, setFetchedData] = useState(value || null);
+    const containerBody = useRef();
 
     useEffect(() => {
         setMode(!value ? 'input' : 'view');
@@ -30,16 +34,34 @@ const UtteranceContainer = (props) => {
         try {
             const { intent, entities, text } = await parseUtterance(input);
             setStateValue({ entities, text, intent: intent.name || '-' });
+            setParsed(true);
         } catch (e) {
             // eslint-disable-next-line no-console
             console.log(e);
             setStateValue({ text: input, intent: '-' });
+            setParsed(true);
         }
     };
 
     const saveInput = () => {
         onInput(stateValue);
     };
+
+    const handleClickOutside = (event) => {
+        if (
+            containerBody.current
+            && parsed
+            && !containerBody.current.contains(event.target)
+            && !event.target.className.split(' ').includes('trash')
+        ) saveInput();
+    };
+
+    useEffect(() => {
+        if (parsed) document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside); // will unmount
+        };
+    }, [parsed]);
 
     const render = () => {
         if (mode === 'input') {
@@ -77,7 +99,13 @@ const UtteranceContainer = (props) => {
     };
 
     return (
-        <div className='utterance-container' exception={exceptions.severity} mode={mode} agent='user'>
+        <div
+            className='utterance-container'
+            exception={exceptions.severity}
+            mode={mode}
+            agent='user'
+            ref={containerBody}
+        >
             <div className='inner'>{render()}</div>
             {deletable && (
                 <FloatingIconButton
