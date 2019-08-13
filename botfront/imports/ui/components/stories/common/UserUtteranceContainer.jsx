@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
-
+import { OOS_LABEL } from './constants.json';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 import { ConversationOptionsContext } from '../../utils/Context';
@@ -32,22 +32,19 @@ const UtteranceContainer = (props) => {
     const validateInput = async () => {
         try {
             const { intent, entities, text } = await parseUtterance(input);
-            setStateValue({ entities, text, intent: intent.name || '-' });
+            setStateValue({ entities, text, intent: intent.name || OOS_LABEL });
         } catch (e) {
             // eslint-disable-next-line no-console
             console.log(e);
-            setStateValue({ text: input, intent: '-' });
+            setStateValue({ text: input, intent: OOS_LABEL });
         }
     };
 
     const saveInput = () => {
-        console.log(stateValue)
-        if (stateValue.intent !== '-') onInput(stateValue);
+        if (stateValue.intent !== OOS_LABEL) onInput(stateValue);
     };
 
     const handleClickOutside = (event) => {
-        console.log(containerBody.current)
-        console.log(event.target)
         if (
             containerBody.current
             && !!stateValue
@@ -93,7 +90,7 @@ const UtteranceContainer = (props) => {
                     <Button
                         primary
                         onClick={saveInput}
-                        disabled={stateValue.intent === '-'}
+                        disabled={stateValue.intent === OOS_LABEL}
                         content='Save'
                         size='small'
                         data-cy='save-new-user-input'

@@ -5,6 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import IntentDropdown from '../nlu/common/IntentDropdown';
 import { ConversationOptionsContext } from './Context';
+import { OOS_LABEL } from '../stories/common/constants.json';
 
 function Intent({
     value,
@@ -15,14 +16,14 @@ function Intent({
 }) {
     const { intents } = useContext(ConversationOptionsContext);
     let options = intents.map(intent => ({ key: intent, text: intent, value: intent }));
-    options = value !== '-' ? options.concat([{ text: value, value }]) : options;
+    options = value !== OOS_LABEL ? options.concat([{ text: value, value }]) : options;
     return (
         <Popup
             trigger={(
                 <Label
                     id='intent'
-                    color={value !== '-' ? 'purple' : 'grey'}
-                    basic={value === '-'}
+                    color={value !== OOS_LABEL ? 'purple' : 'grey'}
+                    basic={value === OOS_LABEL}
                     data-cy='intent-label'
                     size={size}
                 >
