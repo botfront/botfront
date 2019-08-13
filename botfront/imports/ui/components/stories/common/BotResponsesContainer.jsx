@@ -76,7 +76,8 @@ const BotResponsesContainer = (props) => {
     };
 
     const handleChangeResponse = (newResponse, index, enter) => {
-        if (newResponse.trim() === '') { setFocus(null); return handleDeleteResponse(index); }
+        setFocus(null);
+        if (newResponse.trim() === '') return handleDeleteResponse(index);
         const newSequence = [...getSequence()];
         newSequence[index] = { content: yamlDump({ text: newResponse }) };
         setSequence(newSequence);
