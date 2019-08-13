@@ -23,7 +23,7 @@ export default function SlotLabel({ value, onChange, size }) {
 }
 
 SlotLabel.propTypes = {
-    value: PropTypes.string.isRequired,
+    value: PropTypes.object.isRequired,
     size: PropTypes.string,
     onChange: PropTypes.func.isRequired,
 };

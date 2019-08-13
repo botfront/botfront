@@ -118,7 +118,7 @@ const SlotPopupContent = (props) => {
 
 SlotPopupContent.propTypes = {
     projectId: PropTypes.string.isRequired,
-    value: PropTypes.string,
+    value: PropTypes.object,
     onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
 };
