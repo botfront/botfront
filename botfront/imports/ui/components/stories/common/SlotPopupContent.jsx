@@ -12,7 +12,7 @@ const SlotPopupContent = (props) => {
     const {
         value: active, onSelect, trigger, projectId,
     } = props;
-    const { slots } = useContext(ConversationOptionsContext);
+    const { slots, browseToSlots } = useContext(ConversationOptionsContext);
 
     if (!slots.length) {
         return (
@@ -22,14 +22,7 @@ const SlotPopupContent = (props) => {
                     slot!
                 </p>
                 <div>
-                    <Link
-                        to={{
-                            pathname: `/project/${projectId}/stories`,
-                            state: { activeItem: 'slots' },
-                        }}
-                    >
-                        <Button fluid color='orange' content='Go to slots' />
-                    </Link>
+                    <Button fluid color='orange' content='Go to slots' onClick={browseToSlots} />
                 </div>
             </Popup>
         );

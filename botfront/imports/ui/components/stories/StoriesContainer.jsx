@@ -162,6 +162,7 @@ function StoriesContainer(props) {
                 getUtteranceFromPayload,
                 parseUtterance,
                 addUtteranceToTrainingData,
+                browseToSlots: () => setActiveItem('slots'),
             }}
         >
             <PageMenu title='Stories' icon='book'>
