@@ -236,6 +236,16 @@
 .add-story-line {
     margin: 0.8em 0;
     outline: none;
+    opacity: 0;
+    height: 0;
+    transition: 0.1s;
+}
+
+.story-visual-editor:hover {
+    .add-story-line {
+        opacity: 1;
+        height: max-content;
+    }
 }
 
 .all-caps-header {
