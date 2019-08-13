@@ -28,7 +28,7 @@ storiesOf('Intents distrubution', module)
     // .addDecorator(withKnobs)
     // .addDecorator(renderLabel => <Label>{renderLabel()}</Label>)
     .add('with props', () => (
-        <div>
+        <div style={{ width: 500, height: 500 }}>
             <IntentsDistributionWidget
                 data={data.map(({ intent, count }) => ({
                     id: intent,

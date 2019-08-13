@@ -3,10 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 function IntentDistributionWidget(props) {
-    const {
-        data,
-        margin,
-    } = props;
+    const { data, margin } = props;
 
     return (
         <>
