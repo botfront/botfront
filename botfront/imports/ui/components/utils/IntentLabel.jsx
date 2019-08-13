@@ -13,18 +13,27 @@ function Intent({
     allowAdditions,
     onChange,
 }) {
-    let { intents } = useContext(ConversationOptionsContext);
-    intents = intents.map(intent => ({ key: intent, text: intent, value: intent }));
+    const { intents } = useContext(ConversationOptionsContext);
+    let options = intents.map(intent => ({ key: intent, text: intent, value: intent }));
+    options = value !== '-' ? options.concat([{ text: value, value }]) : options;
     return (
         <Popup
-            trigger={
-                <Label id='intent' color='purple' basic={value === '-'} data-cy='intent-label' size={size}>{value}</Label>
-            }
+            trigger={(
+                <Label
+                    id='intent'
+                    color={value !== '-' ? 'purple' : 'grey'}
+                    basic={value === '-'}
+                    data-cy='intent-label'
+                    size={size}
+                >
+                    {value}
+                </Label>
+            )}
             content={
                 (
                     <IntentDropdown
                         intent={value}
-                        options={[...intents, { text: value, value }]}
+                        options={options}
                         onChange={(e, data) => onChange(data.value)}
                         allowAdditions={allowAdditions}
                     />
@@ -33,6 +42,7 @@ function Intent({
             hoverable
             position='top right'
             disabled={!allowEditing}
+            className='intent-popup'
         />
         
     );

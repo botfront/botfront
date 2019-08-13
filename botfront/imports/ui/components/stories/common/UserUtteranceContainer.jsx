@@ -17,7 +17,6 @@ const UtteranceContainer = (props) => {
     const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
-    const [parsed, setParsed] = useState(false);
     const [fetchedData, setFetchedData] = useState(value || null);
     const containerBody = useRef();
 
@@ -34,34 +33,41 @@ const UtteranceContainer = (props) => {
         try {
             const { intent, entities, text } = await parseUtterance(input);
             setStateValue({ entities, text, intent: intent.name || '-' });
-            setParsed(true);
         } catch (e) {
             // eslint-disable-next-line no-console
             console.log(e);
             setStateValue({ text: input, intent: '-' });
-            setParsed(true);
         }
     };
 
     const saveInput = () => {
-        onInput(stateValue);
+        console.log(stateValue)
+        if (stateValue.intent !== '-') onInput(stateValue);
     };
 
     const handleClickOutside = (event) => {
+        console.log(containerBody.current)
+        console.log(event.target)
         if (
             containerBody.current
-            && parsed
+            && !!stateValue
+            && mode === 'input'
             && !containerBody.current.contains(event.target)
-            && !event.target.className.split(' ').includes('trash')
+            && !['.intent-popup', '.entity-popup'].some(
+                c => event.target.closest(c), // target has ancestor with class
+            )
         ) saveInput();
     };
 
     useEffect(() => {
-        if (parsed) document.addEventListener('mousedown', handleClickOutside);
+        if (!!stateValue && mode === 'input') {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.addEventListener('mousedown', handleClickOutside);
+        }
         return () => {
             document.removeEventListener('mousedown', handleClickOutside); // will unmount
         };
-    }, [parsed]);
+    }, [stateValue]);
 
     const render = () => {
         if (mode === 'input') {
@@ -84,7 +90,14 @@ const UtteranceContainer = (props) => {
                         size='mini'
                         onChange={setStateValue}
                     />
-                    <Button primary onClick={saveInput} content='Save' size='mini' data-cy='save-new-user-input' />
+                    <Button
+                        primary
+                        onClick={saveInput}
+                        disabled={stateValue.intent === '-'}
+                        content='Save'
+                        size='small'
+                        data-cy='save-new-user-input'
+                    />
                 </>
             );
         }

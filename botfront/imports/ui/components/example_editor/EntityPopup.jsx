@@ -163,6 +163,7 @@ class EntityPopup extends React.Component {
                     position='top center'
                     open={selection || open}
                     disabled={!hasAddEntityPermission || disabled}
+                    className='entity-popup'
                 />
             </span>
         );
