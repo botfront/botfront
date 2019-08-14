@@ -11,13 +11,13 @@ import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
     const {
-        name, onDeleteAllResponses, deletable, exceptions,
+        name, onDeleteAllResponses, deletable, exceptions, isNew, removeNewState,
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
     const [template, setTemplate] = useState(null);
     const [toBeCreated, setToBeCreated] = useState(null);
-    const [focus, setFocus] = useState(null);
+    const [focus, setFocus] = useState(isNew ? 0 : null);
 
     const getSequence = () => {
         if (!template) return [];
@@ -50,6 +50,7 @@ const BotResponsesContainer = (props) => {
     };
 
     useEffect(() => {
+        removeNewState();
         if (!/^(utter_)/.test(name)) return;
         getResponse(name, (err, res) => {
             if (!err) {
@@ -169,6 +170,8 @@ BotResponsesContainer.propTypes = {
     name: PropTypes.string.isRequired,
     onDeleteAllResponses: PropTypes.func.isRequired,
     exceptions: PropTypes.object,
+    isNew: PropTypes.bool.isRequired,
+    removeNewState: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {

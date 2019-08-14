@@ -48,7 +48,7 @@ class StoryVisualEditor extends React.Component {
         addUtteranceToTrainingData(value);
         const updatedLine = { type: 'user', data: [value] };
         story.replaceLine(index, updatedLine);
-    }
+    };
 
     handleCreateUserUtterance = (index, payload) => {
         this.setState({ lineInsertIndex: null });
@@ -83,7 +83,7 @@ class StoryVisualEditor extends React.Component {
         };
         insertResponse(newTemplate, (err) => {
             if (!err) {
-                const newLine = { type: 'bot', data: { name: key } };
+                const newLine = { type: 'bot', data: { name: key, new: true } };
                 story.insertLine(index, newLine);
             }
         });
@@ -101,12 +101,16 @@ class StoryVisualEditor extends React.Component {
 
     formatErrors = (exceptions) => {
         const messages = exceptions.map(({ message }) => (
-            <>{message.split('`').forEach((bit, idx) => (idx % 2 === 0 ? bit : <i>{bit}</i>))}</>
+            <>
+                {message
+                    .split('`')
+                    .forEach((bit, idx) => (idx % 2 === 0 ? bit : <i>{bit}</i>))}
+            </>
         ));
         if (exceptions.some(exception => exception.type === 'error')) return { severity: 'error', messages };
         if (exceptions.some(exception => exception.type === 'warning')) return { severity: 'warning', messages };
         return { severity: null, messages };
-    }
+    };
 
     renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.data.name}`}>
@@ -209,11 +213,17 @@ class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
                 return (
-                    <React.Fragment key={`bot${index + line.gui.data.name}`}>
+                    <React.Fragment key={`bot${line.gui.data.name}`}>
                         <BotResponsesContainer
                             exceptions={exceptions}
                             name={line.gui.data.name}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
+                            isNew={!!line.gui.data.new}
+                            removeNewState={() => story.replaceLine(index, {
+                                type: 'bot',
+                                data: { name: line.gui.data.name },
+                            })
+                            }
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
@@ -221,10 +231,7 @@ class StoryVisualEditor extends React.Component {
             }
             return (
                 <React.Fragment
-                    key={`user${index
-                        + (line.gui.data[0]
-                            ? line.gui.data[0].intent
-                            : shortid.generate())}`}
+                    key={`user${line.gui.data[0] ? line.gui.data[0].intent : index}`}
                 >
                     <UserUtteranceContainer
                         exceptions={exceptions}
