@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.5](https://github.com/botfront/botfront/compare/v0.15.5-ee.4...v0.15.5-ee.5) (2019-08-14)
+
+
+### Bug Fixes
+
+* focus bug with bot utterance input ([cf35888](https://github.com/botfront/botfront/commit/cf35888))
+* prop type declaration ([7ea7f27](https://github.com/botfront/botfront/commit/7ea7f27))
+
+
+### Features
+
+* **story controller:** getPossibleInsertions ([61d4f58](https://github.com/botfront/botfront/commit/61d4f58))
+* **user utterance container:** save on blur ([63a1cc5](https://github.com/botfront/botfront/commit/63a1cc5))
+* **user utterance container:** save on blur ([907443c](https://github.com/botfront/botfront/commit/907443c))
+
+
+### Tests
+
+* **visual editor:** test possible insertions ([56490f4](https://github.com/botfront/botfront/commit/56490f4))
+
+
+
 ### [0.15.5-ee.4](https://github.com/botfront/botfront/compare/v0.15.5-ee.3...v0.15.5-ee.4) (2019-08-12)
 
 
