@@ -1,12 +1,12 @@
-import { getConversationsLength } from '../analytics.conversations.length';
+import { getConversationLengths } from '../analytics.conversations.length';
 
 export default {
     Query: {
-        async conversationsLength(parent, args, context, info) {
-            return getConversationsLength(args.projectId, args.from, args.to);
+        async conversationLengths(parent, args, context, info) {
+            return getConversationLengths(args.projectId, args.from, args.to);
         },
     },
-    ConversationsLength: {
+    ConversationLengths: {
         length: (parent, args, context, info) => parent.length,
         frequency: (parent, args, context, info) => parent.frequency,
         count: (parent, args, context, info) => parent.count,

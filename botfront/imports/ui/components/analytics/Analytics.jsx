@@ -8,17 +8,17 @@ import { Query } from 'react-apollo';
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import ReactTable from 'react-table';
-import ConversationsLengthWidget from '../charts/ConversationsLengthPieWidget';
-import ConversationsLengthBarWidget from '../charts/ConversationsLengthBarsWidget';
+import ConversationLengthsWidget from '../charts/ConversationLengthsPieWidget';
+import ConversationLengthsBarWidget from '../charts/ConversationLengthsBarsWidget';
 
 function Analytics(props) {
     const { projectId } = props;
     const [errors, setErrors] = useState([]);
 
-    const renderConversationsLength = () => {
+    const renderConversationLengths = () => {
         const GET_CONVERSATIONS_LENGTH = gql`
             query EntityDistribution($projectId: String!) {
-                conversationsLength(projectId: $projectId) {
+                conversationLengths(projectId: $projectId) {
                     frequency
                     count
                     length
@@ -28,14 +28,14 @@ function Analytics(props) {
 
         return (
             <Query query={GET_CONVERSATIONS_LENGTH} variables={{ projectId }}>
-                {({ loading, error, data: { conversationsLength } }) => {
+                {({ loading, error, data: { conversationLengths } }) => {
                     if (loading) return <Loader active inline='centered' />;
                     if (error) return `Error! ${error.message}`;
                     return (
                         <>
                             <div style={{ height: 500 }}>
-                                <ConversationsLengthWidget
-                                    data={conversationsLength.map(
+                                <ConversationLengthsWidget
+                                    data={conversationLengths.map(
                                         ({ length, frequency, count }) => ({
                                             id: length,
                                             label: length,
@@ -49,8 +49,8 @@ function Analytics(props) {
                             </div>
                             <br />
                             <div style={{ height: 500 }}>
-                                <ConversationsLengthBarWidget
-                                    data={conversationsLength.map(({ length, count, frequency }) => ({
+                                <ConversationLengthsBarWidget
+                                    data={conversationLengths.map(({ length, count, frequency }) => ({
                                         count,
                                         length,
                                     }))}
@@ -66,7 +66,7 @@ function Analytics(props) {
                                 />
                             </div>
                             <ReactTable
-                                data={conversationsLength.map(i => ({
+                                data={conversationLengths.map(i => ({
                                     ...i,
                                     frequency: `${(i.frequency * 100).toFixed(2)}%`,
                                 }))}
@@ -104,7 +104,7 @@ function Analytics(props) {
     const panes = [
         {
             menuItem: 'Conversation lengths',
-            render: () => <Tab.Pane>{renderConversationsLength()}</Tab.Pane>,
+            render: () => <Tab.Pane>{renderConversationLengths()}</Tab.Pane>,
         },
         {
             menuItem: 'Conversation lengths',

@@ -3,7 +3,7 @@ import { fileLoader, mergeTypes } from 'merge-graphql-schemas';
 
 import entityDistributionResolver from './nlu/entityDistributionResolver';
 import intentDistributionResolver from './nlu/intentDistributionResolver';
-import conversationsLengthResolver from './analytics/conversationsLengthResolver';
+import conversationsLengthResolver from './analytics/conversationLengthsResolver';
 /*
 * mergeResolvers doesnt work (https://github.com/Urigo/merge-graphql-schemas/issues?utf8=%E2%9C%93&q=unexpected+token) 
 * so we need to import resolvers one by one

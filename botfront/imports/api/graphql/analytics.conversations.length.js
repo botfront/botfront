@@ -1,6 +1,6 @@
 import Conversations from './conversations.model';
 
-export const getConversationsLength = async (projectId, from = 0, to = new Date().getTime()) => Conversations.aggregate([
+export const getConversationLengths = async (projectId, from = 0, to = new Date().getTime()) => Conversations.aggregate([
     {
         $match: {
             projectId,

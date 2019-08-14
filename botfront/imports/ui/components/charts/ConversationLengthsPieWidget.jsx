@@ -2,7 +2,7 @@ import { ResponsivePie } from '@nivo/pie';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function ConversationsLengthWidget(props) {
+function ConversationLengthsWidget(props) {
     const { data, margin } = props;
 
     return (
@@ -56,11 +56,11 @@ function ConversationsLengthWidget(props) {
     );
 }
 
-ConversationsLengthWidget.propTypes = {
+ConversationLengthsWidget.propTypes = {
     data: PropTypes.object.isRequired,
 };
 
-ConversationsLengthWidget.defaultProps = {
+ConversationLengthsWidget.defaultProps = {
     margin: {
         // top: 60,
         right: 120,
@@ -69,4 +69,4 @@ ConversationsLengthWidget.defaultProps = {
     },
 };
 
-export default ConversationsLengthWidget;
+export default ConversationLengthsWidget;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import ConversationsLengthWidget from '../imports/ui/components/charts/ConversationsLengthPieWidget';
-import ConversationsLengthBarWidget from '../imports/ui/components/charts/ConversationsLengthBarsWidget';
+import ConversationsLengthWidget from '../imports/ui/components/charts/ConversationLengthsPieWidget';
+import ConversationsLengthBarWidget from '../imports/ui/components/charts/ConversationLengthsBarsWidget';
 
 const data = [
     { length: 1, frequency: 0.5412474849094567, count: 269 },

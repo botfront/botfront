@@ -2,7 +2,7 @@ import { ResponsiveBar } from '@nivo/bar';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function ConversationsLengthBarWidget(props) {
+function ConversationLengthsBarWidget(props) {
     const { data, keys, margin } = props;
 
     return (
@@ -102,11 +102,11 @@ function ConversationsLengthBarWidget(props) {
     );
 }
 
-ConversationsLengthBarWidget.propTypes = {
+ConversationLengthsBarWidget.propTypes = {
     data: PropTypes.object.isRequired,
 };
 
-ConversationsLengthBarWidget.defaultProps = {
+ConversationLengthsBarWidget.defaultProps = {
     margin: {
         // top: 60,
         right: 120,
@@ -115,4 +115,4 @@ ConversationsLengthBarWidget.defaultProps = {
     },
 };
 
-export default ConversationsLengthBarWidget;
+export default ConversationLengthsBarWidget;
