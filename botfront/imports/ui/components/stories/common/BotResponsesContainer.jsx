@@ -36,18 +36,7 @@ const BotResponsesContainer = (props) => {
             ],
         };
         setTemplate(newTemplate);
-        const templateToUpload = {
-            ...template,
-            values: [
-                {
-                    ...template.values[0],
-                    sequence: newTemplate.values[0].sequence.filter(
-                        response => yamlLoad(response.content).text,
-                    ),
-                },
-            ],
-        };
-        updateResponse(templateToUpload);
+        updateResponse(newTemplate);
     };
 
     useEffect(() => {
@@ -160,7 +149,7 @@ const BotResponsesContainer = (props) => {
     );
 
     const renderResponse = (response, index, sequenceArray) => {
-        const content = response.content ? yamlLoad(response.content) : { text: '' };
+        const content = yamlLoad(response.content);
         return (
             <React.Fragment key={index}>
                 <div className='flex-right'>
