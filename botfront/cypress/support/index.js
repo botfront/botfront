@@ -25,7 +25,7 @@ Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password =
                 if (err) {
                     return reject(err);
                 }
-                resolve();
+                return resolve();
             });
         }),
     ).then(
@@ -44,7 +44,7 @@ Cypress.Commands.add('logout', () => {
                 if (err) {
                     return reject(err);
                 }
-                resolve();
+                return resolve();
             });
         }),
     );
@@ -95,23 +95,8 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
     cy.get('[data-cy=model-save-button]').click();
 });
 
-Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, description, instance) => {
-    cy.createNLUModel(projectId, name, language, description, instance);
-    cy.fixture('bf_project_id.txt').then((id) => {
-        cy.visit(`/project/${id}/nlu/models`);
-    });
-    cy.contains('French').click();
-    cy.get(':nth-child(1) > .extra > .basic > .primary').click();
-    cy.get('.nlu-menu-settings').click();
-    cy.contains('Import').click();
-    cy.fixture('nlu_import.json', 'utf8').then((content) => {
-        cy.get('.file-dropzone').upload(content, 'data.json');
-    });
-});
-Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => {
-    return cy.window()
-        .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId));
-});
+Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => cy.window()
+    .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId)));
 
 Cypress.Commands.add('MeteorCall', (method, args) => {
     cy.window().then(
