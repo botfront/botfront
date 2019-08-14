@@ -16,7 +16,7 @@ describe('story visual editor', function() {
         cy.deleteProject('bf');
     });
 
-    it('should be able to create a basic story visually', function() {
+    it('should persist user utterance, bot responses, and display add-user-line option appropriately', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
@@ -35,7 +35,7 @@ describe('story visual editor', function() {
             .type('myTestIntent{enter}');
         cy.dataCy('save-new-user-input').click({ force: true });
 
-        // new user utterance box should not exist
+        cy.dataCy('add-user-line').should('not.exist');
 
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-text-template').click({ force: true });
@@ -44,7 +44,7 @@ describe('story visual editor', function() {
             .clear()
             .type('I do too.{enter}');
 
-        // new user utterance box should exist
+        cy.dataCy('add-user-line').should('exist');
 
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-editor')

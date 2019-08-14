@@ -5,6 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import IntentDropdown from '../nlu/common/IntentDropdown';
 import { ConversationOptionsContext } from './Context';
+import { OOS_LABEL } from '../stories/common/constants.json';
 
 function Intent({
     value,
@@ -13,18 +14,27 @@ function Intent({
     allowAdditions,
     onChange,
 }) {
-    let { intents } = useContext(ConversationOptionsContext);
-    intents = intents.map(intent => ({ key: intent, text: intent, value: intent }));
+    const { intents } = useContext(ConversationOptionsContext);
+    let options = intents.map(intent => ({ key: intent, text: intent, value: intent }));
+    options = value !== OOS_LABEL ? options.concat([{ text: value, value }]) : options;
     return (
         <Popup
-            trigger={
-                <Label id='intent' color='purple' basic={value === '-'} data-cy='intent-label' size={size}>{value}</Label>
-            }
+            trigger={(
+                <Label
+                    id='intent'
+                    color={value !== OOS_LABEL ? 'purple' : 'grey'}
+                    basic={value === OOS_LABEL}
+                    data-cy='intent-label'
+                    size={size}
+                >
+                    {value}
+                </Label>
+            )}
             content={
                 (
                     <IntentDropdown
                         intent={value}
-                        options={[...intents, { text: value, value }]}
+                        options={options}
                         onChange={(e, data) => onChange(data.value)}
                         allowAdditions={allowAdditions}
                     />
@@ -33,6 +43,7 @@ function Intent({
             hoverable
             position='top right'
             disabled={!allowEditing}
+            className='intent-popup'
         />
         
     );

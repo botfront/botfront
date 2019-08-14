@@ -10,12 +10,14 @@ import BotResponseContainer from './BotResponseContainer';
 import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
-    const { name, onDeleteAllResponses, deletable } = props;
+    const {
+        name, onDeleteAllResponses, deletable, exceptions, isNew, removeNewState,
+    } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
     const [template, setTemplate] = useState(null);
     const [toBeCreated, setToBeCreated] = useState(null);
-    const [focus, setFocus] = useState(null);
+    const [focus, setFocus] = useState(isNew ? 0 : null);
 
     const getSequence = () => {
         if (!template) return [];
@@ -48,6 +50,7 @@ const BotResponsesContainer = (props) => {
     };
 
     useEffect(() => {
+        removeNewState();
         if (!/^(utter_)/.test(name)) return;
         getResponse(name, (err, res) => {
             if (!err) {
@@ -74,7 +77,8 @@ const BotResponsesContainer = (props) => {
     };
 
     const handleChangeResponse = (newResponse, index, enter) => {
-        if (newResponse.trim() === '') { setFocus(null); return handleDeleteResponse(index); }
+        setFocus(null);
+        if (newResponse.trim() === '') return handleDeleteResponse(index);
         const newSequence = [...getSequence()];
         newSequence[index] = { content: yamlDump({ text: newResponse }) };
         setSequence(newSequence);
@@ -147,7 +151,7 @@ const BotResponsesContainer = (props) => {
 
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
-        <div className='responses-container'>
+        <div className='responses-container' exception={exceptions.severity}>
             {renderAddLine(-1)}
             {!template && (
                 <Placeholder>
@@ -165,10 +169,14 @@ BotResponsesContainer.propTypes = {
     deletable: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onDeleteAllResponses: PropTypes.func.isRequired,
+    exceptions: PropTypes.object,
+    isNew: PropTypes.bool.isRequired,
+    removeNewState: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
+    exceptions: { severity: null, messages: [] },
 };
 
 export default BotResponsesContainer;

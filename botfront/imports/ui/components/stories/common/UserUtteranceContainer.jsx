@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+    useState, useEffect, useContext, useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
-
+import { OOS_LABEL } from './constants.json';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 import { ConversationOptionsContext } from '../../utils/Context';
@@ -9,13 +11,14 @@ import UtteranceInput from '../../utils/UtteranceInput';
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, onChange, deletable,
+        value, onInput, onDelete, onAbort, onChange, deletable, exceptions,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
     const [fetchedData, setFetchedData] = useState(value || null);
+    const containerBody = useRef();
 
     useEffect(() => {
         setMode(!value ? 'input' : 'view');
@@ -29,17 +32,39 @@ const UtteranceContainer = (props) => {
     const validateInput = async () => {
         try {
             const { intent, entities, text } = await parseUtterance(input);
-            setStateValue({ entities, text, intent: intent.name || '-' });
+            setStateValue({ entities, text, intent: intent.name || OOS_LABEL });
         } catch (e) {
             // eslint-disable-next-line no-console
             console.log(e);
-            setStateValue({ text: input, intent: '-' });
+            setStateValue({ text: input, intent: OOS_LABEL });
         }
     };
 
     const saveInput = () => {
-        onInput(stateValue);
+        if (stateValue.intent !== OOS_LABEL) onInput(stateValue);
     };
+
+    const handleClickOutside = (event) => {
+        if (
+            containerBody.current
+            && !!stateValue
+            && mode === 'input'
+            && !containerBody.current.contains(event.target)
+            && !['.intent-popup', '.entity-popup'].some(
+                c => event.target.closest(c), // target has ancestor with class
+            )
+        ) saveInput();
+    };
+
+    useEffect(() => {
+        if (!!stateValue && mode === 'input') {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside); // will unmount
+        };
+    }, [stateValue]);
 
     const render = () => {
         if (mode === 'input') {
@@ -62,7 +87,14 @@ const UtteranceContainer = (props) => {
                         size='mini'
                         onChange={setStateValue}
                     />
-                    <Button primary onClick={saveInput} content='Save' size='mini' data-cy='save-new-user-input' />
+                    <Button
+                        primary
+                        onClick={saveInput}
+                        disabled={stateValue.intent === OOS_LABEL}
+                        content='Save'
+                        size='small'
+                        data-cy='save-new-user-input'
+                    />
                 </>
             );
         }
@@ -77,7 +109,13 @@ const UtteranceContainer = (props) => {
     };
 
     return (
-        <div className='utterance-container' mode={mode} agent='user'>
+        <div
+            className='utterance-container'
+            exception={exceptions.severity}
+            mode={mode}
+            agent='user'
+            ref={containerBody}
+        >
             <div className='inner'>{render()}</div>
             {deletable && (
                 <FloatingIconButton
@@ -99,11 +137,13 @@ UtteranceContainer.propTypes = {
     // onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
+    exceptions: PropTypes.object,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
     deletable: true,
+    exceptions: { severity: null, messages: [] },
 };
 
 export default UtteranceContainer;

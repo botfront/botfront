@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { safeDump } from 'js-yaml';
-
+import { OOS_LABEL } from './constants.json';
 import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
@@ -48,7 +48,7 @@ class StoryVisualEditor extends React.Component {
         addUtteranceToTrainingData(value);
         const updatedLine = { type: 'user', data: [value] };
         story.replaceLine(index, updatedLine);
-    }
+    };
 
     handleCreateUserUtterance = (index, payload) => {
         this.setState({ lineInsertIndex: null });
@@ -83,7 +83,7 @@ class StoryVisualEditor extends React.Component {
         };
         insertResponse(newTemplate, (err) => {
             if (!err) {
-                const newLine = { type: 'bot', data: { name: key } };
+                const newLine = { type: 'bot', data: { name: key, new: true } };
                 story.insertLine(index, newLine);
             }
         });
@@ -93,62 +93,62 @@ class StoryVisualEditor extends React.Component {
         const { parseUtterance: rasaParse } = this.props;
         try {
             const { intent, entities, text } = await rasaParse(utterance);
-            return { intent: intent.name || '-', entities, text };
+            return { intent: intent.name || OOS_LABEL, entities, text };
         } catch (err) {
-            return { text: utterance, intent: '-' };
+            return { text: utterance, intent: OOS_LABEL };
         }
     };
 
-    renderActionLine = (i, l, deletable = true) => (
+    formatErrors = (exceptions) => {
+        const messages = exceptions.map(({ message }) => (
+            <>
+                {message
+                    .split('`')
+                    .forEach((bit, idx) => (idx % 2 === 0 ? bit : <i>{bit}</i>))}
+            </>
+        ));
+        if (exceptions.some(exception => exception.type === 'error')) return { severity: 'error', messages };
+        if (exceptions.some(exception => exception.type === 'warning')) return { severity: 'warning', messages };
+        return { severity: null, messages };
+    };
+
+    renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.data.name}`}>
-            <div className='utterance-container' agent='na'>
+            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
                 <ActionLabel
                     value={l.data.name}
                     onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
                     }
                 />
-                {deletable && (
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => this.handleDeleteLine(i)}
-                    />
-                )}
+                <FloatingIconButton
+                    icon='trash'
+                    onClick={() => this.handleDeleteLine(i)}
+                />
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
 
-    renderSlotLine = (i, l, deletable = true) => (
+    renderSlotLine = (i, l, exceptions) => (
         <React.Fragment key={`slot${i + l.data.name}`}>
-            <div className='utterance-container' agent='na'>
+            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
                 <SlotLabel
                     value={l.data}
                     onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
                 />
-                {deletable && (
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => this.handleDeleteLine(i)}
-                    />
-                )}
+                <FloatingIconButton
+                    icon='trash'
+                    onClick={() => this.handleDeleteLine(i)}
+                />
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
 
-    // eslint-disable-next-line no-unused-vars
-    newLineOptions = storyLine => ({
-        // userUtterance: storyLine && storyLine.gui.type !== 'user',
-        userUtterance: true,
-        botUtterance: true,
-        action: true,
-        slot: true,
-    });
-
     renderAddLine = (index) => {
         const { lineInsertIndex } = this.state;
         const { story } = this.props;
-        const options = this.newLineOptions(story.lines[index]);
+        const options = story.getPossibleInsertions(index);
 
         if (!Object.keys(options).length) return null;
         if (
@@ -206,15 +206,24 @@ class StoryVisualEditor extends React.Component {
         const { story } = this.props;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
-            if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, true);
-            if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, true);
+            const exceptions = this.formatErrors(
+                story.exceptions.filter(exception => exception.line === index + 1),
+            );
+            if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
+            if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
                 return (
-                    <React.Fragment key={`bot${index + line.gui.data.name}`}>
+                    <React.Fragment key={`bot${line.gui.data.name}`}>
                         <BotResponsesContainer
+                            exceptions={exceptions}
                             name={line.gui.data.name}
-                            deletable
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
+                            isNew={!!line.gui.data.new}
+                            removeNewState={() => story.replaceLine(index, {
+                                type: 'bot',
+                                data: { name: line.gui.data.name },
+                            })
+                            }
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
@@ -222,13 +231,10 @@ class StoryVisualEditor extends React.Component {
             }
             return (
                 <React.Fragment
-                    key={`user${index
-                        + (line.gui.data[0]
-                            ? line.gui.data[0].intent
-                            : shortid.generate())}`}
+                    key={`user${line.gui.data[0] ? line.gui.data[0].intent : index}`}
                 >
                     <UserUtteranceContainer
-                        deletable
+                        exceptions={exceptions}
                         value={line.gui.data[0]} // for now, data is a singleton
                         onInput={v => this.handleSaveUserUtterance(index, v)}
                         onDelete={() => this.handleDeleteLine(index)}

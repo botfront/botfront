@@ -6,7 +6,7 @@ import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, autoFocus,
+        value, onDelete, onChange, deletable, focus, onFocus,
     } = props;
 
     const [input, setInput] = useState();
@@ -22,7 +22,6 @@ const BotResponseContainer = (props) => {
             ref={focusGrabber}
             placeholder='Type a message'
             role='button'
-            autoFocus={autoFocus}
             tabIndex={0}
             value={input}
             onChange={event => setInput(event.target.value)}
@@ -49,7 +48,6 @@ BotResponseContainer.propTypes = {
     deletable: PropTypes.bool,
     value: PropTypes.object.isRequired,
     focus: PropTypes.bool,
-    autoFocus: PropTypes.bool,
     onFocus: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
@@ -58,7 +56,6 @@ BotResponseContainer.propTypes = {
 BotResponseContainer.defaultProps = {
     deletable: true,
     focus: false,
-    autoFocus: false,
 };
 
 export default BotResponseContainer;
