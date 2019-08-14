@@ -10,7 +10,9 @@ import {
 } from '../../../../lib/story_validation';
 
 function ResponseButtonEditor({
-    value: { title, type, payload },
+    value: {
+        title, type, payload, url, // eslint-disable-line camelcase
+    },
     onChange,
     onDelete,
     onClose,
@@ -19,7 +21,7 @@ function ResponseButtonEditor({
 }) {
     const options = [
         { text: 'Postback', value: 'postback' },
-        { text: 'Web URL', value: 'url' },
+        { text: 'Web URL', value: 'web_url' },
     ];
     return (
         <Form className='response-button-editor'>
@@ -30,16 +32,24 @@ function ResponseButtonEditor({
                             label='Button title'
                             autoFocus
                             placeholder='Button title'
-                            onChange={(event, { value }) => onChange({ title: value, type, payload })
-                            }
+                            onChange={(event, { value }) => {
+                                const updatedVal = { title: value, type };
+                                if (type === 'web_url') updatedVal.url = url;
+                                else updatedVal.payload = payload;
+                                onChange(updatedVal);
+                            }}
                             value={title}
                         />
                     </Grid.Column>
                     <Grid.Column width={4}>
                         <Form.Select
                             label='Button type'
-                            onChange={(event, { value }) => onChange({ title, type: value, payload: '' })
-                            }
+                            onChange={(event, { value }) => {
+                                const updatedVal = { title, type: value };
+                                if (value === 'web_url') updatedVal.url = '';
+                                else updatedVal.payload = '';
+                                onChange(updatedVal);
+                            }}
                             value={type}
                             options={options}
                         />
@@ -47,12 +57,12 @@ function ResponseButtonEditor({
                 </Grid.Row>
                 <Grid.Row columns={16}>
                     <Grid.Column width={16}>
-                        {type === 'url' && (
+                        {type === 'web_url' && (
                             <Form.Input
                                 label='URL'
                                 placeholder='http://'
                                 value={payload}
-                                onChange={(event, { value }) => onChange({ title, type, payload: value })
+                                onChange={(event, { value }) => onChange({ title, type, url: value })
                                 }
                             />
                         )}
@@ -98,11 +108,7 @@ function ResponseButtonEditor({
 }
 
 ResponseButtonEditor.propTypes = {
-    value: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        type: PropTypes.oneOf(['postback', 'url']),
-        payload: PropTypes.string.isRequired,
-    }).isRequired,
+    value: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,

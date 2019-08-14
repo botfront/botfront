@@ -5,11 +5,13 @@ import { Popup } from 'semantic-ui-react';
 import ResponseButtonEditor from './ResponseButtonEditor';
 import { stringPayloadToObject } from '../../../../lib/story_validation';
 
-export const isButtonValid = ({ title, type, payload }) => {
+export const isButtonValid = ({
+    title, type, payload, url, // eslint-disable-line camelcase
+}) => {
     const titleOk = title.length > 0;
     const payloadOk = type === 'postback'
         ? stringPayloadToObject(payload).intent.length > 0
-        : /^https?:\/\//.test(payload);
+        : /^https?:\/\//.test(url);
         
     return titleOk && payloadOk;
 };
@@ -60,11 +62,7 @@ function QuickReply({
 }
 
 QuickReply.propTypes = {
-    value: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        type: PropTypes.oneOf(['postback', 'url']),
-        payload: PropTypes.string.isRequired,
-    }).isRequired,
+    value: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };

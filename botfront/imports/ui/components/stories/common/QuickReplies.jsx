@@ -67,13 +67,7 @@ function QuickReplies({
 }
 
 QuickReplies.propTypes = {
-    value: PropTypes.arrayOf(
-        PropTypes.shape({
-            title: PropTypes.string.isRequired,
-            type: PropTypes.oneOf(['postback', 'url']),
-            payload: PropTypes.string.isRequired,
-        }),
-    ),
+    value: PropTypes.arrayOf(PropTypes.object),
     onChange: PropTypes.func.isRequired,
     min: PropTypes.number,
     max: PropTypes.number,
