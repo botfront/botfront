@@ -56,6 +56,7 @@ function QuickReplies({
                 {buttons.length < max && buttons.every(b => isButtonValid(b)) && (
                     <Icon
                         className='add-quick-reply'
+                        data-cy='add-quick-reply'
                         name='add'
                         color='grey'
                         onClick={handleAdd}

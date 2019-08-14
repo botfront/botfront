@@ -30,6 +30,7 @@ function ResponseButtonEditor({
                     <Grid.Column width={12}>
                         <Form.Input
                             label='Button title'
+                            data-cy='enter-button-title'
                             autoFocus
                             placeholder='Button title'
                             onChange={(event, { value }) => {
@@ -52,6 +53,7 @@ function ResponseButtonEditor({
                             }}
                             value={type}
                             options={options}
+                            data-cy='select-button-type'
                         />
                     </Grid.Column>
                 </Grid.Row>
@@ -62,8 +64,8 @@ function ResponseButtonEditor({
                                 label='URL'
                                 placeholder='http://'
                                 value={payload}
-                                onChange={(event, { value }) => onChange({ title, type, url: value })
-                                }
+                                onChange={(event, { value }) => onChange({ title, type, url: value })}
+                                data-cy='enter_url'
                             />
                         )}
                         {type === 'postback' && (
@@ -95,6 +97,7 @@ function ResponseButtonEditor({
                         <Button
                             primary
                             content='Save'
+                            data-cy='save-button'
                             disabled={!valid}
                             size='mini'
                             onClick={onClose}
