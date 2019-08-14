@@ -6,6 +6,13 @@
     padding-left: 30px;
     min-height: 80px;
 
+    &:hover {
+        .add-story-line {
+            opacity: 1;
+            height: max-content;
+        }
+    }
+
     .item {
         overflow: visible;
     }
@@ -91,13 +98,13 @@
     color: #212121;
     min-height: 40px;
 
-    .utterance-container:hover {
-        width: ~"calc(50% + 20px)";
-    }
-
     .utterance-container {
         width: 50%;
         color: #212121;
+
+        &:hover {
+            width: ~"calc(50% + 20px)";
+        }
 
         textarea {
             width: 100%;
@@ -149,26 +156,34 @@
         bottom: 1px;
         right: 5px;
     }
-}
 
-.responses-container:hover {
-   border: 1px solid rgba(0, 0, 0, 0.1);
-
-   .viewOnHover {
-       opacity: 0.8;
-       visibility: visible;
-   }
-   
-   .floating-icon-button {
-       outline: none;
-   }
-
-   .flex-right > .floating-icon-button > .viewOnHover {
-        opacity: 0.5;
-    }
-    .response-name {
-        visibility: visible;
-        opacity: 0.5;
+    &:hover {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+     
+        .viewOnHover {
+            opacity: 0.8;
+            visibility: visible;
+        }
+        
+        .floating-icon-button {
+            outline: none;
+        }
+     
+        .flex-right > .floating-icon-button > .viewOnHover {
+             opacity: 0.5;
+         }
+        .response-name {
+             visibility: visible;
+             opacity: 0.5;
+        }
+    
+        .floating-icon-button.ellipsis.horizontal { // show all ellipses on hover responses-container
+            height: 20px;
+            .viewOnHover.ellipsis {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
     }
 }
 
@@ -205,9 +220,11 @@
     }
 }
 
-.hoverTarget:hover {
-    .viewOnHover {
-        visibility: visible;
+.hoverTarget {
+    &:hover {
+        .viewOnHover {
+            visibility: visible;
+        }
     }
 }
 
@@ -239,13 +256,6 @@
     opacity: 0;
     height: 0;
     transition: 0.1s;
-}
-
-.story-visual-editor:hover {
-    .add-story-line {
-        opacity: 1;
-        height: max-content;
-    }
 }
 
 .all-caps-header {
@@ -329,34 +339,32 @@ div.add-entity-wrap {
         width: 0;
         opacity: 0;
     }
-}
 
-.utterance-container:hover {
-    max-width: ~"calc(80% + 20px)";
-    .viewOnHover {
-        visibility: visible;
+    &:hover {
+        max-width: ~"calc(80% + 20px)";
+        .viewOnHover {
+            visibility: visible;
+        }
+        .floating-icon-button {
+            width: 16px;
+            opacity: 1;
+        }
+        .inner {
+            width: ~"calc(100% - 20px)";
+        }
     }
-    .floating-icon-button {
-        width: 16px;
-        opacity: 1;
+
+    &:not([agent="user"]) {
+        margin-left: 16px;
+        background: rgba(0, 0, 0, 0.04);
     }
-    .inner {
-        width: ~"calc(100% - 20px)";
+    &[agent="na"] {
+        background: none;
     }
-}
-
-.utterance-container:not([agent="user"]) {
-    margin-left: 16px;
-    background: rgba(0, 0, 0, 0.04);
-}
-
-.utterance-container[agent="na"] {
-    background: none;
-}
-
-.utterance-container[agent="user"] {
-    margin-left: 0;
-    background: rgba(0, 0, 0, 0.08);
+    &[agent="user"] {
+        margin-left: 0;
+        background: rgba(0, 0, 0, 0.08);
+    }
 }
 
 .createcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
