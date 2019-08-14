@@ -27,7 +27,7 @@ function QuickReply({
             type='button'
             className={`quick-reply ${valid ? '' : 'invalid'}`}
         >
-            {value.title || 'Button title'}
+            {buttonValue.title || 'Button title'}
         </button>
     );
 

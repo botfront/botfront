@@ -1,22 +1,33 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
     Dropdown, Button, Popup,
 } from 'semantic-ui-react';
-import { Link } from 'react-router';
 import { groupBy } from 'lodash';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 const SlotPopupContent = (props) => {
     const {
-        value: active, onSelect, trigger, projectId,
+        value: active, onSelect, trigger, trackOpenMenu,
     } = props;
     const { slots, browseToSlots } = useContext(ConversationOptionsContext);
+    const [popupOpen, setPopupOpen] = useState();
+    const [menuOpen, setMenuOpen] = useState();
 
     if (!slots.length) {
         return (
-            <Popup trigger={trigger} wide on='click'>
+            <Popup
+                trigger={trigger}
+                wide
+                on='click'
+                open={popupOpen}
+                onOpen={() => {
+                    setPopupOpen(true);
+                    trackOpenMenu(() => setPopupOpen(false));
+                }}
+                onClose={() => setPopupOpen(false)}
+            >
                 <p>
                     Go to the <strong>Slot</strong> tab to create your first
                     slot!
@@ -45,7 +56,16 @@ const SlotPopupContent = (props) => {
     }
 
     return (
-        <Dropdown trigger={trigger} className='dropdown-button-trigger'>
+        <Dropdown
+            trigger={trigger}
+            className='dropdown-button-trigger'
+            open={menuOpen}
+            onOpen={() => {
+                setMenuOpen(true);
+                trackOpenMenu(() => setMenuOpen(false));
+            }}
+            onClose={() => setPopupOpen(false)}
+        >
             <Dropdown.Menu>
                 <Dropdown.Header>Select a slot</Dropdown.Header>
                 {cats.map(c => (
@@ -110,15 +130,16 @@ const SlotPopupContent = (props) => {
 };
 
 SlotPopupContent.propTypes = {
-    projectId: PropTypes.string.isRequired,
     value: PropTypes.object,
     onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
+    trackOpenMenu: PropTypes.func,
 };
 
 SlotPopupContent.defaultProps = {
     value: null,
     onSelect: () => {},
+    trackOpenMenu: () => {},
 };
 
 const mapStateToProps = state => ({

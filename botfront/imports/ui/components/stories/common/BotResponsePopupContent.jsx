@@ -6,10 +6,11 @@ import {
 
 const BotResponsePopupContent = (props) => {
     const {
-        onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose, disableExisting,
+        onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose, disableExisting, trackOpenMenu,
     } = props;
     const [modalOpen, setModalOpen] = useState(false);
     const [closeNext, setCloseNext] = useState(false);
+    const [menuOpen, setMenuOpen] = useState();
 
     useEffect(() => {
         if (closeNext && !modalOpen) onClose();
@@ -40,7 +41,15 @@ const BotResponsePopupContent = (props) => {
                 trigger={trigger}
                 className='dropdown-button-trigger'
                 defaultOpen={defaultOpen}
-                onClose={() => setCloseNext(true)}
+                open={menuOpen}
+                onOpen={() => {
+                    setMenuOpen(true);
+                    trackOpenMenu(() => setMenuOpen(false));
+                }}
+                onClose={() => {
+                    setMenuOpen(false);
+                    setCloseNext(true);
+                }}
             >
                 <Dropdown.Menu className='first-column'>
                     { !disableExisting
@@ -81,6 +90,7 @@ BotResponsePopupContent.propTypes = {
     defaultOpen: PropTypes.bool,
     onClose: PropTypes.func,
     disableExisting: PropTypes.bool,
+    trackOpenMenu: PropTypes.func,
 };
 
 BotResponsePopupContent.defaultProps = {
@@ -92,6 +102,7 @@ BotResponsePopupContent.defaultProps = {
     onSelect: () => {},
     onCreate: () => {},
     onClose: () => {},
+    trackOpenMenu: () => {},
 };
 
 export default BotResponsePopupContent;

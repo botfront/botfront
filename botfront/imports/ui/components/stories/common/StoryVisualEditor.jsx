@@ -33,6 +33,7 @@ export const defaultTemplate = (template) => {
 class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
+        menuCloser: () => {},
     };
 
     addStoryCursor = React.createRef();
@@ -46,6 +47,8 @@ class StoryVisualEditor extends React.Component {
             this.addStoryCursor.current.focus();
         }
     }
+
+    trackOpenMenu = func => this.setState({ menuCloser: func });
 
     handleDeleteLine = (index) => {
         const { story } = this.props;
@@ -169,6 +172,7 @@ class StoryVisualEditor extends React.Component {
             return (
                 <AddStoryLine
                     ref={this.addStoryCursor}
+                    trackOpenMenu={this.trackOpenMenu}
                     availableActions={options}
                     onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)
                     }
@@ -213,6 +217,7 @@ class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
+        const { menuCloser } = this.state;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = this.formatErrors(
@@ -255,7 +260,10 @@ class StoryVisualEditor extends React.Component {
         });
 
         return (
-            <div className='story-visual-editor'>
+            <div
+                className='story-visual-editor'
+                onMouseLeave={menuCloser}
+            >
                 {this.renderAddLine(-1)}
                 {lines}
             </div>
