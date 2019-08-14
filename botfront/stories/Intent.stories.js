@@ -27,8 +27,8 @@ storiesOf('Intent', module)
                     ['mini', 'tiny'],
                     'mini',
                 )}
-                allowEditing={boolean('allowEditing', false)}
-                allowAdditions={boolean('allowAdditions', false)}
+                allowEditing={boolean('allowEditing', true)}
+                allowAdditions={boolean('allowAdditions', true)}
             />
         </div>
     ));
