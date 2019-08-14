@@ -2,17 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from 'semantic-ui-react';
 import './QuickReply.import.less';
-import QuickReply from './QuickReply';
-import { stringPayloadToObject } from '../../../../lib/story_validation';
-
-export const isButtonValid = ({ title, type, payload }) => {
-    const titleOk = title.length > 0;
-    const payloadOk = type === 'postback'
-        ? stringPayloadToObject(payload).intent.length > 0
-        : payload.match(/^https?:\/\//);
-        
-    return titleOk && payloadOk;
-};
+import QuickReply, { isButtonValid } from './QuickReply';
 
 function QuickReplies({
     value, onChange, min, max,
@@ -55,8 +45,6 @@ function QuickReplies({
             onChange={butt => handleChange(butt, index)}
             onDelete={() => handleDelete(index)}
             showDelete={buttons.length > min}
-            valid={isButtonValid(b)}
-
         />
     ));
 
