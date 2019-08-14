@@ -10,6 +10,7 @@ import gql from 'graphql-tag';
 import ReactTable from 'react-table';
 import ConversationLengthsWidget from '../charts/ConversationLengthsPieWidget';
 import ConversationLengthsBarWidget from '../charts/ConversationLengthsBarsWidget';
+import ConversationDurationsBarWidget from '../charts/ConversationDurationsBarsWidget';
 
 function Analytics(props) {
     const { projectId } = props;
@@ -50,10 +51,12 @@ function Analytics(props) {
                             <br />
                             <div style={{ height: 500 }}>
                                 <ConversationLengthsBarWidget
-                                    data={conversationLengths.map(({ length, count, frequency }) => ({
-                                        count,
-                                        length,
-                                    }))}
+                                    data={conversationLengths.map(
+                                        ({ length, count, frequency }) => ({
+                                            count,
+                                            length,
+                                        }),
+                                    )}
                                     keys={['count']}
                                     width={900}
                                     height={500}
@@ -94,21 +97,63 @@ function Analytics(props) {
                                 ]}
                             />
                             <br />
-                            
                         </>
                     );
                 }}
             </Query>
         );
     };
+
+    const renderConversationDurations = () => {
+        const GET_CONVERSATION_DURATIONS = gql`
+            query EntityDistribution($projectId: String!) {
+                conversationDurations(projectId: $projectId) {
+                    _30
+                    _30_60
+                    _60_90
+                    _90_120
+                    _120_180
+                    _180_
+                }
+            }
+        `;
+
+        return (
+            <Query query={GET_CONVERSATION_DURATIONS} variables={{ projectId }}>
+                {({ loading, error, data: { conversationDurations } }) => {
+                    if (loading) return <Loader active inline='centered' />;
+                    if (error) return `Error! ${error.message}`;
+                    console.log(conversationDurations[0])
+                    return (
+                        <>
+                            <div style={{ height: 500 }}>
+                                <ConversationDurationsBarWidget
+                                    data={conversationDurations[0]}
+                                    width={900}
+                                    height={500}
+                                    margin={{
+                                        top: 40,
+                                        right: 80,
+                                        bottom: 80,
+                                        left: 80,
+                                    }}
+                                />
+                            </div>
+                        </>
+                    );
+                }}
+            </Query>
+        );
+    };
+
     const panes = [
         {
             menuItem: 'Conversation lengths',
             render: () => <Tab.Pane>{renderConversationLengths()}</Tab.Pane>,
         },
         {
-            menuItem: 'Conversation lengths',
-            render: () => <Tab.Pane>Tab 2 Content</Tab.Pane>,
+            menuItem: 'Conversation durations',
+            render: () => <Tab.Pane>{renderConversationDurations()}</Tab.Pane>,
         },
     ];
 

@@ -17,7 +17,7 @@ const data = [
     { length: 11, frequency: 0.002012072434607646, count: 1 },
     { length: 13, frequency: 0.002012072434607646, count: 1 },
 ];
-storiesOf('Conversations length', module)
+storiesOf('Conversation lengths', module)
     // .addDecorator(withKnobs)
     // .addDecorator(renderLabel => <Label>{renderLabel()}</Label>)
     .add('Pie', () => (

@@ -1,4 +1,4 @@
-import { getConversationLengths } from '../analytics.conversations.length';
+import { getConversationLengths } from '../analytics.conversation.lengths';
 
 export default {
     Query: {

@@ -3,7 +3,8 @@ import { fileLoader, mergeTypes } from 'merge-graphql-schemas';
 
 import entityDistributionResolver from './nlu/entityDistributionResolver';
 import intentDistributionResolver from './nlu/intentDistributionResolver';
-import conversationsLengthResolver from './analytics/conversationLengthsResolver';
+import conversationLengthsResolver from './analytics/conversationLengthsResolver';
+import conversationDurationsResolver from './analytics/conversationDurationsResolver';
 /*
 * mergeResolvers doesnt work (https://github.com/Urigo/merge-graphql-schemas/issues?utf8=%E2%9C%93&q=unexpected+token) 
 * so we need to import resolvers one by one
@@ -11,7 +12,8 @@ import conversationsLengthResolver from './analytics/conversationLengthsResolver
 export const resolvers = [
     entityDistributionResolver,
     intentDistributionResolver,
-    conversationsLengthResolver,
+    conversationLengthsResolver,
+    conversationDurationsResolver,
 ];
 const basePath = path.join(/(.+)\.meteor/.exec(process.cwd())[1], __dirname);
 const typesArray = fileLoader(path.join(basePath, '..', '**', '*.graphql'));
