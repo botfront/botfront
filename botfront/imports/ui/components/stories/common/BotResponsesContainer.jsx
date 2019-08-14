@@ -7,7 +7,6 @@ import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import { ConversationOptionsContext } from '../../utils/Context';
 import BotResponsePopupContent from './BotResponsePopupContent';
 import BotResponseContainer from './BotResponseContainer';
-import QRContainer from './QRContainer';
 import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
@@ -125,38 +124,20 @@ const BotResponsesContainer = (props) => {
         );
     };
 
-    const renderTextResponse = (content, index, sequenceArray) => (
-        <BotResponseContainer
-            deletable={deletable || sequenceArray.length > 1}
-            value={content}
-            onDelete={() => handleDeleteResponse(index)}
-            onAbort={() => {}}
-            onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)}
-            focus={focus === index}
-            autoFocus={template.values[0].sequence.length === 1}
-            onFocus={() => setFocus(index)}
-        />
-    );
-
-    const renderQRResponse = (content, index, sequenceArray) => (
-        <QRContainer
-            deletable={deletable || sequenceArray.length > 1}
-            value={content}
-            onDelete={() => handleDeleteResponse(index)}
-            onAbort={() => {}}
-            onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)}
-        />
-    );
-
     const renderResponse = (response, index, sequenceArray) => {
         const content = yamlLoad(response.content);
         return (
             <React.Fragment key={index}>
                 <div className='flex-right'>
-                    { content.buttons
-                        ? renderQRResponse(content, index, sequenceArray)
-                        : renderTextResponse(content, index, sequenceArray)
-                    }
+                    <BotResponseContainer
+                        deletable={deletable || sequenceArray.length > 1}
+                        value={content}
+                        onDelete={() => handleDeleteResponse(index)}
+                        onAbort={() => {}}
+                        onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)}
+                        focus={focus === index}
+                        onFocus={() => setFocus(index)}
+                    />
                     {/* {index === 0 && deletable && sequenceArray.length > 1 && (
                         <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
                     )} */}
