@@ -79,12 +79,16 @@ const BotResponsesContainer = (props) => {
 
     const handleChangeResponse = (newContent, index, enter) => {
         setFocus(null);
-        if ((newContent.text || newContent.text === '') && newContent.text.trim() === '') return handleDeleteResponse(index);
-        const newSequence = [...getSequence()];
-        newSequence[index].content = yamlDump(
-            { ...yamlLoad(newSequence[index].content), ...newContent },
+        const sequence = [...getSequence()];
+        const oldContent = yamlLoad(sequence[index].content);
+        if (
+            (newContent.text !== undefined && newContent.text.trim() === '')
+            && (!oldContent.buttons || !oldContent.buttons.length)
+        ) return handleDeleteResponse(index);
+        sequence[index].content = yamlDump(
+            { ...oldContent, ...newContent },
         );
-        setSequence(newSequence);
+        setSequence(sequence);
         if (enter) setToBeCreated(index);
         return true;
     };
