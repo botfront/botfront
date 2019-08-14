@@ -37,6 +37,7 @@ import ProjectContainer from '../../ui/components/admin/Project';
 import UsersListContainer from '../../ui/components/admin/Users';
 import UserContainer from '../../ui/components/admin/User';
 import AdminLayout from '../../ui/layouts/admin';
+import Analytics from '../../ui/components/analytics/Analytics.jsx';
 
 const client = new ApolloClient({
     uri: '/graphql',
