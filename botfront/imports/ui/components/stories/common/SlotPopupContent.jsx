@@ -48,7 +48,7 @@ const SlotPopupContent = (props) => {
     const cats = Object.keys(slotsByCat);
 
     function getSlotValue(slot) {
-        const type = { slot };
+        const { type } = slot;
         if (type === 'bool') return [true, false];
         if (type === 'text') return ['set', 'null'];
         if (type === 'list') return ['empty', 'not-empty'];
