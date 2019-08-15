@@ -8,8 +8,9 @@
 
     &:hover {
         .add-story-line {
+            transform: scale(1, 1);
             opacity: 1;
-            height: max-content;
+            height: initial;
         }
     }
 
@@ -255,7 +256,8 @@
     outline: none;
     opacity: 0;
     height: 0;
-    transition: 0.1s;
+    transform: scale(1, 0);
+    transition: opacity 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
 .all-caps-header {
