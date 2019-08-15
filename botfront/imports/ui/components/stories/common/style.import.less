@@ -6,9 +6,16 @@
     padding-left: 30px;
     min-height: 80px;
 
+    .add-story-line {
+        margin: 0.8em 0;
+        outline: none;
+        opacity: 0;
+        height: 0;
+        transition: opacity 0.2s ease-in-out;
+    }
+    
     &:hover {
         .add-story-line {
-            transform: scale(1, 1);
             opacity: 1;
             height: initial;
         }
@@ -249,15 +256,6 @@
 
 .dashed:focus {
     outline: none;
-}
-
-.add-story-line {
-    margin: 0.8em 0;
-    outline: none;
-    opacity: 0;
-    height: 0;
-    transform: scale(1, 0);
-    transition: opacity 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
 .all-caps-header {
