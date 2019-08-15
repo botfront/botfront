@@ -97,6 +97,7 @@ export function shouldUpdateProject() {
 }
 
 export async function shouldUpdateNpmPackage() {
+    if (isPrivate()) return false;
     const currentVersion = getBotfrontVersion();
     const latestVersion = await getLatestVersion();
     return latestVersion !== currentVersion;
@@ -165,6 +166,10 @@ export async function verifySystem() {
 
 export function getBotfrontVersion() {
     return JSON.parse(fs.readFileSync(path.join(__dirname, '../../botfront/package.json'))).version;
+}
+
+export function isPrivate() {
+    return JSON.parse(fs.readFileSync(path.join(__dirname, '../../botfront/package.json'))).private;
 }
 
 export function getComposeFilePath(dir, fileName = DOCKER_COMPOSE_FILENAME) {
