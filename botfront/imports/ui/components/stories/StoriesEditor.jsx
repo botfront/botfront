@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { Stories } from '../../../api/story/stories.collection';
 import { StoryValidator } from '../../../lib/story_validation';
 import { wrapMeteorCallback } from '../utils/Errors';
-import StoryAceEditor from './StoryAceEditor';
+import StoryEditorContainer from './StoryEditorContainer';
 
 function StoriesEditor(props) {
     const [errors, setErrors] = useState([]);
@@ -151,7 +151,7 @@ function StoriesEditor(props) {
     }
 
     const editors = stories.map((story, index) => (
-        <StoryAceEditor
+        <StoryEditorContainer
             story={
                 storyTexts[index] !== undefined
                     ? storyTexts[index]
