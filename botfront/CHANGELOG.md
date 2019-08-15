@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.6](https://github.com/botfront/botfront/compare/v0.15.5-ee.5...v0.15.5-ee.6) (2019-08-15)
+
+
+### Features
+
+* cli for EE ([3be4be6](https://github.com/botfront/botfront/commit/3be4be6))
+
+
+
 ### [0.15.5-ee.5](https://github.com/botfront/botfront/compare/v0.15.5-ee.4...v0.15.5-ee.5) (2019-08-14)
 
 
