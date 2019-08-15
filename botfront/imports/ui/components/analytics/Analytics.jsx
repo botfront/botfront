@@ -123,7 +123,6 @@ function Analytics(props) {
                 {({ loading, error, data: { conversationDurations } }) => {
                     if (loading) return <Loader active inline='centered' />;
                     if (error) return `Error! ${error.message}`;
-                    console.log(conversationDurations[0])
                     return (
                         <>
                             <div style={{ height: 500 }}>
