@@ -8,9 +8,12 @@ import DashedButton from './DashedButton';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 const PayloadEditor = (props) => {
-    const { intents: availableIntents, entities: availableEntities } = useContext(
-        ConversationOptionsContext,
-    );
+    const {
+        intents: availableIntents,
+        entities: availableEntities,
+        addIntent,
+        addEntity,
+    } = useContext(ConversationOptionsContext);
     const {
         value: { intent, entities: originalEntities },
         autofocusOnIntent,
@@ -21,12 +24,31 @@ const PayloadEditor = (props) => {
         value: oe.entity,
         entityValue: oe.value,
     }));
-    const intentOptions = availableIntents.map(i => ({ text: i, value: i }));
+    const intentOptions = [...new Set([...availableIntents, intent])].map(i => ({
+        text: i,
+        value: i,
+    }));
 
     const getEntitiesInRasaFormat = ents => ents.map(({ entity, entityValue }) => ({
         entity,
         value: entityValue,
     }));
+
+    function handleAddOrChangeIntent(value) {
+        onChange({
+            intent: value,
+            entities: getEntitiesInRasaFormat(entities),
+        });
+    }
+
+    function handleAddOrChangeEntity(currentEntity, newEntity, index) {
+        const newEntities = [
+            ...originalEntities.slice(0, index),
+            { entity: newEntity, value: currentEntity.entityValue },
+            ...originalEntities.slice(index + 1),
+        ];
+        onChange({ intent, entities: newEntities });
+    }
 
     return (
         <div>
@@ -37,8 +59,12 @@ const PayloadEditor = (props) => {
                         <IntentDropdown
                             options={intentOptions}
                             allowAdditions
-                            onChange={(event, { value }) => {
-                                onChange({ intent: value, entities: getEntitiesInRasaFormat(entities) });
+                            onChange={(_event, { value }) => {
+                                handleAddOrChangeIntent(value);
+                            }}
+                            onAddItem={(_event, { value }) => {
+                                addIntent(value);
+                                handleAddOrChangeIntent(value);
                             }}
                             intent={intent}
                             autofocus={autofocusOnIntent && !intent}
@@ -50,19 +76,19 @@ const PayloadEditor = (props) => {
                         <Grid.Column>
                             <EntityDropdown
                                 key={`entityfield-for-${entity.entity}`}
-                                options={
-                                    availableEntities
-                                        .filter(e => e === entity.entity || !entities.map(f => f.entity).includes(e))
-                                        .map(e => ({ entity: e, value: e }))
-                                }
+                                options={[...availableEntities, entity.entity]
+                                    .filter(
+                                        e => e === entity.entity
+                                            || !entities.map(f => f.entity).includes(e),
+                                    )
+                                    .map(e => ({ entity: e, value: e }))}
                                 allowAdditions
-                                onChange={(event, { value: newEntity }) => {
-                                    const newEnts = [
-                                        ...originalEntities.slice(0, i),
-                                        { entity: newEntity, value: entity.entityValue },
-                                        ...originalEntities.slice(i + 1),
-                                    ];
-                                    onChange({ intent, entities: newEnts });
+                                onChange={(_event, { value: newEntity }) => {
+                                    handleAddOrChangeEntity(entity, newEntity, i);
+                                }}
+                                onAddItem={(_event, { value: newEntity }) => {
+                                    addEntity(newEntity);
+                                    handleAddOrChangeEntity(entity, newEntity, i);
                                 }}
                                 entity={entity}
                                 autofocus
@@ -95,7 +121,7 @@ const PayloadEditor = (props) => {
                     </Grid.Row>
                 ))}
             </Grid>
-            { entities.every(e => e.entityValue && e.entityValue.trim() !== '') ? (
+            {entities.every(e => e.entityValue && e.entityValue.trim() !== '') ? (
                 <div className='add-entity-wrap'>
                     <DashedButton
                         color='blue'
@@ -104,7 +130,7 @@ const PayloadEditor = (props) => {
                             intent,
                             entities: [
                                 ...getEntitiesInRasaFormat(entities),
-                                { entity: null, value: null },
+                                { entity: '', value: '' },
                             ],
                         })
                         }
@@ -113,8 +139,12 @@ const PayloadEditor = (props) => {
                         Add entity
                     </DashedButton>
                 </div>
-            )
-                : <><br /><br /></>}
+            ) : (
+                <>
+                    <br />
+                    <br />
+                </>
+            )}
         </div>
     );
 };

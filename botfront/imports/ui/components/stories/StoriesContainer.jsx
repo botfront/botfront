@@ -120,12 +120,12 @@ function StoriesContainer(props) {
         );
     }
 
-    function addIntent(intent) {
-        setAvailableIntents(availableIntents.push(intent));
+    function addIntent(newIntent) {
+        setAvailableIntents([...new Set([...availableIntents, newIntent])]);
     }
 
-    function addEntity(entity) {
-        setAvailableEntities(availableEntities.push(entity));
+    function addEntity(newEntity) {
+        setAvailableEntities([...new Set([...availableEntities, newEntity])]);
     }
 
     function RenderPlaceHolder() {
@@ -162,6 +162,7 @@ function StoriesContainer(props) {
                 getUtteranceFromPayload,
                 parseUtterance,
                 addUtteranceToTrainingData,
+                browseToSlots: () => setActiveItem('slots'),
             }}
         >
             <PageMenu title='Stories' icon='book'>

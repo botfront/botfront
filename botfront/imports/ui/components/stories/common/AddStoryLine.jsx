@@ -20,6 +20,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         onCreateUtteranceFromPayload,
         size,
         onBlur,
+        trackOpenMenu,
     } = props;
     return (
         <div
@@ -34,6 +35,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     trigger={<DashedButton color='blue' size={size} data-cy='add-user-line'>User</DashedButton>}
                     onCreateFromInput={onCreateUtteranceFromInput}
                     onCreateFromPayload={u => onCreateUtteranceFromPayload(u)}
+                    trackOpenMenu={trackOpenMenu}
                 />
             )}
             { botUtterance && (
@@ -44,18 +46,21 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     limitedSelection
                     disableExisting
                     trigger={<DashedButton color='green' size={size} data-cy='add-bot-line'>Bot</DashedButton>}
+                    trackOpenMenu={trackOpenMenu}
                 />
             )}
             { action && (
                 <ActionPopupContent
                     onSelect={a => onSelectAction(a)}
                     trigger={<DashedButton color='pink' size={size} data-cy='add-action-line'>Action</DashedButton>}
+                    trackOpenMenu={trackOpenMenu}
                 />
             )}
             { slot && (
                 <SlotPopupContent
                     onSelect={s => onSelectSlot(s)}
                     trigger={<DashedButton color='orange' size={size} data-cy='add-slot-line'>Slot</DashedButton>}
+                    trackOpenMenu={trackOpenMenu}
                 />
             )}
         </div>
@@ -73,6 +78,7 @@ AddStoryLine.propTypes = {
     noButtonResponse: PropTypes.bool,
     size: PropTypes.string,
     onBlur: PropTypes.func,
+    trackOpenMenu: PropTypes.func,
 };
 
 AddStoryLine.defaultProps = {
@@ -85,6 +91,7 @@ AddStoryLine.defaultProps = {
     noButtonResponse: false,
     size: 'mini',
     onBlur: () => {},
+    trackOpenMenu: () => {},
 };
 
 export default AddStoryLine;

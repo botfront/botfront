@@ -7,10 +7,11 @@ import PayloadEditor from './PayloadEditor';
 
 const UserUtterancePopupContent = (props) => {
     const {
-        onCreateFromPayload, onCreateFromInput, trigger,
+        onCreateFromPayload, onCreateFromInput, trigger, trackOpenMenu,
     } = props;
     const [modalOpen, setModalOpen] = useState(false);
     const [payload, setPayload] = useState({ intent: null, entities: [] });
+    const [menuOpen, setMenuOpen] = useState();
 
     const payloadValid = () => {
         if (!payload.intent) return false;
@@ -48,7 +49,16 @@ const UserUtterancePopupContent = (props) => {
                     />
                 </Modal.Actions>
             </Modal>
-            <Dropdown trigger={trigger} className='dropdown-button-trigger'>
+            <Dropdown
+                trigger={trigger}
+                className='dropdown-button-trigger'
+                open={menuOpen}
+                onOpen={() => {
+                    setMenuOpen(true);
+                    trackOpenMenu(() => setMenuOpen(false));
+                }}
+                onClose={() => setMenuOpen(false)}
+            >
                 <Dropdown.Menu className='first-column'>
                     <Dropdown.Item onClick={() => setModalOpen(true)} data-cy='user-line-from-payload'>From payload</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreateFromInput()} data-cy='user-line-from-input'>From input</Dropdown.Item>
@@ -61,11 +71,13 @@ const UserUtterancePopupContent = (props) => {
 UserUtterancePopupContent.propTypes = {
     onCreateFromPayload: PropTypes.func,
     onCreateFromInput: PropTypes.func,
+    trackOpenMenu: PropTypes.func,
 };
 
 UserUtterancePopupContent.defaultProps = {
     onCreateFromPayload: () => {},
     onCreateFromInput: () => {},
+    trackOpenMenu: () => {},
 };
 
 export default UserUtterancePopupContent;

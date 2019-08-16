@@ -6,6 +6,21 @@
     padding-left: 30px;
     min-height: 80px;
 
+    .add-story-line {
+        margin: 0.8em 0;
+        outline: none;
+        opacity: 0;
+        height: 0;
+        transition: opacity 0.2s ease-in-out;
+    }
+    
+    &:hover {
+        .add-story-line {
+            opacity: 1;
+            height: initial;
+        }
+    }
+
     .item {
         overflow: visible;
     }
@@ -87,18 +102,18 @@
     flex-direction: column;
     border: 1px solid transparent;
     border-radius: 4px;
-    padding-left: 4px;
-    margin: 0px 30px 0px 0;
+    margin: 0 30px 0 0;
     color: #212121;
     min-height: 40px;
 
-    .utterance-container.bot-response {
-        min-width: 50%;
+    .utterance-container {
+        width: 50%;
         color: #212121;
-        .inner {
-            width: 95%;
-            min-width: 95%;
+
+        &:hover {
+            width: ~"calc(50% + 20px)";
         }
+
         textarea {
             width: 100%;
             padding-top: 4px;
@@ -149,26 +164,34 @@
         bottom: 1px;
         right: 5px;
     }
-}
 
-.responses-container:hover {
-   border: 1px solid rgba(0, 0, 0, 0.1);
-
-   .viewOnHover {
-       opacity: 0.8;
-       visibility: visible;
-   }
-   
-   .floating-icon-button {
-       outline: none;
-   }
-
-   .flex-right > .floating-icon-button > .viewOnHover {
-        opacity: 0.5;
-    }
-    .response-name {
-        visibility: visible;
-        opacity: 0.5;
+    &:hover {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+     
+        .viewOnHover {
+            opacity: 0.8;
+            visibility: visible;
+        }
+        
+        .floating-icon-button {
+            outline: none;
+        }
+     
+        .flex-right > .floating-icon-button > .viewOnHover {
+             opacity: 0.5;
+         }
+        .response-name {
+             visibility: visible;
+             opacity: 0.5;
+        }
+    
+        .floating-icon-button.ellipsis.horizontal { // show all ellipses on hover responses-container
+            height: 20px;
+            .viewOnHover.ellipsis {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
     }
 }
 
@@ -205,9 +228,11 @@
     }
 }
 
-.hoverTarget:hover {
-    .viewOnHover {
-        visibility: visible;
+.hoverTarget {
+    &:hover {
+        .viewOnHover {
+            visibility: visible;
+        }
     }
 }
 
@@ -230,11 +255,6 @@
 }
 
 .dashed:focus {
-    outline: none;
-}
-
-.add-story-line {
-    margin: 0.8em 0;
     outline: none;
 }
 
@@ -264,6 +284,11 @@ div.add-entity-wrap {
 .bot-responses-modal.content button {
     cursor: pointer;
 }
+
+.utterance-container:last-child { // make up for space taken by ellipsis
+    margin-bottom: 5px;
+}
+
 .utterance-container {
     display: flex;
     min-height: 2em;
@@ -280,7 +305,7 @@ div.add-entity-wrap {
 //        white-space: pre;
         line-height: 1.2;
         width: 100%;
-        margin: auto 4px auto 0px;
+        margin: auto 4px;
 
         span {
             padding-left: 7px;
@@ -296,6 +321,14 @@ div.add-entity-wrap {
             padding-right: 0.8em;
             margin: 6px;
         }
+
+        .quick-replies {
+            text-align: justify;
+            width: 95%;
+            .last-button {
+                display: inline-block;
+            }
+        }
     }
 
     .entity-container {
@@ -306,35 +339,32 @@ div.add-entity-wrap {
         width: 0;
         opacity: 0;
     }
-}
 
-.utterance-container:hover {
-    max-width: ~"calc(80% + 20px)";
-    .viewOnHover {
-        visibility: visible;
+    &:hover {
+        max-width: ~"calc(80% + 20px)";
+        .viewOnHover {
+            visibility: visible;
+        }
+        .floating-icon-button {
+            width: 16px;
+            opacity: 1;
+        }
+        .inner {
+            width: ~"calc(100% - 20px)";
+        }
     }
-    .floating-icon-button {
-        width: 16px;
-        opacity: 1;
+
+    &:not([agent="user"]) {
+        margin-left: 16px;
+        background: rgba(0, 0, 0, 0.04);
     }
-    .inner {
-        width: ~"calc(100% - 20px)";
-
+    &[agent="na"] {
+        background: none;
     }
-}
-
-.utterance-container:not([agent="user"]) {
-    margin-left: 16px;
-    background: rgba(0, 0, 0, 0.04);
-}
-
-.utterance-container[agent="na"] {
-    background: none;
-}
-
-.utterance-container[agent="user"] {
-    margin-left: 0;
-    background: rgba(0, 0, 0, 0.08);
+    &[agent="user"] {
+        margin-left: 0;
+        background: rgba(0, 0, 0, 0.08);
+    }
 }
 
 .createcolorclasses(@i:1) when(@i <= length(@basic-colors)) {

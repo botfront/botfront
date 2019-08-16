@@ -6,10 +6,11 @@ import {
 
 const BotResponsePopupContent = (props) => {
     const {
-        onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose, disableExisting,
+        onCreate, trigger, noButtonResponse, limitedSelection, defaultOpen, onClose, disableExisting, trackOpenMenu,
     } = props;
     const [modalOpen, setModalOpen] = useState(false);
     const [closeNext, setCloseNext] = useState(false);
+    const [menuOpen, setMenuOpen] = useState();
 
     useEffect(() => {
         if (closeNext && !modalOpen) onClose();
@@ -40,7 +41,15 @@ const BotResponsePopupContent = (props) => {
                 trigger={trigger}
                 className='dropdown-button-trigger'
                 defaultOpen={defaultOpen}
-                onClose={() => setCloseNext(true)}
+                open={menuOpen}
+                onOpen={() => {
+                    setMenuOpen(true);
+                    trackOpenMenu(() => setMenuOpen(false));
+                }}
+                onClose={() => {
+                    setMenuOpen(false);
+                    setCloseNext(true);
+                }}
             >
                 <Dropdown.Menu className='first-column'>
                     { !disableExisting
@@ -56,9 +65,9 @@ const BotResponsePopupContent = (props) => {
                         ) : <Dropdown.Header>Use a template</Dropdown.Header>
                     }
                     <Dropdown.Item onClick={() => onCreate('text')} data-cy='from-text-template'>Text</Dropdown.Item>
+                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')} data-cy='from-qr-template'>Text with buttons (Quick reply)</Dropdown.Item>
                     {!limitedSelection
                         && <>
-                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')} data-cy='from-qr-template'>Text with buttons (Quick reply)</Dropdown.Item>
                             <Dropdown.Item onClick={() => onCreate('image')} data-cy='from-image-template'>Image</Dropdown.Item>
                             <Dropdown.Item onClick={() => onCreate('video')} data-cy='from-video-template'>Video</Dropdown.Item>
                             <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')} data-cy='from-carousel-template'>Carousel</Dropdown.Item>
@@ -81,6 +90,7 @@ BotResponsePopupContent.propTypes = {
     defaultOpen: PropTypes.bool,
     onClose: PropTypes.func,
     disableExisting: PropTypes.bool,
+    trackOpenMenu: PropTypes.func,
 };
 
 BotResponsePopupContent.defaultProps = {
@@ -92,6 +102,7 @@ BotResponsePopupContent.defaultProps = {
     onSelect: () => {},
     onCreate: () => {},
     onClose: () => {},
+    trackOpenMenu: () => {},
 };
 
 export default BotResponsePopupContent;

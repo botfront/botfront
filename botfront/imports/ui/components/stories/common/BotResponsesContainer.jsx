@@ -11,7 +11,12 @@ import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
     const {
-        name, onDeleteAllResponses, deletable, exceptions, isNew, removeNewState,
+        name,
+        onDeleteAllResponses,
+        deletable,
+        exceptions,
+        isNew,
+        removeNewState,
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
@@ -35,18 +40,7 @@ const BotResponsesContainer = (props) => {
             ],
         };
         setTemplate(newTemplate);
-        const templateToUpload = {
-            ...template,
-            values: [
-                {
-                    ...template.values[0],
-                    sequence: newTemplate.values[0].sequence.filter(
-                        response => yamlLoad(response.content).text,
-                    ),
-                },
-            ],
-        };
-        updateResponse(templateToUpload);
+        updateResponse(newTemplate);
     };
 
     useEffect(() => {
@@ -61,7 +55,9 @@ const BotResponsesContainer = (props) => {
 
     const handleCreateReponse = (index, responseType) => {
         const newSequence = [...getSequence()];
-        newSequence.splice(index + 1, 0, { content: yamlDump(defaultTemplate(responseType)) });
+        newSequence.splice(index + 1, 0, {
+            content: yamlDump(defaultTemplate(responseType)),
+        });
         setFocus(index + 1);
         setSequence(newSequence);
     };
@@ -76,12 +72,17 @@ const BotResponsesContainer = (props) => {
         setSequence(newSequence);
     };
 
-    const handleChangeResponse = (newResponse, index, enter) => {
+    const handleChangeResponse = (newContent, index, enter) => {
         setFocus(null);
-        if (newResponse.trim() === '') return handleDeleteResponse(index);
-        const newSequence = [...getSequence()];
-        newSequence[index] = { content: yamlDump({ text: newResponse }) };
-        setSequence(newSequence);
+        const sequence = [...getSequence()];
+        const oldContent = yamlLoad(sequence[index].content);
+        if (
+            newContent.text !== undefined
+            && newContent.text.trim() === ''
+            && (!oldContent.buttons || !oldContent.buttons.length)
+        ) return handleDeleteResponse(index);
+        sequence[index].content = yamlDump({ ...oldContent, ...newContent });
+        setSequence(sequence);
         if (enter) setToBeCreated(index);
         return true;
     };
@@ -115,6 +116,7 @@ const BotResponsesContainer = (props) => {
                 onClose={() => setPopupOpen(null)}
                 limitedSelection
                 disableExisting
+                noButtonResponse={index !== getSequence().length - 1}
                 defaultOpen
                 trigger={(
                     <FloatingIconButton
@@ -128,26 +130,30 @@ const BotResponsesContainer = (props) => {
         );
     };
 
-    const renderResponse = (response, index, sequenceArray) => (
-        <React.Fragment key={index}>
-            <div className='flex-right'>
-                <BotResponseContainer
-                    deletable={deletable || sequenceArray.length > 1}
-                    value={response.content ? yamlLoad(response.content) : { text: '' }}
-                    onDelete={() => handleDeleteResponse(index)}
-                    onAbort={() => {}}
-                    onChange={({ text, enter }) => handleChangeResponse(text, index, enter)}
-                    focus={focus === index}
-                    autoFocus={template.values[0].sequence.length === 1}
-                    onFocus={() => setFocus(index)}
-                />
-                {/* {index === 0 && deletable && sequenceArray.length > 1 && (
-                    <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
-                )} */}
-            </div>
-            {renderAddLine(index)}
-        </React.Fragment>
-    );
+    const renderResponse = (response, index, sequenceArray) => {
+        const content = yamlLoad(response.content);
+        return (
+            <React.Fragment key={index}>
+                <div className='flex-right'>
+                    <BotResponseContainer
+                        deletable={deletable || sequenceArray.length > 1}
+                        value={content}
+                        onDelete={() => handleDeleteResponse(index)}
+                        onAbort={() => {}}
+                        onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)
+                        }
+                        focus={focus === index}
+                        onFocus={() => setFocus(index)}
+                    />
+                    {/* {index === 0 && deletable && sequenceArray.length > 1 && (
+                        <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
+                    )} */}
+                </div>
+                {!content.buttons
+                    && renderAddLine(index) /* add line button if no buttons */}
+            </React.Fragment>
+        );
+    };
 
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (

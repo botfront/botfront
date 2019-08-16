@@ -10,7 +10,12 @@ import {
 } from '../../../../lib/story_validation';
 
 function ResponseButtonEditor({
-    value: { title, type, payload },
+    value: {
+        title,
+        type,
+        payload,
+        url, // eslint-disable-line camelcase
+    },
     onChange,
     onDelete,
     onClose,
@@ -19,7 +24,7 @@ function ResponseButtonEditor({
 }) {
     const options = [
         { text: 'Postback', value: 'postback' },
-        { text: 'Web URL', value: 'url' },
+        { text: 'Web URL', value: 'web_url' },
     ];
     return (
         <Form className='response-button-editor'>
@@ -28,32 +33,42 @@ function ResponseButtonEditor({
                     <Grid.Column width={12}>
                         <Form.Input
                             label='Button title'
+                            data-cy='enter-button-title'
                             autoFocus
                             placeholder='Button title'
-                            onChange={(event, { value }) => onChange({ title: value, type, payload })
-                            }
+                            onChange={(_event, { value }) => {
+                                const updatedVal = { title: value, type };
+                                if (type === 'web_url') updatedVal.payload = url;
+                                else updatedVal.payload = payload;
+                                onChange(updatedVal);
+                            }}
                             value={title}
                         />
                     </Grid.Column>
                     <Grid.Column width={4}>
                         <Form.Select
                             label='Button type'
-                            onChange={(event, { value }) => onChange({ title, type: value, payload: '' })
-                            }
+                            onChange={(event, { value }) => {
+                                const updatedVal = { title, type: value };
+                                updatedVal.payload = '';
+                                onChange(updatedVal);
+                            }}
                             value={type}
                             options={options}
+                            data-cy='select-button-type'
                         />
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row columns={16}>
                     <Grid.Column width={16}>
-                        {type === 'url' && (
+                        {type === 'web_url' && (
                             <Form.Input
                                 label='URL'
                                 placeholder='http://'
                                 value={payload}
-                                onChange={(event, { value }) => onChange({ title, type, payload: value })
+                                onChange={(_event, { value }) => onChange({ title, type, payload: value })
                                 }
+                                data-cy='enter_url'
                             />
                         )}
                         {type === 'postback' && (
@@ -74,7 +89,6 @@ function ResponseButtonEditor({
                         <Divider />
                         {showDelete && (
                             <Button
-                                danger
                                 basic
                                 color='red'
                                 icon='trash'
@@ -86,6 +100,7 @@ function ResponseButtonEditor({
                         <Button
                             primary
                             content='Save'
+                            data-cy='save-button'
                             disabled={!valid}
                             size='mini'
                             onClick={onClose}
@@ -99,11 +114,7 @@ function ResponseButtonEditor({
 }
 
 ResponseButtonEditor.propTypes = {
-    value: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        type: PropTypes.oneOf(['postback', 'url']),
-        payload: PropTypes.string.isRequired,
-    }).isRequired,
+    value: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,

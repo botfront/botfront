@@ -21,9 +21,13 @@ import { StoryValidator } from '../../lib/story_validation';
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories) => {
         let domains = stories.map((story) => {
-            const val = new StoryValidator(story);
-            val.validateStories();
-            return val.extractDomain();
+            try {
+                const val = new StoryValidator(story);
+                val.validateStories();
+                return val.extractDomain();
+            } catch (e) {
+                return { entities: [], intents: [] };
+            }
         });
         domains = domains.reduce((d1, d2) => ({
             entities: new Set([...d1.entities, ...d2.entities]),

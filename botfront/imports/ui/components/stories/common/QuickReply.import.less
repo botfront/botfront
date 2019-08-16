@@ -1,13 +1,12 @@
 .quick-reply {
   cursor: pointer;
   display: inline-block;
-  min-height: 1em;
   border: solid 1.5px #2185d0;
   vertical-align: baseline;
-  margin: 0em 0.75em 0em 0em;
-  padding: 0.78571429em 1.5em 0.78571429em;
+  margin: 6px 0.5em 0 0;
+  padding: 0.75em 1em;
   text-transform: none;
-  line-height: 0.75em;
+  line-height: 0.5em;
   font-style: normal;
   text-align: center;
   color: #2185d0;
@@ -15,15 +14,18 @@
   border-radius: 2rem;
   font-weight: normal;
   outline: none;
+  background: #ffffff;
 
   &.invalid {
     border: dotted  1.5px ;
     color: rgba(0, 0, 0, 0.4);
+    background: transparent;
   }
 }
 
 i.grey.icon.add-quick-reply {
   cursor: pointer;
+  margin-top: 6px;
   color: rgba(0, 0, 0, 0.25) !important;
 }
 

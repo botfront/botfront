@@ -264,7 +264,7 @@ function UserUtteranceViewer({
                             </span>
                         )}
                         onSelectionReset={() => setSelection(null)}
-                        options={contextEntities}
+                        options={contextEntities.map((e => ({ text: e, value: e })))}
                         entity={{ ...element, value: element.text, entity: '' }}
                         length={element.end - element.start}
                         selection

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Popup, Input } from 'semantic-ui-react';
 
 const ActionPopupContent = (props) => {
-    const { onSelect, trigger } = props;
+    const { onSelect, trigger, trackOpenMenu } = props;
     const [isOpen, setIsOpen] = useState();
     const [actionName, setActionName] = useState('action_');
 
@@ -13,13 +13,13 @@ const ActionPopupContent = (props) => {
             trigger={trigger}
             wide
             on='click'
+            hideOnScroll
             open={isOpen}
             onOpen={() => {
                 setIsOpen(true);
+                trackOpenMenu(() => setIsOpen(false));
             }}
-            onClose={() => {
-                setIsOpen(false);
-            }}
+            onClose={() => setIsOpen(false)}
         >
             <p className='all-caps-header'>Enter an action name</p>
             <div className='action-name-form'>
@@ -42,10 +42,12 @@ const ActionPopupContent = (props) => {
 ActionPopupContent.propTypes = {
     onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
+    trackOpenMenu: PropTypes.func,
 };
 
 ActionPopupContent.defaultProps = {
     onSelect: () => {},
+    trackOpenMenu: () => {},
 };
 
 export default ActionPopupContent;

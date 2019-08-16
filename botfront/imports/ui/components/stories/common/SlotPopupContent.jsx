@@ -1,35 +1,39 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
     Dropdown, Button, Popup,
 } from 'semantic-ui-react';
-import { Link } from 'react-router';
 import { groupBy } from 'lodash';
 import { ConversationOptionsContext } from '../../utils/Context';
 
 const SlotPopupContent = (props) => {
     const {
-        value: active, onSelect, trigger, projectId,
+        value: active, onSelect, trigger, trackOpenMenu,
     } = props;
-    const { slots } = useContext(ConversationOptionsContext);
+    const { slots, browseToSlots } = useContext(ConversationOptionsContext);
+    const [popupOpen, setPopupOpen] = useState();
+    const [menuOpen, setMenuOpen] = useState();
 
     if (!slots.length) {
         return (
-            <Popup trigger={trigger} wide on='click'>
+            <Popup
+                trigger={trigger}
+                wide
+                on='click'
+                open={popupOpen}
+                onOpen={() => {
+                    setPopupOpen(true);
+                    trackOpenMenu(() => setPopupOpen(false));
+                }}
+                onClose={() => setPopupOpen(false)}
+            >
                 <p>
                     Go to the <strong>Slot</strong> tab to create your first
                     slot!
                 </p>
                 <div>
-                    <Link
-                        to={{
-                            pathname: `/project/${projectId}/stories`,
-                            state: { activeItem: 'slots' },
-                        }}
-                    >
-                        <Button fluid color='orange' content='Go to slots' />
-                    </Link>
+                    <Button fluid color='orange' content='Go to slots' onClick={browseToSlots} />
                 </div>
             </Popup>
         );
@@ -44,7 +48,7 @@ const SlotPopupContent = (props) => {
     const cats = Object.keys(slotsByCat);
 
     function getSlotValue(slot) {
-        const type = { slot };
+        const { type } = slot;
         if (type === 'bool') return [true, false];
         if (type === 'text') return ['set', 'null'];
         if (type === 'list') return ['empty', 'not-empty'];
@@ -52,7 +56,16 @@ const SlotPopupContent = (props) => {
     }
 
     return (
-        <Dropdown trigger={trigger} className='dropdown-button-trigger'>
+        <Dropdown
+            trigger={trigger}
+            className='dropdown-button-trigger'
+            open={menuOpen}
+            onOpen={() => {
+                setMenuOpen(true);
+                trackOpenMenu(() => setMenuOpen(false));
+            }}
+            onClose={() => setMenuOpen(false)}
+        >
             <Dropdown.Menu>
                 <Dropdown.Header>Select a slot</Dropdown.Header>
                 {cats.map(c => (
@@ -117,15 +130,16 @@ const SlotPopupContent = (props) => {
 };
 
 SlotPopupContent.propTypes = {
-    projectId: PropTypes.string.isRequired,
     value: PropTypes.object,
     onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
+    trackOpenMenu: PropTypes.func,
 };
 
 SlotPopupContent.defaultProps = {
     value: null,
     onSelect: () => {},
+    trackOpenMenu: () => {},
 };
 
 const mapStateToProps = state => ({
