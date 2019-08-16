@@ -28,6 +28,36 @@ export const createIntroStoryGroup = (projectId) => {
     );
 };
 
+export const createDefaultStoryGroup = (projectId) => {
+    if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
+    Meteor.call(
+        'storyGroups.insert',
+        {
+            name: 'Default stories',
+            projectId,
+        },
+        (err, groupId) => {
+            if (!err) {
+                Meteor.call('stories.insert', {
+                    story: '* chitchat.greet\n    - utter_hi',
+                    title: 'Greetings',
+                    storyGroupId: groupId,
+                    projectId,
+                });
+                Meteor.call('stories.insert', {
+                    story: '* chitchat.bye\n    - utter_bye',
+                    title: 'Farewells',
+                    storyGroupId: groupId,
+                    projectId,
+                });
+            } else {
+                // eslint-disable-next-line no-console
+                console.log(err);
+            }
+        },
+    );
+};
+
 function handleError(e) {
     if (e.code === 11000) {
         throw new Meteor.Error(400, 'Group name already exists');
