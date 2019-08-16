@@ -22,36 +22,13 @@ const StoryEditorContainer = ({
     onMove,
     groupNames,
     onRename,
+    branches: BRANCHES,
 }) => {
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
     const [editor, setEditor] = useState();
     const [newTitle, setNewTitle] = useState(title);
-    const BRANCHES = [
-        { name: 'bleh' },
-        {
-            name: 'boo',
-            branches: [
-                { name: 'branch1' },
-                {
-                    name: 'branch2',
-                    branches: [
-                        { name: 'brancha' },
-                        { name: 'branchb' },
-                        { name: 'branchc' },
-                    ],
-                },
-                { name: 'branch3' },
-            ],
-        },
-        { name: 'bah' },
-        { name: 'a' },
-        { name: 'b' },
-        { name: 'c' },
-        { name: 'd' },
-        { name: 'e' },
-    ];
     const [activePath, setActivePath] = useState();
     const [storyBranches, setStoryBranches] = useState(BRANCHES);
 
@@ -166,7 +143,7 @@ const StoryEditorContainer = ({
         </Menu>
     );
 
-    const renderAceEditor = () => (
+    const renderAceEditor = storyToDisplay => (
         <AceEditor
             readOnly={disabled}
             onLoad={setEditor}
@@ -178,7 +155,7 @@ const StoryEditorContainer = ({
             maxLines={Infinity}
             fontSize={12}
             onChange={onChange}
-            value={story}
+            value={storyToDisplay}
             showPrintMargin={false}
             showGutter
             annotations={annotations}
@@ -194,22 +171,23 @@ const StoryEditorContainer = ({
     );
 
     const getNewBranchName = (branches) => {
-        const numNewBranches = branches.filter(branch => branch.name.search('New Branch') === 0).length;
+        const numNewBranches = branches.filter(branch => branch.title.search('New Branch') === 0).length;
         return `New Branch${numNewBranches < 1 ? '' : numNewBranches + 1}`;
     };
 
     const getBranchesAndIndices = path => path.split('__').slice(1) // gets branches but also indices, useful for setting later
         .reduce((acc, val) => {
-            const index = acc.branches.findIndex(b => b.name === val);
+            const index = acc.branches.findIndex(b => b.title === val);
             return {
                 branches: acc.branches[index].branches,
+                story: acc.branches[index].story,
                 indices: [...acc.indices, index],
             };
-        }, { branches: storyBranches, indices: [] });
+        }, { branches: storyBranches, story, indices: [] });
 
     const handleCreateBranch = (branches, indices) => {
         const path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
-        const newBranch = { name: getNewBranchName(branches) };
+        const newBranch = { title: getNewBranchName(branches) };
         const newBranches = [...storyBranches];
         if (path) _set(newBranches, path, [...branches, newBranch]);
         else newBranches.push(newBranch);
@@ -217,24 +195,26 @@ const StoryEditorContainer = ({
     };
 
     const renderBranches = (path) => {
-        const { branches, indices } = getBranchesAndIndices(path);
+        const { branches, story: storyToDisplay, indices } = getBranchesAndIndices(path);
         const query = new RegExp(`(${path}__.*?)(__|$)`);
         const queriedPath = activePath || newTitle;
         const nextPath = queriedPath.match(query) && queriedPath.match(query)[1];
         return (
             <>
-                {renderAceEditor()}
+                {renderAceEditor(storyToDisplay)}
                 { branches && branches.length && (
                     <Menu tabular>
                         { branches.map((branch) => {
-                            const childPath = `${path}__${branch.name}`;
+                            const childPath = `${path}__${branch.title}`;
                             return (
                                 <Menu.Item
                                     key={childPath}
-                                    name={branch.name}
-                                    active={activePath && (activePath === childPath || activePath.indexOf(`${childPath}__`) === 0)} // activePath starts with branch's path
+                                    name={branch.title}
+                                    active={activePath // activePath starts with branch's path
+                                        && (activePath === childPath || activePath.indexOf(`${childPath}__`) === 0)}
                                     onClick={() => {
-                                        if (activePath && activePath.indexOf(`${childPath}__`) === 0) return; // do no change activePath if clicked branch is an ancestor
+                                        if (activePath // do no change activePath if clicked branch is an ancestor
+                                            && activePath.indexOf(`${childPath}__`) === 0) return;
                                         setActivePath(childPath);
                                     }}
                                 />
@@ -274,12 +254,63 @@ StoryEditorContainer.propTypes = {
     onMove: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
     onRename: PropTypes.func.isRequired,
+    branches: PropTypes.array,
 };
 
 StoryEditorContainer.defaultProps = {
     disabled: false,
     story: '',
     annotations: [],
+    branches: [
+        {
+            title: 'bleh',
+            story: 'bleh story',
+        },
+        {
+            title: 'boo',
+            story: 'boo story',
+            branches: [
+                {
+                    title: 'branch1',
+                    story: 'branch1 story',
+                },
+                {
+                    title: 'branch2',
+                    story: 'branch2 story',
+                    branches: [
+                        {
+                            title: 'brancha',
+                            story: 'brancha story',
+                        },
+                        {
+                            title: 'branchb',
+                            story: 'branchb story',
+                        },
+                        {
+                            title: 'branchc',
+                            story: 'branchc story',
+                        },
+                    ],
+                },
+                {
+                    title: 'branch3',
+                    story: 'branch3 story',
+                },
+            ],
+        },
+        {
+            title: 'bah',
+            story: 'bah story',
+        },
+        {
+            title: 'hurk',
+            story: 'hurk story',
+        },
+        {
+            title: 'hlargh',
+            story: 'hlargh story',
+        },
+    ],
 };
 
 export default StoryEditorContainer;
