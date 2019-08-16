@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.7](https://github.com/botfront/botfront/compare/v0.15.5-ee.6...v0.15.5-ee.7) (2019-08-16)
+
+
+### Bug Fixes
+
+* delete response on empty text ([a1924d4](https://github.com/botfront/botfront/commit/a1924d4))
+* delete response on empty text ([2c75938](https://github.com/botfront/botfront/commit/2c75938))
+* typo in utility function ([e6df4a9](https://github.com/botfront/botfront/commit/e6df4a9))
+
+
+### Features
+
+* **quick replies:** comply with Messenger protocol ([02b65a3](https://github.com/botfront/botfront/commit/02b65a3))
+* **quick replies:** first commit ([746c88d](https://github.com/botfront/botfront/commit/746c88d))
+* **quick replies:** refactor state management ([cbd718e](https://github.com/botfront/botfront/commit/cbd718e))
+* **quick replies:** save text-less responses ([5dbfcae](https://github.com/botfront/botfront/commit/5dbfcae))
+* **slot popup content:** link to slots ([846d8e5](https://github.com/botfront/botfront/commit/846d8e5))
+* **visual editor:** close all hanging menus onmouseleave ([5c97eb4](https://github.com/botfront/botfront/commit/5c97eb4))
+* add warning when NLU can't be trained because of  n < 2 intents ([b47996a](https://github.com/botfront/botfront/commit/b47996a))
+
+
+### Tests
+
+* **visual editor:** add test for quick replies ([e97d21c](https://github.com/botfront/botfront/commit/e97d21c))
+
+
+
 ### [0.15.5-ee.6](https://github.com/botfront/botfront/compare/v0.15.5-ee.5...v0.15.5-ee.6) (2019-08-15)
 
 
