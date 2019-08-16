@@ -127,7 +127,6 @@ class NLUModel extends React.Component {
     getIntentForDropdown = (all) => {
         const { intents } = this.state;
         const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
-
         intents.forEach((i) => {
             intentSelection.push({
                 text: i,
@@ -253,6 +252,24 @@ class NLUModel extends React.Component {
         );
     };
 
+    renderWarningMessageIntents = () => {
+        const { intents } = this.props;
+        if (intents.length < 2) {
+            return (
+                <Message
+                    size='tiny'
+                    content={(
+                        <div><Icon name='warning' />
+                        You need at least two distinct intents to train NLU
+                        </div>
+                    )}
+                    info
+                />
+            );
+        }
+        return <></>;
+    }
+
     render() {
         const {
             projectId,
@@ -341,8 +358,8 @@ class NLUModel extends React.Component {
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-
                 <Container>
+                    <>{this.renderWarningMessageIntents()}</>
                     <br />
                     {can('nlu-data:r', projectId) && instance && (
                         <div id='playground'>
