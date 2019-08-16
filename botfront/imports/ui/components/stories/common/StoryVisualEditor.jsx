@@ -245,7 +245,7 @@ class StoryVisualEditor extends React.Component {
             }
             return (
                 <React.Fragment
-                    key={`user${line.gui.data[0] ? line.gui.data[0].intent : index}`}
+                    key={`user${line.gui.data && line.gui.data[0] ? line.gui.data[0].intent : index}`}
                 >
                     <UserUtteranceContainer
                         exceptions={exceptions}

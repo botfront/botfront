@@ -36,7 +36,7 @@ function ResponseButtonEditor({
                             data-cy='enter-button-title'
                             autoFocus
                             placeholder='Button title'
-                            onChange={(event, { value }) => {
+                            onChange={(_event, { value }) => {
                                 const updatedVal = { title: value, type };
                                 if (type === 'web_url') updatedVal.payload = url;
                                 else updatedVal.payload = payload;

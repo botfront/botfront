@@ -8,7 +8,7 @@ import { OOS_LABEL } from '../stories/common/constants.json';
 function Intent({
     value, size, allowEditing, allowAdditions, onChange,
 }) {
-    const { intents } = useContext(ConversationOptionsContext);
+    const { intents, addIntent } = useContext(ConversationOptionsContext);
     const popupTrigger = useRef(null);
     const popupContent = useRef(null);
     const [hover, setHover] = useState(false);
@@ -59,7 +59,13 @@ function Intent({
                         <IntentDropdown
                             intent={value}
                             options={options}
-                            onChange={(e, data) => onChange(data.value)}
+                            onChange={(_e, data) => {
+                                onChange(data.value.replace(/ /g, ''));
+                            }}
+                            onAddItem={(_e, data) => {
+                                addIntent(data.value.replace(/ /g, ''));
+                                onChange(data.value.replace(/ /g, ''));
+                            }}
                             allowAdditions={allowAdditions}
                         />
                     </div>
