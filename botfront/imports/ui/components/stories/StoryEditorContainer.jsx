@@ -4,6 +4,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
+import { set as _set } from 'lodash';
 import 'brace/theme/github';
 import 'brace/mode/text';
 import './style.import.less';
@@ -45,8 +46,14 @@ const StoryEditorContainer = ({
             ],
         },
         { name: 'bah' },
+        { name: 'a' },
+        { name: 'b' },
+        { name: 'c' },
+        { name: 'd' },
+        { name: 'e' },
     ];
     const [activePath, setActivePath] = useState();
+    const [storyBranches, setStoryBranches] = useState(BRANCHES);
 
     // sets annotations directly on the ace editor, bypassing the react component
     // We bypass react-ace because annotations are buggy on it
@@ -186,9 +193,31 @@ const StoryEditorContainer = ({
         />
     );
 
+    const getNewBranchName = (branches) => {
+        const numNewBranches = branches.filter(branch => branch.name.search('New Branch') === 0).length;
+        return `New Branch${numNewBranches < 1 ? '' : numNewBranches + 1}`;
+    };
+
+    const getBranchesAndIndices = path => path.split('__').slice(1) // gets branches but also indices, useful for setting later
+        .reduce((acc, val) => {
+            const index = acc.branches.findIndex(b => b.name === val);
+            return {
+                branches: acc.branches[index].branches,
+                indices: [...acc.indices, index],
+            };
+        }, { branches: storyBranches, indices: [] });
+
+    const handleCreateBranch = (branches, indices) => {
+        const path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
+        const newBranch = { name: getNewBranchName(branches) };
+        const newBranches = [...storyBranches];
+        if (path) _set(newBranches, path, [...branches, newBranch]);
+        else newBranches.push(newBranch);
+        setStoryBranches(newBranches);
+    };
+
     const renderBranches = (path) => {
-        const branches = path.split('__').slice(1)
-            .reduce((acc, val) => acc.filter(b => b.name === val)[0].branches, BRANCHES);
+        const { branches, indices } = getBranchesAndIndices(path);
         const query = new RegExp(`(${path}__.*?)(__|$)`);
         const queriedPath = activePath || newTitle;
         const nextPath = queriedPath.match(query) && queriedPath.match(query)[1];
@@ -197,14 +226,23 @@ const StoryEditorContainer = ({
                 {renderAceEditor()}
                 { branches && branches.length && (
                     <Menu tabular>
-                        { branches.map(branch => (
-                            <Menu.Item
-                                key={`${path}__${branch.name}`}
-                                name={branch.name}
-                                active={activePath === `${path}__${branch.name}`}
-                                onClick={() => setActivePath(`${path}__${branch.name}`)}
-                            />
-                        ))}
+                        { branches.map((branch) => {
+                            const childPath = `${path}__${branch.name}`;
+                            return (
+                                <Menu.Item
+                                    key={childPath}
+                                    name={branch.name}
+                                    active={activePath && (activePath === childPath || activePath.indexOf(`${childPath}__`) === 0)} // activePath starts with branch's path
+                                    onClick={() => {
+                                        if (activePath && activePath.indexOf(`${childPath}__`) === 0) return; // do no change activePath if clicked branch is an ancestor
+                                        setActivePath(childPath);
+                                    }}
+                                />
+                            );
+                        })}
+                        <Menu.Item key={`${path}-add`} onClick={() => handleCreateBranch(branches, indices)}>
+                            <Icon name='plus' />
+                        </Menu.Item>
                     </Menu>
                 )}
                 { branches && branches.length && activePath && nextPath && ( // render branch content
