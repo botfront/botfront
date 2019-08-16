@@ -6,12 +6,12 @@ import ResponseButtonEditor from './ResponseButtonEditor';
 import { stringPayloadToObject } from '../../../../lib/story_validation';
 
 export const isButtonValid = ({
-    title, type, payload, url, // eslint-disable-line camelcase
+    title, type, payload, // eslint-disable-line camelcase
 }) => {
     const titleOk = title.length > 0;
     const payloadOk = type === 'postback'
         ? stringPayloadToObject(payload).intent.length > 0
-        : /^https?:\/\//.test(url);
+        : payload && payload.length;
         
     return titleOk && payloadOk;
 };
@@ -44,6 +44,7 @@ function QuickReply({
                 wide='very'
                 trigger={button}
                 on='click'
+                // hideOnScroll
                 open={isOpen}
                 onOpen={() => setIsOpen(true)}
                 onClose={handleSave}

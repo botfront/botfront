@@ -13,6 +13,7 @@ const ActionPopupContent = (props) => {
             trigger={trigger}
             wide
             on='click'
+            hideOnScroll
             open={isOpen}
             onOpen={() => {
                 setIsOpen(true);

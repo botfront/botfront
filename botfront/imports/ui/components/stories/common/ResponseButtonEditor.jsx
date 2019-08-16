@@ -11,7 +11,10 @@ import {
 
 function ResponseButtonEditor({
     value: {
-        title, type, payload, url, // eslint-disable-line camelcase
+        title,
+        type,
+        payload,
+        url, // eslint-disable-line camelcase
     },
     onChange,
     onDelete,
@@ -35,7 +38,7 @@ function ResponseButtonEditor({
                             placeholder='Button title'
                             onChange={(event, { value }) => {
                                 const updatedVal = { title: value, type };
-                                if (type === 'web_url') updatedVal.url = url;
+                                if (type === 'web_url') updatedVal.payload = url;
                                 else updatedVal.payload = payload;
                                 onChange(updatedVal);
                             }}
@@ -47,8 +50,7 @@ function ResponseButtonEditor({
                             label='Button type'
                             onChange={(event, { value }) => {
                                 const updatedVal = { title, type: value };
-                                if (value === 'web_url') updatedVal.url = '';
-                                else updatedVal.payload = '';
+                                updatedVal.payload = '';
                                 onChange(updatedVal);
                             }}
                             value={type}
@@ -64,7 +66,8 @@ function ResponseButtonEditor({
                                 label='URL'
                                 placeholder='http://'
                                 value={payload}
-                                onChange={(event, { value }) => onChange({ title, type, url: value })}
+                                onChange={(_event, { value }) => onChange({ title, type, payload: value })
+                                }
                                 data-cy='enter_url'
                             />
                         )}

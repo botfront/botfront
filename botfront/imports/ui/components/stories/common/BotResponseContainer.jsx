@@ -11,8 +11,7 @@ const BotResponseContainer = (props) => {
 
     const [input, setInput] = useState();
     const focusGrabber = useRef();
-    const isTextResponse = Object.keys(value).length === 1
-        && Object.keys(value)[0] === 'text';
+    const isTextResponse = Object.keys(value).length === 1 && Object.keys(value)[0] === 'text';
     const hasText = Object.keys(value).includes('text');
     const hasButtons = Object.keys(value).includes('buttons');
 
@@ -43,12 +42,18 @@ const BotResponseContainer = (props) => {
     const renderButtons = () => (
         <QuickReplies
             value={value.buttons}
-            onChange={(newButtons) => { onChange({ buttons: newButtons }, false); }}
+            onChange={(newButtons) => {
+                onChange({ buttons: newButtons }, false);
+            }}
         />
     );
 
     return (
-        <div className='utterance-container bot-response' agent='bot' data-cy='bot-response-input'>
+        <div
+            className='utterance-container bot-response'
+            agent='bot'
+            data-cy='bot-response-input'
+        >
             <div className='inner'>
                 {hasText && renderText()}
                 {hasButtons && renderButtons()}

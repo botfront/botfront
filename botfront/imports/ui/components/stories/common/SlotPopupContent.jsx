@@ -64,7 +64,7 @@ const SlotPopupContent = (props) => {
                 setMenuOpen(true);
                 trackOpenMenu(() => setMenuOpen(false));
             }}
-            onClose={() => setPopupOpen(false)}
+            onClose={() => setMenuOpen(false)}
         >
             <Dropdown.Menu>
                 <Dropdown.Header>Select a slot</Dropdown.Header>

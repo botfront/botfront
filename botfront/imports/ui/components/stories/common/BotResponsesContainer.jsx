@@ -11,7 +11,12 @@ import { defaultTemplate } from './StoryVisualEditor';
 
 const BotResponsesContainer = (props) => {
     const {
-        name, onDeleteAllResponses, deletable, exceptions, isNew, removeNewState,
+        name,
+        onDeleteAllResponses,
+        deletable,
+        exceptions,
+        isNew,
+        removeNewState,
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
@@ -50,7 +55,9 @@ const BotResponsesContainer = (props) => {
 
     const handleCreateReponse = (index, responseType) => {
         const newSequence = [...getSequence()];
-        newSequence.splice(index + 1, 0, { content: yamlDump(defaultTemplate(responseType)) });
+        newSequence.splice(index + 1, 0, {
+            content: yamlDump(defaultTemplate(responseType)),
+        });
         setFocus(index + 1);
         setSequence(newSequence);
     };
@@ -70,12 +77,11 @@ const BotResponsesContainer = (props) => {
         const sequence = [...getSequence()];
         const oldContent = yamlLoad(sequence[index].content);
         if (
-            (newContent.text !== undefined && newContent.text.trim() === '')
+            newContent.text !== undefined
+            && newContent.text.trim() === ''
             && (!oldContent.buttons || !oldContent.buttons.length)
         ) return handleDeleteResponse(index);
-        sequence[index].content = yamlDump(
-            { ...oldContent, ...newContent },
-        );
+        sequence[index].content = yamlDump({ ...oldContent, ...newContent });
         setSequence(sequence);
         if (enter) setToBeCreated(index);
         return true;
@@ -134,7 +140,8 @@ const BotResponsesContainer = (props) => {
                         value={content}
                         onDelete={() => handleDeleteResponse(index)}
                         onAbort={() => {}}
-                        onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)}
+                        onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)
+                        }
                         focus={focus === index}
                         onFocus={() => setFocus(index)}
                     />
@@ -142,7 +149,8 @@ const BotResponsesContainer = (props) => {
                         <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
                     )} */}
                 </div>
-                {!content.buttons && renderAddLine(index) /* add line button if no buttons */}
+                {!content.buttons
+                    && renderAddLine(index) /* add line button if no buttons */}
             </React.Fragment>
         );
     };
