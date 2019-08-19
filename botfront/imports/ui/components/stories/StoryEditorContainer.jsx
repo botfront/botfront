@@ -1,15 +1,16 @@
 import {
-    Popup, Icon, Segment, Menu, Dropdown,
+    Icon, Segment, Menu,
 } from 'semantic-ui-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import { set as _set } from 'lodash';
+import { StoryController } from '../../../lib/story_controller';
+import { ConversationOptionsContext } from '../utils/Context';
+import StoryTopMenu from './StoryTopMenu';
 import 'brace/theme/github';
 import 'brace/mode/text';
 import './style.import.less';
-
-import ConfirmPopup from '../common/ConfirmPopup';
 
 const StoryEditorContainer = ({
     story,
@@ -22,6 +23,7 @@ const StoryEditorContainer = ({
     onMove,
     groupNames,
     onRename,
+    editor: editorType,
     branches: BRANCHES,
 }) => {
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -31,6 +33,10 @@ const StoryEditorContainer = ({
     const [newTitle, setNewTitle] = useState(title);
     const [activePath, setActivePath] = useState();
     const [storyBranches, setStoryBranches] = useState(BRANCHES);
+    const [editedStories, setEditedStories] = useState({
+        [title]: story,
+    });
+    const { slots } = useContext(ConversationOptionsContext);
 
     // sets annotations directly on the ace editor, bypassing the react component
     // We bypass react-ace because annotations are buggy on it
@@ -44,103 +50,28 @@ const StoryEditorContainer = ({
         setNewTitle(title);
     }, [title]);
 
-    const renderMenu = () => (
-        <Menu attached='top'>
-            <Menu.Item header>
-                <span className='story-title-prefix'>##</span>
-                <input
-                    data-cy='story-title'
-                    value={newTitle}
-                    onChange={event => setNewTitle(event.target.value)}
-                    onBlur={() => {
-                        if (title === newTitle) {
-                            return;
-                        }
-                        if (!newTitle.replace(/\s/g, '').length) {
-                            setNewTitle(title);
-                            return;
-                        }
-                        onRename(newTitle);
-                    }}
-                />
-            </Menu.Item>
-            <Menu.Item position='right'>
-                <Popup
-                    trigger={(
-                        <Icon
-                            name='dolly'
-                            color='grey'
-                            link
-                            data-cy='move-story'
-                        />
-                    )}
-                    content={(
-                        <ConfirmPopup
-                            title='Move story to :'
-                            content={(
-                                <Dropdown
-                                    button
-                                    openOnFocus
-                                    search
-                                    basic
-                                    placeholder='Select a group'
-                                    fluid
-                                    selection
-                                    value={moveDestination}
-                                    options={groupNames}
-                                    onChange={(e, data) => {
-                                        setMoveDestination(data.value);
-                                    }}
-                                    data-cy='move-story-dropdown'
-                                />
-                            )}
-                            onYes={() => {
-                                if (moveDestination) {
-                                    openMovePopup(false);
-                                    onMove(moveDestination);
-                                }
-                            }}
-                            onNo={() => openMovePopup(false)}
-                        />
-                    )}
-                    on='click'
-                    open={movePopupOpened}
-                    onOpen={() => openMovePopup(true)}
-                    onClose={() => openMovePopup(false)}
-                />
-                <Icon
-                    name='clone'
-                    color='grey'
-                    link
-                    data-cy='duplicate-story'
-                    onClick={onClone}
-                />
-                <Popup
-                    trigger={(
-                        <Icon
-                            name='trash'
-                            color='grey'
-                            link
-                            data-cy='delete-story'
-                        />
-                    )}
-                    content={(
-                        <ConfirmPopup
-                            title='Delete story ?'
-                            onYes={() => {
-                                openDeletePopup(false);
-                                onDelete();
-                            }}
-                            onNo={() => openDeletePopup(false)}
-                        />
-                    )}
-                    on='click'
-                    open={deletePopupOpened}
-                    onOpen={() => openDeletePopup(true)}
-                    onClose={() => openDeletePopup(false)}
-                />
-            </Menu.Item>
-        </Menu>
+    useEffect(() => {
+        setStoryBranches(BRANCHES);
+    }, [BRANCHES]);
+
+    const renderTopMenu = () => (
+        <StoryTopMenu
+            title={title}
+            newTitle={newTitle}
+            setNewTitle={setNewTitle}
+            setMoveDestination={setMoveDestination}
+            onDelete={onDelete}
+            onMove={onMove}
+            movePopupOpened={movePopupOpened}
+            moveDestination={moveDestination}
+            openDeletePopup={openDeletePopup}
+            openMovePopup={openMovePopup}
+            deletePopupOpened={deletePopupOpened}
+            disabled={disabled}
+            onRename={onRename}
+            onClone={onClone}
+            groupNames={groupNames}
+        />
     );
 
     const renderAceEditor = storyToDisplay => (
@@ -155,7 +86,7 @@ const StoryEditorContainer = ({
             maxLines={Infinity}
             fontSize={12}
             onChange={onChange}
-            value={storyToDisplay}
+            value={storyToDisplay ? storyToDisplay.unsafeMd : ''}
             showPrintMargin={false}
             showGutter
             annotations={annotations}
@@ -187,21 +118,33 @@ const StoryEditorContainer = ({
 
     const handleCreateBranch = (branches, indices) => {
         const path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
-        const newBranch = { title: getNewBranchName(branches) };
+        const newBranch = { title: getNewBranchName(branches), story: '* replace_with_intent' };
         const newBranches = [...storyBranches];
         if (path) _set(newBranches, path, [...branches, newBranch]);
         else newBranches.push(newBranch);
         setStoryBranches(newBranches);
     };
 
+    const handleSwitchBranch = (path) => { // will instantiate a storyController if it doesn't exist
+        if (!editedStories[path] || !(editedStories[path] instanceof StoryController)) {
+            const { story: branchStory } = getBranchesAndIndices(path);
+            setEditedStories({
+                ...editedStories,
+                [path]: new StoryController(branchStory, slots),
+            });
+        }
+        setActivePath(path);
+    };
+
     const renderBranches = (path) => {
-        const { branches, story: storyToDisplay, indices } = getBranchesAndIndices(path);
+        const { branches, indices } = getBranchesAndIndices(path);
+        const storyToDisplay = editedStories[path];
         const query = new RegExp(`(${path}__.*?)(__|$)`);
         const queriedPath = activePath || newTitle;
         const nextPath = queriedPath.match(query) && queriedPath.match(query)[1];
         return (
             <>
-                {renderAceEditor(storyToDisplay)}
+                {editorType !== 'visual' ? renderAceEditor(storyToDisplay) : null}
                 { branches && branches.length && (
                     <Menu tabular>
                         { branches.map((branch) => {
@@ -215,7 +158,7 @@ const StoryEditorContainer = ({
                                     onClick={() => {
                                         if (activePath // do no change activePath if clicked branch is an ancestor
                                             && activePath.indexOf(`${childPath}__`) === 0) return;
-                                        setActivePath(childPath);
+                                        handleSwitchBranch(childPath);
                                     }}
                                 />
                             );
@@ -234,7 +177,7 @@ const StoryEditorContainer = ({
 
     return (
         <div className='story-editor' data-cy='story-editor'>
-            {renderMenu()}
+            {renderTopMenu()}
             <Segment attached='bottom'>
                 {renderBranches(newTitle)}
                 <br />
@@ -244,7 +187,7 @@ const StoryEditorContainer = ({
 };
 
 StoryEditorContainer.propTypes = {
-    story: PropTypes.string,
+    story: PropTypes.instanceOf(StoryController),
     disabled: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
@@ -255,6 +198,7 @@ StoryEditorContainer.propTypes = {
     groupNames: PropTypes.array.isRequired,
     onRename: PropTypes.func.isRequired,
     branches: PropTypes.array,
+    editor: PropTypes.string,
 };
 
 StoryEditorContainer.defaultProps = {
@@ -311,6 +255,7 @@ StoryEditorContainer.defaultProps = {
             story: 'hlargh story',
         },
     ],
+    editor: 'markdown',
 };
 
 export default StoryEditorContainer;
