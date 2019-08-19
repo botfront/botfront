@@ -94,6 +94,7 @@ function ResponseButtonEditor({
                                 icon='trash'
                                 content='Delete button'
                                 size='mini'
+                                type='button'
                                 onClick={onDelete}
                             />
                         )}

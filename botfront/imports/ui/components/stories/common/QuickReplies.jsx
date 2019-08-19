@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from 'semantic-ui-react';
 import './QuickReply.import.less';
@@ -8,10 +8,6 @@ function QuickReplies({
     value, onChange, min, max,
 }) {
     const [buttons, setButtons] = useState(value);
-
-    useEffect(() => {
-        setButtons(value);
-    }, [value]);
 
     const handleChange = (button, i) => {
         const newButtons = [...buttons.slice(0, i), button, ...buttons.slice(i + 1)];
