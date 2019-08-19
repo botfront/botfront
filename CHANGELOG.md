@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.9](https://github.com/botfront/botfront/compare/v0.15.5-ee.8...v0.15.5-ee.9) (2019-08-19)
+
+
+### Bug Fixes
+
+* manual rollback re add intent warning msg ([2208dc6](https://github.com/botfront/botfront/commit/2208dc6))
+
+
+### Features
+
+* add default story group on project insert ([2ca4cd7](https://github.com/botfront/botfront/commit/2ca4cd7))
+
+
+### Tests
+
+* story-state-persistence ([73fb41d](https://github.com/botfront/botfront/commit/73fb41d))
+
+
+
 ### [0.15.5-ee.8](https://github.com/botfront/botfront/compare/v0.15.5-ee.7...v0.15.5-ee.8) (2019-08-19)
 
 
