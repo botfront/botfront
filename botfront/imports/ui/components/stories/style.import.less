@@ -82,7 +82,63 @@
     color: rgb(33,133,208);
   }
 }
-  
+
+.branch-tab{
+  input {
+    text-overflow: ellipsis;
+    font-weight: bold;
+    border-style: solid;
+    font-size: 14px;
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    color: rgba(0,0,0,.87);
+    outline: none;
+    max-width: 24ch;
+    width: 24ch;
+    &:hover{
+      min-width: 75px;
+      text-overflow: clip;
+      border-color: rgb(190, 190, 190);
+    }
+    &:focus {
+      text-overflow: clip;
+      min-width: 75px;
+      text-align: left;
+      font-size: 14px;
+      border-color: rgb(184, 184, 184);
+    }
+  }
+  .branch-title{
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 20ch;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .trash-icon{
+    position: absolute;
+    visibility: hidden;
+    padding-left: 10px;
+    }
+  &:hover{
+    .trash-icon{
+      position: relative;
+      visibility: visible;
+    }
+    input{
+      text-overflow: clip;
+      min-width: 75px;
+      border-color: rgb(210, 210, 210);
+    }
+  }
+}
+
+
 .story-editor {
   margin-bottom: 20px;
   .ui.attached.menu.top {
