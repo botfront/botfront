@@ -52,12 +52,16 @@ class BranchTabLabel extends React.Component {
         onChangeName(newTitle);
     }
 
-    renderWarnings = () => {
-        const { hasWarning } = this.props;
+    renderAlertIcons = () => {
+        const { hasWarning, hasError } = this.props;
+        const alertList = [];
         if (hasWarning) {
-            return <Icon name='warning' />;
+            alertList.push(<Icon name='warning' />);
         }
-        return <></>;
+        if (hasError) {
+            alertList.push(<Icon name='close' />);
+        }
+        return <>{alertList}</>;
     }
 
     renderErrors = () => {
@@ -96,7 +100,6 @@ class BranchTabLabel extends React.Component {
         }
         return (
             <>
-                <>{this.renderErrors()}{this.renderWarnings()}</>
                 {this.renderTitleInput()}
                 <Icon name='trash' className='trash-icon' onClick={onDelete} style={styleTrash} />
             </>
@@ -107,7 +110,6 @@ class BranchTabLabel extends React.Component {
         const { title } = this.state;
         return (
             <>
-                <>{this.renderErrors()}{this.renderWarnings()}</>
                 <span className='branch-title'>{title}</span>
             </>
         );
@@ -119,7 +121,7 @@ class BranchTabLabel extends React.Component {
         if (active !== title) {
             return this.renderMenuDefault();
         }
-        return this.renderMenuSelected();
+        return <>{this.renderMenuSelected()}</>;
     }
 
     handleOnClick = () => {
@@ -136,7 +138,12 @@ class BranchTabLabel extends React.Component {
                 className='branch-tab'
                 active={title === active}
                 onClick={this.handleOnClick}
-                content={this.renderMenuItemContents()}
+                content={
+                <>
+                    {this.renderAlertIcons()}
+                    {this.renderMenuItemContents()}
+                </>
+                }
                 onMouseEnter={this.handleTitleMouseEnter}
                 onMouseLeave={this.handleTitleMouseLeave}
                 role='textbox'
