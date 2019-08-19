@@ -1,5 +1,5 @@
 import {
-    Container, Button, Tab, Header, Loader,
+    Container, Button, Tab, Message, Loader,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
@@ -11,6 +11,7 @@ import ReactTable from 'react-table';
 import ConversationLengthsWidget from '../charts/ConversationLengthsPieWidget';
 import ConversationLengthsBarWidget from '../charts/ConversationLengthsBarsWidget';
 import ConversationDurationsBarWidget from '../charts/ConversationDurationsBarsWidget';
+import IntentFrequenciesWidget from '../charts/IntentsFrequenciesWidget';
 
 function Analytics(props) {
     const { projectId } = props;
@@ -34,6 +35,7 @@ function Analytics(props) {
                     if (error) return `Error! ${error.message}`;
                     return (
                         <>
+                            <Message content='# of user messages sent by conversation' />
                             <div style={{ height: 500 }}>
                                 <ConversationLengthsWidget
                                     data={conversationLengths.map(
@@ -104,6 +106,46 @@ function Analytics(props) {
         );
     };
 
+    const renderIntentsFrequencies = () => {
+        const GET_INTENTS_FREQUENCIES = gql`
+            query IntentsFrequencies($projectId: String!) {
+                intentsFrequencies(projectId: $projectId) {
+                    frequency
+                    count
+                    name
+                }
+            }
+        `;
+
+        return (
+            <Query query={GET_INTENTS_FREQUENCIES} variables={{ projectId }}>
+                {({ loading, error, data: { intentsFrequencies } }) => {
+                    if (loading) return <Loader active inline='centered' />;
+                    if (error) return `Error! ${error.message}`;
+                    return (
+                        <>
+                            <Message content='Most frequenc user intents of 1st message' />
+                            <div style={{ height: 500 }}>
+                                <IntentFrequenciesWidget
+                                    data={intentsFrequencies.map(
+                                        ({ name, frequency, count }) => ({
+                                            id: name,
+                                            label: name,
+                                            strValue: `${(frequency * 100).toFixed(
+                                                2,
+                                            )}% (${count})`,
+                                            value: (frequency * 100).toFixed(2),
+                                        }),
+                                    )}
+                                />
+                            </div>
+                        </>
+                    );
+                }}
+            </Query>
+        );
+    };
+
     const renderConversationDurations = () => {
         const GET_CONVERSATION_DURATIONS = gql`
             query EntityDistribution($projectId: String!) {
@@ -125,6 +167,8 @@ function Analytics(props) {
                     if (error) return `Error! ${error.message}`;
                     return (
                         <>
+                            {' '}
+                            <Message content='# of conversations by duration' />
                             <div style={{ height: 500 }}>
                                 <ConversationDurationsBarWidget
                                     data={conversationDurations[0]}
@@ -153,6 +197,10 @@ function Analytics(props) {
         {
             menuItem: 'Conversation durations',
             render: () => <Tab.Pane>{renderConversationDurations()}</Tab.Pane>,
+        },
+        {
+            menuItem: 'Intents frequencies',
+            render: () => <Tab.Pane>{renderIntentsFrequencies()}</Tab.Pane>,
         },
     ];
 
