@@ -12,7 +12,7 @@ import { Credentials, createCredentials } from '../credentials';
 import { createDeployment } from '../deployment/deployment.methods';
 import { Deployments } from '../deployment/deployment.collection';
 import { checkIfCan } from '../../lib/scopes';
-import { createIntroStoryGroup } from '../storyGroups/storyGroups.methods';
+import { createIntroStoryGroup, createDefaultStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
@@ -91,6 +91,7 @@ if (Meteor.isServer) {
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
                 createIntroStoryGroup(_id);
+                createDefaultStoryGroup(_id);
                 const instance = await createInstance({ _id, ...item });
                 Projects.update({ _id }, { $set: { instance } });
                 return _id;
