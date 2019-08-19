@@ -10,7 +10,6 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditorContainer from './StoryEditorContainer';
 
 function StoriesEditor(props) {
-    const [errors, setErrors] = useState([]);
     // This state is only used to store edited stories
     const [editedStories, setEditedStories] = useState({});
     const { slots } = useContext(ConversationOptionsContext);
@@ -20,8 +19,6 @@ function StoriesEditor(props) {
         disabled,
         onSaving,
         onSaved,
-        onError,
-        onErrorResolved,
         onAddNewStory,
         onDeleteGroup,
         storyGroup,
@@ -40,51 +37,13 @@ function StoriesEditor(props) {
         );
     }
 
-    // This effect listen to changes on errors and notifies
-    // the parent component if no errors were detected
-    useEffect(() => {
-        let noErrors = true;
-        errors.forEach((error) => {
-            if (error && error.length) {
-                noErrors = false;
-            }
-        });
-        if (noErrors) onErrorResolved();
-    }, [errors]);
-
     // This effect resets the state if the storyGroup being displayed changed
     useEffect(() => {
-        // console.log('use effect');
         setEditedStories({});
-        setErrors([]);
     }, [storyGroup]);
-
-    function spliceStoryState(index) {
-        const stateErrors = [...errors];
-        stateErrors.splice(index, 1);
-        setErrors(stateErrors);
-    }
-
-    function handleStoryChange(newStory, index) {
-        // console.log('handle story change');
-        if (!editedStories[stories[index]._id]) {
-            return;
-        }
-        editedStories[stories[index]._id].setUnsafeMd(newStory);
-        const newVal = new StoryController(newStory, slots);
-        newVal.validateStory();
-
-        const newErrors = [...errors];
-        newErrors[index] = newVal.exceptions;
-        setErrors(newErrors);
-
-        if (newVal.exceptions.length) onError();
-        else editedStories[stories[index]._id].setMd(newStory);
-    }
 
     function handleStoryDeletion(index) {
         const toBeDeletedStory = stories[index];
-        spliceStoryState(index);
         Meteor.call(
             'stories.delete',
             toBeDeletedStory,
@@ -112,7 +71,6 @@ function StoriesEditor(props) {
         if (newGroupId === stories[index].storyGroupId) {
             return;
         }
-        spliceStoryState(index);
         Meteor.call(
             'stories.update',
             { ...stories[index], storyGroupId: newGroupId },
@@ -166,18 +124,7 @@ function StoriesEditor(props) {
         return (
             <StoryEditorContainer
                 story={storyController}
-                annotations={
-                    (!!errors[index] ? true : undefined)
-                    && (!!errors[index].length ? true : undefined)
-                    && errors[index].map(error => ({
-                        row: error.line - 1,
-                        type: error.type,
-                        text: error.message,
-                        column: 0,
-                    }))
-                }
                 disabled={disabled}
-                onChange={data => handleStoryChange(data, index)}
                 onRename={newTitle => handleStoryRenaming(newTitle, index)}
                 onDelete={() => handleStoryDeletion(index)}
                 key={story._id}
@@ -202,12 +149,8 @@ function StoriesEditor(props) {
 StoriesEditor.propTypes = {
     storyGroup: PropTypes.object.isRequired,
     stories: PropTypes.array,
-    // this method will be called when the component starts saving changes
-    onSaving: PropTypes.func.isRequired,
-    // This one is called when changes are saved
-    onError: PropTypes.func.isRequired,
-    onErrorResolved: PropTypes.func.isRequired,
-    onSaved: PropTypes.func.isRequired,
+    onSaving: PropTypes.func.isRequired, // this method will be called when the component starts saving changes
+    onSaved: PropTypes.func.isRequired, // This one is called when changes are saved
     disabled: PropTypes.bool,
     onAddNewStory: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
