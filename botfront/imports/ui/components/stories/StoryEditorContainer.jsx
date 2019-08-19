@@ -15,9 +15,7 @@ import './style.import.less';
 const StoryEditorContainer = ({
     story,
     disabled,
-    onChange,
     onDelete,
-    annotations,
     title,
     onClone,
     onMove,
@@ -29,22 +27,22 @@ const StoryEditorContainer = ({
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
-    const [editor, setEditor] = useState();
+    // const [editor, setEditor] = useState();
     const [newTitle, setNewTitle] = useState(title);
     const [activePath, setActivePath] = useState();
     const [storyBranches, setStoryBranches] = useState(BRANCHES);
-    const [editedStories, setEditedStories] = useState({
+    const [editedStories, setEditedStories] = useState({ // this is the root story
         [title]: story,
     });
     const { slots } = useContext(ConversationOptionsContext);
 
     // sets annotations directly on the ace editor, bypassing the react component
     // We bypass react-ace because annotations are buggy on it
-    useEffect(() => {
+    /* useEffect(() => {
         if (editor) {
             editor.getSession().setAnnotations(annotations);
         }
-    }, [annotations, story]);
+    }, [annotations, story]); */
 
     useEffect(() => {
         setNewTitle(title);
@@ -74,10 +72,10 @@ const StoryEditorContainer = ({
         />
     );
 
-    const renderAceEditor = storyToDisplay => (
+    const renderAceEditor = path => (
         <AceEditor
             readOnly={disabled}
-            onLoad={setEditor}
+            // onLoad={setEditor}
             theme='github'
             width='100%'
             name='story'
@@ -85,11 +83,11 @@ const StoryEditorContainer = ({
             minLines={5}
             maxLines={Infinity}
             fontSize={12}
-            onChange={onChange}
-            value={storyToDisplay ? storyToDisplay.unsafeMd : ''}
+            onChange={newStory => editedStories[path].setMd(newStory)}
+            value={editedStories[path] ? editedStories[path].md : ''}
             showPrintMargin={false}
             showGutter
-            annotations={annotations}
+            // annotations={annotations}
             editorProps={{
                 $blockScrolling: Infinity,
             }}
@@ -138,13 +136,12 @@ const StoryEditorContainer = ({
 
     const renderBranches = (path) => {
         const { branches, indices } = getBranchesAndIndices(path);
-        const storyToDisplay = editedStories[path];
         const query = new RegExp(`(${path}__.*?)(__|$)`);
         const queriedPath = activePath || newTitle;
         const nextPath = queriedPath.match(query) && queriedPath.match(query)[1];
         return (
             <>
-                {editorType !== 'visual' ? renderAceEditor(storyToDisplay) : null}
+                {editorType !== 'visual' ? renderAceEditor(path) : null}
                 { branches && branches.length && (
                     <Menu tabular>
                         { branches.map((branch) => {
@@ -189,9 +186,7 @@ const StoryEditorContainer = ({
 StoryEditorContainer.propTypes = {
     story: PropTypes.instanceOf(StoryController),
     disabled: PropTypes.bool,
-    onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
-    annotations: PropTypes.array,
     title: PropTypes.string.isRequired,
     onClone: PropTypes.func.isRequired,
     onMove: PropTypes.func.isRequired,
@@ -204,7 +199,6 @@ StoryEditorContainer.propTypes = {
 StoryEditorContainer.defaultProps = {
     disabled: false,
     story: '',
-    annotations: [],
     branches: [
         {
             title: 'bleh',
