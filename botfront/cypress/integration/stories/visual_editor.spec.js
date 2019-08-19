@@ -7,7 +7,7 @@ buttons:
     payload: /get_started
   - title: web_url option
     type: web_url
-    url: 'https://myurl.com/'
+    payload: 'https://myurl.com/'
 `.replace(/\n/g, ''));
 
 describe('story visual editor', function() {
@@ -114,11 +114,11 @@ describe('story visual editor', function() {
                 .should('exist') // there's a row with our text and response hash
                 .find('[data-cy=edit-response-0]')
                 .click();
-            cy.get('.response-message-1')
+            cy.get('.response-message-1:not(.button)')
                 .invoke('text')
                 .as('qr');
         });
-        cy.get('@qr').then(qr => expect(qrGold.test(qr)).to.be.equal(true)); // test qr template against gold
+        cy.get('@qr').then(qr => expect(qr).to.match(qrGold)); // test qr template against gold
 
         cy.visit('/project/bf/nlu/models');
         cy.get('[role=row]')
