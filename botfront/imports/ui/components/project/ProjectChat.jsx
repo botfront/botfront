@@ -281,10 +281,15 @@ const ProjectChatContainer = withTracker(({ projectId }) => {
         initStories
             .filter(checkStoryNotEmpty)
             .forEach((s) => {
-                initPayloads = [
-                    ...initPayloads,
-                    ...new StoryValidator(s.story).extractDialogAct(),
-                ];
+                try {
+                    initPayloads = [
+                        ...initPayloads,
+                        ...new StoryValidator(s.story).extractDialogAct(),
+                    ];
+                } catch (e) {
+                    // eslint-disable-next-line no-console
+                    console.log('An intro story was not valid and could not be parsed.');
+                }
             });
     }
     return {
