@@ -33,7 +33,7 @@ const StoryEditorContainer = ({
     // const [editor, setEditor] = useState();
     const [newTitle, setNewTitle] = useState(story.title);
     const [activePath, setActivePath] = useState();
-    const [storyBranches, setStoryBranches] = useState(story.branches);
+    const [storyBranches, setStoryBranches] = useState(story.branches || []);
 
     function saveStory(path, content) {
         onSaving();
@@ -122,7 +122,7 @@ const StoryEditorContainer = ({
         .reduce((acc, val) => {
             const index = acc.branches.findIndex(b => b._id === val);
             return {
-                branches: acc.branches[index].branches,
+                branches: acc.branches[index].branches || [],
                 story: acc.branches[index].story,
                 indices: [...acc.indices, index],
             };
@@ -188,7 +188,7 @@ const StoryEditorContainer = ({
         return (
             <>
                 {editorType !== 'visual' ? renderAceEditor(path) : null}
-                { branches && branches.length && (
+                { branches.length > 0 && (
                     <Menu tabular>
                         { branches.map((branch, index) => {
                             const childPath = `${path}__${branch._id}`;
@@ -213,14 +213,15 @@ const StoryEditorContainer = ({
                         </Menu.Item>
                     </Menu>
                 )}
-                { (!branches || !branches.length) && (
+                { !branches.length && (
                     <Button
                         content='branch it!'
                         color='violet'
                         onClick={() => handleCreateBranch(indices, branches, 2)}
+                        fluid
                     />
                 )}
-                { branches && branches.length && activePath && nextPath && ( // render branch content
+                { branches.length > 0 && activePath && nextPath && ( // render branch content
                     renderBranches(nextPath)
                 )}
             </>
@@ -230,7 +231,7 @@ const StoryEditorContainer = ({
     return (
         <div className='story-editor' data-cy='story-editor'>
             {renderTopMenu()}
-            <Segment attached>
+            <Segment attached='bottom'>
                 {renderBranches(story._id)}
                 <br />
             </Segment>

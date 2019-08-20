@@ -37,48 +37,7 @@ export const StorySchema = new SimpleSchema({
         type: String,
         trim: true,
     },
-    branches: {
-        type: Array,
-        defaultValue: [
-            {
-                title: 'bleh',
-            },
-            {
-                title: 'boo',
-                branches: [
-                    {
-                        title: 'branch1',
-                    },
-                    {
-                        title: 'branch2',
-                        branches: [
-                            {
-                                title: 'brancha',
-                            },
-                            {
-                                title: 'branchb',
-                            },
-                            {
-                                title: 'branchc',
-                            },
-                        ],
-                    },
-                    {
-                        title: 'branch3',
-                    },
-                ],
-            },
-            {
-                title: 'bah',
-            },
-            {
-                title: 'hurk',
-            },
-            {
-                title: 'hlargh',
-            },
-        ],
-    },
+    branches: { type: Array, optional: true },
     'branches.$': { type: intermediateSchemas[intermediateSchemas.length - 1][1] },
     storyGroupId: {
         type: String,
