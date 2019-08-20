@@ -6,7 +6,6 @@ import React from 'react';
 import {
     Menu, Icon, Dropdown, Popup, Message, Label,
 } from 'semantic-ui-react';
-import { StoryValidator } from '../../../lib/story_validation';
 import { wrapMeteorCallback } from '../utils/Errors';
 import Chat from './Chat';
 import { Stories } from '../../../api/story/stories.collection';
@@ -276,20 +275,46 @@ const ProjectChatContainer = withTracker(({ projectId }) => {
         { introStory: true, projectId },
         { fields: { _id: 1 } },
     );
+
+    const extractPayload = (story) => {
+        const initRegex = /^\* *(.*)/;
+        const initPayload = initRegex.exec(story)[1];
+        const payloads = initPayload.split(' OR ').map(disj => disj.trim());
+        const payloadRegex = /([^{]*) *({.*}|)/;
+        const output = [];
+        try {
+            payloads.forEach((stringPayload) => {
+                const matches = payloadRegex.exec(stringPayload);
+                const intent = matches[1];
+                let entities = matches[2];
+                const objectPayload = {
+                    intent,
+                    entities: [],
+                };
+                if (entities && entities !== '') {
+                    const parsed = JSON.parse(entities);
+                    entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
+                } else {
+                    entities = [];
+                }
+                objectPayload.entities = entities;
+                output.push({ objectPayload, stringPayload: `/${stringPayload}` });
+            });
+        } catch (e) {
+            console.log(e);
+        }
+        return output;
+    };
+
     if (storiesHandler.ready()) {
         const initStories = Stories.find({ storyGroupId: IntroGroupId }).fetch();
         initStories
             .filter(checkStoryNotEmpty)
             .forEach((s) => {
-                try {
-                    initPayloads = [
-                        ...initPayloads,
-                        ...new StoryValidator(s.story).extractDialogAct(),
-                    ];
-                } catch (e) {
-                    // eslint-disable-next-line no-console
-                    console.log('An intro story was not valid and could not be parsed.');
-                }
+                initPayloads = [
+                    ...initPayloads,
+                    ...extractPayload(s.story),
+                ];
             });
     }
     return {

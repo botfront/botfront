@@ -1,3 +1,5 @@
+import { safeDump as yamlDump } from 'js-yaml';
+
 class StoryException {
     constructor(type, message, line, code) {
         this.type = type;
@@ -12,7 +14,6 @@ export class StoryController {
         this.domain = {
             slots: this.getSlots(slots),
         };
-        this.unsafeMd = story;
         this.md = story;
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
@@ -272,7 +273,6 @@ export class StoryController {
     deleteLine = (i) => {
         this.lines = [...this.lines.slice(0, i), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.unsafeMd = this.md;
         this.validateStory();
         if (this.saveUpdate) this.saveUpdate(this.md);
         else this.notifyUpdate();
@@ -283,7 +283,6 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i + 1), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.unsafeMd = this.md;
         if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
         else this.notifyUpdate();
     };
@@ -293,19 +292,13 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.unsafeMd = this.md;
         this.validateStory();
         if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
         else this.notifyUpdate();
     };
 
-    setUnsafeMd = (content) => {
-        this.unsafeMd = content;
-    }
-
     setMd = (content) => {
         this.md = content;
-        this.unsafeMd = content;
         this.validateStory();
         if (this.saveUpdate) this.saveUpdate(this.md);
     }
@@ -365,3 +358,46 @@ export class StoryController {
         return output;
     };
 }
+
+export const extractDomain = (stories, slots) => {
+    const defaultDomain = {
+        actions: new Set(['utter_fallback', 'utter_default']),
+        intents: new Set(),
+        entities: new Set(),
+        forms: new Set(),
+        templates: {
+            utter_default: '',
+            utter_fallback: '',
+        },
+        slots: {
+            latest_response_name: { type: 'unfeaturized' },
+            followup_response_name: { type: 'unfeaturized' },
+            parse_data: { type: 'unfeaturized' },
+        },
+    };
+    let domains = stories.map((story) => {
+        const val = new StoryController(story, slots);
+        val.validateStory();
+        return val.extractDomain();
+    });
+    domains = domains.reduce(
+        (d1, d2) => ({
+            entities: new Set([...d1.entities, ...d2.entities]),
+            intents: new Set([...d1.intents, ...d2.intents]),
+            actions: new Set([...d1.actions, ...d2.actions]),
+            forms: new Set([...d1.forms, ...d2.forms]),
+            templates: { ...d1.templates, ...d2.templates },
+            slots: { ...d1.slots, ...d2.slots },
+        }),
+        defaultDomain,
+    );
+    domains = yamlDump({
+        entities: Array.from(domains.entities),
+        intents: Array.from(domains.intents),
+        actions: Array.from(domains.actions),
+        forms: Array.from(domains.forms),
+        templates: domains.templates,
+        slots: domains.slots,
+    });
+    return domains;
+};

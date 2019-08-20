@@ -15,12 +15,12 @@ import { createIntroStoryGroup, createDefaultStoryGroup } from '../storyGroups/s
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
-import { StoryValidator } from '../../lib/story_validation';
+import { StoryController } from '../../lib/story_controller';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories) => {
         let domains = stories.map((story) => {
-            const val = new StoryValidator(story);
+            const val = new StoryController(story, []);
             val.validateStories();
             return val.extractDomain();
         });

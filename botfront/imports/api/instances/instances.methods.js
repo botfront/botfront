@@ -13,7 +13,7 @@ import {
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
-import { extractDomain } from '../../lib/story_validation.js';
+import { extractDomain } from '../../lib/story_controller';
 import { Stories } from '../story/stories.collection';
 import { Instances } from './instances.collection';
 import { Slots } from '../slots/slots.collection';
