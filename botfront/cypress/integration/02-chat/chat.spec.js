@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 const storyGroupOne = 'storyGroupOne';
-const initialText = '* replace_with_intent';
+const initialText = '';
 const testText = '* my_intent OR my_intent2{enter}  - utter_test';
 
 describe('chat side panel handling', function() {
