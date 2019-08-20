@@ -10,7 +10,7 @@
     "postinstall": "botfront-ee"
   },
   "bin": {
-    "botfront": "bin/botfront-ee"
+    "botfront-ee": "bin/botfront-ee"
   },
   "publishConfig": {
     "access": "public"
