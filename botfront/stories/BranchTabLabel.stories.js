@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu } from 'semantic-ui-react';
+import { Menu, Segment } from 'semantic-ui-react';
 
 import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
@@ -51,7 +51,27 @@ const MenuContentsWrapper = () => {
 storiesOf('BranchTabLabel', module)
     .addDecorator(withKnobs)
     .add('testcase2', () => (
-        <Menu tabular size='mini'>
-            <MenuContentsWrapper />
-        </Menu>
+        <div style={{
+            width: '90%',
+            margin: '10px auto',
+            outline: '4px solid red',
+        }}
+        >
+            <div className='stories-container'>
+                <div className='story-editor'>
+                    <Menu attached='top'>
+                        <Menu.Item>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</Menu.Item>
+                    </Menu>
+                    <Segment attached='bottom'>
+                        (Content)
+                        <br />
+                        <Menu tabular size='mini'>
+                            <MenuContentsWrapper />
+                        </Menu>
+                        <br />
+                        (Content)
+                    </Segment>
+                </div>
+            </div>
+        </div>
     ));
