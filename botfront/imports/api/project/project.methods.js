@@ -21,7 +21,6 @@ if (Meteor.isServer) {
     export const extractDomainFromStories = (stories) => {
         let domains = stories.map((story) => {
             const val = new StoryController(story, []);
-            val.validateStories();
             return val.extractDomain();
         });
         domains = domains.reduce((d1, d2) => ({

@@ -28,7 +28,6 @@ describe('extract domain from storyfile fixtures', function() {
 
     it('should output exceptions matching the gold', function() {
         const val = new StoryController(this.stories2, slots);
-        val.validateStory();
         const exceptions = val.exceptions.map(exception => ({
             line: exception.line,
             code: exception.code,
