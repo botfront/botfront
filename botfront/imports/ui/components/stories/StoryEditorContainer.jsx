@@ -1,13 +1,15 @@
 import {
-    Icon, Segment, Menu,
+    Icon, Segment, Menu, Button,
 } from 'semantic-ui-react';
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import { set as _set } from 'lodash';
+import shortid from 'shortid';
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from '../utils/Context';
 import StoryTopMenu from './StoryTopMenu';
+import { wrapMeteorCallback } from '../utils/Errors';
 import 'brace/theme/github';
 import 'brace/mode/text';
 import './style.import.less';
@@ -16,25 +18,41 @@ const StoryEditorContainer = ({
     story,
     disabled,
     onDelete,
-    title,
     onClone,
     onMove,
     groupNames,
     onRename,
     editor: editorType,
-    branches: BRANCHES,
+    onSaving,
+    onSaved,
 }) => {
+    const { slots } = useContext(ConversationOptionsContext);
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
     // const [editor, setEditor] = useState();
-    const [newTitle, setNewTitle] = useState(title);
+    const [newTitle, setNewTitle] = useState(story.title);
     const [activePath, setActivePath] = useState();
-    const [storyBranches, setStoryBranches] = useState(BRANCHES);
-    const [editedStories, setEditedStories] = useState({ // this is the root story
-        [title]: story,
+    const [storyBranches, setStoryBranches] = useState(story.branches);
+
+    function saveStory(path, content) {
+        onSaving();
+        const { indices } = getBranchesAndIndices(path);
+        Meteor.call(
+            'stories.update',
+            { _id: story._id, ...content, indices },
+            wrapMeteorCallback(() => onSaved()),
+        );
+    }
+
+    const [storyControllers, setStoryControllers] = useState({
+        [story._id]: new StoryController( // the root story
+            story.story || '',
+            slots,
+            () => {},
+            content => saveStory(story._id, { story: content }),
+        ),
     });
-    const { slots } = useContext(ConversationOptionsContext);
 
     // sets annotations directly on the ace editor, bypassing the react component
     // We bypass react-ace because annotations are buggy on it
@@ -44,17 +62,14 @@ const StoryEditorContainer = ({
         }
     }, [annotations, story]); */
 
-    useEffect(() => {
-        setNewTitle(title);
-    }, [title]);
-
-    useEffect(() => {
-        setStoryBranches(BRANCHES);
-    }, [BRANCHES]);
+    /* useEffect(() => {
+        setNewTitle(story.title);
+        setStoryBranches(story.branches);
+    }, [story]); */
 
     const renderTopMenu = () => (
         <StoryTopMenu
-            title={title}
+            title={story.title}
             newTitle={newTitle}
             setNewTitle={setNewTitle}
             setMoveDestination={setMoveDestination}
@@ -83,8 +98,8 @@ const StoryEditorContainer = ({
             minLines={5}
             maxLines={Infinity}
             fontSize={12}
-            onChange={newStory => editedStories[path].setMd(newStory)}
-            value={editedStories[path] ? editedStories[path].md : ''}
+            onChange={newStory => storyControllers[path].setMd(newStory)}
+            value={storyControllers[path] ? storyControllers[path].md : ''}
             showPrintMargin={false}
             showGutter
             // annotations={annotations}
@@ -93,8 +108,7 @@ const StoryEditorContainer = ({
             }}
             setOptions={{
                 tabSize: 2,
-                // the worker has a bug which removes annotations
-                useWorker: false,
+                useWorker: false, // the worker has a bug which removes annotations
             }}
         />
     );
@@ -106,7 +120,7 @@ const StoryEditorContainer = ({
 
     const getBranchesAndIndices = path => path.split('__').slice(1) // gets branches but also indices, useful for setting later
         .reduce((acc, val) => {
-            const index = acc.branches.findIndex(b => b.title === val);
+            const index = acc.branches.findIndex(b => b._id === val);
             return {
                 branches: acc.branches[index].branches,
                 story: acc.branches[index].story,
@@ -114,21 +128,53 @@ const StoryEditorContainer = ({
             };
         }, { branches: storyBranches, story, indices: [] });
 
-    const handleCreateBranch = (branches, indices) => {
+    const handleCreateBranch = (indices, branches = [], num = 1) => {
         const path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
-        const newBranch = { title: getNewBranchName(branches), story: '* replace_with_intent' };
-        const newBranches = [...storyBranches];
-        if (path) _set(newBranches, path, [...branches, newBranch]);
-        else newBranches.push(newBranch);
-        setStoryBranches(newBranches);
+        const updatedBranches = [...storyBranches];
+        const newBranches = [];
+        for (let i = 0; i < num; i += 1) {
+            newBranches.push({
+                title: getNewBranchName([...branches, ...newBranches]),
+                story: '',
+                _id: shortid.generate(),
+            });
+        }
+        if (path) _set(updatedBranches, path, [...branches, ...newBranches]);
+        else updatedBranches.push(...newBranches);
+
+        setStoryBranches(updatedBranches);
+        saveStory(path, { branches: updatedBranches });
+    };
+
+    const handleRenameBranch = (indices, index, newName) => {
+        let path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
+        path = `${path}.${index}.title`;
+        const updatedBranches = [...storyBranches];
+        _set(updatedBranches, path, newName);
+        setStoryBranches(updatedBranches);
+        saveStory(path, { branches: updatedBranches });
+    };
+
+    const handleDeleteBranch = (indices, index, branches) => {
+        const path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
+        const updatedBranches = [...storyBranches];
+        const newBranches = [...branches.slice(0, index), ...branches.slice(index + 1)];
+        _set(updatedBranches, path, newBranches);
+        setStoryBranches(updatedBranches);
+        saveStory(path, { branches: updatedBranches });
     };
 
     const handleSwitchBranch = (path) => { // will instantiate a storyController if it doesn't exist
-        if (!editedStories[path] || !(editedStories[path] instanceof StoryController)) {
+        if (!storyControllers[path] || !(storyControllers[path] instanceof StoryController)) {
             const { story: branchStory } = getBranchesAndIndices(path);
-            setEditedStories({
-                ...editedStories,
-                [path]: new StoryController(branchStory, slots),
+            setStoryControllers({
+                ...storyControllers,
+                [path]: new StoryController(
+                    branchStory || '',
+                    slots,
+                    () => {},
+                    content => saveStory(path, { story: content }),
+                ),
             });
         }
         setActivePath(path);
@@ -137,15 +183,15 @@ const StoryEditorContainer = ({
     const renderBranches = (path) => {
         const { branches, indices } = getBranchesAndIndices(path);
         const query = new RegExp(`(${path}__.*?)(__|$)`);
-        const queriedPath = activePath || newTitle;
+        const queriedPath = activePath || story._id;
         const nextPath = queriedPath.match(query) && queriedPath.match(query)[1];
         return (
             <>
                 {editorType !== 'visual' ? renderAceEditor(path) : null}
                 { branches && branches.length && (
                     <Menu tabular>
-                        { branches.map((branch) => {
-                            const childPath = `${path}__${branch.title}`;
+                        { branches.map((branch, index) => {
+                            const childPath = `${path}__${branch._id}`;
                             return (
                                 <Menu.Item
                                     key={childPath}
@@ -157,13 +203,22 @@ const StoryEditorContainer = ({
                                             && activePath.indexOf(`${childPath}__`) === 0) return;
                                         handleSwitchBranch(childPath);
                                     }}
+                                    // onRename={newName => handleRenameBranch(indices, index, newName)}
+                                    // onDelete={() => handleDeleteBranch(indices, index, branches)}
                                 />
                             );
                         })}
-                        <Menu.Item key={`${path}-add`} onClick={() => handleCreateBranch(branches, indices)}>
+                        <Menu.Item key={`${path}-add`} onClick={() => handleCreateBranch(indices, branches)}>
                             <Icon name='plus' />
                         </Menu.Item>
                     </Menu>
+                )}
+                { (!branches || !branches.length) && (
+                    <Button
+                        content='branch it!'
+                        color='violet'
+                        onClick={() => handleCreateBranch(indices, branches, 2)}
+                    />
                 )}
                 { branches && branches.length && activePath && nextPath && ( // render branch content
                     renderBranches(nextPath)
@@ -175,8 +230,8 @@ const StoryEditorContainer = ({
     return (
         <div className='story-editor' data-cy='story-editor'>
             {renderTopMenu()}
-            <Segment attached='bottom'>
-                {renderBranches(newTitle)}
+            <Segment attached>
+                {renderBranches(story._id)}
                 <br />
             </Segment>
         </div>
@@ -184,71 +239,21 @@ const StoryEditorContainer = ({
 };
 
 StoryEditorContainer.propTypes = {
-    story: PropTypes.instanceOf(StoryController),
+    story: PropTypes.object,
     disabled: PropTypes.bool,
     onDelete: PropTypes.func.isRequired,
-    title: PropTypes.string.isRequired,
     onClone: PropTypes.func.isRequired,
     onMove: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
     onRename: PropTypes.func.isRequired,
-    branches: PropTypes.array,
     editor: PropTypes.string,
+    onSaving: PropTypes.func.isRequired,
+    onSaved: PropTypes.func.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {
     disabled: false,
     story: '',
-    branches: [
-        {
-            title: 'bleh',
-            story: 'bleh story',
-        },
-        {
-            title: 'boo',
-            story: 'boo story',
-            branches: [
-                {
-                    title: 'branch1',
-                    story: 'branch1 story',
-                },
-                {
-                    title: 'branch2',
-                    story: 'branch2 story',
-                    branches: [
-                        {
-                            title: 'brancha',
-                            story: 'brancha story',
-                        },
-                        {
-                            title: 'branchb',
-                            story: 'branchb story',
-                        },
-                        {
-                            title: 'branchc',
-                            story: 'branchc story',
-                        },
-                    ],
-                },
-                {
-                    title: 'branch3',
-                    story: 'branch3 story',
-                },
-            ],
-        },
-        {
-            title: 'bah',
-            story: 'bah story',
-        },
-        {
-            title: 'hurk',
-            story: 'hurk story',
-        },
-        {
-            title: 'hlargh',
-            story: 'hlargh story',
-        },
-    ],
     editor: 'markdown',
 };
 

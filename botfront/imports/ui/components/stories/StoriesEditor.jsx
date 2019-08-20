@@ -1,58 +1,31 @@
 import { Container, Button } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useEffect, useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Stories } from '../../../api/story/stories.collection';
-import { StoryController } from '../../../lib/story_controller';
-import { ConversationOptionsContext } from '../utils/Context';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditorContainer from './StoryEditorContainer';
 
 function StoriesEditor(props) {
-    // This state is only used to store edited stories
-    const [editedStories, setEditedStories] = useState({});
-    const { slots } = useContext(ConversationOptionsContext);
-
     const {
         stories,
         disabled,
-        onSaving,
-        onSaved,
         onAddNewStory,
         onDeleteGroup,
         storyGroup,
         groupNames,
         editor,
+        onSaving,
+        onSaved,
     } = props;
 
-    function saveStory(story) {
-        onSaving();
-        Meteor.call(
-            'stories.update',
-            story,
-            wrapMeteorCallback(() => {
-                onSaved();
-            }),
-        );
-    }
-
-    // This effect resets the state if the storyGroup being displayed changed
-    useEffect(() => {
-        setEditedStories({});
-    }, [storyGroup]);
-
     function handleStoryDeletion(index) {
-        const toBeDeletedStory = stories[index];
         Meteor.call(
             'stories.delete',
-            toBeDeletedStory,
+            stories[index],
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    // delete entry in editedStories
-                    const newEditedStories = editedStories;
-                    delete newEditedStories[toBeDeletedStory._id];
-                    setEditedStories(newEditedStories);
                     // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
@@ -67,7 +40,6 @@ function StoriesEditor(props) {
     }
 
     function handleMoveStory(newGroupId, index) {
-        const toBeMovedStory = stories[index];
         if (newGroupId === stories[index].storyGroupId) {
             return;
         }
@@ -76,10 +48,6 @@ function StoriesEditor(props) {
             { ...stories[index], storyGroupId: newGroupId },
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    // delete entry in editedStories
-                    const newEditedStories = editedStories;
-                    delete newEditedStories[toBeMovedStory._id];
-                    setEditedStories(newEditedStories);
                     // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
@@ -107,35 +75,23 @@ function StoriesEditor(props) {
         );
     }
 
-    const editors = stories.map((story, index) => {
-        let storyController = editedStories[story._id];
-        if (!storyController) {
-            storyController = new StoryController(
-                story.story || '',
-                slots,
-                () => {},
-                newContent => saveStory({ ...stories[index], story: newContent }),
-            );
-            setEditedStories({
-                ...editedStories,
-                [story._id]: storyController,
-            });
-        }
-        return (
-            <StoryEditorContainer
-                story={storyController}
-                disabled={disabled}
-                onRename={newTitle => handleStoryRenaming(newTitle, index)}
-                onDelete={() => handleStoryDeletion(index)}
-                key={story._id}
-                title={story.title}
-                groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
-                onMove={newGroupId => handleMoveStory(newGroupId, index)}
-                onClone={() => handleDuplicateStory(index)}
-                editor={editor}
-            />
-        );
-    });
+    const editors = stories.map((story, index) => (
+        <StoryEditorContainer
+            story={story}
+            disabled={disabled}
+            onRename={newTitle => handleStoryRenaming(newTitle, index)}
+            onDelete={() => handleStoryDeletion(index)}
+            key={story._id}
+            title={story.title}
+            groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
+            onMove={newGroupId => handleMoveStory(newGroupId, index)}
+            onClone={() => handleDuplicateStory(index)}
+            editor={editor}
+            onSaving={onSaving}
+            onSaved={onSaved}
+        />
+    ));
+
     return (
         <>
             {editors}
