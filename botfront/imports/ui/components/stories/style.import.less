@@ -249,3 +249,22 @@
     transform: scale(1, 1);
   }
 }
+.breadcrumb-container{
+  display:flex;
+  color: rgba(0,0,0,0.4);
+  .section{
+    max-width: 10%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .divider{
+    padding-left: 1ch;
+    padding-right: 1ch;
+  }
+  .collapsed-path{
+    &:hover{
+      color: red;
+    }
+  }
+  
+}
