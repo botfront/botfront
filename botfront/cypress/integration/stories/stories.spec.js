@@ -2,7 +2,7 @@
 
 const storyGroupOne = 'storyGroupOne';
 const storyGroupTwo = 'storyGroupTwo';
-const initialText = '* replace_with_intent';
+const initialText = '';
 const testText = '* my_intent';
 
 describe('stories', function() {
