@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 const storyGroupOne = 'storyGroupOne';
-const initialText = '';
 const testText = '* my_intent OR my_intent2{enter}  - utter_test';
 
 describe('chat side panel handling', function() {
@@ -81,7 +80,6 @@ describe('chat side panel handling', function() {
             .type(`${storyGroupOne}{enter}`);
 
         cy.contains(storyGroupOne).click();
-        cy.dataCy('story-editor').contains(initialText);
         cy.dataCy('story-editor')
             .get('textarea')
             .type(`{selectall}{backspace}${testText}`, { force: true });

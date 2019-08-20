@@ -66,6 +66,11 @@ templates:
   utter_react_positive: ''
   utter_react_negative: ''
 slots:
+  feedback_value:
+    type: categorical
+    values:
+      - positive
+      - negative
   latest_response_name:
     type: unfeaturized
   followup_response_name:
