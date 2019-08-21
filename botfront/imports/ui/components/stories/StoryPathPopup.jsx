@@ -35,6 +35,7 @@ class StoryPathPopup extends React.Component {
             <Popup
                 trigger={trigger}
                 content={this.renderPath()}
+                flowing
             />
         );
     }

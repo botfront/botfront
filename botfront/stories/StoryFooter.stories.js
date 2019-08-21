@@ -7,6 +7,7 @@ import StoryFooter from '../imports/ui/components/stories/StoryFooter';
 import '../imports/ui/components/stories/style.import.less';
 
 const style = { height: '200px', backgroundColor: 'rgba(180,180,200)'}
+const myPath = 'thisIsAReallyLongNameBranchForLogic__thisIsAReallyLongNameBranchForLogic__thisIsAReallyLongNameBranchForLogic__test__nice__thisIsAReallyLongNameBranchForLogic__test__nice__thisIsAReallyLongNameBranchForLogic__test__nice__thisIsAReallyLongNameBranchForLogic__test__nice__thisIsAReallyLongNameBranchForLogic__test__nice';
 
 const onBranchPH = () => {
     // eslint-disable-next-line no-console
@@ -32,7 +33,7 @@ storiesOf('mystory', module)
                     onContinue={onContinuePH}
                     canContinue={boolean('can continue', true)}
                     canBranch={boolean('can branch', true)}
-                    storyPath='thisIsAReallyLongNameBranchForLogic__thisIsAReallyLongNameBranchForLogic__thisIsAReallyLongNameBranchForLogic__test__nice'
+                    storyPath={myPath}
                 />
             </div>
         );
