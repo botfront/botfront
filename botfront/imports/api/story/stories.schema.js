@@ -1,5 +1,4 @@
 import SimpleSchema from 'simpl-schema';
-import shortid from 'shortid';
 
 const commonStorySchema = {
     story: {
@@ -13,7 +12,6 @@ const commonStorySchema = {
     },
     _id: {
         type: String,
-        autoValue: () => shortid.generate(),
     },
 };
 
@@ -37,7 +35,7 @@ export const StorySchema = new SimpleSchema({
         type: String,
         trim: true,
     },
-    branches: { type: Array, optional: true },
+    branches: { type: Array, defaultValue: [] },
     'branches.$': { type: intermediateSchemas[intermediateSchemas.length - 1][1] },
     storyGroupId: {
         type: String,

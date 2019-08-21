@@ -1,14 +1,14 @@
 import {
     Icon, Segment, Menu, Button,
 } from 'semantic-ui-react';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
-import { set as _set } from 'lodash';
 import shortid from 'shortid';
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from '../utils/Context';
 import StoryTopMenu from './StoryTopMenu';
+import BranchTabLabel from './BranchTabLabel';
 import { wrapMeteorCallback } from '../utils/Errors';
 import 'brace/theme/github';
 import 'brace/mode/text';
@@ -21,7 +21,7 @@ const StoryEditorContainer = ({
     onClone,
     onMove,
     groupNames,
-    onRename,
+    onRename: onRenameStory,
     editor: editorType,
     onSaving,
     onSaved,
@@ -30,20 +30,31 @@ const StoryEditorContainer = ({
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
-    // const [editor, setEditor] = useState();
-    const [newTitle, setNewTitle] = useState(story.title);
     const [activePath, setActivePath] = useState();
-    const [storyBranches, setStoryBranches] = useState(story.branches || []);
 
-    function saveStory(path, content) {
+    const getBranchesAndIndices = path => path.split('__').slice(1)
+        // gets branches but also indices, useful for setting later
+        .reduce((acc, val) => {
+            const index = acc.branches.findIndex(b => b._id === val);
+            return {
+                branches: acc.branches[index].branches || [],
+                story: acc.branches[index].story,
+                indices: [...acc.indices, index],
+            };
+        }, { branches: story.branches, story, indices: [] });
+
+    const saveStory = (pathOrIndices, content) => {
+        // this accepts a double__underscore-separated path or an array of indices
         onSaving();
-        const { indices } = getBranchesAndIndices(path);
+        const { indices } = pathOrIndices instanceof Array
+            ? { indices: pathOrIndices }
+            : getBranchesAndIndices(pathOrIndices);
         Meteor.call(
             'stories.update',
             { _id: story._id, ...content, indices },
             wrapMeteorCallback(() => onSaved()),
         );
-    }
+    };
 
     const [storyControllers, setStoryControllers] = useState({
         [story._id]: new StoryController( // the root story
@@ -54,24 +65,9 @@ const StoryEditorContainer = ({
         ),
     });
 
-    // sets annotations directly on the ace editor, bypassing the react component
-    // We bypass react-ace because annotations are buggy on it
-    /* useEffect(() => {
-        if (editor) {
-            editor.getSession().setAnnotations(annotations);
-        }
-    }, [annotations, story]); */
-
-    /* useEffect(() => {
-        setNewTitle(story.title);
-        setStoryBranches(story.branches);
-    }, [story]); */
-
     const renderTopMenu = () => (
         <StoryTopMenu
             title={story.title}
-            newTitle={newTitle}
-            setNewTitle={setNewTitle}
             setMoveDestination={setMoveDestination}
             onDelete={onDelete}
             onMove={onMove}
@@ -81,7 +77,7 @@ const StoryEditorContainer = ({
             openMovePopup={openMovePopup}
             deletePopupOpened={deletePopupOpened}
             disabled={disabled}
-            onRename={onRename}
+            onRename={onRenameStory}
             onClone={onClone}
             groupNames={groupNames}
         />
@@ -113,55 +109,33 @@ const StoryEditorContainer = ({
         />
     );
 
-    const getNewBranchName = (branches) => {
-        const numNewBranches = branches.filter(branch => branch.title.search('New Branch') === 0).length;
-        return `New Branch${numNewBranches < 1 ? '' : numNewBranches + 1}`;
+    const getNewBranchName = (branches, offset = 0) => {
+        const branchNums = branches.map((branch) => {
+            if (branch.title.match(/New Branch (\d+)$/)) {
+                return parseInt(branch.title.match(/New Branch (\d+)$/)[1], 10); }
+            return 0;
+        });
+        const newBranchNum = Math.max(0, ...branchNums) + offset;
+        return `New Branch ${newBranchNum + 1}`;
     };
-
-    const getBranchesAndIndices = path => path.split('__').slice(1) // gets branches but also indices, useful for setting later
-        .reduce((acc, val) => {
-            const index = acc.branches.findIndex(b => b._id === val);
-            return {
-                branches: acc.branches[index].branches || [],
-                story: acc.branches[index].story,
-                indices: [...acc.indices, index],
-            };
-        }, { branches: storyBranches, story, indices: [] });
 
     const handleCreateBranch = (indices, branches = [], num = 1) => {
-        const path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
-        const updatedBranches = [...storyBranches];
-        const newBranches = [];
-        for (let i = 0; i < num; i += 1) {
-            newBranches.push({
-                title: getNewBranchName([...branches, ...newBranches]),
+        const newBranches = [...new Array(num)].map((_, i) => (
+            {
+                title: getNewBranchName(branches, i),
                 story: '',
+                branches: [],
                 _id: shortid.generate(),
-            });
-        }
-        if (path) _set(updatedBranches, path, [...branches, ...newBranches]);
-        else updatedBranches.push(...newBranches);
-
-        setStoryBranches(updatedBranches);
-        saveStory(path, { branches: updatedBranches });
-    };
-
-    const handleRenameBranch = (indices, index, newName) => {
-        let path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
-        path = `${path}.${index}.title`;
-        const updatedBranches = [...storyBranches];
-        _set(updatedBranches, path, newName);
-        setStoryBranches(updatedBranches);
-        saveStory(path, { branches: updatedBranches });
+            }
+        ));
+        saveStory(indices, { branches: [...branches, ...newBranches] });
     };
 
     const handleDeleteBranch = (indices, index, branches) => {
-        const path = indices.reduce((acc, val) => `${acc}${acc ? '.' : ''}${val}.branches`, '');
-        const updatedBranches = [...storyBranches];
-        const newBranches = [...branches.slice(0, index), ...branches.slice(index + 1)];
-        _set(updatedBranches, path, newBranches);
-        setStoryBranches(updatedBranches);
-        saveStory(path, { branches: updatedBranches });
+        // to do: if branches.length < 3 ...
+        const updatedBranches = [...branches.slice(0, index), ...branches.slice(index + 1)];
+        setActivePath(''); // temp fix: need to determine most natural branch to switch to
+        saveStory(indices, { branches: updatedBranches });
     };
 
     const handleSwitchBranch = (path) => { // will instantiate a storyController if it doesn't exist
@@ -193,18 +167,18 @@ const StoryEditorContainer = ({
                         { branches.map((branch, index) => {
                             const childPath = `${path}__${branch._id}`;
                             return (
-                                <Menu.Item
+                                <BranchTabLabel
                                     key={childPath}
-                                    name={branch.title}
+                                    value={branch.title}
                                     active={activePath // activePath starts with branch's path
                                         && (activePath === childPath || activePath.indexOf(`${childPath}__`) === 0)}
-                                    onClick={() => {
+                                    onSelect={() => {
                                         if (activePath // do no change activePath if clicked branch is an ancestor
                                             && activePath.indexOf(`${childPath}__`) === 0) return;
                                         handleSwitchBranch(childPath);
                                     }}
-                                    // onRename={newName => handleRenameBranch(indices, index, newName)}
-                                    // onDelete={() => handleDeleteBranch(indices, index, branches)}
+                                    onChangeName={newName => saveStory([...indices, index], { title: newName })}
+                                    onDelete={() => handleDeleteBranch(indices, index, branches)}
                                 />
                             );
                         })}
