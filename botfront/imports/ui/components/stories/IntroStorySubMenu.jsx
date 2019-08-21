@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 
-class IntroStoryMenu extends React.Component {
+class IntroStorySubMenu extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
@@ -48,15 +48,15 @@ class IntroStoryMenu extends React.Component {
     }
 }
 
-IntroStoryMenu.propTypes = {
+IntroStorySubMenu.propTypes = {
     introStory: PropTypes.object.isRequired,
     introClick: PropTypes.func.isRequired,
     introStoryClick: PropTypes.func.isRequired,
     isSelected: PropTypes.bool.isRequired,
 };
 
-IntroStoryMenu.defaultProps = {
+IntroStorySubMenu.defaultProps = {
 };
 
 
-export default IntroStoryMenu;
+export default IntroStorySubMenu;

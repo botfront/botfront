@@ -8,7 +8,7 @@ import React from 'react';
 import { setStoryGroup } from '../../store/actions/actions';
 import { wrapMeteorCallback } from '../utils/Errors';
 
-import IntroStoryMenu from './IntroStoryMenu';
+import IntroStorySubMenu from './IntroStorySubMenu';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
 
@@ -288,7 +288,7 @@ class Stories extends React.Component {
                                 changeName={this.handleNameChange}
                                 placeholderAddItem='Choose a group name'
                             >
-                                <IntroStoryMenu
+                                <IntroStorySubMenu
                                     introStory={introStory}
                                     introClick={this.handleIntroClick}
                                     introStoryClick={this.handleIntroStoryClick}
