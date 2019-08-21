@@ -53,7 +53,7 @@ const BotResponsePopupContent = (props) => {
             >
                 <Dropdown.Menu className='first-column'>
                     { !disableExisting
-                        ? (
+                        && (
                             <>
                                 <Dropdown.Header>Select from existing</Dropdown.Header>
                                 <Dropdown.Item onClick={() => setModalOpen(true)}>
@@ -62,7 +62,7 @@ const BotResponsePopupContent = (props) => {
                                 <Dropdown.Divider />
                                 <Dropdown.Header>Or use a template</Dropdown.Header>
                             </>
-                        ) : <Dropdown.Header>Use a template</Dropdown.Header>
+                        )
                     }
                     <Dropdown.Item onClick={() => onCreate('text')} data-cy='from-text-template'>Text</Dropdown.Item>
                     <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')} data-cy='from-qr-template'>Text with buttons (Quick reply)</Dropdown.Item>

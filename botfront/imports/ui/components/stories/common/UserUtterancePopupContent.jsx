@@ -60,8 +60,8 @@ const UserUtterancePopupContent = (props) => {
                 onClose={() => setMenuOpen(false)}
             >
                 <Dropdown.Menu className='first-column'>
-                    <Dropdown.Item onClick={() => setModalOpen(true)} data-cy='user-line-from-payload'>From payload</Dropdown.Item>
-                    <Dropdown.Item onClick={() => onCreateFromInput()} data-cy='user-line-from-input'>From input</Dropdown.Item>
+                    <Dropdown.Item onClick={() => onCreateFromInput()} data-cy='user-line-from-input'>Text</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setModalOpen(true)} data-cy='user-line-from-payload'>Payload</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         </>

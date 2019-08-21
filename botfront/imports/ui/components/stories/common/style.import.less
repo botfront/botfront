@@ -292,29 +292,30 @@ div.add-entity-wrap {
 .utterance-container {
     display: flex;
     min-height: 2em;
-    margin: 0.0125em 0;
+    margin: auto;
     justify-content: space-between;
-    width: max-content;
     max-width: 80%;
-    padding: 0.2em;
-    border: 1px solid transparent;
+    padding: 0.35em;
     border-radius: 0.28571429rem;
+
+    &[mode="input"]{
+        width: 100%;
+        .inner {
+            width: 100%;
+        }
+        .grey.trash {
+            margin-top: 9px;
+        }
+    }
+
+    .utterance-viewer {
+        padding-right: 2px;
+    }
 
     .inner {
         display: inline-block;
-//        white-space: pre;
         line-height: 1.2;
-        width: 100%;
         margin: auto 4px;
-
-        span {
-            padding-left: 7px;
-        }
-
-        .input {
-            width: 1000ch;
-            max-width: 100%;
-        }
 
         .ui.primary.button {
             padding-left: 0.8em;
@@ -360,6 +361,7 @@ div.add-entity-wrap {
     }
     &[agent="na"] {
         background: none;
+        padding-left: 0;
     }
     &[agent="user"] {
         margin-left: 0;

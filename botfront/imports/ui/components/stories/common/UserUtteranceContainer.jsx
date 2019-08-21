@@ -11,7 +11,7 @@ import UtteranceInput from '../../utils/UtteranceInput';
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, onChange, deletable, exceptions,
+        value, onInput, onDelete, onAbort, deletable, exceptions,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
@@ -112,7 +112,10 @@ const UtteranceContainer = (props) => {
         <div
             className='utterance-container'
             exception={exceptions.severity}
-            mode={mode}
+            // This ternary ensures that the mode is not set to input when we have a parsed utterance
+            // This makes some css work
+            // css will be broken if this is removed
+            mode={!!stateValue ? 'view' : mode}
             agent='user'
             ref={containerBody}
         >

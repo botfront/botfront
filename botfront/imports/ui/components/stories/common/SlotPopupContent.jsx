@@ -39,18 +39,19 @@ const SlotPopupContent = (props) => {
         );
     }
 
+    const allowedTypes = ['bool', 'float', 'list', 'text', 'categorical'];
     const { name: activeName, type: activeType, slotValue } = active || {
         name: null,
         type: null,
         slotValue: null,
     };
     const slotsByCat = groupBy(slots, s => s.type);
-    const cats = Object.keys(slotsByCat);
+    const cats = Object.keys(slotsByCat).filter(cat => allowedTypes.includes(cat));
 
     function getSlotValue(slot) {
         const { type } = slot;
         if (type === 'bool') return [true, false];
-        if (type === 'text') return ['set', 'null'];
+        if (type === 'text' || type === 'float') return ['set', 'null'];
         if (type === 'list') return ['empty', 'not-empty'];
         return slot.categories;
     }
