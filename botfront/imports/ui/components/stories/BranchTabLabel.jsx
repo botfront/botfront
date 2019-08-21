@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { Menu, Icon } from 'semantic-ui-react';
 import propTypes from 'prop-types';
 import React from 'react';
@@ -64,10 +65,10 @@ class BranchTabLabel extends React.Component {
         const { hasWarning, hasError } = this.props;
         const alertList = [];
         if (hasWarning) {
-            alertList.push(<Icon name='warning' />);
+            alertList.push(<Icon name='warning' color='yellow' />);
         }
         if (hasError) {
-            alertList.push(<Icon name='close' />);
+            alertList.push(<Icon name='close' color='red' />);
         }
         return <>{alertList}</>;
     }
@@ -84,7 +85,16 @@ class BranchTabLabel extends React.Component {
 
     renderTitlePlain = () => {
         const { title } = this.state;
-        return <span className='branch-title' onClick={this.handleFocusTitleInput}>{title}</span>;
+        return (
+            <span
+                className='branch-title'
+                role='textbox'
+                onClick={this.handleFocusTitleInput}
+                tabIndex={0}
+            >
+                {title}
+            </span>
+        );
     }
 
     renderTitleDecorated = () => {
@@ -96,6 +106,7 @@ class BranchTabLabel extends React.Component {
                     className='branch-title decorated'
                     onClick={this.handleFocusTitleInput}
                     role='textbox'
+                    tabIndex={0}
                 >
                     {title}
                 </span>
@@ -163,13 +174,13 @@ BranchTabLabel.propTypes = {
     onDelete: propTypes.func.isRequired,
     hasError: propTypes.bool,
     hasWarning: propTypes.bool,
-    active: propTypes.string,
+    active: propTypes.bool,
     onSelect: propTypes.func.isRequired,
 };
 
 BranchTabLabel.defaultProps = {
     value: '',
-    active: '',
+    active: false,
     hasError: false,
     hasWarning: false,
 };
