@@ -226,6 +226,50 @@ class Stories extends React.Component {
         );
     };
 
+    renderIntroStoryGroup = () => {
+        const { storyGroups } = this.props;
+        const {
+            storyIndex,
+            storyGroupNameSelected,
+        } = this.state;
+        const introStory = storyGroups.find(storyGroup => storyGroup.introStory);
+        const storyGroupFiltered = storyGroups
+            .filter(storyGroup => !storyGroup.introStory)
+            .sort(this.sortAlphabetically);
+        const storySelected = this.storyGroupSelected(
+            storyIndex,
+            storyGroupNameSelected,
+            storyGroupFiltered,
+        );
+        return (
+            <Menu
+                vertical
+                fluid
+                onClick={this.handleIntroStoryClick}
+                className={`intro-story ${
+                    storySelected === -1 ? 'selected-intro-story' : ''
+                }`}
+            >
+                <Menu.Item
+                    active={storySelected === -1}
+                    link
+                    data-cy='intro-story-group'
+                >
+                    <Icon
+                        id={`${
+                            introStory && introStory.selected
+                                ? 'selected'
+                                : 'not-selected'
+                        }`}
+                        name='eye'
+                        onClick={e => this.handleIntroClick(e, introStory)}
+                    />
+                    <span>Intro stories</span>
+                </Menu.Item>
+            </Menu>
+        );
+    }
+
     render() {
         const { storyGroups } = this.props;
         const {
@@ -243,37 +287,9 @@ class Stories extends React.Component {
             storyGroupNameSelected,
             storyGroupFiltered,
         );
-
         return (
             <Grid className='stories-container'>
                 <Grid.Row columns={2}>
-                    <Grid.Column width={4}>
-                        <Menu
-                            vertical
-                            fluid
-                            onClick={this.handleIntroStoryClick}
-                            className={`intro-story ${
-                                storySelected === -1 ? 'selected-intro-story' : ''
-                            }`}
-                        >
-                            <Menu.Item
-                                active={storySelected === -1}
-                                link
-                                data-cy='intro-story-group'
-                            >
-                                <Icon
-                                    id={`${
-                                        introStory && introStory.selected
-                                            ? 'selected'
-                                            : 'not-selected'
-                                    }`}
-                                    name='eye'
-                                    onClick={e => this.handleIntroClick(e, introStory)}
-                                />
-                                <span>Intro stories</span>
-                            </Menu.Item>
-                        </Menu>
-                    </Grid.Column>
                     <Grid.Column width={12} className='story-name-parent'>
                         {storySelected !== -1 ? (
                             <Message info size='small'>
@@ -313,7 +329,9 @@ class Stories extends React.Component {
                                 toggleSelect={this.handleStoryGroupSelect}
                                 changeName={this.handleNameChange}
                                 placeholderAddItem='Choose a group name'
-                            />
+                            >
+                                {this.renderIntroStoryGroup()}
+                            </ItemsBrowser>
                         )}
                     </Grid.Column>
 
