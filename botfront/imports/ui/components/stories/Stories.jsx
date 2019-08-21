@@ -248,23 +248,6 @@ class Stories extends React.Component {
         return (
             <Grid className='stories-container'>
                 <Grid.Row columns={2}>
-                    <Grid.Column width={12} className='story-name-parent'>
-                        {storySelected !== -1 ? (
-                            <Message info size='small'>
-                                Create detailed use case scenarios for your bot using
-                                multiple stories.
-                            </Message>
-                        ) : (
-                            <Message info size='small'>
-                                The Intro stories group contains the initial messages that
-                                would be sent to users when they start chatting with your
-                                bot.
-                            </Message>
-                        )}
-                    </Grid.Column>
-                </Grid.Row>
-
-                <Grid.Row columns={2}>
                     <Grid.Column width={4}>
                         {validationErrors && (
                             <Message
