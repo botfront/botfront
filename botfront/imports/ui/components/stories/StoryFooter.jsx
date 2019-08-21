@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Breadcrumb, Icon } from 'semantic-ui-react';
+import {
+    Segment,
+    Breadcrumb,
+    Icon,
+    Button,
+} from 'semantic-ui-react';
 
 import './style.import.less';
 
@@ -18,7 +23,7 @@ class StoryFooter extends React.Component {
         const pathBreadcrumbs = [];
         const maxLength = 5;
 
-        if (pathArray.length > 3) {
+        if (pathArray.length > maxLength) {
             pathBreadcrumbs.push();
             pathArray = pathArray.slice(pathArray.length - maxLength, pathArray.length);
             pathBreadcrumbs.push(
@@ -49,6 +54,7 @@ class StoryFooter extends React.Component {
     };
 
     handlerContinueClick = () => {
+        const { onContinue } = this.props;
         onContinue();
     };
 
@@ -88,9 +94,11 @@ class StoryFooter extends React.Component {
             <Segment className='footer-segment'>
                 <Segment.Group className='footer-segment-group' horizontal>
                     <Segment className='breadcrumb-container'>{this.renderPath()}</Segment>
-                    <Segment className='footer-option-button' disabled={!canBranch} onClick={this.handleBranchClick}>
-                        <Icon disabled={!canBranch} name='code branch' color={this.selectIconColor(canBranch)} />
-                        Branch
+                    <Segment className='footer-option-button' disabled={!canBranch}>
+                        <Button onClick={this.handleBranchClick} className={`branch-button color-${this.selectIconColor(canBranch)}`}>
+                            <Icon disabled={!canBranch} name='code branch' color={this.selectIconColor(canBranch)} />
+                            Branch
+                        </Button>
                     </Segment>
                     <>
                         {this.renderContinue()}

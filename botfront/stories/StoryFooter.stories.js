@@ -1,18 +1,25 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
-import { Segment, Breadcrumb, Icon } from 'semantic-ui-react';
+import { Segment } from 'semantic-ui-react';
 
 import StoryFooter from '../imports/ui/components/stories/StoryFooter';
 
 import '../imports/ui/components/stories/style.import.less';
 
-const style = { height: '200px', backgroundColor: 'rgba(180,180,200)'}
-const myPath = 'thisIsAReallyLongNameBranchForLogic__thisIsAReallyLongNameBranchForLogic__thisIsAReallyLongNameBranchForLogic__test__nice__thisIsAReallyLongNameBranchForLogic__test__nice__thisIsAReallyLongNameBranchForLogic__test__nice__thisIsAReallyLongNameBranchForLogic__test__nice__thisIsAReallyLongNameBranchForLogic__test__nice';
+const myPath = (`thisIsAReallyLongNameBranchForLogic
+__thisIsAReallyLongNameBranchForLogic
+__thisIsAReallyLongNameBranchForLogic
+__test__nice__thisIsAReallyLongNameBranchForLogic
+__test__nice__thisIsAReallyLongNameBranchForLogic
+__test__nice__thisIsAReallyLongNameBranchForLogic
+__test__nice__thisIsAReallyLongNameBranchForLogic
+__test__nice`
+);
 
 const onBranchPH = () => {
     // eslint-disable-next-line no-console
-    console.log("branched");
+    console.log('branched');
 };
 
 const onContinuePH = () => {
@@ -22,21 +29,19 @@ const onContinuePH = () => {
 
 storiesOf('mystory', module)
     .addDecorator(withKnobs)
-    .add('default-footer', () => {
-        return (
-            <div className='story-footer-parent'>
-                <Segment.Group>
-                    <Segment attached='top'>hello</Segment>
-                    <Segment>second</Segment>
-                    <StoryFooter
-                        className='bread-crumb-container'
-                        onBranch={onBranchPH}
-                        onContinue={onContinuePH}
-                        canContinue={boolean('can continue', true)}
-                        canBranch={boolean('can branch', true)}
-                        storyPath={myPath}
-                    />
-                </Segment.Group>
-            </div>
-        );
-    });
+    .add('default-footer', () => (
+        <div className='story-footer-parent'>
+            <Segment.Group>
+                <Segment attached='top'>Top Segment</Segment>
+                <Segment>Middle Segment</Segment>
+                <StoryFooter
+                    className='bread-crumb-container'
+                    onBranch={onBranchPH}
+                    onContinue={onContinuePH}
+                    canContinue={boolean('can continue', true)}
+                    canBranch={boolean('can branch', true)}
+                    storyPath={myPath}
+                />
+            </Segment.Group>
+        </div>
+    ));
