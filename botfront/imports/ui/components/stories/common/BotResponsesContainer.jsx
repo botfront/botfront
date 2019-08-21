@@ -145,9 +145,6 @@ const BotResponsesContainer = (props) => {
                         focus={focus === index}
                         onFocus={() => setFocus(index)}
                     />
-                    {/* {index === 0 && deletable && sequenceArray.length > 1 && (
-                        <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
-                    )} */}
                 </div>
                 {!content.buttons
                     && renderAddLine(index) /* add line button if no buttons */}
@@ -166,6 +163,9 @@ const BotResponsesContainer = (props) => {
                 </Placeholder>
             )}
             {getSequence().map(renderResponse)}
+            {deletable && (
+                <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
+            )}
             <div className='response-name'>{name}</div>
         </div>
     );

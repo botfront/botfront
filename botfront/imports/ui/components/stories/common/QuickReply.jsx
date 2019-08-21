@@ -24,7 +24,7 @@ function QuickReply({
     const [buttonValue, setButtonValue] = useState(value);
 
     const valid = isButtonValid(buttonValue);
-    const [isOpen, setIsOpen] = useState(!valid);
+    const [isOpen, setIsOpen] = useState(false);
     const button = (
         <button type='button' className={`quick-reply ${valid ? '' : 'invalid'}`}>
             {buttonValue.title || 'Button title'}

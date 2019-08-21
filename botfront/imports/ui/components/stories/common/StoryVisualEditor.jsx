@@ -229,6 +229,7 @@ class StoryVisualEditor extends React.Component {
                 return (
                     <React.Fragment key={`bot${line.gui.data.name}`}>
                         <BotResponsesContainer
+                            deletable
                             exceptions={exceptions}
                             name={line.gui.data.name}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}

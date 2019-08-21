@@ -20,6 +20,11 @@ const BotResponseContainer = (props) => {
         if (focus) focusGrabber.current.focus();
     }, [value, focus]);
 
+    function handleTextBlur() {
+        if (isTextResponse) onChange({ text: input }, false);
+        if (hasButtons) onChange({ text: input, buttons: value.buttons }, false);
+    }
+
     const renderText = () => (
         <TextareaAutosize
             ref={focusGrabber}
@@ -35,7 +40,7 @@ const BotResponseContainer = (props) => {
                 }
             }}
             onFocus={() => onFocus()}
-            onBlur={() => onChange({ text: input }, false)}
+            onBlur={handleTextBlur}
         />
     );
 
@@ -43,7 +48,7 @@ const BotResponseContainer = (props) => {
         <QuickReplies
             value={value.buttons}
             onChange={(newButtons) => {
-                onChange({ buttons: newButtons }, false);
+                onChange({ buttons: newButtons, text: value.text }, false);
             }}
         />
     );
