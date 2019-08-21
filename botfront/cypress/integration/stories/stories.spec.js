@@ -161,7 +161,7 @@ describe('stories', function() {
             .type(`{selectall}{backspace}${testText}`, { force: true });
         cy.wait(500);
         cy.contains(storyGroupOne).trigger('mouseover');
-        cy.dataCy('edit-name-icon').click({ force: true });
+        cy.contains(storyGroupOne).find('[data-cy=edit-name-icon]').click({ force: true });
         // Change name of a story group
         cy.get('[data-cy=edit-name] input')
             .click({ force: true })
@@ -186,7 +186,7 @@ describe('stories', function() {
         cy.dataCy('add-item-input')
             .find('input')
             .type('{enter}');
-        cy.dataCy('browser-item').should('not.exist');
+        cy.dataCy('browser-item').should('have.lengthOf', 1);
         cy.dataCy('add-item-input')
             .find('input')
             .type(`${storyGroupOne}{enter}`);
