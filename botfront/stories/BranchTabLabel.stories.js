@@ -5,7 +5,7 @@ import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import BranchTabLabel from '../imports/ui/components/stories/BranchTabLabel.jsx';
 
-const MenuContentsWrapper = () => {
+const MenuContentsWrapper = ({ hasWarning, hasError }) => {
     // eslint-disable-next-line no-unused-vars
     const [activeItem, setActiveItem] = useState('hi');
     const [tabValues, setTabValue] = useState(['hi', 'this is a longer variable name', 'test branch', 'new test', 'mybranch6', 'other branch', 'add more branch names to go further']);
@@ -30,13 +30,14 @@ const MenuContentsWrapper = () => {
         for (let i = 0; i < nTabs; i += 1) {
             const tab = (
                 <BranchTabLabel
+                    key={tabValues[i]}
                     active={tabValues[i] === activeItem}
                     onDelete={onDelete}
                     onChangeName={handleOnChange}
                     onSelect={handleOnClick}
                     value={tabValues[i]}
-                    hasWarning={boolean('hasWarning', false)}
-                    hasError={boolean('hasError', false)}
+                    hasWarning={hasWarning}
+                    hasError={hasError}
                 />
             );
             tabList.push(tab);
@@ -66,7 +67,10 @@ storiesOf('BranchTabLabel', module)
                         (Content)
                         <br />
                         <Menu tabular size='mini'>
-                            <MenuContentsWrapper />
+                            <MenuContentsWrapper
+                                hasWarning={boolean('hasWarning', false)}
+                                hasError={boolean('hasError', false)}
+                            />
                         </Menu>
                         <br />
                         (Content)
