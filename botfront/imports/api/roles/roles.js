@@ -64,8 +64,10 @@ if (Meteor.isServer) {
         Roles.createRole('project-viewer', ue);
         Roles.addRolesToParent(['nlu-viewer', 'copy-viewer', 'conversations-viewer', 'project-settings:r'], 'project-viewer');
     
+
+        Roles.createRole('analytics:r', ue);
         Roles.createRole('project-admin', ue);
-        Roles.addRolesToParent(['nlu-editor', 'nlu-model:w', 'copy-editor', 'conversations-editor', 'project-settings:w', 'project-viewer'], 'project-admin');
+        Roles.addRolesToParent(['nlu-editor', 'nlu-model:w', 'copy-editor', 'conversations-editor', 'project-settings:w', 'project-viewer', 'analytics:r'], 'project-admin');
     
         // Legacy owner role
         Roles.createRole('owner', ue);

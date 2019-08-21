@@ -1,9 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import { getConversationDurations } from '../analytics.conversation.durations';
+import { checkIfCan } from '../../../lib/scopes';
 
 export default {
     Query: {
         async conversationDurations(parent, args, context, info) {
+            checkIfCan('analytics:r', args.projectId, context.user._id);
             return getConversationDurations(args.projectId, args.from, args.to);
         },
     },
