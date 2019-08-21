@@ -41,7 +41,7 @@ const StoryEditorContainer = ({
                 story: acc.branches[index].story,
                 indices: [...acc.indices, index],
             };
-        }, { branches: story.branches, story, indices: [] });
+        }, { branches: story.branches || [], story, indices: [] });
 
     const saveStory = (pathOrIndices, content) => {
         // this accepts a double__underscore-separated path or an array of indices
