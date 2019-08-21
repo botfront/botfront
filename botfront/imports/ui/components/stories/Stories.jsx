@@ -1,5 +1,5 @@
 import {
-    Grid, Message, Menu, Icon,
+    Grid, Message,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -7,6 +7,8 @@ import React from 'react';
 
 import { setStoryGroup } from '../../store/actions/actions';
 import { wrapMeteorCallback } from '../utils/Errors';
+
+import IntroStoryMenu from './IntroStoryMenu';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
 
@@ -225,51 +227,7 @@ class Stories extends React.Component {
             )
         );
     };
-
-    renderIntroStoryGroup = () => {
-        const { storyGroups } = this.props;
-        const {
-            storyIndex,
-            storyGroupNameSelected,
-        } = this.state;
-        const introStory = storyGroups.find(storyGroup => storyGroup.introStory);
-        const storyGroupFiltered = storyGroups
-            .filter(storyGroup => !storyGroup.introStory)
-            .sort(this.sortAlphabetically);
-        const storySelected = this.storyGroupSelected(
-            storyIndex,
-            storyGroupNameSelected,
-            storyGroupFiltered,
-        );
-        return (
-            <Menu
-                vertical
-                fluid
-                onClick={this.handleIntroStoryClick}
-                className={`intro-story ${
-                    storySelected === -1 ? 'selected-intro-story' : ''
-                }`}
-            >
-                <Menu.Item
-                    active={storySelected === -1}
-                    link
-                    data-cy='intro-story-group'
-                >
-                    <Icon
-                        id={`${
-                            introStory && introStory.selected
-                                ? 'selected'
-                                : 'not-selected'
-                        }`}
-                        name='eye'
-                        onClick={e => this.handleIntroClick(e, introStory)}
-                    />
-                    <span>Intro stories</span>
-                </Menu.Item>
-            </Menu>
-        );
-    }
-
+    
     render() {
         const { storyGroups } = this.props;
         const {
@@ -330,7 +288,12 @@ class Stories extends React.Component {
                                 changeName={this.handleNameChange}
                                 placeholderAddItem='Choose a group name'
                             >
-                                {this.renderIntroStoryGroup()}
+                                <IntroStoryMenu
+                                    introStory={introStory}
+                                    introClick={this.handleIntroClick}
+                                    introStoryClick={this.handleIntroStoryClick}
+                                    isSelected={storySelected === -1}
+                                />
                             </ItemsBrowser>
                         )}
                     </Grid.Column>
