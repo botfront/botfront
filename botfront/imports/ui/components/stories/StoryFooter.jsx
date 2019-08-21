@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Breadcrumb } from 'semantic-ui-react';
+import { Segment, Breadcrumb, Icon } from 'semantic-ui-react';
 
 import './style.import.less';
 
@@ -16,7 +16,7 @@ class StoryFooter extends React.Component {
         const { storyPath } = this.props;
         let pathArray = storyPath.split('__');
         const pathBreadcrumbs = [];
-        const maxLength = 3;
+        const maxLength = 5;
 
         if (pathArray.length > 3) {
             pathBreadcrumbs.push();
@@ -24,7 +24,11 @@ class StoryFooter extends React.Component {
             pathBreadcrumbs.push(
                 <StoryPathPopup
                     storyPath={storyPath}
-                    trigger={<Breadcrumb.Section className='collapsed-path'>...</Breadcrumb.Section>}
+                    trigger={(
+                        <Breadcrumb.Section className='collapsed-path'>
+                            <Icon disabled color='grey' name='ellipsis horizontal' size='large' />
+                        </Breadcrumb.Section>
+                    )}
                 />,
             );
             pathBreadcrumbs.push(<Breadcrumb.Divider>{'>'}</Breadcrumb.Divider>);
@@ -37,9 +41,60 @@ class StoryFooter extends React.Component {
         return pathBreadcrumbs;
     };
 
-    render () {
+    handleBranchClick = () => {
+        const { onBranch, canBranch } = this.props;
+        if (canBranch) {
+            onBranch();
+        }
+    };
+
+    handlerContinueClick = () => {
+        const { onContinue, canContinue } = this.props;
+        if (canContinue) {
+            onContinue();
+        }
+    };
+
+    selectIconColor = (active) => {
+        if (active) {
+            return 'blue';
+        }
+        return 'grey';
+    }
+
+    renderContinue = () => {
+        const { canContinue } = this.props;
+        if (canContinue) {
+            return (
+                <Segment className='footer-option-button' onClick={this.handlerContinueClick}>
+                    <Icon name='arrow alternate circle right outline' color='blue' />
+                    Connect
+                </Segment>
+            );
+        }
         return (
-            <Segment className='breadcrumb-container' attatched='bottom'>{this.renderPath()}</Segment>
+            <Segment className='footer-option-button long' onClick={this.handlerContinueClick}>
+                <Icon className='long' name='arrow alternate circle right outline' color='blue' />
+                Continue To Linked Story
+            </Segment>
+        );
+    }
+
+    render () {
+        const {
+            canBranch,
+        } = this.props;
+        return (
+            <Segment.Group className='footer-segment' horizontal>
+                <Segment className='breadcrumb-container'>{this.renderPath()}</Segment>
+                <Segment className='footer-option-button' disabled={!canBranch} onClick={this.handleBranchClick}>
+                    <Icon disabled={!canBranch} name='code branch' color={this.selectIconColor(canBranch)} />
+                    Branch
+                </Segment>
+                <>
+                    {this.renderContinue()}
+                </>
+            </Segment.Group>
         );
     }
 }
