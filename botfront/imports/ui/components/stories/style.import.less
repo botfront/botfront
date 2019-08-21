@@ -266,38 +266,43 @@
 }
 
 .story-footer-parent{
-  .ui{
-    &.horizontal{
-      &.segments{
-        &.footer-segment{
-          background-color: rgba(0,0,0,0.02);
-          border: none;
-          .footer-option-button{
-            min-width: 13ch;
-          &.long{
-            min-width: 25ch;
-          }
-          }
-          .breadcrumb-container{
-            display:flex;
-            width: 80%;
-            color: rgba(0,0,0,0.4);
-            overflow: hidden;
-            text-overflow: clip;
-            .section{
-              max-width: 24ch;
-              min-width: 5ch;
+  .footer-segment{
+    padding: 0px;
+    margin: 0px;
+    .ui{
+      &.horizontal{
+        &.segments{
+          &.footer-segment-group{
+            margin:0px;
+            background-color: rgba(0,0,0,0.02);
+            border: none;
+            .footer-option-button{
+              min-width: 13ch;
+            &.long{
+              min-width: 25ch;
+            }
+            }
+            .breadcrumb-container{
+              display:flex;
+              width: 80%;
+              color: rgba(0,0,0,0.4);
               overflow: hidden;
-              text-overflow: ellipsis;
-              .icon{
+              text-overflow: clip;
+              .section{
+                max-width: 24ch;
+                min-width: 5ch;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                .icon{
+                }
               }
-            }
-            .divider{
-              padding-left: 1ch;
-              padding-right: 1ch;
-            }
-            .collapsed-path{
-              &:hover{
+              .divider{
+                padding-left: 1ch;
+                padding-right: 1ch;
+              }
+              .collapsed-path{
+                &:hover{
+                }
               }
             }
           }

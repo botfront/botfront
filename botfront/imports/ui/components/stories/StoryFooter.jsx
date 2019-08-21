@@ -85,16 +85,18 @@ class StoryFooter extends React.Component {
             canBranch,
         } = this.props;
         return (
-            <Segment.Group className='footer-segment' horizontal>
-                <Segment className='breadcrumb-container'>{this.renderPath()}</Segment>
-                <Segment className='footer-option-button' disabled={!canBranch} onClick={this.handleBranchClick}>
-                    <Icon disabled={!canBranch} name='code branch' color={this.selectIconColor(canBranch)} />
-                    Branch
-                </Segment>
-                <>
-                    {this.renderContinue()}
-                </>
-            </Segment.Group>
+            <Segment className='footer-segment'>
+                <Segment.Group className='footer-segment-group' horizontal>
+                    <Segment className='breadcrumb-container'>{this.renderPath()}</Segment>
+                    <Segment className='footer-option-button' disabled={!canBranch} onClick={this.handleBranchClick}>
+                        <Icon disabled={!canBranch} name='code branch' color={this.selectIconColor(canBranch)} />
+                        Branch
+                    </Segment>
+                    <>
+                        {this.renderContinue()}
+                    </>
+                </Segment.Group>
+            </Segment>
         );
     }
 }

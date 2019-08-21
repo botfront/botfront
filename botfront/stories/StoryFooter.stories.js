@@ -1,6 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
+import { Segment, Breadcrumb, Icon } from 'semantic-ui-react';
 
 import StoryFooter from '../imports/ui/components/stories/StoryFooter';
 
@@ -24,17 +25,18 @@ storiesOf('mystory', module)
     .add('default-footer', () => {
         return (
             <div className='story-footer-parent'>
-                <div style={style}>
-                    hello
-                </div>
-                <StoryFooter
-                    className='bread-crumb-container'
-                    onBranch={onBranchPH}
-                    onContinue={onContinuePH}
-                    canContinue={boolean('can continue', true)}
-                    canBranch={boolean('can branch', true)}
-                    storyPath={myPath}
-                />
+                <Segment.Group>
+                    <Segment attached='top'>hello</Segment>
+                    <Segment>second</Segment>
+                    <StoryFooter
+                        className='bread-crumb-container'
+                        onBranch={onBranchPH}
+                        onContinue={onContinuePH}
+                        canContinue={boolean('can continue', true)}
+                        canBranch={boolean('can branch', true)}
+                        storyPath={myPath}
+                    />
+                </Segment.Group>
             </div>
         );
     });
