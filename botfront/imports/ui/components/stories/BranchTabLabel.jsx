@@ -12,15 +12,12 @@ class BranchTabLabel extends React.Component {
             title: value,
             titleHovered: false,
             titleInputFocused: false,
+            blockEditOptions: false,
         };
     }
 
     onTextInput = (event) => {
         this.setState({ newTitle: event.target.value });
-    }
-    
-    handleOnFocusInput = () => {
-        this.setState({ titleInputFocused: true });
     }
 
     handleTitleMouseEnter = () => {
@@ -31,6 +28,17 @@ class BranchTabLabel extends React.Component {
         const { titleInputFocused } = this.state;
         if (!titleInputFocused) {
             this.setState({ titleHovered: false });
+        }
+    }
+
+    handleOnFocusInput = () => {
+        this.setState({ titleInputFocused: true });
+    }
+
+    handleFocusTitleInput = () => {
+        const { active } = this.props;
+        if (active) {
+            this.setState({ titleInputFocused: true });
         }
     }
 
@@ -45,7 +53,7 @@ class BranchTabLabel extends React.Component {
             this.setState({ newTitle: title });
             return;
         }
-        if (title === active) {
+        if (active) {
             onSelect(newTitle);
         }
         this.setState({ title: newTitle });
@@ -64,84 +72,81 @@ class BranchTabLabel extends React.Component {
         return <>{alertList}</>;
     }
 
-    renderErrors = () => {
-        const { hasError } = this.props;
-        if (hasError) {
-            return <Icon name='close' />;
+    handleOnClick = () => {
+        const { title } = this.state;
+        const { onSelect, active } = this.props;
+        if (!active) {
+            this.setState({ blockEditOptions: true });
+            setTimeout(() => { this.setState({ blockEditOptions: false }); }, 500);
+            onSelect(title);
         }
-        return <></>;
+    }
+
+    renderTitlePlain = () => {
+        const { title } = this.state;
+        return <span className='branch-title' onClick={this.handleFocusTitleInput}>{title}</span>;
+    }
+
+    renderTitleDecorated = () => {
+        const { title } = this.state;
+        const { onDelete } = this.props;
+        return (
+            <>
+                <span
+                    className='branch-title decorated'
+                    onClick={this.handleFocusTitleInput}
+                    role='textbox'
+                >
+                    {title}
+                </span>
+                <Icon name='trash' className='trash-icon visible' onClick={onDelete} />
+            </>
+        );
     }
 
     renderTitleInput = () => {
-        const { titleHovered, newTitle } = this.state;
-        if (titleHovered) {
-            return (
+        const { newTitle } = this.state;
+        const { onDelete } = this.props;
+        return (
+            <>
                 <input
                     data-cy='branch-title'
                     value={newTitle}
                     onChange={this.onTextInput}
                     onBlur={this.onBlurInput}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
                     onFocus={this.handleOnFocusInput}
                 />
-            );
-        }
-        return (
-            this.renderMenuDefault()
-        );
-    }
-
-    renderMenuSelected = () => {
-        const { onDelete } = this.props;
-        const { titleInputFocused } = this.state;
-        const styleTrash = { color: 'rgba(0,0,0,0.4)' };
-        if (titleInputFocused) {
-            styleTrash.visibility = 'visible';
-            styleTrash.position = 'relative';
-        }
-        return (
-            <>
-                {this.renderTitleInput()}
-                <Icon name='trash' className='trash-icon' onClick={onDelete} style={styleTrash} />
+                <Icon name='trash' className='trash-icon visible' onClick={onDelete} />
             </>
         );
     }
 
-    renderMenuDefault = () => {
-        const { title } = this.state;
-        return (
-            <>
-                <span className='branch-title'>{title}</span>
-            </>
-        );
-    }
-
-    renderMenuItemContents = () => {
+    renderTitle = () => {
+        const { titleHovered, titleInputFocused, blockEditOptions } = this.state;
         const { active } = this.props;
-        const { title } = this.state;
-        if (active !== title) {
-            return this.renderMenuDefault();
+        
+        if (titleInputFocused) {
+            return this.renderTitleInput();
         }
-        return <>{this.renderMenuSelected()}</>;
-    }
-
-    handleOnClick = () => {
-        const { title } = this.state;
-        const { onSelect } = this.props;
-        onSelect(title);
+        if (active && titleHovered && !blockEditOptions) {
+            return this.renderTitleDecorated();
+        }
+        return this.renderTitlePlain();
     }
 
     render() {
         const { active } = this.props;
-        const { title } = this.state;
         return (
             <Menu.Item
                 className='branch-tab'
-                active={title === active}
+                active={active}
                 onClick={this.handleOnClick}
                 content={
                 <>
                     {this.renderAlertIcons()}
-                    {this.renderMenuItemContents()}
+                    {this.renderTitle()}
                 </>
                 }
                 onMouseEnter={this.handleTitleMouseEnter}
