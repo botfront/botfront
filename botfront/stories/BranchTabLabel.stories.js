@@ -30,7 +30,7 @@ const MenuContentsWrapper = () => {
         for (let i = 0; i < nTabs; i += 1) {
             const tab = (
                 <BranchTabLabel
-                    active={activeItem}
+                    active={tabValues[i] === activeItem}
                     onDelete={onDelete}
                     onChangeName={handleOnChange}
                     onSelect={handleOnClick}
