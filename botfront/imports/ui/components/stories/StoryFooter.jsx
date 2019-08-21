@@ -49,10 +49,7 @@ class StoryFooter extends React.Component {
     };
 
     handlerContinueClick = () => {
-        const { onContinue, canContinue } = this.props;
-        if (canContinue) {
-            onContinue();
-        }
+        onContinue();
     };
 
     selectIconColor = (active) => {
@@ -63,7 +60,10 @@ class StoryFooter extends React.Component {
     }
 
     renderContinue = () => {
-        const { canContinue } = this.props;
+        const { canContinue, disableContinue } = this.props;
+        if (disableContinue) {
+            return <></>;
+        }
         if (canContinue) {
             return (
                 <Segment className='footer-option-button' onClick={this.handlerContinueClick}>
@@ -105,12 +105,14 @@ StoryFooter.propTypes = {
     canContinue: PropTypes.bool,
     onBranch: PropTypes.func.isRequired,
     onContinue: PropTypes.func.isRequired,
+    disableContinue: PropTypes.bool,
 };
 
 StoryFooter.defaultProps = {
     storyPath: '',
     canBranch: true,
     canContinue: true,
+    disableContinue: true,
 };
 
 export default StoryFooter;
