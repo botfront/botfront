@@ -85,14 +85,15 @@
     text-overflow: ellipsis;
   }
 
-  .tabular.menu {
-    border-color: #eeeeee;
-    .active.item {
-      border-color: #eeeeee;
-    }
-    .item:first-of-type {
-      border-radius: 0 .28571429rem 0 0 !important;
-      border-left: none;
+  .pointing.secondary.menu {
+    margin: 0.5rem 0 0.75rem;
+    flex-wrap: wrap;
+    border-bottom: none;
+    a.item {
+      padding: 0.25rem 0.5rem;
+      &:active {
+        border-color: #1b1c1d;
+      }
     }
   }
 

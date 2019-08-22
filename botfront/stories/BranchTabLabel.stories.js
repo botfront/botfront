@@ -63,10 +63,10 @@ storiesOf('BranchTabLabel', module)
                     <Menu attached='top'>
                         <Menu.Item>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</Menu.Item>
                     </Menu>
-                    <Segment attached='bottom'>
+                    <Segment attached>
                         (Content)
                         <br />
-                        <Menu tabular size='mini'>
+                        <Menu pointing secondary size='mini'>
                             <MenuContentsWrapper
                                 hasWarning={boolean('hasWarning', false)}
                                 hasError={boolean('hasError', false)}
