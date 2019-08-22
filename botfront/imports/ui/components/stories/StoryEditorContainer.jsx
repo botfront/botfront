@@ -140,9 +140,14 @@ const StoryEditorContainer = ({
     };
 
     const handleDeleteBranch = (indices, index, branches) => {
-        // to do: if branches.length < 3 ...
-        const updatedBranches = [...branches.slice(0, index), ...branches.slice(index + 1)];
-        setActivePath(story._id); // temp fix: need to determine most natural branch to switch to
+        const commonActivePath = activePath.match(/.*__/)[0];
+        const updatedBranches = branches.length < 3
+            ? []
+            : [...branches.slice(0, index), ...branches.slice(index + 1)];
+        const newPath = branches.length < 3
+            ? commonActivePath.match(/(.*)__/)[1]
+            : `${commonActivePath}${branches[index + 1] ? branches[index + 1]._id : branches[index - 1]._id}`;
+        setActivePath(newPath);
         saveStory(indices, { branches: updatedBranches });
     };
 
