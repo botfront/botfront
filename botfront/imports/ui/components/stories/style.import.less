@@ -230,9 +230,17 @@
     }
   }
 
-  .ui.segment.bottom {
+  .ui.segment.attached {
     border-color: #eeeeee;
     padding: 0;
+
+    .ui.segment.attached { // don't stack borders on recursive els
+      border: none;
+    }
+
+    &.bottom {
+      background-color: #eeeeee;
+    }
   }
 }
 

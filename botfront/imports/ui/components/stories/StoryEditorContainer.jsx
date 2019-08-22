@@ -1,7 +1,7 @@
 import {
     Icon, Segment, Menu, Button,
 } from 'semantic-ui-react';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import shortid from 'shortid';
@@ -30,7 +30,7 @@ const StoryEditorContainer = ({
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
-    const [activePath, setActivePath] = useState();
+    const [activePath, setActivePath] = useState(story._id);
 
     const getBranchesAndIndices = path => path.split('__').slice(1)
         // gets branches but also indices, useful for setting later
@@ -39,9 +39,18 @@ const StoryEditorContainer = ({
             return {
                 branches: acc.branches[index].branches || [],
                 story: acc.branches[index].story,
+                title: acc.branches[index].title,
                 indices: [...acc.indices, index],
             };
-        }, { branches: story.branches || [], story, indices: [] });
+        }, {
+            branches: story.branches || [], story, title: story.title, indices: [],
+        });
+
+    // activePathProps contains activePath's branches, story, title...
+    const [activePathProps, setActivePathProps] = useState(getBranchesAndIndices(story._id));
+    useEffect(() => {
+        setActivePathProps(getBranchesAndIndices(activePath));
+    }, [activePath, story]);
 
     const saveStory = (pathOrIndices, content) => {
         // this accepts a double__underscore-separated path or an array of indices
@@ -134,7 +143,7 @@ const StoryEditorContainer = ({
     const handleDeleteBranch = (indices, index, branches) => {
         // to do: if branches.length < 3 ...
         const updatedBranches = [...branches.slice(0, index), ...branches.slice(index + 1)];
-        setActivePath(''); // temp fix: need to determine most natural branch to switch to
+        setActivePath(story._id); // temp fix: need to determine most natural branch to switch to
         saveStory(indices, { branches: updatedBranches });
     };
 
@@ -160,7 +169,7 @@ const StoryEditorContainer = ({
         const queriedPath = activePath || story._id;
         const nextPath = queriedPath.match(query) && queriedPath.match(query)[1];
         return (
-            <>
+            <Segment attached>
                 {editorType !== 'visual' ? renderAceEditor(path) : null}
                 { branches.length > 0 && (
                     <Menu tabular>
@@ -187,27 +196,25 @@ const StoryEditorContainer = ({
                         </Menu.Item>
                     </Menu>
                 )}
-                { !branches.length && (
-                    <Button
-                        content='branch it!'
-                        color='violet'
-                        onClick={() => handleCreateBranch(indices, branches, 2)}
-                        fluid
-                    />
-                )}
                 { branches.length > 0 && activePath && nextPath && ( // render branch content
                     renderBranches(nextPath)
                 )}
-            </>
+            </Segment>
         );
     };
 
     return (
         <div className='story-editor' data-cy='story-editor'>
             {renderTopMenu()}
+            {renderBranches(story._id)}
             <Segment attached='bottom'>
-                {renderBranches(story._id)}
-                <br />
+                <Button
+                    content={!!activePathProps.branches.length ? `${activePathProps.title} branched` : `Branch ${activePathProps.title}`}
+                    color='grey'
+                    onClick={() => handleCreateBranch(activePathProps.indices, activePathProps.branches, 2)}
+                    fluid
+                    disabled={!!activePathProps.branches.length}
+                />
             </Segment>
         </div>
     );
