@@ -191,7 +191,7 @@ const StoryEditorContainer = ({
                                 />
                             );
                         })}
-                        <Menu.Item key={`${path}-add`} onClick={() => handleCreateBranch(indices, branches)}>
+                        <Menu.Item key={`${path}-add`} className='add-tab' onClick={() => handleCreateBranch(indices, branches)}>
                             <Icon name='plus' />
                         </Menu.Item>
                     </Menu>
@@ -209,7 +209,7 @@ const StoryEditorContainer = ({
             {renderBranches(story._id)}
             <Segment attached='bottom'>
                 <Button
-                    content={!!activePathProps.branches.length ? `${activePathProps.title} branched` : `Branch ${activePathProps.title}`}
+                    content={!!activePathProps.branches.length ? `${activePathProps.title} branched` : `Branch from ${activePathProps.title}`}
                     color='grey'
                     onClick={() => handleCreateBranch(activePathProps.indices, activePathProps.branches, 2)}
                     fluid

@@ -86,14 +86,17 @@ class BranchTabLabel extends React.Component {
     renderTitlePlain = () => {
         const { title } = this.state;
         return (
-            <span
-                className='branch-title'
-                role='textbox'
-                onClick={this.handleFocusTitleInput}
-                tabIndex={0}
-            >
-                {title}
-            </span>
+            <>
+                <span
+                    className='branch-title'
+                    role='textbox'
+                    onClick={this.handleFocusTitleInput}
+                    tabIndex={0}
+                >
+                    {title}
+                </span>
+                <Icon name='trash' size='small' />
+            </>
         );
     }
 
@@ -110,7 +113,7 @@ class BranchTabLabel extends React.Component {
                 >
                     {title}
                 </span>
-                <Icon name='trash' className='trash-icon visible' onClick={onDelete} />
+                <Icon name='trash' size='small' onClick={onDelete} />
             </>
         );
     }
@@ -128,8 +131,9 @@ class BranchTabLabel extends React.Component {
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                     onFocus={this.handleOnFocusInput}
+                    style={{ width: `${Math.max(10, newTitle.length)}ch` }}
                 />
-                <Icon name='trash' className='trash-icon visible' onClick={onDelete} />
+                <Icon name='trash' size='small' onClick={onDelete} />
             </>
         );
     }

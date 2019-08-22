@@ -4,55 +4,6 @@
     padding-bottom: 0.9em;
   }
 
-  .item {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    input {
-      font-size: 14px;
-      border-style: solid;
-      border-radius: 4px;
-      border-width: 1px;
-      border-color: rgb(184, 184, 184);
-      color: rgba(0,0,0,.87);
-      outline: none;
-      max-width: 24ch;
-      min-width: 75px;
-      text-overflow: clip;
-      text-align: left;
-      font-weight: normal;
-    }
-    .branch-title{
-      padding: 2px;
-      font-size: 14px;
-      text-align: center;
-      white-space: nowrap;
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 20ch;
-      &.decorated{
-        text-align: left;
-        min-width: 50px;
-        border-style: solid;
-        font-size: 14px;
-        border-radius: 4px;
-        border-width: 1px;
-        border-color: rgb(190, 190, 190);
-      }
-    }
-    .trash-icon{
-      color: rgba(0,0,0,0.4);
-      position: absolute;
-      visibility: hidden;
-      padding-left: 10px;
-      &.visible{
-        position: relative;
-        visibility: visible;
-      }
-    }
-  }
-
   .menu.vertical .active.item {
     cursor: default;
   }
@@ -84,19 +35,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  .pointing.secondary.menu {
-    margin: 0.5rem 0 0.75rem;
-    flex-wrap: wrap;
-    border-bottom: none;
-    a.item {
-      padding: 0.25rem 0.5rem;
-      &:active {
-        border-color: #1b1c1d;
-      }
-    }
-  }
-
 }
 
 #remove-focus {
@@ -126,65 +64,6 @@
     color: rgb(33,133,208);
   }
 }
-
-.branch-tab{
-  span {
-    outline: none;
-  }
-  input {
-    text-overflow: ellipsis;
-    font-weight: bold;
-    border-style: solid;
-    font-size: 14px;
-    border-radius: 4px;
-    border-width: 1px;
-    border-color: rgb(255, 255, 255);
-    color: rgba(0,0,0,.87);
-    outline: none;
-    max-width: 24ch;
-    width: 24ch;
-    &:hover{
-      min-width: 75px;
-      text-overflow: clip;
-      border-color: rgb(190, 190, 190);
-    }
-    &:focus {
-      text-overflow: clip;
-      min-width: 75px;
-      text-align: left;
-      font-size: 14px;
-      border-color: rgb(184, 184, 184);
-    }
-  }
-  .branch-title{
-    font-size: 14px;
-    text-align: center;
-    white-space: nowrap;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 20ch;
-    padding-top: 2px;
-    padding-bottom: 2px;
-  }
-  .trash-icon{
-    position: absolute;
-    visibility: hidden;
-    padding-left: 10px;
-    }
-  &:hover{
-    .trash-icon{
-      position: relative;
-      visibility: visible;
-    }
-    input{
-      text-overflow: clip;
-      min-width: 75px;
-      border-color: rgb(210, 210, 210);
-    }
-  }
-}
-
 
 .story-editor {
   margin-bottom: 20px;
@@ -235,8 +114,53 @@
     border-color: #eeeeee;
     padding: 0;
 
-    .ui.segment.attached { // don't stack borders on recursive els
-      border: none;
+    .pointing.secondary.menu {
+      margin: 0.5rem 0 0.75rem;
+      flex-wrap: wrap;
+      border-bottom: none;
+      a.item {
+        padding: 0.25rem 0.5rem;
+
+        white-space: nowrap;
+        min-width: ~"calc(10ch + 40px)";
+        max-width: ~"calc(20ch + 40px)";
+        &.add-tab {
+          min-width: 0;
+          &:active {
+            border: none;
+          }
+        }
+        input {
+          outline: none;
+          border: solid 1px rgb(184, 184, 184);;
+          border-radius: 4px;
+          padding: 2px 2px 0;
+          color: rgba(0,0,0,.87);
+        }
+        span {
+          outline: none;
+          display: block;
+          text-overflow: ellipsis;
+          padding: 3px;
+          min-width: 10ch;
+          max-width: 30ch;
+          &.decorated {
+            border: solid 1px rgb(190, 190, 190);
+            border-radius: 4px;
+            padding: 2px;
+          }
+        }
+        .trash {
+          color: rgba(0,0,0,0.4);
+          padding: 0 10px;
+          opacity: 0;
+        }
+        &.active:hover {
+          .trash {
+            opacity: 1;
+          }
+        }
+      }
     }
 
     &.bottom {
