@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
-import './style.import.less';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 

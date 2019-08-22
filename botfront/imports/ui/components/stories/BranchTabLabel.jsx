@@ -131,7 +131,7 @@ class BranchTabLabel extends React.Component {
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                     onFocus={this.handleOnFocusInput}
-                    style={{ width: `${Math.max(10, newTitle.length)}ch` }}
+                    style={{ width: `${Math.max(3, newTitle.length)}ch` }}
                 />
                 <Icon name='trash' size='small' onClick={onDelete} />
             </>

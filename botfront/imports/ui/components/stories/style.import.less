@@ -115,37 +115,50 @@
     padding: 0;
 
     .pointing.secondary.menu {
-      margin: 0.5rem 0 0.75rem;
+      margin: 0;
       flex-wrap: wrap;
       border-bottom: none;
+      min-height: 0;
+      background-color: screen(@blue, #eeeeee);;
       a.item {
         padding: 0.25rem 0.5rem;
 
         white-space: nowrap;
-        min-width: ~"calc(10ch + 40px)";
+        min-width: ~"calc(3ch + 40px)";
         max-width: ~"calc(20ch + 40px)";
+
+
+        &.active {
+          border-color: @blue;
+          background-color: screen(@blue, #cccccc);
+        }
+        &:active, &:hover:not(.active) {
+          border-color: transparent;
+        }
         &.add-tab {
           min-width: 0;
-          &:active {
-            border: none;
-          }
+          margin: 0;
         }
         input {
           outline: none;
-          border: solid 1px rgb(184, 184, 184);;
+          border: solid 1px screen(@blue, #666666);
+          background-color: screen(@blue, #eeeeee);
           border-radius: 4px;
-          padding: 2px 2px 0;
+          padding: 1px;
           color: rgba(0,0,0,.87);
+          font-family: inherit;
+          font-weight: inherit;
         }
         span {
           outline: none;
           display: block;
           text-overflow: ellipsis;
           padding: 3px;
-          min-width: 10ch;
-          max-width: 30ch;
+          min-width: 3ch;
+          max-width: 20ch;
           &.decorated {
-            border: solid 1px rgb(190, 190, 190);
+            border: solid 1px screen(@blue, #999999);
+            background-color: screen(@blue, #eeeeee);
             border-radius: 4px;
             padding: 2px;
           }
@@ -153,6 +166,7 @@
         .trash {
           color: rgba(0,0,0,0.4);
           padding: 0 10px;
+          margin: 0;
           opacity: 0;
         }
         &.active:hover {

@@ -12,7 +12,6 @@ import BranchTabLabel from './BranchTabLabel';
 import { wrapMeteorCallback } from '../utils/Errors';
 import 'brace/theme/github';
 import 'brace/mode/text';
-import './style.import.less';
 
 const StoryEditorContainer = ({
     story,
