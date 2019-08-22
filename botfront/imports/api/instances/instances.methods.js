@@ -113,7 +113,7 @@ const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
         : [],
 });
 
-const flattenStory = story => (story.branches || []).reduce((acc, val) => (
+export const flattenStory = story => (story.branches || []).reduce((acc, val) => (
     // this collects all nested branches of a story into a flat array
     [...acc, ...flattenStory(val)]
 ), [{ story: (story.story || ''), title: story.title }]);
