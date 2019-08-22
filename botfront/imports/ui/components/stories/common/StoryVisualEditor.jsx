@@ -57,9 +57,12 @@ class StoryVisualEditor extends React.Component {
 
     handleSaveUserUtterance = (index, value) => {
         const { story, addUtteranceToTrainingData } = this.props;
-        addUtteranceToTrainingData(value);
-        const updatedLine = { type: 'user', data: [value] };
-        story.replaceLine(index, updatedLine);
+        addUtteranceToTrainingData(value, (err) => {
+            if (!err) {
+                const updatedLine = { type: 'user', data: [value] };
+                story.replaceLine(index, updatedLine);
+            }
+        });
     };
 
     handleCreateUserUtterance = (index, payload) => {
