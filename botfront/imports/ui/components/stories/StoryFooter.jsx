@@ -20,13 +20,14 @@ class StoryFooter extends React.Component {
     renderPath = () => {
         const { storyPath } = this.props;
         let pathArray = storyPath.split('__');
-        const pathBreadcrumbs = [];
+        let pathBreadcrumbs = [];
         const maxLength = 5;
 
         if (pathArray.length > maxLength) {
             pathBreadcrumbs.push();
             pathArray = pathArray.slice(pathArray.length - maxLength, pathArray.length);
-            pathBreadcrumbs.push(
+            pathBreadcrumbs = [
+                ...pathBreadcrumbs,
                 <StoryPathPopup
                     key='ellipsis'
                     storyPath={storyPath}
@@ -36,12 +37,15 @@ class StoryFooter extends React.Component {
                         </Breadcrumb.Section>
                     )}
                 />,
-            );
-            pathBreadcrumbs.push(<Breadcrumb.Divider key='ellipsis-divider'>{'>'}</Breadcrumb.Divider>);
+                <Breadcrumb.Divider key='ellipsis-divider'>{'>'}</Breadcrumb.Divider>,
+            ];
         }
         pathArray.forEach((location, index) => {
-            pathBreadcrumbs.push(<Breadcrumb.Section key={`path-location-${index}`}>{location}</Breadcrumb.Section>);
-            pathBreadcrumbs.push(<Breadcrumb.Divider key={`path-divider-${index}`}>{'>'}</Breadcrumb.Divider>);
+            pathBreadcrumbs = [
+                ...pathBreadcrumbs,
+                <Breadcrumb.Section key={`popup-location-${index}`}>{location}</Breadcrumb.Section>,
+                <Breadcrumb.Divider key={`popup-divider-${index}`}>{'>'}</Breadcrumb.Divider>,
+            ];
         });
         pathBreadcrumbs.pop();
         return pathBreadcrumbs;

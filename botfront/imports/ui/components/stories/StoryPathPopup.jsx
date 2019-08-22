@@ -14,11 +14,14 @@ class StoryPathPopup extends React.Component {
     renderPath = () => {
         const { storyPath } = this.props;
         const pathArray = storyPath.split('__');
-        const pathBreadcrumbs = [];
+        let pathBreadcrumbs = [];
 
         pathArray.forEach((location, index) => {
-            pathBreadcrumbs.push(<Breadcrumb.Section key={`popup-location-${index}`}>{location}</Breadcrumb.Section>);
-            pathBreadcrumbs.push(<Breadcrumb.Divider key={`popup-divider-${index}`}>{'>'}</Breadcrumb.Divider>);
+            pathBreadcrumbs = [
+                ...pathBreadcrumbs,
+                <Breadcrumb.Section key={`popup-location-${index}`}>{location}</Breadcrumb.Section>,
+                <Breadcrumb.Divider key={`popup-divider-${index}`}>{'>'}</Breadcrumb.Divider>,
+            ];
         });
         pathBreadcrumbs.pop();
         return <ul className='story-path-popup'>{pathBreadcrumbs}</ul>;
