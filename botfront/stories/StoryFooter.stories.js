@@ -31,7 +31,7 @@ const onContinuePH = () => {
     console.log('linked');
 };
 
-storiesOf('story footer', module)
+storiesOf('StoryFooter', module)
     .addDecorator(withKnobs)
     .add('branch-only', () => (
         <div className='story-footer-parent'>
