@@ -4,7 +4,7 @@ import {
     Segment,
     Breadcrumb,
     Icon,
-    Button,
+    Menu,
 } from 'semantic-ui-react';
 
 import './style.import.less';
@@ -28,19 +28,20 @@ class StoryFooter extends React.Component {
             pathArray = pathArray.slice(pathArray.length - maxLength, pathArray.length);
             pathBreadcrumbs.push(
                 <StoryPathPopup
+                    key='ellipsis'
                     storyPath={storyPath}
                     trigger={(
                         <Breadcrumb.Section className='collapsed-path'>
-                            <Icon disabled color='grey' name='ellipsis horizontal' size='large' />
+                            <Icon disabled color='grey' name='ellipsis horizontal' size='small' />
                         </Breadcrumb.Section>
                     )}
                 />,
             );
-            pathBreadcrumbs.push(<Breadcrumb.Divider>{'>'}</Breadcrumb.Divider>);
+            pathBreadcrumbs.push(<Breadcrumb.Divider key='ellipsis-divider'>{'>'}</Breadcrumb.Divider>);
         }
-        pathArray.forEach((location) => {
-            pathBreadcrumbs.push(<Breadcrumb.Section>{location}</Breadcrumb.Section>);
-            pathBreadcrumbs.push(<Breadcrumb.Divider>{'>'}</Breadcrumb.Divider>);
+        pathArray.forEach((location, index) => {
+            pathBreadcrumbs.push(<Breadcrumb.Section key={`path-location-${index}`}>{location}</Breadcrumb.Section>);
+            pathBreadcrumbs.push(<Breadcrumb.Divider key={`path-divider-${index}`}>{'>'}</Breadcrumb.Divider>);
         });
         pathBreadcrumbs.pop();
         return pathBreadcrumbs;
@@ -65,6 +66,14 @@ class StoryFooter extends React.Component {
         return 'grey';
     }
 
+    selectMenuClass = () => {
+        const { canContinue } = this.props;
+        if (canContinue) {
+            return '';
+        }
+        return ' linked';
+    }
+
     renderContinue = () => {
         const { canContinue, disableContinue } = this.props;
         if (disableContinue) {
@@ -72,38 +81,39 @@ class StoryFooter extends React.Component {
         }
         if (canContinue) {
             return (
-                <Segment className='footer-option-button' onClick={this.handlerContinueClick}>
+                <Menu.Item className='footer-option-button' onClick={this.handlerContinueClick}>
                     <Icon name='arrow alternate circle right outline' color='blue' />
                     Connect
-                </Segment>
+                </Menu.Item>
             );
         }
         return (
-            <Segment className='footer-option-button long' onClick={this.handlerContinueClick}>
+            <Menu.Item className='footer-option-button' onClick={this.handlerContinueClick}>
                 <Icon className='long' name='arrow alternate circle right outline' color='blue' />
                 Continue To Linked Story
-            </Segment>
+            </Menu.Item>
         );
     }
+
 
     render () {
         const {
             canBranch,
         } = this.props;
         return (
-            <Segment className='footer-segment'>
-                <Segment.Group className='footer-segment-group' horizontal>
-                    <Segment className='breadcrumb-container'>{this.renderPath()}</Segment>
-                    <Segment className='footer-option-button' disabled={!canBranch}>
-                        <Button onClick={this.handleBranchClick} className={`branch-button color-${this.selectIconColor(canBranch)}`}>
-                            <Icon disabled={!canBranch} name='code branch' color={this.selectIconColor(canBranch)} />
-                            Branch
-                        </Button>
-                    </Segment>
+            <Segment className='footer-segment' size='mini'>
+                <div className='breadcrumb-container'>
+                    {this.renderPath()}
+                </div>
+                <Menu fluid size='mini' borderless>
+                    <Menu.Item onClick={this.handleBranchClick} className={`footer-option-button color-${this.selectIconColor(canBranch)}`}>
+                        <Icon disabled={!canBranch} name='code branch' color={this.selectIconColor(canBranch)} />
+                        Branch Story
+                    </Menu.Item>
                     <>
                         {this.renderContinue()}
                     </>
-                </Segment.Group>
+                </Menu>
             </Segment>
         );
     }

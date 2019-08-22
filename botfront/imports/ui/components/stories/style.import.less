@@ -264,50 +264,51 @@
     padding-right: 1ch;
   }
 }
-
-.story-footer-parent{
-  .footer-segment{
-    padding: 0px;
-    margin: 0px;
-  .ui.horizontal.segments.footer-segment-group{
-      margin:0px;
-      background-color: rgba(0,0,0,0.02);
-      border: none;
-      .footer-option-button{
-        min-width: 13ch;
-      &.long{
-        min-width: 25ch;
+.ui.mini.segment.footer-segment{
+  display: flex;
+  padding: 0px;
+  padding-left: 1em;
+  background-color: rgba(0,0,0,0.02);
+  color: rgba(0,0,0,0.4);
+  .ui.mini.menu{
+    margin-top: 0px;
+    margin-left: 1em;
+    border-style: none;
+    border-right-style: none;
+    background-color: rgba(0,0,0,0);
+    .item.footer-option-button{
+      background-color: rgba(0,0,0,0);
+      border-style: none;
+      border-radius: 0px;
+      &:hover{
+        background-color: rgba(0, 0, 0, 0.02);
       }
-      }
-      .breadcrumb-container{
-        display:flex;
-        width: 80%;
+      &.color-grey{
         color: rgba(0,0,0,0.4);
-        overflow: hidden;
-        text-overflow: clip;
-        .section{
-          max-width: 24ch;
-          min-width: 5ch;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .divider{
-          padding-left: 1ch;
-          padding-right: 1ch;
+        &:hover{
+          background-color: rgba(0, 0, 0, 0);
+          cursor: not-allowed;
+          
         }
       }
-      .ui.segment.footer-option-button{
-        text-align: center;
-        .branch-button{
-          background-color: rgba(154, 211, 255, 0.5);
-          &:hover{
-            background-color: rgba(154, 211, 255, 0.7);
-          }
-          &.color-grey{
-            background-color: rgba(0, 0, 0, 0.1);
-          }
-        }
+    }
+  }
+  .breadcrumb-container{
+    display: flex;
+    margin-top: 6px;
+    max-height:20px;
+    .section{
+      max-width: 10vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+      &.collapsed-path{
+        min-width: 0px;
       }
+    }
+    .divider{
+      padding-left: 0.6ch;
+      padding-right: 0.6ch;
     }
   }
 }
