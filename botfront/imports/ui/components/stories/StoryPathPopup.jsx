@@ -2,9 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Breadcrumb } from 'semantic-ui-react';
 
-import './style.import.less';
-
-
 class StoryPathPopup extends React.Component {
     constructor(props) {
         super(props);

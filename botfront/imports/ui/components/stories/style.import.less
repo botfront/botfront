@@ -260,8 +260,8 @@
     text-overflow: ellipsis;
   }
   .divider{
-    padding-left: 1ch;
-    padding-right: 1ch;
+    padding-left: 0.6ch;
+    padding-right: 0.6ch;
   }
 }
 .ui.mini.segment.footer-segment{
@@ -271,6 +271,7 @@
   background-color: rgba(0,0,0,0.02);
   color: rgba(0,0,0,0.4);
   .ui.mini.menu{
+    border-radius: 0px;
     margin-top: 0px;
     margin-left: 1em;
     border-style: none;
@@ -297,6 +298,7 @@
     display: flex;
     margin-top: 6px;
     max-height:20px;
+    white-space: nowrap;
     .section{
       max-width: 10vw;
       overflow: hidden;
@@ -311,4 +313,8 @@
       padding-right: 0.6ch;
     }
   }
+}
+
+.ui.attached.segment.single-story-container{
+  border-bottom-style: none;
 }

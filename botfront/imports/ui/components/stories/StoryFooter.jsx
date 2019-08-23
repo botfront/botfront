@@ -7,8 +7,6 @@ import {
     Menu,
 } from 'semantic-ui-react';
 
-import './style.import.less';
-
 import StoryPathPopup from './StoryPathPopup.jsx';
 
 class StoryFooter extends React.Component {
@@ -105,7 +103,7 @@ class StoryFooter extends React.Component {
             canBranch,
         } = this.props;
         return (
-            <Segment className='footer-segment' size='mini'>
+            <Segment className='footer-segment' size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>
                     {this.renderPath()}
                 </div>
