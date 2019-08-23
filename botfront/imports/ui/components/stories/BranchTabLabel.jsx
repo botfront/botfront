@@ -48,12 +48,13 @@ class BranchTabLabel extends React.Component {
 
     onBlurInput = () => {
         const { newTitle, title } = this.state;
-        const { onChangeName, active, onSelect } = this.props;
+        const {
+            onChangeName, active, onSelect, siblings,
+        } = this.props;
         this.setState({ titleHovered: false, titleInputFocused: false });
-        if (title === newTitle) {
-            return;
-        }
-        if (!newTitle.replace(/\s/g, '').length) {
+        if (title === newTitle) return;
+        if (!newTitle.replace(/\s/g, '').length
+        || siblings.map(s => s.title).includes(newTitle)) {
             this.setState({ newTitle: title });
             return;
         }
