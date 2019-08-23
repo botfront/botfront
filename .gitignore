@@ -16,4 +16,3 @@ botfront/cypress/screenshots
 .DS_Store
 .pytest_cache
 botfront/cypress/mounted/models
-botfront/packages/*
