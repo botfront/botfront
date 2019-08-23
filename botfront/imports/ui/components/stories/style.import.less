@@ -162,14 +162,14 @@
           outline: none;
           display: block;
           text-overflow: ellipsis;
-          padding: 3px 2px;
+          padding: 3px 8px 3px 2px;
           min-width: 3ch;
           max-width: 20ch;
           &.decorated {
             border: solid 1px screen(@blue, #999999);
             background-color: screen(@blue, #eeeeee);
             border-radius: 4px;
-            padding: 2px 1px;
+            padding: 2px 7px 2px 1px;
           }
         }
         .trash {
@@ -276,12 +276,12 @@
   background-color: rgba(0,0,0,0.02);
   color: rgba(0,0,0,0.4);
   .ui.mini.menu{
-    border-radius: 0px;
     margin-top: 0px;
     margin-left: 1em;
     border-style: none;
-    border-right-style: none;
-    background-color: rgba(0,0,0,0);
+    border-left: 1px solid #dddddd;
+    box-shadow: none;
+    background-color: transparent;
     .item.footer-option-button{
       background-color: rgba(0,0,0,0);
       border-style: none;
