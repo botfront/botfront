@@ -1,9 +1,8 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React from 'react';
+import { Menu, Icon, Popup } from 'semantic-ui-react';
 import propTypes from 'prop-types';
-import {
-    Menu, Icon, Popup,
-} from 'semantic-ui-react';
+import React from 'react';
+
 import ConfirmPopup from '../common/ConfirmPopup';
 
 class BranchTabLabel extends React.Component {
@@ -17,34 +16,46 @@ class BranchTabLabel extends React.Component {
             titleInputFocused: false,
             blockEditOptions: false,
             deletePopupOpened: false,
+            popupTimer: null,
         };
+    }
+
+    componentWillUnmount() {
+        const { popupTimer } = this.state;
+        clearTimeout(popupTimer);
     }
 
     onTextInput = (event) => {
         this.setState({ newTitle: event.target.value });
-    }
+    };
 
     handleTitleMouseEnter = () => {
+        const { popupTimer } = this.state;
+        clearTimeout(popupTimer);
         this.setState({ titleHovered: true });
-    }
+    };
 
     handleTitleMouseLeave = () => {
         const { titleInputFocused } = this.state;
         if (!titleInputFocused) {
-            this.setState({ titleHovered: false });
+            this.setState({
+                popupTimer: setTimeout(() => {
+                    this.setState({ titleHovered: false, deletePopupOpened: false });
+                }, 200),
+            });
         }
-    }
+    };
 
     handleOnFocusInput = () => {
         this.setState({ titleInputFocused: true });
-    }
+    };
 
     handleFocusTitleInput = () => {
         const { active } = this.props;
         if (active) {
             this.setState({ titleInputFocused: true });
         }
-    }
+    };
 
     onBlurInput = () => {
         const { newTitle, title } = this.state;
@@ -53,8 +64,10 @@ class BranchTabLabel extends React.Component {
         } = this.props;
         this.setState({ titleHovered: false, titleInputFocused: false });
         if (title === newTitle) return;
-        if (!newTitle.replace(/\s/g, '').length
-        || siblings.map(s => s.title).includes(newTitle)) {
+        if (
+            !newTitle.replace(/\s/g, '').length
+            || siblings.map(s => s.title).includes(newTitle)
+        ) {
             this.setState({ newTitle: title });
             return;
         }
@@ -63,7 +76,7 @@ class BranchTabLabel extends React.Component {
         }
         this.setState({ title: newTitle });
         onChangeName(newTitle);
-    }
+    };
 
     renderAlertIcons = () => {
         const { hasWarning, hasError } = this.props;
@@ -75,33 +88,31 @@ class BranchTabLabel extends React.Component {
             alertList.push(<Icon name='close' color='red' />);
         }
         return <>{alertList}</>;
-    }
+    };
 
     handleOnClick = () => {
         const { title } = this.state;
         const { onSelect, active } = this.props;
         if (!active) {
             this.setState({ blockEditOptions: true });
-            setTimeout(() => { this.setState({ blockEditOptions: false }); }, 500);
+            setTimeout(() => {
+                this.setState({ blockEditOptions: false });
+            }, 500);
             onSelect(title);
         }
-    }
+    };
 
     renderTitlePlain = () => {
         const { title } = this.state;
         return (
             <>
-                <span
-                    role='textbox'
-                    onClick={this.handleFocusTitleInput}
-                    tabIndex={0}
-                >
+                <span role='textbox' onClick={this.handleFocusTitleInput} tabIndex={0}>
                     {title}
                 </span>
                 <Icon name='trash' size='small' />
             </>
         );
-    }
+    };
 
     renderTitleDecorated = () => {
         const { title, deletePopupOpened } = this.state;
@@ -109,7 +120,12 @@ class BranchTabLabel extends React.Component {
         const confirmMessage = {};
         if (siblings.length < 3) {
             const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
-            confirmMessage.content = <>The content of branch <strong>{strandedBranchName}</strong> is also going to get deleted.</>;
+            confirmMessage.content = (
+                <>
+                    The content of branch <strong>{strandedBranchName}</strong> is also
+                    going to get deleted.
+                </>
+            );
         }
         return (
             <>
@@ -127,7 +143,10 @@ class BranchTabLabel extends React.Component {
                         <ConfirmPopup
                             title='Delete branch?'
                             {...confirmMessage}
-                            onYes={() => { this.setState({ deletePopupOpened: false }); onDelete(); }}
+                            onYes={() => {
+                                this.setState({ deletePopupOpened: false });
+                                onDelete();
+                            }}
                             onNo={() => this.setState({ deletePopupOpened: false })}
                         />
                     )}
@@ -138,7 +157,7 @@ class BranchTabLabel extends React.Component {
                 />
             </>
         );
-    }
+    };
 
     renderTitleInput = () => {
         const { newTitle } = this.state;
@@ -157,12 +176,11 @@ class BranchTabLabel extends React.Component {
                 <Icon name='trash' size='small' />
             </>
         );
-    }
+    };
 
     renderTitle = () => {
         const { titleHovered, titleInputFocused, blockEditOptions } = this.state;
         const { active } = this.props;
-        
         if (titleInputFocused) {
             return this.renderTitleInput();
         }
@@ -170,7 +188,7 @@ class BranchTabLabel extends React.Component {
             return this.renderTitleDecorated();
         }
         return this.renderTitlePlain();
-    }
+    };
 
     render() {
         const { active } = this.props;
@@ -179,10 +197,10 @@ class BranchTabLabel extends React.Component {
                 active={active}
                 onClick={this.handleOnClick}
                 content={
-                <>
-                    {this.renderAlertIcons()}
-                    {this.renderTitle()}
-                </>
+                    <>
+                        {this.renderAlertIcons()}
+                        {this.renderTitle()}
+                    </>
                 }
                 onMouseEnter={this.handleTitleMouseEnter}
                 onMouseLeave={this.handleTitleMouseLeave}
