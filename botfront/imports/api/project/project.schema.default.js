@@ -22,11 +22,11 @@ export const ProjectsSchema = new SimpleSchema({
     disabled: { type: Boolean, defaultValue: false, index: 1 },
     nlu_models: { type: Array, defaultValue: [] },
     'nlu_models.$': { type: String },
-    additionalEnvironments: {
+    deploymentEnvironments: {
         type: Array,
         defaultValue: [],
     },
-    'additionalEnvironments.$': {
+    'deploymentEnvironments.$': {
         type: String,
         allowedValues: ['staging', 'production'],
     },
