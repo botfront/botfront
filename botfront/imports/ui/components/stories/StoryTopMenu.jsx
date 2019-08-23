@@ -28,7 +28,7 @@ const StoryTopMenu = ({
                 <input
                     data-cy='story-title'
                     value={newTitle}
-                    onChange={event => setNewTitle(event.target.value)}
+                    onChange={event => setNewTitle(event.target.value.replace('_', ''))}
                     onBlur={() => {
                         if (title === newTitle) {
                             return;

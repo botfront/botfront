@@ -378,7 +378,13 @@ export const extractDomain = (stories, slots) => {
     let domains = stories.map((story) => {
         const val = new StoryController(story, slots);
         val.validateStory();
-        return val.extractDomain();
+        try {
+            return val.extractDomain();
+        } catch (e) {
+            return {
+                entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
+            };
+        }
     });
     domains = domains.reduce(
         (d1, d2) => ({

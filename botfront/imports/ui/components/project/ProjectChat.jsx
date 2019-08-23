@@ -301,6 +301,7 @@ const ProjectChatContainer = withTracker(({ projectId }) => {
                 output.push({ objectPayload, stringPayload: `/${stringPayload}` });
             });
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.log(e);
         }
         return output;
@@ -311,10 +312,15 @@ const ProjectChatContainer = withTracker(({ projectId }) => {
         initStories
             .filter(checkStoryNotEmpty)
             .forEach((s) => {
-                initPayloads = [
-                    ...initPayloads,
-                    ...extractPayload(s.story),
-                ];
+                try {
+                    initPayloads = [
+                        ...initPayloads,
+                        ...extractPayload(s.story),
+                    ];
+                } catch (e) {
+                    // eslint-disable-next-line no-console
+                    console.log('An intro story was not valid and could not be parsed.');
+                }
             });
     }
     return {

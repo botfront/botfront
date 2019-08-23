@@ -26,7 +26,7 @@ class BranchTabLabel extends React.Component {
     }
 
     onTextInput = (event) => {
-        this.setState({ newTitle: event.target.value });
+        this.setState({ newTitle: event.target.value.replace('_', '') });
     };
 
     handleTitleMouseEnter = () => {
@@ -171,7 +171,7 @@ class BranchTabLabel extends React.Component {
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                     onFocus={this.handleOnFocusInput}
-                    style={{ width: `${Math.max(3, newTitle.length)}ch` }}
+                    style={{ width: `${Math.max(3, newTitle.length + 1)}ch` }}
                 />
                 <Icon name='trash' size='small' />
             </>

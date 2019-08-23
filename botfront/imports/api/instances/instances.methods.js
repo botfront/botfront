@@ -282,6 +282,7 @@ if (Meteor.isServer) {
                     try {
                         await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
                     } catch (e) {
+                        // eslint-disable-next-line no-console
                         console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
                     }
                     
