@@ -26,9 +26,6 @@ const StoryEditorContainer = ({
     onSaved,
 }) => {
     const { slots } = useContext(ConversationOptionsContext);
-    const [deletePopupOpened, openDeletePopup] = useState(false);
-    const [movePopupOpened, openMovePopup] = useState(false);
-    const [moveDestination, setMoveDestination] = useState(null);
     const [activePath, setActivePath] = useState(story._id);
 
     const getBranchesAndIndices = path => path.split('__').slice(1)
@@ -76,14 +73,8 @@ const StoryEditorContainer = ({
     const renderTopMenu = () => (
         <StoryTopMenu
             title={story.title}
-            setMoveDestination={setMoveDestination}
             onDelete={onDelete}
             onMove={onMove}
-            movePopupOpened={movePopupOpened}
-            moveDestination={moveDestination}
-            openDeletePopup={openDeletePopup}
-            openMovePopup={openMovePopup}
-            deletePopupOpened={deletePopupOpened}
             disabled={disabled}
             onRename={onRenameStory}
             onClone={onClone}

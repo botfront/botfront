@@ -134,10 +134,14 @@
         }
         &:active, &:hover:not(.active) {
           border-color: transparent;
+          background-color: screen(@blue, #dddddd);
         }
         &.add-tab {
           min-width: 0;
           margin: 0;
+          &:hover {
+            background-color: transparent;
+          }
         }
         input {
           outline: none;
@@ -153,14 +157,14 @@
           outline: none;
           display: block;
           text-overflow: ellipsis;
-          padding: 3px;
+          padding: 3px 2px;
           min-width: 3ch;
           max-width: 20ch;
           &.decorated {
             border: solid 1px screen(@blue, #999999);
             background-color: screen(@blue, #eeeeee);
             border-radius: 4px;
-            padding: 2px;
+            padding: 2px 1px;
           }
         }
         .trash {

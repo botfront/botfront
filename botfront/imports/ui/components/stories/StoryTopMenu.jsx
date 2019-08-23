@@ -9,14 +9,8 @@ import 'brace/mode/text';
 import ConfirmPopup from '../common/ConfirmPopup';
 
 const StoryTopMenu = ({
-    setMoveDestination,
     onDelete,
     onMove,
-    movePopupOpened,
-    moveDestination,
-    openDeletePopup,
-    openMovePopup,
-    deletePopupOpened,
     title,
     onRename,
     disabled,
@@ -24,6 +18,9 @@ const StoryTopMenu = ({
     groupNames,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
+    const [deletePopupOpened, openDeletePopup] = useState(false);
+    const [movePopupOpened, openMovePopup] = useState(false);
+    const [moveDestination, setMoveDestination] = useState(null);
     return (
         <Menu attached='top'>
             <Menu.Item header>
@@ -127,22 +124,12 @@ const StoryTopMenu = ({
 
 StoryTopMenu.propTypes = {
     title: PropTypes.string.isRequired,
-    setMoveDestination: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onMove: PropTypes.func.isRequired,
-    movePopupOpened: PropTypes.bool.isRequired,
-    moveDestination: PropTypes.any,
-    openDeletePopup: PropTypes.func.isRequired,
-    openMovePopup: PropTypes.func.isRequired,
-    deletePopupOpened: PropTypes.any.isRequired,
     disabled: PropTypes.bool.isRequired,
     onRename: PropTypes.func.isRequired,
     onClone: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
-};
-
-StoryTopMenu.defaultProps = {
-    moveDestination: null,
 };
 
 export default StoryTopMenu;
