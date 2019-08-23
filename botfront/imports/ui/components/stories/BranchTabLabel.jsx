@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { Menu, Icon } from 'semantic-ui-react';
-import propTypes from 'prop-types';
 import React from 'react';
-
+import propTypes from 'prop-types';
+import {
+    Menu, Icon, Popup,
+} from 'semantic-ui-react';
+import ConfirmPopup from '../common/ConfirmPopup';
 
 class BranchTabLabel extends React.Component {
     constructor(props) {
@@ -14,6 +16,7 @@ class BranchTabLabel extends React.Component {
             titleHovered: false,
             titleInputFocused: false,
             blockEditOptions: false,
+            deletePopupOpened: false,
         };
     }
 
@@ -101,8 +104,13 @@ class BranchTabLabel extends React.Component {
     }
 
     renderTitleDecorated = () => {
-        const { title } = this.state;
-        const { onDelete } = this.props;
+        const { title, deletePopupOpened } = this.state;
+        const { onDelete, siblings } = this.props;
+        const confirmMessage = {};
+        if (siblings.length < 3) {
+            const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
+            confirmMessage.content = <>The content of branch <strong>{strandedBranchName}</strong> is also going to get deleted.</>;
+        }
         return (
             <>
                 <span
@@ -113,14 +121,27 @@ class BranchTabLabel extends React.Component {
                 >
                     {title}
                 </span>
-                <Icon name='trash' size='small' onClick={onDelete} />
+                <Popup
+                    trigger={<Icon name='trash' size='small' />}
+                    content={(
+                        <ConfirmPopup
+                            title='Delete branch?'
+                            {...confirmMessage}
+                            onYes={() => { this.setState({ deletePopupOpened: false }); onDelete(); }}
+                            onNo={() => this.setState({ deletePopupOpened: false })}
+                        />
+                    )}
+                    on='click'
+                    open={deletePopupOpened}
+                    onOpen={() => this.setState({ deletePopupOpened: true })}
+                    onClose={() => this.setState({ deletePopupOpened: false })}
+                />
             </>
         );
     }
 
     renderTitleInput = () => {
         const { newTitle } = this.state;
-        const { onDelete } = this.props;
         return (
             <>
                 <input
@@ -133,7 +154,7 @@ class BranchTabLabel extends React.Component {
                     onFocus={this.handleOnFocusInput}
                     style={{ width: `${Math.max(3, newTitle.length)}ch` }}
                 />
-                <Icon name='trash' size='small' onClick={onDelete} />
+                <Icon name='trash' size='small' />
             </>
         );
     }
@@ -180,6 +201,7 @@ BranchTabLabel.propTypes = {
     hasWarning: propTypes.bool,
     active: propTypes.bool,
     onSelect: propTypes.func.isRequired,
+    siblings: propTypes.array.isRequired,
 };
 
 BranchTabLabel.defaultProps = {

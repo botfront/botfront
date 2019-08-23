@@ -183,6 +183,7 @@ const StoryEditorContainer = ({
                                     }}
                                     onChangeName={newName => saveStory([...indices, index], { title: newName })}
                                     onDelete={() => handleDeleteBranch(indices, index, branches)}
+                                    siblings={branches}
                                 />
                             );
                         })}
