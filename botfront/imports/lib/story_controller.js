@@ -358,6 +358,33 @@ export class StoryController {
         return output;
     };
 }
+function addSlots(slots) {
+    const slotsToAdd = {};
+    if (!slots) return {};
+    slots.forEach((slot) => {
+        const options = {};
+        const { type } = slot;
+        if (type === 'float') {
+            if (slot.minValue) {
+                options.minValue = slot.minValue;
+            }
+            if (slot.maxValue) {
+                options.maxValue = slot.maxValue;
+            }
+        }
+        if (slot.initialValue) {
+            options.initial_value = slot.initialValue;
+        }
+        if (type === 'categorical' && slot.categories) {
+            options.values = slot.categories;
+        }
+        slotsToAdd[slot.name] = {
+            type: slot.type,
+            ...options,
+        };
+    });
+    return slotsToAdd;
+}
 
 export const extractDomain = (stories, slots) => {
     const defaultDomain = {
@@ -373,6 +400,7 @@ export const extractDomain = (stories, slots) => {
             latest_response_name: { type: 'unfeaturized' },
             followup_response_name: { type: 'unfeaturized' },
             parse_data: { type: 'unfeaturized' },
+            ...addSlots(slots),
         },
     };
     let domains = stories.map((story) => {
