@@ -92,7 +92,6 @@ class BranchTabLabel extends React.Component {
         return (
             <>
                 <span
-                    className='branch-title'
                     role='textbox'
                     onClick={this.handleFocusTitleInput}
                     tabIndex={0}
@@ -115,7 +114,7 @@ class BranchTabLabel extends React.Component {
         return (
             <>
                 <span
-                    className='branch-title decorated'
+                    className='decorated'
                     onClick={this.handleFocusTitleInput}
                     role='textbox'
                     tabIndex={0}
@@ -177,7 +176,6 @@ class BranchTabLabel extends React.Component {
         const { active } = this.props;
         return (
             <Menu.Item
-                className='branch-tab'
                 active={active}
                 onClick={this.handleOnClick}
                 content={

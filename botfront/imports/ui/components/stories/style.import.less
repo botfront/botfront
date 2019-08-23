@@ -114,33 +114,38 @@
     border-color: #eeeeee;
     padding: 0;
 
+    .ui.segment.attached {
+      border-top: none;
+    }
+
     .pointing.secondary.menu {
       margin: 0;
       flex-wrap: wrap;
-      border-bottom: none;
       min-height: 0;
-      background-color: screen(@blue, #eeeeee);;
+      background-color: screen(@blue, #eeeeee);
       a.item {
         padding: 0.25rem 0.5rem;
-
         white-space: nowrap;
         min-width: ~"calc(3ch + 40px)";
         max-width: ~"calc(20ch + 40px)";
-
 
         &.active {
           border-color: @blue;
           background-color: screen(@blue, #cccccc);
         }
         &:active, &:hover:not(.active) {
-          border-color: transparent;
           background-color: screen(@blue, #dddddd);
+          border-color: inherit;
         }
         &.add-tab {
           min-width: 0;
-          margin: 0;
           &:hover {
             background-color: transparent;
+            border-color: transparent;
+          }
+          i {
+            position: relative;
+            bottom: 2px;
           }
         }
         input {
