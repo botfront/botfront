@@ -8,79 +8,79 @@
         "code": "action_name"
     },
     {
+        "line": 3,
+        "code": "prefix"
+    },
+    {
+        "line": 4,
+        "code": "prefix"
+    },
+    {
         "line": 5,
         "code": "prefix"
     },
     {
-        "line": 7,
+        "line": 6,
         "code": "prefix"
     },
     {
-        "line": 9,
-        "code": "prefix"
+        "line": 10,
+        "code": "action_name"
     },
     {
         "line": 11,
+        "code": "invalid_char"
+    },
+    {
+        "line": 12,
+        "code": "prefix"
+    },
+    {
+        "line": 13,
+        "code": "prefix"
+    },
+    {
+        "line": 15,
+        "code": "empty_intent"
+    },
+    {
+        "line": 16,
         "code": "prefix"
     },
     {
         "line": 17,
-        "code": "action_name"
+        "code": "empty_intent"
     },
     {
-        "line": 18,
-        "code": "prefix"
-    },
-    {
-        "line": 20,
-        "code": "prefix"
+        "line": 17,
+        "code": "intent"
     },
     {
         "line": 22,
-        "code": "prefix"
+        "code": "invalid_char"
     },
     {
-        "line": 26,
+        "line": 24,
+        "code": "invalid_char"
+    },
+    {
+        "line": 25,
         "code": "empty_intent"
     },
     {
-        "line": 28,
-        "code": "prefix"
-    },
-    {
-        "line": 30,
-        "code": "empty_intent"
-    },
-    {
-        "line": 30,
-        "code": "intent"
-    },
-    {
-        "line": 36,
-        "code": "intent"
-    },
-    {
-        "line": 39,
-        "code": "intent"
-    },
-    {
-        "line": 41,
-        "code": "empty_intent"
-    },
-    {
-        "line": 43,
+        "line": 27,
         "code": "form"
     },
     {
-        "line": 47,
+        "line": 31,
         "code": "declare_form"
     },
     {
-        "line": 48,
+        "line": 32,
         "code": "declare_form"
     },
     {
-        "line": 50,
+        "line": 33,
         "code": "intent"
     }
 ]
