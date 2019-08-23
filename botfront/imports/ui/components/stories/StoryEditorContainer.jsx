@@ -1,5 +1,5 @@
 import {
-    Icon, Segment, Menu, Button,
+    Icon, Segment, Menu,
 } from 'semantic-ui-react';
 import React, { useState, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
@@ -12,6 +12,8 @@ import BranchTabLabel from './BranchTabLabel';
 import { wrapMeteorCallback } from '../utils/Errors';
 import 'brace/theme/github';
 import 'brace/mode/text';
+
+import StoryFooter from './StoryFooter';
 
 const StoryEditorContainer = ({
     story,
@@ -37,9 +39,10 @@ const StoryEditorContainer = ({
                 story: acc.branches[index].story,
                 title: acc.branches[index].title,
                 indices: [...acc.indices, index],
+                pathTitle: `${acc.pathTitle}__${acc.branches[index].title}`,
             };
         }, {
-            branches: story.branches || [], story, title: story.title, indices: [],
+            branches: story.branches || [], story, title: story.title, indices: [], pathTitle: story.title,
         });
 
     // activePathProps contains activePath's branches, story, title...
@@ -111,7 +114,8 @@ const StoryEditorContainer = ({
     const getNewBranchName = (branches, offset = 0) => {
         const branchNums = branches.map((branch) => {
             if (branch.title.match(/New Branch (\d+)$/)) {
-                return parseInt(branch.title.match(/New Branch (\d+)$/)[1], 10); }
+                return parseInt(branch.title.match(/New Branch (\d+)$/)[1], 10);
+            }
             return 0;
         });
         const newBranchNum = Math.max(0, ...branchNums) + offset;
@@ -164,7 +168,7 @@ const StoryEditorContainer = ({
         const queriedPath = activePath || story._id;
         const nextPath = queriedPath.match(query) && queriedPath.match(query)[1];
         return (
-            <Segment attached>
+            <Segment attached className='single-story-container'>
                 {editorType !== 'visual' ? renderAceEditor(path) : null}
                 { branches.length > 0 && (
                     <Menu pointing secondary>
@@ -203,15 +207,15 @@ const StoryEditorContainer = ({
         <div className='story-editor' data-cy='story-editor'>
             {renderTopMenu()}
             {renderBranches(story._id)}
-            <Segment attached='bottom'>
-                <Button
-                    content={!!activePathProps.branches.length ? `${activePathProps.title} branched` : `Branch from ${activePathProps.title}`}
-                    color='grey'
-                    onClick={() => handleCreateBranch(activePathProps.indices, activePathProps.branches, 2)}
-                    fluid
-                    disabled={!!activePathProps.branches.length}
-                />
-            </Segment>
+            <StoryFooter
+                className='bread-crumb-container'
+                onBranch={() => handleCreateBranch(activePathProps.indices, activePathProps.branches, 2)}
+                onContinue={() => {}}
+                canContinue={false}
+                canBranch={!activePathProps.branches.length}
+                storyPath={activePathProps.pathTitle}
+                disableContinue
+            />
         </div>
     );
 };
