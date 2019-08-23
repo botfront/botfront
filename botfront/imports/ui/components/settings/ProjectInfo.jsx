@@ -85,7 +85,7 @@ class ProjectInfo extends React.Component {
     onSave = (project, modelLanguages) => {
         const { value } = this.state;
         const {
-            name, _id, defaultLanguage, nluThreshold,
+            name, _id, defaultLanguage, nluThreshold, additionalEnvironments,
         } = project;
         const modelLanguageCodes = modelLanguages.map(lang => lang.value);
         const differenceArray = this.diffArray(value, modelLanguageCodes);
@@ -97,7 +97,7 @@ class ProjectInfo extends React.Component {
         Meteor.call(
             'project.update',
             {
-                name, _id, defaultLanguage, nluThreshold,
+                name, _id, defaultLanguage, nluThreshold, additionalEnvironments,
             },
             wrapMeteorCallback((err) => {
                 if (!err) {
@@ -195,6 +195,12 @@ class ProjectInfo extends React.Component {
                             info='Botfront will display recommendations on incoming utterances based on that threshold'
                             data-cy='change-nlu-threshold'
                         />
+                        <InfoField
+                            name='additionalEnvironments'
+                            label='Additional environments'
+                            info='Botfront will enable additional environments for workflow'
+                            data-cy='change-additional-environments'
+                        />
                         <br />
                         <ErrorsField />
                         <SubmitField
@@ -227,6 +233,7 @@ const ProjectInfoContainer = withTracker(({ projectId }) => {
                 nlu_models: 1,
                 defaultLanguage: 1,
                 nluThreshold: 1,
+                additionalEnvironments: 1,
             },
         },
     );
