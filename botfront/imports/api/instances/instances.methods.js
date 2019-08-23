@@ -95,7 +95,14 @@ const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], w
 };
 
 const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
-    // this adds the checkpoints to a story with a branch structure of arbitrary shape
+    /*  this adds trailing and leading checkpoints to a story with a branch structure of arbitrary shape.
+        {Parent body} turns into {Parent body\n> Parent title__branches} and {Child body} turns into
+        {> Parent title__branches\nChild body}.
+        
+        Nested titles are also renamed to avoid name conflicts: {Child title} turns into
+        {Parent title__Child title}. The process is recursive, depth-first. The second argument
+        'remainder' is used to keep track of title prefix. In this example, remainder = 'Parent title'.
+    */
     ...nLevelStory,
     story: (nLevelStory.branches && nLevelStory.branches.length)
         ? `${nLevelStory.story || ''}\n\
