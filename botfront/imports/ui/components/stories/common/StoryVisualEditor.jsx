@@ -249,7 +249,11 @@ class StoryVisualEditor extends React.Component {
             }
             return (
                 <React.Fragment
-                    key={`user${line.gui.data && line.gui.data[0] ? line.gui.data[0].intent : index}`}
+                    key={`user${
+                        line.md
+                            ? line.md
+                            : index
+                    }`}
                 >
                     <UserUtteranceContainer
                         exceptions={exceptions}
@@ -264,10 +268,7 @@ class StoryVisualEditor extends React.Component {
         });
 
         return (
-            <div
-                className='story-visual-editor'
-                onMouseLeave={menuCloser}
-            >
+            <div className='story-visual-editor' onMouseLeave={menuCloser}>
                 {this.renderAddLine(-1)}
                 {lines}
             </div>
