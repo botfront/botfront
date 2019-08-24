@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import chai, { expect } from 'chai';
-import { stringPayloadToObject, objectPayloadToString } from './story_validation';
+import { stringPayloadToObject, objectPayloadToString } from './story_controller';
 
 if (Meteor.isServer) {
     describe('Story validation', function() {

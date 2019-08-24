@@ -73,7 +73,7 @@ describe('gazette', function() {
                 .children()
                 .eq(1)
                 .find('textarea')
-                .type('{del},,');
+                .type('{end}{del},,');
             cy.contains('Gazette').click();
             getGazetteRow()
                 .children()

@@ -7,7 +7,7 @@ import PayloadEditor from './PayloadEditor';
 import {
     stringPayloadToObject,
     objectPayloadToString,
-} from '../../../../lib/story_validation';
+} from '../../../../lib/story_controller';
 
 function ResponseButtonEditor({
     value: {

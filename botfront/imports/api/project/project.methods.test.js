@@ -96,8 +96,8 @@ if (Meteor.isTest) {
                 const { intents, entities } = extractDomainFromStories(
                     stories.map(story => story.story),
                 );
-                expect(intents).to.deep.equal(new Set(['get_started', 'test_intent']));
-                expect(entities).to.deep.equal(new Set(['entity1']));
+                expect(intents).to.deep.equal(['get_started', 'test_intent']);
+                expect(entities).to.deep.equal(['entity1']);
             });
 
             it('extraction from training data, case with multiple models, and multiple entities and intents', function() {

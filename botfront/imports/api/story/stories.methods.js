@@ -15,7 +15,16 @@ Meteor.methods({
     'stories.update'(story) {
         check(story, Object);
         checkIfCan('stories:w', story.projectId);
-        return Stories.update({ _id: story._id }, { $set: story });
+        const { _id, indices, ...rest } = story;
+        const update = indices && indices.length
+            ? Object.assign(
+                {},
+                ...Object.keys(rest).map(key => (
+                    { [`branches.${indices.join('.branches.')}.${key}`]: rest[key] }
+                )),
+            )
+            : rest;
+        return Stories.update({ _id }, { $set: update });
     },
 
     'stories.delete'(story) {

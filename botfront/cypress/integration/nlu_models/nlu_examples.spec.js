@@ -83,7 +83,7 @@ describe('NLU Synonyms', function() {
         });
         
         cy.get(':nth-child(1) > .rt-tr > .lookup-list > :nth-child(1) > div > .ellipsis').click();
-        cy.get(':nth-child(1) > .rt-tr > .lookup-list > :nth-child(1) > div textarea').type(',synonym4');
+        cy.get(':nth-child(1) > .rt-tr > .lookup-list > :nth-child(1) > div textarea').type('{end},synonym4');
         // click outside
         cy.get('[data-cy=example-text-editor-input]').click();
         cy.get(':nth-child(1) > .rt-tr > .lookup-list > :nth-child(1) > div > .ellipsis').should(($p) => {
@@ -92,7 +92,7 @@ describe('NLU Synonyms', function() {
         
         // Add another synonym
         cy.get('.entity-synonym  > input').type('value3');
-        cy.get('.entity-synonym-values').type('synonym5,synonym6,synonym7');
+        cy.get('.entity-synonym-values').type('{end}synonym5,synonym6,synonym7');
         cy.get('.entity-synonym-save-button').click();
         cy.get(':nth-child(2) > .rt-tr > .lookup-value > div > p').should(($p) => {
             expect($p.first()).to.contain('value3');

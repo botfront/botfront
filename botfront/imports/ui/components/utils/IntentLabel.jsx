@@ -1,4 +1,6 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, {
+    useContext, useRef, useState, useEffect,
+} from 'react';
 import { Label, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import IntentDropdown from '../nlu/common/IntentDropdown';
@@ -13,6 +15,10 @@ function Intent({
     const popupContent = useRef(null);
     const [hover, setHover] = useState(false);
     const [popupTimer, setPopupTimer] = useState(null);
+
+    useEffect(() => () => {
+        clearTimeout(popupTimer);
+    }, []);
 
     function handleMouseEnter() {
         clearTimeout(popupTimer);

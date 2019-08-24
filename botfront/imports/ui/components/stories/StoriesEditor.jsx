@@ -1,101 +1,33 @@
 import { Container, Button } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useEffect, useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { can } from '../../../lib/scopes';
 
 import { Stories } from '../../../api/story/stories.collection';
-import { StoryController } from '../../../lib/story_controller';
-import { ConversationOptionsContext } from '../utils/Context';
 import { wrapMeteorCallback } from '../utils/Errors';
-import StoryAceEditor from './StoryAceEditor';
+import StoryEditorContainer from './StoryEditorContainer';
 
 function StoriesEditor(props) {
-    const [errors, setErrors] = useState([]);
-    // This state is only used to store edited stories
-    const [editedStories, setEditedStories] = useState({});
-    const { slots } = useContext(ConversationOptionsContext);
-
     const {
         stories,
         disabled,
-        onSaving,
-        onSaved,
-        onError,
-        onErrorResolved,
         onAddNewStory,
         onDeleteGroup,
         storyGroup,
         projectId,
         groupNames,
         editor,
+        onSaving,
+        onSaved,
     } = props;
 
-    function saveStory(story) {
-        onSaving();
-        Meteor.call(
-            'stories.update',
-            story,
-            wrapMeteorCallback(() => {
-                onSaved();
-            }),
-        );
-    }
-
-    // This effect listen to changes on errors and notifies
-    // the parent component if no errors were detected
-    useEffect(() => {
-        let noErrors = true;
-        errors.forEach((error) => {
-            if (error && error.length) {
-                noErrors = false;
-            }
-        });
-        if (noErrors) onErrorResolved();
-    }, [errors]);
-
-    // This effect resets the state if the storyGroup being displayed changed
-    useEffect(() => {
-        // console.log('use effect');
-        setEditedStories({});
-        setErrors([]);
-    }, [storyGroup]);
-
-    function spliceStoryState(index) {
-        const stateErrors = [...errors];
-        stateErrors.splice(index, 1);
-        setErrors(stateErrors);
-    }
-
-    function handleStoryChange(newStory, index) {
-        // console.log('handle story change');
-        if (!editedStories[stories[index]._id]) {
-            return;
-        }
-        editedStories[stories[index]._id].setUnsafeMd(newStory);
-        const newVal = new StoryController(newStory, slots);
-        newVal.validateStory();
-
-        const newErrors = [...errors];
-        newErrors[index] = newVal.exceptions;
-        setErrors(newErrors);
-
-        if (newVal.exceptions.length) onError();
-        else editedStories[stories[index]._id].setMd(newStory);
-    }
-
-    function handeStoryDeletion(index) {
-        const toBeDeletedStory = stories[index];
-        spliceStoryState(index);
+    function handleStoryDeletion(index) {
         Meteor.call(
             'stories.delete',
-            toBeDeletedStory,
+            stories[index],
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    // delete entry in editedStories
-                    const newEditedStories = editedStories;
-                    delete newEditedStories[toBeDeletedStory._id];
-                    setEditedStories(newEditedStories);
                     // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
@@ -110,20 +42,14 @@ function StoriesEditor(props) {
     }
 
     function handleMoveStory(newGroupId, index) {
-        const toBeMovedStory = stories[index];
         if (newGroupId === stories[index].storyGroupId) {
             return;
         }
-        spliceStoryState(index);
         Meteor.call(
             'stories.update',
             { ...stories[index], storyGroupId: newGroupId },
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    // delete entry in editedStories
-                    const newEditedStories = editedStories;
-                    delete newEditedStories[toBeMovedStory._id];
-                    setEditedStories(newEditedStories);
                     // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
@@ -151,46 +77,23 @@ function StoriesEditor(props) {
         );
     }
 
-    const editors = stories.map((story, index) => {
-        let storyController = editedStories[story._id];
-        if (!storyController) {
-            storyController = new StoryController(
-                story.story || '',
-                slots,
-                () => {},
-                newContent => saveStory({ ...stories[index], story: newContent }),
-            );
-            setEditedStories({
-                ...editedStories,
-                [story._id]: storyController,
-            });
-        }
-        return (
-            <StoryAceEditor
-                story={storyController}
-                annotations={
-                    (!!errors[index] ? true : undefined)
-                    && (!!errors[index].length ? true : undefined)
-                    && errors[index].map(error => ({
-                        row: error.line - 1,
-                        type: error.type,
-                        text: error.message,
-                        column: 0,
-                    }))
-                }
-                disabled={disabled}
-                onChange={data => handleStoryChange(data, index)}
-                onRename={newTitle => handleStoryRenaming(newTitle, index)}
-                onDelete={() => handeStoryDeletion(index)}
-                key={story._id}
-                title={story.title}
-                groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
-                onMove={newGroupId => handleMoveStory(newGroupId, index)}
-                onClone={() => handleDuplicateStory(index)}
-                editor={editor}
-            />
-        );
-    });
+    const editors = stories.map((story, index) => (
+        <StoryEditorContainer
+            story={story}
+            disabled={disabled}
+            onRename={newTitle => handleStoryRenaming(newTitle, index)}
+            onDelete={() => handleStoryDeletion(index)}
+            key={story._id}
+            title={story.title}
+            groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
+            onMove={newGroupId => handleMoveStory(newGroupId, index)}
+            onClone={() => handleDuplicateStory(index)}
+            editor={editor}
+            onSaving={onSaving}
+            onSaved={onSaved}
+        />
+    ));
+
     return (
         <>
             {editors}
@@ -215,12 +118,8 @@ function StoriesEditor(props) {
 StoriesEditor.propTypes = {
     storyGroup: PropTypes.object.isRequired,
     stories: PropTypes.array,
-    // this method will be called when the component starts saving changes
-    onSaving: PropTypes.func.isRequired,
-    // This one is called when changes are saved
-    onError: PropTypes.func.isRequired,
-    onErrorResolved: PropTypes.func.isRequired,
-    onSaved: PropTypes.func.isRequired,
+    onSaving: PropTypes.func.isRequired, // this method will be called when the component starts saving changes
+    onSaved: PropTypes.func.isRequired, // This one is called when changes are saved
     disabled: PropTypes.bool,
     onAddNewStory: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,

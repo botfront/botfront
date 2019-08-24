@@ -59,7 +59,7 @@ describe('synonym', function() {
                 .children()
                 .eq(1)
                 .find('textarea')
-                .type('{del},,');
+                .type('{end}{del},,');
             cy.contains('Synonyms').click();
             getSynonymRow()
                 .children()
