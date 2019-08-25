@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.10](https://github.com/botfront/botfront/compare/v0.15.5-ee.9...v0.15.5-ee.10) (2019-08-25)
+
+
+### Bug Fixes
+
+* change from push to spreadsyntax for path ([357f8f0](https://github.com/botfront/botfront/commit/357f8f0))
+* postinstall script ([2c62076](https://github.com/botfront/botfront/commit/2c62076))
+* remove unnecessary method call ([1647b13](https://github.com/botfront/botfront/commit/1647b13))
+* unwanted utterance persistence ([e7f7a8c](https://github.com/botfront/botfront/commit/e7f7a8c))
+* wrong binary name ([a38ed67](https://github.com/botfront/botfront/commit/a38ed67))
+
+
+### Features
+
+* **branching:** disallow two sibling branches from having same name ([bf5c2a7](https://github.com/botfront/botfront/commit/bf5c2a7))
+* **branching:** integrate StoryFooter ([5b0566b](https://github.com/botfront/botfront/commit/5b0566b))
+* add StoryFooter component and StoryPathPopup ([84ad69e](https://github.com/botfront/botfront/commit/84ad69e))
+* add StoryFooter prop that hides continue ([243ca5e](https://github.com/botfront/botfront/commit/243ca5e))
+* change story popup now shows full path ([6991ce8](https://github.com/botfront/botfront/commit/6991ce8))
+* change wrap StoryFooter in Segment component ([6dd4a0a](https://github.com/botfront/botfront/commit/6dd4a0a))
+* style story footer and remove warnings ([db700a7](https://github.com/botfront/botfront/commit/db700a7))
+* styled story footer and branch+link buttons ([07f53d0](https://github.com/botfront/botfront/commit/07f53d0))
+* **branch tab label:** es-lint, proptypes minor fix ([126a468](https://github.com/botfront/botfront/commit/126a468))
+* **branching:** "recursive" schema, update update method ([9988140](https://github.com/botfront/botfront/commit/9988140))
+* **branching:** add new branch ([68521a8](https://github.com/botfront/botfront/commit/68521a8))
+* **branching:** add story field to mock data ([444176c](https://github.com/botfront/botfront/commit/444176c))
+* **branching:** confirm deletion ([eb96c23](https://github.com/botfront/botfront/commit/eb96c23))
+* **branching:** domain generation/story compilation ([70fcb3a](https://github.com/botfront/botfront/commit/70fcb3a))
+* **branching:** hotfix for backsupport ([86f9af3](https://github.com/botfront/botfront/commit/86f9af3))
+* **branching:** integrate tab labels ([9c9942d](https://github.com/botfront/botfront/commit/9c9942d))
+* **branching:** make room for footer ([2eb5e67](https://github.com/botfront/botfront/commit/2eb5e67))
+* **branching:** refactor, integrate with db ([8eb1a71](https://github.com/botfront/botfront/commit/8eb1a71))
+* **branching:** remove fixture, fix behavior with branch-less branches ([4fa3abd](https://github.com/botfront/botfront/commit/4fa3abd))
+* **branching:** switch active branch on deletion ([8e2c551](https://github.com/botfront/botfront/commit/8e2c551))
+* **branching:** update extractDomainFromStories ([71fc936](https://github.com/botfront/botfront/commit/71fc936))
+* add branch tab component for branch menu ([97c45d8](https://github.com/botfront/botfront/commit/97c45d8))
+* refactor BranchTabLabel and style ([87f8d45](https://github.com/botfront/botfront/commit/87f8d45))
+* **branching:** wip ([fe0d24d](https://github.com/botfront/botfront/commit/fe0d24d))
+
+
+### Tests
+
+* fixed tests ([248210c](https://github.com/botfront/botfront/commit/248210c))
+* fixed tests for branching ([731f406](https://github.com/botfront/botfront/commit/731f406))
+* updated stories text for default story group ([d99ddbc](https://github.com/botfront/botfront/commit/d99ddbc))
+* wrap component in environment ([6fefe62](https://github.com/botfront/botfront/commit/6fefe62))
+
+
+
 ### [0.15.5-ee.9](https://github.com/botfront/botfront/compare/v0.15.5-ee.8...v0.15.5-ee.9) (2019-08-19)
 
 
