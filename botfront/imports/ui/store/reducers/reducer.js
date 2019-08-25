@@ -9,7 +9,7 @@ const initialState = Map({
     templatesTableFilter: '',
     templatesTableShowMatching: false,
     workingLanguage: 'en',
-    storyMode: 'markdown',
+    storyMode: 'visual',
     storyGroupCurrent: -1,
 });
 

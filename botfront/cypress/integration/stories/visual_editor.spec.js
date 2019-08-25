@@ -75,6 +75,8 @@ describe('story visual editor', function() {
             .click({ force: true });
         cy.dataCy('from-qr-template').eq(0).click({ force: true });
 
+        cy.dataCy('button_title').click({ force: true });
+
         cy.dataCy('enter-button-title')
             .find('input')
             .clear()
@@ -85,6 +87,9 @@ describe('story visual editor', function() {
         cy.dataCy('save-button').click({ force: true });
 
         cy.dataCy('add-quick-reply').click({ force: true });
+
+        cy.dataCy('button_title').click({ force: true });
+
         cy.dataCy('enter-button-title')
             .find('input')
             .clear()
@@ -112,7 +117,7 @@ describe('story visual editor', function() {
                 .contains('[role=row]', 'I do too.')
                 .contains('[role=row]', response.replace('-', '').trim())
                 .should('exist') // there's a row with our text and response hash
-                .find('[data-cy=edit-response-0]')
+                .find('[data-cy=edit-response-1]')
                 .click();
             cy.get('.response-message-1:not(.button)')
                 .invoke('text')

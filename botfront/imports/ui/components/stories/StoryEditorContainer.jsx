@@ -60,7 +60,12 @@ const StoryEditorContainer = ({
             : getBranchesAndIndices(pathOrIndices);
         Meteor.call(
             'stories.update',
-            { _id: story._id, ...content, indices },
+            {
+                _id: story._id,
+                ...content,
+                indices,
+                projectId: story.projectId,
+            },
             wrapMeteorCallback(() => onSaved()),
         );
     };

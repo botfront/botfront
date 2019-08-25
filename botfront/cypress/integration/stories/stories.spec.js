@@ -27,6 +27,7 @@ describe('stories', function() {
 
     it('should be able to move a story', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -61,6 +62,7 @@ describe('stories', function() {
 
     it('should be able to add and delete stories', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -81,6 +83,7 @@ describe('stories', function() {
 
     it('should autosave stories as you edit them', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         // Create a first story group
         cy.dataCy('add-item-input')
@@ -108,6 +111,7 @@ describe('stories', function() {
 
     it('should be able to duplicate a story', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -129,6 +133,7 @@ describe('stories', function() {
 
     it('should be able to rename a story', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -152,6 +157,7 @@ describe('stories', function() {
 
     it('should be able to rename storyGroups and select storyGroups, train button should be in sync with the seleted story groups', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -183,6 +189,7 @@ describe('stories', function() {
 
     it('should not be able to add empty story or story group names', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -208,6 +215,7 @@ describe('stories', function() {
 
     it('should be able to delete and add stories in intro stories', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-editor').get('textarea');
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 2);

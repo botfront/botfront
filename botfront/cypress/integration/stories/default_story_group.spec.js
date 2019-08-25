@@ -14,6 +14,8 @@ describe('default story creation ', () => {
     it('should create the default story group with stories Grettings and Farwells', () => {
         // clicks on the default story group
         cy.visit('project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
+
         cy.contains('Default stories').click();
 
         // checks that the Greetings story exists with default contents

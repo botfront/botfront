@@ -42,6 +42,7 @@ describe('chat side panel handling', function() {
     // For this test to pass train button should be working
     it('should be able to select initial payload', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.contains('Intro stories').click();
         cy.dataCy('add-story').click();
         cy.wait(500);
@@ -71,6 +72,7 @@ describe('chat side panel handling', function() {
 
     it('Stories from other story groups should not be present in the initial payload', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input')
             .find('input')
