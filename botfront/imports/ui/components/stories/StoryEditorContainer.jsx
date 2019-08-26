@@ -30,26 +30,41 @@ const StoryEditorContainer = ({
     const { slots } = useContext(ConversationOptionsContext);
     const [activePath, setActivePath] = useState(story._id);
 
-    const getBranchesAndIndices = path => path.split('__').slice(1)
-        // gets branches but also indices, useful for setting later
-        .reduce((acc, val) => {
-            const index = acc.branches.findIndex(b => b._id === val);
-            return {
-                branches: acc.branches[index].branches || [],
-                story: acc.branches[index].story,
-                title: acc.branches[index].title,
-                indices: [...acc.indices, index],
-                pathTitle: `${acc.pathTitle}__${acc.branches[index].title}`,
-            };
-        }, {
-            branches: story.branches || [], story, title: story.title, indices: [], pathTitle: story.title,
-        });
+    const getBranchesAndIndices = path => path
+        .split('__')
+        .slice(1)
+    // gets branches but also indices, useful for setting later
+        .reduce(
+            (accumulateur, value) => {
+                const index = accumulateur.branches.findIndex(
+                    branch => branch._id === value,
+                );
+                return {
+                    branches: accumulateur.branches[index].branches || [],
+                    story: accumulateur.branches[index].story,
+                    title: accumulateur.branches[index].title,
+                    indices: [...accumulateur.indices, index],
+                    pathTitle: `${accumulateur.pathTitle}__${
+                        accumulateur.branches[index].title
+                    }`,
+                };
+            },
+            {
+                branches: story.branches || [],
+                story,
+                title: story.title,
+                indices: [],
+                pathTitle: story.title,
+            },
+        );
 
     // activePathProps contains activePath's branches, story, title...
     const [activePathProps, setActivePathProps] = useState(getBranchesAndIndices(story._id));
+    const [newBranchPath, setNewBranchPath] = useState('');
+
     useEffect(() => {
         setActivePathProps(getBranchesAndIndices(activePath));
-    }, [activePath, story]);
+    }, [activePath]);
 
     const saveStory = (pathOrIndices, content) => {
         // this accepts a double__underscore-separated path or an array of indices
@@ -122,18 +137,6 @@ const StoryEditorContainer = ({
         return `New Branch ${newBranchNum + 1}`;
     };
 
-    const handleCreateBranch = (indices, branches = [], num = 1) => {
-        const newBranches = [...new Array(num)].map((_, i) => (
-            {
-                title: getNewBranchName(branches, i),
-                story: '',
-                branches: [],
-                _id: shortid.generate(),
-            }
-        ));
-        saveStory(indices, { branches: [...branches, ...newBranches] });
-    };
-
     const handleDeleteBranch = (indices, index, branches) => {
         const commonActivePath = activePath.match(/.*__/)[0];
         const updatedBranches = branches.length < 3
@@ -160,6 +163,32 @@ const StoryEditorContainer = ({
             });
         }
         setActivePath(path);
+    };
+
+    useEffect(() => {
+        setActivePathProps(getBranchesAndIndices(activePath));
+        if (newBranchPath) {
+            try {
+                handleSwitchBranch(newBranchPath);
+                setNewBranchPath('');
+            } catch (e) {
+                //
+            }
+        }
+    }, [story]);
+
+    const handleCreateBranch = (indices, branches = [], num = 1) => {
+        const firstBranchId = shortid.generate();
+        const newBranches = [...new Array(num)].map((_, i) => (
+            {
+                title: getNewBranchName(branches, i),
+                story: '',
+                branches: [],
+                _id: i === 0 ? firstBranchId : shortid.generate(),
+            }
+        ));
+        setNewBranchPath(`${activePath}__${firstBranchId}`);
+        saveStory(indices, { branches: [...branches, ...newBranches] });
     };
 
     const renderBranches = (path) => {
