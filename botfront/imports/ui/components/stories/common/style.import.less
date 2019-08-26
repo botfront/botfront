@@ -47,6 +47,14 @@
                 }
             }
         }
+
+        .floating-icon-button.ellipsis.horizontal {
+            height: 20px;
+            .viewOnHover.ellipsis {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
     }
 
     .item {
@@ -198,6 +206,13 @@
         bottom: 1px;
         right: 8px;
     }
+
+    .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border
+        .viewOnHover.ellipsis::before {
+            left: 29px;
+            position: relative;
+        }
+    }
 }
 
 .floating-icon-button.ellipsis.horizontal {
@@ -214,14 +229,6 @@
     .viewOnHover.ellipsis::before {
         left: 30px;
         position: relative;
-    }
-
-    &:hover, &.visible {
-        height: 20px;
-        .viewOnHover.ellipsis {
-            opacity: 1;
-            visibility: visible;
-        }
     }
 }
 
