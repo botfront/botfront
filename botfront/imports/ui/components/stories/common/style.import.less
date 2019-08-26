@@ -11,7 +11,7 @@
         outline: none;
         opacity: 0;
         height: 0;
-        transition: opacity 0.2s ease-in-out;
+        transition: opacity 0.1s ease-in-out;
     }
     
     &:hover {
@@ -153,7 +153,7 @@
 
         .viewOnHover {
             opacity: 0;
-            transition: 0.1s;
+            transition: opacity 0.1s ease-in-out;
             position: relative;
             top: -2px;
         }
@@ -165,7 +165,7 @@
         font-size: @mini;
         opacity: 0;
         visibility: hidden;
-        transition: 0.1s;
+        transition: opacity 0.1s ease-in-out;
         position: absolute;
         bottom: 1px;
         right: 8px;
@@ -204,13 +204,11 @@
 .floating-icon-button.ellipsis.horizontal {
     width: 200px;
     height: 5px;
-    transition: 0.1s;
-    transition-delay: 0.2s;
+    transition: opacity, height 0.1s ease-in-out;
     .viewOnHover.ellipsis {
         text-align: left;
         width: 200px;
         opacity: 0;
-        transition-delay: 0.4s;
         outline: none;
     }
 
