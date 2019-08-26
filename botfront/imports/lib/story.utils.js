@@ -1,6 +1,7 @@
 import yaml from 'js-yaml';
 import { StoryController } from './story_controller';
 import { Stories } from '../api/story/stories.collection';
+import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { CorePolicies } from '../api/core_policies';
@@ -106,19 +107,18 @@ const getMappingTriggers = policies => policies
     .reduce((coll, curr) => coll.concat(curr), [])
     .reduce((coll, curr) => coll.concat(curr), []);
 
-export const extractDomain = (stories, slots) => {
+export const extractDomain = (stories, slots, templates = null) => {
     const defaultDomain = {
         actions: new Set(),
         intents: new Set(),
         entities: new Set(),
         forms: new Set(),
-        templates: new Set(),
+        templates: {},
         slots: { disambiguation_message: { type: 'unfeaturized' } },
     };
     let domains = stories.map((story) => {
-        const val = new StoryController(story, slots);
-        val.validateStory();
         try {
+            const val = new StoryController(story, slots, () => {}, null, templates);
             return val.extractDomain();
         } catch (e) {
             return {
@@ -148,6 +148,22 @@ export const extractDomain = (stories, slots) => {
     return domains;
 };
 
+const getAllTemplates = (projectId) => {
+    // fetches templates and turns them into nested key-value format
+    let { templates } = Projects.findOne(
+        { _id: projectId },
+        { fields: { templates: 1 } },
+    );
+    templates = templates.reduce((ks, k) => ({
+        ...ks,
+        [k.key]: k.values.reduce((vs, v) => ({
+            ...vs,
+            [v.lang]: v.sequence.map(seq => yaml.safeLoad(seq.content)),
+        }), {}),
+    }), {});
+    return templates;
+};
+
 export const getStoriesAndDomain = (projectId) => {
     const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
     const mappingTriggers = getMappingTriggers(policies);
@@ -175,9 +191,10 @@ export const getStoriesAndDomain = (projectId) => {
         .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
 
+    const templates = getAllTemplates(projectId);
     const slots = Slots.find({ projectId }).fetch();
     return {
         stories: storiesForRasa.join('\n'),
-        domain: extractDomain(storiesForDomain, slots),
+        domain: extractDomain(storiesForDomain, slots, templates),
     };
 };

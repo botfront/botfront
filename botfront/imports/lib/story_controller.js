@@ -8,12 +8,13 @@ class StoryException {
 }
 
 export class StoryController {
-    constructor(story, slots, notifyUpdate = () => {}, saveUpdate = null) {
+    constructor(story, slots, notifyUpdate = () => {}, saveUpdate = null, templates = null) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.unsafeMd = story;
         this.md = story;
+        this.templates = templates || {};
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
         this.validateStory();
@@ -69,7 +70,11 @@ export class StoryController {
         this.form = null;
         if (!this.hasInvalidChars(this.response)) {
             this.domain.actions.add(this.response);
-            this.domain.templates[this.response] = '';
+            try {
+                this.domain.templates[this.response] = this.templates[this.response];
+            } catch (e) {
+                this.raiseStoryException('no_such_response');
+            }
             this.lines[this.idx].gui = { type: 'bot', data: { name: this.response } };
         }
     };
@@ -137,6 +142,7 @@ export class StoryController {
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`.'],
         slot: ['error', 'Slot calls should look like this: `- slot{"slot_name": "slot_value"}`.'],
         no_such_slot: ['error', 'Slot was not found. Have you defined it?'],
+        no_such_response: ['error', 'Response was not found. Have you defined it?'],
         bool_slot: ['error', 'Expected a boolean value for this slot.'],
         text_slot: ['error', 'Expected a text value for this slot.'],
         float_slot: ['error', 'Expected a numerical value for this slot.'],
