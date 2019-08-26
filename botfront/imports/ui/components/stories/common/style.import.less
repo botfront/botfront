@@ -19,6 +19,34 @@
             opacity: 1;
             height: initial;
         }
+
+        .responses-container {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+         
+            .viewOnHover {
+                opacity: 0.8;
+                visibility: visible;
+            }
+            
+            .floating-icon-button {
+                outline: none;
+            }
+         
+            .flex-right > .floating-icon-button > .viewOnHover {
+                 opacity: 0.5;
+             }
+            .response-name {
+                 visibility: visible;
+                 opacity: 0.5;
+            }
+            .floating-icon-button.ellipsis.horizontal { // show all ellipses on hover responses-container
+                height: 20px;
+                .viewOnHover.ellipsis {
+                    opacity: 1;
+                    visibility: visible;
+                }
+            }
+        }
     }
 
     .item {
@@ -169,35 +197,6 @@
         position: absolute;
         bottom: 1px;
         right: 8px;
-    }
-
-    &:hover {
-        border: 1px solid rgba(0, 0, 0, 0.1);
-     
-        .viewOnHover {
-            opacity: 0.8;
-            visibility: visible;
-        }
-        
-        .floating-icon-button {
-            outline: none;
-        }
-     
-        .flex-right > .floating-icon-button > .viewOnHover {
-             opacity: 0.5;
-         }
-        .response-name {
-             visibility: visible;
-             opacity: 0.5;
-        }
-    
-        .floating-icon-button.ellipsis.horizontal { // show all ellipses on hover responses-container
-            height: 20px;
-            .viewOnHover.ellipsis {
-                opacity: 1;
-                visibility: visible;
-            }
-        }
     }
 }
 
