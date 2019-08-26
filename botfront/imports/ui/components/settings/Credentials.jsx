@@ -5,18 +5,28 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Menu } from 'semantic-ui-react';
 
 import { CredentialsSchema, Credentials as CredentialsCollection } from '../../../api/credentials';
+import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangesSaved from '../utils/ChangesSaved';
 import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
 import { can } from '../../../lib/scopes';
+import ContextualSaveMessage from './ContextualSaveMessage';
+
+import { ENVIRONMENT_OPTIONS } from '../constants.json';
 
 class Credentials extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false, saved: false, showConfirmation: false };
+        this.state = {
+            saving: false,
+            saved: false,
+            showConfirmation: false,
+            selectedEnvironment: 'development',
+        };
     }
 
     componentWillUnmount() {
@@ -41,8 +51,8 @@ class Credentials extends React.Component {
         );
     };
 
-    renderCredentials = (saving, credentials, projectId) => {
-        const { saved, showConfirmation } = this.state;
+    renderCredentials = (saving, credentials, projectId, environment) => {
+        const { saved, showConfirmation, selectedEnvironment } = this.state;
         const { orchestrator } = this.props;
         return (
             <AutoForm
@@ -59,6 +69,7 @@ class Credentials extends React.Component {
                     return newModel;
                 }}
             >
+                {environment}
                 <AceField name='credentials' label='Credentials' fontSize={12} mode='yaml' data-cy='ace-field' />
                 <ErrorsField />
                 {showConfirmation && (
@@ -68,7 +79,7 @@ class Credentials extends React.Component {
                             <p>
                                 {orchestrator === 'docker-compose' && (
                                     <span>
-                                        Run <b>botfront restart rasa</b> from your project's folder to apply changes.
+                                        <ContextualSaveMessage selectedEnvironment={selectedEnvironment} />
                                     </span>
                                 )}
                             </p>
@@ -82,10 +93,47 @@ class Credentials extends React.Component {
 
     renderLoading = () => <div />;
 
+    renderMenuItem = (environment) => {
+        const { selectedEnvironment } = this.state;
+        return (
+            <Menu.Item
+                key={environment}
+                onClick={() => { this.setState({ selectedEnvironment: environment, showConfirmation: false }); }}
+                active={selectedEnvironment === environment}
+            >
+                {`${environment[0].toUpperCase()}${environment.slice(1)}`}
+            </Menu.Item>
+        );
+    }
+
+    renderMenu = () => {
+        const { projectSettings } = this.props;
+        const menuItemElements = ENVIRONMENT_OPTIONS.map((environment) => {
+            if (projectSettings.deploymentEnvironments.includes(environment)) {
+                return this.renderMenuItem(environment);
+            }
+            return <></>;
+        });
+        return [this.renderMenuItem('development'), ...menuItemElements];
+    }
+
+    renderContents = () => {
+        const { credentials, projectId } = this.props;
+        const { selectedEnvironment, saving } = this.state;
+        return this.renderCredentials(saving, credentials[selectedEnvironment], projectId);
+    };
+
     render() {
-        const { projectId, credentials, ready } = this.props;
-        const { saving } = this.state;
-        if (ready) return this.renderCredentials(saving, credentials, projectId);
+        const { ready } = this.props;
+        if (ready) {
+            return (
+                <>
+                    <Menu pointing secondary>{this.renderMenu()}</Menu>
+                    {this.renderContents()}
+                </>
+            );
+        }
+        
         return this.renderLoading();
     }
 }
@@ -93,22 +141,36 @@ class Credentials extends React.Component {
 Credentials.propTypes = {
     projectId: PropTypes.string.isRequired,
     credentials: PropTypes.object,
+    projectSettings: PropTypes.object,
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
 };
 
 Credentials.defaultProps = {
-    credentials: {},
+    projectSettings: {},
     orchestrator: '',
+    credentials: {},
 };
 
 const CredentialsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('credentials', projectId);
-    const credentials = CredentialsCollection.findOne({ projectId });
-
+    const handlerproj = Meteor.subscribe('projects', projectId);
+    const credentials = {};
+    ENVIRONMENT_OPTIONS.forEach((environment) => {
+        credentials[environment] = CredentialsCollection.findOne({ projectId, environment });
+    });
+    const projectSettings = ProjectsCollection.findOne(
+        { _id: projectId },
+        {
+            fields: {
+                deploymentEnvironments: 1,
+            },
+        },
+    );
     return {
-        ready: handler.ready(),
+        ready: (handler.ready() && handlerproj.ready()),
         credentials,
+        projectSettings,
     };
 })(Credentials);
 
