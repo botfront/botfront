@@ -95,7 +95,15 @@ if (Meteor.isServer) {
                 throw formatError(e);
             }
         },
-
+        'environment.update'(item) {
+            check(item, Match.ObjectIncluding({ _id: String }));
+            checkIfCan('project-settings:w', item._id);
+            try {
+                return Projects.update({ _id: item._id }, { $set: { deploymentEnvironments: item.deploymentEnvironments } });
+            } catch (e) {
+                throw formatError(e);
+            }
+        },
         'project.delete'(projectId, options) {
             check(projectId, String);
             check(options, Match.Optional(Object));

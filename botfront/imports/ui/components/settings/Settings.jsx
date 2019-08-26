@@ -10,6 +10,7 @@ import Credentials from './Credentials';
 import Endpoints from './Endpoints';
 import ProjectInfo from './ProjectInfo';
 import Instances from '../nlu/instances/Instances';
+import Deployment from './Deployment';
 import { can } from '../../../api/roles/roles';
 import CorePolicy from './CorePolicy';
 
@@ -47,6 +48,10 @@ class Settings extends React.Component {
             {
                 menuItem: <Menu.Item className='project-settings-menu-info' icon='info' content='Project Info' key='Project Info' />,
                 render: () => <Tab.Pane><ProjectInfo /></Tab.Pane>,
+            },
+            {
+                menuItem: <Menu.Item className='project-settings-menu-deployment' icon='sign-out' content='Deployment' key='Deployment' />,
+                render: () => <Tab.Pane><Deployment /></Tab.Pane>,
             },
             {
                 menuItem: <Menu.Item className='project-settings-menu-credentials' icon='key' content='Credentials' key='Credentials' />,

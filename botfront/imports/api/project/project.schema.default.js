@@ -24,14 +24,6 @@ export const ProjectsSchema = new SimpleSchema({
     disabled: { type: Boolean, defaultValue: false, index: 1 },
     nlu_models: { type: Array, defaultValue: [] },
     'nlu_models.$': { type: String },
-    deploymentEnvironments: {
-        type: Array,
-        defaultValue: [],
-    },
-    'deploymentEnvironments.$': {
-        type: String,
-        allowedValues: ENVIRONMENT_OPTIONS.slice(1),
-    },
     templates: { type: Array, defaultValue: [] },
     'templates.$': { type: TemplateSchema },
     responsesUpdatedAt: { type: SimpleSchema.Integer, optional: true },
@@ -47,6 +39,14 @@ export const ProjectsSchema = new SimpleSchema({
     'training.startTime': { type: Date, optional: true },
     'training.endTime': { type: Date, optional: true },
     'training.message': { type: String, optional: true },
+    deploymentEnvironments: {
+        type: Array,
+        defaultValue: [],
+    },
+    'deploymentEnvironments.$': {
+        type: String,
+        allowedValues: ENVIRONMENT_OPTIONS.slice(1),
+    },
     
 }, { tracker: Tracker });
 
