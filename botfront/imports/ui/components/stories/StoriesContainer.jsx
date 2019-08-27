@@ -94,7 +94,6 @@ function StoriesContainer(props) {
     }
 
     function insertResponse(response, callback = () => {}) {
-        console.log(response);
         Meteor.call(
             'project.insertTemplate',
             projectId,
