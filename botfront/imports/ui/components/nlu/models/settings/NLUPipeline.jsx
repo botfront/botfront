@@ -1,5 +1,5 @@
 import {
-    AutoForm, ErrorsField, AutoField,
+    AutoForm, ErrorsField,
 } from 'uniforms-semantic';
 import 'react-select/dist/react-select.css';
 import { Tab } from 'semantic-ui-react';
@@ -19,7 +19,6 @@ export default class NLUPipeline extends React.Component {
         this.schema = {
             config: { type: String },
             instance: { type: String, optional: true },
-            logActivity: { type: Boolean, defaultValue: false },
         };
     }
 
@@ -60,7 +59,6 @@ export default class NLUPipeline extends React.Component {
             <Tab.Pane>
                 <AutoForm schema={new SimpleSchema(this.schema)} model={this.sparseModel()} onSubmit={this.handleSave}>
                     <AceField name='config' label='NLU Pipeline' fontSize={12} />
-                    <AutoField name='logActivity' label='Log utterances to Activity' className='toggle' />
                     <ErrorsField />
                     {showConfirmation && (
                         <ChangesSaved

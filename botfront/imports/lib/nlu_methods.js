@@ -8,7 +8,6 @@ import axiosRetry from 'axios-retry';
 import { NLUModels } from '../api/nlu_model/nlu_model.collection';
 import { Evaluations } from '../api/nlu_evaluation';
 import ExampleUtils from '../ui/components/utils/ExampleUtils';
-import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { checkIfCan } from './scopes';
 
 export const getConfig = (model) => {
@@ -26,18 +25,10 @@ export const getConfig = (model) => {
     });
 
     config.language = model.language;
-    const apiHost = GlobalSettings.findOne({ _id: 'SETTINGS' }).settings.private.bfApiHost;
     config.pipeline.unshift({
         name: 'rasa_addons.nlu.components.language_setter.LanguageSetter',
         language: config.language,
     });
-    if (model.logActivity && apiHost) {
-        config.pipeline.push({
-            params: { modelId: model._id },
-            name: 'rasa_addons.nlu.components.http_logger.HttpLogger',
-            url: `${apiHost}/log-utterance`,
-        });
-    }
     return yaml.dump(config);
 };
 

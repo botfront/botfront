@@ -10,7 +10,6 @@ import path from 'path';
 import {
     getAxiosError, getModelIdsFromProjectId, getProjectModelLocalFolder, getProjectModelFileName,
 } from '../../lib/utils';
-import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { Instances } from './instances.collection';
@@ -54,14 +53,6 @@ const getConfig = (model) => {
     });
 
     config.language = model.language;
-    const apiHost = GlobalSettings.findOne({ _id: 'SETTINGS' }).settings.private.bfApiHost;
-    if (model.logActivity && apiHost) {
-        config.pipeline.push({
-            name: 'rasa_addons.nlu.components.http_logger.HttpLogger',
-            model_id: model._id,
-            url: `${apiHost}/log-utterance`,
-        });
-    }
     return yaml.dump(config);
 };
 
@@ -164,7 +155,6 @@ if (Meteor.isServer) {
                         config: 1,
                         training_data: 1,
                         language: 1,
-                        logActivity: 1,
                         entity_synonyms: 1,
                         regex_features: 1,
                         fuzzy_gazette: 1,
