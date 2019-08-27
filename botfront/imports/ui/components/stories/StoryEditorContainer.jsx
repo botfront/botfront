@@ -192,7 +192,7 @@ const StoryEditorContainer = ({
 
     // new Level is true if the new branches create a new depth level of branches.
     const handleCreateBranch = (indices, branches = [], num = 1, newLevel = true) => {
-        const firstBranchId = shortid.generate();
+        const firstBranchId = shortid.generate().replace('_', '0');
         const arrayPath = activePath.split('__');
         const newBranches = [...new Array(num)].map((_, i) => (
             {
@@ -200,7 +200,7 @@ const StoryEditorContainer = ({
                 story: '',
                 projectId: story.projectId,
                 branches: [],
-                _id: i === 0 ? firstBranchId : shortid.generate(),
+                _id: i === 0 ? firstBranchId : shortid.generate().replace('_', '0'),
             }
         ));
         if (!newLevel) {
