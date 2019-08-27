@@ -40,9 +40,11 @@ const StoryEditorContainer = ({
                     branch => branch._id === value,
                 );
                 return {
-                    branches: accumulateur.branches[index].branches || [],
+                    branches: accumulateur.branches[index].branches ? [...accumulateur.branches[index].branches] : [],
                     story: accumulateur.branches[index].story,
                     title: accumulateur.branches[index].title,
+                    // Indices are the path in numeric form, for instance, the second branch into the first branch
+                    // would hae the indices looking like [0, 1], so first branch then second branch.
                     indices: [...accumulateur.indices, index],
                     pathTitle: `${accumulateur.pathTitle}__${
                         accumulateur.branches[index].title
@@ -50,7 +52,7 @@ const StoryEditorContainer = ({
                 };
             },
             {
-                branches: story.branches || [],
+                branches: story.branches ? [...story.branches] : [],
                 story,
                 title: story.title,
                 indices: [],
@@ -69,6 +71,7 @@ const StoryEditorContainer = ({
     const saveStory = (pathOrIndices, content) => {
         // this accepts a double__underscore-separated path or an array of indices
         onSaving();
+        // if pathOrIndices is an indice, we just take it, if not we calculate it
         const { indices } = pathOrIndices instanceof Array
             ? { indices: pathOrIndices }
             : getBranchesAndIndices(pathOrIndices);
@@ -149,8 +152,12 @@ const StoryEditorContainer = ({
         saveStory(indices, { branches: updatedBranches });
     };
 
-    const handleSwitchBranch = (path) => { // will instantiate a storyController if it doesn't exist
-        if (!storyControllers[path] || !(storyControllers[path] instanceof StoryController)) {
+    const handleSwitchBranch = (path) => {
+        // will instantiate a storyController if it doesn't exist
+        if (
+            !storyControllers[path]
+            || !(storyControllers[path] instanceof StoryController)
+        ) {
             const { story: branchStory } = getBranchesAndIndices(path);
             setStoryControllers({
                 ...storyControllers,
@@ -158,7 +165,13 @@ const StoryEditorContainer = ({
                     branchStory || '',
                     slots,
                     () => {},
-                    content => saveStory(path, { story: content }),
+                    content => Meteor.call(
+                        'stories.updateBranch',
+                        story,
+                        path,
+                        content,
+                        wrapMeteorCallback(),
+                    ),
                 ),
             });
         }
@@ -177,16 +190,25 @@ const StoryEditorContainer = ({
         }
     }, [story]);
 
-    const handleCreateBranch = (indices, branches = [], num = 1) => {
+    // new Level is true if the new branches create a new depth level of branches.
+    const handleCreateBranch = (indices, branches = [], num = 1, newLevel = true) => {
         const firstBranchId = shortid.generate();
+        const arrayPath = activePath.split('__');
         const newBranches = [...new Array(num)].map((_, i) => (
             {
                 title: getNewBranchName(branches, i),
                 story: '',
+                projectId: story.projectId,
                 branches: [],
                 _id: i === 0 ? firstBranchId : shortid.generate(),
             }
         ));
+        if (!newLevel) {
+            const pathWitouthLastBranch = arrayPath.slice(0, arrayPath.length - 1).join('__');
+            setNewBranchPath(`${pathWitouthLastBranch}__${firstBranchId}`);
+            saveStory(indices, { branches: [...branches, ...newBranches] });
+            return;
+        }
         setNewBranchPath(`${activePath}__${firstBranchId}`);
         saveStory(indices, { branches: [...branches, ...newBranches] });
     };
@@ -220,7 +242,7 @@ const StoryEditorContainer = ({
                                 />
                             );
                         })}
-                        <Menu.Item key={`${path}-add`} className='add-tab' onClick={() => handleCreateBranch(indices, branches)}>
+                        <Menu.Item key={`${path}-add`} className='add-tab' onClick={() => handleCreateBranch(indices, branches, 1, false)}>
                             <Icon name='plus' />
                         </Menu.Item>
                     </Menu>
