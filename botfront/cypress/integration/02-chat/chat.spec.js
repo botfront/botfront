@@ -75,6 +75,7 @@ describe('chat side panel handling', function() {
         cy.dataCy('add-item-input')
             .find('input')
             .type('{enter}');
+        cy.dataCy('add-item').click();
         cy.dataCy('add-item-input')
             .find('input')
             .type(`${storyGroupOne}{enter}`);

@@ -21,6 +21,33 @@ const StoryTopMenu = ({
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
+
+    const submitTitleInput = () => {
+        if (title === newTitle) {
+            return;
+        }
+        if (!newTitle.replace(/\s/g, '').length) {
+            setNewTitle(title);
+            return;
+        }
+        onRename(newTitle);
+    };
+
+    const handleInputKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            event.target.blur();
+        }
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            setNewTitle(title);
+            event.target.blur();
+            onRename(title);
+        }
+    };
+
     return (
         <Menu attached='top'>
             <Menu.Item header>
@@ -29,16 +56,8 @@ const StoryTopMenu = ({
                     data-cy='story-title'
                     value={newTitle}
                     onChange={event => setNewTitle(event.target.value.replace('_', ''))}
-                    onBlur={() => {
-                        if (title === newTitle) {
-                            return;
-                        }
-                        if (!newTitle.replace(/\s/g, '').length) {
-                            setNewTitle(title);
-                            return;
-                        }
-                        onRename(newTitle);
-                    }}
+                    onKeyDown={handleInputKeyDown}
+                    onBlur={submitTitleInput}
                     disabled={disabled}
                 />
             </Menu.Item>
