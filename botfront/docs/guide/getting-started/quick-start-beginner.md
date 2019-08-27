@@ -94,8 +94,7 @@ This example is minimal, but you can do more advanced assignments such as combin
 
 ## Monitor and improve
 
-You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model. 
-**Make sure to check _Log utterances to activity_** in your `Model > Settings > Pipeline`
+You can follow the conversations from the `conversations` menu item, and monitor NLU from the `Activity` tab in your NLU model.
 
 ## What's next
 You learned:
