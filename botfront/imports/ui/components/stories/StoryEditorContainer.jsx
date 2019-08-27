@@ -140,14 +140,14 @@ const StoryEditorContainer = ({
         return `New Branch ${newBranchNum + 1}`;
     };
 
-    const handleDeleteBranch = (indices, index, branches) => {
-        const commonActivePath = activePath.match(/.*__/)[0];
+    const handleDeleteBranch = (indices, index, branches, path) => {
+        const commonPath = path.match(/.*__/)[0];
         const updatedBranches = branches.length < 3
             ? []
             : [...branches.slice(0, index), ...branches.slice(index + 1)];
         const newPath = branches.length < 3
-            ? commonActivePath.match(/(.*)__/)[1]
-            : `${commonActivePath}${branches[index + 1] ? branches[index + 1]._id : branches[index - 1]._id}`;
+            ? commonPath.match(/(.*)__/)[1]
+            : `${commonPath}${branches[index + 1] ? branches[index + 1]._id : branches[index - 1]._id}`;
         setActivePath(newPath);
         saveStory(indices, { branches: updatedBranches });
     };
@@ -237,7 +237,7 @@ const StoryEditorContainer = ({
                                         handleSwitchBranch(childPath);
                                     }}
                                     onChangeName={newName => saveStory([...indices, index], { title: newName })}
-                                    onDelete={() => handleDeleteBranch(indices, index, branches)}
+                                    onDelete={() => handleDeleteBranch(indices, index, branches, childPath)}
                                     siblings={branches}
                                 />
                             );
