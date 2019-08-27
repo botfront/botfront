@@ -195,6 +195,7 @@ describe('stories', function() {
             .find('input')
             .type('{enter}');
         cy.dataCy('browser-item').should('have.lengthOf', 1);
+        cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
             .type(`${storyGroupOne}{enter}`);

@@ -5,7 +5,7 @@ The credentials screen contains all the information Rasa Core needs to connect t
 ![](../../images/project_settings_credentials.jpg)
 
 ::: warning
-Botfront has specific features that are not natively supported by Rasa Core. It is multilingual, and bot responses support sequences of messages. For this reasons, native Rasa Core channels may not work. Botfront currently provides 2 channels: the socketio (Webchat) and Facebook. 
+Botfront has specific features that are not natively supported by Rasa Core. It is multilingual, and bot responses support sequences of messages. For this reasons, native Rasa Core channels may not work. Botfront currently provides 1 channel to be used with the [Rasa Webchat](https://github.com/mrbot-ai/rasa-webchat) and Facebook Messenger is on the way. 
 :::
 
 ## Webchat
@@ -21,7 +21,7 @@ rasa_addons.core.channels.webchat.WebchatInput:
   socket_path: '/socket.io/'
 ```
 
-## Facebook
+<!-- ## Facebook
 
 ::: warning
 The Facebook channel will be ready very soon
@@ -50,6 +50,4 @@ You need special permissions to access profile info (except first and last name)
 
 ::: warning IMPORTANT
 You must restart Rasa Core for your changes to take effect. If you are running Botfront with **docker-compose** you can run `docker-compose restart core`
-:::
-
--->
+::: -->
