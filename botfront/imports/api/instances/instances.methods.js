@@ -98,6 +98,11 @@ if (Meteor.isServer) {
         check(instance, Object);
         check(examples, Array);
         check(nolog, Boolean);
+        const models = NLUModels.find(
+            { _id: { $in: getModelIdsFromProjectId(instance.projectId) } },
+            { fields: { _id: 1, language: 1 } },
+        ).fetch();
+
         try {
             const client = axios.create({
                 baseURL: instance.host,
@@ -106,23 +111,32 @@ if (Meteor.isServer) {
             // axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
             const requests = examples.map(({ text, lang }) => {
                 const payload = Object.assign({}, { text, lang });
-                const params = Object.assign({}, { nolog });
+                const params = {};
                 if (instance.token) params.token = instance.token;
                 const qs = queryString.stringify(params);
                 const url = `${instance.host}/model/parse?${qs}`;
                 return client.post(url, payload);
             });
 
-            const result = await axios.all(requests);
-            if (result.length === 1 && result[0].status === 200) {
-                return result[0].data;
+            const result = (await axios.all(requests))
+                .filter(r => r.status === 200)
+                .map(r => r.data);
+            
+            if (result.length < 1) throw new Meteor.Error('Error when parsing NLU');
+
+            if (!nolog) {
+                result.forEach((r) => {
+                    try {
+                        const { _id: modelId } = models.filter(m => m.language === r.language)[0];
+                        Meteor.call('activity.log', { ...r, modelId });
+                    } catch (e) {
+                        //
+                    }
+                });
             }
 
-            if (result.length > 1 && result.filter(r => r.status !== 200).length === 0) {
-                return result.map(r => r.data);
-            }
-
-            throw new Meteor.Error('Error when parsing NLU');
+            if (result.length < 2) return result[0];
+            return result;
         } catch (e) {
             if (e instanceof Meteor.Error) {
                 throw e;
