@@ -69,7 +69,7 @@ class Deployment extends React.Component {
                                 name='deploymentEnvironments'
                                 label='Deployment environments'
                                 info='Botfront will enable additional environments for your workflow'
-                                data-cy='change-additional-environments'
+                                data-cy='deployment-environments'
                             />
                             <br />
                             <ErrorsField />
