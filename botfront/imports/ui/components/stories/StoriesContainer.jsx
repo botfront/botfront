@@ -68,6 +68,7 @@ function StoriesContainer(props) {
             'project.findTemplate',
             projectId,
             key,
+            language,
             wrapMeteorCallback((err, res) => callback(err, res)),
         );
     }
