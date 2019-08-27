@@ -68,6 +68,7 @@ function StoriesContainer(props) {
             'project.findTemplate',
             projectId,
             key,
+            language,
             wrapMeteorCallback((err, res) => callback(err, res)),
         );
     }
@@ -93,6 +94,7 @@ function StoriesContainer(props) {
     }
 
     function insertResponse(response, callback = () => {}) {
+        console.log(response);
         Meteor.call(
             'project.insertTemplate',
             projectId,
