@@ -104,9 +104,10 @@ function UserUtteranceViewer({
         const newEntity = { ...element };
         delete newEntity.type;
         delete newEntity.text;
+        const entityToAdd = { ...newEntity, entity, value: element.text };
         return onChange({
             ...value,
-            entities: [{ ...newEntity, entity, value: element.text }].concat(entities),
+            entities: entities instanceof Array ? [entityToAdd, ...entities] : [entityToAdd],
         });
     }
 

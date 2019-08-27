@@ -25,20 +25,39 @@ class Browser extends React.Component {
     };
 
     handleKeyDownInput = (event, element) => {
-        const { editing, newItemName, itemName } = this.state;
-        const { onAdd, changeName } = this.props;
         if (event.key === 'Enter') {
             event.preventDefault();
             event.stopPropagation();
-            if (editing === -1 && !!newItemName) {
-                onAdd(newItemName);
-                this.resetAddItem();
-            } else if (editing !== -1 && !!itemName) {
-                changeName({ ...element, name: itemName });
-                this.setState({ editing: -1 });
-            }
+            this.submitTitleInput(element);
+        }
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            this.resetTitleInput();
         }
     };
+
+    resetTitleInput = () => {
+        this.resetAddItem();
+        this.resetRenameItem();
+    }
+
+    submitTitleInput = (element) => {
+        const { editing, newItemName, itemName } = this.state;
+        const { onAdd, changeName } = this.props;
+        if (editing === -1 && !!newItemName) {
+            onAdd(newItemName);
+            this.resetAddItem();
+            return;
+        }
+        if (editing !== -1 && !!itemName) {
+            changeName({ ...element, name: itemName });
+            this.setState({ editing: -1 });
+            return;
+        }
+        this.resetRenameItem();
+        this.resetAddItem();
+    }
 
     handleClickMenuItem = (index) => {
         const { index: indexProp, onChange } = this.props;
@@ -125,7 +144,7 @@ class Browser extends React.Component {
                         value={itemName}
                         onKeyDown={e => this.handleKeyDownInput(e, item)}
                         autoFocus
-                        onBlur={this.resetRenameItem}
+                        onBlur={() => this.submitTitleInput(item)}
                         fluid
                         data-cy='edit-name'
                     />
@@ -155,7 +174,7 @@ class Browser extends React.Component {
                             value={newItemName}
                             onKeyDown={this.handleKeyDownInput}
                             autoFocus
-                            onBlur={this.resetAddItem}
+                            onBlur={() => this.submitTitleInput()}
                             fluid
                             data-cy='add-item-input'
                         />

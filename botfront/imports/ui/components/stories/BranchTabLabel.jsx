@@ -57,7 +57,7 @@ class BranchTabLabel extends React.Component {
         }
     };
 
-    onBlurInput = () => {
+    submitNewTitle = () => {
         const { newTitle, title } = this.state;
         const {
             onChangeName, active, onSelect, siblings,
@@ -77,6 +77,23 @@ class BranchTabLabel extends React.Component {
         this.setState({ title: newTitle });
         onChangeName(newTitle);
     };
+
+    handleKeyDown = (event) => {
+        const { title } = this.state;
+        
+        if (event.key === 'Enter') {
+            event.stopPropagation();
+            event.preventDefault();
+            this.submitNewTitle();
+            this.setState({ titleInputFocused: false, titleHovered: false });
+            return;
+        }
+        if (event.key === 'Escape') {
+            event.stopPropagation();
+            event.preventDefault();
+            this.setState({ newTitle: title, titleInputFocused: false, titleHovered: false });
+        }
+    }
 
     renderAlertIcons = () => {
         const { hasWarning, hasError } = this.props;
@@ -167,7 +184,8 @@ class BranchTabLabel extends React.Component {
                     data-cy='branch-title'
                     value={newTitle}
                     onChange={this.onTextInput}
-                    onBlur={this.onBlurInput}
+                    onBlur={this.submitNewTitle}
+                    onKeyDown={this.handleKeyDown}
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                     onFocus={this.handleOnFocusInput}
