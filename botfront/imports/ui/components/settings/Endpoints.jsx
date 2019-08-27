@@ -36,7 +36,6 @@ class Endpoints extends React.Component {
     onSave = (endpoints) => {
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
-        console.log(endpoints.environment);
         Meteor.call(
             'endpoints.save',
             endpoints,
@@ -120,7 +119,6 @@ class Endpoints extends React.Component {
     renderContents = () => {
         const { endpoints, projectId } = this.props;
         const { selectedEnvironment, saving } = this.state;
-        console.log(endpoints);
         return this.renderEndpoints(saving, endpoints[selectedEnvironment], projectId);
     }
 
