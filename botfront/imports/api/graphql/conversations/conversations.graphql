@@ -1,0 +1,36 @@
+type Query {
+    getConversations(projectId: String!, page: Int!, limit: Int ): [ConversationContainer!]!
+}
+
+type ConversationContainer {
+  tracker: Conversation,
+  projectId: String,
+}
+
+type Conversation {
+  latest_message: LatestMessage,
+  # events: Array,
+  sender_id: String,
+}
+
+type LatestMessage {
+  model: String,
+  intent_ranking: [IntentRanking!],
+  intent: IntentRanking,
+  text: String,
+  language: String,
+  project: String,
+  entities: [Entity!] 
+}
+
+type Entity {
+  entity: String,
+  value: String,
+  start: Int,
+  end: Int,
+}
+
+type IntentRanking {
+  confidence: Float,
+  name: String,
+}
