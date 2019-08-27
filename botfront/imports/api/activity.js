@@ -1,5 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
+import shortid from 'shortid';
 import { Mongo } from 'meteor/mongo';
 import { Match, check } from 'meteor/check';
 
@@ -90,6 +91,20 @@ Meteor.methods({
                 $set: set,
                 $unset: unset,
             }, { multi: true },
+        );
+    },
+
+    'activity.log'(parseData) {
+        check(parseData, Object);
+        const utterance = parseData;
+        const { modelId, text } = parseData;
+        if (utterance.intent_ranking) delete utterance.intent_ranking;
+        utterance.confidence = utterance.intent.confidence;
+        utterance.intent = utterance.intent.name;
+        if (utterance.entities) utterance.entities = utterance.entities.filter(e => e.extractor !== 'ner_duckling_http');
+        return ActivityCollection.upsert(
+            { modelId, text },
+            { $set: { ...utterance, updatedAt: new Date() }, $setOnInsert: { _id: shortid.generate(), createdAt: new Date() } },
         );
     },
 
