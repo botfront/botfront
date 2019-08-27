@@ -62,17 +62,17 @@ module.exports = {
                     '/guide/rasa/nlu/evaluation',
                 ],
             },
-            // {
-            //     title: 'Deployment Guide',   // required
-            //     // path: '/guide',
-            //     collapsable: false,
-            //     sidebarDepth: 5,
-            //     children: [
-            //         '/guide/deployment/',
-            //         '/guide/deployment/endpoints',
-            //         '/guide/deployment/credentials',
-            //     ]
-            // },
+            {
+                title: 'Deployment Guide',   // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/deployment/',
+                    '/guide/deployment/endpoints',
+                    '/guide/deployment/credentials',
+                ]
+            },
             {
                 title: 'Developers Guide',   // required
                 // path: '/guide',
