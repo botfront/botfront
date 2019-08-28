@@ -181,7 +181,7 @@ class BranchTabLabel extends React.Component {
         return (
             <>
                 <input
-                    data-cy='branch-title'
+                    data-cy='branch-title-input'
                     value={newTitle}
                     onChange={this.onTextInput}
                     onBlur={this.submitNewTitle}
