@@ -44,6 +44,7 @@ describe('default story creation ', () => {
             .click();
 
         // there should be no additional stories in default stories
-        // cy.get('[data-cy=story-editor]').should('not.exist');
+        cy.get('[data-cy=browser-item]')
+            .should('not.exist');
     });
 });
