@@ -10,6 +10,11 @@ buttons:
     payload: 'https://myurl.com/'
 `.replace(/\n/g, ''));
 
+function clickStoryGroup(group) {
+    const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
+    positions.map(p => cy.contains(group).click(p, { force: true }));
+}
+
 describe('story visual editor', function() {
     before(function() {
         cy.deleteProject('bf');
@@ -32,6 +37,7 @@ describe('story visual editor', function() {
         cy.dataCy('add-item-input')
             .find('input')
             .type('myTest{enter}');
+        clickStoryGroup('myTest');
         cy.dataCy('toggle-visual').click({ force: true });
 
         cy.dataCy('add-user-line').click({ force: true });

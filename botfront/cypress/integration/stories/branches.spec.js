@@ -28,6 +28,8 @@ describe('branches', function() {
 
     it('should be able to add a branch, edit the content and it should be saved', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
+
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -44,6 +46,8 @@ describe('branches', function() {
             .focus()
             .type('xxx', { force: true });
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
+
         clickStoryGroup(storyGroupOne);
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label')
