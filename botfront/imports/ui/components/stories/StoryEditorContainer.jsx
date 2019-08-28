@@ -100,7 +100,7 @@ const StoryEditorContainer = ({
     };
 
     const handleDeleteBranch = (path, branches, index) => {
-        const commonPath = path.match(/.*__/) ? path.match(/.*__/[0]) : story._id;
+        const commonPath = path.match(/.*__/) ? path.match(/.*__/)[0] : story._id;
         const parentPath = commonPath.match(/(.*)__/)[1];
         const updatedBranches = branches.length < 3
             ? []
