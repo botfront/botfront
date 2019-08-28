@@ -45,9 +45,14 @@ describe('story visual editor', function() {
             .type('myTestIntent{enter}');
         cy.dataCy('save-new-user-input').click({ force: true });
 
+        cy.contains('I love typing into boxes.'); // checks that text has been saved
+
         cy.dataCy('add-user-line').should('not.exist'); // cannot have adjacent user utterances
 
         cy.dataCy('add-bot-line').click({ force: true });
+
+        cy.contains('I love typing into boxes.'); // checks that text has been saved
+
         cy.dataCy('from-text-template').click({ force: true });
         cy.dataCy('bot-response-input')
             .find('textarea').should('be.empty');
