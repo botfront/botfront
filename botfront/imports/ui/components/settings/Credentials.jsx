@@ -100,6 +100,7 @@ class Credentials extends React.Component {
                 key={environment}
                 onClick={() => { this.setState({ selectedEnvironment: environment, showConfirmation: false }); }}
                 active={selectedEnvironment === environment}
+                data-cy='environment-credentials-tab'
             >
                 {`${environment[0].toUpperCase()}${environment.slice(1)}`}
             </Menu.Item>
@@ -128,7 +129,7 @@ class Credentials extends React.Component {
         if (ready) {
             return (
                 <>
-                    <Menu pointing secondary>{this.renderMenu()}</Menu>
+                    <Menu pointing secondary data-cy='credentials-environment-menu'>{this.renderMenu()}</Menu>
                     {this.renderContents()}
                 </>
             );

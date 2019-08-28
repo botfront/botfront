@@ -99,6 +99,7 @@ class Endpoints extends React.Component {
                 key={environment}
                 onClick={() => { this.setState({ selectedEnvironment: environment, showConfirmation: false }); }}
                 active={selectedEnvironment === environment}
+                data-cy='environment-endpoints-tab'
             >
                 {`${environment[0].toUpperCase()}${environment.slice(1)}`}
             </Menu.Item>
@@ -128,7 +129,7 @@ class Endpoints extends React.Component {
         if (ready) {
             return (
                 <>
-                    <Menu pointing secondary>
+                    <Menu pointing secondary data-cy='endpoints-environment-menu'>
                         {this.renderMenu()}
                     </Menu>
                     {this.renderContents()}
