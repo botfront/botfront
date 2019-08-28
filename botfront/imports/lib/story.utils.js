@@ -11,23 +11,27 @@ export const traverseStory = (story, path) => path
     // gets branches but also indices, useful for setting later
     .reduce(
         (accumulateur, value) => {
-            const index = accumulateur.branches.findIndex(
-                branch => branch._id === value,
-            );
-            return {
-                branches: accumulateur.branches[index].branches ? [...accumulateur.branches[index].branches] : [],
-                story: accumulateur.branches[index].story,
-                title: accumulateur.branches[index].title,
-                // Indices are the path in numeric form, for instance, the second branch into the first branch
-                // would hae the indices looking like [0, 1], so first branch then second branch.
-                indices: [...accumulateur.indices, index],
-                path: `${accumulateur.path}__${ // the path as a double__underscore-separated string of IDs
-                    accumulateur.branches[index]._id
-                }`,
-                pathTitle: `${accumulateur.pathTitle}__${ // the path as a double__underscore-separated string of titles
-                    accumulateur.branches[index].title
-                }`,
-            };
+            try {
+                const index = accumulateur.branches.findIndex(
+                    branch => branch._id === value,
+                );
+                return {
+                    branches: accumulateur.branches[index].branches ? [...accumulateur.branches[index].branches] : [],
+                    story: accumulateur.branches[index].story,
+                    title: accumulateur.branches[index].title,
+                    // Indices are the path in numeric form, for instance, the second branch into the first branch
+                    // would hae the indices looking like [0, 1], so first branch then second branch.
+                    indices: [...accumulateur.indices, index],
+                    path: `${accumulateur.path}__${ // the path as a double__underscore-separated string of IDs
+                        accumulateur.branches[index]._id
+                    }`,
+                    pathTitle: `${accumulateur.pathTitle}__${ // the path as a double__underscore-separated string of titles
+                        accumulateur.branches[index].title
+                    }`,
+                };
+            } catch (e) {
+                throw new Error(`Could not access ${accumulateur.path}__${value}`);
+            }
         },
         {
             branches: story.branches ? [...story.branches] : [],
@@ -51,7 +55,7 @@ export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
     ...nLevelStory,
     story: (nLevelStory.branches && nLevelStory.branches.length)
         ? `${nLevelStory.story || ''}\n\
-        > ${remainder ? `${remainder.replace(' ', '_')}__` : ''}${nLevelStory.title.replace(' ', '_')}__branches`
+> ${remainder ? `${remainder.replace(' ', '_')}__` : ''}${nLevelStory.title.replace(' ', '_')}__branches`
         : nLevelStory.story || '',
     title: `${remainder ? `${remainder}__` : ''}${nLevelStory.title}`,
     branches: (nLevelStory.branches && nLevelStory.branches.length)
@@ -59,7 +63,7 @@ export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
             appendBranchCheckpoints({
                 ...n1LevelStory,
                 story: `> ${remainder ? `${remainder.replace(' ', '_')}__` : ''}${nLevelStory.title.replace(' ', '_')}__branches\n\
-                ${n1LevelStory.story || ''}`,
+${n1LevelStory.story || ''}`,
             }, `${remainder ? `${remainder}__` : ''}${nLevelStory.title}`)
         ))
         : [],
