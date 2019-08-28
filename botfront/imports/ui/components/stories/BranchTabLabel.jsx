@@ -223,6 +223,7 @@ class BranchTabLabel extends React.Component {
                 onMouseEnter={this.handleTitleMouseEnter}
                 onMouseLeave={this.handleTitleMouseLeave}
                 role='textbox'
+                data-cy='branch-label'
             />
         );
     }
