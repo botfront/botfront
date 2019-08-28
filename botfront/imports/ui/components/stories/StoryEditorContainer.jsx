@@ -7,6 +7,7 @@ import AceEditor from 'react-ace';
 import shortid from 'shortid';
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from '../utils/Context';
+import { getBranchesAndIndices } from '../../../lib/story.utils';
 import StoryTopMenu from './StoryTopMenu';
 import BranchTabLabel from './BranchTabLabel';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -30,42 +31,12 @@ const StoryEditorContainer = ({
     const { slots } = useContext(ConversationOptionsContext);
     const [activePath, setActivePath] = useState(story._id);
 
-    const getBranchesAndIndices = path => path
-        .split('__')
-        .slice(1)
-    // gets branches but also indices, useful for setting later
-        .reduce(
-            (accumulateur, value) => {
-                const index = accumulateur.branches.findIndex(
-                    branch => branch._id === value,
-                );
-                return {
-                    branches: accumulateur.branches[index].branches ? [...accumulateur.branches[index].branches] : [],
-                    story: accumulateur.branches[index].story,
-                    title: accumulateur.branches[index].title,
-                    // Indices are the path in numeric form, for instance, the second branch into the first branch
-                    // would hae the indices looking like [0, 1], so first branch then second branch.
-                    indices: [...accumulateur.indices, index],
-                    pathTitle: `${accumulateur.pathTitle}__${
-                        accumulateur.branches[index].title
-                    }`,
-                };
-            },
-            {
-                branches: story.branches ? [...story.branches] : [],
-                story,
-                title: story.title,
-                indices: [],
-                pathTitle: story.title,
-            },
-        );
-
     // activePathProps contains activePath's branches, story, title...
-    const [activePathProps, setActivePathProps] = useState(getBranchesAndIndices(story._id));
+    const [activePathProps, setActivePathProps] = useState(getBranchesAndIndices(story, story._id));
     const [newBranchPath, setNewBranchPath] = useState('');
 
     useEffect(() => {
-        setActivePathProps(getBranchesAndIndices(activePath));
+        setActivePathProps(getBranchesAndIndices(story, activePath));
     }, [activePath]);
 
     const saveStory = (pathOrIndices, content) => {
@@ -74,7 +45,7 @@ const StoryEditorContainer = ({
         // if pathOrIndices is an indice, we just take it, if not we calculate it
         const { indices } = pathOrIndices instanceof Array
             ? { indices: pathOrIndices }
-            : getBranchesAndIndices(pathOrIndices);
+            : getBranchesAndIndices(story, pathOrIndices);
         Meteor.call(
             'stories.update',
             { _id: story._id, ...content, indices },
@@ -158,7 +129,7 @@ const StoryEditorContainer = ({
             !storyControllers[path]
             || !(storyControllers[path] instanceof StoryController)
         ) {
-            const { story: branchStory } = getBranchesAndIndices(path);
+            const { story: branchStory } = getBranchesAndIndices(story, path);
             setStoryControllers({
                 ...storyControllers,
                 [path]: new StoryController(
@@ -179,7 +150,7 @@ const StoryEditorContainer = ({
     };
 
     useEffect(() => {
-        setActivePathProps(getBranchesAndIndices(activePath));
+        setActivePathProps(getBranchesAndIndices(story, activePath));
         if (newBranchPath) {
             try {
                 handleSwitchBranch(newBranchPath);
@@ -214,7 +185,7 @@ const StoryEditorContainer = ({
     };
 
     const renderBranches = (path) => {
-        const { branches, indices } = getBranchesAndIndices(path);
+        const { branches, indices } = getBranchesAndIndices(story, path);
         const query = new RegExp(`(${path}__.*?)(__|$)`);
         const queriedPath = activePath || story._id;
         const nextPath = queriedPath.match(query) && queriedPath.match(query)[1];
@@ -259,7 +230,6 @@ const StoryEditorContainer = ({
             {renderTopMenu()}
             {renderBranches(story._id)}
             <StoryFooter
-                className='bread-crumb-container'
                 onBranch={() => handleCreateBranch(activePathProps.indices, activePathProps.branches, 2)}
                 onContinue={() => {}}
                 canContinue={false}
