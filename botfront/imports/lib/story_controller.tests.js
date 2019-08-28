@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { safeLoad } from 'js-yaml';
 import fs from 'fs';
+import { Meteor } from 'meteor/meteor';
 import { StoryController, extractDomain } from './story_controller';
 
 const slots = [
@@ -115,18 +116,20 @@ slots:
   parse_data:
     type: unfeaturized`;
 
-describe('extract domain from storyfile fixtures', function() {
-    it('should output yaml matching the gold', function() {
-        const storiesOne = fs.readFileSync('./assets/app/fixtures/stories_01.md', 'utf8');
-        expect(safeLoad(extractDomain(storiesOne.split('\n\n'), slots))).to.be.deep.equal(safeLoad(domainGold));
-    });
-    it('should output exceptions matching the gold', function() {
-        const storiesTwo = fs.readFileSync('./assets/app/fixtures/stories_02.md', 'utf8');
-        const val = new StoryController(storiesTwo, slots);
-        const exceptions = val.exceptions.map(exception => ({
-            line: exception.line,
-            code: exception.code,
-        }));
-        expect(exceptions).to.be.deep.equal(exceptionsGold);
-    });
-});//
+if (Meteor.isServer) {
+    describe('extract domain from storyfile fixtures', function() {
+        it('should output yaml matching the gold', function() {
+            const storiesOne = fs.readFileSync('./assets/app/fixtures/stories_01.md', 'utf8');
+            expect(safeLoad(extractDomain(storiesOne.split('\n\n'), slots))).to.be.deep.equal(safeLoad(domainGold));
+        });
+        it('should output exceptions matching the gold', function() {
+            const storiesTwo = fs.readFileSync('./assets/app/fixtures/stories_02.md', 'utf8');
+            const val = new StoryController(storiesTwo, slots);
+            const exceptions = val.exceptions.map(exception => ({
+                line: exception.line,
+                code: exception.code,
+            }));
+            expect(exceptions).to.be.deep.equal(exceptionsGold);
+        });
+    });//
+}
