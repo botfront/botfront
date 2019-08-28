@@ -50,6 +50,8 @@ describe('story visual editor', function() {
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-text-template').click({ force: true });
         cy.dataCy('bot-response-input')
+            .find('textarea').should('be.empty');
+        cy.dataCy('bot-response-input')
             .find('textarea')
             .clear()
             .type('I do too.{enter}');
