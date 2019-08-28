@@ -89,7 +89,7 @@
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
     "chai": "^4.1.2",
-    "chromedriver": "^2.46.0",
+    "chromedriver": "^76.0.1",
     "commitizen": "^3.0.7",
     "commitlint": "8.1.0",
     "core-js": "^2.5.3",
