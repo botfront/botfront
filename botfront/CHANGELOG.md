@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.11](https://github.com/botfront/botfront/compare/v0.15.5-ee.10...v0.15.5-ee.11) (2019-08-28)
+
+
+### Bug Fixes
+
+* add language param to bot response template ([38300c7](https://github.com/botfront/botfront/commit/38300c7))
+* adjust testing for new title save action ([f017cc7](https://github.com/botfront/botfront/commit/f017cc7))
+* bug indexing over string ([12d7967](https://github.com/botfront/botfront/commit/12d7967))
+* bug when deleting mother branch ([2519369](https://github.com/botfront/botfront/commit/2519369))
+* fix the fix of the fix ([5ff8b24](https://github.com/botfront/botfront/commit/5ff8b24))
+* remove console.log ([58fb26f](https://github.com/botfront/botfront/commit/58fb26f))
+* standardize story title save + discard events ([452595f](https://github.com/botfront/botfront/commit/452595f))
+* typo ([9e3798d](https://github.com/botfront/botfront/commit/9e3798d))
+
+
+### Tests
+
+* add story_title tests for saving discarding ([9276d08](https://github.com/botfront/botfront/commit/9276d08))
+* add tests for story utils ([cdd550e](https://github.com/botfront/botfront/commit/cdd550e))
+* bot response not in english ([ff7d482](https://github.com/botfront/botfront/commit/ff7d482))
+* branching ([ae5b893](https://github.com/botfront/botfront/commit/ae5b893))
+* fixed ee tests ([5dd64b9](https://github.com/botfront/botfront/commit/5dd64b9))
+* move story_controller tests to mocha ([55ecb67](https://github.com/botfront/botfront/commit/55ecb67))
+* remove cypress test ([a865589](https://github.com/botfront/botfront/commit/a865589))
+* tests utterance saving and displaying ([7cb1679](https://github.com/botfront/botfront/commit/7cb1679))
+
+
+
 ### [0.15.5-ee.10](https://github.com/botfront/botfront/compare/v0.15.5-ee.9...v0.15.5-ee.10) (2019-08-25)
 
 
