@@ -222,7 +222,7 @@ const StoryEditorContainer = ({
             <Segment attached className='single-story-container'>
                 {editorType !== 'visual' ? renderAceEditor(path) : null}
                 { branches.length > 0 && (
-                    <Menu pointing secondary>
+                    <Menu pointing secondary data-cy='branch-menu'>
                         { branches.map((branch, index) => {
                             const childPath = `${path}__${branch._id}`;
                             return (
