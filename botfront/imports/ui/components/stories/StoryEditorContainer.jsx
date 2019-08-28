@@ -157,7 +157,7 @@ const StoryEditorContainer = ({
 
     // new Level is true if the new branches create a new depth level of branches.
     const handleCreateBranch = (path, branches = [], num = 1, newLevel = true) => {
-        const commonPath = (path.match(/.*__/) || story._id)[0];
+        const commonPath = path.match(/.*__/) ? path.match(/.*__/)[0] : story._id;
         const newBranches = [...new Array(num)].map((_, i) => (
             {
                 title: getNewBranchName(branches, i),
