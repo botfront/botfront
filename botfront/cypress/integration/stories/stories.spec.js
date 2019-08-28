@@ -206,6 +206,7 @@ describe('stories', function() {
 
     it('should be able to delete and add stories in intro stories', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('intro-story-group').click({ force: true });
         cy.dataCy('story-editor').get('textarea');
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 2);
@@ -216,6 +217,7 @@ describe('stories', function() {
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('delete-story').click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
+        cy.dataCy('intro-story-group').should('exist');
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 1);
     });
