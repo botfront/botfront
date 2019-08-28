@@ -100,7 +100,7 @@ const StoryEditorContainer = ({
     };
 
     const handleDeleteBranch = (path, branches, index) => {
-        const commonPath = path.match(/.*__/)[0];
+        const commonPath = path.match(/.*__/) ? path.match(/.*__/[0]) : story._id;
         const parentPath = commonPath.match(/(.*)__/)[1];
         const updatedBranches = branches.length < 3
             ? []
@@ -108,28 +108,28 @@ const StoryEditorContainer = ({
         const newPath = branches.length < 3
             ? parentPath
             : `${commonPath}${branches[index + 1] ? branches[index + 1]._id : branches[index - 1]._id}`;
-        setActiveBranch(traverseStory(story, newPath));
+        setNewBranchPath(newPath);
         saveStory(parentPath, { branches: updatedBranches });
     };
 
     const handleSwitchBranch = (path) => {
+        const newBranch = traverseStory(story, path);
         // will instantiate a storyController if it doesn't exist
         if (
             !storyControllers[path]
             || !(storyControllers[path] instanceof StoryController)
         ) {
-            const { story: branchStory } = traverseStory(story, path);
             setStoryControllers({
                 ...storyControllers,
                 [path]: new StoryController(
-                    branchStory || '',
+                    newBranch.story || '',
                     slots,
                     () => {},
                     content => saveStory(path, { story: content }),
                 ),
             });
         }
-        setActiveBranch(traverseStory(story, path));
+        setActiveBranch(newBranch);
     };
 
     useEffect(() => {
@@ -186,7 +186,7 @@ const StoryEditorContainer = ({
                                     }}
                                     onChangeName={(newName) => {
                                         saveStory(childPath, { title: newName });
-                                        setActiveBranch({ ...activeBranch, pathTitle: `${activeBranch.pathTitle.match(/.*__/)[0]}${newName}` });
+                                        setNewBranchPath(`${activeBranch.pathTitle.match(/.*__/)[0]}${newName}`);
                                     }}
                                     onDelete={() => handleDeleteBranch(childPath, branches, index)}
                                     siblings={branches}
