@@ -1,4 +1,4 @@
-export const getBranchesAndIndices = (story, path) => path
+export const traverseStory = (story, path) => path
     .split('__')
     .slice(1)
     // gets branches but also indices, useful for setting later
@@ -14,7 +14,10 @@ export const getBranchesAndIndices = (story, path) => path
                 // Indices are the path in numeric form, for instance, the second branch into the first branch
                 // would hae the indices looking like [0, 1], so first branch then second branch.
                 indices: [...accumulateur.indices, index],
-                pathTitle: `${accumulateur.pathTitle}__${
+                path: `${accumulateur.path}__${ // the path as a double__underscore-separated string of IDs
+                    accumulateur.branches[index]._id
+                }`,
+                pathTitle: `${accumulateur.pathTitle}__${ // the path as a double__underscore-separated string of titles
                     accumulateur.branches[index].title
                 }`,
             };
@@ -24,6 +27,7 @@ export const getBranchesAndIndices = (story, path) => path
             story,
             title: story.title,
             indices: [],
+            path: story._id,
             pathTitle: story.title,
         },
     );
