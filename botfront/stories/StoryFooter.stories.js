@@ -39,7 +39,6 @@ storiesOf('StoryFooter', module)
                 <Segment attached='top'>Top Segment</Segment>
                 <Segment>Middle Segment</Segment>
                 <StoryFooter
-                    className='bread-crumb-container'
                     onBranch={onBranchPH}
                     onContinue={onContinuePH}
                     canContinue={boolean('can continue', true)}
@@ -55,7 +54,6 @@ storiesOf('StoryFooter', module)
                 <Segment attached='top'>Top Segment</Segment>
                 <Segment>Middle Segment</Segment>
                 <StoryFooter
-                    className='bread-crumb-container'
                     onBranch={onBranchPH}
                     onContinue={onContinuePH}
                     canContinue={boolean('can continue', true)}
