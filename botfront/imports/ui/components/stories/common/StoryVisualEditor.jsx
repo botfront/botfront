@@ -220,7 +220,7 @@ class StoryVisualEditor extends React.Component {
                 icon='ellipsis horizontal'
                 className='ellipsis horizontal'
                 size='medium'
-                onClick={() => this.setState({ lineInsertIndex: index })}
+                onMouseDown={() => this.setState({ lineInsertIndex: index })}
             />
         );
     };
