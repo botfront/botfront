@@ -51,4 +51,46 @@ describe('branches', function() {
             .click({ force: true });
         cy.contains('xxx').should('exist');
     });
+
+    it('should be able to be create a third branch, and delete branches', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('create-branch').click({ force: true });
+
+        // create a third branch
+        cy.dataCy('add-branch').click({ force: true });
+        cy.dataCy('branch-label').should('have.lengthOf', 3);
+
+        // delete a branch
+        cy.dataCy('branch-label')
+            .first()
+            .click({ click: true });
+        // delete branch is unclickable in cypress for ~100ms
+        cy.wait(250);
+        cy.dataCy('branch-label')
+            .first()
+            .trigger('mouseover');
+        cy.wait(250);
+        cy.dataCy('delete-branch')
+            .first()
+            .click({ force: true })
+            .dataCy('confirm-yes')
+            .click({ force: true });
+        cy.dataCy('branch-label').should('have.lengthOf', 2);
+
+        // delete a branch with only 2 branches remaining
+        cy.dataCy('branch-label')
+            .first()
+            .trigger('mouseover');
+        // delete branch is unclickable in cypress for ~100ms
+        cy.wait(250);
+        cy.dataCy('delete-branch')
+            .first()
+            .click({ force: true });
+        cy.dataCy('confirm-popup')
+            .contains('is also going to get deleted')
+            .should('exist')
+            .dataCy('confirm-yes')
+            .click({ force: true });
+        cy.dataCy('branch-label').should('not.exist', 2);
+    });
 });
