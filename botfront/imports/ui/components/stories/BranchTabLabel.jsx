@@ -126,7 +126,7 @@ class BranchTabLabel extends React.Component {
                 <span role='textbox' onClick={this.handleFocusTitleInput} tabIndex={0}>
                     {title}
                 </span>
-                <Icon name='trash' size='small' />
+                <Icon name='trash' size='small' data-cy='delete-branch' />
             </>
         );
     };
@@ -155,7 +155,7 @@ class BranchTabLabel extends React.Component {
                     {title}
                 </span>
                 <Popup
-                    trigger={<Icon name='trash' size='small' />}
+                    trigger={<Icon name='trash' size='small' data-cy='delete-branch' />}
                     content={(
                         <ConfirmPopup
                             title='Delete branch?'
@@ -191,7 +191,7 @@ class BranchTabLabel extends React.Component {
                     onFocus={this.handleOnFocusInput}
                     style={{ width: `${Math.max(3, newTitle.length + 1)}ch` }}
                 />
-                <Icon name='trash' size='small' />
+                <Icon name='trash' size='small' data-cy='delete-branch' />
             </>
         );
     };

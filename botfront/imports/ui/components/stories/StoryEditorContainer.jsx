@@ -193,7 +193,7 @@ const StoryEditorContainer = ({
                                 />
                             );
                         })}
-                        <Menu.Item key={`${path}-add`} className='add-tab' onClick={() => handleCreateBranch(path, branches, 1, false)}>
+                        <Menu.Item key={`${path}-add`} className='add-tab' onClick={() => handleCreateBranch(path, branches, 1, false)} data-cy='add-branch'>
                             <Icon name='plus' />
                         </Menu.Item>
                     </Menu>
