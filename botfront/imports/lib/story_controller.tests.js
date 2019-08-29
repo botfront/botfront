@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import { safeLoad } from 'js-yaml';
 import fs from 'fs';
 import { Meteor } from 'meteor/meteor';
-import { StoryController, extractDomain } from './story_controller';
+import { StoryController } from './story_controller';
+import { extractDomain } from './story.utils';
 
 const slots = [
     {

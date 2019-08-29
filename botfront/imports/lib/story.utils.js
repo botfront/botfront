@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import { extractDomain } from './story_controller';
+import { StoryController } from './story_controller';
 import { Stories } from '../api/story/stories.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
@@ -86,6 +86,55 @@ const getMappingStory = (policies) => {
     return mappingTriggers.length
         ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
         : '';
+};
+
+export const extractDomain = (stories, slots) => {
+    const defaultDomain = {
+        actions: new Set(['utter_default']),
+        intents: new Set(),
+        entities: new Set(),
+        forms: new Set(),
+        templates: {
+            utter_default: '',
+            utter_fallback: '',
+        },
+        slots: {
+            latest_response_name: { type: 'unfeaturized' },
+            followup_response_name: { type: 'unfeaturized' },
+            parse_data: { type: 'unfeaturized' },
+        },
+    };
+    let domains = stories.map((story) => {
+        const val = new StoryController(story, slots);
+        val.validateStory();
+        try {
+            return val.extractDomain();
+        } catch (e) {
+            return {
+                entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
+            };
+        }
+    });
+    domains = domains.reduce(
+        (d1, d2) => ({
+            entities: new Set([...d1.entities, ...d2.entities]),
+            intents: new Set([...d1.intents, ...d2.intents]),
+            actions: new Set([...d1.actions, ...d2.actions]),
+            forms: new Set([...d1.forms, ...d2.forms]),
+            templates: { ...d1.templates, ...d2.templates },
+            slots: { ...d1.slots, ...d2.slots },
+        }),
+        defaultDomain,
+    );
+    domains = yaml.safeDump({
+        entities: Array.from(domains.entities),
+        intents: Array.from(domains.intents),
+        actions: Array.from(domains.actions),
+        forms: Array.from(domains.forms),
+        templates: domains.templates,
+        slots: domains.slots,
+    });
+    return domains;
 };
 
 export const getStoriesAndDomain = (projectId) => {
