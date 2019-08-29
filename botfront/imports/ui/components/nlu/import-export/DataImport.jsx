@@ -7,6 +7,7 @@ import {
 import AceEditor from 'react-ace';
 import 'brace/mode/json';
 import 'brace/theme/github';
+import 'brace/ext/language_tools';
 import Dropzone from 'react-dropzone';
 import Alert from 'react-s-alert';
 import { saveAs } from 'file-saver';
