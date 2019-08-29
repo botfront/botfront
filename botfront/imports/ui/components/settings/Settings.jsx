@@ -18,7 +18,7 @@ class Settings extends React.Component {
         this.state = { orchestratorMenuItems: null, orchestrator: null };
     }
 
-    /* async componentDidMount() {
+    async componentDidMount() {
         const orchestrator = await Meteor.callWithPromise('orchestration.type');
         let orchestratorMenuItems = null;
         if (orchestrator !== 'default') {
@@ -27,12 +27,12 @@ class Settings extends React.Component {
                 orchestratorMenuItems = def;
             } catch (e) {
                 // eslint-disable-next-line no-console
-                if (!process.env.production) console.log(e);
+                if (!process.env.production) console.log('this is not displayed in production environment \n', e);
             }
         }
 
         this.setState({ orchestratorMenuItems, orchestrator });
-    } */
+    }
 
     handleMoreSettings = () => {
         const { router, projectId } = this.props;
