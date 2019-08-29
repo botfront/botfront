@@ -324,71 +324,11 @@ export class StoryController {
         }
         return this.domain;
     };
-
-    extractDialogAct = () => {
-        const initRegex = /^\* *(.*)/;
-        const initPayload = initRegex.exec(this.lines[0])[1];
-        this.payloads = initPayload.split(' OR ').map(disj => disj.trim());
-        this.response = null;
-        this.form = null;
-        const payloadRegex = /([^{]*) *({.*}|)/;
-        const output = [];
-        try {
-            this.payloads.forEach((stringPayload) => {
-                const matches = payloadRegex.exec(stringPayload);
-                const intent = matches[1];
-                let entities = matches[2];
-                const objectPayload = {
-                    intent,
-                    entities: [],
-                };
-                if (entities && entities !== '') {
-                    const parsed = JSON.parse(entities);
-                    entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
-                } else {
-                    entities = [];
-                }
-                objectPayload.entities = entities;
-                output.push({ objectPayload, stringPayload: `/${stringPayload}` });
-            });
-        } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log(e);
-        }
-        return output;
-    };
-}
-function addSlots(slots) {
-    const slotsToAdd = {};
-    if (!slots) return {};
-    slots.forEach((slot) => {
-        const options = {};
-        const { type } = slot;
-        if (type === 'float') {
-            if (slot.minValue) {
-                options.minValue = slot.minValue;
-            }
-            if (slot.maxValue) {
-                options.maxValue = slot.maxValue;
-            }
-        }
-        if (slot.initialValue) {
-            options.initial_value = slot.initialValue;
-        }
-        if (type === 'categorical' && slot.categories) {
-            options.values = slot.categories;
-        }
-        slotsToAdd[slot.name] = {
-            type: slot.type,
-            ...options,
-        };
-    });
-    return slotsToAdd;
 }
 
 export const extractDomain = (stories, slots) => {
     const defaultDomain = {
-        actions: new Set(['utter_fallback', 'utter_default']),
+        actions: new Set(['utter_default']),
         intents: new Set(),
         entities: new Set(),
         forms: new Set(),
@@ -400,7 +340,6 @@ export const extractDomain = (stories, slots) => {
             latest_response_name: { type: 'unfeaturized' },
             followup_response_name: { type: 'unfeaturized' },
             parse_data: { type: 'unfeaturized' },
-            ...addSlots(slots),
         },
     };
     let domains = stories.map((story) => {
