@@ -27,7 +27,7 @@ class Settings extends React.Component {
                 orchestratorMenuItems = def;
             } catch (e) {
                 // eslint-disable-next-line no-console
-                if (!process.env.production) console.log(e);
+                if (!process.env.production) console.log('this is not displayed in production environment \n', e);
             }
         }
 
