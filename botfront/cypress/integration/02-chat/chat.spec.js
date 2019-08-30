@@ -26,6 +26,7 @@ describe('chat side panel handling', function() {
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
         cy.get('[data-cy=chat-pane]');
+        cy.get('.widget-embedded');
         cy.get('[data-cy=close-chat]').click();
         cy.get('[data-cy=chat-pane]').should('not.exist');
     });
@@ -37,6 +38,16 @@ describe('chat side panel handling', function() {
         cy.get('[data-cy=chat-language-option] .visible.menu')
             .contains('en')
             .click();
+    });
+
+    it('should display the chat without any initial payload', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('delete-story')
+            .click();
+        cy.dataCy('confirm-yes').click();
+        cy.get('[data-cy=open-chat]').click();
+        cy.get('[data-cy=chat-pane]');
+        cy.get('.widget-embedded');
     });
 
     // For this test to pass train button should be working
