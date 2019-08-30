@@ -69,7 +69,7 @@ class ActivityInsertions extends React.Component {
                     <TextArea
                         rows={15}
                         value={text}
-                        autoHeight
+                        autoheight='true'
                         disabled={saving}
                         onChange={this.onTextChanged}
                     />

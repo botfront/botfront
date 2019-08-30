@@ -7,6 +7,7 @@ import yaml from 'js-yaml';
 import brace from 'brace';
 import 'brace/mode/yaml';
 import 'brace/theme/xcode';
+import 'brace/ext/language_tools';
 
 function getValue(value, convertYaml = false, onChange = () => {}) {
     if (convertYaml) {

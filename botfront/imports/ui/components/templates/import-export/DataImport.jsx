@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types"
 import {Button} from "semantic-ui-react";
 import AceEditor from 'react-ace'
+import 'brace/ext/language_tools';
 import 'brace/mode/json';
 import 'brace/theme/github';
 import Dropzone from 'react-dropzone'

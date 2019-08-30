@@ -71,7 +71,7 @@ export default class LookupTableListEditor extends React.Component {
                     className='entity-synonym-values'
                     rows={1}
                     autoFocus={autoFocus}
-                    autoHeight
+                    autoheight='true'
                     placeholder={placeholder}
                     name='synonyms'
                     value={

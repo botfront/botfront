@@ -78,7 +78,7 @@ export default class IntentBulkInsert extends React.Component {
                         className='batch-insert-input'
                         rows={15}
                         value={text}
-                        autoHeight
+                        autoheight='true'
                         disabled={saving}
                         onChange={this.onTextChanged}
                     />

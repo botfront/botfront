@@ -165,7 +165,7 @@ class ConversationsBrowser extends React.Component {
 
 ConversationsBrowser.propTypes = {
     trackers: PropTypes.array.isRequired,
-    activeConversationId: PropTypes.string.isRequired,
+    activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
     projectId: PropTypes.string.isRequired,
     prevConvoId: PropTypes.string,
@@ -175,6 +175,7 @@ ConversationsBrowser.propTypes = {
 ConversationsBrowser.defaultProps = {
     prevConvoId: null,
     nextConvoId: null,
+    activeConversationId: null,
 };
 
 function ConversationBrowserSegment({
@@ -203,9 +204,9 @@ function ConversationBrowserSegment({
 
 ConversationBrowserSegment.propTypes = {
     trackers: requiredIf(PropTypes.array, ({ loading }) => !loading),
-    activeConversationId: requiredIf(PropTypes.string, ({ loading }) => !loading),
+    activeConversationId: PropTypes.string,
     loading: PropTypes.bool.isRequired,
-    projectId: requiredIf(PropTypes.string, ({ loading }) => !loading),
+    projectId: PropTypes.string.isRequired,
     page: PropTypes.number.isRequired,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
