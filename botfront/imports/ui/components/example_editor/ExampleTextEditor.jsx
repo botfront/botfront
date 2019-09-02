@@ -193,12 +193,12 @@ export class ExampleTextEditor extends React.Component {
         const { highlightEntities } = this.props;
 
         return (
-            <div ref={node => this.selectionAnchorNode = node}>
+            <div ref={node => this.selectionAnchorNode === node}>
                 <TextArea
-                    ref={node => this.inputNode = node && findDOMNode(node)}
+                    ref={node => this.inputNode === node && findDOMNode(node)}
                     name='text'
                     placeholder='User says...'
-                    autoHeight
+                    autoheight='true'
                     rows={1}
                     value={text}
                     onKeyPress={this.handleKeyPress}

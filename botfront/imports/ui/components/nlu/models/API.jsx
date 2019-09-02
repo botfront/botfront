@@ -94,7 +94,7 @@ class API extends React.Component {
                 <div id='playground'>
                     <Form>
                         <Form.Field>
-                            <TextArea name='query' placeholder='User says...' autoHeight rows={1} value={query} onChange={this.handleTextChange} />
+                            <TextArea name='query' placeholder='User says...' autoheight='true' rows={1} value={query} onChange={this.handleTextChange} />
                         </Form.Field>
                         <br />
                         <Checkbox slider label='Show Duckling params' onChange={this.handleDucklingOptionsChange} />

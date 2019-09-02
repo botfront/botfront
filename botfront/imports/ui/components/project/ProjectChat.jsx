@@ -219,13 +219,13 @@ class ProjectChat extends React.Component {
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                {socketUrl && path && selectedPayload && (
+                {socketUrl && path && (
                     <Chat
                         socketUrl={socketUrl}
                         key={key}
                         language={selectedLanguage}
                         path={path}
-                        initialPayLoad={selectedPayload}
+                        initialPayLoad={selectedPayload || ''}
                     />
                 )}
                 {noChannel && (

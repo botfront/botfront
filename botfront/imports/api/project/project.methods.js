@@ -2,7 +2,7 @@ import { check, Match } from 'meteor/check';
 import { safeLoad as yamlLoad } from 'js-yaml';
 import { Projects } from './project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
-import { createInstance, flattenStory } from '../instances/instances.methods';
+import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import { ActivityCollection } from '../activity';
 import { formatError } from '../../lib/utils';
@@ -17,6 +17,7 @@ import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
 import { extractDomain } from '../../lib/story_controller';
+import { flattenStory } from '../../lib/story.utils';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots));

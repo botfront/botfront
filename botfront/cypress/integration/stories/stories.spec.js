@@ -133,6 +133,10 @@ describe('stories', function() {
         clickStoryGroup(storyGroupOne);
         cy.wait(200);
         cy.dataCy('story-title').type(' {selectall}{backspace}newTitle');
+        cy.dataCy('story-editor')
+            .get('textarea')
+            .focus()
+            .type('xxx', { force: true });
         clickStoryGroup(storyGroupTwo);
         cy.dataCy('delete-story').click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });

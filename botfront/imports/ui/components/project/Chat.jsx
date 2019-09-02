@@ -38,7 +38,7 @@ Chat.propTypes = {
     socketUrl: PropTypes.string.isRequired,
     path: PropTypes.string.isRequired,
     language: PropTypes.string,
-    initialPayLoad: PropTypes.array,
+    initialPayLoad: PropTypes.string,
 };
 
 Chat.defaultProps = {

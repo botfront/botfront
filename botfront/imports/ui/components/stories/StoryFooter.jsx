@@ -98,23 +98,27 @@ class StoryFooter extends React.Component {
     }
 
 
-    render () {
-        const {
-            canBranch,
-        } = this.props;
+    render() {
+        const { canBranch } = this.props;
         return (
             <Segment className='footer-segment' size='mini' attached='bottom'>
-                <div className='breadcrumb-container'>
-                    {this.renderPath()}
-                </div>
+                <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
-                    <Menu.Item onClick={this.handleBranchClick} className={`footer-option-button color-${this.selectIconColor(canBranch)}`}>
-                        <Icon disabled={!canBranch} name='code branch' color={this.selectIconColor(canBranch)} />
+                    <Menu.Item
+                        onClick={this.handleBranchClick}
+                        className={`footer-option-button color-${this.selectIconColor(
+                            canBranch,
+                        )}`}
+                        data-cy='create-branch'
+                    >
+                        <Icon
+                            disabled={!canBranch}
+                            name='code branch'
+                            color={this.selectIconColor(canBranch)}
+                        />
                         Branch Story
                     </Menu.Item>
-                    <>
-                        {this.renderContinue()}
-                    </>
+                    <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
         );
