@@ -85,7 +85,7 @@ if (Meteor.isServer) {
             check(accountData, Object);
             check(consent, Boolean);
 
-            let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
+            let spec = process.env.ORCHESTRATOR;
             if (process.env.NODE_ENV === 'development') {
                 spec = `${spec}.dev`;
             }
@@ -109,7 +109,7 @@ if (Meteor.isServer) {
             const {
                 email, password, firstName, lastName,
             } = accountData;
-            const userId = Accounts.createUser({
+            Accounts.createUser({
                 email,
                 password,
                 profile: {
