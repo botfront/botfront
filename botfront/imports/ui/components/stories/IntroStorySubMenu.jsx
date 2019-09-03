@@ -32,6 +32,8 @@ class IntroStorySubMenu extends React.Component {
                     link
                     data-cy='intro-story-group'
                 >
+                    {introStory.hasWarnings.length > 0 ? <Icon name='exclamation circle' color='yellow' /> : <></>}
+                    {introStory.hasErrors.length > 0 ? <Icon name='times circle' color='red' /> : <></>}
                     <Icon
                         id={`${
                             introStory && introStory.selected
@@ -53,6 +55,7 @@ IntroStorySubMenu.propTypes = {
     introClick: PropTypes.func.isRequired,
     introStoryClick: PropTypes.func.isRequired,
     isSelected: PropTypes.bool.isRequired,
+
 };
 
 IntroStorySubMenu.defaultProps = {
