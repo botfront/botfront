@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Dropdown,
+    Popup, Icon, Menu, Dropdown, Label,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState } from 'react';
@@ -21,6 +21,8 @@ const StoryTopMenu = ({
     groupNames,
     collapsed,
     collapseStory,
+    warnings,
+    errors,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -53,6 +55,32 @@ const StoryTopMenu = ({
         }
     };
 
+    const renderWarnings = () => {
+        const pluralize = warnings > 1 ? 's' : '';
+        if (warnings <= 0) {
+            return <></>;
+        }
+        return (
+            <Label className='exception-label' color='yellow'>
+                <Icon name='exclamation circle' />
+                {warnings} Warning{pluralize}
+            </Label>
+        );
+    };
+
+    const renderErrors = () => {
+        const pluralize = errors > 1 ? 's' : '';
+        if (errors <= 0) {
+            return <></>;
+        }
+        return (
+            <Label className='exception-label' color='red'>
+                <Icon name='times circle' />
+                {errors} Error{pluralize}
+            </Label>
+        );
+    };
+
     return (
         <Menu attached='top' className={`${collapsed ? 'collapsed' : ''}`}>
             <Menu.Item header>
@@ -76,6 +104,8 @@ const StoryTopMenu = ({
                 />
             </Menu.Item>
             <Menu.Item position='right'>
+                {renderWarnings()}
+                {renderErrors()}
                 <Popup
                     trigger={<Icon name='dolly' color='grey' link data-cy='move-story' />}
                     content={(
@@ -154,6 +184,8 @@ StoryTopMenu.propTypes = {
     groupNames: PropTypes.array.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
+    warnings: PropTypes.number.isRequired,
+    errors: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({

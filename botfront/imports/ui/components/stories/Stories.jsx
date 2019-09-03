@@ -34,6 +34,8 @@ class Stories extends React.Component {
             {
                 name,
                 projectId,
+                hasErrors: [],
+                hasWarnings: [],
             },
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {

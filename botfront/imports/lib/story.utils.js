@@ -198,3 +198,29 @@ export const getStoriesAndDomain = (projectId) => {
         domain: extractDomain(storiesForDomain, slots, templates),
     };
 };
+
+export const accumulateExceptions = (originStory) => {
+    const pathDictionary = {};
+    const traverseBranch = (currentStory, path) => {
+        const newPath = (path.length !== 0)
+            ? `${path},${currentStory._id}`
+            : currentStory._id;
+        if (currentStory.branches.length > 0) {
+            const childExceptions = currentStory.branches.map(branch => (
+                traverseBranch(branch, newPath)
+            ));
+            let errors = [...currentStory.errors];
+            let warnings = [...currentStory.warnings];
+            childExceptions.forEach((child) => {
+                errors = [...errors, ...child.errors];
+                warnings = [...warnings, ...child.warnings];
+            });
+            pathDictionary[newPath] = { errors, warnings };
+            return { errors, warnings };
+        }
+        pathDictionary[newPath] = { errors: currentStory.errors, warnings: currentStory.warnings };
+        return { errors: currentStory.errors, warnings: currentStory.warnings };
+    };
+    traverseBranch(originStory, '');
+    return pathDictionary;
+};

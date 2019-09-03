@@ -103,10 +103,10 @@ class BranchTabLabel extends React.Component {
         const { hasWarning, hasError } = this.props;
         const alertList = [];
         if (hasWarning) {
-            alertList.push(<Icon name='warning' color='yellow' />);
+            alertList.push(<Icon name='exclamation circle' color='yellow' />);
         }
         if (hasError) {
-            alertList.push(<Icon name='close' color='red' />);
+            alertList.push(<Icon name='times circle' color='red' />);
         }
         return <>{alertList}</>;
     };
