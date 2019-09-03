@@ -117,7 +117,7 @@ Meteor.methods({
             { _id },
             {
                 $addToSet: { hasErrors: update.hasErrors, hasWarnings: update.hasWarnings },
-                $pull: { hasErrors: update.hasNoErrors, hasNoWarnings: update.hasNoWarnings },
+                $pull: { hasErrors: update.hasNoErrors, hasWarnings: update.hasNoWarnings },
             },
         );
     },

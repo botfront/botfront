@@ -35,6 +35,13 @@ function StoriesEditor(props) {
                 }
             }),
         );
+        Meteor.call(
+            'storyGroups.updateExceptions',
+            {
+                _id: stories[index].storyGroupId, storyId: stories[index]._id,
+            },
+            wrapMeteorCallback(() => {}),
+        );
     }
 
     function handleStoryRenaming(newTitle, index) {
