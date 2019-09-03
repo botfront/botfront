@@ -17,34 +17,35 @@ class StoryFooter extends React.Component {
 
     renderPath = () => {
         const { storyPath } = this.props;
-        let pathArray = storyPath.split('__');
         let pathBreadcrumbs = [];
+        // we create that shallow copy, because we may need to modify it if it is too long
+        let computedStoryPath = [...storyPath];
         const maxLength = 5;
 
-        if (pathArray.length > maxLength) {
-            pathBreadcrumbs.push();
-            pathArray = pathArray.slice(pathArray.length - maxLength, pathArray.length);
+        if (storyPath.length > maxLength) {
+            computedStoryPath = storyPath.slice(storyPath.length - maxLength, storyPath.length);
             pathBreadcrumbs = [
                 ...pathBreadcrumbs,
                 <StoryPathPopup
                     key='ellipsis'
-                    storyPath={storyPath}
+                    storyPath={storyPath.join('>')}
                     trigger={(
                         <Breadcrumb.Section className='collapsed-path'>
                             <Icon disabled color='grey' name='ellipsis horizontal' size='small' />
                         </Breadcrumb.Section>
                     )}
                 />,
-                <Breadcrumb.Divider key='ellipsis-divider'>{'>'}</Breadcrumb.Divider>,
+                <Breadcrumb.Divider key='ellipsis-divider'>{' > '}</Breadcrumb.Divider>,
             ];
         }
-        pathArray.forEach((location, index) => {
+        computedStoryPath.forEach((location, index) => {
             pathBreadcrumbs = [
                 ...pathBreadcrumbs,
                 <Breadcrumb.Section key={`popup-location-${index}`}>{location}</Breadcrumb.Section>,
                 <Breadcrumb.Divider key={`popup-divider-${index}`}>{'>'}</Breadcrumb.Divider>,
             ];
         });
+        // remove the latest divider, as we don't want to display it
         pathBreadcrumbs.pop();
         return pathBreadcrumbs;
     };
@@ -126,7 +127,7 @@ class StoryFooter extends React.Component {
 }
 
 StoryFooter.propTypes = {
-    storyPath: PropTypes.string,
+    storyPath: PropTypes.array,
     canBranch: PropTypes.bool,
     canContinue: PropTypes.bool,
     onBranch: PropTypes.func.isRequired,
@@ -135,7 +136,7 @@ StoryFooter.propTypes = {
 };
 
 StoryFooter.defaultProps = {
-    storyPath: '',
+    storyPath: [],
     canBranch: true,
     canContinue: true,
     disableContinue: true,
