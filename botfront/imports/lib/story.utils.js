@@ -85,7 +85,7 @@ const getMappingTriggers = policies => policies
 
 export const extractDomain = (stories, slots) => {
     const defaultDomain = {
-        actions: new Set(['utter_default']),
+        actions: new Set(),
         intents: new Set(),
         entities: new Set(),
         forms: new Set(),
