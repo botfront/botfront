@@ -74,19 +74,14 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
     [...acc, ...flattenStory(val)]
 ), [{ story: (story.story || ''), title: story.title }]);
 
-const getMappingStory = (policies) => {
-    const mappingTriggers = policies
-        .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
-        .map(policy => policy.triggers.map((trigger) => {
-            if (!trigger.extra_actions) return [trigger.action];
-            return [...trigger.extra_actions, trigger.action];
-        }))
-        .reduce((coll, curr) => coll.concat(curr), [])
-        .reduce((coll, curr) => coll.concat(curr), []);
-    return mappingTriggers.length
-        ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
-        : '';
-};
+const getMappingTriggers = policies => policies
+    .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
+    .map(policy => policy.triggers.map((trigger) => {
+        if (!trigger.extra_actions) return [trigger.action];
+        return [...trigger.extra_actions, trigger.action];
+    }))
+    .reduce((coll, curr) => coll.concat(curr), [])
+    .reduce((coll, curr) => coll.concat(curr), []);
 
 export const extractDomain = (stories, slots) => {
     const defaultDomain = {
@@ -94,14 +89,12 @@ export const extractDomain = (stories, slots) => {
         intents: new Set(),
         entities: new Set(),
         forms: new Set(),
-        templates: {
-            utter_default: '',
-            utter_fallback: '',
-        },
+        templates: new Set(),
         slots: {
             latest_response_name: { type: 'unfeaturized' },
             followup_response_name: { type: 'unfeaturized' },
             parse_data: { type: 'unfeaturized' },
+            disambiguation_message: { type: 'unfeaturized' },
         },
     };
     let domains = stories.map((story) => {
@@ -139,7 +132,16 @@ export const extractDomain = (stories, slots) => {
 
 export const getStoriesAndDomain = (projectId) => {
     const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
-    const mappingStory = getMappingStory(policies);
+    const mappingTriggers = getMappingTriggers(policies);
+    const extraDomain = `* deny_suggestions\n\
+ - action_botfront_disambiguation\n\
+ - action_botfront_disambiguation_followup\n\
+ - action_botfront_disambiguation_denial\n\
+ - action_botfront_fallback\n\
+${mappingTriggers.length
+        ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
+        : ''
+}`;
 
     const selectedStoryGroupsIds = StoryGroups.find(
         { projectId, selected: true },
@@ -155,14 +157,11 @@ export const getStoriesAndDomain = (projectId) => {
 
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-        .map(story => story.story);
+        .map(story => story.story)
+        .concat([extraDomain]);
     const storiesForRasa = stories
         .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
-
-    if (mappingStory.length) {
-        storiesForDomain.push(mappingStory); storiesForRasa.push(`## mapping_story\n${mappingStory}`);
-    }
 
     const slots = Slots.find({ projectId }).fetch();
     return {
