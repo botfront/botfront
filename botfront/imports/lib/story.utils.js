@@ -48,7 +48,6 @@ export function getSubBranchesForPath(story, path) {
         let deepStory = { ...story };
         let branches = [...deepStory.branches];
         try {
-            
             deepPath.forEach((id) => {
                 let found = false;
                 branches.forEach((branch) => {
