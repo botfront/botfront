@@ -307,13 +307,13 @@ export class StoryController {
         if (this.saveUpdate) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
     }
 
-    getErrors = () => {
-        return this.exceptions.filter(exception => exception.type === 'error');
-    }
+    getErrors = () => (
+        this.exceptions.filter(exception => exception.type === 'error')
+    )
 
-    getWarnings = () => {
-        return this.exceptions.filter(exception => exception.type === 'warning');
-    }
+    getWarnings = () => (
+        this.exceptions.filter(exception => exception.type === 'warning')
+    )
 
     getPossibleInsertions = (i) => {
         const possibleInsertions = {
