@@ -161,7 +161,7 @@ Endpoints.defaultProps = {
 const EndpointsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('endpoints', projectId);
     const endpoints = {};
-    endpoints.development = EndpointsCollection.findOne({ projectId });
+    endpoints.development = EndpointsCollection.findOne({ _id: projectId });
     ENVIRONMENT_OPTIONS.forEach((environment) => {
         endpoints[environment] = EndpointsCollection.findOne({ projectId, environment });
     });
