@@ -11,6 +11,7 @@ import AddStoryLine from './AddStoryLine';
 import ActionLabel from '../ActionLabel';
 import SlotLabel from '../SlotLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
+import ExceptionWrapper from './ExceptionWrapper';
 
 export const defaultTemplate = (template) => {
     if (template === 'text') {
@@ -30,6 +31,11 @@ export const defaultTemplate = (template) => {
     }
     return false;
 };
+
+// TEST CODE PLEASE REMOVE
+const fakeHasError = false;
+const fakeHasWarning = false;
+// END OF TEST CODE
 class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
@@ -130,15 +136,17 @@ class StoryVisualEditor extends React.Component {
     renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.data.name}`}>
             <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                <ActionLabel
-                    value={l.data.name}
-                    onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
-                    }
-                />
-                <FloatingIconButton
-                    icon='trash'
-                    onClick={() => this.handleDeleteLine(i)}
-                />
+                <ExceptionWrapper hasError={fakeHasError} hasWarning={fakeHasWarning}>
+                    <ActionLabel
+                        value={l.data.name}
+                        onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
+                        }
+                    />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(i)}
+                    />
+                </ExceptionWrapper>
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
@@ -147,14 +155,16 @@ class StoryVisualEditor extends React.Component {
     renderSlotLine = (i, l, exceptions) => (
         <React.Fragment key={`slot${i + l.data.name}`}>
             <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                <SlotLabel
-                    value={l.data}
-                    onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
-                />
-                <FloatingIconButton
-                    icon='trash'
-                    onClick={() => this.handleDeleteLine(i)}
-                />
+                <ExceptionWrapper hasError={fakeHasError} hasWarning={fakeHasWarning}>
+                    <SlotLabel
+                        value={l.data}
+                        onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
+                    />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(i)}
+                    />
+                </ExceptionWrapper>
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
@@ -232,6 +242,8 @@ class StoryVisualEditor extends React.Component {
                 return (
                     <React.Fragment key={`bot${line.gui.data.name}`}>
                         <BotResponsesContainer
+                            hasError={fakeHasError}
+                            hasWarning={fakeHasWarning}
                             deletable
                             exceptions={exceptions}
                             name={line.gui.data.name}
@@ -256,6 +268,8 @@ class StoryVisualEditor extends React.Component {
                     }`}
                 >
                     <UserUtteranceContainer
+                        hasError={fakeHasError}
+                        hasWarning={fakeHasWarning}
                         exceptions={exceptions}
                         value={line.gui.data[0]} // for now, data is a singleton
                         onInput={v => this.handleSaveUserUtterance(index, v)}

@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
+import ExceptionWrapper from './ExceptionWrapper';
+
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus,
+        value, onDelete, onChange, deletable, focus, onFocus, hasError, hasWarning
     } = props;
 
     const [input, setInput] = useState();
@@ -52,19 +54,21 @@ const BotResponseContainer = (props) => {
             }}
         />
     );
-
+    console.log(hasError, hasWarning);
     return (
-        <div
-            className='utterance-container bot-response'
-            agent='bot'
-            data-cy='bot-response-input'
-        >
-            <div className='inner'>
-                {hasText && renderText()}
-                {hasButtons && renderButtons()}
+        <ExceptionWrapper className='bot-response' hasError={hasError} hasWarning={hasWarning}>
+            <div
+                className='utterance-container bot-response'
+                agent='bot'
+                data-cy='bot-response-input'
+            >
+                <div className='inner'>
+                    {hasText && renderText()}
+                    {hasButtons && renderButtons()}
+                </div>
+                {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />} 
             </div>
-            {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
-        </div>
+        </ExceptionWrapper>
     );
 };
 
@@ -75,11 +79,16 @@ BotResponseContainer.propTypes = {
     onFocus: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
+    hasError: PropTypes.bool,
+    hasWarning: PropTypes.bool,
+
 };
 
 BotResponseContainer.defaultProps = {
     deletable: true,
     focus: false,
+    hasError: false,
+    hasWarning: false,
 };
 
 export default BotResponseContainer;

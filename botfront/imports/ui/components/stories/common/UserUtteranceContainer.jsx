@@ -8,10 +8,12 @@ import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 import { ConversationOptionsContext } from '../../utils/Context';
 import UtteranceInput from '../../utils/UtteranceInput';
+import ExceptionWrapper from './ExceptionWrapper';
+
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, deletable, exceptions,
+        value, onInput, onDelete, onAbort, deletable, exceptions, hasError, hasWarning,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
@@ -107,29 +109,31 @@ const UtteranceContainer = (props) => {
             />
         );
     };
-
+    console.log(hasError, hasWarning);
     return (
-        <div
-            className='utterance-container'
-            exception={exceptions.severity}
-            // This ternary ensures that the mode is not set to input when we have a parsed utterance
-            // This makes some css work
-            // css will be broken if this is removed
-            mode={!!stateValue ? 'view' : mode}
-            agent='user'
-            ref={containerBody}
-        >
-            <div className='inner'>{render()}</div>
-            {deletable && (
-                <FloatingIconButton
-                    icon='trash'
-                    onClick={() => {
-                        if (mode === 'input') return onAbort();
-                        return onDelete();
-                    }}
-                />
-            )}
-        </div>
+        <ExceptionWrapper hasError={hasError} hasWarning={hasWarning}>
+            <div
+                className='utterance-container'
+                exception={exceptions.severity}
+                // This ternary ensures that the mode is not set to input when we have a parsed utterance
+                // This makes some css work
+                // css will be broken if this is removed
+                mode={!!stateValue ? 'view' : mode}
+                agent='user'
+                ref={containerBody}
+            >
+                <div className='inner'>{render()}</div>
+                {deletable && (
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => {
+                            if (mode === 'input') return onAbort();
+                            return onDelete();
+                        }}
+                    />
+                )}
+            </div>
+        </ExceptionWrapper>
     );
 };
 
@@ -141,12 +145,16 @@ UtteranceContainer.propTypes = {
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
     exceptions: PropTypes.object,
+    hasError: PropTypes.bool,
+    hasWarning: PropTypes.bool,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
     deletable: true,
     exceptions: { severity: null, messages: [] },
+    hasError: false,
+    hasWarning: false,
 };
 
 export default UtteranceContainer;

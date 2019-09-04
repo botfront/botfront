@@ -17,6 +17,8 @@ const BotResponsesContainer = (props) => {
         exceptions,
         isNew,
         removeNewState,
+        hasError,
+        hasWarning
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
@@ -144,6 +146,8 @@ const BotResponsesContainer = (props) => {
                         }
                         focus={focus === index}
                         onFocus={() => setFocus(index)}
+                        hasError={hasError}
+                        hasWarning={hasWarning}
                     />
                 </div>
                 {!content.buttons
@@ -178,11 +182,16 @@ BotResponsesContainer.propTypes = {
     exceptions: PropTypes.object,
     isNew: PropTypes.bool.isRequired,
     removeNewState: PropTypes.func.isRequired,
+    hasError: PropTypes.bool,
+    hasWarning: PropTypes.warning,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
     exceptions: { severity: null, messages: [] },
+    hasError: false,
+    hasWarning: false,
+
 };
 
 export default BotResponsesContainer;

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ActionPopupContent from './common/ActionPopupContent';
+import ExceptionWrapper from './common/ExceptionWrapper';
 
 export default function ActionLable({ value, onChange, size }) {
     return (
