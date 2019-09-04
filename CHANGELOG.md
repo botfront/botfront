@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.12](https://github.com/botfront/botfront/compare/v0.15.5-ee.11...v0.15.5-ee.12) (2019-09-04)
+
+
+### Bug Fixes
+
+* change css so selected story group is blue ([e9b2217](https://github.com/botfront/botfront/commit/e9b2217))
+* new method of verifying default story test ([29b6b29](https://github.com/botfront/botfront/commit/29b6b29))
+
+
+### Features
+
+* open first branches by default ([1b37c13](https://github.com/botfront/botfront/commit/1b37c13))
+* persist branch path across application ([33e26b4](https://github.com/botfront/botfront/commit/33e26b4))
+
+
+### Tests
+
+* added test for branches edge cases ([0f464b7](https://github.com/botfront/botfront/commit/0f464b7))
+* confirm intro story group is not deleted ([026b58d](https://github.com/botfront/botfront/commit/026b58d))
+* fix for chat spec ([2b7f005](https://github.com/botfront/botfront/commit/2b7f005))
+* new for add 3rd branch and delete branches ([dfb0eb5](https://github.com/botfront/botfront/commit/dfb0eb5))
+* story branches persistence ([187b602](https://github.com/botfront/botfront/commit/187b602))
+
+
+
 ### [0.15.5-ee.11](https://github.com/botfront/botfront/compare/v0.15.5-ee.10...v0.15.5-ee.11) (2019-08-28)
 
 
