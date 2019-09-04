@@ -58,7 +58,7 @@ const getConfig = (model) => {
     return yaml.dump(config);
 };
 
-const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
+export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
     if (!model.training_data) {
         throw Error('Property training_data of model argument is required');
     }
@@ -145,6 +145,24 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:r', instance.projectId);
             this.unblock();
             return parseNlu(instance, params, nolog);
+        },
+
+        async 'rasa.convertToJson'(file, language, outputFormat, host) {
+            check(file, String);
+            check(language, String);
+            check(outputFormat, String);
+            check(host, String);
+            const client = axios.create({
+                baseURL: host,
+                timeout: 100 * 1000,
+            });
+            const { data } = await client.post('/data/convert/', {
+                data: file,
+                output_format: outputFormat,
+                language,
+            });
+            
+            return data;
         },
 
         async 'rasa.train'(projectId, instance) {
