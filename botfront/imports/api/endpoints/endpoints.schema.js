@@ -20,6 +20,6 @@ export const EndpointsSchema = new SimpleSchema({
         optional: true,
         autoValue: () => new Date(),
     },
-    environment: { type: String },
+    environment: { type: String, optional: true },
 
 }, { tracker: Tracker });

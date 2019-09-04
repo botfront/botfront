@@ -34,11 +34,18 @@ class Endpoints extends React.Component {
     }
 
     onSave = (endpoints) => {
+        const newEndpoints = endpoints;
+        const { selectedEnvironment } = this.state;
+        const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
+        if (!endpoints._id) {
+            newEndpoints.projectId = projectId;
+            newEndpoints.environment = selectedEnvironment;
+        }
         Meteor.call(
             'endpoints.save',
-            endpoints,
+            newEndpoints,
             wrapMeteorCallback((err) => {
                 this.setState({ saving: false });
                 if (!err) {
@@ -123,7 +130,6 @@ class Endpoints extends React.Component {
     renderContents = () => {
         const { endpoints, projectId } = this.props;
         const { selectedEnvironment, saving } = this.state;
-        console.log(endpoints);
         return this.renderEndpoints(saving, endpoints[selectedEnvironment], projectId);
     }
 
@@ -160,12 +166,6 @@ Endpoints.defaultProps = {
 
 const EndpointsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('endpoints', projectId);
-    const endpoints = {};
-    endpoints.development = EndpointsCollection.findOne({ _id: projectId });
-    ENVIRONMENT_OPTIONS.forEach((environment) => {
-        endpoints[environment] = EndpointsCollection.findOne({ projectId, environment });
-    });
-
     const projectSettings = ProjectsCollection.findOne(
         { _id: projectId },
         {
@@ -174,6 +174,13 @@ const EndpointsContainer = withTracker(({ projectId }) => {
             },
         },
     );
+    const endpoints = {};
+    const endpointsArray = EndpointsCollection.find({ projectId }).fetch().filter(endpoint => (
+        endpoint.environment === undefined || ENVIRONMENT_OPTIONS.includes(endpoint.environment)
+    ));
+    endpointsArray.forEach((endpoint) => {
+        endpoints[endpoint.environment ? endpoint.environment : 'development'] = endpoint;
+    });
 
     return {
         ready: handler.ready(),

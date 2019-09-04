@@ -21,7 +21,14 @@ export const createEndpoints = async (project) => {
 export const saveEndpoints = async (endpoints) => {
     try {
         if (!Meteor.isServer) throw Meteor.Error(400, 'Not Authorized');
-        return Endpoints.upsert({ projectId: endpoints.projectId, _id: endpoints._id }, { $set: { endpoints: endpoints.endpoints, environment: endpoints.environment } });
+        return Endpoints.upsert({ projectId: endpoints.projectId, _id: endpoints._id },
+            {
+                $set: {
+                    endpoints: endpoints.endpoints,
+                    environment: endpoints.environment ? endpoints.environment : 'development',
+                    projectId: endpoints.projectId,
+                },
+            });
     } catch (e) {
         throw formatError(e);
     }

@@ -44,7 +44,7 @@ export const CredentialsSchema = new SimpleSchema(
             type: String,
             custom: validateYaml,
         },
-        environment: { type: String },
+        environment: { type: String, optional: true },
         projectId: { type: String },
         createdAt: {
             type: Date,
@@ -79,7 +79,16 @@ if (Meteor.isServer) {
             check(credentials, Object);
             checkIfCan('project-settings:w', credentials.projectId);
             try {
-                return Credentials.upsert({ projectId: credentials.projectId, _id: credentials._id }, { $set: { credentials: credentials.credentials, environment: credentials.environment } });
+                return Credentials.upsert(
+                    { projectId: credentials.projectId, _id: credentials._id },
+                    {
+                        $set: {
+                            projectId: credentials.projectId,
+                            credentials: credentials.credentials,
+                            environment: credentials.environment,
+                        },
+                    },
+                );
             } catch (e) {
                 throw formatError(e);
             }

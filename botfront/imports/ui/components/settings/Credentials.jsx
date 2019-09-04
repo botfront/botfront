@@ -34,11 +34,18 @@ class Credentials extends React.Component {
     }
 
     onSave = (credentials) => {
+        const newCredentials = credentials;
+        const { selectedEnvironment } = this.state;
+        const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
+        if (!credentials._id) {
+            newCredentials.projectId = projectId;
+            newCredentials.environment = selectedEnvironment;
+        }
         Meteor.call(
             'credentials.save',
-            credentials,
+            newCredentials,
             wrapMeteorCallback((err) => {
                 if (!err) {
                     this.setState({ saved: true });
@@ -109,9 +116,9 @@ class Credentials extends React.Component {
 
     renderMenu = () => {
         const { projectSettings } = this.props;
-        const menuItemElements = ENVIRONMENT_OPTIONS.map((environment, i) => {
+        const menuItemElements = ENVIRONMENT_OPTIONS.map((environment) => {
             if (!projectSettings.deploymentEnvironments) {
-                return this.renderMenuItem('development' + i);
+                return [this.renderMenuItem('development'), ...menuItemElements];
             }
             if (projectSettings.deploymentEnvironments.includes(environment)) {
                 return this.renderMenuItem(environment);
@@ -160,9 +167,14 @@ const CredentialsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('credentials', projectId);
     const handlerproj = Meteor.subscribe('projects', projectId);
     const credentials = {};
-    ENVIRONMENT_OPTIONS.forEach((environment) => {
-        credentials[environment] = CredentialsCollection.findOne({ projectId, environment });
-    });
+    CredentialsCollection.find({ projectId })
+        .fetch()
+        .filter(credential => (
+            credential.environment === undefined || ENVIRONMENT_OPTIONS.includes(credential.environment)
+        ))
+        .forEach((credential) => {
+            credentials[credential.environment ? credential.environment : 'development'] = credential;
+        });
     const projectSettings = ProjectsCollection.findOne(
         { _id: projectId },
         {
