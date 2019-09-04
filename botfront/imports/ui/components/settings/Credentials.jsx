@@ -116,10 +116,10 @@ class Credentials extends React.Component {
 
     renderMenu = () => {
         const { projectSettings } = this.props;
+        if (!projectSettings.deploymentEnvironments) {
+            return [this.renderMenuItem('development')];
+        }
         const menuItemElements = ENVIRONMENT_OPTIONS.map((environment) => {
-            if (!projectSettings.deploymentEnvironments) {
-                return [this.renderMenuItem('development'), ...menuItemElements];
-            }
             if (projectSettings.deploymentEnvironments.includes(environment)) {
                 return this.renderMenuItem(environment);
             }
