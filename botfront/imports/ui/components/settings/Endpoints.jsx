@@ -108,6 +108,9 @@ class Endpoints extends React.Component {
 
     renderMenu = () => {
         const { projectSettings } = this.props;
+        if (!projectSettings.deploymentEnvironments) {
+            return [this.renderMenuItem('development')];
+        }
         const menuItemElements = ENVIRONMENT_OPTIONS.map((environment) => {
             if (projectSettings.deploymentEnvironments.includes(environment)) {
                 return this.renderMenuItem(environment);
@@ -120,6 +123,7 @@ class Endpoints extends React.Component {
     renderContents = () => {
         const { endpoints, projectId } = this.props;
         const { selectedEnvironment, saving } = this.state;
+        console.log(endpoints);
         return this.renderEndpoints(saving, endpoints[selectedEnvironment], projectId);
     }
 
@@ -157,9 +161,11 @@ Endpoints.defaultProps = {
 const EndpointsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('endpoints', projectId);
     const endpoints = {};
+    endpoints.development = EndpointsCollection.findOne({ projectId });
     ENVIRONMENT_OPTIONS.forEach((environment) => {
         endpoints[environment] = EndpointsCollection.findOne({ projectId, environment });
     });
+
     const projectSettings = ProjectsCollection.findOne(
         { _id: projectId },
         {
