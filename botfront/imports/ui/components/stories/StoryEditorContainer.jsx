@@ -17,6 +17,18 @@ import BranchTabLabel from './BranchTabLabel';
 import StoryTopMenu from './StoryTopMenu';
 import StoryFooter from './StoryFooter';
 
+function getDefaultPath(story) {
+    const newPath = [story._id];
+    let newLevel = story.branches.length;
+    let branches = [...story.branches];
+    while (newLevel) {
+        newPath.push(branches[0]._id);
+        newLevel = branches[0].branches.length;
+        branches = [...branches[0].branches];
+    }
+    return newPath;
+}
+
 const StoryEditorContainer = ({
     story,
     disabled,
@@ -37,10 +49,6 @@ const StoryEditorContainer = ({
     // set to null when we don't want to go anywhere
     const [nextBranchPath, setNextBranchPath] = useState(null);
 
-    function resetStoryPath() {
-        changeStoryPath(story._id, [story._id]);
-    }
-
     const saveStory = (path, content) => {
         onSaving();
         Meteor.call(
@@ -58,6 +66,28 @@ const StoryEditorContainer = ({
             content => saveStory([story._id], { story: content }),
         ),
     });
+
+    // This is to make sure that all opened branches have corresponding storyController objects
+    // attached to them.
+    useEffect(() => {
+        const newStoryControllers = {};
+        branchPath.forEach((_, index) => {
+            const currentPath = branchPath.slice(0, index + 1);
+            if (!storyControllers[currentPath.join()]) {
+                const newStory = traverseStory(story, branchPath.slice(0, index + 1));
+                newStoryControllers[currentPath.join()] = new StoryController(
+                    newStory.story || '',
+                    slots,
+                    () => {},
+                    content => saveStory(currentPath, { story: content }),
+                );
+            }
+        });
+        setStoryControllers({
+            ...storyControllers,
+            ...newStoryControllers,
+        });
+    }, [branchPath]);
 
     const renderTopMenu = () => (
         <StoryTopMenu
@@ -186,7 +216,7 @@ const StoryEditorContainer = ({
         try {
             branches = getSubBranchesForPath(story, pathToRender);
         } catch (e) {
-            resetStoryPath();
+            changeStoryPath(story._id, getDefaultPath(story));
         }
         return (
             <Segment attached className='single-story-container'>
@@ -290,7 +320,10 @@ StoryEditorContainer.defaultProps = {
 
 const mapStateToProps = (state, ownProps) => ({
     branchPath: state
-        .getIn(['savedStoryPaths', ownProps.story._id], List([ownProps.story._id]))
+        .getIn(
+            ['savedStoryPaths', ownProps.story._id],
+            List(getDefaultPath(ownProps.story)),
+        )
         .toJS(),
 });
 
