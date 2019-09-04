@@ -116,7 +116,6 @@ export const extractDomain = (stories, slots) => {
         slots: {
             latest_response_name: { type: 'unfeaturized' },
             followup_response_name: { type: 'unfeaturized' },
-            parse_data: { type: 'unfeaturized' },
             disambiguation_message: { type: 'unfeaturized' },
         },
     };
@@ -159,7 +158,6 @@ export const getStoriesAndDomain = (projectId) => {
     const extraDomain = `* deny_suggestions\n\
  - action_botfront_disambiguation\n\
  - action_botfront_disambiguation_followup\n\
- - action_botfront_disambiguation_denial\n\
  - action_botfront_fallback\n\
 ${mappingTriggers.length
         ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`

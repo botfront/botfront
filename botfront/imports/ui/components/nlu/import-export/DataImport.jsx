@@ -12,7 +12,7 @@ import Dropzone from 'react-dropzone';
 import Alert from 'react-s-alert';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
-import { getTrainingDataInRasaFormat } from '../../../../lib/nlu_methods';
+import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.methods';
 import { wrapMeteorCallback } from '../../utils/Errors';
 
 export default class DataImport extends React.Component {
@@ -55,7 +55,7 @@ export default class DataImport extends React.Component {
                         this.setState({ values: null });
                     }
                 } else {
-                    Meteor.call('nlu.convertToJson', reader.result, model.language, 'json', instanceHost, (err, result) => {
+                    Meteor.call('rasa.convertToJson', reader.result, model.language, 'json', instanceHost, (err, result) => {
                         if (err) {
                             this.errorAlert('Error: invalid schema');
                         } else {
