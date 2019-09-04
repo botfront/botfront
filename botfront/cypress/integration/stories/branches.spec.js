@@ -25,12 +25,15 @@ describe('branches', function() {
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
         cy.dataCy('branch-label').should('have.lengthOf', 2);
-        cy.dataCy('create-branch')
-            .find('i')
-            .should('have.class', 'disabled');
         cy.dataCy('branch-label')
             .first()
             .click({ force: true });
+        cy.dataCy('create-branch').click({ force: true });
+        cy.contains('New Branch 2').first().click({ force: true });
+        cy.contains('New Branch 1').click({ force: true });
+        cy.dataCy('create-branch')
+            .find('i')
+            .should('have.class', 'disabled');
         cy.contains('xxx').should('exist');
     });
 

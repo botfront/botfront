@@ -16,7 +16,7 @@ Meteor.methods({
         check(story, Object);
         const { _id, path, ...rest } = story;
         if (!path) {
-            return Stories.update({ _id, ...rest });
+            return Stories.update({ _id }, { $set: { ...rest } });
         }
         const { indices } = traverseStory(Stories.findOne({ _id: story._id }), path);
         const update = indices.length
