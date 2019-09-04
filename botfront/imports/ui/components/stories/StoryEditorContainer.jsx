@@ -101,31 +101,34 @@ const StoryEditorContainer = ({
         />
     );
 
-    const renderAceEditor = path => (
-        <AceEditor
-            readOnly={disabled}
-            // onLoad={setEditor}
-            theme='github'
-            width='100%'
-            name='story'
-            mode='text'
-            minLines={5}
-            maxLines={Infinity}
-            fontSize={12}
-            onChange={newStory => storyControllers[path].setMd(newStory)}
-            value={storyControllers[path] ? storyControllers[path].md : ''}
-            showPrintMargin={false}
-            showGutter
-            // annotations={annotations}
-            editorProps={{
-                $blockScrolling: Infinity,
-            }}
-            setOptions={{
-                tabSize: 2,
-                useWorker: false, // the worker has a bug which removes annotations
-            }}
-        />
-    );
+    const renderAceEditor = (path) => {
+        const pathAsString = path.join();
+        return (
+            <AceEditor
+                readOnly={disabled}
+                // onLoad={setEditor}
+                theme='github'
+                width='100%'
+                name='story'
+                mode='text'
+                minLines={5}
+                maxLines={Infinity}
+                fontSize={12}
+                onChange={newStory => storyControllers[pathAsString].setMd(newStory)}
+                value={storyControllers[pathAsString] ? storyControllers[pathAsString].md : ''}
+                showPrintMargin={false}
+                showGutter
+                // annotations={annotations}
+                editorProps={{
+                    $blockScrolling: Infinity,
+                }}
+                setOptions={{
+                    tabSize: 2,
+                    useWorker: false, // the worker has a bug which removes annotations
+                }}
+            />
+        );
+    };
 
     const getNewBranchName = (branches, offset = 0) => {
         const branchNums = branches.map((branch) => {
