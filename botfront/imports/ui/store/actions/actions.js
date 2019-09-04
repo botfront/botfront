@@ -47,3 +47,11 @@ export function setStoryGroup(groupIndex) {
         groupIndex,
     };
 }
+
+export function setStoryPath(storyId, path) {
+    return {
+        type: types.SET_STORY_PATH,
+        storyId,
+        path,
+    };
+}
