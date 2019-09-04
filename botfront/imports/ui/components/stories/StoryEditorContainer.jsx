@@ -202,7 +202,7 @@ const StoryEditorContainer = ({
         setNextBranchPath(
             newLevel
                 ? [...branchPath, newBranches[0]._id]
-                : [...branchPath.slice(0, branchPath.length - 1), newBranches[0]._id],
+                : [...path, newBranches[0]._id],
         );
         saveStory(path, { branches: [...branches, ...newBranches] });
     };
