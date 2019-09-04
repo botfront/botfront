@@ -1,22 +1,5 @@
 /* eslint-disable no-undef */
 
-const storyGroupOne = 'storyGroupOne';
-
-function clickStoryGroup(group) {
-    const positions = [
-        'topLeft',
-        'top',
-        'topRight',
-        'left',
-        'center',
-        'right',
-        'bottomLeft',
-        'bottom',
-        'bottomRight',
-    ];
-    positions.map(p => cy.contains(group).click(p, { force: true }));
-}
-
 describe('branches', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
@@ -28,11 +11,7 @@ describe('branches', function() {
 
     it('should be able to add a branch, edit the content and it should be saved', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type(`${storyGroupOne}{enter}`);
-        clickStoryGroup(storyGroupOne);
+        cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('story-editor')
@@ -44,16 +23,23 @@ describe('branches', function() {
             .focus()
             .type('xxx', { force: true });
         cy.visit('/project/bf/stories');
-        clickStoryGroup(storyGroupOne);
+        cy.get('[data-cy=open-chat]').click();
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label')
             .first()
             .click({ force: true });
+        cy.dataCy('create-branch').click({ force: true });
+        cy.contains('New Branch 2').first().click({ force: true });
+        cy.contains('New Branch 1').click({ force: true });
+        cy.dataCy('create-branch')
+            .find('i')
+            .should('have.class', 'disabled');
         cy.contains('xxx').should('exist');
     });
 
     it('should be able to be create a third branch, and delete branches', function() {
         cy.visit('/project/bf/stories');
+        cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
 
         // create a third branch
@@ -92,5 +78,24 @@ describe('branches', function() {
             .dataCy('confirm-yes')
             .click({ force: true });
         cy.dataCy('branch-label').should('not.exist', 2);
+        cy.dataCy('create-branch')
+            .find('i')
+            .should('not.have.class', 'disabled');
+    });
+
+    it('should be able to persist the opened branches across the app', function() {
+        cy.visit('/project/bf/stories');
+        cy.get('[data-cy=open-chat]').click();
+        cy.dataCy('create-branch').click({ force: true });
+
+        // create a third branch
+        cy.dataCy('add-branch').click({ force: true });
+        cy.dataCy('branch-label').should('have.lengthOf', 3);
+        cy.contains('NLU').click({ force: true });
+        cy.contains('Stories').click({ force: true });
+        cy.dataCy('branch-label').should('have.lengthOf', 3);
+        cy.dataCy('branch-label')
+            .eq(2)
+            .should('have.class', 'active');
     });
 });

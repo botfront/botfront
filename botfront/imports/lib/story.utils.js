@@ -6,7 +6,6 @@ import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { CorePolicies } from '../api/core_policies';
 
 export const traverseStory = (story, path) => path
-    .split('__')
     .slice(1)
     // gets branches but also indices, useful for setting later
     .reduce(
@@ -22,15 +21,11 @@ export const traverseStory = (story, path) => path
                     // Indices are the path in numeric form, for instance, the second branch into the first branch
                     // would hae the indices looking like [0, 1], so first branch then second branch.
                     indices: [...accumulateur.indices, index],
-                    path: `${accumulateur.path}__${ // the path as a double__underscore-separated string of IDs
-                        accumulateur.branches[index]._id
-                    }`,
-                    pathTitle: `${accumulateur.pathTitle}__${ // the path as a double__underscore-separated string of titles
-                        accumulateur.branches[index].title
-                    }`,
+                    path: [...accumulateur.path, accumulateur.branches[index]._id],
+                    pathTitle: [...accumulateur.pathTitle, accumulateur.branches[index].title],
                 };
             } catch (e) {
-                throw new Error(`Could not access ${accumulateur.path}__${value}`);
+                throw new Error(`Could not access ${accumulateur.path.join()},${value}`);
             }
         },
         {
@@ -38,10 +33,38 @@ export const traverseStory = (story, path) => path
             story,
             title: story.title,
             indices: [],
-            path: story._id,
-            pathTitle: story.title,
+            path: [story._id],
+            pathTitle: [story.title],
         },
     );
+
+export function getSubBranchesForPath(story, path) {
+    if (!path.length) {
+        throw new Error('path should be at least of length 1');
+    } else if (path.length === 1) {
+        return story.branches;
+    } else {
+        const deepPath = [...path].slice(1, path.length);
+        let deepStory = { ...story };
+        let branches = [...deepStory.branches];
+        try {
+            deepPath.forEach((id) => {
+                let found = false;
+                branches.forEach((branch) => {
+                    if (branch._id === id) {
+                        found = true;
+                        deepStory = { ...branch };
+                        branches = [...deepStory.branches];
+                    }
+                });
+                if (!found) throw new Error();
+            });
+            return branches;
+        } catch (e) {
+            throw new Error('the story did not match the given path');
+        }
+    }
+}
 
 export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
     /*  this adds trailing and leading checkpoints to a story with a branch structure of arbitrary shape.
