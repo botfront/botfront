@@ -86,6 +86,7 @@ class Browser extends React.Component {
 
     render() {
         const {
+            children,
             data,
             index: indexProp,
             pageSize,
@@ -105,7 +106,7 @@ class Browser extends React.Component {
             <Menu.Item
                 key={index.toString()}
                 name={item[nameAccessor]}
-                className={indexProp === index ? 'selected-blue blur' : ''}
+                className={indexProp === index ? 'selected-blue' : ''}
                 active={indexProp === index}
                 onClick={() => this.handleClickMenuItem(index)}
                 link={indexProp !== index}
@@ -179,6 +180,7 @@ class Browser extends React.Component {
                             data-cy='add-item-input'
                         />
                     ))}
+                {children}
                 {data.length > 0 && (
                     <Menu vertical fluid>
                         {items}
@@ -203,6 +205,7 @@ Browser.propTypes = {
     changeName: PropTypes.func,
     allowEdit: PropTypes.bool,
     placeholderAddItem: PropTypes.string,
+    children: PropTypes.element,
 };
 
 Browser.defaultProps = {
@@ -218,6 +221,7 @@ Browser.defaultProps = {
     selectAccessor: '',
     allowEdit: false,
     placeholderAddItem: '',
+    children: <></>,
 };
 
 export default Browser;

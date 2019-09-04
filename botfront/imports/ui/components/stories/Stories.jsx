@@ -1,5 +1,5 @@
 import {
-    Grid, Message, Menu, Icon, Button,
+    Grid, Message, Icon, Button,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -7,6 +7,8 @@ import React from 'react';
 
 import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { wrapMeteorCallback } from '../utils/Errors';
+
+import IntroStorySubMenu from './IntroStorySubMenu';
 import ItemsBrowser from '../common/Browser';
 import StoriesEditor from './StoriesEditor';
 import { can } from '../../../lib/scopes';
@@ -229,7 +231,7 @@ class Stories extends React.Component {
             )
         );
     };
-
+    
     render() {
         const {
             storyGroups, projectId, changeStoryMode, storyMode,
@@ -255,84 +257,6 @@ class Stories extends React.Component {
             <Grid className='stories-container'>
                 <Grid.Row columns={2}>
                     <Grid.Column width={4}>
-                        <Menu
-                            vertical
-                            fluid
-                            onClick={this.handleIntroStoryClick}
-                            className={`intro-story ${
-                                storySelected === -1 ? 'selected-intro-story' : ''
-                            }`}
-                        >
-                            <Menu.Item
-                                active={storySelected === -1}
-                                link
-                                data-cy='intro-story-group'
-                            >
-                                <Icon
-                                    id={`${
-                                        introStory && introStory.selected
-                                            ? 'selected'
-                                            : 'not-selected'
-                                    }`}
-                                    name='eye'
-                                    onClick={e => this.handleIntroClick(e, introStory)}
-                                />
-                                <span>Intro stories</span>
-                            </Menu.Item>
-                        </Menu>
-                    </Grid.Column>
-                    <Grid.Column width={12} className='story-name-parent'>
-                        <div className='stories-toggles'>
-                            {storySelected !== -1 ? (
-                                <Message info size='small'>
-                                    Create detailed use case scenarios for your bot using
-                                    multiple stories.
-                                </Message>
-                            ) : (
-                                <Message info size='small'>
-                                    The Intro stories group contains the initial messages
-                                    that would be sent to users when they start chatting
-                                    with your bot.
-                                </Message>
-                            )}
-                            <Button.Group>
-                                <Button
-                                    className={
-                                        storyMode === 'markdown'
-                                            ? ''
-                                            : 'not-selected-editor'
-                                    }
-                                    data-cy='toggle-md'
-                                    icon
-                                    basic
-                                    onClick={() => {
-                                        changeStoryMode('markdown');
-                                    }}
-                                >
-                                    <Icon name='code' />
-                                </Button>
-                                <Button
-                                    className={
-                                        storyMode === 'visual'
-                                            ? ''
-                                            : 'not-selected-editor'
-                                    }
-                                    icon
-                                    data-cy='toggle-visual'
-                                    basic
-                                    onClick={() => {
-                                        changeStoryMode('visual');
-                                    }}
-                                >
-                                    <Icon name='commenting' />
-                                </Button>
-                            </Button.Group>
-                        </div>
-                    </Grid.Column>
-                </Grid.Row>
-
-                <Grid.Row columns={2}>
-                    <Grid.Column width={4}>
                         {validationErrors && (
                             <Message
                                 negative
@@ -354,11 +278,68 @@ class Stories extends React.Component {
                                 toggleSelect={this.handleStoryGroupSelect}
                                 changeName={this.handleNameChange}
                                 placeholderAddItem='Choose a group name'
-                            />
+                            >
+                                <IntroStorySubMenu
+                                    introStory={introStory}
+                                    introClick={this.handleIntroClick}
+                                    introStoryClick={this.handleIntroStoryClick}
+                                    isSelected={storySelected === -1}
+                                />
+                            </ItemsBrowser>
                         )}
                     </Grid.Column>
 
                     <Grid.Column width={12}>
+                        <Grid.Row>
+                            <Grid.Column width={12} className='story-name-parent'>
+                                <div className='stories-toggles'>
+                                    {storySelected !== -1 ? (
+                                        <Message info size='small'>
+                                            Create detailed use case scenarios for your bot using
+                                            multiple stories.
+                                        </Message>
+                                    ) : (
+                                        <Message info size='small'>
+                                            The Intro stories group contains the initial messages
+                                            that would be sent to users when they start chatting
+                                            with your bot.
+                                        </Message>
+                                    )}
+                                    <Button.Group>
+                                        <Button
+                                            className={
+                                                storyMode === 'markdown'
+                                                    ? ''
+                                                    : 'not-selected-editor'
+                                            }
+                                            data-cy='toggle-md'
+                                            icon
+                                            basic
+                                            onClick={() => {
+                                                changeStoryMode('markdown');
+                                            }}
+                                        >
+                                            <Icon name='code' />
+                                        </Button>
+                                        <Button
+                                            className={
+                                                storyMode === 'visual'
+                                                    ? ''
+                                                    : 'not-selected-editor'
+                                            }
+                                            icon
+                                            data-cy='toggle-visual'
+                                            basic
+                                            onClick={() => {
+                                                changeStoryMode('visual');
+                                            }}
+                                        >
+                                            <Icon name='commenting' />
+                                        </Button>
+                                    </Button.Group>
+                                </div>
+                            </Grid.Column>
+                        </Grid.Row>
                         {this.renderStoryEditor(
                             storyGroupFiltered,
                             introStory,

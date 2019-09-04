@@ -1,5 +1,3 @@
-import { safeDump as yamlDump } from 'js-yaml';
-
 class StoryException {
     constructor(type, message, line, code) {
         this.type = type;
@@ -333,66 +331,6 @@ export class StoryController {
         }
         return this.domain;
     };
-
-    extractDialogAct = () => {
-        const initRegex = /^\* *(.*)/;
-        const initPayload = initRegex.exec(this.lines[0])[1];
-        this.payloads = initPayload.split(' OR ').map(disj => disj.trim());
-        this.response = null;
-        this.form = null;
-        const payloadRegex = /([^{]*) *({.*}|)/;
-        const output = [];
-        try {
-            this.payloads.forEach((stringPayload) => {
-                const matches = payloadRegex.exec(stringPayload);
-                const intent = matches[1];
-                let entities = matches[2];
-                const objectPayload = {
-                    intent,
-                    entities: [],
-                };
-                if (entities && entities !== '') {
-                    const parsed = JSON.parse(entities);
-                    entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
-                } else {
-                    entities = [];
-                }
-                objectPayload.entities = entities;
-                output.push({ objectPayload, stringPayload: `/${stringPayload}` });
-            });
-        } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log(e);
-        }
-        return output;
-    };
-}
-function addSlots(slots) {
-    const slotsToAdd = {};
-    if (!slots) return {};
-    slots.forEach((slot) => {
-        const options = {};
-        const { type } = slot;
-        if (type === 'float') {
-            if (slot.minValue) {
-                options.minValue = slot.minValue;
-            }
-            if (slot.maxValue) {
-                options.maxValue = slot.maxValue;
-            }
-        }
-        if (slot.initialValue) {
-            options.initial_value = slot.initialValue;
-        }
-        if (type === 'categorical' && slot.categories) {
-            options.values = slot.categories;
-        }
-        slotsToAdd[slot.name] = {
-            type: slot.type,
-            ...options,
-        };
-    });
-    return slotsToAdd;
 }
 
 export const stringPayloadToObject = function(stringPayload) {
@@ -418,54 +356,4 @@ export const objectPayloadToString = function({ intent, entities }) {
     const entitiesMap = entities ? entities.reduce((map, obj) => (map[obj.entity] = obj.value, map), {}) : {};
     const entitiesString = Object.keys(entitiesMap).length > 0 ? JSON.stringify(entitiesMap) : '';
     return `/${intent}${entitiesString}`;
-};
-
-export const extractDomain = (stories, slots) => {
-    const defaultDomain = {
-        actions: new Set(['utter_fallback', 'utter_default']),
-        intents: new Set(),
-        entities: new Set(),
-        forms: new Set(),
-        templates: {
-            utter_default: '',
-            utter_fallback: '',
-        },
-        slots: {
-            latest_response_name: { type: 'unfeaturized' },
-            followup_response_name: { type: 'unfeaturized' },
-            parse_data: { type: 'unfeaturized' },
-            ...addSlots(slots),
-        },
-    };
-    let domains = stories.map((story) => {
-        const val = new StoryController(story, slots);
-        val.validateStory();
-        try {
-            return val.extractDomain();
-        } catch (e) {
-            return {
-                entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
-            };
-        }
-    });
-    domains = domains.reduce(
-        (d1, d2) => ({
-            entities: new Set([...d1.entities, ...d2.entities]),
-            intents: new Set([...d1.intents, ...d2.intents]),
-            actions: new Set([...d1.actions, ...d2.actions]),
-            forms: new Set([...d1.forms, ...d2.forms]),
-            templates: { ...d1.templates, ...d2.templates },
-            slots: { ...d1.slots, ...d2.slots },
-        }),
-        defaultDomain,
-    );
-    domains = yamlDump({
-        entities: Array.from(domains.entities),
-        intents: Array.from(domains.intents),
-        actions: Array.from(domains.actions),
-        forms: Array.from(domains.forms),
-        templates: domains.templates,
-        slots: domains.slots,
-    });
-    return domains;
 };

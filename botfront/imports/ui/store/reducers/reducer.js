@@ -1,4 +1,4 @@
-import { Map } from 'immutable';
+import { Map, List } from 'immutable';
 import * as types from '../actions/types';
 
 /* eslint-disable indent */
@@ -11,6 +11,7 @@ const initialState = Map({
     workingLanguage: 'en',
     storyMode: 'visual',
     storyGroupCurrent: -1,
+    savedStoryPaths: Map(),
 });
 
 export default function reducer(state = initialState, action) {
@@ -32,6 +33,8 @@ export default function reducer(state = initialState, action) {
             return state.set('storyGroupCurrent', action.groupIndex);
         case types.SET_STORY_MODE:
             return state.set('storyMode', action.mode);
+        case types.SET_STORY_PATH:
+            return state.setIn(['savedStoryPaths', action.storyId], List(action.path));
         default:
             return state;
     }

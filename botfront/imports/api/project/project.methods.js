@@ -17,8 +17,7 @@ import { createIntroStoryGroup, createDefaultStoryGroup } from '../storyGroups/s
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
-import { extractDomain } from '../../lib/story_controller';
-import { flattenStory } from '../../lib/story.utils';
+import { flattenStory, extractDomain } from '../../lib/story.utils';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots));

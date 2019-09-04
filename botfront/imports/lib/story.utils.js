@@ -1,12 +1,11 @@
 import yaml from 'js-yaml';
-import { extractDomain } from './story_controller';
+import { StoryController } from './story_controller';
 import { Stories } from '../api/story/stories.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { CorePolicies } from '../api/core_policies';
 
 export const traverseStory = (story, path) => path
-    .split('__')
     .slice(1)
     // gets branches but also indices, useful for setting later
     .reduce(
@@ -22,15 +21,11 @@ export const traverseStory = (story, path) => path
                     // Indices are the path in numeric form, for instance, the second branch into the first branch
                     // would hae the indices looking like [0, 1], so first branch then second branch.
                     indices: [...accumulateur.indices, index],
-                    path: `${accumulateur.path}__${ // the path as a double__underscore-separated string of IDs
-                        accumulateur.branches[index]._id
-                    }`,
-                    pathTitle: `${accumulateur.pathTitle}__${ // the path as a double__underscore-separated string of titles
-                        accumulateur.branches[index].title
-                    }`,
+                    path: [...accumulateur.path, accumulateur.branches[index]._id],
+                    pathTitle: [...accumulateur.pathTitle, accumulateur.branches[index].title],
                 };
             } catch (e) {
-                throw new Error(`Could not access ${accumulateur.path}__${value}`);
+                throw new Error(`Could not access ${accumulateur.path.join()},${value}`);
             }
         },
         {
@@ -38,10 +33,38 @@ export const traverseStory = (story, path) => path
             story,
             title: story.title,
             indices: [],
-            path: story._id,
-            pathTitle: story.title,
+            path: [story._id],
+            pathTitle: [story.title],
         },
     );
+
+export function getSubBranchesForPath(story, path) {
+    if (!path.length) {
+        throw new Error('path should be at least of length 1');
+    } else if (path.length === 1) {
+        return story.branches;
+    } else {
+        const deepPath = [...path].slice(1, path.length);
+        let deepStory = { ...story };
+        let branches = [...deepStory.branches];
+        try {
+            deepPath.forEach((id) => {
+                let found = false;
+                branches.forEach((branch) => {
+                    if (branch._id === id) {
+                        found = true;
+                        deepStory = { ...branch };
+                        branches = [...deepStory.branches];
+                    }
+                });
+                if (!found) throw new Error();
+            });
+            return branches;
+        } catch (e) {
+            throw new Error('the story did not match the given path');
+        }
+    }
+}
 
 export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
     /*  this adds trailing and leading checkpoints to a story with a branch structure of arbitrary shape.
@@ -74,23 +97,74 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
     [...acc, ...flattenStory(val)]
 ), [{ story: (story.story || ''), title: story.title }]);
 
-const getMappingStory = (policies) => {
-    const mappingTriggers = policies
-        .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
-        .map(policy => policy.triggers.map((trigger) => {
-            if (!trigger.extra_actions) return [trigger.action];
-            return [...trigger.extra_actions, trigger.action];
-        }))
-        .reduce((coll, curr) => coll.concat(curr), [])
-        .reduce((coll, curr) => coll.concat(curr), []);
-    return mappingTriggers.length
-        ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
-        : '';
+const getMappingTriggers = policies => policies
+    .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
+    .map(policy => policy.triggers.map((trigger) => {
+        if (!trigger.extra_actions) return [trigger.action];
+        return [...trigger.extra_actions, trigger.action];
+    }))
+    .reduce((coll, curr) => coll.concat(curr), [])
+    .reduce((coll, curr) => coll.concat(curr), []);
+
+export const extractDomain = (stories, slots) => {
+    const defaultDomain = {
+        actions: new Set(),
+        intents: new Set(),
+        entities: new Set(),
+        forms: new Set(),
+        templates: new Set(),
+        slots: {
+            latest_response_name: { type: 'unfeaturized' },
+            followup_response_name: { type: 'unfeaturized' },
+            parse_data: { type: 'unfeaturized' },
+            disambiguation_message: { type: 'unfeaturized' },
+        },
+    };
+    let domains = stories.map((story) => {
+        const val = new StoryController(story, slots);
+        val.validateStory();
+        try {
+            return val.extractDomain();
+        } catch (e) {
+            return {
+                entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
+            };
+        }
+    });
+    domains = domains.reduce(
+        (d1, d2) => ({
+            entities: new Set([...d1.entities, ...d2.entities]),
+            intents: new Set([...d1.intents, ...d2.intents]),
+            actions: new Set([...d1.actions, ...d2.actions]),
+            forms: new Set([...d1.forms, ...d2.forms]),
+            templates: { ...d1.templates, ...d2.templates },
+            slots: { ...d1.slots, ...d2.slots },
+        }),
+        defaultDomain,
+    );
+    domains = yaml.safeDump({
+        entities: Array.from(domains.entities),
+        intents: Array.from(domains.intents),
+        actions: Array.from(domains.actions),
+        forms: Array.from(domains.forms),
+        templates: domains.templates,
+        slots: domains.slots,
+    });
+    return domains;
 };
 
 export const getStoriesAndDomain = (projectId) => {
     const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
-    const mappingStory = getMappingStory(policies);
+    const mappingTriggers = getMappingTriggers(policies);
+    const extraDomain = `* deny_suggestions\n\
+ - action_botfront_disambiguation\n\
+ - action_botfront_disambiguation_followup\n\
+ - action_botfront_disambiguation_denial\n\
+ - action_botfront_fallback\n\
+${mappingTriggers.length
+        ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
+        : ''
+}`;
 
     const selectedStoryGroupsIds = StoryGroups.find(
         { projectId, selected: true },
@@ -106,14 +180,11 @@ export const getStoriesAndDomain = (projectId) => {
 
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-        .map(story => story.story);
+        .map(story => story.story)
+        .concat([extraDomain]);
     const storiesForRasa = stories
         .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
-
-    if (mappingStory.length) {
-        storiesForDomain.push(mappingStory); storiesForRasa.push(`## mapping_story\n${mappingStory}`);
-    }
 
     const slots = Slots.find({ projectId }).fetch();
     return {
