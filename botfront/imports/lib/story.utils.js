@@ -109,11 +109,11 @@ const getMappingTriggers = policies => policies
 
 export const extractDomain = (stories, slots, templates = null) => {
     const defaultDomain = {
-        actions: new Set(),
+        actions: new Set(Object.keys(templates)),
         intents: new Set(),
         entities: new Set(),
         forms: new Set(),
-        templates: {},
+        templates,
         slots: { disambiguation_message: { type: 'unfeaturized' } },
     };
     let domains = stories.map((story) => {
