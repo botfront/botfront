@@ -228,14 +228,11 @@ if (Meteor.isServer) {
                 }
 
                 if (trainingResponse.status === 200) {
-                    if (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose') {
-                        await client.put('/model', { model_file: trainedModelPath });
-                    }
-
+                    await client.put('/model', { model_file: trainedModelPath });
                     if (process.env.ORCHESTRATOR === 'gke') {
                         const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } });
                         const { deployment: { config: { gcp_models_bucket = null } = {} } = {} } = deployment;
-                        
+
                         if (gcp_models_bucket) {
                             await uploadFileToGcs(trainedModelPath, gcp_models_bucket);
                             // await client.put('/model', { remote_storage: 'gcs' });
