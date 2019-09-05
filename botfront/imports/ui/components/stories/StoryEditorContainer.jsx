@@ -18,6 +18,7 @@ import StoryTopMenu from './StoryTopMenu';
 import StoryFooter from './StoryFooter';
 
 function getDefaultPath(story) {
+    if (!story.branches) return [story._id];
     const newPath = [story._id];
     let newLevel = story.branches.length;
     let branches = [...story.branches];
