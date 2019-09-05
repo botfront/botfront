@@ -93,7 +93,7 @@ MultilingualTemplateField.propTypes = {
 };
 
 const mapStateToProps = state => ({
-    workingLanguage: state.get('workingLanguage'),
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 const mapDispatchToProps = {

@@ -213,7 +213,7 @@ const ProjectContainer = withTracker((props) => {
     }
 
     // update store if new projectId
-    if (store.getState().get('projectId') !== projectId) {
+    if (store.getState().settings.get('projectId') !== projectId) {
         store.dispatch(setProjectId(projectId));
     }
     
