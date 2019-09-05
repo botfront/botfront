@@ -99,7 +99,7 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
 
 const getMappingTriggers = policies => policies
     .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
-    .map(policy => policy.triggers.map((trigger) => {
+    .map(policy => (policy.triggers || []).map((trigger) => {
         if (!trigger.extra_actions) return [trigger.action];
         return [...trigger.extra_actions, trigger.action];
     }))
