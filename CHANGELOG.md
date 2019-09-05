@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.5-ee.13](https://github.com/botfront/botfront/compare/v0.15.5-ee.12...v0.15.5-ee.13) (2019-09-05)
+
+
+### Bug Fixes
+
+* bug on stories without branches in db ([06beece](https://github.com/botfront/botfront/commit/06beece))
+
+
+
 ### [0.15.5-ee.12](https://github.com/botfront/botfront/compare/v0.15.5-ee.11...v0.15.5-ee.12) (2019-09-04)
 
 
