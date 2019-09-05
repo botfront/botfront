@@ -230,7 +230,11 @@ const StoryEditorContainer = ({
         }
         if (collapsed) return null;
         return (
-            <Segment attached className='single-story-container'>
+            <Segment
+                attached
+                className='single-story-container'
+                data-cy='single-story-editor'
+            >
                 {editorType !== 'visual' ? renderAceEditor(pathToRender) : null}
                 {branches.length > 0 && (
                     <Menu pointing secondary data-cy='branch-menu'>

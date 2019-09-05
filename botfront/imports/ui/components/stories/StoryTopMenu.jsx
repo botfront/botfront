@@ -63,6 +63,7 @@ const StoryTopMenu = ({
                     onClick={() => {
                         collapseStory(storyId, !collapsed);
                     }}
+                    data-cy='collapse-story-button'
                 />
                 <span className='story-title-prefix'>##</span>
                 <input
