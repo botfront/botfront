@@ -42,7 +42,7 @@ export function getSubBranchesForPath(story, path) {
     if (!path.length) {
         throw new Error('path should be at least of length 1');
     } else if (path.length === 1) {
-        return story.branches;
+        return story.branches || [];
     } else {
         const deepPath = [...path].slice(1, path.length);
         let deepStory = { ...story };
