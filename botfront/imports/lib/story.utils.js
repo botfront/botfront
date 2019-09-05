@@ -113,11 +113,7 @@ export const extractDomain = (stories, slots) => {
         entities: new Set(),
         forms: new Set(),
         templates: new Set(),
-        slots: {
-            latest_response_name: { type: 'unfeaturized' },
-            followup_response_name: { type: 'unfeaturized' },
-            disambiguation_message: { type: 'unfeaturized' },
-        },
+        slots: { disambiguation_message: { type: 'unfeaturized' } },
     };
     let domains = stories.map((story) => {
         const val = new StoryController(story, slots);
@@ -155,14 +151,9 @@ export const extractDomain = (stories, slots) => {
 export const getStoriesAndDomain = (projectId) => {
     const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
     const mappingTriggers = getMappingTriggers(policies);
-    const extraDomain = `* deny_suggestions\n\
- - action_botfront_disambiguation\n\
- - action_botfront_disambiguation_followup\n\
- - action_botfront_fallback\n\
-${mappingTriggers.length
+    const extraDomain = mappingTriggers.length
         ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
-        : ''
-}`;
+        : '';
 
     const selectedStoryGroupsIds = StoryGroups.find(
         { projectId, selected: true },
