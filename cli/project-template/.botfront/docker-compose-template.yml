@@ -43,15 +43,11 @@ services:
       - botfront-api
     volumes:
       - ./models/:/app/models
-    command:
-      - run
-      - --enable-api
-      - --debug
     env_file:
       - .botfront/.env
 
   actions:
-    image: botfront/actions-sdk
+    image: rasa/rasa-sdk:latest
     container_name: botfront-actions
     networks: ["botfront-network"]
     restart: always
@@ -59,6 +55,10 @@ services:
       - "5055:5055"
     volumes:
       - "./actions:/app/actions"
+    command:
+      - start
+      - --actions
+      - actions
     env_file:
       - .botfront/.env
 
