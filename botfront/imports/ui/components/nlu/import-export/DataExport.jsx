@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Dropdown, Icon, Tab } from 'semantic-ui-react';
+import {
+    Button, Checkbox, Dropdown, Icon, Tab,
+} from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
-import { getTrainingDataInRasaFormat } from '../../../../lib/nlu_methods';
+import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.methods';
 
 export default class DataExport extends React.Component {
-
     constructor(props) {
         super(props);
         this.state = this.getInitialState();
@@ -18,17 +19,16 @@ export default class DataExport extends React.Component {
             intents: [],
             synonymsEnabled: true,
             gazetteEnabled: true,
-        }
+        };
     }
 
     downloadModelData = () => {
         const { synonymsEnabled, intents, gazetteEnabled } = this.state;
         const { model } = this.props;
-        const data = JSON.stringify(getTrainingDataInRasaFormat(this.props.model, synonymsEnabled, intents, false, undefined, gazetteEnabled), null, 2);
+        const data = JSON.stringify(getTrainingDataInRasaFormat(model, synonymsEnabled, intents, false, undefined, gazetteEnabled), null, 2);
         const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
         const filename = `${model.name.toLowerCase()}-${moment().toISOString()}.json`;
         saveAs(blob, filename);
-        this.setState({backupDownloaded: true})
     };
 
     toggleIntentSelection = () => {
@@ -55,42 +55,37 @@ export default class DataExport extends React.Component {
     };
 
     render() {
+        const { synonymsEnabled, gazetteEnabled, allIntents } = this.state;
+        const { intents } = this.props;
         return (
             <Tab.Pane>
                 <br /><br />
-                <Checkbox label='Export synonyms' checked={this.state.synonymsEnabled} slider
-                    onChange={this.toggleSynonyms}
-                />
+                <Checkbox label='Export synonyms' checked={synonymsEnabled} slider onChange={this.toggleSynonyms} />
                 <br /><br /><br /><br />
-                <Checkbox label='Export gazettes' checked={this.state.gazetteEnabled} slider
-                    onChange={this.toggleGazetteExport}
-                />
+                <Checkbox label='Export gazettes' checked={gazetteEnabled} slider onChange={this.toggleGazetteExport} />
                 <br /><br /><br /><br />
-                <Checkbox label='Export all intents' checked={this.state.allIntents} slider
-                    onChange={this.toggleIntentSelection}
-                />
-                {!this.state.allIntents &&
-                    (
+                <Checkbox label='Export all intents' checked={allIntents} slider onChange={this.toggleIntentSelection} />
+                {!allIntents
+                    && (
                         <div><br /><br />
                             <Dropdown
                                 placeholder='Select intents to export'
-                                multiple selection
+                                multiple
+                                selection
                                 onChange={this.handleIntentSelectorChange}
-                                options={this.props.intents.map((i) => {
-                                    return {text: i, value: i}
-                                })}
+                                options={intents.map(i => ({ text: i, value: i }))}
                             />
                         </div>
                     )}
                 <br /><br /><br /><br />
-                <Button onClick={this.downloadModelData}><Icon name="download"/>Export Training Data</Button>
+                <Button onClick={this.downloadModelData}><Icon name='download' />Export Training Data</Button>
                 <br />
             </Tab.Pane>
-        )
+        );
     }
 }
 
 DataExport.propTypes = {
     model: PropTypes.object.isRequired,
     intents: PropTypes.array.isRequired,
-}
+};

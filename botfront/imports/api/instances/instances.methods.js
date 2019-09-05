@@ -10,7 +10,6 @@ import path from 'path';
 import {
     getAxiosError, getModelIdsFromProjectId, getProjectModelLocalFolder, getProjectModelFileName,
 } from '../../lib/utils';
-import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { Instances } from './instances.collection';
@@ -54,18 +53,10 @@ const getConfig = (model) => {
     });
 
     config.language = model.language;
-    const apiHost = GlobalSettings.findOne({ _id: 'SETTINGS' }).settings.private.bfApiHost;
-    if (model.logActivity && apiHost) {
-        config.pipeline.push({
-            name: 'rasa_addons.nlu.components.http_logger.HttpLogger',
-            model_id: model._id,
-            url: `${apiHost}/log-utterance`,
-        });
-    }
     return yaml.dump(config);
 };
 
-const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
+export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
     if (!model.training_data) {
         throw Error('Property training_data of model argument is required');
     }
@@ -96,6 +87,11 @@ if (Meteor.isServer) {
         check(instance, Object);
         check(examples, Array);
         check(nolog, Boolean);
+        const models = NLUModels.find(
+            { _id: { $in: getModelIdsFromProjectId(instance.projectId) } },
+            { fields: { _id: 1, language: 1 } },
+        ).fetch();
+
         try {
             const client = axios.create({
                 baseURL: instance.host,
@@ -104,23 +100,32 @@ if (Meteor.isServer) {
             // axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
             const requests = examples.map(({ text, lang }) => {
                 const payload = Object.assign({}, { text, lang });
-                const params = Object.assign({}, { nolog });
+                const params = {};
                 if (instance.token) params.token = instance.token;
                 const qs = queryString.stringify(params);
                 const url = `${instance.host}/model/parse?${qs}`;
                 return client.post(url, payload);
             });
 
-            const result = await axios.all(requests);
-            if (result.length === 1 && result[0].status === 200) {
-                return result[0].data;
+            const result = (await axios.all(requests))
+                .filter(r => r.status === 200)
+                .map(r => r.data);
+            
+            if (result.length < 1) throw new Meteor.Error('Error when parsing NLU');
+
+            if (!nolog) {
+                result.forEach((r) => {
+                    try {
+                        const { _id: modelId } = models.filter(m => m.language === r.language)[0];
+                        Meteor.call('activity.log', { ...r, modelId });
+                    } catch (e) {
+                        //
+                    }
+                });
             }
 
-            if (result.length > 1 && result.filter(r => r.status !== 200).length === 0) {
-                return result.map(r => r.data);
-            }
-
-            throw new Meteor.Error('Error when parsing NLU');
+            if (result.length < 2) return result[0];
+            return result;
         } catch (e) {
             if (e instanceof Meteor.Error) {
                 throw e;
@@ -139,6 +144,24 @@ if (Meteor.isServer) {
             return parseNlu(instance, params, nolog);
         },
 
+        async 'rasa.convertToJson'(file, language, outputFormat, host) {
+            check(file, String);
+            check(language, String);
+            check(outputFormat, String);
+            check(host, String);
+            const client = axios.create({
+                baseURL: host,
+                timeout: 100 * 1000,
+            });
+            const { data } = await client.post('/data/convert/', {
+                data: file,
+                output_format: outputFormat,
+                language,
+            });
+            
+            return data;
+        },
+
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
@@ -150,7 +173,6 @@ if (Meteor.isServer) {
                         config: 1,
                         training_data: 1,
                         language: 1,
-                        logActivity: 1,
                         entity_synonyms: 1,
                         regex_features: 1,
                         fuzzy_gazette: 1,
@@ -194,7 +216,7 @@ if (Meteor.isServer) {
                 });
                 const trainingResponse = await trainingClient.post('/model/train', payload);
 
-                if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
+                if (trainingResponse.status === 200) {
                     const { headers: { filename } } = trainingResponse;
                     const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
                     try {
