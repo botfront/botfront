@@ -95,7 +95,7 @@ const TemplatesContainer = withTracker(({ params }) => {
 
 function mapStateToProps (state) {
     return {
-        projectId: state.get('projectId'),
+        projectId: state.settings.get('projectId'),
     };
 }
 

@@ -366,8 +366,8 @@ Stories.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-    storyMode: state.get('storyMode'),
-    storyGroupCurrent: state.get('storyGroupCurrent'),
+    storyMode: state.stories.get('storyMode'),
+    storyGroupCurrent: state.stories.get('storyGroupCurrent'),
 });
 
 const mapDispatchToProps = {

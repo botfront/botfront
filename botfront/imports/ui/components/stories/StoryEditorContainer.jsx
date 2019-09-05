@@ -44,6 +44,7 @@ const StoryEditorContainer = ({
     onSaved,
     branchPath,
     changeStoryPath,
+    collapsed,
 }) => {
     const { slots } = useContext(ConversationOptionsContext);
     // The next path to go to when a change is made, we wait for the story prop to be updated to go that path
@@ -99,6 +100,7 @@ const StoryEditorContainer = ({
     const renderTopMenu = () => (
         <StoryTopMenu
             title={story.title}
+            storyId={story._id}
             onDelete={onDelete}
             onMove={onMove}
             disabled={disabled}
@@ -122,7 +124,11 @@ const StoryEditorContainer = ({
                 maxLines={Infinity}
                 fontSize={12}
                 onChange={newStory => storyControllers[pathAsString].setMd(newStory)}
-                value={storyControllers[pathAsString] ? storyControllers[pathAsString].md : ''}
+                value={
+                    storyControllers[pathAsString]
+                        ? storyControllers[pathAsString].md
+                        : ''
+                }
                 showPrintMargin={false}
                 showGutter
                 // annotations={annotations}
@@ -235,6 +241,7 @@ const StoryEditorContainer = ({
         } catch (e) {
             changeStoryPath(story._id, getDefaultPath(story));
         }
+        if (collapsed) return null;
         return (
             <Segment attached className='single-story-container'>
                 {editorType !== 'visual'
@@ -301,16 +308,18 @@ const StoryEditorContainer = ({
         <div className='story-editor' data-cy='story-editor'>
             {renderTopMenu()}
             {renderBranches()}
-            <StoryFooter
-                onBranch={() => handleCreateBranch(branchPath, [], 2)}
-                onContinue={() => {}}
-                canContinue={false}
-                // We just check if there are any branches at the current path
-                // If there are, we can't branch
-                canBranch={canBranch()}
-                storyPath={getStoryPath()}
-                disableContinue
-            />
+            {!collapsed && (
+                <StoryFooter
+                    onBranch={() => handleCreateBranch(branchPath, [], 2)}
+                    onContinue={() => {}}
+                    canContinue={false}
+                    // We just check if there are any branches at the current path
+                    // If there are, we can't branch
+                    canBranch={canBranch()}
+                    storyPath={getStoryPath()}
+                    disableContinue
+                />
+            )}
         </div>
     );
 };
@@ -328,6 +337,7 @@ StoryEditorContainer.propTypes = {
     onSaved: PropTypes.func.isRequired,
     branchPath: PropTypes.array,
     changeStoryPath: PropTypes.func.isRequired,
+    collapsed: PropTypes.bool.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {
@@ -338,12 +348,13 @@ StoryEditorContainer.defaultProps = {
 };
 
 const mapStateToProps = (state, ownProps) => ({
-    branchPath: state
+    branchPath: state.stories
         .getIn(
             ['savedStoryPaths', ownProps.story._id],
             List(getDefaultPath(ownProps.story)),
         )
         .toJS(),
+    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.story._id], false),
 });
 
 const mapDispatchToProps = {
