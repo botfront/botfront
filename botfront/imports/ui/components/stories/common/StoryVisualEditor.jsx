@@ -32,10 +32,6 @@ export const defaultTemplate = (template) => {
     return false;
 };
 
-// TEST CODE PLEASE REMOVE
-const fakeHasError = false;
-const fakeHasWarning = false;
-// END OF TEST CODE
 class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
@@ -136,7 +132,7 @@ class StoryVisualEditor extends React.Component {
     renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.data.name}`}>
             <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                <ExceptionWrapper hasError={fakeHasError} hasWarning={fakeHasWarning}>
+                <ExceptionWrapper exceptions={exceptions}>
                     <ActionLabel
                         value={l.data.name}
                         onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
@@ -150,12 +146,12 @@ class StoryVisualEditor extends React.Component {
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
-    );
+    )
 
     renderSlotLine = (i, l, exceptions) => (
         <React.Fragment key={`slot${i + l.data.name}`}>
             <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                <ExceptionWrapper hasError={fakeHasError} hasWarning={fakeHasWarning}>
+                <ExceptionWrapper exceptions={exceptions}>
                     <SlotLabel
                         value={l.data}
                         onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
@@ -233,17 +229,13 @@ class StoryVisualEditor extends React.Component {
         const { menuCloser } = this.state;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
-            const exceptions = this.formatErrors(
-                story.exceptions.filter(exception => exception.line === index + 1),
-            );
+            const exceptions = story.exceptions.filter(exception => exception.line === index + 1);
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
                 return (
                     <React.Fragment key={`bot${line.gui.data.name}`}>
                         <BotResponsesContainer
-                            hasError={fakeHasError}
-                            hasWarning={fakeHasWarning}
                             deletable
                             exceptions={exceptions}
                             name={line.gui.data.name}
@@ -268,8 +260,6 @@ class StoryVisualEditor extends React.Component {
                     }`}
                 >
                     <UserUtteranceContainer
-                        hasError={fakeHasError}
-                        hasWarning={fakeHasWarning}
                         exceptions={exceptions}
                         value={line.gui.data[0]} // for now, data is a singleton
                         onInput={v => this.handleSaveUserUtterance(index, v)}

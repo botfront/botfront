@@ -13,7 +13,7 @@ import ExceptionWrapper from './ExceptionWrapper';
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, deletable, exceptions, hasError, hasWarning,
+        value, onInput, onDelete, onAbort, deletable, exceptions,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
@@ -109,9 +109,9 @@ const UtteranceContainer = (props) => {
             />
         );
     };
-    console.log(hasError, hasWarning);
+
     return (
-        <ExceptionWrapper hasError={hasError} hasWarning={hasWarning}>
+        <ExceptionWrapper exceptions={exceptions}>
             <div
                 className='utterance-container'
                 exception={exceptions.severity}
@@ -144,17 +144,13 @@ UtteranceContainer.propTypes = {
     // onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
-    exceptions: PropTypes.object,
-    hasError: PropTypes.bool,
-    hasWarning: PropTypes.bool,
+    exceptions: PropTypes.array,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
     deletable: true,
-    exceptions: { severity: null, messages: [] },
-    hasError: false,
-    hasWarning: false,
+    exceptions: [{ type: null }],
 };
 
 export default UtteranceContainer;

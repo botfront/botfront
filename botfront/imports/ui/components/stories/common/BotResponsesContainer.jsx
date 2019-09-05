@@ -17,8 +17,6 @@ const BotResponsesContainer = (props) => {
         exceptions,
         isNew,
         removeNewState,
-        hasError,
-        hasWarning
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
@@ -138,6 +136,7 @@ const BotResponsesContainer = (props) => {
             <React.Fragment key={index}>
                 <div className='flex-right'>
                     <BotResponseContainer
+                        exceptions={exceptions}
                         deletable={deletable || sequenceArray.length > 1}
                         value={content}
                         onDelete={() => handleDeleteResponse(index)}
@@ -146,8 +145,6 @@ const BotResponsesContainer = (props) => {
                         }
                         focus={focus === index}
                         onFocus={() => setFocus(index)}
-                        hasError={hasError}
-                        hasWarning={hasWarning}
                     />
                 </div>
                 {!content.buttons
@@ -179,18 +176,14 @@ BotResponsesContainer.propTypes = {
     deletable: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onDeleteAllResponses: PropTypes.func.isRequired,
-    exceptions: PropTypes.object,
+    exceptions: PropTypes.array,
     isNew: PropTypes.bool.isRequired,
     removeNewState: PropTypes.func.isRequired,
-    hasError: PropTypes.bool,
-    hasWarning: PropTypes.warning,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
-    exceptions: { severity: null, messages: [] },
-    hasError: false,
-    hasWarning: false,
+    exceptions: [{ type: null }],
 
 };
 

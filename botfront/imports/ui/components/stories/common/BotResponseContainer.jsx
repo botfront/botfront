@@ -8,7 +8,7 @@ import ExceptionWrapper from './ExceptionWrapper';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, hasError, hasWarning
+        value, onDelete, onChange, deletable, focus, onFocus, hasError, hasWarning,
     } = props;
 
     const [input, setInput] = useState();
@@ -54,7 +54,7 @@ const BotResponseContainer = (props) => {
             }}
         />
     );
-    console.log(hasError, hasWarning);
+    
     return (
         <ExceptionWrapper className='bot-response' hasError={hasError} hasWarning={hasWarning}>
             <div
