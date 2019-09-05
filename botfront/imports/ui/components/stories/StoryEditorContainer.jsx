@@ -243,7 +243,11 @@ const StoryEditorContainer = ({
         }
         if (collapsed) return null;
         return (
-            <Segment attached className='single-story-container'>
+            <Segment
+                attached
+                className='single-story-container'
+                data-cy='single-story-editor'
+            >
                 {editorType !== 'visual'
                     ? renderAceEditor(pathToRender)
                     : renderVisualEditor(pathToRender)}
