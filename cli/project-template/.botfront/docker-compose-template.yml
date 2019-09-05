@@ -43,10 +43,6 @@ services:
       - botfront-api
     volumes:
       - ./models/:/app/models
-    command:
-      - run
-      - --enable-api
-      - --debug
     env_file:
       - .botfront/.env
 
