@@ -216,7 +216,7 @@ if (Meteor.isServer) {
                 });
                 const trainingResponse = await trainingClient.post('/model/train', payload);
 
-                if (trainingResponse.status === 200 && (!process.env.ORCHESTRATOR || process.env.ORCHESTRATOR === 'docker-compose')) {
+                if (trainingResponse.status === 200) {
                     const { headers: { filename } } = trainingResponse;
                     const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
                     try {
