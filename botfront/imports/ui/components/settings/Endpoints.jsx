@@ -63,6 +63,7 @@ class Endpoints extends React.Component {
         const { orchestrator } = this.props;
         return (
             <AutoForm
+                key={selectedEnvironment}
                 disabled={!!saving || !can('project-settings:w', projectId)}
                 schema={EndpointsSchema}
                 model={endpoints}
@@ -99,12 +100,16 @@ class Endpoints extends React.Component {
 
     renderLoading = () => <div />;
 
+    handleMenuItemClick = (event, environment) => {
+        this.setState({ selectedEnvironment: environment, showConfirmation: false });
+    }
+
     renderMenuItem = (environment) => {
         const { selectedEnvironment } = this.state;
         return (
             <Menu.Item
                 key={environment}
-                onClick={() => { this.setState({ selectedEnvironment: environment, showConfirmation: false }); }}
+                onClick={(e) => { this.handleMenuItemClick(e, environment); }}
                 active={selectedEnvironment === environment}
                 data-cy='environment-endpoints-tab'
             >
@@ -132,7 +137,6 @@ class Endpoints extends React.Component {
         const { selectedEnvironment, saving } = this.state;
         return this.renderEndpoints(saving, endpoints[selectedEnvironment], projectId);
     }
-
 
     render() {
         const { ready } = this.props;
@@ -175,13 +179,14 @@ const EndpointsContainer = withTracker(({ projectId }) => {
         },
     );
     const endpoints = {};
-    const endpointsArray = EndpointsCollection.find({ projectId }).fetch().filter(endpoint => (
-        endpoint.environment === undefined || ENVIRONMENT_OPTIONS.includes(endpoint.environment)
-    ));
-    endpointsArray.forEach((endpoint) => {
-        endpoints[endpoint.environment ? endpoint.environment : 'development'] = endpoint;
-    });
-
+    EndpointsCollection.find({ projectId })
+        .fetch()
+        .filter(endpoint => (
+            endpoint.environment === undefined || ENVIRONMENT_OPTIONS.includes(endpoint.environment)
+        ))
+        .forEach((endpoint) => {
+            endpoints[endpoint.environment ? endpoint.environment : 'development'] = endpoint;
+        });
     return {
         ready: handler.ready(),
         endpoints,

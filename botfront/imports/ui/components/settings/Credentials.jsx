@@ -63,6 +63,7 @@ class Credentials extends React.Component {
         const { orchestrator } = this.props;
         return (
             <AutoForm
+                key={selectedEnvironment}
                 disabled={!!saving || !can('project-settings:w', projectId)}
                 schema={CredentialsSchema}
                 model={credentials}
