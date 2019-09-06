@@ -10,6 +10,7 @@ import BotResponsesContainer from './BotResponsesContainer';
 import AddStoryLine from './AddStoryLine';
 import ActionLabel from '../ActionLabel';
 import SlotLabel from '../SlotLabel';
+import BadLineLabel from '../BadLineLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
 import ExceptionWrapper from './ExceptionWrapper';
 
@@ -224,12 +225,32 @@ class StoryVisualEditor extends React.Component {
         );
     };
 
+    renderBadLine = (index, line, exceptions) => {
+        console.log(exceptions);
+        console.log(line);
+        return (
+            <React.Fragment key={`BadLine-${index}`}>
+                <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+                    <ExceptionWrapper exceptions={exceptions}>
+                        <BadLineLabel lineMd={line.md} />
+                        <FloatingIconButton
+                            icon='trash'
+                            onClick={() => this.handleDeleteLine(index)}
+                        />
+                    </ExceptionWrapper>
+                </div>
+                {this.renderAddLine(index)}
+            </React.Fragment>
+        );
+    }
+
     render() {
         const { story } = this.props;
         const { menuCloser } = this.state;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(exception => exception.line === index + 1);
+            if (exceptions.filter(({ type }) => (type === 'error')).length > 0) return this.renderBadLine(index, line, exceptions);
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
