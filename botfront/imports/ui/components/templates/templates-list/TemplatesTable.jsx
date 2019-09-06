@@ -322,11 +322,11 @@ TemplatesTable.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-    projectId: state.get('projectId'),
-    pageNumber: state.get('templatesTablePage'),
-    filterText: state.get('templatesTableFilter'),
-    workingLanguage: state.get('workingLanguage'),
-    showMatchingCriteria: state.get('templatesTableShowMatching'),
+    projectId: state.settings.get('projectId'),
+    pageNumber: state.settings.get('templatesTablePage'),
+    filterText: state.settings.get('templatesTableFilter'),
+    workingLanguage: state.settings.get('workingLanguage'),
+    showMatchingCriteria: state.settings.get('templatesTableShowMatching'),
 });
 
 const mapDispatchToProps = {

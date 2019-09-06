@@ -55,3 +55,11 @@ export function setStoryPath(storyId, path) {
         path,
     };
 }
+
+export function setStoryCollapsed(storyId, collapsed) {
+    return {
+        type: types.SET_STORY_COLLAPSED,
+        storyId,
+        collapsed,
+    };
+}

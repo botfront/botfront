@@ -221,4 +221,14 @@ describe('stories', function() {
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 1);
     });
+
+    it('should be able to collapse stories and to persist that across application state', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('single-story-editor');
+        cy.dataCy('collapse-story-button').click({ force: true });
+        cy.dataCy('single-story-editor').should('not.exist');
+        cy.contains('NLU').click({ force: true });
+        cy.contains('Stories').click({ force: true });
+        cy.dataCy('single-story-editor').should('not.exist');
+    });
 });
