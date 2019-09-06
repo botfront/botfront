@@ -225,24 +225,20 @@ class StoryVisualEditor extends React.Component {
         );
     };
 
-    renderBadLine = (index, line, exceptions) => {
-        console.log(exceptions);
-        console.log(line);
-        return (
-            <React.Fragment key={`BadLine-${index}`}>
-                <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                    <ExceptionWrapper exceptions={exceptions}>
-                        <BadLineLabel lineMd={line.md} />
-                        <FloatingIconButton
-                            icon='trash'
-                            onClick={() => this.handleDeleteLine(index)}
-                        />
-                    </ExceptionWrapper>
-                </div>
-                {this.renderAddLine(index)}
-            </React.Fragment>
-        );
-    }
+    renderBadLine = (index, line, exceptions) => (
+        <React.Fragment key={`BadLine-${index}`}>
+            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+                <ExceptionWrapper exceptions={exceptions}>
+                    <BadLineLabel lineMd={line.md} lineIndex={index} />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(index)}
+                    />
+                </ExceptionWrapper>
+            </div>
+            {this.renderAddLine(index)}
+        </React.Fragment>
+    )
 
     render() {
         const { story } = this.props;

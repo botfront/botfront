@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Icon, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
@@ -18,26 +18,32 @@ const ExceptionWrapper = (props) => {
         return fullClassName;
     };
 
-    const renderPopupContent = (content) => {
-        return content.map(({ message, type }, index) => {
-            return <p key={`${type}-${index}`}>{message}</p>
-        });
-    };
+    const renderPopupContent = content => content.map(({ message, type }, index) => (
+        <p key={`${type}-${index}`}>{message}</p>
+    ));
     return (
         <span className={generateClassName()}>
             <Popup
                 wide
                 position='left center'
-                header='Warnings'
+                header={`Warning${warnings.length > 1 ? 's' : ''}`}
                 content={renderPopupContent(warnings)}
-                trigger={<Icon name='exclamation circle' color='yellow' className='warning-indicator' />}
+                trigger={(
+                    <Icon
+                        name='exclamation circle'
+                        color='yellow'
+                        className='warning-indicator'
+                    />
+                )}
             />
             <Popup
                 wide
                 position='left center'
-                header='Errors'
+                header={`Error${errors.length > 1 ? 's' : ''}`}
                 content={renderPopupContent(errors)}
-                trigger={<Icon name='times circle' color='red' className='error-indicator' />}
+                trigger={
+                    <Icon name='times circle' color='red' className='error-indicator' />
+                }
             />
             {children}
         </span>
