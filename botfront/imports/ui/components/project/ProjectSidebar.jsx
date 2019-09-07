@@ -44,19 +44,17 @@ class ProjectSidebar extends React.Component {
                     <Link to={`/project/${projectId}/settings`}>
                         <Menu.Item name='Settings' icon='setting' />
                     </Link>
-                    <Divider inverted />
-                    <Link to='/login'>
-                        <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
-                    </Link>
-                    <Divider inverted />
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
                         <Menu.Item name='documentation' icon='question' />
                     </a>
-                    {intercomId && (
-                        <span>
-                            <Menu.Item name='Support' onClick={() => triggerIntercom(intercomId)} icon='bell' />
-                        </span>
-                    )}
+                    <a href={settingsReady ? 'https://spectrum.chat/botfront' : ''} target='_blank' rel='noopener noreferrer'>
+                        <Menu.Item name='help' icon='bell' content='Get help' />
+                    </a>
+                    <Divider inverted />
+                        <Link to='/login'>
+                            <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
+                        </Link>
+                    <Divider inverted />
                 </Menu>
             </DocumentTitle>
         );
