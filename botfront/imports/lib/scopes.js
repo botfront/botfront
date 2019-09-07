@@ -37,7 +37,7 @@ setScopesExport = (user, userId) => {
 CanExport = ({ children, I, projectId }) => (canExport(I, projectId) ? Children.only(children) : null);
 
 const mapStateToProps = state => ({
-    projectId: state.get('projectId'),
+    projectId: state.settings.get('projectId'),
 });
 
 CanExport = connect(
