@@ -57,7 +57,6 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='Settings' icon='setting' />
                         </Link>
                     </Can>
-                    <Divider inverted />
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
                         <Menu.Item name='documentation' icon='question' />
                     </a>

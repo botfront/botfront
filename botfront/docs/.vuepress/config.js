@@ -44,7 +44,6 @@ module.exports = {
                     '/guide/getting-started/cli',
                 ],
             },
-
             {
                 title: 'Admin Guide', // required
                 // path: '/guide',
