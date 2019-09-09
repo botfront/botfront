@@ -28,19 +28,21 @@ function StoriesEditor(props) {
             stories[index],
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    // deletes group if no stories left
                     if (stories.length === 1) {
                         onDeleteGroup();
+                    } else {
+                        Meteor.call(
+                            'storyGroups.updateExceptions',
+                            {
+                                _id: stories[index].storyGroupId, storyId: stories[index]._id,
+                            },
+                            wrapMeteorCallback(() => {
+                                
+                            }),
+                        );
                     }
                 }
             }),
-        );
-        Meteor.call(
-            'storyGroups.updateExceptions',
-            {
-                _id: stories[index].storyGroupId, storyId: stories[index]._id,
-            },
-            wrapMeteorCallback(() => {}),
         );
     }
 
