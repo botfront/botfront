@@ -14,7 +14,7 @@ import {
     accumulateExceptions,
 } from '../../../lib/story.utils';
 import { StoryController } from '../../../lib/story_controller';
-import { ConversationOptionsContext } from '../utils/Context';
+import { ConversationOptionsContext, ResponsesContext } from '../utils/Context';
 import { setStoryPath } from '../../store/actions/actions';
 import { wrapMeteorCallback } from '../utils/Errors';
 import BranchTabLabel from './BranchTabLabel';
@@ -50,6 +50,7 @@ const StoryEditorContainer = ({
     collapsed,
 }) => {
     const { slots } = useContext(ConversationOptionsContext);
+    const { templates } = useContext(ResponsesContext);
     // The next path to go to when a change is made, we wait for the story prop to be updated to go that path
     // useful when we add branch for instance, we have to wait for the branches to actually be in the db
     // set to null when we don't want to go anywhere
@@ -82,6 +83,7 @@ const StoryEditorContainer = ({
             slots,
             () => {},
             (content, errors, warnings) => saveStory(story._id, { story: content, errors, warnings }),
+            templates,
         ),
     });
 
@@ -98,6 +100,7 @@ const StoryEditorContainer = ({
                     slots,
                     () => {},
                     (content, errors, warnings) => saveStory(currentPath, { story: content, errors, warnings }),
+                    templates,
                 );
             }
         });
@@ -215,6 +218,7 @@ const StoryEditorContainer = ({
                     slots,
                     () => {},
                     (content, errors, warnings) => saveStory(path, { story: content, errors, warnings }),
+                    templates,
                 ),
             });
         }

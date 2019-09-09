@@ -19,6 +19,7 @@ import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
 import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
+import { ResponsesContext } from '../utils/Context';
 
 const Stories = React.lazy(() => import('./Stories'));
 const SlotsEditor = React.lazy(() => import('./Slots'));
@@ -54,8 +55,8 @@ function StoriesContainer(props) {
             </Placeholder>
         );
     }
-
-    return (
+    
+    const renderStoriesContainer = () => (
         <>
             <PageMenu title='Stories' icon='book'>
                 <Menu.Menu position='right'>
@@ -163,6 +164,10 @@ function StoriesContainer(props) {
             </Container>
         </>
     );
+
+    return (
+        <ResponsesContext.Provider value={{ templates: [...project.templates] }}>{renderStoriesContainer()}</ResponsesContext.Provider>
+    );
 }
 
 StoriesContainer.propTypes = {
@@ -184,11 +189,12 @@ export default withTracker((props) => {
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
-    const { training } = Projects.findOne(
+    const { training, templates } = Projects.findOne(
         { _id: projectId },
         {
             fields: {
                 training: 1,
+                templates: 1,
             },
         },
     );
@@ -197,6 +203,7 @@ export default withTracker((props) => {
     const project = {
         _id: projectId,
         training,
+        templates,
     };
 
     return {

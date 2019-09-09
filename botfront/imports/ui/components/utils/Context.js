@@ -5,3 +5,7 @@ export const ConversationOptionsContext = React.createContext({
     intents: [],
     slots: [],
 });
+
+export const ResponsesContext = React.createContext({
+    templates: [],
+});
