@@ -34,7 +34,7 @@ class IntroStorySubMenu extends React.Component {
                     link
                     data-cy='intro-story-group'
                 >
-                    <ExceptionAlerts hasErrors={introStory.hasErrors.length > 0} hasWarnings={introStory.hasWarnings.length > 0} />
+                    <ExceptionAlerts errors={introStory.hasErrors} warnings={introStory.hasWarnings} />
                     <Icon
                         id={`${
                             introStory && introStory.selected
