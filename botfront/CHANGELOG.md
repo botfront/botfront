@@ -2,6 +2,92 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.1](https://github.com/botfront/botfront/compare/v0.15.5...v0.16.0-rc.1) (2019-09-09)
+
+
+### Bug Fixes
+
+* adjust testing for new title save action ([f017cc7](https://github.com/botfront/botfront/commit/f017cc7))
+* backwards compatibility for exceptions ([d3c8109](https://github.com/botfront/botfront/commit/d3c8109))
+* bug indexing over string ([12d7967](https://github.com/botfront/botfront/commit/12d7967))
+* bug on stories without branches in db ([06beece](https://github.com/botfront/botfront/commit/06beece))
+* bug when deleting mother branch ([2519369](https://github.com/botfront/botfront/commit/2519369))
+* change css so selected story group is blue ([e9b2217](https://github.com/botfront/botfront/commit/e9b2217))
+* change from push to spreadsyntax for path ([357f8f0](https://github.com/botfront/botfront/commit/357f8f0))
+* crash in BranchTabLabel with old DataBases ([6aa6e67](https://github.com/botfront/botfront/commit/6aa6e67))
+* crashing in story utils with old DBs ([b306a70](https://github.com/botfront/botfront/commit/b306a70))
+* exceptionAlerts warnings passed bad prop ([66f9071](https://github.com/botfront/botfront/commit/66f9071))
+* fix the fix of the fix ([5ff8b24](https://github.com/botfront/botfront/commit/5ff8b24))
+* manual rollback re add intent warning msg ([2208dc6](https://github.com/botfront/botfront/commit/2208dc6))
+* new method of verifying default story test ([29b6b29](https://github.com/botfront/botfront/commit/29b6b29))
+* remove console.log and es lint errors ([32a0206](https://github.com/botfront/botfront/commit/32a0206))
+* remove unnecessary method call ([1647b13](https://github.com/botfront/botfront/commit/1647b13))
+* standardize story title save + discard events ([452595f](https://github.com/botfront/botfront/commit/452595f))
+* stop crash when creating new story group ([51391c0](https://github.com/botfront/botfront/commit/51391c0))
+* story groups not deleting ([6158fc6](https://github.com/botfront/botfront/commit/6158fc6))
+* typo ([9e3798d](https://github.com/botfront/botfront/commit/9e3798d))
+* typo in docker compose template ([8bdde39](https://github.com/botfront/botfront/commit/8bdde39))
+* wrong default base_url in credentials ([#201](https://github.com/botfront/botfront/issues/201)) ([b5835c3](https://github.com/botfront/botfront/commit/b5835c3))
+
+
+### Features
+
+* add a popup for story group exception alerts ([df29b22](https://github.com/botfront/botfront/commit/df29b22))
+* add icon indicators for story exceptions ([37cd372](https://github.com/botfront/botfront/commit/37cd372))
+* add StoryFooter component and StoryPathPopup ([84ad69e](https://github.com/botfront/botfront/commit/84ad69e))
+* change story popup now shows full path ([6991ce8](https://github.com/botfront/botfront/commit/6991ce8))
+* change wrap StoryFooter in Segment component ([6dd4a0a](https://github.com/botfront/botfront/commit/6dd4a0a))
+* merge deleted stories ([a65068e](https://github.com/botfront/botfront/commit/a65068e))
+* **branching:** "recursive" schema, update update method ([9988140](https://github.com/botfront/botfront/commit/9988140))
+* **branching:** add new branch ([68521a8](https://github.com/botfront/botfront/commit/68521a8))
+* **branching:** add story field to mock data ([444176c](https://github.com/botfront/botfront/commit/444176c))
+* **offline templates:** error catching for missing templates ([a512d4b](https://github.com/botfront/botfront/commit/a512d4b))
+* **offline templates:** full responses are exported with domain ([69a5e69](https://github.com/botfront/botfront/commit/69a5e69))
+* collapsable stories ([10dbc7a](https://github.com/botfront/botfront/commit/10dbc7a))
+* open first branches by default ([1b37c13](https://github.com/botfront/botfront/commit/1b37c13))
+* persist branch path across application ([33e26b4](https://github.com/botfront/botfront/commit/33e26b4))
+* **branch tab label:** es-lint, proptypes minor fix ([126a468](https://github.com/botfront/botfront/commit/126a468))
+* **branching:** confirm deletion ([eb96c23](https://github.com/botfront/botfront/commit/eb96c23))
+* **branching:** disallow two sibling branches from having same name ([bf5c2a7](https://github.com/botfront/botfront/commit/bf5c2a7))
+* **branching:** integrate StoryFooter ([5b0566b](https://github.com/botfront/botfront/commit/5b0566b))
+* add StoryFooter prop that hides continue ([243ca5e](https://github.com/botfront/botfront/commit/243ca5e))
+* style story footer and remove warnings ([db700a7](https://github.com/botfront/botfront/commit/db700a7))
+* styled story footer and branch+link buttons ([07f53d0](https://github.com/botfront/botfront/commit/07f53d0))
+* **branching:** domain generation/story compilation ([70fcb3a](https://github.com/botfront/botfront/commit/70fcb3a))
+* **branching:** hotfix for backsupport ([86f9af3](https://github.com/botfront/botfront/commit/86f9af3))
+* **branching:** integrate tab labels ([9c9942d](https://github.com/botfront/botfront/commit/9c9942d))
+* **branching:** make room for footer ([2eb5e67](https://github.com/botfront/botfront/commit/2eb5e67))
+* **branching:** refactor, integrate with db ([8eb1a71](https://github.com/botfront/botfront/commit/8eb1a71))
+* **branching:** remove fixture, fix behavior with branch-less branches ([4fa3abd](https://github.com/botfront/botfront/commit/4fa3abd))
+* **branching:** switch active branch on deletion ([8e2c551](https://github.com/botfront/botfront/commit/8e2c551))
+* **branching:** update extractDomainFromStories ([71fc936](https://github.com/botfront/botfront/commit/71fc936))
+* add branch tab component for branch menu ([97c45d8](https://github.com/botfront/botfront/commit/97c45d8))
+* add default story group on project insert ([2ca4cd7](https://github.com/botfront/botfront/commit/2ca4cd7))
+* add warning when NLU can't be trained because of  n < 2 intents ([b47996a](https://github.com/botfront/botfront/commit/b47996a))
+* refactor BranchTabLabel and style ([87f8d45](https://github.com/botfront/botfront/commit/87f8d45))
+* **branching:** wip ([fe0d24d](https://github.com/botfront/botfront/commit/fe0d24d))
+
+
+### Tests
+
+* add story_title tests for saving discarding ([9276d08](https://github.com/botfront/botfront/commit/9276d08))
+* add tests for story utils ([cdd550e](https://github.com/botfront/botfront/commit/cdd550e))
+* added test for branches edge cases ([0f464b7](https://github.com/botfront/botfront/commit/0f464b7))
+* branching ([ae5b893](https://github.com/botfront/botfront/commit/ae5b893))
+* collapsable stories ([60f7c46](https://github.com/botfront/botfront/commit/60f7c46))
+* confirm intro story group is not deleted ([026b58d](https://github.com/botfront/botfront/commit/026b58d))
+* fixed tests ([248210c](https://github.com/botfront/botfront/commit/248210c))
+* merging branches ([435fec1](https://github.com/botfront/botfront/commit/435fec1))
+* move story_controller tests to mocha ([55ecb67](https://github.com/botfront/botfront/commit/55ecb67))
+* new for add 3rd branch and delete branches ([dfb0eb5](https://github.com/botfront/botfront/commit/dfb0eb5))
+* remove cypress test ([a865589](https://github.com/botfront/botfront/commit/a865589))
+* story branches persistence ([187b602](https://github.com/botfront/botfront/commit/187b602))
+* story-state-persistence ([73fb41d](https://github.com/botfront/botfront/commit/73fb41d))
+* updated stories text for default story group ([d99ddbc](https://github.com/botfront/botfront/commit/d99ddbc))
+* wrap component in environment ([6fefe62](https://github.com/botfront/botfront/commit/6fefe62))
+
+
+
 ### [0.15.5](https://github.com/botfront/botfront/compare/v0.15.4...v0.15.5) (2019-08-11)
 
 

@@ -80,7 +80,7 @@ class BranchTabLabel extends React.Component {
 
     handleKeyDown = (event) => {
         const { title } = this.state;
-        
+
         if (event.key === 'Enter') {
             event.stopPropagation();
             event.preventDefault();
@@ -91,25 +91,27 @@ class BranchTabLabel extends React.Component {
         if (event.key === 'Escape') {
             event.stopPropagation();
             event.preventDefault();
-            this.setState({ newTitle: title, titleInputFocused: false, titleHovered: false });
+            this.setState({
+                newTitle: title,
+                titleInputFocused: false,
+                titleHovered: false,
+            });
         }
-    }
+    };
 
     renderAlertIcons = () => {
-        const { hasWarning, hasError } = this.props;
+        const { exceptions } = this.props;
         const alertList = [];
-        if (hasWarning) {
-            alertList.push(<Icon name='warning' color='yellow' />);
+        if (exceptions.warnings && exceptions.warnings.length > 0) {
+            alertList.push(<Icon key='warning-icon' name='exclamation circle' color='yellow' />);
         }
-        if (hasError) {
-            alertList.push(<Icon name='close' color='red' />);
+        if (exceptions.errors && exceptions.errors.length > 0) {
+            alertList.push(<Icon key='error-icon' name='times circle' color='red' />);
         }
         return <>{alertList}</>;
     };
 
-    renderDeleteButton = () => (
-        <Icon name='trash' size='small' data-cy='delete-branch' />
-    );
+    renderDeleteButton = () => <Icon name='trash' size='small' data-cy='delete-branch' />;
 
     handleOnClick = () => {
         const { title } = this.state;
@@ -143,8 +145,8 @@ class BranchTabLabel extends React.Component {
             const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
             confirmMessage.content = (
                 <>
-                    The content of branch <strong>{strandedBranchName}</strong> is also
-                    going to get deleted.
+                    The content of <strong>{strandedBranchName}</strong> will be added to
+                    the previous story.
                 </>
             );
         }
@@ -237,8 +239,7 @@ BranchTabLabel.propTypes = {
     value: propTypes.string,
     onChangeName: propTypes.func.isRequired,
     onDelete: propTypes.func.isRequired,
-    hasError: propTypes.bool,
-    hasWarning: propTypes.bool,
+    exceptions: propTypes.object,
     active: propTypes.bool,
     onSelect: propTypes.func.isRequired,
     siblings: propTypes.array.isRequired,
@@ -247,7 +248,6 @@ BranchTabLabel.propTypes = {
 BranchTabLabel.defaultProps = {
     value: '',
     active: false,
-    hasError: false,
-    hasWarning: false,
+    exceptions: {},
 };
 export default BranchTabLabel;

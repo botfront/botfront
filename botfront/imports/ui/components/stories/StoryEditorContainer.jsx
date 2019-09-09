@@ -8,7 +8,7 @@ import shortid from 'shortid';
 import 'brace/theme/github';
 import 'brace/mode/text';
 
-import { traverseStory, getSubBranchesForPath } from '../../../lib/story.utils';
+import { traverseStory, getSubBranchesForPath, accumulateExceptions } from '../../../lib/story.utils';
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from '../utils/Context';
 import { setStoryPath } from '../../store/actions/actions';
@@ -50,22 +50,23 @@ const StoryEditorContainer = ({
     // useful when we add branch for instance, we have to wait for the branches to actually be in the db
     // set to null when we don't want to go anywhere
     const [nextBranchPath, setNextBranchPath] = useState(null);
+    const [storyDidSave, setStoryDidSave] = useState(false);
 
     const saveStory = (path, content) => {
         onSaving();
         Meteor.call(
             'stories.update',
-            { _id: story._id, ...content, path },
-            wrapMeteorCallback(() => onSaved()),
+            { _id: story._id, ...content, path: typeof path === 'string' ? [path] : path },
+            wrapMeteorCallback(() => { setStoryDidSave(true); onSaved(); }),
         );
     };
-
+    
     const [storyControllers, setStoryControllers] = useState({
         [story._id]: new StoryController( // the root story
             story.story || '',
             slots,
             () => {},
-            content => saveStory([story._id], { story: content }),
+            (content, errors, warnings) => saveStory(story._id, { story: content, errors, warnings }),
         ),
     });
 
@@ -81,7 +82,7 @@ const StoryEditorContainer = ({
                     newStory.story || '',
                     slots,
                     () => {},
-                    content => saveStory(currentPath, { story: content }),
+                    (content, errors, warnings) => saveStory(currentPath, { story: content, errors, warnings }),
                 );
             }
         });
@@ -91,18 +92,38 @@ const StoryEditorContainer = ({
         });
     }, [branchPath]);
 
-    const renderTopMenu = () => (
-        <StoryTopMenu
-            title={story.title}
-            storyId={story._id}
-            onDelete={onDelete}
-            onMove={onMove}
-            disabled={disabled}
-            onRename={onRenameStory}
-            onClone={onClone}
-            groupNames={groupNames}
-        />
-    );
+    const renderTopMenu = () => {
+        const localExceptions = accumulateExceptions(story);
+        return (
+            <StoryTopMenu
+                title={story.title}
+                storyId={story._id}
+                onDelete={onDelete}
+                onMove={onMove}
+                disabled={disabled}
+                onRename={onRenameStory}
+                onClone={onClone}
+                groupNames={groupNames}
+                errors={localExceptions[story._id].errors ? localExceptions[story._id].errors.length : 0}
+                warnings={localExceptions[story._id].warnings ? localExceptions[story._id].warnings.length : 0}
+            />
+        );
+    };
+
+    const convertToAnnotations = (pathAsString) => {
+        if (!storyControllers[pathAsString]) {
+            return [];
+        }
+        return (
+            storyControllers[pathAsString].exceptions.map(exception => (
+                {
+                    row: exception.line - 1,
+                    type: exception.type,
+                    text: exception.message,
+                }
+            ))
+        );
+    };
 
     const renderAceEditor = (path) => {
         const pathAsString = path.join();
@@ -125,7 +146,7 @@ const StoryEditorContainer = ({
                 }
                 showPrintMargin={false}
                 showGutter
-                // annotations={annotations}
+                annotations={convertToAnnotations(pathAsString)}
                 editorProps={{
                     $blockScrolling: Infinity,
                 }}
@@ -162,7 +183,7 @@ const StoryEditorContainer = ({
                     newBranch.story || '',
                     slots,
                     () => {},
-                    content => saveStory(path, { story: content }),
+                    (content, errors, warnings) => saveStory(path, { story: content, errors, warnings }),
                 ),
             });
         }
@@ -173,7 +194,16 @@ const StoryEditorContainer = ({
         const parentPath = path.slice(0, path.length - 1);
         if (branches.length < 3) {
             handleSwitchBranch(parentPath);
-            saveStory(parentPath, { branches: [] });
+            // we append the remaining story to the parent one.
+            const deletedStory = branches[!index ? 1 : 0].story;
+            const newParentStory = `${
+                storyControllers[parentPath.join()].md
+            }\n${deletedStory}`;
+            saveStory(parentPath, {
+                branches: [],
+                story: newParentStory,
+            });
+            storyControllers[parentPath.join()].setMd(newParentStory);
         } else {
             const updatedBranches = [
                 ...branches.slice(0, index),
@@ -200,6 +230,22 @@ const StoryEditorContainer = ({
         }
     }, [story, nextBranchPath]);
 
+    useEffect(() => {
+        if (storyDidSave) {
+            const newExceptions = accumulateExceptions(story);
+            const hasError = newExceptions[story._id].errors.length > 0;
+            const hasWarning = newExceptions[story._id].warnings.length > 0;
+            Meteor.call(
+                'storyGroups.updateExceptions',
+                {
+                    _id: story.storyGroupId, hasError, hasWarning, storyId: story._id,
+                },
+                wrapMeteorCallback(() => {}),
+            );
+            setStoryDidSave(false);
+        }
+    }, [story]);
+
     // new Level is true if the new branches create a new depth level of branches.
     const handleCreateBranch = (path, branches = [], num = 1, newLevel = true) => {
         const newBranches = [...new Array(num)].map((_, i) => ({
@@ -207,6 +253,8 @@ const StoryEditorContainer = ({
             story: '',
             projectId: story.projectId,
             branches: [],
+            errors: [],
+            warnings: [],
             _id: shortid.generate().replace('_', '0'),
         }));
         setNextBranchPath(
@@ -240,6 +288,8 @@ const StoryEditorContainer = ({
                     <Menu pointing secondary data-cy='branch-menu'>
                         {branches.map((branch, index) => {
                             const childPath = [...pathToRender, branch._id];
+                            const localExceptions = accumulateExceptions(story);
+                            const branchLabelExceptions = localExceptions[childPath.join()];
                             return (
                                 <BranchTabLabel
                                     key={childPath.join()}
@@ -255,6 +305,7 @@ const StoryEditorContainer = ({
                                     }}
                                     onDelete={() => handleDeleteBranch(childPath, branches, index)
                                     }
+                                    exceptions={branchLabelExceptions}
                                     siblings={branches}
                                 />
                             );
