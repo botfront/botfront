@@ -246,7 +246,7 @@ class StoryVisualEditor extends React.Component {
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(exception => exception.line === index + 1);
-            if (exceptions.filter(({ type }) => (type === 'error')).length > 0) return this.renderBadLine(index, line, exceptions);
+            
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
@@ -268,6 +268,7 @@ class StoryVisualEditor extends React.Component {
                     </React.Fragment>
                 );
             }
+            if (exceptions.filter(({ type }) => (type === 'error')).length > 0) return this.renderBadLine(index, line, exceptions);
             return (
                 <React.Fragment
                     key={`user${
