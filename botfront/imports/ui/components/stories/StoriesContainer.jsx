@@ -16,7 +16,7 @@ import { Slots } from '../../../api/slots/slots.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
-import { ConversationOptionsContext } from '../utils/Context';
+import { ResponsesContext, ConversationOptionsContext } from '../utils/Context';
 
 const Stories = React.lazy(() => import('./Stories'));
 const SlotsEditor = React.lazy(() => import('./Slots'));
@@ -148,7 +148,7 @@ function StoriesContainer(props) {
         );
     }
 
-    return (
+    const renderStoriesContainer = () => (
         <ConversationOptionsContext.Provider
             value={{
                 intents: availableIntents,
@@ -271,6 +271,12 @@ function StoriesContainer(props) {
             </Container>
         </ConversationOptionsContext.Provider>
     );
+
+    return (
+        <ResponsesContext.Provider value={{ templates: [...project.templates] }}>
+            {renderStoriesContainer()}
+        </ResponsesContext.Provider>
+    );
 }
 
 StoriesContainer.propTypes = {
@@ -299,11 +305,12 @@ export default withTracker((props) => {
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
-    const { training } = Projects.findOne(
+    const { training, templates } = Projects.findOne(
         { _id: projectId },
         {
             fields: {
                 training: 1,
+                'templates.key': 1,
             },
         },
     );
@@ -312,6 +319,7 @@ export default withTracker((props) => {
     const project = {
         _id: projectId,
         training,
+        templates,
     };
 
     return {
