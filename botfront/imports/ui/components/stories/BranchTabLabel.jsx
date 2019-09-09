@@ -100,12 +100,12 @@ class BranchTabLabel extends React.Component {
     };
 
     renderAlertIcons = () => {
-        const { hasWarning, hasError } = this.props;
+        const { exceptions } = this.props;
         const alertList = [];
-        if (hasWarning) {
+        if (exceptions.warnings && exceptions.warnings.length > 0) {
             alertList.push(<Icon key='warning-icon' name='exclamation circle' color='yellow' />);
         }
-        if (hasError) {
+        if (exceptions.errors && exceptions.errors.length > 0) {
             alertList.push(<Icon key='error-icon' name='times circle' color='red' />);
         }
         return <>{alertList}</>;
@@ -239,8 +239,7 @@ BranchTabLabel.propTypes = {
     value: propTypes.string,
     onChangeName: propTypes.func.isRequired,
     onDelete: propTypes.func.isRequired,
-    hasError: propTypes.bool,
-    hasWarning: propTypes.bool,
+    exceptions: propTypes.object,
     active: propTypes.bool,
     onSelect: propTypes.func.isRequired,
     siblings: propTypes.array.isRequired,
@@ -249,7 +248,6 @@ BranchTabLabel.propTypes = {
 BranchTabLabel.defaultProps = {
     value: '',
     active: false,
-    hasError: false,
-    hasWarning: false,
+    exceptions: {},
 };
 export default BranchTabLabel;

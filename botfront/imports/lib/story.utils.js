@@ -212,8 +212,8 @@ export const accumulateExceptions = (originStory) => {
             let errors = currentStory.errors ? [...currentStory.errors] : [];
             let warnings = currentStory.warnings ? [...currentStory.warnings] : [];
             childExceptions.forEach((child) => {
-                errors = [...errors, ...child.errors];
-                warnings = [...warnings, ...child.warnings];
+                errors = [...errors, ...(child.errors ? child.errors : [])];
+                warnings = [...warnings, ...(child.warnings ? child.errors : [])];
             });
             pathDictionary[newPath] = { errors, warnings };
             return { errors, warnings };
