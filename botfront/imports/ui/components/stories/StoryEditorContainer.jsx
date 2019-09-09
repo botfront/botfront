@@ -305,8 +305,7 @@ const StoryEditorContainer = ({
                                     }}
                                     onDelete={() => handleDeleteBranch(childPath, branches, index)
                                     }
-                                    hasError={branchLabelExceptions ? branchLabelExceptions.errors.length > 0 : false}
-                                    hasWarning={branchLabelExceptions ? branchLabelExceptions.warnings.length > 0 : false}
+                                    exceptions={branchLabelExceptions}
                                     siblings={branches}
                                 />
                             );
