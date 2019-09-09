@@ -11,7 +11,7 @@ const ExceptionAlerts = (props) => {
             inverted
             size='tiny'
             trigger={
-                <Icon name='times circle' color='red' />
+                <Icon name='times circle' color='red' data-cy='story-group-error-alert' />
             }
         >
             <p className='exception-popup'>This story group contains errors preventing it from being trained.</p>
@@ -24,7 +24,7 @@ const ExceptionAlerts = (props) => {
             size='tiny'
             position='top center'
             trigger={
-                <Icon name='exclamation circle' color='yellow' />
+                <Icon name='exclamation circle' color='yellow' data-cy='story-group-warning-alert' />
             }
         >
             <p className='exception-popup'>This story group contains warnings.</p>

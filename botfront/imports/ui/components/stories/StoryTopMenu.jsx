@@ -61,7 +61,7 @@ const StoryTopMenu = ({
             return <></>;
         }
         return (
-            <Label className='exception-label' color='yellow'>
+            <Label className='exception-label' color='yellow' data-cy='top-menu-warning-alert'>
                 <Icon name='exclamation circle' />
                 {warnings} Warning{pluralize}
             </Label>
@@ -74,7 +74,7 @@ const StoryTopMenu = ({
             return <></>;
         }
         return (
-            <Label className='exception-label' color='red'>
+            <Label className='exception-label' color='red' data-cy='top-menu-error-alert'>
                 <Icon name='times circle' />
                 {errors} Error{pluralize}
             </Label>
