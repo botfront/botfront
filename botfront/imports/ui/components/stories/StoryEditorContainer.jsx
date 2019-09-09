@@ -186,7 +186,16 @@ const StoryEditorContainer = ({
         const parentPath = path.slice(0, path.length - 1);
         if (branches.length < 3) {
             handleSwitchBranch(parentPath);
-            saveStory(parentPath, { branches: [] });
+            // we append the remaining story to the parent one.
+            const deletedStory = branches[!index ? 1 : 0].story;
+            const newParentStory = `${
+                storyControllers[parentPath.join()].md
+            }\n${deletedStory}`;
+            saveStory(parentPath, {
+                branches: [],
+                story: newParentStory,
+            });
+            storyControllers[parentPath.join()].setMd(newParentStory);
         } else {
             const updatedBranches = [
                 ...branches.slice(0, index),

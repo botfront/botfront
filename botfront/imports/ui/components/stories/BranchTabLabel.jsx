@@ -80,7 +80,7 @@ class BranchTabLabel extends React.Component {
 
     handleKeyDown = (event) => {
         const { title } = this.state;
-        
+
         if (event.key === 'Enter') {
             event.stopPropagation();
             event.preventDefault();
@@ -91,9 +91,13 @@ class BranchTabLabel extends React.Component {
         if (event.key === 'Escape') {
             event.stopPropagation();
             event.preventDefault();
-            this.setState({ newTitle: title, titleInputFocused: false, titleHovered: false });
+            this.setState({
+                newTitle: title,
+                titleInputFocused: false,
+                titleHovered: false,
+            });
         }
-    }
+    };
 
     renderAlertIcons = () => {
         const { hasWarning, hasError } = this.props;
@@ -107,9 +111,7 @@ class BranchTabLabel extends React.Component {
         return <>{alertList}</>;
     };
 
-    renderDeleteButton = () => (
-        <Icon name='trash' size='small' data-cy='delete-branch' />
-    );
+    renderDeleteButton = () => <Icon name='trash' size='small' data-cy='delete-branch' />;
 
     handleOnClick = () => {
         const { title } = this.state;
@@ -143,8 +145,8 @@ class BranchTabLabel extends React.Component {
             const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
             confirmMessage.content = (
                 <>
-                    The content of branch <strong>{strandedBranchName}</strong> is also
-                    going to get deleted.
+                    The content of <strong>{strandedBranchName}</strong> will be added to
+                    the previous story.
                 </>
             );
         }
