@@ -209,8 +209,8 @@ export const accumulateExceptions = (originStory) => {
             const childExceptions = currentStory.branches.map(branch => (
                 traverseBranch(branch, newPath)
             ));
-            let errors = [...currentStory.errors];
-            let warnings = [...currentStory.warnings];
+            let errors = currentStory.errors ? [...currentStory.errors] : [];
+            let warnings = currentStory.warnings ? [...currentStory.warnings] : [];
             childExceptions.forEach((child) => {
                 errors = [...errors, ...child.errors];
                 warnings = [...warnings, ...child.warnings];
