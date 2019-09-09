@@ -4,6 +4,8 @@ import {
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import ExceptionAlerts from './ExceptionAlerts';
+
 
 class IntroStorySubMenu extends React.Component {
     constructor(props) {
@@ -32,8 +34,7 @@ class IntroStorySubMenu extends React.Component {
                     link
                     data-cy='intro-story-group'
                 >
-                    {introStory.hasWarnings.length > 0 ? <Icon name='exclamation circle' color='yellow' /> : <></>}
-                    {introStory.hasErrors.length > 0 ? <Icon name='times circle' color='red' /> : <></>}
+                    <ExceptionAlerts hasErrors={introStory.hasErrors.length > 0} hasWarnings={introStory.hasWarnings.length} />
                     <Icon
                         id={`${
                             introStory && introStory.selected
