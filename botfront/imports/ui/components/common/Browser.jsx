@@ -136,7 +136,7 @@ class Browser extends React.Component {
                                 data-cy='edit-name-icon'
                             />
                         )}
-                        <span>{item[nameAccessor]}</span>
+                        <span className='story-group-menu-item'>{item[nameAccessor]}</span>
                         {indexProp === index && saving && (
                             <Loader active size='tiny' />
                         )}
