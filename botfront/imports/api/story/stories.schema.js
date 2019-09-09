@@ -13,6 +13,44 @@ const commonStorySchema = {
     _id: {
         type: String,
     },
+    errors: {
+        type: Array,
+        defaultValue: [],
+    },
+    'errors.$': {
+        type: Object,
+    },
+    'errors.$.type': {
+        type: String,
+    },
+    'errors.$.line': {
+        type: Number,
+    },
+    'errors.$.message': {
+        type: String,
+    },
+    'errors.$.code': {
+        type: String,
+    },
+    warnings: {
+        type: Array,
+        defaultValue: [],
+    },
+    'warnings.$': {
+        type: Object,
+    },
+    'warnings.$.type': {
+        type: String,
+    },
+    'warnings.$.line': {
+        type: Number,
+    },
+    'warnings.$.message': {
+        type: String,
+    },
+    'warnings.$.code': {
+        type: String,
+    },
 };
 
 const intermediateSchemas = [[commonStorySchema, new SimpleSchema(commonStorySchema)]];
@@ -42,4 +80,42 @@ export const StorySchema = new SimpleSchema({
     },
     projectId: { type: String },
     selected: { type: true, optional: true },
+    errors: {
+        type: Array,
+        defaultValue: [],
+    },
+    'errors.$': {
+        type: Object,
+    },
+    'errors.$.type': {
+        type: String,
+    },
+    'errors.$.line': {
+        type: Number,
+    },
+    'errors.$.message': {
+        type: String,
+    },
+    'errors.$.code': {
+        type: String,
+    },
+    warnings: {
+        type: Array,
+        defaultValue: [],
+    },
+    'warnings.$': {
+        type: Object,
+    },
+    'warnings.$.type': {
+        type: String,
+    },
+    'warnings.$.line': {
+        type: Number,
+    },
+    'warnings.$.message': {
+        type: String,
+    },
+    'warnings.$.code': {
+        type: String,
+    },
 });
