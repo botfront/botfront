@@ -110,8 +110,8 @@ const StoryEditorContainer = ({
                 onRename={onRenameStory}
                 onClone={onClone}
                 groupNames={groupNames}
-                errors={localExceptions[story._id].errors.length}
-                warnings={localExceptions[story._id].warnings.length}
+                errors={localExceptions[story._id].errors ? localExceptions[story._id].errors.length : 0}
+                warnings={localExceptions[story._id].warnings ? localExceptions[story._id].warnings.length : 0}
             />
         );
     };

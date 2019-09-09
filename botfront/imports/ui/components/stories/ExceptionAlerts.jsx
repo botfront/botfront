@@ -3,7 +3,7 @@ import { Icon, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
 const ExceptionAlerts = (props) => {
-    const { hasErrors, hasWarnings } = props;
+    const { errors, warnings } = props;
 
     const renderErrorAlert = () => (
         <Popup
@@ -33,14 +33,18 @@ const ExceptionAlerts = (props) => {
 
     return (
         <>
-            {hasErrors && renderErrorAlert()}
-            {hasWarnings && renderWarningAlert()}
+            {errors && errors.length > 0 && renderErrorAlert()}
+            {warnings && warnings.length > 0 && renderWarningAlert()}
         </>
     );
 };
 ExceptionAlerts.propTypes = {
-    hasErrors: PropTypes.bool.isRequired,
-    hasWarnings: PropTypes.bool.isRequired,
+    errors: PropTypes.array,
+    warnings: PropTypes.array,
+};
+ExceptionAlerts.defaultProps = {
+    errors: [],
+    warnings: [],
 };
 
 export default ExceptionAlerts;
