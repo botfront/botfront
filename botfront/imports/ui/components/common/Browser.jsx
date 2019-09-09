@@ -3,6 +3,7 @@ import {
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
+import ExceptionAlerts from '../stories/ExceptionAlerts';
 
 class Browser extends React.Component {
     constructor(props) {
@@ -97,7 +98,6 @@ class Browser extends React.Component {
             allowEdit,
             placeholderAddItem,
         } = this.props;
-
         const {
             addMode, newItemName, page, editing, itemName,
         } = this.state;
@@ -114,6 +114,7 @@ class Browser extends React.Component {
             >
                 {editing !== index ? (
                     <>
+                        <ExceptionAlerts errors={item.hasErrors} warnings={item.hasWarnings} />
                         {selectAccessor && (
                             <Icon
                                 id={`${
