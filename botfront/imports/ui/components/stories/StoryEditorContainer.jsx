@@ -8,7 +8,11 @@ import shortid from 'shortid';
 import 'brace/theme/github';
 import 'brace/mode/text';
 
-import { traverseStory, getSubBranchesForPath, accumulateExceptions } from '../../../lib/story.utils';
+import {
+    traverseStory,
+    getSubBranchesForPath,
+    accumulateExceptions,
+} from '../../../lib/story.utils';
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from '../utils/Context';
 import { setStoryPath } from '../../store/actions/actions';
@@ -51,16 +55,27 @@ const StoryEditorContainer = ({
     // set to null when we don't want to go anywhere
     const [nextBranchPath, setNextBranchPath] = useState(null);
     const [storyDidSave, setStoryDidSave] = useState(false);
+    // Used to store ace editors instance to dynamically set annotations
+    // the ace edtior react component has a bug where it does not set properly
+    // so we have to use this workaround
+    const [editors, setEditors] = useState({});
 
     const saveStory = (path, content) => {
         onSaving();
         Meteor.call(
             'stories.update',
-            { _id: story._id, ...content, path: typeof path === 'string' ? [path] : path },
-            wrapMeteorCallback(() => { setStoryDidSave(true); onSaved(); }),
+            {
+                _id: story._id,
+                ...content,
+                path: typeof path === 'string' ? [path] : path,
+            },
+            wrapMeteorCallback(() => {
+                setStoryDidSave(true);
+                onSaved();
+            }),
         );
     };
-    
+
     const [storyControllers, setStoryControllers] = useState({
         [story._id]: new StoryController( // the root story
             story.story || '',
@@ -104,8 +119,16 @@ const StoryEditorContainer = ({
                 onRename={onRenameStory}
                 onClone={onClone}
                 groupNames={groupNames}
-                errors={localExceptions[story._id].errors ? localExceptions[story._id].errors.length : 0}
-                warnings={localExceptions[story._id].warnings ? localExceptions[story._id].warnings.length : 0}
+                errors={
+                    localExceptions[story._id].errors
+                        ? localExceptions[story._id].errors.length
+                        : 0
+                }
+                warnings={
+                    localExceptions[story._id].warnings
+                        ? localExceptions[story._id].warnings.length
+                        : 0
+                }
             />
         );
     };
@@ -114,16 +137,23 @@ const StoryEditorContainer = ({
         if (!storyControllers[pathAsString]) {
             return [];
         }
-        return (
-            storyControllers[pathAsString].exceptions.map(exception => (
-                {
-                    row: exception.line - 1,
-                    type: exception.type,
-                    text: exception.message,
-                }
-            ))
-        );
+        const annotations = storyControllers[pathAsString].exceptions.map(exception => ({
+            row: exception.line - 1,
+            type: exception.type,
+            text: exception.message,
+        }));
+        if (editors[pathAsString]) {
+            editors[pathAsString].getSession().setAnnotations(annotations);
+        }
+        return annotations;
     };
+
+    function handleLoadEditor(editor, path) {
+        setEditors({
+            ...editors,
+            [path]: editor,
+        });
+    }
 
     const renderAceEditor = (path) => {
         const pathAsString = path.join();
@@ -135,6 +165,7 @@ const StoryEditorContainer = ({
                 width='100%'
                 name='story'
                 mode='text'
+                onLoad={editor => handleLoadEditor(editor, pathAsString)}
                 minLines={5}
                 maxLines={Infinity}
                 fontSize={12}
@@ -196,9 +227,9 @@ const StoryEditorContainer = ({
             handleSwitchBranch(parentPath);
             // we append the remaining story to the parent one.
             const deletedStory = branches[!index ? 1 : 0].story;
-            const newParentStory = `${
-                storyControllers[parentPath.join()].md
-            }\n${deletedStory}`;
+            const newParentStory = `${storyControllers[parentPath.join()].md}${
+                deletedStory ? '\n' : ''
+            }${deletedStory || ''}`;
             saveStory(parentPath, {
                 branches: [],
                 story: newParentStory,
@@ -238,7 +269,10 @@ const StoryEditorContainer = ({
             Meteor.call(
                 'storyGroups.updateExceptions',
                 {
-                    _id: story.storyGroupId, hasError, hasWarning, storyId: story._id,
+                    _id: story.storyGroupId,
+                    hasError,
+                    hasWarning,
+                    storyId: story._id,
                 },
                 wrapMeteorCallback(() => {}),
             );
