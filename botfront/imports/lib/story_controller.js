@@ -13,10 +13,21 @@ export class StoryController {
             slots: this.getSlots(slots),
         };
         this.md = story;
-        this.templates = templates || {};
+        this.templates = this.loadTemplates(templates) || {};
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
         this.validateStory();
+    }
+    
+    loadTemplates = (templates) => {
+        if (!Array.isArray(templates)) {
+            return templates;
+        }
+        const templateObject = {};
+        templates.forEach((template) => {
+            templateObject[template.key] = templates.values;
+        });
+        return templateObject;
     }
 
     getSlots = (slots) => {
