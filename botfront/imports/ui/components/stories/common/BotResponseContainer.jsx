@@ -8,7 +8,7 @@ import ExceptionWrapper from './ExceptionWrapper';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, hasError, hasWarning,
+        value, onDelete, onChange, deletable, focus, onFocus, exceptions,
     } = props;
 
     const [input, setInput] = useState();
@@ -56,7 +56,7 @@ const BotResponseContainer = (props) => {
     );
     
     return (
-        <ExceptionWrapper className='bot-response' hasError={hasError} hasWarning={hasWarning}>
+        <ExceptionWrapper className='bot-response' exceptions={exceptions}>
             <div
                 className='utterance-container bot-response'
                 agent='bot'
@@ -66,7 +66,7 @@ const BotResponseContainer = (props) => {
                     {hasText && renderText()}
                     {hasButtons && renderButtons()}
                 </div>
-                {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />} 
+                {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
             </div>
         </ExceptionWrapper>
     );
@@ -79,16 +79,14 @@ BotResponseContainer.propTypes = {
     onFocus: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
-    hasError: PropTypes.bool,
-    hasWarning: PropTypes.bool,
+    exceptions: PropTypes.array,
 
 };
 
 BotResponseContainer.defaultProps = {
     deletable: true,
     focus: false,
-    hasError: false,
-    hasWarning: false,
+    exceptions: [],
 };
 
 export default BotResponseContainer;
