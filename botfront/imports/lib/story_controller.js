@@ -13,13 +13,16 @@ export class StoryController {
             slots: this.getSlots(slots),
         };
         this.md = story;
-        this.templates = this.restructureTemplates(templates);
+        this.templates = this.loadTemplates(templates) || {};
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
         this.validateStory();
     }
     
-    restructureTemplates = (templates) => {
+    loadTemplates = (templates) => {
+        if (!Array.isArray(templates)) {
+            return templates;
+        }
         const templateObject = {};
         templates.forEach((template) => {
             templateObject[template.key] = templates.values;
