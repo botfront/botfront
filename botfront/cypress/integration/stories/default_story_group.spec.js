@@ -19,25 +19,17 @@ describe('default story creation ', () => {
         cy.contains('Default stories').click();
 
         // checks that the Greetings story exists with default contents
-        cy.get('[value~=\'Greetings\']').should('exist');
+        cy.contains('Greetings').should('exist');
         cy.contains('chitchat.greet').should('exist');
         cy.contains('- utter_hi').should('exist');
-        // deletes the Greetings story
-        cy.get('[value~=\'Greetings\']')
-            .closest('[data-cy=story-editor]')
-            .find('[data-cy=delete-story]')
-            .click();
-        cy.get('[data-cy=confirm-popup]')
-            .get('[data-cy=confirm-yes]')
-            .click();
 
         // checks that the Farewells story exists
-        cy.get('[value~=\'Farewells\']').should('exist');
+        cy.contains('Farewells').should('exist');
         cy.contains('chitchat.bye').should('exist');
         cy.contains('- utter_bye').should('exist');
 
         // deletes the farewells story
-        cy.get('[value~=\'Farewells\']').should('exist')
+        cy.contains('Farewells').should('exist')
             .closest('[data-cy=story-editor]')
             .find('[data-cy=delete-story]')
             .click();
