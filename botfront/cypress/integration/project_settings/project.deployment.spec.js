@@ -30,7 +30,7 @@ describe('enable an environment', function() {
             cy.get('[data-cy=ace-field]')
                 .click();
             cy.wait(100);
-            cy.get('textarea').type('{uparrow}{rightarrow}{rightarrow}{backspace}7');
+            cy.get('textarea').clear().type('verify saved credentials staging');
             cy.get('[data-cy=save-button]').click();
 
 
@@ -40,7 +40,7 @@ describe('enable an environment', function() {
             cy.dataCy('environment-credentials-tab')
                 .contains('Staging')
                 .click();
-            // cy.contains('7005').should('exist');
+            cy.contains('verify saved credentials staging').should('exist');
 
             cy.contains('Endpoints').click();
             cy.dataCy('environment-endpoints-tab')
@@ -49,10 +49,8 @@ describe('enable an environment', function() {
                 .click();
             cy.wait(100);
             cy.get('textarea')
-                .type('{uparrow}')
-                .type('{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}')
-                .type('{backspace}')
-                .type('9');
+                .clear()
+                .type('verify saved endpoints staging');
             cy.get('[data-cy=save-button]').click();
 
             cy.visit('/project/bf/settings');
@@ -60,7 +58,7 @@ describe('enable an environment', function() {
             cy.dataCy('environment-endpoints-tab')
                 .contains('Staging')
                 .click();
-            // cy.contains('9080').should('exist');
+            cy.contains('verify saved endpoints staging').should('exist');
 
             cy.visit('/project/bf/settings');
             cy.contains('Deployment').click();
@@ -91,9 +89,8 @@ describe('enable an environment', function() {
             cy.get('[data-cy=ace-field]')
                 .click();
             cy.wait(100);
-            cy.get('textarea').type('{uparrow}{rightarrow}{rightarrow}{backspace}7');
+            cy.get('textarea').clear().type('verify saved credentials production');
             cy.get('[data-cy=save-button]').click();
-
 
             // verify edit saved
             cy.visit('/project/bf/settings');
@@ -101,7 +98,7 @@ describe('enable an environment', function() {
             cy.dataCy('environment-credentials-tab')
                 .contains('Production')
                 .click();
-            // cy.contains('7005').should('exist');
+            cy.contains('verify saved credentials production').should('exist');
 
             cy.contains('Endpoints').click();
             cy.dataCy('environment-endpoints-tab')
@@ -110,10 +107,8 @@ describe('enable an environment', function() {
                 .click();
             cy.wait(100);
             cy.get('textarea')
-                .type('{uparrow}')
-                .type('{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}{rightarrow}')
-                .type('{backspace}')
-                .type('9');
+                .clear()
+                .type('verify saved endpoints production');
             cy.get('[data-cy=save-button]').click();
 
             cy.visit('/project/bf/settings');
@@ -121,7 +116,7 @@ describe('enable an environment', function() {
             cy.dataCy('environment-endpoints-tab')
                 .contains('Production')
                 .click();
-            // cy.contains('9080').should('exist');
+            cy.contains('verify saved endpoints production').should('exist');
 
             cy.visit('/project/bf/settings');
             cy.contains('Deployment').click();
