@@ -5,7 +5,7 @@ import { Label, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import IntentDropdown from '../nlu/common/IntentDropdown';
 import { ConversationOptionsContext } from './Context';
-import { OOS_LABEL } from '../stories/common/constants.json';
+import { OOS_LABEL } from '../constants.json';
 
 function Intent({
     value, size, allowEditing, allowAdditions, onChange,

@@ -7,6 +7,8 @@ import { checkIfCan, can } from '../lib/scopes';
 import { formatError, validateYaml } from '../lib/utils';
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
 
+import { ENVIRONMENT_OPTIONS } from '../ui/components/constants.json';
+
 export const Credentials = new Mongo.Collection('credentials');
 // Deny all client-side updates on the Credentials collection
 Credentials.deny({
@@ -30,7 +32,11 @@ const getDefaultCredentials = () => {
     return defaultCredentials;
 };
 
-export const createCredentials = ({ _id: projectId }) => Credentials.insert({ projectId, credentials: getDefaultCredentials() });
+export const createCredentials = ({ _id: projectId }) => {
+    ENVIRONMENT_OPTIONS.forEach((environment) => {
+        Credentials.insert({ projectId, environment, credentials: getDefaultCredentials() });
+    });
+};
 
 export const CredentialsSchema = new SimpleSchema(
     {
@@ -38,6 +44,7 @@ export const CredentialsSchema = new SimpleSchema(
             type: String,
             custom: validateYaml,
         },
+        environment: { type: String, optional: true },
         projectId: { type: String },
         createdAt: {
             type: Date,
@@ -72,7 +79,16 @@ if (Meteor.isServer) {
             check(credentials, Object);
             checkIfCan('project-settings:w', credentials.projectId);
             try {
-                return Credentials.upsert({ projectId: credentials.projectId }, { $set: { credentials: credentials.credentials } });
+                return Credentials.upsert(
+                    { projectId: credentials.projectId, _id: credentials._id },
+                    {
+                        $set: {
+                            projectId: credentials.projectId,
+                            credentials: credentials.credentials,
+                            environment: credentials.environment,
+                        },
+                    },
+                );
             } catch (e) {
                 throw formatError(e);
             }

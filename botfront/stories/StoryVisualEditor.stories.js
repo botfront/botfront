@@ -10,7 +10,7 @@ import { ConversationOptionsContext } from '../imports/ui/components/utils/Conte
 import { slots, intents, entities } from './AddStoryLine.stories';
 import { utterances } from './UserUtteranceContainer.stories';
 import { responses as responseFixtures } from './BotResponseContainer.stories';
-import { OOS_LABEL } from '../imports/ui/components/stories/common/constants.json';
+import { OOS_LABEL } from '../imports/ui/components/constants.json';
 
 /* const storyOne = [
     { type: 'action', data: { name: 'action_bebe' } },

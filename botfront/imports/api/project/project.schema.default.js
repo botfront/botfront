@@ -2,6 +2,8 @@ import SimpleSchema from 'simpl-schema';
 import { TemplateSchema } from './response.schema';
 import { languages } from '../../lib/languages';
 
+import { ENVIRONMENT_OPTIONS } from '../../ui/components/constants.json';
+
 export const ProjectsSchema = new SimpleSchema({
     name: {
         type: String,
@@ -37,6 +39,14 @@ export const ProjectsSchema = new SimpleSchema({
     'training.startTime': { type: Date, optional: true },
     'training.endTime': { type: Date, optional: true },
     'training.message': { type: String, optional: true },
+    deploymentEnvironments: {
+        type: Array,
+        defaultValue: [],
+    },
+    'deploymentEnvironments.$': {
+        type: String,
+        allowedValues: ENVIRONMENT_OPTIONS.slice(1),
+    },
     
 }, { tracker: Tracker });
 

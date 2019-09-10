@@ -4,19 +4,29 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { cloneDeep } from 'lodash';
 import React from 'react';
+import { Menu } from 'semantic-ui-react';
 
 import { Endpoints as EndpointsCollection } from '../../../api/endpoints/endpoints.collection';
+import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
 import { EndpointsSchema } from '../../../api/endpoints/endpoints.schema';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangesSaved from '../utils/ChangesSaved';
 import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
 import { can } from '../../../lib/scopes';
+import ContextualSaveMessage from './ContextualSaveMessage';
+
+import { ENVIRONMENT_OPTIONS } from '../constants.json';
 
 class Endpoints extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false, saved: false, showConfirmation: false };
+        this.state = {
+            saving: false,
+            saved: false,
+            showConfirmation: false,
+            selectedEnvironment: 'development',
+        };
     }
 
     componentWillUnmount() {
@@ -24,11 +34,18 @@ class Endpoints extends React.Component {
     }
 
     onSave = (endpoints) => {
+        const newEndpoints = endpoints;
+        const { selectedEnvironment } = this.state;
+        const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
+        if (!endpoints._id) {
+            newEndpoints.projectId = projectId;
+            newEndpoints.environment = selectedEnvironment;
+        }
         Meteor.call(
             'endpoints.save',
-            endpoints,
+            newEndpoints,
             wrapMeteorCallback((err) => {
                 this.setState({ saving: false });
                 if (!err) {
@@ -42,10 +59,11 @@ class Endpoints extends React.Component {
     };
 
     renderEndpoints = (saving, endpoints, projectId) => {
-        const { saved, showConfirmation } = this.state;
+        const { saved, showConfirmation, selectedEnvironment } = this.state;
         const { orchestrator } = this.props;
         return (
             <AutoForm
+                key={selectedEnvironment}
                 disabled={!!saving || !can('project-settings:w', projectId)}
                 schema={EndpointsSchema}
                 model={endpoints}
@@ -68,7 +86,7 @@ class Endpoints extends React.Component {
                             <p>
                                 {orchestrator === 'docker-compose' && (
                                     <span>
-                                        Run <b>botfront restart rasa</b> from your project's folder to apply changes.
+                                        <ContextualSaveMessage selectedEnvironment={selectedEnvironment} />
                                     </span>
                                 )}
                             </p>
@@ -82,10 +100,56 @@ class Endpoints extends React.Component {
 
     renderLoading = () => <div />;
 
+    handleMenuItemClick = (event, environment) => {
+        this.setState({ selectedEnvironment: environment, showConfirmation: false });
+    }
+
+    renderMenuItem = (environment) => {
+        const { selectedEnvironment } = this.state;
+        return (
+            <Menu.Item
+                key={environment}
+                onClick={(e) => { this.handleMenuItemClick(e, environment); }}
+                active={selectedEnvironment === environment}
+                data-cy='environment-endpoints-tab'
+            >
+                {`${environment[0].toUpperCase()}${environment.slice(1)}`}
+            </Menu.Item>
+        );
+    }
+
+    renderMenu = () => {
+        const { projectSettings } = this.props;
+        if (!projectSettings.deploymentEnvironments) {
+            return [this.renderMenuItem('development')];
+        }
+        const menuItemElements = ENVIRONMENT_OPTIONS.map((environment) => {
+            if (projectSettings.deploymentEnvironments.includes(environment)) {
+                return this.renderMenuItem(environment);
+            }
+            return <></>;
+        });
+        return [this.renderMenuItem('development'), ...menuItemElements];
+    }
+
+    renderContents = () => {
+        const { endpoints, projectId } = this.props;
+        const { selectedEnvironment, saving } = this.state;
+        return this.renderEndpoints(saving, endpoints[selectedEnvironment], projectId);
+    }
+
     render() {
-        const { projectId, endpoints, ready } = this.props;
-        const { saving } = this.state;
-        if (ready) return this.renderEndpoints(saving, endpoints, projectId);
+        const { ready } = this.props;
+        if (ready) {
+            return (
+                <>
+                    <Menu pointing secondary data-cy='endpoints-environment-menu'>
+                        {this.renderMenu()}
+                    </Menu>
+                    {this.renderContents()}
+                </>
+            );
+        }
         return this.renderLoading();
     }
 }
@@ -95,20 +159,38 @@ Endpoints.propTypes = {
     endpoints: PropTypes.object,
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
+    projectSettings: PropTypes.object,
 };
 
 Endpoints.defaultProps = {
     endpoints: {},
     orchestrator: '',
+    projectSettings: {},
 };
 
 const EndpointsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('endpoints', projectId);
-    const endpoints = EndpointsCollection.findOne({ projectId });
-
+    const projectSettings = ProjectsCollection.findOne(
+        { _id: projectId },
+        {
+            fields: {
+                deploymentEnvironments: 1,
+            },
+        },
+    );
+    const endpoints = {};
+    EndpointsCollection.find({ projectId })
+        .fetch()
+        .filter(endpoint => (
+            endpoint.environment === undefined || ENVIRONMENT_OPTIONS.includes(endpoint.environment)
+        ))
+        .forEach((endpoint) => {
+            endpoints[endpoint.environment ? endpoint.environment : 'development'] = endpoint;
+        });
     return {
         ready: handler.ready(),
         endpoints,
+        projectSettings,
     };
 })(Endpoints);
 

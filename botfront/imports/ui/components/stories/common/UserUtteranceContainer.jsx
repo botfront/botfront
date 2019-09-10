@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
-import { OOS_LABEL } from './constants.json';
+import { OOS_LABEL } from '../../constants.json';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 import { ConversationOptionsContext } from '../../utils/Context';
