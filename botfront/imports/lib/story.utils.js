@@ -119,6 +119,11 @@ export const extractDomain = (stories, slots, templates = null) => {
     let domains = stories.map((story) => {
         try {
             const val = new StoryController(story, slots, () => {}, null, templates);
+            if (val.getErrors().length > 0) {
+                return {
+                    entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
+                };
+            }
             return val.extractDomain();
         } catch (e) {
             return {
@@ -179,15 +184,23 @@ export const getStoriesAndDomain = (projectId) => {
     const stories = selectedStoryGroupsIds.length > 0
         ? Stories.find(
             { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
-            { fields: { story: 1, title: 1, branches: 1 } },
+            {
+                fields: {
+                    story: 1, title: 1, branches: 1, errors: 1,
+                },
+            },
         ).fetch()
-        : Stories.find({ projectId }, { fields: { story: 1, title: 1, branches: 1 } }).fetch();
-
+        : Stories.find({ projectId }, {
+            fields: {
+                story: 1, title: 1, branches: 1, errors: 1,
+            },
+        }).fetch();
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
         .map(story => story.story)
         .concat([extraDomain]);
     const storiesForRasa = stories
+        .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
         .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
 
