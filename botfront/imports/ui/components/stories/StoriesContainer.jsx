@@ -166,7 +166,9 @@ function StoriesContainer(props) {
     );
 
     return (
-        <ResponsesContext.Provider value={{ templates: [...project.templates] }}>{renderStoriesContainer()}</ResponsesContext.Provider>
+        <ResponsesContext.Provider value={{ templates: [...project.templates] }}>
+            {renderStoriesContainer()}
+        </ResponsesContext.Provider>
     );
 }
 
@@ -194,7 +196,7 @@ export default withTracker((props) => {
         {
             fields: {
                 training: 1,
-                templates: 1,
+                'templates.key': 1,
             },
         },
     );
