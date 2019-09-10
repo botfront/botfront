@@ -114,7 +114,8 @@ class Browser extends React.Component {
             >
                 {editing !== index ? (
                     <>
-                        <ExceptionAlerts errors={item.hasErrors} warnings={item.hasWarnings} />
+                        {item.hasWarnings.length > 0 ? <Icon name='exclamation circle' color='yellow' /> : <></>}
+                        {item.hasErrors.length > 0 ? <Icon name='times circle' color='red' /> : <></>}
                         {selectAccessor && (
                             <Icon
                                 id={`${
