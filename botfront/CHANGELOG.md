@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.1...v0.16.0-rc.2) (2019-09-10)
+
+
+### Bug Fixes
+
+* adjust line height for story group menu items ([52185d7](https://github.com/botfront/botfront/commit/52185d7))
+* alerts not removed if intro story deleted ([3898d83](https://github.com/botfront/botfront/commit/3898d83))
+* crash in BranchTabLabel with old DataBases ([46d0c12](https://github.com/botfront/botfront/commit/46d0c12))
+* extra character caused a crash on start ([292f498](https://github.com/botfront/botfront/commit/292f498))
+* storyGroupMenu selected items are blue ([909dda2](https://github.com/botfront/botfront/commit/909dda2))
+* the selected story group is blue ([c71a1b5](https://github.com/botfront/botfront/commit/c71a1b5))
+* undefined bot responses preventing training ([1658daa](https://github.com/botfront/botfront/commit/1658daa))
+* wrong default base_url in credentials ([8d3c28a](https://github.com/botfront/botfront/commit/8d3c28a))
+
+
+### Features
+
+* add icon indicators for story exceptions ([26ff2aa](https://github.com/botfront/botfront/commit/26ff2aa))
+* add response context to StotyEditorContainer ([c0bdb40](https://github.com/botfront/botfront/commit/c0bdb40))
+* add response context to StotyEditorContainer ([08fc2ed](https://github.com/botfront/botfront/commit/08fc2ed))
+* exclude stories with errors from training ([bfccd22](https://github.com/botfront/botfront/commit/bfccd22))
+* links to Spectrum in menu and docs ([d093604](https://github.com/botfront/botfront/commit/d093604))
+
+
+### Tests
+
+* add tests for exceptions in markdown ([4982ab9](https://github.com/botfront/botfront/commit/4982ab9))
+
+
+
 ## [0.16.0-rc.1](https://github.com/botfront/botfront/compare/v0.15.5...v0.16.0-rc.1) (2019-09-09)
 
 
