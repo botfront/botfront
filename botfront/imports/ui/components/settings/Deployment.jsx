@@ -26,7 +26,7 @@ class Deployment extends React.Component {
         this.setState({ saving: true });
 
         Meteor.call(
-            'environment.update',
+            'project.update',
             {
                 _id, deploymentEnvironments,
             },
@@ -63,7 +63,6 @@ class Deployment extends React.Component {
                             onSubmit={updateProject => this.onSave(updateProject)}
                             disabled={!!saving || hasProjectWritePermission}
                         >
-                            
 
                             <InfoField
                                 name='deploymentEnvironments'
@@ -111,6 +110,7 @@ const DeploymentContainer = withTracker(({ projectId }) => {
                 name: 1,
                 defaultLanguage: 1,
                 deploymentEnvironments: 1,
+                namespace: 1,
             },
         },
     );

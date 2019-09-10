@@ -95,15 +95,6 @@ if (Meteor.isServer) {
                 throw formatError(e);
             }
         },
-        'environment.update'(item) {
-            check(item, Match.ObjectIncluding({ _id: String }));
-            checkIfCan('project-settings:w', item._id);
-            try {
-                return Projects.update({ _id: item._id }, { $set: { deploymentEnvironments: item.deploymentEnvironments } });
-            } catch (e) {
-                throw formatError(e);
-            }
-        },
         'project.delete'(projectId, options) {
             check(projectId, String);
             check(options, Match.Optional(Object));
@@ -135,7 +126,7 @@ if (Meteor.isServer) {
         'project.markTrainingStarted'(projectId) {
             check(projectId, String);
             checkIfCan('nlu-model:x', projectId);
-    
+
             try {
                 return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
             } catch (e) {
@@ -148,7 +139,7 @@ if (Meteor.isServer) {
             check(status, String);
             check(error, Match.Optional(String));
             checkIfCan('nlu-model:x', projectId);
-    
+
             try {
                 const set = { training: { status, endTime: new Date() } };
                 if (error) {

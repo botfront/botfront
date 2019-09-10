@@ -1,5 +1,7 @@
 import { Roles } from 'meteor/modweb:roles';
 import { Instances } from '../imports/api/instances/instances.collection';
+import { Credentials } from '../imports/api/credentials';
+import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
 
 /* globals Migrations */
 
@@ -25,6 +27,27 @@ Migrations.add({
     },
 });
 
+Migrations.add({
+    version: 2,
+    up: () => {
+        Credentials.find({ environment: { $exists: false } })
+            .fetch()
+            .forEach((i) => {
+                Credentials.update(
+                    { _id: i._id },
+                    { $set: { environment: 'development' } },
+                );
+            });
+        Endpoints.find({ environment: { $exists: false } })
+            .fetch()
+            .forEach((i) => {
+                Endpoints.update(
+                    { _id: i._id },
+                    { $set: { environment: 'development' } },
+                );
+            });
+    },
+});
 
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
