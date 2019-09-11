@@ -102,6 +102,7 @@ class Stories extends React.Component {
                 storyGroupId: `${
                     !!introStoryGroup ? introStoryGroup._id : storyGroups[storyIndex]._id
                 }`,
+                branches: [],
             },
             wrapMeteorCallback(),
         );
