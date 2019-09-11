@@ -107,7 +107,7 @@ const getMappingTriggers = policies => policies
     .reduce((coll, curr) => coll.concat(curr), [])
     .reduce((coll, curr) => coll.concat(curr), []);
 
-export const extractDomain = (stories, slots, templates = null) => {
+export const extractDomain = (stories, slots, templates = {}) => {
     const defaultDomain = {
         actions: new Set(Object.keys(templates)),
         intents: new Set(),

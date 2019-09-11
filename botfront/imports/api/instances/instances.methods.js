@@ -51,8 +51,11 @@ const getConfig = (model) => {
             }
         }
     });
-
     config.language = model.language;
+    config.pipeline.unshift({
+        name: 'rasa_addons.nlu.components.language_setter.LanguageSetter',
+        language: config.language,
+    });
     return yaml.dump(config);
 };
 
