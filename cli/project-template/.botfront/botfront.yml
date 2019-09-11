@@ -1,6 +1,6 @@
 images:
   default:
-    botfront: gcr.io/botfront-project/botfront:v0.15.5-ee.13
+    botfront: gcr.io/botfront-project/botfront:v0.16.0-rc.4-ee.1
     botfront-api: botfront/botfront-api:v0.16.0
     rasa: botfront/rasa-for-botfront:v1.1.7-bf.6
     duckling: botfront/duckling:latest

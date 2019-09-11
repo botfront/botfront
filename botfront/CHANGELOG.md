@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.4-ee.1](https://github.com/botfront/botfront/compare/v0.15.5-ee.13...v0.16.0-rc.4-ee.1) (2019-09-11)
+
+
+### Bug Fixes
+
+* add backwards compatability for data ([f4b8cce](https://github.com/botfront/botfront/commit/f4b8cce))
+* cannot add environment - namespace missing ([8ccefcd](https://github.com/botfront/botfront/commit/8ccefcd))
+* change constants.json import to new path ([1aacb37](https://github.com/botfront/botfront/commit/1aacb37))
+* change credentials env menu to render once ([59d6652](https://github.com/botfront/botfront/commit/59d6652))
+* stop ace editor unsaved text carryover ([9d6a79c](https://github.com/botfront/botfront/commit/9d6a79c))
+* undefined environment handling ([becb592](https://github.com/botfront/botfront/commit/becb592))
+* undefined environment tag handling ([4d01b4d](https://github.com/botfront/botfront/commit/4d01b4d))
+
+
+### Features
+
+* add deployment tab to settings menu ([779b360](https://github.com/botfront/botfront/commit/779b360))
+* add option to enable additional environment ([3f4186a](https://github.com/botfront/botfront/commit/3f4186a))
+* add seperate environments and settings ([679eb09](https://github.com/botfront/botfront/commit/679eb09))
+* add style.less file for settings ui ([f008256](https://github.com/botfront/botfront/commit/f008256))
+* create tests for deployment env settings ([2937518](https://github.com/botfront/botfront/commit/2937518))
+
+
+### Tests
+
+* rework test for deployment environments ([17c2ac6](https://github.com/botfront/botfront/commit/17c2ac6))
+
+
+
 ### [0.15.5-ee.13](https://github.com/botfront/botfront/compare/v0.15.5-ee.12...v0.15.5-ee.13) (2019-09-05)
 
 
