@@ -130,7 +130,7 @@ describe('story visual editor', function() {
                 .contains('[role=row]', 'I do too.')
                 .contains('[role=row]', response.replace('-', '').trim())
                 .should('exist') // there's a row with our text and response hash
-                .find('[data-cy=edit-response-1]')
+                .find('[data-cy=edit-response-0]')
                 .click();
             cy.get('.response-message-1:not(.button)')
                 .invoke('text')
