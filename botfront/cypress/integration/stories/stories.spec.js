@@ -66,6 +66,7 @@ describe('stories', function() {
             .first()
             .click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
+        cy.dataCy('browser-item').eq(1).should('have.class', 'active');
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('delete-story').click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });

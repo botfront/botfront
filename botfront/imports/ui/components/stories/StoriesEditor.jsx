@@ -38,8 +38,9 @@ function StoriesEditor(props) {
                             wrapMeteorCallback(() => {
                             }),
                         );
+                    } else {
+                        onDeleteGroup();
                     }
-                    onDeleteGroup();
                 }
             }),
         );
