@@ -57,6 +57,7 @@ services:
       - "./actions:/app/actions"
     command:
       - start
+      - --debug
       - --actions
       - actions
     env_file:
