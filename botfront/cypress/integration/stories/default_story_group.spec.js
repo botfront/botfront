@@ -1,14 +1,14 @@
 /* eslint-disable no-undef */
 
 describe('default story creation ', () => {
-    before(() => {
-        cy.createProject('bf', 'My Project', 'en');
-    });
     beforeEach(() => {
+        cy.createProject('bf', 'My Project', 'en');
         cy.login();
     });
-    after(() => {
+
+    afterEach(() => {
         cy.deleteProject('bf');
+        cy.logout();
     });
 
     it('should create the default story group with stories Grettings and Farwells', () => {

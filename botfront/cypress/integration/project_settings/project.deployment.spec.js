@@ -1,21 +1,17 @@
 /* eslint-disable no-undef */
 
 describe('enable an environment', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-    });
-
-    after(function() {
-        cy.deleteProject('bf');
-    });
 
     beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'fr');
         cy.login();
     });
 
     afterEach(function() {
+        cy.deleteProject('bf');
         cy.logout();
     });
+
     describe('Environments', function() {
         it('can enable, edit, and disable staging', function() {
             cy.visit('/project/bf/settings');

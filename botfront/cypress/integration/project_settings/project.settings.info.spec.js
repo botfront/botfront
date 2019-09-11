@@ -1,18 +1,13 @@
 /* eslint-disable no-undef */
 
 describe('Project Settings', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'en');
-    });
-
-    after(function() {
-        cy.deleteProject('bf');
-    });
     beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'en');
         cy.login();
     });
 
     afterEach(function() {
+        cy.deleteProject('bf');
         cy.logout();
     });
 
@@ -70,10 +65,5 @@ describe('Project Settings', function() {
             cy.get('[data-cy=save-changes]').click();
             cy.get('[data-cy=change-nlu-threshold] input').should('have.value', '0.85');
         });
-    });
-
-    after(function() {
-        cy.login();
-        cy.deleteNLUModelProgramatically(null, this.bf_project_id, 'de');
     });
 });
