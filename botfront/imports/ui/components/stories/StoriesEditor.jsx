@@ -23,8 +23,8 @@ function StoriesEditor(props) {
     } = props;
 
     function handleStoryDeletion(index) {
-        const isIntroStory = groupNames
-            .filter(({ value }) => value === stories[index].storyGroupId)[0]
+        // REVIEW REQUIRED
+        const isIntroStory = groupNames.filter(({ value }) => value === stories[index].storyGroupId)[0]
             .text === 'Intro stories';
         Meteor.call(
             'stories.delete',
@@ -35,17 +35,18 @@ function StoriesEditor(props) {
                         Meteor.call(
                             'storyGroups.updateExceptions',
                             {
-                                _id: stories[index].storyGroupId, storyId: stories[index]._id,
+                                _id: stories[index].storyGroupId,
+                                storyId: stories[index]._id,
                             },
-                            wrapMeteorCallback(() => {
-                            }),
+                            wrapMeteorCallback(() => {}),
                         );
-                    } else {
+                    } else if (stories.length === 1) {
                         onDeleteGroup();
                     }
                 }
             }),
         );
+        // REVIEW REQUIRED
     }
 
     function handleStoryRenaming(newTitle, index) {
