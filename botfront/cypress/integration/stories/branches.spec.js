@@ -105,6 +105,7 @@ describe('branches', function() {
 
     it('should be able to merge deleted story branches', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('open-chat').click();
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label')

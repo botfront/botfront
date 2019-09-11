@@ -11,6 +11,7 @@ describe('stories', function() {
 
     it('should alert the user of errors', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.wait(200);
         cy.dataCy('story-group-error-alert').should('not.exist');
         cy.dataCy('top-menu-error-alert').should('not.exist');
@@ -55,6 +56,7 @@ describe('stories', function() {
 
     it('should remove alerts when a story is deleted', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.wait(200);
         cy.dataCy('story-group-error-alert').should('not.exist');
         cy.dataCy('top-menu-error-alert').should('not.exist');
@@ -99,6 +101,7 @@ describe('stories', function() {
 
     it('should alert the user of wanings', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.wait(200);
         cy.get('.ace_line')
             .first()

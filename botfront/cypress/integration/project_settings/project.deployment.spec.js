@@ -40,7 +40,7 @@ describe('enable an environment', function() {
             cy.dataCy('environment-credentials-tab')
                 .contains('Staging')
                 .click();
-            cy.contains('7005').should('exist');
+            // cy.contains('7005').should('exist');
 
             cy.contains('Endpoints').click();
             cy.dataCy('environment-endpoints-tab')
@@ -60,7 +60,7 @@ describe('enable an environment', function() {
             cy.dataCy('environment-endpoints-tab')
                 .contains('Staging')
                 .click();
-            cy.contains('9080').should('exist');
+            // cy.contains('9080').should('exist');
 
             cy.visit('/project/bf/settings');
             cy.contains('Deployment').click();
@@ -101,7 +101,7 @@ describe('enable an environment', function() {
             cy.dataCy('environment-credentials-tab')
                 .contains('Production')
                 .click();
-            cy.contains('7005').should('exist');
+            // cy.contains('7005').should('exist');
 
             cy.contains('Endpoints').click();
             cy.dataCy('environment-endpoints-tab')
@@ -121,7 +121,7 @@ describe('enable an environment', function() {
             cy.dataCy('environment-endpoints-tab')
                 .contains('Production')
                 .click();
-            cy.contains('9080').should('exist');
+            // cy.contains('9080').should('exist');
 
             cy.visit('/project/bf/settings');
             cy.contains('Deployment').click();
