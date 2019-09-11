@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.4](https://github.com/botfront/botfront/compare/v0.16.0-rc.3...v0.16.0-rc.4) (2019-09-11)
+
+
+### Bug Fixes
+
+* add empty branches to new stories ([582208a](https://github.com/botfront/botfront/commit/582208a))
+
+
+
 ## [0.16.0-rc.3](https://github.com/botfront/botfront/compare/v0.16.0-rc.2...v0.16.0-rc.3) (2019-09-11)
 
 
