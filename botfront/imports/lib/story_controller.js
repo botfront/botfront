@@ -8,15 +8,27 @@ class StoryException {
 }
 
 export class StoryController {
-    constructor(story, slots, notifyUpdate = () => {}, saveUpdate = null) {
+    constructor(story, slots, notifyUpdate = () => {}, saveUpdate = null, templates = null) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.unsafeMd = story;
         this.md = story;
+        this.templates = this.loadTemplates(templates) || {};
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
         this.validateStory();
+    }
+    
+    loadTemplates = (templates) => {
+        if (!Array.isArray(templates)) {
+            return templates;
+        }
+        const templateObject = {};
+        templates.forEach((template) => {
+            templateObject[template.key] = templates.values;
+        });
+        return templateObject;
     }
 
     getSlots = (slots) => {
@@ -69,7 +81,11 @@ export class StoryController {
         this.form = null;
         if (!this.hasInvalidChars(this.response)) {
             this.domain.actions.add(this.response);
-            this.domain.templates[this.response] = '';
+            if (this.templates[this.response] === undefined) {
+                this.raiseStoryException('no_such_response');
+            } else {
+                this.domain.templates[this.response] = this.templates[this.response];
+            }
             this.lines[this.idx].gui = { type: 'bot', data: { name: this.response } };
         }
     };
@@ -137,6 +153,7 @@ export class StoryController {
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`.'],
         slot: ['error', 'Slot calls should look like this: `- slot{"slot_name": "slot_value"}`.'],
         no_such_slot: ['error', 'Slot was not found. Have you defined it?'],
+        no_such_response: ['warning', 'Response was not found. Have you defined it?'],
         bool_slot: ['error', 'Expected a boolean value for this slot.'],
         text_slot: ['error', 'Expected a text value for this slot.'],
         float_slot: ['error', 'Expected a numerical value for this slot.'],
@@ -274,7 +291,7 @@ export class StoryController {
         this.md = this.lines.map(l => l.md).join('\n');
         this.unsafeMd = this.md;
         this.validateStory();
-        if (this.saveUpdate) this.saveUpdate(this.md);
+        if (this.saveUpdate) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
         else this.notifyUpdate();
     };
 
@@ -283,8 +300,7 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i + 1), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.unsafeMd = this.md;
-        if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
+        if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
         else this.notifyUpdate();
     };
 
@@ -295,7 +311,7 @@ export class StoryController {
         this.md = this.lines.map(l => l.md).join('\n');
         this.unsafeMd = this.md;
         this.validateStory();
-        if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md);
+        if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
         else this.notifyUpdate();
     };
 
@@ -307,8 +323,24 @@ export class StoryController {
         this.md = content;
         this.unsafeMd = content;
         this.validateStory();
-        if (this.saveUpdate) this.saveUpdate(this.md);
+        if (this.saveUpdate) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
     }
+
+    getErrors = () => {
+        return this.exceptions.filter(exception => exception.type === 'error');
+    }
+
+    getWarnings = () => {
+        return this.exceptions.filter(exception => exception.type === 'warning');
+    }
+
+    getErrors = () => (
+        this.exceptions.filter(exception => exception.type === 'error')
+    )
+
+    getWarnings = () => (
+        this.exceptions.filter(exception => exception.type === 'warning')
+    )
 
     getPossibleInsertions = (i) => {
         const possibleInsertions = {

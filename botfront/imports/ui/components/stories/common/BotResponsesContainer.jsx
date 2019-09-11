@@ -136,6 +136,7 @@ const BotResponsesContainer = (props) => {
             <React.Fragment key={index}>
                 <div className='flex-right'>
                     <BotResponseContainer
+                        exceptions={exceptions}
                         deletable={deletable || sequenceArray.length > 1}
                         value={content}
                         onDelete={() => handleDeleteResponse(index)}
@@ -175,14 +176,15 @@ BotResponsesContainer.propTypes = {
     deletable: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onDeleteAllResponses: PropTypes.func.isRequired,
-    exceptions: PropTypes.object,
+    exceptions: PropTypes.array,
     isNew: PropTypes.bool.isRequired,
     removeNewState: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
-    exceptions: { severity: null, messages: [] },
+    exceptions: [{ type: null }],
+
 };
 
 export default BotResponsesContainer;

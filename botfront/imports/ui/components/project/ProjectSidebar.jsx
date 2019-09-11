@@ -57,6 +57,14 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='Settings' icon='setting' />
                         </Link>
                     </Can>
+                    <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
+                        <Menu.Item name='documentation' icon='question' />
+                    </a>
+                    {intercomId && (
+                        <span>
+                            <Menu.Item name='Support' onClick={() => triggerIntercom(intercomId)} icon='bell' />
+                        </span>
+                    )}
                     <Divider inverted />
                     {can('global-admin') && (
                         <Link to='/admin/'>
@@ -67,14 +75,6 @@ class ProjectSidebar extends React.Component {
                         <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
                     </Link>
                     <Divider inverted />
-                    <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
-                        <Menu.Item name='documentation' icon='question' />
-                    </a>
-                    {intercomId && (
-                        <span>
-                            <Menu.Item name='Support' onClick={() => triggerIntercom(intercomId)} icon='bell' />
-                        </span>
-                    )}
                 </Menu>
             </DocumentTitle>
         );

@@ -301,8 +301,8 @@ const NLUModelsContainer = withTracker((props) => {
 })(NLUModels);
 
 const mapStateToProps = state => ({
-    projectId: state.get('projectId'),
-    workingLanguage: state.get('workingLanguage'),
+    projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 const mapDispatchToProps = {

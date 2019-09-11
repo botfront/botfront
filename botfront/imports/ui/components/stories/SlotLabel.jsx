@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import SlotPopupContent from './common/SlotPopupContent';
+import ExceptionWrapper from './common/ExceptionWrapper';
 
 export default function SlotLabel({ value, onChange, size }) {
-    const { type, name, slotValue } = value;
+    const { type, name, slotValue, hasError, hasWarning } = value;
     return (
         <SlotPopupContent
             trigger={(
@@ -26,8 +27,12 @@ SlotLabel.propTypes = {
     value: PropTypes.object.isRequired,
     size: PropTypes.string,
     onChange: PropTypes.func.isRequired,
+    hasError: PropTypes.bool,
+    hasWarning: PropTypes.bool,
 };
 
 SlotLabel.defaultProps = {
     size: 'mini',
+    hasError: false,
+    hasWarning: false,
 };

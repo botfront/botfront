@@ -15,7 +15,6 @@ import '../imports/api/endpoints/endpoints.collection';
 import '../imports/api/instances/instances.collection';
 import '../imports/api/instances/instances.methods';
 import '../imports/api/instances/instances.schema';
-import '../imports/lib/nlu_methods';
 import '../imports/api/nlu_model/nlu_model.collection';
 import '../imports/api/nlu_model/nlu_model.schema';
 import '../imports/api/nlu_model/nlu_model.methods';

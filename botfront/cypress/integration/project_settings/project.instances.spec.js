@@ -1,16 +1,14 @@
 /* eslint-disable no-undef */
 
 describe('Project Instances', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-    });
-
-    after(function() {
-        cy.deleteProject('bf');
-    });
-
     beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'fr');
         cy.login();
+    });
+
+    afterEach(function() {
+        cy.deleteProject('bf');
+        cy.logout();
     });
 
     describe('Instances', function() {

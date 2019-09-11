@@ -1,6 +1,7 @@
 import yaml from 'js-yaml';
 import { StoryController } from './story_controller';
 import { Stories } from '../api/story/stories.collection';
+import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { CorePolicies } from '../api/core_policies';
@@ -99,31 +100,30 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
 
 const getMappingTriggers = policies => policies
     .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
-    .map(policy => policy.triggers.map((trigger) => {
+    .map(policy => (policy.triggers || []).map((trigger) => {
         if (!trigger.extra_actions) return [trigger.action];
         return [...trigger.extra_actions, trigger.action];
     }))
     .reduce((coll, curr) => coll.concat(curr), [])
     .reduce((coll, curr) => coll.concat(curr), []);
 
-export const extractDomain = (stories, slots) => {
+export const extractDomain = (stories, slots, templates = {}) => {
     const defaultDomain = {
-        actions: new Set(),
+        actions: new Set(Object.keys(templates)),
         intents: new Set(),
         entities: new Set(),
         forms: new Set(),
-        templates: new Set(),
-        slots: {
-            latest_response_name: { type: 'unfeaturized' },
-            followup_response_name: { type: 'unfeaturized' },
-            parse_data: { type: 'unfeaturized' },
-            disambiguation_message: { type: 'unfeaturized' },
-        },
+        templates,
+        slots: { disambiguation_message: { type: 'unfeaturized' } },
     };
     let domains = stories.map((story) => {
-        const val = new StoryController(story, slots);
-        val.validateStory();
         try {
+            const val = new StoryController(story, slots, () => {}, null, templates);
+            if (val.getErrors().length > 0) {
+                return {
+                    entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
+                };
+            }
             return val.extractDomain();
         } catch (e) {
             return {
@@ -153,18 +153,28 @@ export const extractDomain = (stories, slots) => {
     return domains;
 };
 
+const getAllTemplates = (projectId) => {
+    // fetches templates and turns them into nested key-value format
+    let { templates } = Projects.findOne(
+        { _id: projectId },
+        { fields: { templates: 1 } },
+    );
+    templates = templates.reduce((ks, k) => ({
+        ...ks,
+        [k.key]: k.values.reduce((vs, v) => ({
+            ...vs,
+            [v.lang]: v.sequence.map(seq => yaml.safeLoad(seq.content)),
+        }), {}),
+    }), {});
+    return templates;
+};
+
 export const getStoriesAndDomain = (projectId) => {
     const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
     const mappingTriggers = getMappingTriggers(policies);
-    const extraDomain = `* deny_suggestions\n\
- - action_botfront_disambiguation\n\
- - action_botfront_disambiguation_followup\n\
- - action_botfront_disambiguation_denial\n\
- - action_botfront_fallback\n\
-${mappingTriggers.length
+    const extraDomain = mappingTriggers.length
         ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
-        : ''
-}`;
+        : '';
 
     const selectedStoryGroupsIds = StoryGroups.find(
         { projectId, selected: true },
@@ -174,21 +184,56 @@ ${mappingTriggers.length
     const stories = selectedStoryGroupsIds.length > 0
         ? Stories.find(
             { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
-            { fields: { story: 1, title: 1, branches: 1 } },
+            {
+                fields: {
+                    story: 1, title: 1, branches: 1, errors: 1,
+                },
+            },
         ).fetch()
-        : Stories.find({ projectId }, { fields: { story: 1, title: 1, branches: 1 } }).fetch();
-
+        : Stories.find({ projectId }, {
+            fields: {
+                story: 1, title: 1, branches: 1, errors: 1,
+            },
+        }).fetch();
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
         .map(story => story.story)
         .concat([extraDomain]);
     const storiesForRasa = stories
+        .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
         .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
 
+    const templates = getAllTemplates(projectId);
     const slots = Slots.find({ projectId }).fetch();
     return {
         stories: storiesForRasa.join('\n'),
-        domain: extractDomain(storiesForDomain, slots),
+        domain: extractDomain(storiesForDomain, slots, templates),
     };
+};
+
+export const accumulateExceptions = (originStory) => {
+    const pathDictionary = {};
+    const traverseBranch = (currentStory, path) => {
+        const newPath = (path.length !== 0)
+            ? `${path},${currentStory._id}`
+            : currentStory._id;
+        if (currentStory.branches.length > 0) {
+            const childExceptions = currentStory.branches.map(branch => (
+                traverseBranch(branch, newPath)
+            ));
+            let errors = currentStory.errors ? [...currentStory.errors] : [];
+            let warnings = currentStory.warnings ? [...currentStory.warnings] : [];
+            childExceptions.forEach((child) => {
+                errors = [...errors, ...(child.errors ? child.errors : [])];
+                warnings = [...warnings, ...(child.warnings ? child.errors : [])];
+            });
+            pathDictionary[newPath] = { errors, warnings };
+            return { errors, warnings };
+        }
+        pathDictionary[newPath] = { errors: currentStory.errors, warnings: currentStory.warnings };
+        return { errors: currentStory.errors, warnings: currentStory.warnings };
+    };
+    traverseBranch(originStory, '');
+    return pathDictionary;
 };

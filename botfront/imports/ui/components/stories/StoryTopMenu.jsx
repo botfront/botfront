@@ -1,21 +1,28 @@
 import {
-    Popup, Icon, Menu, Dropdown,
+    Popup, Icon, Menu, Dropdown, Label,
 } from 'semantic-ui-react';
+import { connect } from 'react-redux';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
+import { setStoryCollapsed } from '../../store/actions/actions';
 
 const StoryTopMenu = ({
     onDelete,
     onMove,
+    storyId,
     title,
     onRename,
     disabled,
     onClone,
     groupNames,
+    collapsed,
+    collapseStory,
+    warnings,
+    errors,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -48,9 +55,44 @@ const StoryTopMenu = ({
         }
     };
 
+    const renderWarnings = () => {
+        const pluralize = warnings > 1 ? 's' : '';
+        if (warnings <= 0) {
+            return <></>;
+        }
+        return (
+            <Label className='exception-label' color='yellow' data-cy='top-menu-warning-alert'>
+                <Icon name='exclamation circle' />
+                {warnings} Warning{pluralize}
+            </Label>
+        );
+    };
+
+    const renderErrors = () => {
+        const pluralize = errors > 1 ? 's' : '';
+        if (errors <= 0) {
+            return <></>;
+        }
+        return (
+            <Label className='exception-label' color='red' data-cy='top-menu-error-alert'>
+                <Icon name='times circle' />
+                {errors} Error{pluralize}
+            </Label>
+        );
+    };
+
     return (
-        <Menu attached='top'>
+        <Menu attached='top' className={`${collapsed ? 'collapsed' : ''}`}>
             <Menu.Item header>
+                <Icon
+                    name='triangle right'
+                    className={`${collapsed ? '' : 'opened'}`}
+                    link
+                    onClick={() => {
+                        collapseStory(storyId, !collapsed);
+                    }}
+                    data-cy='collapse-story-button'
+                />
                 <span className='story-title-prefix'>##</span>
                 <input
                     data-cy='story-title'
@@ -62,15 +104,10 @@ const StoryTopMenu = ({
                 />
             </Menu.Item>
             <Menu.Item position='right'>
+                {renderWarnings()}
+                {renderErrors()}
                 <Popup
-                    trigger={(
-                        <Icon
-                            name='dolly'
-                            color='grey'
-                            link
-                            data-cy='move-story'
-                        />
-                    )}
+                    trigger={<Icon name='dolly' color='grey' link data-cy='move-story' />}
                     content={(
                         <ConfirmPopup
                             title='Move story to :'
@@ -113,14 +150,9 @@ const StoryTopMenu = ({
                     onClick={onClone}
                 />
                 <Popup
-                    trigger={(
-                        <Icon
-                            name='trash'
-                            color='grey'
-                            link
-                            data-cy='delete-story'
-                        />
-                    )}
+                    trigger={
+                        <Icon name='trash' color='grey' link data-cy='delete-story' />
+                    }
                     content={(
                         <ConfirmPopup
                             title='Delete story ?'
@@ -143,12 +175,28 @@ const StoryTopMenu = ({
 
 StoryTopMenu.propTypes = {
     title: PropTypes.string.isRequired,
+    storyId: PropTypes.string.isRequired,
     onDelete: PropTypes.func.isRequired,
     onMove: PropTypes.func.isRequired,
     disabled: PropTypes.bool.isRequired,
     onRename: PropTypes.func.isRequired,
     onClone: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
+    collapsed: PropTypes.bool.isRequired,
+    collapseStory: PropTypes.func.isRequired,
+    warnings: PropTypes.number.isRequired,
+    errors: PropTypes.number.isRequired,
 };
 
-export default StoryTopMenu;
+const mapStateToProps = (state, ownProps) => ({
+    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.storyId], false),
+});
+
+const mapDispatchToProps = {
+    collapseStory: setStoryCollapsed,
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(StoryTopMenu);

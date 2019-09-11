@@ -10,7 +10,9 @@ import BotResponsesContainer from './BotResponsesContainer';
 import AddStoryLine from './AddStoryLine';
 import ActionLabel from '../ActionLabel';
 import SlotLabel from '../SlotLabel';
+import BadLineLabel from '../BadLineLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
+import ExceptionWrapper from './ExceptionWrapper';
 
 export const defaultTemplate = (template) => {
     if (template === 'text') {
@@ -30,6 +32,7 @@ export const defaultTemplate = (template) => {
     }
     return false;
 };
+
 class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
@@ -130,31 +133,35 @@ class StoryVisualEditor extends React.Component {
     renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.data.name}`}>
             <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                <ActionLabel
-                    value={l.data.name}
-                    onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
-                    }
-                />
-                <FloatingIconButton
-                    icon='trash'
-                    onClick={() => this.handleDeleteLine(i)}
-                />
+                <ExceptionWrapper exceptions={exceptions}>
+                    <ActionLabel
+                        value={l.data.name}
+                        onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
+                        }
+                    />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(i)}
+                    />
+                </ExceptionWrapper>
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
-    );
+    )
 
     renderSlotLine = (i, l, exceptions) => (
         <React.Fragment key={`slot${i + l.data.name}`}>
             <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                <SlotLabel
-                    value={l.data}
-                    onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
-                />
-                <FloatingIconButton
-                    icon='trash'
-                    onClick={() => this.handleDeleteLine(i)}
-                />
+                <ExceptionWrapper exceptions={exceptions}>
+                    <SlotLabel
+                        value={l.data}
+                        onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
+                    />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(i)}
+                    />
+                </ExceptionWrapper>
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
@@ -218,14 +225,28 @@ class StoryVisualEditor extends React.Component {
         );
     };
 
+    renderBadLine = (index, line, exceptions) => (
+        <React.Fragment key={`BadLine-${index}`}>
+            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+                <ExceptionWrapper exceptions={exceptions}>
+                    <BadLineLabel lineMd={line.md} lineIndex={index} />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(index)}
+                    />
+                </ExceptionWrapper>
+            </div>
+            {this.renderAddLine(index)}
+        </React.Fragment>
+    )
+
     render() {
         const { story } = this.props;
         const { menuCloser } = this.state;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
-            const exceptions = this.formatErrors(
-                story.exceptions.filter(exception => exception.line === index + 1),
-            );
+            const exceptions = story.exceptions.filter(exception => exception.line === index + 1);
+            
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
@@ -247,6 +268,7 @@ class StoryVisualEditor extends React.Component {
                     </React.Fragment>
                 );
             }
+            if (exceptions.filter(({ type }) => (type === 'error')).length > 0) return this.renderBadLine(index, line, exceptions);
             return (
                 <React.Fragment
                     key={`user${

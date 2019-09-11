@@ -65,9 +65,21 @@
 .story-editor {
   margin-bottom: 20px;
   .ui.attached.menu.top {
+    &.collapsed {
+      border-radius: 0.3em;
+    }
     border-color: #eeeeee;
     .item {
       padding: 0px 16px;
+    }
+
+    .icon.triangle.right {
+      margin-left: 0;
+      margin-right: 10px;
+      transition: transform 0.2s ease-in-out;
+      &.opened {
+        transform: rotate(90deg);
+      }
     }
 
     .header {
@@ -99,7 +111,7 @@
 
     .story-title-prefix {
       opacity: 0.4;
-      margin-right: 8px;
+      margin-right: 0;
     }
 
     //removes borders b/w menu items
@@ -325,6 +337,25 @@
   }
 }
 
+.label-container.bad-line {
+  border-color:  black;
+  .mini-label-text.bad-line {
+    background-color: black;
+  }
+  .tiny-label-text.bad-line {
+    background-color: black;
+  }
+}
+
+.label-container.bad-line:hover {
+  .mini-label-text {
+    background-color: black;
+  }
+  .tiny-label-text {
+    background-color: black;
+  }
+}
+
 .label-container.slot {
   border-color: @slot-color; 
   .mini-label-text.slot {
@@ -439,3 +470,22 @@
 .ui.attached.segment.single-story-container{
   border-bottom-style: none;
 }
+
+
+.ui.red.label.exception-label{
+  .times.circle.icon{
+    padding-left: 0px;
+    margin-left: 0px;
+    margin-right: 0.5em;
+  }
+  padding: 0px;
+}
+.ui.yellow.label.exception-label{
+  .exclamation.circle.icon{
+    padding-left: 0px;
+    margin-left: 0px;
+    margin-right: 0.5em;
+  }
+  padding: 0px;
+}
+

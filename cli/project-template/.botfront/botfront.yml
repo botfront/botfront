@@ -5,10 +5,10 @@ images:
     rasa: botfront/rasa-for-botfront:v1.1.7-bf.6
     duckling: botfront/duckling:latest
     mongo: mongo:latest
-    actions: botfront/actions-sdk:latest
+    actions: rasa/rasa-sdk:1.1.1
 
-# The .env file is generated from the following section. 
-# You can add/edit environment variable here. 
+# The .env file is generated from the following section.
+# You can add/edit environment variable here.
 # Note that they will be upper cased in the generated .env file
 env:
   bf_project_id: bf

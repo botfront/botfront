@@ -5,7 +5,7 @@ import { can } from '../../../lib/scopes';
 const Can = ({ children, I, projectId }) => (can(I, projectId) ? Children.only(children) : null);
 
 const mapStateToProps = state => ({
-    projectId: state.get('projectId'),
+    projectId: state.settings.get('projectId'),
 });
 
 export default connect(

@@ -31,7 +31,9 @@ describe('branches', function() {
             .first()
             .click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
-        cy.contains('New Branch 2').first().click({ force: true });
+        cy.contains('New Branch 2')
+            .first()
+            .click({ force: true });
         cy.contains('New Branch 1').click({ force: true });
         cy.dataCy('create-branch')
             .find('i')
@@ -75,7 +77,7 @@ describe('branches', function() {
             .first()
             .click({ force: true });
         cy.dataCy('confirm-popup')
-            .contains('is also going to get deleted')
+            .contains('added to the previous story')
             .should('exist')
             .dataCy('confirm-yes')
             .click({ force: true });
@@ -99,5 +101,36 @@ describe('branches', function() {
         cy.dataCy('branch-label')
             .eq(2)
             .should('have.class', 'active');
+    });
+
+    it('should be able to merge deleted story branches', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('open-chat').click();
+        cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('branch-label')
+            .eq(1)
+            .click();
+        cy.dataCy('story-editor')
+            .get('textarea')
+            .eq(1)
+            .focus()
+            .type('xxx', { force: true });
+        // delete a branch
+        cy.dataCy('branch-label')
+            .first()
+            .click({ click: true });
+        // delete branch is unclickable in cypress for ~100ms
+        cy.wait(250);
+        cy.dataCy('branch-label')
+            .first()
+            .trigger('mouseover');
+        cy.wait(250);
+        cy.dataCy('delete-branch')
+            .first()
+            .click({ force: true })
+            .dataCy('confirm-yes')
+            .click({ force: true });
+        cy.contains('xxx');
     });
 });

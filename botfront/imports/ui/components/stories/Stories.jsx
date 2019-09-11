@@ -34,6 +34,8 @@ class Stories extends React.Component {
             {
                 name,
                 projectId,
+                hasErrors: [],
+                hasWarnings: [],
             },
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {
@@ -101,6 +103,7 @@ class Stories extends React.Component {
                 storyGroupId: `${
                     !!introStoryGroup ? introStoryGroup._id : storyGroups[storyIndex]._id
                 }`,
+                branches: [],
             },
             wrapMeteorCallback(),
         );
@@ -366,8 +369,8 @@ Stories.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-    storyMode: state.get('storyMode'),
-    storyGroupCurrent: state.get('storyGroupCurrent'),
+    storyMode: state.stories.get('storyMode'),
+    storyGroupCurrent: state.stories.get('storyGroupCurrent'),
 });
 
 const mapDispatchToProps = {

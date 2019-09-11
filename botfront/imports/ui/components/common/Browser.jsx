@@ -3,6 +3,7 @@ import {
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
+import ExceptionAlerts from '../stories/ExceptionAlerts';
 
 class Browser extends React.Component {
     constructor(props) {
@@ -97,7 +98,6 @@ class Browser extends React.Component {
             allowEdit,
             placeholderAddItem,
         } = this.props;
-
         const {
             addMode, newItemName, page, editing, itemName,
         } = this.state;
@@ -114,6 +114,8 @@ class Browser extends React.Component {
             >
                 {editing !== index ? (
                     <>
+                        {item.hasWarnings && item.hasWarnings.length > 0 ? <Icon name='exclamation circle' color='yellow' /> : <></>}
+                        {item.hasErrors && item.hasErrors.length > 0 ? <Icon name='times circle' color='red' /> : <></>}
                         {selectAccessor && (
                             <Icon
                                 id={`${
@@ -134,7 +136,7 @@ class Browser extends React.Component {
                                 data-cy='edit-name-icon'
                             />
                         )}
-                        <span>{item[nameAccessor]}</span>
+                        <span className='story-group-menu-item'>{item[nameAccessor]}</span>
                         {indexProp === index && saving && (
                             <Loader active size='tiny' />
                         )}

@@ -63,7 +63,7 @@ const InstancesContainer = withTracker((props) => {
 })(Instances);
 
 const mapStateToProps = state => ({
-    projectId: state.get('projectId'),
+    projectId: state.settings.get('projectId'),
 });
 
 export default connect(mapStateToProps)(InstancesContainer);

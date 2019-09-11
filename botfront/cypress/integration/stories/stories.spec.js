@@ -75,6 +75,7 @@ describe('stories', function() {
             .first()
             .click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
+        cy.dataCy('browser-item').eq(1).should('have.class', 'active');
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('delete-story').click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
@@ -235,5 +236,15 @@ describe('stories', function() {
         cy.dataCy('intro-story-group').should('exist');
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 1);
+    });
+
+    it('should be able to collapse stories and to persist that across application state', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('single-story-editor');
+        cy.dataCy('collapse-story-button').click({ force: true });
+        cy.dataCy('single-story-editor').should('not.exist');
+        cy.contains('NLU').click({ force: true });
+        cy.contains('Stories').click({ force: true });
+        cy.dataCy('single-story-editor').should('not.exist');
     });
 });

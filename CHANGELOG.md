@@ -2,124 +2,100 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [0.16.0-rc.4-ee.1](https://github.com/botfront/botfront/compare/v0.15.5-ee.13...v0.16.0-rc.4-ee.1) (2019-09-11)
+## [0.16.0-rc.4](https://github.com/botfront/botfront/compare/v0.16.0-rc.3...v0.16.0-rc.4) (2019-09-11)
 
 
 ### Bug Fixes
 
-* add backwards compatability for data ([f4b8cce](https://github.com/botfront/botfront/commit/f4b8cce))
-* cannot add environment - namespace missing ([8ccefcd](https://github.com/botfront/botfront/commit/8ccefcd))
-* change constants.json import to new path ([1aacb37](https://github.com/botfront/botfront/commit/1aacb37))
-* change credentials env menu to render once ([59d6652](https://github.com/botfront/botfront/commit/59d6652))
-* stop ace editor unsaved text carryover ([9d6a79c](https://github.com/botfront/botfront/commit/9d6a79c))
-* undefined environment handling ([becb592](https://github.com/botfront/botfront/commit/becb592))
-* undefined environment tag handling ([4d01b4d](https://github.com/botfront/botfront/commit/4d01b4d))
+* add empty branches to new stories ([582208a](https://github.com/botfront/botfront/commit/582208a))
+
+
+
+## [0.16.0-rc.3](https://github.com/botfront/botfront/compare/v0.16.0-rc.2...v0.16.0-rc.3) (2019-09-11)
+
+
+
+## [0.16.0-rc.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.1...v0.16.0-rc.2) (2019-09-10)
+
+
+### Bug Fixes
+
+* adjust line height for story group menu items ([52185d7](https://github.com/botfront/botfront/commit/52185d7))
+* alerts not removed if intro story deleted ([3898d83](https://github.com/botfront/botfront/commit/3898d83))
+* crash in BranchTabLabel with old DataBases ([46d0c12](https://github.com/botfront/botfront/commit/46d0c12))
+* extra character caused a crash on start ([292f498](https://github.com/botfront/botfront/commit/292f498))
+* storyGroupMenu selected items are blue ([909dda2](https://github.com/botfront/botfront/commit/909dda2))
+* the selected story group is blue ([c71a1b5](https://github.com/botfront/botfront/commit/c71a1b5))
+* undefined bot responses preventing training ([1658daa](https://github.com/botfront/botfront/commit/1658daa))
+* wrong default base_url in credentials ([8d3c28a](https://github.com/botfront/botfront/commit/8d3c28a))
 
 
 ### Features
 
-* add deployment tab to settings menu ([779b360](https://github.com/botfront/botfront/commit/779b360))
-* add option to enable additional environment ([3f4186a](https://github.com/botfront/botfront/commit/3f4186a))
-* add seperate environments and settings ([679eb09](https://github.com/botfront/botfront/commit/679eb09))
-* add style.less file for settings ui ([f008256](https://github.com/botfront/botfront/commit/f008256))
-* create tests for deployment env settings ([2937518](https://github.com/botfront/botfront/commit/2937518))
+* add icon indicators for story exceptions ([26ff2aa](https://github.com/botfront/botfront/commit/26ff2aa))
+* add response context to StotyEditorContainer ([c0bdb40](https://github.com/botfront/botfront/commit/c0bdb40))
+* add response context to StotyEditorContainer ([08fc2ed](https://github.com/botfront/botfront/commit/08fc2ed))
+* exclude stories with errors from training ([bfccd22](https://github.com/botfront/botfront/commit/bfccd22))
+* links to Spectrum in menu and docs ([d093604](https://github.com/botfront/botfront/commit/d093604))
 
 
 ### Tests
 
-* rework test for deployment environments ([17c2ac6](https://github.com/botfront/botfront/commit/17c2ac6))
+* add tests for exceptions in markdown ([4982ab9](https://github.com/botfront/botfront/commit/4982ab9))
 
 
 
-### [0.15.5-ee.13](https://github.com/botfront/botfront/compare/v0.15.5-ee.12...v0.15.5-ee.13) (2019-09-05)
-
-
-### Bug Fixes
-
-* bug on stories without branches in db ([06beece](https://github.com/botfront/botfront/commit/06beece))
-
-
-
-### [0.15.5-ee.12](https://github.com/botfront/botfront/compare/v0.15.5-ee.11...v0.15.5-ee.12) (2019-09-04)
+## [0.16.0-rc.1](https://github.com/botfront/botfront/compare/v0.15.5...v0.16.0-rc.1) (2019-09-09)
 
 
 ### Bug Fixes
 
-* change css so selected story group is blue ([e9b2217](https://github.com/botfront/botfront/commit/e9b2217))
-* new method of verifying default story test ([29b6b29](https://github.com/botfront/botfront/commit/29b6b29))
-
-
-### Features
-
-* open first branches by default ([1b37c13](https://github.com/botfront/botfront/commit/1b37c13))
-* persist branch path across application ([33e26b4](https://github.com/botfront/botfront/commit/33e26b4))
-
-
-### Tests
-
-* added test for branches edge cases ([0f464b7](https://github.com/botfront/botfront/commit/0f464b7))
-* confirm intro story group is not deleted ([026b58d](https://github.com/botfront/botfront/commit/026b58d))
-* fix for chat spec ([2b7f005](https://github.com/botfront/botfront/commit/2b7f005))
-* new for add 3rd branch and delete branches ([dfb0eb5](https://github.com/botfront/botfront/commit/dfb0eb5))
-* story branches persistence ([187b602](https://github.com/botfront/botfront/commit/187b602))
-
-
-
-### [0.15.5-ee.11](https://github.com/botfront/botfront/compare/v0.15.5-ee.10...v0.15.5-ee.11) (2019-08-28)
-
-
-### Bug Fixes
-
-* add language param to bot response template ([38300c7](https://github.com/botfront/botfront/commit/38300c7))
 * adjust testing for new title save action ([f017cc7](https://github.com/botfront/botfront/commit/f017cc7))
+* backwards compatibility for exceptions ([d3c8109](https://github.com/botfront/botfront/commit/d3c8109))
 * bug indexing over string ([12d7967](https://github.com/botfront/botfront/commit/12d7967))
+* bug on stories without branches in db ([06beece](https://github.com/botfront/botfront/commit/06beece))
 * bug when deleting mother branch ([2519369](https://github.com/botfront/botfront/commit/2519369))
-* fix the fix of the fix ([5ff8b24](https://github.com/botfront/botfront/commit/5ff8b24))
-* remove console.log ([58fb26f](https://github.com/botfront/botfront/commit/58fb26f))
-* standardize story title save + discard events ([452595f](https://github.com/botfront/botfront/commit/452595f))
-* typo ([9e3798d](https://github.com/botfront/botfront/commit/9e3798d))
-
-
-### Tests
-
-* add story_title tests for saving discarding ([9276d08](https://github.com/botfront/botfront/commit/9276d08))
-* add tests for story utils ([cdd550e](https://github.com/botfront/botfront/commit/cdd550e))
-* bot response not in english ([ff7d482](https://github.com/botfront/botfront/commit/ff7d482))
-* branching ([ae5b893](https://github.com/botfront/botfront/commit/ae5b893))
-* fixed ee tests ([5dd64b9](https://github.com/botfront/botfront/commit/5dd64b9))
-* move story_controller tests to mocha ([55ecb67](https://github.com/botfront/botfront/commit/55ecb67))
-* remove cypress test ([a865589](https://github.com/botfront/botfront/commit/a865589))
-* tests utterance saving and displaying ([7cb1679](https://github.com/botfront/botfront/commit/7cb1679))
-
-
-
-### [0.15.5-ee.10](https://github.com/botfront/botfront/compare/v0.15.5-ee.9...v0.15.5-ee.10) (2019-08-25)
-
-
-### Bug Fixes
-
+* change css so selected story group is blue ([e9b2217](https://github.com/botfront/botfront/commit/e9b2217))
 * change from push to spreadsyntax for path ([357f8f0](https://github.com/botfront/botfront/commit/357f8f0))
-* postinstall script ([2c62076](https://github.com/botfront/botfront/commit/2c62076))
+* crash in BranchTabLabel with old DataBases ([6aa6e67](https://github.com/botfront/botfront/commit/6aa6e67))
+* crashing in story utils with old DBs ([b306a70](https://github.com/botfront/botfront/commit/b306a70))
+* exceptionAlerts warnings passed bad prop ([66f9071](https://github.com/botfront/botfront/commit/66f9071))
+* fix the fix of the fix ([5ff8b24](https://github.com/botfront/botfront/commit/5ff8b24))
+* manual rollback re add intent warning msg ([2208dc6](https://github.com/botfront/botfront/commit/2208dc6))
+* new method of verifying default story test ([29b6b29](https://github.com/botfront/botfront/commit/29b6b29))
+* remove console.log and es lint errors ([32a0206](https://github.com/botfront/botfront/commit/32a0206))
 * remove unnecessary method call ([1647b13](https://github.com/botfront/botfront/commit/1647b13))
-* unwanted utterance persistence ([e7f7a8c](https://github.com/botfront/botfront/commit/e7f7a8c))
-* wrong binary name ([a38ed67](https://github.com/botfront/botfront/commit/a38ed67))
+* standardize story title save + discard events ([452595f](https://github.com/botfront/botfront/commit/452595f))
+* stop crash when creating new story group ([51391c0](https://github.com/botfront/botfront/commit/51391c0))
+* story groups not deleting ([6158fc6](https://github.com/botfront/botfront/commit/6158fc6))
+* typo ([9e3798d](https://github.com/botfront/botfront/commit/9e3798d))
+* typo in docker compose template ([8bdde39](https://github.com/botfront/botfront/commit/8bdde39))
+* wrong default base_url in credentials ([#201](https://github.com/botfront/botfront/issues/201)) ([b5835c3](https://github.com/botfront/botfront/commit/b5835c3))
 
 
 ### Features
 
-* **branching:** disallow two sibling branches from having same name ([bf5c2a7](https://github.com/botfront/botfront/commit/bf5c2a7))
-* **branching:** integrate StoryFooter ([5b0566b](https://github.com/botfront/botfront/commit/5b0566b))
+* add a popup for story group exception alerts ([df29b22](https://github.com/botfront/botfront/commit/df29b22))
+* add icon indicators for story exceptions ([37cd372](https://github.com/botfront/botfront/commit/37cd372))
 * add StoryFooter component and StoryPathPopup ([84ad69e](https://github.com/botfront/botfront/commit/84ad69e))
-* add StoryFooter prop that hides continue ([243ca5e](https://github.com/botfront/botfront/commit/243ca5e))
 * change story popup now shows full path ([6991ce8](https://github.com/botfront/botfront/commit/6991ce8))
 * change wrap StoryFooter in Segment component ([6dd4a0a](https://github.com/botfront/botfront/commit/6dd4a0a))
-* style story footer and remove warnings ([db700a7](https://github.com/botfront/botfront/commit/db700a7))
-* styled story footer and branch+link buttons ([07f53d0](https://github.com/botfront/botfront/commit/07f53d0))
-* **branch tab label:** es-lint, proptypes minor fix ([126a468](https://github.com/botfront/botfront/commit/126a468))
+* merge deleted stories ([a65068e](https://github.com/botfront/botfront/commit/a65068e))
 * **branching:** "recursive" schema, update update method ([9988140](https://github.com/botfront/botfront/commit/9988140))
 * **branching:** add new branch ([68521a8](https://github.com/botfront/botfront/commit/68521a8))
 * **branching:** add story field to mock data ([444176c](https://github.com/botfront/botfront/commit/444176c))
+* **offline templates:** error catching for missing templates ([a512d4b](https://github.com/botfront/botfront/commit/a512d4b))
+* **offline templates:** full responses are exported with domain ([69a5e69](https://github.com/botfront/botfront/commit/69a5e69))
+* collapsable stories ([10dbc7a](https://github.com/botfront/botfront/commit/10dbc7a))
+* open first branches by default ([1b37c13](https://github.com/botfront/botfront/commit/1b37c13))
+* persist branch path across application ([33e26b4](https://github.com/botfront/botfront/commit/33e26b4))
+* **branch tab label:** es-lint, proptypes minor fix ([126a468](https://github.com/botfront/botfront/commit/126a468))
 * **branching:** confirm deletion ([eb96c23](https://github.com/botfront/botfront/commit/eb96c23))
+* **branching:** disallow two sibling branches from having same name ([bf5c2a7](https://github.com/botfront/botfront/commit/bf5c2a7))
+* **branching:** integrate StoryFooter ([5b0566b](https://github.com/botfront/botfront/commit/5b0566b))
+* add StoryFooter prop that hides continue ([243ca5e](https://github.com/botfront/botfront/commit/243ca5e))
+* style story footer and remove warnings ([db700a7](https://github.com/botfront/botfront/commit/db700a7))
+* styled story footer and branch+link buttons ([07f53d0](https://github.com/botfront/botfront/commit/07f53d0))
 * **branching:** domain generation/story compilation ([70fcb3a](https://github.com/botfront/botfront/commit/70fcb3a))
 * **branching:** hotfix for backsupport ([86f9af3](https://github.com/botfront/botfront/commit/86f9af3))
 * **branching:** integrate tab labels ([9c9942d](https://github.com/botfront/botfront/commit/9c9942d))
@@ -129,332 +105,32 @@ All notable changes to this project will be documented in this file. See [standa
 * **branching:** switch active branch on deletion ([8e2c551](https://github.com/botfront/botfront/commit/8e2c551))
 * **branching:** update extractDomainFromStories ([71fc936](https://github.com/botfront/botfront/commit/71fc936))
 * add branch tab component for branch menu ([97c45d8](https://github.com/botfront/botfront/commit/97c45d8))
+* add default story group on project insert ([2ca4cd7](https://github.com/botfront/botfront/commit/2ca4cd7))
+* add warning when NLU can't be trained because of  n < 2 intents ([b47996a](https://github.com/botfront/botfront/commit/b47996a))
 * refactor BranchTabLabel and style ([87f8d45](https://github.com/botfront/botfront/commit/87f8d45))
 * **branching:** wip ([fe0d24d](https://github.com/botfront/botfront/commit/fe0d24d))
 
 
 ### Tests
 
+* add story_title tests for saving discarding ([9276d08](https://github.com/botfront/botfront/commit/9276d08))
+* add tests for story utils ([cdd550e](https://github.com/botfront/botfront/commit/cdd550e))
+* added test for branches edge cases ([0f464b7](https://github.com/botfront/botfront/commit/0f464b7))
+* branching ([ae5b893](https://github.com/botfront/botfront/commit/ae5b893))
+* collapsable stories ([60f7c46](https://github.com/botfront/botfront/commit/60f7c46))
+* confirm intro story group is not deleted ([026b58d](https://github.com/botfront/botfront/commit/026b58d))
 * fixed tests ([248210c](https://github.com/botfront/botfront/commit/248210c))
-* fixed tests for branching ([731f406](https://github.com/botfront/botfront/commit/731f406))
+* merging branches ([435fec1](https://github.com/botfront/botfront/commit/435fec1))
+* move story_controller tests to mocha ([55ecb67](https://github.com/botfront/botfront/commit/55ecb67))
+* new for add 3rd branch and delete branches ([dfb0eb5](https://github.com/botfront/botfront/commit/dfb0eb5))
+* remove cypress test ([a865589](https://github.com/botfront/botfront/commit/a865589))
+* story branches persistence ([187b602](https://github.com/botfront/botfront/commit/187b602))
+* story-state-persistence ([73fb41d](https://github.com/botfront/botfront/commit/73fb41d))
 * updated stories text for default story group ([d99ddbc](https://github.com/botfront/botfront/commit/d99ddbc))
 * wrap component in environment ([6fefe62](https://github.com/botfront/botfront/commit/6fefe62))
 
 
 
-### [0.15.5-ee.9](https://github.com/botfront/botfront/compare/v0.15.5-ee.8...v0.15.5-ee.9) (2019-08-19)
-
-
-### Bug Fixes
-
-* manual rollback re add intent warning msg ([2208dc6](https://github.com/botfront/botfront/commit/2208dc6))
-
-
-### Features
-
-* add default story group on project insert ([2ca4cd7](https://github.com/botfront/botfront/commit/2ca4cd7))
-
-
-### Tests
-
-* story-state-persistence ([73fb41d](https://github.com/botfront/botfront/commit/73fb41d))
-
-
-
-### [0.15.5-ee.8](https://github.com/botfront/botfront/compare/v0.15.5-ee.7...v0.15.5-ee.8) (2019-08-19)
-
-
-
-### [0.15.5-ee.7](https://github.com/botfront/botfront/compare/v0.15.5-ee.6...v0.15.5-ee.7) (2019-08-16)
-
-
-### Bug Fixes
-
-* delete response on empty text ([a1924d4](https://github.com/botfront/botfront/commit/a1924d4))
-* delete response on empty text ([2c75938](https://github.com/botfront/botfront/commit/2c75938))
-* typo in utility function ([e6df4a9](https://github.com/botfront/botfront/commit/e6df4a9))
-
-
-### Features
-
-* **quick replies:** comply with Messenger protocol ([02b65a3](https://github.com/botfront/botfront/commit/02b65a3))
-* **quick replies:** first commit ([746c88d](https://github.com/botfront/botfront/commit/746c88d))
-* **quick replies:** refactor state management ([cbd718e](https://github.com/botfront/botfront/commit/cbd718e))
-* **quick replies:** save text-less responses ([5dbfcae](https://github.com/botfront/botfront/commit/5dbfcae))
-* **slot popup content:** link to slots ([846d8e5](https://github.com/botfront/botfront/commit/846d8e5))
-* **visual editor:** close all hanging menus onmouseleave ([5c97eb4](https://github.com/botfront/botfront/commit/5c97eb4))
-* add warning when NLU can't be trained because of  n < 2 intents ([b47996a](https://github.com/botfront/botfront/commit/b47996a))
-
-
-### Tests
-
-* **visual editor:** add test for quick replies ([e97d21c](https://github.com/botfront/botfront/commit/e97d21c))
-
-
-
-### [0.15.5-ee.6](https://github.com/botfront/botfront/compare/v0.15.5-ee.5...v0.15.5-ee.6) (2019-08-15)
-
-
-### Features
-
-* cli for EE ([3be4be6](https://github.com/botfront/botfront/commit/3be4be6))
-
-
-
-### [0.15.5-ee.5](https://github.com/botfront/botfront/compare/v0.15.5-ee.4...v0.15.5-ee.5) (2019-08-14)
-
-
-### Bug Fixes
-
-* focus bug with bot utterance input ([cf35888](https://github.com/botfront/botfront/commit/cf35888))
-* prop type declaration ([7ea7f27](https://github.com/botfront/botfront/commit/7ea7f27))
-
-
-### Features
-
-* **story controller:** getPossibleInsertions ([61d4f58](https://github.com/botfront/botfront/commit/61d4f58))
-* **user utterance container:** save on blur ([63a1cc5](https://github.com/botfront/botfront/commit/63a1cc5))
-* **user utterance container:** save on blur ([907443c](https://github.com/botfront/botfront/commit/907443c))
-
-
-### Tests
-
-* **visual editor:** test possible insertions ([56490f4](https://github.com/botfront/botfront/commit/56490f4))
-
-
-
-### [0.15.5-ee.4](https://github.com/botfront/botfront/compare/v0.15.5-ee.3...v0.15.5-ee.4) (2019-08-12)
-
-
-### Bug Fixes
-
-* comment onChange prop for UtteranceContainer ([91372bd](https://github.com/botfront/botfront/commit/91372bd))
-* wrong db initialization ([4988954](https://github.com/botfront/botfront/commit/4988954))
-
-
-### Features
-
-* **bot response:** new bubble on enter ([045bec2](https://github.com/botfront/botfront/commit/045bec2))
-* **bot response input:** change placeholder ([6adefbe](https://github.com/botfront/botfront/commit/6adefbe))
-* disable loading model from bucket ([fa8f4cf](https://github.com/botfront/botfront/commit/fa8f4cf))
-
-
-### Tests
-
-* first test for VisualStoryEditor ([d66a494](https://github.com/botfront/botfront/commit/d66a494))
-* fix ci for ee ([e363f6a](https://github.com/botfront/botfront/commit/e363f6a))
-
-
-
-### [0.15.5-ee.3](https://github.com/botfront/botfront/compare/v0.15.5-ee.2...v0.15.5-ee.3) (2019-08-12)
-
-
-
-### [0.15.5-ee.2](https://github.com/botfront/botfront/compare/v0.15.5...v0.15.5-ee.2) (2019-08-12)
-
-
-### Bug Fixes
-
-* deletable on all visual story editor lines ([2d13697](https://github.com/botfront/botfront/commit/2d13697))
-* duplicate imports ([e420372](https://github.com/botfront/botfront/commit/e420372))
-* preprend ci script with npx ([cffad49](https://github.com/botfront/botfront/commit/cffad49))
-* regex to set correct image version on release ([1b99e3d](https://github.com/botfront/botfront/commit/1b99e3d))
-* **initial-payload:** payload for the widget is unique ([ee54b44](https://github.com/botfront/botfront/commit/ee54b44))
-* **slot popup:** show only categories relevant to selected slot ([69c3a0d](https://github.com/botfront/botfront/commit/69c3a0d))
-* **Stories:** wip-- toggle between code and visual ([a37d830](https://github.com/botfront/botfront/commit/a37d830))
-* unique key warning ([cdd5de8](https://github.com/botfront/botfront/commit/cdd5de8))
-* wrong second argument for useEffect ([9295c61](https://github.com/botfront/botfront/commit/9295c61))
-* wrong second argument for useEffect ([2ecc37d](https://github.com/botfront/botfront/commit/2ecc37d))
-* **StoryVisualEditor:** place insertLine cursor on last line by default ([027bff4](https://github.com/botfront/botfront/commit/027bff4))
-* **StoryVisualEditor:** place insertLine cursor on last line by default ([73b2c46](https://github.com/botfront/botfront/commit/73b2c46))
-* **VisualStoryEditor:** don't save invalid Md ([c660809](https://github.com/botfront/botfront/commit/c660809))
-
-
-### Features
-
-* **action viewer:** Add action viewer component. ([3c25573](https://github.com/botfront/botfront/commit/3c25573))
-* **action viewer:** Add action viewer component. ([3870668](https://github.com/botfront/botfront/commit/3870668))
-* **ActionPopupContent/SlotPopupContent:** misc ([a7d05a4](https://github.com/botfront/botfront/commit/a7d05a4))
-* **BotResponseContainer:** edit mode ([aab2cc2](https://github.com/botfront/botfront/commit/aab2cc2))
-* **BotResponseContainer:** wip ([91380c7](https://github.com/botfront/botfront/commit/91380c7))
-* **BotResponseContainer:** wip ([8db4b47](https://github.com/botfront/botfront/commit/8db4b47))
-* **BotResponsePopupContent:** fix close on modal open ([ae02426](https://github.com/botfront/botfront/commit/ae02426))
-* **BotResponsesContainer:** click ellipsis to insert ([efd2e61](https://github.com/botfront/botfront/commit/efd2e61))
-* **slot-label:** add slot label ([f0627fb](https://github.com/botfront/botfront/commit/f0627fb))
-* **slot-label:** add slot label ([cb730b8](https://github.com/botfront/botfront/commit/cb730b8))
-* **stories:** add toggle to switch between markdown/visual editor ([b66e2c9](https://github.com/botfront/botfront/commit/b66e2c9))
-* **StoryController:** initial commit ([4b2ccc5](https://github.com/botfront/botfront/commit/4b2ccc5))
-* **StoryVisualEditor:** better insert experience ([8c54aeb](https://github.com/botfront/botfront/commit/8c54aeb))
-* **StoryVisualEditor:** can add action and slot ([8a2e843](https://github.com/botfront/botfront/commit/8a2e843))
-* **StoryVisualEditor:** can add action and slot ([894f69a](https://github.com/botfront/botfront/commit/894f69a))
-* **StoryVisualEditor:** can add every type of line ([f30b840](https://github.com/botfront/botfront/commit/f30b840))
-* **StoryVisualEditor:** can add every type of line ([91573b3](https://github.com/botfront/botfront/commit/91573b3))
-* **StoryVisualEditor:** style specificity ([8b135e4](https://github.com/botfront/botfront/commit/8b135e4))
-* quick replies component ([4e81555](https://github.com/botfront/botfront/commit/4e81555))
-* **StoryVisualEditor:** can add user utterance from input ([fcb173f](https://github.com/botfront/botfront/commit/fcb173f))
-* **StoryVisualEditor:** can add user utterance from input ([d5793ce](https://github.com/botfront/botfront/commit/d5793ce))
-* **StoryVisualEditor:** can add user utterance from payload ([37be9b8](https://github.com/botfront/botfront/commit/37be9b8))
-* **StoryVisualEditor:** can add user utterance from payload ([1bef4f6](https://github.com/botfront/botfront/commit/1bef4f6))
-* **StoryVisualEditor:** don't display error on payload fetch fail ([4af8dc4](https://github.com/botfront/botfront/commit/4af8dc4))
-* **StoryVisualEditor:** don't update DOM when blur target is descendent ([f58c0d7](https://github.com/botfront/botfront/commit/f58c0d7))
-* **StoryVisualEditor:** integrate getUtteranceFromPayload ([2ae6824](https://github.com/botfront/botfront/commit/2ae6824))
-* **StoryVisualEditor:** integration ([37d4a4d](https://github.com/botfront/botfront/commit/37d4a4d))
-* **StoryVisualEditor:** new utterances are parsed ([bd1e888](https://github.com/botfront/botfront/commit/bd1e888))
-* **StoryVisualEditor:** null intents marked with dash ([8b0dbd0](https://github.com/botfront/botfront/commit/8b0dbd0))
-* **StoryVisualEditor:** place insertLine cursor on last line by default ([11db5de](https://github.com/botfront/botfront/commit/11db5de))
-* **StoryVisualEditor:** remove duplicate method ([05d8586](https://github.com/botfront/botfront/commit/05d8586))
-* **StoryVisualEditor:** style fixes; add trash to action and slot lines ([6c90a16](https://github.com/botfront/botfront/commit/6c90a16))
-* **StoryVisualEditor:** use StoryController ([9e342af](https://github.com/botfront/botfront/commit/9e342af))
-* **StoryVisualEditor:** wip ([104ec88](https://github.com/botfront/botfront/commit/104ec88))
-* **toggle:** make toggle appear outside intro stories ([3dd3c8a](https://github.com/botfront/botfront/commit/3dd3c8a))
-* **toggle:** refactor style ([75267c3](https://github.com/botfront/botfront/commit/75267c3))
-* **UserUtteranceContainer:** fill onDelete prop ([053cd8e](https://github.com/botfront/botfront/commit/053cd8e))
-* **UtteranceContainer:** wip ([a41abfe](https://github.com/botfront/botfront/commit/a41abfe))
-* **UtteranceContainer:** wip ([cce53b2](https://github.com/botfront/botfront/commit/cce53b2))
-* **VisualStoryEditor:** wip ([4d524ca](https://github.com/botfront/botfront/commit/4d524ca))
-* **VisualStoryEditor:** wip ([2097fe8](https://github.com/botfront/botfront/commit/2097fe8))
-* context setup for stories ([2bfe62a](https://github.com/botfront/botfront/commit/2bfe62a))
-* get utterance from payload ([6a8d13b](https://github.com/botfront/botfront/commit/6a8d13b))
-* method to insert an example with the language ([1f33dc8](https://github.com/botfront/botfront/commit/1f33dc8))
-* persist story mode ([f370e0e](https://github.com/botfront/botfront/commit/f370e0e))
-
-
-### Tests
-
-* **cypress:** experiment with creating user/project for each script ([14724f3](https://github.com/botfront/botfront/commit/14724f3))
-* add script to run the ci pipeline locally ([93f4dc0](https://github.com/botfront/botfront/commit/93f4dc0))
-* fix for bot responses test ([a0f48ee](https://github.com/botfront/botfront/commit/a0f48ee))
-
-
-
-### [0.15.2-ee.1](https://github.com/botfront/botfront/compare/v0.15.2...v0.15.2-ee.1) (2019-07-25)
-
-
-### Bug Fixes
-
-* **project-creation:** bug fix while creating a new project ([44a0019](https://github.com/botfront/botfront/commit/44a0019))
-* **rbac:** removed unecessary code ([f6f1869](https://github.com/botfront/botfront/commit/f6f1869))
-* **rbc:** Fixed nlu-data:w test, Online/Offline button for nlu-model:w ([dd409f4](https://github.com/botfront/botfront/commit/dd409f4))
-* **roles:** minor fixes ([68a0bc8](https://github.com/botfront/botfront/commit/68a0bc8))
-* **roles:** permissions ([df65719](https://github.com/botfront/botfront/commit/df65719))
-* **roles:** Removed fieldset ([bbf5758](https://github.com/botfront/botfront/commit/bbf5758))
-* code style ([ca393fd](https://github.com/botfront/botfront/commit/ca393fd))
-* default settings ([423d1bb](https://github.com/botfront/botfront/commit/423d1bb))
-* instance creation on project creation ([5618a3b](https://github.com/botfront/botfront/commit/5618a3b))
-* **test:** removed nlu-meta spec file ([6f23110](https://github.com/botfront/botfront/commit/6f23110))
-* storybooks build ([b12047e](https://github.com/botfront/botfront/commit/b12047e))
-* tests were not creating users with scope ([0e2ec0e](https://github.com/botfront/botfront/commit/0e2ec0e))
-* Train button inactive on NLU ([7b791ac](https://github.com/botfront/botfront/commit/7b791ac))
-* **roles:** reverted back a file ([964fb93](https://github.com/botfront/botfront/commit/964fb93))
-* **stories:** Fix roles for stories and train button ([bf85d86](https://github.com/botfront/botfront/commit/bf85d86))
-* **test:** Moved chats test after roles test ([1a605cd](https://github.com/botfront/botfront/commit/1a605cd))
-* training data sub ([83f7f2b](https://github.com/botfront/botfront/commit/83f7f2b))
-* upload model to GCS if GKE and Core bucket present ([5bd9595](https://github.com/botfront/botfront/commit/5bd9595))
-* useless code changes ([e767c1a](https://github.com/botfront/botfront/commit/e767c1a))
-* wrong channel name in default settings ([f5dad8a](https://github.com/botfront/botfront/commit/f5dad8a))
-
-
-### Features
-
-* **Action/UserUtterancePopupContent:** don't save on whitespace or null ([7add46d](https://github.com/botfront/botfront/commit/7add46d))
-* **ActionPopupContent:** first commit ([c5a7002](https://github.com/botfront/botfront/commit/c5a7002))
-* **ActionPopupContent:** fix overzealous search & replace ([c17a199](https://github.com/botfront/botfront/commit/c17a199))
-* **AddStoryLine:** add availableActions prop ([5fcce76](https://github.com/botfront/botfront/commit/5fcce76))
-* **AddStoryLine:** first commit ([2b3cd75](https://github.com/botfront/botfront/commit/2b3cd75))
-* **BotResponsePopupContent:** add limitedSelection prop ([8d3434f](https://github.com/botfront/botfront/commit/8d3434f))
-* **BotResponsePopupContent:** add noButtonResponse prop ([ecf5141](https://github.com/botfront/botfront/commit/ecf5141))
-* **BotResponsePopupContent:** close modal on dimmer click ([9080f5b](https://github.com/botfront/botfront/commit/9080f5b))
-* **BotResponsePopupContent:** first commit ([4668b22](https://github.com/botfront/botfront/commit/4668b22))
-* **BotResponsePopupContent:** fix close on modal open ([e977d0a](https://github.com/botfront/botfront/commit/e977d0a))
-* **BotResponsesContainer:** click ellipsis to insert ([9e73aa8](https://github.com/botfront/botfront/commit/9e73aa8))
-* **conversation editor:** DashedButton component ([35b9163](https://github.com/botfront/botfront/commit/35b9163))
-* **logo:** Added logo field in the global public settings ([8be19f2](https://github.com/botfront/botfront/commit/8be19f2))
-* **oos:** change export format from tsv to csv ([9f3abd1](https://github.com/botfront/botfront/commit/9f3abd1))
-* **oos:** make intent nullifiable ([b7eae05](https://github.com/botfront/botfront/commit/b7eae05))
-* **PayloadEditor:** add entity button only shown if all entities have value set ([90d886e](https://github.com/botfront/botfront/commit/90d886e))
-* **PayloadEditor:** first commit ([65d676b](https://github.com/botfront/botfront/commit/65d676b))
-* **rasa-1.0:** Migrated rasa-1.0 from the open source ([e8f4583](https://github.com/botfront/botfront/commit/e8f4583))
-* **rbac:** added roles for project info & Rules ([de3cd68](https://github.com/botfront/botfront/commit/de3cd68))
-* **rbc:** add Process in bulk for nlu-data:w ([7a3b832](https://github.com/botfront/botfront/commit/7a3b832))
-* **rbc:** add roles for activity - validate, delete and intent ([f8a80ac](https://github.com/botfront/botfront/commit/f8a80ac))
-* **rbc:** add roles for the NLU model menu adn playground ([c5b4a89](https://github.com/botfront/botfront/commit/c5b4a89))
-* **rbc:** add roles to activity panes ([313cae5](https://github.com/botfront/botfront/commit/313cae5))
-* **rbc:** add roles to NLU model (complete), for frontend ([507f2ba](https://github.com/botfront/botfront/commit/507f2ba))
-* **rbc:** add roles to NLU model menu ([d4727be](https://github.com/botfront/botfront/commit/d4727be))
-* **rbc:** added roles for project settings ([a748b72](https://github.com/botfront/botfront/commit/a748b72))
-* **rbc:** disabled entity popup for required permision ([ef1c71c](https://github.com/botfront/botfront/commit/ef1c71c))
-* **rbc:** new and duplicate models removed instead of disabled ([c9b476e](https://github.com/botfront/botfront/commit/c9b476e))
-* **rbc:** NLU model frontend ([679fb1b](https://github.com/botfront/botfront/commit/679fb1b))
-* **roles:** add viewer, editor and admin for front end ([1e09537](https://github.com/botfront/botfront/commit/1e09537))
-* **roles:** added backend tests ([176b2c8](https://github.com/botfront/botfront/commit/176b2c8))
-* **roles:** better roles for nlu settings ([8706452](https://github.com/botfront/botfront/commit/8706452))
-* **roles:** conversations ([860bf5d](https://github.com/botfront/botfront/commit/860bf5d))
-* **roles:** dynamic routing ([eaab9bc](https://github.com/botfront/botfront/commit/eaab9bc))
-* **roles:** dynamic sidebar and routing + tests ([e3e6012](https://github.com/botfront/botfront/commit/e3e6012))
-* **roles:** improvements ([140fde5](https://github.com/botfront/botfront/commit/140fde5))
-* **roles:** made nlu_models pub secure ([e6209e8](https://github.com/botfront/botfront/commit/e6209e8))
-* **roles:** nlu models ([23b3d94](https://github.com/botfront/botfront/commit/23b3d94))
-* **roles:** nlu-model:x can now view models ([c0ac1ea](https://github.com/botfront/botfront/commit/c0ac1ea))
-* **roles:** responses ([0d38892](https://github.com/botfront/botfront/commit/0d38892))
-* **roles:** roles on nlu_model backend ([89ee4f4](https://github.com/botfront/botfront/commit/89ee4f4))
-* **SlotPopupContent:** context controlled by storybook knob ([a81a1e4](https://github.com/botfront/botfront/commit/a81a1e4))
-* **SlotPopupContent:** first commit ([4ab79e6](https://github.com/botfront/botfront/commit/4ab79e6))
-* **SlotPopupContent:** refactor, add Link ([0c44139](https://github.com/botfront/botfront/commit/0c44139))
-* **smart tips:** added boldface parser for tip message body ([bdb58b1](https://github.com/botfront/botfront/commit/bdb58b1))
-* **smart tips:** changed message wording ([462326f](https://github.com/botfront/botfront/commit/462326f))
-* **smart tips:** global threshold can now be set in project settings ([e45b0a1](https://github.com/botfront/botfront/commit/e45b0a1))
-* **smart tips:** integrated smart tips in activity screen ([31a8420](https://github.com/botfront/botfront/commit/31a8420))
-* **smart tips:** make default nlu th 0.75 ([e8abe94](https://github.com/botfront/botfront/commit/e8abe94))
-* **smart tips:** style -- changed look of action buttons according to spec ([d66949f](https://github.com/botfront/botfront/commit/d66949f))
-* **smart tips:** ui changes ([a93b986](https://github.com/botfront/botfront/commit/a93b986))
-* **stories:** permissions ([09c4d71](https://github.com/botfront/botfront/commit/09c4d71))
-* **stories-roles:** Added permission to stories back end. ([90752d8](https://github.com/botfront/botfront/commit/90752d8))
-* **stories-roles:** Added permission to stories front end. ([8906edd](https://github.com/botfront/botfront/commit/8906edd))
-* **stories-slots:** Slots and stories are added to ee. ([c36023a](https://github.com/botfront/botfront/commit/c36023a))
-* **StoryVisualEditor:** better insert experience ([87cecdf](https://github.com/botfront/botfront/commit/87cecdf))
-* **StoryVisualEditor:** don't update DOM when blur target is descendent ([89808bb](https://github.com/botfront/botfront/commit/89808bb))
-* **StoryVisualEditor:** wip ([3408d16](https://github.com/botfront/botfront/commit/3408d16))
-* **UserUtterancePopupContent:** User says menu ([42f13fe](https://github.com/botfront/botfront/commit/42f13fe))
-* **UtteranceContainer:** wip ([a28bfd1](https://github.com/botfront/botfront/commit/a28bfd1))
-* **UtteranceContainer:** wip ([291e8d1](https://github.com/botfront/botfront/commit/291e8d1))
-* activity api roles ([0ed9f73](https://github.com/botfront/botfront/commit/0ed9f73))
-* added field to set small logo ([1cd338e](https://github.com/botfront/botfront/commit/1cd338e))
-* re-enabled bot response NLU criterias ([13ef2a2](https://github.com/botfront/botfront/commit/13ef2a2))
-
-
-### Tests
-
-* **rbac:** Added test for activity deletion ([70742ce](https://github.com/botfront/botfront/commit/70742ce))
-* **rbac:** added test for change intent & entity call ([5462fea](https://github.com/botfront/botfront/commit/5462fea))
-* **rbac:** added test for model train call ([91c69b8](https://github.com/botfront/botfront/commit/91c69b8))
-* **rbac:** merge commit ([e2d3d64](https://github.com/botfront/botfront/commit/e2d3d64))
-* **rbc:** add test for nlu-data:r ([d1897e6](https://github.com/botfront/botfront/commit/d1897e6))
-* **rbc:** add tests for nlu-data:w ([d02c81a](https://github.com/botfront/botfront/commit/d02c81a))
-* **rbc:** added test for data import ([ab3193b](https://github.com/botfront/botfront/commit/ab3193b))
-* **rbc:** added test for nlu-model:x ([50c29b9](https://github.com/botfront/botfront/commit/50c29b9))
-* **rbc:** nlu-model:w can delete model ([6597619](https://github.com/botfront/botfront/commit/6597619))
-* **roles:**  gazette and synonyms ([4bbf59a](https://github.com/botfront/botfront/commit/4bbf59a))
-* **roles:** changed test organisation ([34a0394](https://github.com/botfront/botfront/commit/34a0394))
-* **roles:** settings data:r ([287cf81](https://github.com/botfront/botfront/commit/287cf81))
-* **roles:** show import tab ([74473c0](https://github.com/botfront/botfront/commit/74473c0))
-
-
-
-### 0.14.1-ee (2019-05-08)
-
-
-### Bug Fixes
-
-* wrong format in global settings schema ([280437c](https://github.com/botfront/botfront/commit/280437c))
-
-
-
-### 0.14.1 (2019-05-07)
-
-
-
-### [0.15.2-ee.1](https://github.com/botfront/botfront/compare/v0.15.2...v0.15.2-ee.1) (2019-07-25)
-=======
 ### [0.15.5](https://github.com/botfront/botfront/compare/v0.15.4...v0.15.5) (2019-08-11)
 
 
@@ -472,122 +148,33 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 ### [0.15.4](https://github.com/botfront/botfront/compare/v0.15.3...v0.15.4) (2019-07-31)
->>>>>>> v0.15.5
 
 
 ### Bug Fixes
 
-* **project-creation:** bug fix while creating a new project ([44a0019](https://github.com/botfront/botfront/commit/44a0019))
-* **rbac:** removed unecessary code ([f6f1869](https://github.com/botfront/botfront/commit/f6f1869))
-* **rbc:** Fixed nlu-data:w test, Online/Offline button for nlu-model:w ([dd409f4](https://github.com/botfront/botfront/commit/dd409f4))
-* **roles:** minor fixes ([68a0bc8](https://github.com/botfront/botfront/commit/68a0bc8))
-* **roles:** permissions ([df65719](https://github.com/botfront/botfront/commit/df65719))
-* **roles:** Removed fieldset ([bbf5758](https://github.com/botfront/botfront/commit/bbf5758))
-* code style ([ca393fd](https://github.com/botfront/botfront/commit/ca393fd))
-* default settings ([423d1bb](https://github.com/botfront/botfront/commit/423d1bb))
-* instance creation on project creation ([5618a3b](https://github.com/botfront/botfront/commit/5618a3b))
-* **test:** removed nlu-meta spec file ([6f23110](https://github.com/botfront/botfront/commit/6f23110))
-* storybooks build ([b12047e](https://github.com/botfront/botfront/commit/b12047e))
-* tests were not creating users with scope ([0e2ec0e](https://github.com/botfront/botfront/commit/0e2ec0e))
-* Train button inactive on NLU ([7b791ac](https://github.com/botfront/botfront/commit/7b791ac))
-* **roles:** reverted back a file ([964fb93](https://github.com/botfront/botfront/commit/964fb93))
-* **stories:** Fix roles for stories and train button ([bf85d86](https://github.com/botfront/botfront/commit/bf85d86))
-* **test:** Moved chats test after roles test ([1a605cd](https://github.com/botfront/botfront/commit/1a605cd))
-* training data sub ([83f7f2b](https://github.com/botfront/botfront/commit/83f7f2b))
-* upload model to GCS if GKE and Core bucket present ([5bd9595](https://github.com/botfront/botfront/commit/5bd9595))
-* useless code changes ([e767c1a](https://github.com/botfront/botfront/commit/e767c1a))
-* wrong channel name in default settings ([f5dad8a](https://github.com/botfront/botfront/commit/f5dad8a))
+* missing cloudbuild image update ([5185489](https://github.com/botfront/botfront/commit/5185489))
+* set correct initial version in default model ([a2dd24c](https://github.com/botfront/botfront/commit/a2dd24c))
 
 
 ### Features
 
-* **Action/UserUtterancePopupContent:** don't save on whitespace or null ([7add46d](https://github.com/botfront/botfront/commit/7add46d))
-* **ActionPopupContent:** first commit ([c5a7002](https://github.com/botfront/botfront/commit/c5a7002))
-* **ActionPopupContent:** fix overzealous search & replace ([c17a199](https://github.com/botfront/botfront/commit/c17a199))
-* **AddStoryLine:** add availableActions prop ([5fcce76](https://github.com/botfront/botfront/commit/5fcce76))
-* **AddStoryLine:** first commit ([2b3cd75](https://github.com/botfront/botfront/commit/2b3cd75))
-* **BotResponsePopupContent:** add limitedSelection prop ([8d3434f](https://github.com/botfront/botfront/commit/8d3434f))
-* **BotResponsePopupContent:** add noButtonResponse prop ([ecf5141](https://github.com/botfront/botfront/commit/ecf5141))
-* **BotResponsePopupContent:** close modal on dimmer click ([9080f5b](https://github.com/botfront/botfront/commit/9080f5b))
-* **BotResponsePopupContent:** first commit ([4668b22](https://github.com/botfront/botfront/commit/4668b22))
-* **conversation editor:** DashedButton component ([35b9163](https://github.com/botfront/botfront/commit/35b9163))
-* **logo:** Added logo field in the global public settings ([8be19f2](https://github.com/botfront/botfront/commit/8be19f2))
-* re-enabled bot response NLU criterias ([13ef2a2](https://github.com/botfront/botfront/commit/13ef2a2))
-* **oos:** change export format from tsv to csv ([9f3abd1](https://github.com/botfront/botfront/commit/9f3abd1))
-* **oos:** make intent nullifiable ([b7eae05](https://github.com/botfront/botfront/commit/b7eae05))
-* **PayloadEditor:** add entity button only shown if all entities have value set ([90d886e](https://github.com/botfront/botfront/commit/90d886e))
-* **PayloadEditor:** first commit ([65d676b](https://github.com/botfront/botfront/commit/65d676b))
-* **rasa-1.0:** Migrated rasa-1.0 from the open source ([e8f4583](https://github.com/botfront/botfront/commit/e8f4583))
-* **rbac:** added roles for project info & Rules ([de3cd68](https://github.com/botfront/botfront/commit/de3cd68))
-* **rbc:** add Process in bulk for nlu-data:w ([7a3b832](https://github.com/botfront/botfront/commit/7a3b832))
-* **rbc:** add roles for activity - validate, delete and intent ([f8a80ac](https://github.com/botfront/botfront/commit/f8a80ac))
-* **rbc:** add roles for the NLU model menu adn playground ([c5b4a89](https://github.com/botfront/botfront/commit/c5b4a89))
-* **rbc:** add roles to activity panes ([313cae5](https://github.com/botfront/botfront/commit/313cae5))
-* **rbc:** add roles to NLU model (complete), for frontend ([507f2ba](https://github.com/botfront/botfront/commit/507f2ba))
-* **rbc:** add roles to NLU model menu ([d4727be](https://github.com/botfront/botfront/commit/d4727be))
-* **rbc:** added roles for project settings ([a748b72](https://github.com/botfront/botfront/commit/a748b72))
-* **rbc:** disabled entity popup for required permision ([ef1c71c](https://github.com/botfront/botfront/commit/ef1c71c))
-* **rbc:** new and duplicate models removed instead of disabled ([c9b476e](https://github.com/botfront/botfront/commit/c9b476e))
-* **rbc:** NLU model frontend ([679fb1b](https://github.com/botfront/botfront/commit/679fb1b))
-* **roles:** add viewer, editor and admin for front end ([1e09537](https://github.com/botfront/botfront/commit/1e09537))
-* **roles:** added backend tests ([176b2c8](https://github.com/botfront/botfront/commit/176b2c8))
-* **roles:** better roles for nlu settings ([8706452](https://github.com/botfront/botfront/commit/8706452))
-* **roles:** conversations ([860bf5d](https://github.com/botfront/botfront/commit/860bf5d))
-* **roles:** dynamic routing ([eaab9bc](https://github.com/botfront/botfront/commit/eaab9bc))
-* **roles:** dynamic sidebar and routing + tests ([e3e6012](https://github.com/botfront/botfront/commit/e3e6012))
-* **roles:** improvements ([140fde5](https://github.com/botfront/botfront/commit/140fde5))
-* **roles:** made nlu_models pub secure ([e6209e8](https://github.com/botfront/botfront/commit/e6209e8))
-* **roles:** nlu models ([23b3d94](https://github.com/botfront/botfront/commit/23b3d94))
-* **roles:** nlu-model:x can now view models ([c0ac1ea](https://github.com/botfront/botfront/commit/c0ac1ea))
-* **roles:** responses ([0d38892](https://github.com/botfront/botfront/commit/0d38892))
-* **roles:** roles on nlu_model backend ([89ee4f4](https://github.com/botfront/botfront/commit/89ee4f4))
-* **SlotPopupContent:** context controlled by storybook knob ([a81a1e4](https://github.com/botfront/botfront/commit/a81a1e4))
-* **SlotPopupContent:** first commit ([4ab79e6](https://github.com/botfront/botfront/commit/4ab79e6))
-* **SlotPopupContent:** refactor, add Link ([0c44139](https://github.com/botfront/botfront/commit/0c44139))
-* **smart tips:** added boldface parser for tip message body ([bdb58b1](https://github.com/botfront/botfront/commit/bdb58b1))
-* **smart tips:** changed message wording ([462326f](https://github.com/botfront/botfront/commit/462326f))
-* **smart tips:** global threshold can now be set in project settings ([e45b0a1](https://github.com/botfront/botfront/commit/e45b0a1))
-* **smart tips:** integrated smart tips in activity screen ([31a8420](https://github.com/botfront/botfront/commit/31a8420))
-* **smart tips:** make default nlu th 0.75 ([e8abe94](https://github.com/botfront/botfront/commit/e8abe94))
-* **smart tips:** style -- changed look of action buttons according to spec ([d66949f](https://github.com/botfront/botfront/commit/d66949f))
-* **smart tips:** ui changes ([a93b986](https://github.com/botfront/botfront/commit/a93b986))
-* **stories:** permissions ([09c4d71](https://github.com/botfront/botfront/commit/09c4d71))
-* **stories-roles:** Added permission to stories back end. ([90752d8](https://github.com/botfront/botfront/commit/90752d8))
-* **stories-roles:** Added permission to stories front end. ([8906edd](https://github.com/botfront/botfront/commit/8906edd))
-* **stories-slots:** Slots and stories are added to ee. ([c36023a](https://github.com/botfront/botfront/commit/c36023a))
-* **UserUtterancePopupContent:** User says menu ([42f13fe](https://github.com/botfront/botfront/commit/42f13fe))
-* activity api roles ([0ed9f73](https://github.com/botfront/botfront/commit/0ed9f73))
-* added field to set small logo ([1cd338e](https://github.com/botfront/botfront/commit/1cd338e))
+* **context-helper:** add entities and intent generation function ([ffecc52](https://github.com/botfront/botfront/commit/ffecc52))
 
 
 ### Tests
 
-* **rbac:** Added test for activity deletion ([70742ce](https://github.com/botfront/botfront/commit/70742ce))
-* **rbac:** added test for change intent & entity call ([5462fea](https://github.com/botfront/botfront/commit/5462fea))
-* **rbac:** added test for model train call ([91c69b8](https://github.com/botfront/botfront/commit/91c69b8))
-* **rbac:** merge commit ([e2d3d64](https://github.com/botfront/botfront/commit/e2d3d64))
-* **rbc:** add test for nlu-data:r ([d1897e6](https://github.com/botfront/botfront/commit/d1897e6))
-* **rbc:** add tests for nlu-data:w ([d02c81a](https://github.com/botfront/botfront/commit/d02c81a))
-* **rbc:** added test for data import ([ab3193b](https://github.com/botfront/botfront/commit/ab3193b))
-* **rbc:** added test for nlu-model:x ([50c29b9](https://github.com/botfront/botfront/commit/50c29b9))
-* **rbc:** nlu-model:w can delete model ([6597619](https://github.com/botfront/botfront/commit/6597619))
-* **roles:**  gazette and synonyms ([4bbf59a](https://github.com/botfront/botfront/commit/4bbf59a))
-* **roles:** changed test organisation ([34a0394](https://github.com/botfront/botfront/commit/34a0394))
-* **roles:** settings data:r ([287cf81](https://github.com/botfront/botfront/commit/287cf81))
-* **roles:** show import tab ([74473c0](https://github.com/botfront/botfront/commit/74473c0))
+* add unit test for intent and entity extraction ([4b500e1](https://github.com/botfront/botfront/commit/4b500e1))
+* fixed typos ([8025a2e](https://github.com/botfront/botfront/commit/8025a2e))
 
 
 
-### 0.14.1-ee (2019-05-08)
+### [0.15.3](https://github.com/botfront/botfront/compare/v0.15.2...v0.15.3) (2019-07-26)
 
 
-### Bug Fixes
+### Features
 
-* wrong format in global settings schema ([280437c](https://github.com/botfront/botfront/commit/280437c))
-
-
-
-### 0.14.1 (2019-05-07)
+* **FloatingIconButton:** add color & size props ([f0060b2](https://github.com/botfront/botfront/commit/f0060b2))
+* postinstall script starts botfront right after npm install ([7998c31](https://github.com/botfront/botfront/commit/7998c31))
 
 
 
