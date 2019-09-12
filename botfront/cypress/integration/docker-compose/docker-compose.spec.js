@@ -1,20 +1,15 @@
 /* eslint-disable no-undef */
 
 describe('Docker Compose', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-    });
-
-    after(function() {
-        cy.deleteProject('bf');
-    });
 
     beforeEach(function() {
         cy.login();
+        cy.createProject('bf', 'My Project', 'fr');
     });
 
     afterEach(function() {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     it('Docker compose should exist in more settings', function() {
