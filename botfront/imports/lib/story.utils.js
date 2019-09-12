@@ -119,16 +119,9 @@ export const extractDomain = (stories, slots, templates = null) => {
     let domains = stories.map((story) => {
         try {
             const val = new StoryController(story, slots, () => {}, null, templates);
-            if (val.getErrors().length > 0) {
-                return {
-                    entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
-                };
-            }
             return val.extractDomain();
         } catch (e) {
-            return {
-                entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
-            };
+            throw new Error('an error has caused training to fail');
         }
     });
     domains = domains.reduce(
