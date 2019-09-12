@@ -367,6 +367,9 @@ const StoryEditorContainer = ({
     };
 
     function canBranch() {
+        if (storyControllers[branchPath.join()] && !storyControllers[branchPath.join()].md.length > 0) {
+            return false;
+        }
         try {
             return !getSubBranchesForPath(story, branchPath).length;
         } catch (e) {

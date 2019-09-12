@@ -217,7 +217,7 @@ export class StoryController {
 
     validateStory = () => {
         this.reset();
-        // if (!this.md.replace(/\s/g, '').length) this.raiseStoryException('no_empty');
+        if (!this.md.replace(/\s/g, '').length) this.raiseStoryException('no_empty');
         for (this.idx; this.idx < this.lines.length; this.idx += 1) {
             const line = this.lines[this.idx].md.replace(/ *<!--.*--> */g, ' ');
             if (line.trim().length !== 0) {
