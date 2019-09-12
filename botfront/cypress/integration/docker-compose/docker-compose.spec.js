@@ -4,9 +4,11 @@ describe('Docker Compose', function() {
 
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
+        cy.login();
     });
 
     afterEach(function() {
+        cy.logout();
         cy.deleteProject('bf');
     });
 
