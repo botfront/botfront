@@ -26,8 +26,7 @@ function StoriesEditor(props) {
             stories[index],
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    console.log('deleted');
-                    onDeleteGroup();
+                    if (stories.length === 1) onDeleteGroup();
                 }
             }),
         );
