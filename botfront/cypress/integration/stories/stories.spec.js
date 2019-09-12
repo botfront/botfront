@@ -53,21 +53,33 @@ describe('stories', function() {
     });
 
     it('should be able to add and delete stories', function() {
+        // add story group
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
             .type(`${storyGroupOne}{enter}`);
         cy.contains('storyGroupOne').click({ force: true });
+        // add a second story to the new story group
         cy.dataCy('story-editor').get('textarea');
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 2);
+        // edits the newly created (second) story title
+        cy.dataCy('story-title')
+            .eq(1)
+            .click()
+            .clear()
+            .type('ID AKLEJDKSGLJENSKEPFM{enter}');
+        // deletes the first story
         cy.dataCy('delete-story')
             .first()
             .click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
+        // verifies that the second story was not removed along with the first
         cy.dataCy('browser-item').eq(1).should('have.class', 'active');
         cy.dataCy('story-editor').should('have.lengthOf', 1);
+        cy.dataCy('story-title').should('have.value', 'ID AKLEJDKSGLJENSKEPFM');
+        // deletes the second story
         cy.dataCy('delete-story').click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
         cy.contains(storyGroupTwo).should('not.exist');
