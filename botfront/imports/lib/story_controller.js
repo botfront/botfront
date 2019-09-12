@@ -65,7 +65,8 @@ export class StoryController {
     )
 
     hasInvalidChars = (str) => {
-        if (str.match(/[ /]/)) {
+        const alphanumericReg = new RegExp(/[a-z0-9_-]+$/i);
+        if (!alphanumericReg.exec(str)) {
             this.raiseStoryException('invalid_char');
             return true;
         }
