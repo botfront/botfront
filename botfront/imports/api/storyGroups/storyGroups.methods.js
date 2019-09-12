@@ -91,33 +91,6 @@ Meteor.methods({
             return handleError(e);
         }
     },
-    'storyGroups.updateExceptions'(storyGroup) {
-        check(storyGroup, Object);
-        const {
-            _id,
-            hasError,
-            hasWarning,
-            storyId,
-        } = storyGroup;
-        const update = {};
-        if (hasError) {
-            update.hasErrors = storyId;
-        } else {
-            update.hasNoErrors = storyId;
-        }
-        if (hasWarning) {
-            update.hasWarnings = storyId;
-        } else {
-            update.hasNoWarnings = storyId;
-        }
-        StoryGroups.update(
-            { _id },
-            {
-                $addToSet: { hasErrors: update.hasErrors, hasWarnings: update.hasWarnings },
-                $pull: { hasErrors: update.hasNoErrors, hasWarnings: update.hasNoWarnings },
-            },
-        );
-    },
     'storyGroups.removeFocus'(projectId) {
         check(projectId, String);
         return StoryGroups.update(
