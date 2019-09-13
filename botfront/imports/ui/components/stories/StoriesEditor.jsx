@@ -21,26 +21,12 @@ function StoriesEditor(props) {
     } = props;
 
     function handleStoryDeletion(index) {
-        const isIntroStory = groupNames
-            .filter(({ value }) => value === stories[index].storyGroupId)[0]
-            .text === 'Intro stories';
         Meteor.call(
             'stories.delete',
             stories[index],
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    if (stories.length !== 1 || isIntroStory) {
-                        Meteor.call(
-                            'storyGroups.updateExceptions',
-                            {
-                                _id: stories[index].storyGroupId, storyId: stories[index]._id,
-                            },
-                            wrapMeteorCallback(() => {
-                            }),
-                        );
-                    } else {
-                        onDeleteGroup();
-                    }
+                    if (stories.length === 1) onDeleteGroup();
                 }
             }),
         );

@@ -15,10 +15,6 @@ export const StoryGroupSchema = new SimpleSchema(
         },
         selected: { type: Boolean, defaultValue: false },
         introStory: { type: Boolean, optional: true },
-        hasErrors: { type: Array, defaultValue: [] },
-        'hasErrors.$': { type: String },
-        hasWarnings: { type: Array, defaultValue: [] },
-        'hasWarnings.$': { type: String },
     },
     { tracker: Tracker },
 );
