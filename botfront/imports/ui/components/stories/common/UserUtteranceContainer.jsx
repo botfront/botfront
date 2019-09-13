@@ -113,7 +113,7 @@ const UtteranceContainer = (props) => {
     return (
         <ExceptionWrapper exceptions={exceptions}>
             <div
-                className='utterance-container'
+                className='utterance-container exception-wrapper'
                 exception={exceptions.severity}
                 // This ternary ensures that the mode is not set to input when we have a parsed utterance
                 // This makes some css work
