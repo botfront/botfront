@@ -1,7 +1,6 @@
 {
   "name": "botfront",
-  "version": "0.16.0-rc5-ee.1",
-  "private": true,
+  "version": "0.16.0-rc.7-ee.1",
   "repository": "https://github.com/botfront/botfront",
   "description": "Botfront is chatbot platform based on Rasa.",
   "main": "index.js",

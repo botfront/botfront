@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.7](https://github.com/botfront/botfront/compare/v0.16.0-rc.6...v0.16.0-rc.7) (2019-09-13)
+
+
+
 ## [0.16.0-rc5](https://github.com/botfront/botfront/compare/v0.16.0-rc.4...v0.16.0-rc5) (2019-09-13)
 
 
