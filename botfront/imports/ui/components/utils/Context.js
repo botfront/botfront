@@ -13,7 +13,3 @@ export const ConversationOptionsContext = React.createContext({
 export const ResponsesContext = React.createContext({
     templates: [],
 });
-
-export const ResponsesContext = React.createContext({
-    templates: [],
-});
