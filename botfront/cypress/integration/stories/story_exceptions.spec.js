@@ -1,12 +1,14 @@
 /* eslint-disable no-undef */
 
-describe('stories', function() {
+describe('story exceptions', function() {
     afterEach(function() {
+        cy.logout();
         cy.deleteProject('bf');
     });
 
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
+        cy.login();
     });
     const createTestStoryGroup = () => {
         cy.visit('/project/bf/stories');
@@ -42,7 +44,7 @@ describe('stories', function() {
             .eq(textareaIndex)
             .clear();
     };
-    it('should display errors', function() {
+    it('should display errors and warnings', function() {
         createTestStoryGroup();
         typeError(0, 0);
         cy.dataCy('top-menu-error-alert').contains('1 Error').should('exist');
