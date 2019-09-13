@@ -74,7 +74,8 @@ export class StoryController {
     };
 
     raiseStoryException = (code) => {
-        this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.idx + 1, code));
+        // disabled exceptions
+        // this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.idx + 1, code));
     };
 
     validateUtter = () => {
