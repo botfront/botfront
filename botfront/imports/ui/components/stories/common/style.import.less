@@ -10,14 +10,12 @@
         margin: 0.8em 0;
         outline: none;
         opacity: 0;
-        height: 0;
         transition: opacity 0.1s ease-in-out;
     }
     
     &:hover {
         .add-story-line {
             opacity: 1;
-            height: initial;
         }
 
         .responses-container {
@@ -40,7 +38,6 @@
                  opacity: 0.5;
             }
             .floating-icon-button.ellipsis.horizontal { // show all ellipses on hover responses-container
-                height: 20px;
                 .viewOnHover.ellipsis {
                     opacity: 1;
                     visibility: visible;
@@ -251,7 +248,7 @@
 
 .floating-icon-button.ellipsis.horizontal {
     width: 200px;
-    height: 5px;
+    height: 20px;
     transition: opacity, height 0.1s ease-in-out;
     .viewOnHover.ellipsis {
         text-align: left;
