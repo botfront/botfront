@@ -12,13 +12,12 @@ describe('story exceptions', function() {
     });
     const createTestStoryGroup = () => {
         cy.visit('/project/bf/stories');
-        cy.wait(200);
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input').children('input').type('excpetion test{enter}');
         cy.dataCy('browser-item').children('span').contains('excpetion test').click();
     };
     const typeError = (textareaIndex, aceLineIndex) => {
-        cy.get('.ace_line')
+        cy.get('.ace_line', { timeout: 10000 })
             .eq(aceLineIndex)
             .click({ force: true })
             .get('textarea')
@@ -26,7 +25,7 @@ describe('story exceptions', function() {
             .type('error');
     };
     const typeWarning = (textareaIndex, aceLineIndex) => {
-        cy.get('.ace_line')
+        cy.get('.ace_line', { timeout: 10000 })
             .eq(aceLineIndex)
             .click({ force: true })
             .get('textarea')
@@ -37,14 +36,22 @@ describe('story exceptions', function() {
             .type('- utter_');
     };
     const clearAceEditor = (textareaIndex, aceLineIndex) => {
-        cy.get('.ace_line')
+        cy.get('.ace_line', { timeout: 10000 })
             .eq(aceLineIndex)
             .click({ force: true })
             .get('textarea')
             .eq(textareaIndex)
             .clear();
     };
-    it('should display errors and warnings', function() {
+    it('should display errors and warnings in the story top menu', function() {
+        createTestStoryGroup();
+        typeError(0, 0);
+        cy.dataCy('top-menu-error-alert').contains('1 Error').should('exist');
+        typeWarning(0, 0);
+        cy.dataCy('top-menu-error-alert').contains('1 Error').should('exist');
+        cy.dataCy('top-menu-warning-alert').contains('1 Warning').should('exist');
+    });
+    it('should show the sum of errors and warnings in the story top menu', function() {
         createTestStoryGroup();
         typeError(0, 0);
         cy.dataCy('top-menu-error-alert').contains('1 Error').should('exist');
@@ -53,7 +60,7 @@ describe('story exceptions', function() {
         cy.dataCy('top-menu-warning-alert').contains('1 Warning').should('exist');
 
         cy.dataCy('create-branch').click();
-        cy.wait(100);
+        cy.wait(300);
         typeError(1, 3);
         typeWarning(1, 3);
         cy.dataCy('top-menu-error-alert').contains('2 Errors').should('exist');
@@ -66,29 +73,20 @@ describe('story exceptions', function() {
         typeWarning(1, 3);
         cy.dataCy('top-menu-error-alert').contains('3 Errors').should('exist');
         cy.dataCy('top-menu-warning-alert').contains('3 Warnings').should('exist');
-        cy.dataCy('branch-tab-error-alert').eq(1).should('exist');
-        cy.dataCy('branch-tab-warning-alert').eq(1).should('exist');
-        clearAceEditor(1, 3);
-        cy.dataCy('branch-label').eq(0).click();
-        clearAceEditor(1, 3);
-
+    });
+    it('should display warnings from nested branches in the story top menu and each level of branch menus', function() {
+        createTestStoryGroup();
         cy.dataCy('create-branch').click();
-        cy.wait(200);
-        typeError(2, 4);
-        typeWarning(2, 4);
-        cy.wait(100);
-        cy.dataCy('top-menu-error-alert').contains('2 Errors').should('exist');
-        cy.dataCy('top-menu-warning-alert').contains('2 Warnings').should('exist');
-        cy.dataCy('branch-tab-error-alert').eq(0).should('exist');
-        cy.dataCy('branch-tab-error-alert').eq(1).should('exist');
-        cy.dataCy('branch-tab-warning-alert').eq(0).should('exist');
-        cy.dataCy('branch-tab-warning-alert').eq(1).should('exist');
-
-        clearAceEditor(2, 4);
-        cy.wait(100);
+        cy.dataCy('create-branch').click();
+        cy.wait(300);
+        typeError(2, 2);
+        typeWarning(2, 2);
         cy.dataCy('top-menu-error-alert').contains('1 Error').should('exist');
         cy.dataCy('top-menu-warning-alert').contains('1 Warning').should('exist');
-        clearAceEditor(0, 0);
+        cy.dataCy('branch-tab-error-alert').eq(1).should('exist');
+        cy.dataCy('branch-tab-warning-alert').eq(1).should('exist');
+
+        clearAceEditor(2, 3);
         cy.dataCy('top-menu-error-alert').should('not.exist');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
