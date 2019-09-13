@@ -46,7 +46,7 @@ module.exports = {
             },
 
             {
-                title: 'Developping conversations', // required
+                title: 'Developing conversations', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
@@ -79,7 +79,7 @@ module.exports = {
                 ]
             },
             {
-                title: 'Developers Guide',   // required
+                title: 'Developer\'s Guide',   // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
