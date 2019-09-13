@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.6](https://github.com/botfront/botfront/compare/v0.16.0-rc5...v0.16.0-rc.6) (2019-09-13)
+
+
+### Bug Fixes
+
+* exception test failing after branching ([#219](https://github.com/botfront/botfront/issues/219)) ([42b7626](https://github.com/botfront/botfront/commit/42b7626))
+
+
+### Features
+
+* **cli:** checks for newer CLI versions ([e6c5a67](https://github.com/botfront/botfront/commit/e6c5a67))
+
 ## [0.16.0-rc5](https://github.com/botfront/botfront/compare/v0.16.0-rc.4...v0.16.0-rc5) (2019-09-13)
 
 
