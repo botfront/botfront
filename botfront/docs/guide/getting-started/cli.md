@@ -9,7 +9,7 @@ permalink: /getting-started/:slug
 
 # Useful CLI commands
 
-Botfront comes with a command line interface to manage your projects. You can start the CLI by running `botfront` in your terminal. It will open a contextual menu that should contain the options you need most of the time.
+Botfront comes with a command line interface (CLI) to manage your projects. You can start the CLI by running `botfront` in your terminal. It will open a contextual menu which contains the options you would need most of the time.
 
 ## Main commands
 
@@ -18,7 +18,7 @@ Botfront comes with a command line interface to manage your projects. You can st
 |`botfront init`| Create a new project | Anywhere |
 |`botfront up`| Start Botfront project | from your project folder |
 |`botfront down`| Stop Botfront project | from your project folder |
-|`botfront logs`| Stop Botfront project | from your project folder |
+|`botfront logs`| View Botfront logs | from your project folder |
 |`botfront watch`| Watch actions files changes | from your project folder |
 
 
@@ -43,4 +43,4 @@ Commands:
   watch              Restart the Actions service automatically on file change. Must be executed in your project's directory
   docs               Open the online documentation in your browser
 ```
-Usually, just typing `botfront` 
+

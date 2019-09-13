@@ -9,7 +9,7 @@ permalink: /rasa/nlu/:slug
 
 # Training intents and entities
 
-**Intents** capture the general meaning of an utterance while **entities** refers to some particular elements *within* a sentence. Let's say you create a flight booking bot.
+**Intents** capture the general meaning of an utterance while **entities** refer to some particular elements *within* a sentence. Let's say you create a flight booking bot.
 
 > I want to book a flight from **Paris** to **Montreal**
 
@@ -20,43 +20,45 @@ Then we'll need more examples:
 > Is there a flight from **Rome** to **London** tomorrow?\
 > I wanna fly from **The big apple** to **the city of light**
 
-And in Botfront it's gonna look like this:
+And in Botfront it's going to look like this:
 
 ![](../../../images/nlu_training_11.png)
 
-After you train you can verify it works as expected by typing a sentence in the _User says..._. You can see that the `from` and `to` entities are picked up as expected.
+After you train, you can verify if it works as expected or not by typing a sentence in the _User says..._ section. You can see that the `from` and `to` entities are picked up as expected.
+
+
+
+![](../../../images/nlu_training_12.png)
 
 ::: tip NOTE
 You don't see an intent here because our dataset only has one intent. You need at least two intents to train an intent classifier.
 :::
 
-![](../../../images/nlu_training_12.png)
+## Entity synonyms
 
-## Entity Synonyms
-
-However in the example above, if we really want to pass it to a booking engine or a price comparator, we may need airport codes. Entity synonyms can be used for that. In the example below, we mapped _the city of light_ to CDG and _the big apple_ to JFK in the synonyms, retrained, and the values returned for the entities were **CDG** and **JFK**.
+In the example above, if we really want to pass it to a booking engine or a price comparator, we may need airport codes. Entity synonyms could be used for that. In the example below, we mapped _the city of light_ to CDG and _The big apple_ to JFK in the synonyms, retrained, and the values returned for the entities were **CDG** and **JFK**.
 
 ![](../../../images/nlu_training_8.png)
 
 ::: tip
-Adding synonyms in the table is generally not enough. You still need to teach the entity extractor the various form an origin or a destination could take by adding more examples to the training data
+Adding synonyms in the table is generally not enough. You still need to teach the entity extractor the various forms an origin or a destination could take by adding more examples to the training data.
 :::
 
-We must still assume that our users are careful enough to avoid typos and spelling mistakes. Synonyms won't help model figure out that the _the big aple_ is **JFK** or that the _citi of lite_ is _CDG_. 
+We still assume that our users are careful enough to avoid typos and spelling mistakes. Synonyms won't help the model figure it out that the _the big aple_ is **JFK** or that the _citi of lite_ is _CDG_. 
 
 However, a fuzzy gazette can.
 
 ## Gazettes
 
 Gazettes are useful when you expect the values of an entity to be in a finite set, and when you want to give users some spelling latitude. Common examples are colors, brands, or cities. 
-In the example below we want to make sure the `color` entity returns an allowed color. The allowed colors are **red** and **blue**. We want to make sure of two things:
+In the example below we want to make sure the `color` entity returns an allowed color. The allowed colors are **red** and **blue**. We want to be sure of two things:
 
-1. If the `CRFEntityExtractor` extracts **yellow**, which is not in the white list, we don't want it in the NLU parse data.
-2. The correct color is returned is the user spells it incorrectly (to some extent).
+1. If the `CRFEntityExtractor` extracts **yellow**, which is not in the whitelist, we don't want it in the NLU parse data.
+2. The correct color is returned if the user spells it incorrectly (to some extent).
 
 ![](../../../images/nlu_training_13.png)
 
-All you have to do is specify the list of allowed (or commonly) expected values (there aren't that many ways of saying Paris or New-York). Th_spelling latiture_ is adjusted with fuzziness parameter. 100 will have no telerance to errors, 0 will be extremely tolerant. It will always return one of the values even if the user types something completely out of scope.
+All you have to do is to specify the list of allowed (or commonly) expected values (there aren't that many ways of saying Paris or New York). The _spelling latitude_ is adjusted with the fuzziness parameter. 100 will have no telerance to errors, 0 will be extremely tolerant. It will always return one of the values even if the user types something completely out of scope.
 
 ::: tip NOTE
 When the entity extractor picks up _citi of lite_, it compares it with every element of the Gazette list and computes a fuzziness score for each element. The highest score is for _the city of light_, which is then mapped to _CDG_ by the synonyms processor. If the highest score is below the minimum score, it means the value is out of scope and the entity is removed.
@@ -64,9 +66,9 @@ When the entity extractor picks up _citi of lite_, it compares it with every ele
 
 ## Compositing entities
 
-Duckling is an open source parser by Facebook able to extract structured entities such as numbers, amounts of money, emails, dates. It can be used by Rasa and is integrated in the Botfront package (when you start Botfront with the CLI, a Duckling container is started)
+Duckling is an open source parser by Facebook which is able to extract structured entities such as numbers, amounts of money, emails, dates. It can be used by Rasa and is integrated in the Botfront package (when you start Botfront with the CLI, a Duckling container is started)
 
-Being a parser, it is only able to recognize patterns in a sentence and not to attribute it to a specific entity. For example, in the following sentence:
+Being a parser, it is only able to recognize patterns in a sentence and not to attribute them to specific entities. For example, in the following sentence:
 
 > I want *2* beers and *3* cokes
 
@@ -90,7 +92,7 @@ Then add the following component in the pipeline **after** the `CRFEntityExtract
     cokes_count: ["number"]
 ```
 
-Now, the `beers_count` and `cokes_count` entities are guaranteed to return a value of type number, and your custom actions can safely rely on it. If the `CRFEntityExtractor` extracts an entity that does not contains a `number` it is going to be removed.  
+Now, the `beers_count` and `cokes_count` entities are guaranteed to return a value of type number, and your custom actions can safely rely on it. If the `CRFEntityExtractor` extracts an entity that does not contain a `number` it is going to be removed.  
 
 ::: tip The order is important
 - The entities are first extracted by the `ner_crf` component. 
@@ -100,7 +102,7 @@ Now, the `beers_count` and `cokes_count` entities are guaranteed to return a val
 
 ## Configuring the pipeline
 
-For the above to work we need to make sure things happen in the right order:
+For the above to work in our example, we need to make sure things happen in the right order:
 
 1. The `CRFEntityExtractor` component extracts _citi of lite_ from the utterance
 2. The `Gazette` component replaces _citi of lite_ with _the city of light_
@@ -126,7 +128,7 @@ I want to book a flight from **The big apple** to **the city of light**
 
 ## Spelling errors
 
-Spelling errors can affect both entity extraction and intent classification. We have seen above how gazettes can help with typos in entities but we were also lucky that it worked so well with only a few examples.
+Spelling errors can affect both entity extraction and intent classification. We have seen above how gazettes can help with typos in entities but we were also lucky that it worked well with only a few examples.
 ::: tip
 **Your data set must reflect how users talk to your bot.**\
 If your users do spelling mistakes, then your training data should have some too.
