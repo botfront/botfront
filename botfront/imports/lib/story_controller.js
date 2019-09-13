@@ -326,21 +326,9 @@ export class StoryController {
         if (this.saveUpdate) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
     }
 
-    getErrors = () => {
-        return this.exceptions.filter(exception => exception.type === 'error');
-    }
+    getErrors = () => this.exceptions.filter(exception => exception.type === 'error');
 
-    getWarnings = () => {
-        return this.exceptions.filter(exception => exception.type === 'warning');
-    }
-
-    getErrors = () => (
-        this.exceptions.filter(exception => exception.type === 'error')
-    )
-
-    getWarnings = () => (
-        this.exceptions.filter(exception => exception.type === 'warning')
-    )
+    getWarnings = () => this.exceptions.filter(exception => exception.type === 'warning');
 
     getPossibleInsertions = (i) => {
         const possibleInsertions = {
@@ -357,7 +345,7 @@ export class StoryController {
     }
 
     extractDomain = () => {
-        const errors = this.exceptions.filter(exception => exception.type === 'error');
+        const errors = this.getErrors();
         if (errors.length > 0) {
             throw new Error(`Error at line ${errors[0].line}: ${errors[0].message}`);
         }

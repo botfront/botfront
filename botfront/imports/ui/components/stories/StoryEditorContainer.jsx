@@ -56,11 +56,11 @@ const StoryEditorContainer = ({
     // useful when we add branch for instance, we have to wait for the branches to actually be in the db
     // set to null when we don't want to go anywhere
     const [nextBranchPath, setNextBranchPath] = useState(null);
-    const [storyDidSave, setStoryDidSave] = useState(false);
     // Used to store ace editors instance to dynamically set annotations
     // the ace edtior react component has a bug where it does not set properly
     // so we have to use this workaround
     const [editors, setEditors] = useState({});
+    const [exceptions, setExceptions] = useState({});
 
     const saveStory = (path, content) => {
         onSaving();
@@ -72,7 +72,7 @@ const StoryEditorContainer = ({
                 path: typeof path === 'string' ? [path] : path,
                 projectId: story.projectId,
             },
-            wrapMeteorCallback(() => { setStoryDidSave(true); onSaved(); }),
+            wrapMeteorCallback(() => { onSaved(); }),
         );
     };
 
@@ -81,7 +81,7 @@ const StoryEditorContainer = ({
             story.story || '',
             slots,
             () => {},
-            (content, errors, warnings) => saveStory(story._id, { story: content, errors, warnings }),
+            content => saveStory(story._id, { story: content }),
             templates,
         ),
     });
@@ -98,7 +98,7 @@ const StoryEditorContainer = ({
                     newStory.story || '',
                     slots,
                     () => {},
-                    (content, errors, warnings) => saveStory(currentPath, { story: content, errors, warnings }),
+                    content => saveStory(currentPath, { story: content }),
                     templates,
                 );
             }
@@ -109,31 +109,28 @@ const StoryEditorContainer = ({
         });
     }, [branchPath]);
 
-    const renderTopMenu = () => {
-        const localExceptions = accumulateExceptions(story);
-        return (
-            <StoryTopMenu
-                title={story.title}
-                storyId={story._id}
-                onDelete={onDelete}
-                onMove={onMove}
-                disabled={disabled}
-                onRename={onRenameStory}
-                onClone={onClone}
-                groupNames={groupNames}
-                errors={
-                    localExceptions[story._id].errors
-                        ? localExceptions[story._id].errors.length
-                        : 0
-                }
-                warnings={
-                    localExceptions[story._id].warnings
-                        ? localExceptions[story._id].warnings.length
-                        : 0
-                }
-            />
-        );
-    };
+    const renderTopMenu = () => (
+        <StoryTopMenu
+            title={story.title}
+            storyId={story._id}
+            onDelete={onDelete}
+            onMove={onMove}
+            disabled={disabled}
+            onRename={onRenameStory}
+            onClone={onClone}
+            groupNames={groupNames}
+            errors={
+                exceptions[story._id] && exceptions[story._id].errors
+                    ? exceptions[story._id].errors.length
+                    : 0
+            }
+            warnings={
+                exceptions[story._id] && exceptions[story._id].warnings
+                    ? exceptions[story._id].warnings.length
+                    : 0
+            }
+        />
+    );
 
     const convertToAnnotations = (pathAsString) => {
         if (!storyControllers[pathAsString]) {
@@ -223,7 +220,7 @@ const StoryEditorContainer = ({
                     newBranch.story || '',
                     slots,
                     () => {},
-                    (content, errors, warnings) => saveStory(path, { story: content, errors, warnings }),
+                    content => saveStory(path, { story: content }),
                     templates,
                 ),
             });
@@ -272,22 +269,8 @@ const StoryEditorContainer = ({
     }, [story, nextBranchPath]);
 
     useEffect(() => {
-        if (storyDidSave) {
-            const newExceptions = accumulateExceptions(story);
-            const hasError = newExceptions[story._id].errors.length > 0;
-            const hasWarning = newExceptions[story._id].warnings.length > 0;
-            Meteor.call(
-                'storyGroups.updateExceptions',
-                {
-                    _id: story.storyGroupId,
-                    hasError,
-                    hasWarning,
-                    storyId: story._id,
-                },
-                wrapMeteorCallback(() => {}),
-            );
-            setStoryDidSave(false);
-        }
+        const newExceptions = accumulateExceptions(story, slots, templates);
+        setExceptions(newExceptions);
     }, [story]);
 
     // new Level is true if the new branches create a new depth level of branches.
@@ -334,8 +317,7 @@ const StoryEditorContainer = ({
                     <Menu pointing secondary data-cy='branch-menu'>
                         {branches.map((branch, index) => {
                             const childPath = [...pathToRender, branch._id];
-                            const localExceptions = accumulateExceptions(story);
-                            const branchLabelExceptions = localExceptions[childPath.join()];
+                            const branchLabelExceptions = exceptions[childPath.join()];
                             return (
                                 <BranchTabLabel
                                     key={childPath.join()}

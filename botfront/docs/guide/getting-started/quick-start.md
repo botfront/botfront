@@ -25,11 +25,11 @@ Then open the chat window. Since we haven't trained our bot to understand natura
 
 ## Add natural language
 
-Select NLU from the side bar and go the **Chitchat** tab. Select `chitchat.greet` and `chitchat.bye`, import and train.
+Select NLU from the sidebar and go the **Chitchat** tab. Select `chitchat.greet` and `chitchat.bye`, import, and train.
 
 ## Add a bot response
 
-Select **Bot responses** in the sidebar, then create 4 bot responses. The names of the bot responses are those used in stories:
+Select **Bot responses** in the sidebar, then create four different bot responses. The names of the bot responses will be used in stories:
 - `utter_hi_there`
 - `utter_hi_again`
 - `utter_hmm_really`
@@ -39,11 +39,11 @@ Congrats, now you can finally have a real (!) conversation with our bot!
 
 ## Adding languages
 
-You can easily add a new language to your project. Go to the project settings, and add a language. Once you save, your new language will be available in the top left selector.
+You can easily add a new language to your project in the project settings. Once you save, your new language will be available in the top left selector.
 
-Let's add our training data and retrain (since we added French we have ready to use data here as well).
+Let's add **French** in the settings and add our training data as well, and retrain (since we added French we have ready to use data here as well).
 
-And voilà, our bot speaks French! 
+And voilà, our bot speaks French!
 
 ## Next steps
 
