@@ -1,13 +1,12 @@
 {
   "name": "botfront",
-  "version": "0.16.0-rc.4-ee.1",
-  "private": true,
+  "version": "0.16.0-rc.7-ee.1",
   "repository": "https://github.com/botfront/botfront",
   "description": "Botfront is chatbot platform based on Rasa.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "botfront-ee"
+    "postinstall": "echo Botfront EE is succesfully installed. Run 'botfront-ee' to get started"
   },
   "bin": {
     "botfront-ee": "bin/botfront-ee"
@@ -27,6 +26,7 @@
   "license": "Commercial",
   "dependencies": {
     "arg": "^4.1.1",
+    "compare-version": "0.1.2",
     "axios": "^0.19.0",
     "boxen": "^4.1.0",
     "chalk": "^2.4.2",

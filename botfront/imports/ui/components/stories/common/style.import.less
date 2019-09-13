@@ -10,19 +10,16 @@
         margin: 0.8em 0;
         outline: none;
         opacity: 0;
-        height: 0;
         transition: opacity 0.1s ease-in-out;
     }
     
     &:hover {
         .add-story-line {
             opacity: 1;
-            height: initial;
         }
 
         .responses-container {
             border: 1px solid rgba(0, 0, 0, 0.1);
-         
             .viewOnHover {
                 opacity: 0.8;
                 visibility: visible;
@@ -31,28 +28,12 @@
             .floating-icon-button {
                 outline: none;
             }
-         
             .flex-right > .floating-icon-button > .viewOnHover {
-                 opacity: 0.5;
-             }
+                opacity: 0.5;
+            }
             .response-name {
-                 visibility: visible;
-                 opacity: 0.5;
-            }
-            .floating-icon-button.ellipsis.horizontal { // show all ellipses on hover responses-container
-                height: 20px;
-                .viewOnHover.ellipsis {
-                    opacity: 1;
-                    visibility: visible;
-                }
-            }
-        }
-
-        .floating-icon-button.ellipsis.horizontal {
-            height: 20px;
-            .viewOnHover.ellipsis {
-                opacity: 1;
                 visibility: visible;
+                opacity: 0.5;
             }
         }
     }
@@ -138,7 +119,7 @@
         position: absolute;
     }
     &.has-warning{
-        .utterance-container{
+        .exception-wrapper{
             border-color: #FFD700;
             border-width: 1px;
             border-style: solid;
@@ -150,7 +131,7 @@
         }
     }
     &.has-error{
-        .utterance-container{
+        .exception-wrapper{
             border-color: red;
             border-width: 1px;
             border-style: solid;
@@ -160,8 +141,6 @@
             position: static;
             visibility: visible
         }
-    }
-    &.bot-response{
     }
 }
 
@@ -174,6 +153,7 @@
     margin: 0 30px 0 0;
     color: #212121;
     min-height: 40px;
+    width: 50%;
 
     &>.floating-icon-button.trash {
         position: absolute;
@@ -182,13 +162,13 @@
     }
 
     .utterance-container {
-        width: 50%;
+        width: 100%;
         color: #212121;
         .inner{
             width: 100%;
         }
         &:hover {
-            width: ~"calc(50% + 20px)";
+            width: ~"calc(100% + 20px)";
         }
 
         textarea {
@@ -252,18 +232,26 @@
 
 .floating-icon-button.ellipsis.horizontal {
     width: 200px;
-    height: 5px;
+    height: 10px;
     transition: opacity, height 0.1s ease-in-out;
     .viewOnHover.ellipsis {
         text-align: left;
         width: 200px;
         opacity: 0;
         outline: none;
+        transform: scale(0.75) translateY(-5px);
+        &:before {
+            left: 30px;
+            position: relative;
+            // content: '+ + +';
+            // font-weight: bold;
+        }
     }
-
-    .viewOnHover.ellipsis::before {
-        left: 30px;
-        position: relative;
+    &:hover {
+        .viewOnHover.ellipsis {
+            visibility: visible;
+            opacity: 1;
+        }
     }
 }
 

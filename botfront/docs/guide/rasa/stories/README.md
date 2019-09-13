@@ -7,7 +7,7 @@ meta:
 permalink: /rasa/:slug
 ---
 
-# Introduction to Rasa stories
+# Using Rasa Stories
 
 Stories are the building blocks of conversation flows. It's a symbolic language used to describe conversations a user can have with a bot.
 In their simplest form, stories are made of user messages, starting with a `*`, and bot responses, starting with a `-`. 
@@ -45,7 +45,7 @@ In the story above (previous section), if you say **_Hi_** three times to the bo
 
 ## Branching conversations
 
-Conversations are often designed as tree-like flow charts. Stories are *real* conversations examples. Let's see how you can use stories to branch your flow:.
+Conversations are often designed as tree-like flow charts. Stories are *real* conversation examples. Let's see how you can use stories to branch your flow:
 
 ### Branching with intents
 

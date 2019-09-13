@@ -12,7 +12,7 @@ Botfront has specific features that are not natively supported by Rasa Core. It 
 
 The Webchat channel connects Rasa to the [Rasa Webchat](https://github.com/mrbot-ai/rasa-webchat)
 
-There isn't much to configure here, you can just set the `session_persistent` param to `false` if you prefer create a new session each time the user reloads the page containing the widget
+There isn't much to configure here, you can just set the `session_persistent` param to `false` if you prefer to create a new session each time the user reloads the page containing the widget.
 
 ```yaml
 rasa_addons.core.channels.webchat.WebchatInput:

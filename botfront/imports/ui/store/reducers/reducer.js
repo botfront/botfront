@@ -12,9 +12,6 @@ const initialState = Map({
     templatesTableFilter: '',
     templatesTableShowMatching: false,
     workingLanguage: 'en',
-    storyMode: 'visual',
-    storyGroupCurrent: -1,
-    savedStoryPaths: Map(),
 });
 
 function settings(state = initialState, action) {

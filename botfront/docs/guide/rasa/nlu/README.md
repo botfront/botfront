@@ -21,15 +21,15 @@ An intent captures the general meaning of a sentence (or an utterance in the cha
 - I am starving
 - My kingdom for a pizza
 
-How do we teach our model that those utterances convey the `i_am_hungry` intent? We train it to distinguish those sentences from sentences with other meanings. We create a _dataset_ containing examples of different intents.
+How do we teach our model that these utterances convey the `i_am_hungry` intent? We train it to distinguish them from sentences with other meanings. We create a _dataset_ containing examples of different intents.
 
-Here is a sample of a dataset in Botfront. You can see examples for 2 different intents. This project has more than 150.
+Here is a sample of a dataset in Botfront where you can see examples for 2 different intents. This project has more than 150 in total.
 
 ![](../../../images/intents_sample.png)
 
-We said that intents carry the meaning of a sentence. How does a program understand meaning? Let's just say there's a way to express the meaning of words with numbers (or vectors). The long explanation is [here](https://mrbot.ai/blog/natural-language-processing/understanding-intent-classification/) if your interested, but the essential idea is that vectors can be compared (a distance can be calculated), and that a small distance indicates the words have a similar meaning. 
+We said that intents carry the meaning of a sentence. How does a program understand meaning? Let's just say that there's a way to express the meaning of words with numbers (or vectors). The long explanation is [here](https://mrbot.ai/blog/natural-language-processing/understanding-intent-classification/) if you're interested, but the essential idea is that vectors can be compared (a distance can be calculated), and that a small distance indicates the words have similar meaning. 
 
-In Rasa, the **_Spacy_** pipeline comes with ready to use _pretrained_ vectors, while the **_Tensorflow_** pipeline will train its own vectors on your dataset. The latter implies that you will need more examples, but your reward is that it will be more accurate on your custom or domain vocabulary, and more resilient to spelling mistakes. 
+In Rasa, the **_Spacy_** pipeline comes with ready-to-use _pretrained_ vectors, while the **_Tensorflow_** pipeline will train its own vectors on your dataset. The latter implies that you will need more examples, but your reward is that it will be more accurate on your custom or domain vocabulary, and more resilient to spelling mistakes. 
 
 ::: tip
 Only the Tensorflow Pipeline is supported in Botfront at this time. 
@@ -39,19 +39,19 @@ Usually, an intent carries an action or an expectation.
 
 ## Entities
 
-Entities are positional elements in an utterance. In the following examples, we're trying to build a currency exchange assistant. To provide a rate, we need the know which currency the user wants to buy, and which currency she wants to sell.
+Entities are positional elements in an utterance. In the following examples, we're trying to build a currency exchange assistant. To provide a rate, we need the know which currency the user wants to buy, and which currency they want to sell.
 
 ![](../../../images/nlu_entities_1.png)
 
-We have thus 2 entities: `currency_buy` and `currency_sell`. 
+
 
 ::: tip BEST PRACTICE 
 We have thus 2 entities: `currency_buy` and `currency_sell`, and they can have any currency as value. It is important to keep the entity name as generic as possible.
 :::
 
 ::: danger NOT GOOD 
-A common mistake is to choose the entity value as the name like this:
+A common mistake is to choose the entity name as the value like this:
 ![](../../../images/nlu_entities_2.png)
 :::
 
-Finally, it should be noted that recognizing the intent and extracting entities are two separate tasks: in order word, having similar entities in utterances will not influence the model when it parses it to recognize the intent.
+Finally, it should be noted that recognizing the intent and extracting entities are two separate tasks: in other words, having similar entities in utterances will not influence the model when it parses it to recognize the intent.

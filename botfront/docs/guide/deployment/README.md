@@ -1,11 +1,11 @@
 # Deployment
 
 ::: tip Work in progress
-We're working on a better deployment guide
+We're working on a better deployment guide.
 :::
 
 ## Services and Docker images
-Running botfront requires deploying different services. The recommended way is to use an orchestration framework such as Kubernetes or Swarm.
+Running Botfront requires deploying different services. The recommended way is to use an orchestration framework such as Kubernetes or Swarm.
 
 | Service  | Docker image  |
 |---|---|

@@ -119,16 +119,9 @@ export const extractDomain = (stories, slots, templates = {}) => {
     let domains = stories.map((story) => {
         try {
             const val = new StoryController(story, slots, () => {}, null, templates);
-            if (val.getErrors().length > 0) {
-                return {
-                    entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
-                };
-            }
             return val.extractDomain();
         } catch (e) {
-            return {
-                entities: [], intents: [], actions: [], forms: [], templates: [], slots: [],
-            };
+            throw new Error('an error has caused training to fail');
         }
     });
     domains = domains.reduce(
@@ -212,28 +205,24 @@ export const getStoriesAndDomain = (projectId) => {
     };
 };
 
-export const accumulateExceptions = (originStory) => {
-    const pathDictionary = {};
-    const traverseBranch = (currentStory, path) => {
-        const newPath = (path.length !== 0)
-            ? `${path},${currentStory._id}`
-            : currentStory._id;
-        if (currentStory.branches.length > 0) {
-            const childExceptions = currentStory.branches.map(branch => (
-                traverseBranch(branch, newPath)
-            ));
-            let errors = currentStory.errors ? [...currentStory.errors] : [];
-            let warnings = currentStory.warnings ? [...currentStory.warnings] : [];
-            childExceptions.forEach((child) => {
-                errors = [...errors, ...(child.errors ? child.errors : [])];
-                warnings = [...warnings, ...(child.warnings ? child.errors : [])];
-            });
-            pathDictionary[newPath] = { errors, warnings };
-            return { errors, warnings };
-        }
-        pathDictionary[newPath] = { errors: currentStory.errors, warnings: currentStory.warnings };
-        return { errors: currentStory.errors, warnings: currentStory.warnings };
+export const accumulateExceptions = (story, slots, templates = null) => {
+    const exceptions = {};
+
+    const traverseBranch = (currentStory, currentPath) => {
+        const currentController = new StoryController(currentStory.story || '', slots, () => {}, null, templates);
+        const currentErrors = currentController.getErrors();
+        const currrentWarnings = currentController.getWarnings();
+        let errors = [...currentErrors];
+        let warnings = [...currrentWarnings];
+        currentStory.branches.forEach((branchStory) => {
+            const childBranch = traverseBranch(branchStory, `${currentPath},${branchStory._id}`);
+            errors = [...errors, ...childBranch.errors];
+            warnings = [...warnings, ...childBranch.warnings];
+        });
+        exceptions[currentPath] = { errors, warnings };
+        return { errors, warnings };
     };
-    traverseBranch(originStory, '');
-    return pathDictionary;
+
+    traverseBranch(story, story._id);
+    return exceptions;
 };

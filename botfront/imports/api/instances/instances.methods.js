@@ -53,8 +53,11 @@ const getConfig = (model) => {
             }
         }
     });
-
     config.language = model.language;
+    config.pipeline.unshift({
+        name: 'rasa_addons.nlu.components.language_setter.LanguageSetter',
+        language: config.language,
+    });
     return yaml.dump(config);
 };
 
@@ -219,15 +222,17 @@ if (Meteor.isServer) {
                     responseType: 'arraybuffer',
                 });
                 const trainingResponse = await trainingClient.post('/model/train', payload);
-                const { headers: { filename } } = trainingResponse;
-                const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
-                try {
-                    await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
-                } catch (e) {
-                    console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
-                }
 
                 if (trainingResponse.status === 200) {
+                    const { headers: { filename } } = trainingResponse;
+                    const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
+                    try {
+                        await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
+                    } catch (e) {
+                        // eslint-disable-next-line no-console
+                        console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
+                    }
+                    
                     await client.put('/model', { model_file: trainedModelPath });
                     if (process.env.ORCHESTRATOR === 'gke') {
                         const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } });
