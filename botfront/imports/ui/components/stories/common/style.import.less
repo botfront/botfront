@@ -138,7 +138,7 @@
         position: absolute;
     }
     &.has-warning{
-        .utterance-container{
+        .exception-wrapper{
             border-color: #FFD700;
             border-width: 1px;
             border-style: solid;
@@ -150,7 +150,7 @@
         }
     }
     &.has-error{
-        .utterance-container{
+        .exception-wrapper{
             border-color: red;
             border-width: 1px;
             border-style: solid;
@@ -160,8 +160,6 @@
             position: static;
             visibility: visible
         }
-    }
-    &.bot-response{
     }
 }
 
@@ -174,6 +172,7 @@
     margin: 0 30px 0 0;
     color: #212121;
     min-height: 40px;
+    width: 50%;
 
     &>.floating-icon-button.trash {
         position: absolute;
@@ -182,13 +181,13 @@
     }
 
     .utterance-container {
-        width: 50%;
+        width: 100%;
         color: #212121;
         .inner{
             width: 100%;
         }
         &:hover {
-            width: ~"calc(50% + 20px)";
+            width: ~"calc(100% + 20px)";
         }
 
         textarea {

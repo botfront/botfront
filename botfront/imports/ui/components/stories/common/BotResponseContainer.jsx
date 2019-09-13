@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
-import ExceptionWrapper from './ExceptionWrapper';
 
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, exceptions,
+        value, onDelete, onChange, deletable, focus, onFocus,
     } = props;
 
     const [input, setInput] = useState();
@@ -56,19 +55,17 @@ const BotResponseContainer = (props) => {
     );
     
     return (
-        <ExceptionWrapper className='bot-response' exceptions={exceptions}>
-            <div
-                className='utterance-container bot-response'
-                agent='bot'
-                data-cy='bot-response-input'
-            >
-                <div className='inner'>
-                    {hasText && renderText()}
-                    {hasButtons && renderButtons()}
-                </div>
-                {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
+        <div
+            className='utterance-container bot-response'
+            agent='bot'
+            data-cy='bot-response-input'
+        >
+            <div className='inner'>
+                {hasText && renderText()}
+                {hasButtons && renderButtons()}
             </div>
-        </ExceptionWrapper>
+            {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
+        </div>
     );
 };
 
@@ -79,14 +76,11 @@ BotResponseContainer.propTypes = {
     onFocus: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
-    exceptions: PropTypes.array,
-
 };
 
 BotResponseContainer.defaultProps = {
     deletable: true,
     focus: false,
-    exceptions: [],
 };
 
 export default BotResponseContainer;
