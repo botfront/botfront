@@ -136,7 +136,6 @@ const BotResponsesContainer = (props) => {
             <React.Fragment key={index}>
                 <div className='flex-right'>
                     <BotResponseContainer
-                        exceptions={exceptions}
                         deletable={deletable || sequenceArray.length > 1}
                         value={content}
                         onDelete={() => handleDeleteResponse(index)}
@@ -155,7 +154,7 @@ const BotResponsesContainer = (props) => {
 
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
-        <div className='responses-container' exception={exceptions.severity}>
+        <div className='responses-container exception-wrapper' exception={exceptions.severity}>
             {renderAddLine(-1)}
             {!template && (
                 <Placeholder>

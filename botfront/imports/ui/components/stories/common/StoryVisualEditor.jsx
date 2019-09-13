@@ -252,18 +252,20 @@ class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'bot') {
                 return (
                     <React.Fragment key={`bot${line.gui.data.name}`}>
-                        <BotResponsesContainer
-                            deletable
-                            exceptions={exceptions}
-                            name={line.gui.data.name}
-                            onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                            isNew={!!line.gui.data.new}
-                            removeNewState={() => story.replaceLine(index, {
-                                type: 'bot',
-                                data: { name: line.gui.data.name },
-                            })
-                            }
-                        />
+                        <ExceptionWrapper exceptions={exceptions}>
+                            <BotResponsesContainer
+                                deletable
+                                exceptions={exceptions}
+                                name={line.gui.data.name}
+                                onDeleteAllResponses={() => this.handleDeleteLine(index)}
+                                isNew={!!line.gui.data.new}
+                                removeNewState={() => story.replaceLine(index, {
+                                    type: 'bot',
+                                    data: { name: line.gui.data.name },
+                                })
+                                }
+                            />
+                        </ExceptionWrapper>
                         {this.renderAddLine(index)}
                     </React.Fragment>
                 );
