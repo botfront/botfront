@@ -52,7 +52,8 @@ const SlotPopupContent = (props) => {
     function getSlotValue(slot) {
         const { type } = slot;
         if (type === 'bool') return [true, false];
-        if (type === 'text' || type === 'float') return ['set', null];
+        if (type === 'text') return ['set', null];
+        if (type === 'float') return [1.0, null];
         if (type === 'list') return [['not-empty'], []];
         return slot.categories;
     }
