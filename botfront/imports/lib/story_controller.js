@@ -140,8 +140,9 @@ export class StoryController {
 
         const slot = this.domain.slots[slotName];
         if (slot.type === 'bool' && typeof slotValue !== 'boolean') this.raiseStoryException('bool_slot');
-        else if (slot.type === 'text' && typeof slotValue !== 'string') this.raiseStoryException('text_slot');
-        else if (slot.type === 'float' && typeof slotValue !== 'number') this.raiseStoryException('float_slot');
+        else if (slot.type === 'text' && !(slotValue === null || typeof slotValue === 'string')) this.raiseStoryException('text_slot');
+        else if (slot.type === 'float' && !(slotValue === null || typeof slotValue === 'number')) this.raiseStoryException('float_slot');
+        else if (slot.type === 'list' && !Array.isArray(slotValue)) this.raiseStoryException('list_slot');
         else if (slot.type === 'categorical' && !slot.values.includes(slotValue)) this.raiseStoryException('cat_slot');
         else this.lines[this.idx].gui = { type: 'slot', data: { name: slotName, type: slot.type, slotValue } };
     };
@@ -158,6 +159,7 @@ export class StoryController {
         bool_slot: ['error', 'Expected a boolean value for this slot.'],
         text_slot: ['error', 'Expected a text value for this slot.'],
         float_slot: ['error', 'Expected a numerical value for this slot.'],
+        list_slot: ['error', 'Expected a list value for this slot.'],
         cat_slot: ['error', 'Expected a valid categorical value for this slot.'],
         action_name: ['error', 'Bot actions should look like this: `- action_...`, `- utter_...`, `- slot{...}` or `- form{...}`.'],
         have_intent: ['warning', 'Bot actions should usually be found in a user utterance block.'],

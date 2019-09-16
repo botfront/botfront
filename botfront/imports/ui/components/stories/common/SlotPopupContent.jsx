@@ -6,6 +6,7 @@ import {
 } from 'semantic-ui-react';
 import { groupBy } from 'lodash';
 import { ConversationOptionsContext } from '../../utils/Context';
+import { slotValueToLabel } from '../SlotLabel';
 
 const SlotPopupContent = (props) => {
     const {
@@ -51,8 +52,8 @@ const SlotPopupContent = (props) => {
     function getSlotValue(slot) {
         const { type } = slot;
         if (type === 'bool') return [true, false];
-        if (type === 'text' || type === 'float') return ['set', 'null'];
-        if (type === 'list') return ['empty', 'not-empty'];
+        if (type === 'text' || type === 'float') return ['set', null];
+        if (type === 'list') return [['not-empty'], []];
         return slot.categories;
     }
 
@@ -113,7 +114,7 @@ const SlotPopupContent = (props) => {
                                                             key={`slotname-${s.name}-value-${content}`}
                                                             className='color-column'
                                                         >
-                                                            {content.toString()}
+                                                            {slotValueToLabel(content)}
                                                         </Dropdown.Item>
                                                     ),
                                                 )}
