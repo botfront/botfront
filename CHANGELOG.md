@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.7-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.7-ee.1...v0.16.0-rc.7-ee.2) (2019-09-17)
+
+
+### Bug Fixes
+
+* float slot set to float value ([df8bddf](https://github.com/botfront/botfront/commit/df8bddf))
+* null slots represented as strings ([0c93d3f](https://github.com/botfront/botfront/commit/0c93d3f))
+
+
+
 ## [0.16.0-rc.7-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.7...v0.16.0-rc.7-ee.1) (2019-09-13)
 
 
