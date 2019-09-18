@@ -19,7 +19,7 @@ import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
 import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
-import { ResponsesContext } from '../utils/Context';
+import { ConversationOptionsContext } from '../utils/Context';
 
 const Stories = React.lazy(() => import('./Stories'));
 const SlotsEditor = React.lazy(() => import('./Slots'));
@@ -57,7 +57,12 @@ function StoriesContainer(props) {
     }
     
     const renderStoriesContainer = () => (
-        <>
+        <ConversationOptionsContext.Provider
+            value={{
+                templates: [...project.templates],
+                slots,
+            }}
+        >
             <PageMenu title='Stories' icon='book'>
                 <Menu.Menu position='right'>
                     <Menu.Item>
@@ -128,6 +133,7 @@ function StoriesContainer(props) {
                         active={activeItem === 'stories'}
                         name='stories'
                         onClick={() => setActiveItem('stories')}
+                        data-cy='stories-tab'
                     >
                         Stories
                     </Menu.Item>
@@ -162,14 +168,10 @@ function StoriesContainer(props) {
                     </React.Suspense>
                 )}
             </Container>
-        </>
+        </ConversationOptionsContext.Provider>
     );
 
-    return (
-        <ResponsesContext.Provider value={{ templates: [...project.templates] }}>
-            {renderStoriesContainer()}
-        </ResponsesContext.Provider>
-    );
+    return (renderStoriesContainer());
 }
 
 StoriesContainer.propTypes = {

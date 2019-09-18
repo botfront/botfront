@@ -14,6 +14,7 @@ import { Docker } from 'docker-cli-js';
 import chalk from 'chalk';
 import boxen from 'boxen';
 import check from 'check-node-version';
+import compareVersions from 'compare-version';
 
 export function fixDir(dir) {
     return dir ? dir : process.cwd();
@@ -99,7 +100,7 @@ export function shouldUpdateProject() {
 export async function shouldUpdateNpmPackage() {
     const currentVersion = getBotfrontVersion();
     const latestVersion = await getLatestVersion();
-    return latestVersion !== currentVersion;
+    return compareVersions(latestVersion, currentVersion) == 1;
 }
 
 export async function displayUpdateMessage() {
@@ -123,7 +124,7 @@ export async function updateProjectFile(projectAbsPath, images) {
         if (images[service]) config.images.current[service] = images[service];
     });
     fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
-    
+
     updateEnvFile(projectAbsPath);
 }
 
@@ -136,7 +137,7 @@ export async function updateEnvFile(projectAbsPath) {
     Object.keys(config.env).forEach(variable => {
         envFileContent += `${variable.toUpperCase()}=${config.env[variable]}\n`;
     });
-    
+
     fs.writeFileSync(getProjectEnvFilePath(projectAbsPath), envFileContent);
 }
 

@@ -1,12 +1,12 @@
 {
   "name": "botfront",
-  "version": "0.16.0-rc5",
+  "version": "0.16.0-rc.7",
   "repository": "https://github.com/botfront/botfront",
   "description": "Botfront is an open source chatbot platform based on Rasa.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "botfront"
+    "postinstall": "echo Botfront succesfully installed. Run 'botfront' to get started."
   },
   "bin": {
     "botfront": "bin/botfront"
@@ -26,6 +26,7 @@
   "license": "AGPL-3.0-only",
   "dependencies": {
     "arg": "^4.1.1",
+    "compare-version": "0.1.2",
     "axios": "^0.19.0",
     "boxen": "^4.1.0",
     "chalk": "^2.4.2",

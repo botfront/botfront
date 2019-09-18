@@ -57,7 +57,7 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
     generateDockerCompose();
     startSpinner(spinner, 'Starting Botfront...')
     const missingImgs = await getMissingImgs()
-    await pullDockerImages(missingImgs, spinner, 'Downloading Docker images...')    
+    await pullDockerImages(missingImgs, spinner, 'Downloading Docker images...')
     await stopRunningProjects("Shutting down running project first...", null, null, spinner);
     let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d`;
     try{
@@ -88,7 +88,7 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
             stopSpinner(spinner);
             failSpinner(spinner, 'Couldn\'t start Botfront. Retrying in verbose mode...');
             return dockerComposeUp({ verbose: true }, workingDir, null, spinner);
-        }   
+        }
     }
 }
 
@@ -134,7 +134,7 @@ export async function dockerComposeCommand(service, {name, action}, verbose, wor
         });
         service = serv;
     }
-    
+
     const spinner = ora(service ? `${capitalize(action)} service ${service}...`: `${capitalize(action)} all services...`)
     spinner.start();
     let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} ${name} ${allowedServices.includes(service) ? service : ''}`;
@@ -167,19 +167,19 @@ export async function getRunningDockerResources() {
 }
 
 export async function stopRunningProjects(
-        runningMessage=null, 
-        killedMessage = null, 
-        allDeadMessage = null, 
+        runningMessage=null,
+        killedMessage = null,
+        allDeadMessage = null,
         spinner) {
     const docker = new Docker({});
     try{
         const { containers, networks, volumes } = await getRunningDockerResources();
-        
-        if (containers && containers.length) {           
+
+        if (containers && containers.length) {
             startSpinner(spinner, runningMessage)
             await docker.command(`stop ${containers.join(" ")}`);
             await docker.command(`rm ${containers.join(" ")}`);
-            if (killedMessage) succeedSpinner(spinner, killedMessage);    
+            if (killedMessage) succeedSpinner(spinner, killedMessage);
         } else {
             if (allDeadMessage) succeedSpinner(spinner, allDeadMessage)
         }
