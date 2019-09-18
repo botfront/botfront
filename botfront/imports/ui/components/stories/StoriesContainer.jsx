@@ -133,6 +133,7 @@ function StoriesContainer(props) {
                         active={activeItem === 'stories'}
                         name='stories'
                         onClick={() => setActiveItem('stories')}
+                        data-cy='stories-tab'
                     >
                         Stories
                     </Menu.Item>
