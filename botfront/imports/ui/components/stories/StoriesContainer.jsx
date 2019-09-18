@@ -16,7 +16,7 @@ import { Slots } from '../../../api/slots/slots.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
-import { ResponsesContext, ConversationOptionsContext } from '../utils/Context';
+import { ConversationOptionsContext } from '../utils/Context';
 
 const Stories = React.lazy(() => import('./Stories'));
 const SlotsEditor = React.lazy(() => import('./Slots'));
@@ -164,6 +164,7 @@ function StoriesContainer(props) {
                 parseUtterance,
                 addUtteranceToTrainingData,
                 browseToSlots: () => setActiveItem('slots'),
+                templates: [...project.templates],
             }}
         >
             <PageMenu title='Stories' icon='book'>
@@ -238,6 +239,7 @@ function StoriesContainer(props) {
                         active={activeItem === 'stories'}
                         name='stories'
                         onClick={() => setActiveItem('stories')}
+                        data-cy='stories-tab'
                     >
                         Stories
                     </Menu.Item>
@@ -272,11 +274,7 @@ function StoriesContainer(props) {
         </ConversationOptionsContext.Provider>
     );
 
-    return (
-        <ResponsesContext.Provider value={{ templates: [...project.templates] }}>
-            {renderStoriesContainer()}
-        </ResponsesContext.Provider>
-    );
+    return (renderStoriesContainer());
 }
 
 StoriesContainer.propTypes = {

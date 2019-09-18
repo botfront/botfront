@@ -8,8 +8,5 @@ export const ConversationOptionsContext = React.createContext({
     insertResponse: () => {},
     updateResponse: () => {},
     getResponse: () => {},
-});
-
-export const ResponsesContext = React.createContext({
     templates: [],
 });

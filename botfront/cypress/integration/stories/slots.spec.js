@@ -63,4 +63,24 @@ describe('slots', function() {
         cy.dataCy('errors-field').should('not.exist');
         deleteSlot();
     });
+
+    it('should not show an error when we add a slot in stories that is in the db', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('story-editor')
+            .get('textarea')
+            .focus()
+            .type('{enter}- slot{{}"name": "Ali"}', { force: true });
+
+        cy.dataCy('top-menu-error-alert');
+        cy.dataCy('slots-tab').click();
+        cy.dataCy('add-slot').click();
+        cy.contains('text').click();
+        cy.dataCy('new-slot-editor')
+            .get('input')
+            .first()
+            .type('name');
+        cy.dataCy('save-button').click();
+        cy.dataCy('stories-tab').click();
+        cy.dataCy('top-menu-error-alert').should('not.exist');
+    });
 });
