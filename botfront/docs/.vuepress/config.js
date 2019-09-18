@@ -46,7 +46,7 @@ module.exports = {
             },
 
             {
-                title: 'Developing conversations', // required
+                title: 'Dialogue', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
@@ -56,7 +56,7 @@ module.exports = {
                 ],
             },
             {
-                title: 'Training NLU', // required
+                title: 'NLU', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
