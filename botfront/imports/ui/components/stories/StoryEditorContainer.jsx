@@ -17,6 +17,7 @@ import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from '../utils/Context';
 import { setStoryPath } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';
+import StoryErrorBoundary from './StoryErrorBoundary';
 import { wrapMeteorCallback } from '../utils/Errors';
 import BranchTabLabel from './BranchTabLabel';
 import StoryTopMenu from './StoryTopMenu';
@@ -193,7 +194,11 @@ const StoryEditorContainer = ({
         if (!storyControllers[path.join()]) {
             return null;
         }
-        return <StoryVisualEditor story={storyControllers[path.join()]} />;
+        return (
+            <StoryErrorBoundary>
+                <StoryVisualEditor story={storyControllers[path.join()]} />
+            </StoryErrorBoundary>
+        );
     };
 
     const getNewBranchName = (branches, offset = 0) => {
