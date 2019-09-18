@@ -50,6 +50,18 @@ The **Intro stories** group contains the initial messages that would be sent to 
 
 **Default stories** and **Intro stories** groups are created by default on every new project. You may edit/remove the Default stories group as desired. All stories can also be removed from the Intro stories group, but the group itself cannot be deleted.
 
+## Focusing stories to train
+
+By default, the NLU and all stories are trained when you click on **Train everything** on the right side of the header in Botfront. However, you may focus on one or multiple stories to train the NLU and just those stories. This feature especially comes handy in order to fastly test your stories (less stories trained means less time needed to train).
+
+You may click on the **focus (eye)** icon which appears when you hover besides story group names. Please note that the blue Train everything button will change to a yellow **Partial training** button, and it will have a tooltip stating the number of stories that are going to be trained.
+
+![](../../../images/story_focus_1.png)
+
+![](../../../images/story_focus_2.png)
+
+![](../../../images/story_focus_3.png)
+
 ## Branching conversations
 
 Conversations are often designed as tree-like flow charts. Stories are *real* conversation examples. Simply click on the **Branch Story** button on the story footer:
