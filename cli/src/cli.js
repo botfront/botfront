@@ -4,7 +4,7 @@ import boxen from 'boxen';
 import inquirer from 'inquirer';
 import shell from 'shelljs';
 import chalk from 'chalk';
-import { initCommand, removeDockerImages, removeDockerContainers } from './commands/init';
+import { initCommand } from './commands/init';
 import {
     dockerComposeUp,
     dockerComposeDown,
@@ -15,6 +15,7 @@ import {
     stopRunningProjects,
     getRunningDockerResources,
     watchFolder,
+    removeDockerImages,
 } from './commands/services';
 import {
     wait,
@@ -74,7 +75,6 @@ program
 
 program
     .command('killall')
-    .option('--remove-containers', 'Will also remove Botfront related Docker containers')
     .option('--remove-images', 'Will also remove Botfront related Docker images')
     .description('Stops any running Botfront project')
     .action(killAllCommand);
@@ -131,10 +131,7 @@ async function killAllCommand(cmd) {
                 'All clear 👍.',
                 spinner,
             );
-            if (cmd.removeContainers){
-                await removeDockerContainers(spinner)
-            }
-            
+
             if (cmd.removeImages) {
                 await removeDockerImages(spinner)
             }

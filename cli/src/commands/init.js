@@ -113,38 +113,6 @@ export async function pullDockerImages(images,
     }
 }
 
-export async function removeDockerImages(spinner = ora()) {
-    const docker = new Docker({});
-    startSpinner(spinner, 'Removing Docker images...')
-    const rmiPromises = getServices(dockerComposePath).map(i => docker.command(`rmi ${i}`).catch(()=>{}));
-    try {
-        await Promise.all(rmiPromises);
-        return succeedSpinner(spinner, 'Docker images removed.');
-    } catch (e) {
-        consoleError(e);
-        failSpinner(spinner, 'Could not remove Docker images');
-    } finally {
-        stopSpinner()
-    }
-}
-
-export async function removeDockerContainers(spinner = ora()) {
-    const docker = new Docker({});
-    // startSpinner(spinner, 'Removing Docker containers...')
-    const composePath = path.resolve(__dirname, '..', '..', 'project-template', '.botfront', 'docker-compose-template.yml');
-    const { services } = yaml.safeLoad(fs.readFileSync(composePath), 'utf-8');
-    const rmPromises = getContainerNames(null, services).map(i => docker.command(`rm ${i}`).catch(()=>{}));
-    try {
-        await Promise.all(rmPromises);
-        return succeedSpinner(spinner, 'Docker containers removed.');
-    } catch (e) {
-        consoleError(e);
-        failSpinner(spinner, 'Could not remove Docker containers');
-    } finally {
-        stopSpinner()
-    }
-}
-
 export async function createProject(targetDirectory, images, ci = false) {
     const spinner = !ci ? ora() : null;
     let projectAbsPath = process.cwd();
