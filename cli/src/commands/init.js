@@ -29,22 +29,20 @@ import {
 const access = promisify(fs.access);
 const copy = promisify(ncp);
 
-export async function initCommand(cmd) {
+export async function initCommand(
+    { path, imgBotfront, imgBotfrontApi, imgRasa, ci },
+) {
     if (await displayUpdateMessage()) return;
     try {
         await verifySystem();
         let images = {};
-        if (cmd) {
-            images = Object.assign(images, {
-                botfront: cmd.imgBotfront,
-                'botfront-api': cmd.imgBotfrontApi,
-                rasa: cmd.imgRasa,
-            });
-        }
+        if (imgBotfront) images = {...images, botfront: imgBotfront};
+        if (imgBotfrontApi) images = {...images, 'botfront-api': imgBotfrontApi};
+        if (imgRasa) images = {...images, rasa: imgRasa};
         
         const currentDirEmpty = fs.readdirSync(process.cwd()).length === 0;
-        const ci = cmd && cmd.ci
         const spinner = ci ? null : ora();
+        if (path) return await createProject(path, images, ci);
         if (!ci && currentDirEmpty) {
             const { current } = await inquirer.prompt({
                 type: 'confirm',
@@ -55,7 +53,7 @@ export async function initCommand(cmd) {
             if (current) return await createProject(null, images);
         }
 
-        if (!ci && !currentDirEmpty){
+        if (!ci && !currentDirEmpty) {
             const { subDir } = await inquirer.prompt({
                 type: 'input',
                 name: 'subDir',
@@ -66,10 +64,7 @@ export async function initCommand(cmd) {
             return await createProject(subDir, images)
         }
 
-        if (cmd && cmd.path) {
-            return await createProject(cmd.path, images, ci);
-        }
-        consoleError('No conditions for anything was met. Nothing to do.')
+        consoleError('Missing path argument to initialize project.')
     } catch (e) {
         consoleError(e)
     }
@@ -94,9 +89,9 @@ export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, 
 }
 
 export async function pullDockerImages(images,
-        spinner,
-        message = `Downloading Docker images... This may take a while, why don\'t you grab a ☕ and read the ${chalk.cyan('http://docs.botfront.io')} 😉?`,
-        ) {
+    spinner,
+    message = `Downloading Docker images... This may take a while, why don\'t you grab a ☕ and read the ${chalk.cyan('http://docs.botfront.io')} 😉?`,
+) {
     const docker = new Docker({});
     startSpinner(spinner, 'Checking Docker images')
     let download = false;
@@ -165,7 +160,6 @@ export async function createProject(targetDirectory, images, ci = false) {
 
     try {
         await copyTemplateFilesToProjectDir(projectAbsPath, images);
-        await pullDockerImages(await getMissingImgs(), spinner);
         let command = 'botfront up';
         if (projectCreatedInAnotherDir) {
             command = `cd ${targetDirectory} && ${command}`;
@@ -174,7 +168,6 @@ export async function createProject(targetDirectory, images, ci = false) {
                         `Run ${chalk.cyan.bold(command)} to start it.`
 
         console.log(boxen(message, { padding: 1 }) + '\n');
-        if (ci) dockerComposeUp({ verbose: false }, null, null)
     } catch (e) {
         consoleError(e)
         process.exit(1)

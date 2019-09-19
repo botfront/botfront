@@ -143,11 +143,20 @@ export async function updateEnvFile(projectAbsPath) {
     fs.writeFileSync(getProjectEnvFilePath(projectAbsPath), envFileContent);
 }
 
-export async function generateDockerCompose(dir) {
+export async function generateDockerCompose(exclude = [], dir) {
     const dc = getComposeFile(dir, DOCKER_COMPOSE_TEMPLATE_FILENAME);
+    exclude.forEach(excl => { // remove reference to excluded services
+        if (excl in dc.services) delete dc.services[excl]
+        dc.services.forEach(service => {
+            if (depends_on in service) {
+                service.depends_on = service.depends_on.filter(depend => depend !== excl);
+                if (service.depends_on.length === 0) delete service.depends_on;
+            }
+        })
+    })
     const config = getProjectConfig(dir);
     const dcCopy = JSON.parse(JSON.stringify(dc));
-    Object.keys(dc.services).forEach( service => {
+    Object.keys(dc.services).forEach(service => {
         dcCopy.services[service].image = config.images.current[service]
     })
     fs.writeFileSync(getComposeFilePath(dir), yaml.safeDump(dcCopy));
@@ -162,8 +171,10 @@ export async function verifySystem() {
     const result = await docker.command('info');
     // const version = result.object.server_version;
     if (!result.object) throw `You must install Docker to use Botfront. Please visit ${chalk.green('https://www.docker.com/products/docker-desktop')}`;
-    const results = await promisify(check)({ node: ">= 8.9"});
-    if (!results.versions.node.isSatisfied) throw `You must upgrade your Node.js installation to use Botfront. Please visit ${chalk.green('https://nodejs.org/en/download/')}`;
+    const results = await promisify(check)({ node: '>= 8.9'});
+    if (!results.versions.node.isSatisfied) {
+        throw `You must upgrade your Node.js installation to use Botfront. Please visit ${chalk.green('https://nodejs.org/en/download/')}`
+    };
 }
 
 export function getBotfrontVersion() {
@@ -203,7 +214,7 @@ export function getServices(dir) {
 
 export async function getMissingImgs(dir) {
     const docker = new Docker({});
-    let availableImgs = await docker.command(`images --format "{{.Repository}}:{{.Tag}}"`);
+    let availableImgs = await docker.command('images --format "{{.Repository}}:{{.Tag}}"');
     availableImgs = availableImgs.raw.split('\n');
     return getServices().filter(service => !availableImgs.includes(service));
 }

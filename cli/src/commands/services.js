@@ -35,7 +35,21 @@ import {
     displayUpdateMessage,
 } from '../utils';
 
-export async function dockerComposeUp({ verbose = false }, workingDir, spinner = ora()) {
+async function postUpLaunch(spinner) {
+    const serviceUrl = getServiceUrl('botfront');
+    setSpinnerText(spinner, `Opening Botfront (${chalk.green.bold(serviceUrl)}) in your browser...`);
+    await wait(2000);
+    await open(serviceUrl);
+    setSpinnerInfo(spinner, `Visit ${chalk.green(serviceUrl)}`);
+    console.log('\n');
+}
+
+export async function dockerComposeUp({ verbose = false, exclude = [], ci = false }, workingDir, spinner) {
+    spinner = spinner
+        ? spinner
+        : ci
+            ? null
+            : ora();
     await displayUpdateMessage();
     const projectAbsPath = fixDir(workingDir);
     shell.cd(projectAbsPath);
@@ -47,39 +61,37 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
         const { upgrade } = await inquirer.prompt({
             type: 'confirm',
             name: 'upgrade',
-            message: `Your project was created with an older version of Botfront. Would you like to upgrade it?`,
+            message: 'Your project was created with an older version of Botfront. Would you like to upgrade it?',
         });
         if (upgrade) {
             await copyTemplateFilesToProjectDir(projectAbsPath, {}, true);
         }
     }
     updateEnvFile(process.cwd());
-    generateDockerCompose();
+    generateDockerCompose(exclude);
     startSpinner(spinner, 'Starting Botfront...')
     const missingImgs = await getMissingImgs()
     await pullDockerImages(missingImgs, spinner, 'Downloading Docker images...')
-    await stopRunningProjects("Shutting down running project first...", null, null, spinner);
+    await stopRunningProjects('Shutting down running project first...', null, null, spinner);
     let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d`;
-    try{
+    try {
         startSpinner(spinner, 'Starting Botfront...')
         await shellAsync(command, { silent: !verbose });
-        if (spinner) { await waitForService('botfront'); }
-        else { await wait(20000); process.exit(0); }
-        stopSpinner()
-        const serviceUrl = getServiceUrl('botfront');
+        if (ci) process.exit(0); // exit now if ci
+        
+        await waitForService('botfront');
+        stopSpinner();
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
-        const message = `Useful commands:\n\n` +
-                        `\u2022 Run ${chalk.cyan.bold('botfront logs')} to see logs and debug \n` +
-                        `\u2022 Run ${chalk.cyan.bold('botfront <stop|start|restart>')} to <stop|start|restart> a service \n` +
-                        `\u2022 Run ${chalk.cyan.bold('botfront down')} to stop Botfront\n` +
-                        `\u2022 Run ${chalk.cyan.bold('botfront --help')} to get help with the CLI\n`;
-                        `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation\n`;
+        const message = 'Useful commands:\n\n' + (
+            `\u2022 Run ${chalk.cyan.bold('botfront logs')} to see logs and debug \n` +
+            `\u2022 Run ${chalk.cyan.bold('botfront <stop|start|restart>')} to <stop|start|restart> a service \n` +
+            `\u2022 Run ${chalk.cyan.bold('botfront down')} to stop Botfront\n` +
+            `\u2022 Run ${chalk.cyan.bold('botfront --help')} to get help with the CLI\n` +
+            `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation\n`
+        );
         console.log(boxen(message) + '\n');
-        setSpinnerText(spinner, `Opening Botfront (${chalk.green.bold(serviceUrl)}) in your browser...`);
-        await wait(2000);
-        if (spinner) await open(serviceUrl);
-        setSpinnerInfo(spinner, `Visit ${chalk.green(serviceUrl)}`);
-        console.log('\n');
+
+        if (!exclude.includes('botfront')) await postUpLaunch(spinner); // browser stuff is botfront is not excluded
         stopSpinner();
         process.exit(0);
     } catch (e) {
@@ -96,7 +108,10 @@ export async function dockerComposeUp({ verbose = false }, workingDir, spinner =
 export async function dockerComposeDown({ verbose }, workingDir) {
     if (workingDir) shell.cd(workingDir)
     if (!isProjectDir()) {
-        const noProjectMessage = `${chalk.yellow.bold('No project found in this directory.')}\n\nIf you don\'t know where your project is running from,\n${chalk.cyan.bold('botfront killall')} will find and shut down any Botfront\nproject on your machine.`;
+        const noProjectMessage = (
+            `${chalk.yellow.bold('No project found in this directory.')}\n\nIf you don\'t know where your project is running from,\n` +
+            `${chalk.cyan.bold('botfront killall')} will find and shut down any Botfront\nproject on your machine.`
+        );
         return console.log(boxen(noProjectMessage));
     }
     const spinner = ora('Stopping Botfront...')
@@ -107,21 +122,28 @@ export async function dockerComposeDown({ verbose }, workingDir) {
 }
 
 export async function dockerComposeStop(service, { verbose }, workingDir) {
-    await dockerComposeCommand(service, {name: 'stop', action: 'stopping'}, verbose, workingDir ).catch(consoleError)
+    await dockerComposeCommand(service, {name: 'stop', action: 'stopping'}, verbose, workingDir )
+        .catch(consoleError)
 }
 
 export async function dockerComposeStart(service, { verbose }, workingDir) {
-    await dockerComposeCommand(service, {name: 'start', action: 'starting'}, verbose, workingDir, 'It might take a few seconds before services are available...' ).catch(consoleError)
+    await dockerComposeCommand(service, {name: 'start', action: 'starting'}, verbose, workingDir, 'It might take a few seconds before services are available...' )
+        .catch(consoleError)
 }
 
 export async function dockerComposeRestart(service, { verbose }, workingDir) {
-    await dockerComposeCommand(service, {name: 'restart', action: 'restarting'}, verbose, workingDir, 'It might take a few seconds before services are available...' ).catch(consoleError)
+    await dockerComposeCommand(service, {name: 'restart', action: 'restarting'}, verbose, workingDir, 'It might take a few seconds before services are available...' )
+        .catch(consoleError)
 }
 
 export async function dockerComposeCommand(service, {name, action}, verbose, workingDir, message = '') {
     if (workingDir) shell.cd(workingDir)
     if (!isProjectDir()) {
-        const noProjectMessage = `${chalk.yellow.bold('No project found in this directory.')}\n${chalk.cyan.bold(`botfront ${name}`)} must be executed in your project's directory.\n${chalk.green.bold('TIP: ')}if you just created your project, you probably just have to do ${chalk.cyan.bold('cd <your-project-folder>')} and then retry.`;
+        const noProjectMessage = `${chalk.yellow.bold('No project found in this directory.')}\n` + (
+            `${chalk.cyan.bold(`botfront ${name}`)} must be executed in your project's directory.\n` +
+            `${chalk.green.bold('TIP: ')}if you just created your project, you probably just have to` +
+            ` do ${chalk.cyan.bold('cd <your-project-folder>')} and then retry.`
+        );
         return console.log(boxen(noProjectMessage));
     }
     const allowedServices = getServiceNames(workingDir);
@@ -133,10 +155,12 @@ export async function dockerComposeCommand(service, {name, action}, verbose, wor
             message: `Which service do you want to ${name}?`,
             choices: services,
         });
-        service = serv;
+        service = serv.endsWith('all services')
+            ? 'all services'
+            : serv;
     }
 
-    const spinner = ora(service ? `${capitalize(action)} service ${service}...`: `${capitalize(action)} all services...`)
+    const spinner = ora(`${capitalize(action)} ${service}...`)
     spinner.start();
     let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} ${name} ${allowedServices.includes(service) ? service : ''}`;
     await shellAsync(command, { silent: !verbose })
@@ -168,28 +192,33 @@ export async function getRunningDockerResources() {
 }
 
 export async function stopRunningProjects(
-        runningMessage=null,
-        killedMessage = null,
-        allDeadMessage = null,
-        spinner) {
+    runningMessage=null,
+    killedMessage = null,
+    allDeadMessage = null,
+    spinner,
+) {
     const docker = new Docker({});
     try{
         const { containers, networks, volumes } = await getRunningDockerResources();
 
         if (containers && containers.length) {
             startSpinner(spinner, runningMessage)
-            await docker.command(`stop ${containers.join(" ")}`);
-            await docker.command(`rm ${containers.join(" ")}`);
+            await docker.command(`stop ${containers.join(' ')}`);
+            await docker.command(`rm ${containers.join(' ')}`);
             if (killedMessage) succeedSpinner(spinner, killedMessage);
         } else {
             if (allDeadMessage) succeedSpinner(spinner, allDeadMessage)
         }
-        if (volumes && volumes.length) await docker.command(`volume rm ${volumes.join(" ")}`)
-        if (networks && networks.length) await docker.command(`network rm ${networks.join(" ")}`);
+        if (volumes && volumes.length) await docker.command(`volume rm ${volumes.join(' ')}`)
+        if (networks && networks.length) await docker.command(`network rm ${networks.join(' ')}`);
         stopSpinner();
     } catch(e) {
         stopSpinner();
-        failSpinner(spinner, `Could not stop running project. Run ${chalk.cyan.bold('docker ps | grep -w botfront-')} and then ${chalk.cyan.bold('docker stop <name>')} and ${chalk.cyan.bold('docker rm <name>')} for each running container.\n${chalk.red.bold(e)}\n`);
+        const failMessage = `Could not stop running project. Run ${chalk.cyan.bold('docker ps | grep -w botfront-')} and ` + (
+            `then ${chalk.cyan.bold('docker stop <name>')} and ${chalk.cyan.bold('docker rm <name>')} for ` +
+            `each running container.\n${chalk.red.bold(e)}\n`
+        );
+        failSpinner(spinner, failMessage);
     }
 }
 
@@ -203,10 +232,10 @@ export async function watchFolder({ verbose }, workingDir) {
         ignoreInitial: true,
         interval: 1000,
     })
-    .on('all', async (event, path) => {
-        stopSpinner(spinner);
-        console.log(`Detected ${event} on ${path}.`);
-        await dockerComposeRestart(service, { verbose }, workingDir);
-        startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
-    });
+        .on('all', async (event, path) => {
+            stopSpinner(spinner);
+            console.log(`Detected ${event} on ${path}.`);
+            await dockerComposeRestart(service, { verbose }, workingDir);
+            startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
+        });
 }
