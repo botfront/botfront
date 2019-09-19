@@ -26,9 +26,5 @@ module.exports = {
         "no-extra-boolean-cast": "off",
         "no-nested-ternary": "off",
         "import/prefer-default-export": "off",
-        "react/jsx-indent": ["error", 4],
-        "react/jsx-indent-props": ["error", 4],
-        "react/forbid-prop-types": "off",
-        "react/no-array-index-key": "off",
     },
 };
