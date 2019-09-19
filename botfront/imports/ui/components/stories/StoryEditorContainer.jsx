@@ -86,6 +86,14 @@ const StoryEditorContainer = ({
         ),
     });
 
+    // This effect is used to update errors when templates or slots are updated
+    useEffect(() => {
+        Object.keys(storyControllers).forEach((storyId) => {
+            storyControllers[storyId].setTemplates(templates);
+            storyControllers[storyId].refreshController();
+        });
+    }, [templates]);
+
     // This is to make sure that all opened branches have corresponding storyController objects
     // attached to them.
     useEffect(() => {

@@ -20,6 +20,14 @@ export class StoryController {
         this.saveUpdate = saveUpdate;
         this.validateStory();
     }
+
+    setTemplates = (templates) => {
+        this.templates = this.loadTemplates(templates) || {};
+    }
+
+    refreshController = () => {
+        this.setMd(this.md);
+    }
     
     loadTemplates = (templates) => {
         if (!Array.isArray(templates)) {
