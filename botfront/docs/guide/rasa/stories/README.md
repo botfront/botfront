@@ -7,10 +7,10 @@ meta:
 permalink: /rasa/:slug
 ---
 
-# Develop comversations
+# Develop conversations
 
 Botfront is based on Rasa and provides interfaces to build and edit Rasa stories more efficiently.
-The first twi sections explain the basics. If you are already familiar with stories, you can safely skip them.
+The first two sections explain the basics. If you are already familiar with stories, you can safely skip them.
 
 ## Rasa stories
 Stories are the building blocks of conversation flows. It's a symbolic language used to describe conversations a user can have with a bot.
