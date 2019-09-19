@@ -33,6 +33,7 @@ import {
     updateEnvFile,
     shouldUpdateProject,
     displayUpdateMessage,
+    getDefaultServiceNames,
 } from '../utils';
 
 async function postUpLaunch(spinner) {
@@ -147,17 +148,25 @@ export async function dockerComposeCommand(service, {name, action}, verbose, wor
         return console.log(boxen(noProjectMessage));
     }
     const allowedServices = getServiceNames(workingDir);
+
     if (!service || !allowedServices.includes(service)) {
-        const services = allowedServices.concat(`${capitalize(name)} all services`);
-        const { serv } = await inquirer.prompt({
-            type: 'list',
-            name: 'serv',
-            message: `Which service do you want to ${name}?`,
-            choices: services,
-        });
-        service = serv.endsWith('all services')
-            ? 'all services'
-            : serv;
+        const defaultServices = await getDefaultServiceNames();
+        if (name === 'start' && defaultServices.includes(service)) {
+            // service had been excluded, regenerate docker compose file
+            const exclude = defaultServices.filter(s => ![...allowedServices, service].includes(s))
+            await generateDockerCompose(exclude=exclude);
+        } else {
+            const services = allowedServices.concat(`${capitalize(name)} all services`);
+            const { serv } = await inquirer.prompt({
+                type: 'list',
+                name: 'serv',
+                message: `Which service do you want to ${name}?`,
+                choices: services,
+            });
+            service = serv.endsWith('all services')
+                ? 'all services'
+                : serv;
+        }
     }
 
     const spinner = ora(`${capitalize(action)} ${service}...`)

@@ -224,6 +224,12 @@ export function getServiceNames(dir) {
     return Object.keys(services);
 }
 
+export async function getDefaultServiceNames() {
+    const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
+    await access(templateDir, fs.constants.R_OK);
+    return getServiceNames(templateDir)
+}
+
 export function getService(serviceName, dir) {
     return getComposeFile(dir).services[serviceName];
 }
