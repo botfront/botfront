@@ -4,10 +4,10 @@ meta:
     content: 'Botfront: writing Rasa custom actions'
   - name: keywords
     content: botfront stories nlu rasa slots
-permalink: /rasa/custom-actions/:slug
+permalink: /rasa/:slug
 ---
 
-# Using Rasa custom actions
+# Custom actions
 
 Let's have a quick look at your project folder structure:
 
@@ -32,8 +32,8 @@ You probably figured it out: `actions` is our folder of interest.
 
 ::: tip TLDR;
 If you already know about Rasa and custom actions:
-- Add action files in the `actions` folder.
-- Run `botfront watch` from your project folder to automatically rebuild your action server on file changes.
+- Add your actions in the `actions/my_actions.py` file.
+- Run `botfront watch` from the root of your project folder to automatically rebuild your action server on file changes.
 :::
 
 
