@@ -107,7 +107,7 @@ const getMappingTriggers = policies => policies
     .reduce((coll, curr) => coll.concat(curr), [])
     .reduce((coll, curr) => coll.concat(curr), []);
 
-export const extractDomain = (stories, slots, templates = {}) => {
+export const extractDomain = (stories, slots, templates = {}, crashOnStoryWithErrors = true) => {
     const defaultDomain = {
         actions: new Set(Object.keys(templates)),
         intents: new Set(),
@@ -121,7 +121,18 @@ export const extractDomain = (stories, slots, templates = {}) => {
             const val = new StoryController(story, slots, () => {}, null, templates);
             return val.extractDomain();
         } catch (e) {
-            throw new Error('an error has caused training to fail');
+            if (crashOnStoryWithErrors) {
+                throw new Error('an error in a story has caused training to fail');
+            } else {
+                return {
+                    entities: [],
+                    intents: [],
+                    actions: [],
+                    forms: [],
+                    templates: {},
+                    slots: {},
+                };
+            }
         }
     });
     domains = domains.reduce(
