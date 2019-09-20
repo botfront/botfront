@@ -99,6 +99,8 @@ const StoryEditorContainer = ({
                     () => {},
                     content => saveStory(currentPath, { story: content }),
                     templates,
+                    // define if it's in a branch or not
+                    currentPath.length > 1,
                 );
             }
         });
@@ -214,6 +216,8 @@ const StoryEditorContainer = ({
                     () => {},
                     content => saveStory(path, { story: content }),
                     templates,
+                    // define if it's in a branch or not
+                    path.length > 1,
                 ),
             });
         }
@@ -261,7 +265,14 @@ const StoryEditorContainer = ({
     }, [story, nextBranchPath]);
 
     useEffect(() => {
-        const newExceptions = accumulateExceptions(story, slots, templates);
+        const newExceptions = accumulateExceptions(
+            story,
+            slots,
+            templates,
+            storyControllers,
+            setStoryControllers,
+            saveStory,
+        );
         setExceptions(newExceptions);
     }, [story]);
 

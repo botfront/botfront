@@ -205,24 +205,54 @@ export const getStoriesAndDomain = (projectId) => {
     };
 };
 
-export const accumulateExceptions = (story, slots, templates = null) => {
+export const accumulateExceptions = (
+    story,
+    slots,
+    templates = null,
+    storyControllers,
+    setStoryControllers,
+    saveStoryMethod,
+) => {
     const exceptions = {};
+    const newStoryControllers = {};
 
-    const traverseBranch = (currentStory, currentPath) => {
-        const currentController = new StoryController(currentStory.story || '', slots, () => {}, null, templates);
+    const traverseBranch = (currentStory, currentPath, isABranch = false) => {
+        const currentPathAsString = currentPath.join();
+        let currentController = null;
+        if (!storyControllers[currentPathAsString]) {
+            newStoryControllers[currentPathAsString] = new StoryController(
+                currentStory.story || '',
+                slots,
+                () => {},
+                content => saveStoryMethod(currentPath, { story: content }),
+                templates,
+                isABranch,
+            );
+            currentController = newStoryControllers[currentPathAsString];
+        } else {
+            currentController = storyControllers[currentPathAsString];
+        }
         const currentErrors = currentController.getErrors();
         const currrentWarnings = currentController.getWarnings();
         let errors = [...currentErrors];
         let warnings = [...currrentWarnings];
         currentStory.branches.forEach((branchStory) => {
-            const childBranch = traverseBranch(branchStory, `${currentPath},${branchStory._id}`);
+            const childBranch = traverseBranch(
+                branchStory,
+                [...currentPath, branchStory._id],
+                true,
+            );
             errors = [...errors, ...childBranch.errors];
             warnings = [...warnings, ...childBranch.warnings];
         });
-        exceptions[currentPath] = { errors, warnings };
+        exceptions[currentPathAsString] = { errors, warnings };
         return { errors, warnings };
     };
 
-    traverseBranch(story, story._id);
+    traverseBranch(story, [story._id], false);
+    setStoryControllers({
+        ...storyControllers,
+        ...newStoryControllers,
+    });
     return exceptions;
 };
