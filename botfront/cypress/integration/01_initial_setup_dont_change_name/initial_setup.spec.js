@@ -49,7 +49,7 @@ describe('intial setup', function() {
 
         cy.get('[data-cy=email-consent]').click();
 
-        cy.wait(7000);
+        cy.wait(10000);
         cy.url().then((url) => {
             cy.url().should('include', '/stories');
             const id = url.match(/project\/(.*?)\/stories/i)[1];
