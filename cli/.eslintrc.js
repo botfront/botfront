@@ -5,9 +5,15 @@ module.exports = {
         "mocha": true,
     },
     "extends": [
+        "eslint:recommended"
     ],
     "settings": {
         "import/resolver": [
+            {
+                "node": {
+                    "extensions": [".js",".jsx"]
+                }
+            },
         ]
     },
     "parser": "babel-eslint",
@@ -25,6 +31,6 @@ module.exports = {
         "no-trailing-spaces": ["error", {"skipBlankLines": true}],
         "no-extra-boolean-cast": "off",
         "no-nested-ternary": "off",
-        "import/prefer-default-export": "off",
+        "import/prefer-default-export": "off"
     },
 };
