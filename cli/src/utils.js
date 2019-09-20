@@ -89,7 +89,7 @@ export async function getLatestVersion() {
     }
 }
 
-export function getProjectVersion(workingDir) {
+export function getProjectVersion() {
     return getProjectConfig(fixDir(null)).version;
 }
 
@@ -147,8 +147,8 @@ export async function generateDockerCompose(exclude = [], dir) {
     const dc = getComposeFile(dir, DOCKER_COMPOSE_TEMPLATE_FILENAME);
     exclude.forEach(excl => { // remove reference to excluded services
         if (excl in dc.services) delete dc.services[excl]
-        dc.services.forEach(service => {
-            if (depends_on in service) {
+        Object.values(dc.services).forEach(service => {
+            if ({}.hasOwnProperty.call(service, 'depends_on')) {
                 service.depends_on = service.depends_on.filter(depend => depend !== excl);
                 if (service.depends_on.length === 0) delete service.depends_on;
             }
@@ -159,7 +159,11 @@ export async function generateDockerCompose(exclude = [], dir) {
     Object.keys(dc.services).forEach(service => {
         dcCopy.services[service].image = config.images.current[service]
     })
+    // for (let key in dcCopy.services) {
+    //     console.log(key, dcCopy.services[key].depends_on)
+    // }
     fs.writeFileSync(getComposeFilePath(dir), yaml.safeDump(dcCopy));
+    return true;
 }
 
 export function getProjectConfig(projectAbsPath) {
@@ -216,7 +220,7 @@ export async function getMissingImgs(dir) {
     const docker = new Docker({});
     let availableImgs = await docker.command('images --format "{{.Repository}}:{{.Tag}}"');
     availableImgs = availableImgs.raw.split('\n');
-    return getServices().filter(service => !availableImgs.includes(service));
+    return getServices(dir).filter(service => !availableImgs.includes(service));
 }
 
 export function getServiceNames(dir) {
@@ -224,10 +228,9 @@ export function getServiceNames(dir) {
     return Object.keys(services);
 }
 
-export async function getDefaultServiceNames() {
-    const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
-    await access(templateDir, fs.constants.R_OK);
-    return getServiceNames(templateDir)
+export function getDefaultServiceNames(dir) {
+    const services = getComposeFile(dir, DOCKER_COMPOSE_TEMPLATE_FILENAME).services;
+    return Object.keys(services);
 }
 
 export function getService(serviceName, dir) {
@@ -238,9 +241,12 @@ export function getExternalPort(serviceName, dir) {
     return getService(serviceName, dir).ports[0].split(':')[0];
 }
 
-export function getContainerNames(dir, services) {
+export function getContainerAndImageNames(dir, services) {
     let svcs = services || getComposeFile(dir).services;
-    return Object.keys(svcs).map(s => services[s].container_name);
+    return {
+        containers: Object.keys(svcs).map(s => services[s].container_name),
+        images: Object.keys(svcs).map(s => services[s].image),
+    };
 }
 
 export function getServiceUrl(serviceName) {
@@ -272,13 +278,16 @@ export async function waitForService(serviceName) {
                 reject()
             }, 90000)
 
-            try{
-                const response = await axios.get(serviceUrl);
-                if (response.status === 200){
-                    clearInterval(interval);
-                    return resolve()
-                }
-            } catch(e) {}
+            let response;
+            try {
+                response = await axios.get(serviceUrl);
+            } catch (e) {
+                response = e.response;
+            }
+            if (response && ['200', '404'].includes(response.status)) {
+                clearInterval(interval);
+                return resolve();
+            }
         }, 1000);
     });
 }

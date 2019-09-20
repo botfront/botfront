@@ -1,5 +1,9 @@
 import open from 'open'
 import ora from 'ora';
+import yaml from 'js-yaml';
+import fs from 'fs-extra';
+import path from 'path';
+import { Docker } from 'docker-cli-js';
 import boxen from 'boxen';
 import inquirer from 'inquirer';
 import shell from 'shelljs';
@@ -15,20 +19,17 @@ import {
     stopRunningProjects,
     getRunningDockerResources,
     watchFolder,
-    removeDockerImages,
 } from './commands/services';
 import {
     wait,
     isProjectDir,
     verifySystem,
     getBotfrontVersion,
-    succeedSpinner,
     failSpinner,
-    consoleError,
     stopSpinner,
-    getLatestVersion,
-    shouldUpdateNpmPackage,
-    getProjectVersion,
+    getContainerAndImageNames,
+    succeedSpinner,
+    consoleError,
 } from './utils';
 
 const program = require('commander');
@@ -132,9 +133,8 @@ async function killAllCommand(cmd) {
                 spinner,
             );
 
-            if (cmd.removeImages) {
-                await removeDockerImages(spinner)
-            }
+            cleanupDocker({rm: true, rmi: cmd.removeImages}, spinner)
+
             stopSpinner(spinner)
         } catch (e) {
             failSpinner(spinner, e);
@@ -147,7 +147,7 @@ async function general() {
     const choices = [];
     try {
         await verifySystem()
-        const { containers, networks, volumes } = await getRunningDockerResources()
+        const { containers } = await getRunningDockerResources()
         if (isProjectDir()){
             if (containers && containers.length){
                 choices.push({ title: 'Stop Botfront', cmd: () => dockerComposeDown({ verbose: false }) });
@@ -176,6 +176,30 @@ async function general() {
     
     } catch (e) {
         console.log(e)
+    }
+}
+
+async function cleanupDocker({rm, rmi}, spinner = ora()) {
+    const composePath = path.resolve(__dirname, '..', 'project-template', '.botfront', 'docker-compose-template.yml');
+    const { services } = yaml.safeLoad(fs.readFileSync(composePath), 'utf-8');
+    const containersAndImageNames = getContainerAndImageNames(null, services);
+    if (rm) runDockerPromises('rm', containersAndImageNames, spinner);
+    if (rmi) runDockerPromises('rmi', containersAndImageNames, spinner);
+}
+
+async function runDockerPromises(cmd, { containers, images }, spinner) {
+    const docker = new Docker({});
+    const name = cmd === 'rm' ? 'containers' : 'images';
+    const array = cmd === 'rm' ? containers : images;
+    const promises = array.map(i => docker.command(`${cmd} ${i}`).catch(()=>{}));
+    try {
+        await Promise.all(promises);
+        return succeedSpinner(spinner, `Docker ${name} removed.`);
+    } catch (e) {
+        consoleError(e);
+        failSpinner(spinner, `Could not remove Docker ${name}.`);
+    } finally {
+        stopSpinner();
     }
 }
 

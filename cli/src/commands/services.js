@@ -13,7 +13,6 @@ import {
     fixDir,
     isProjectDir,
     getComposeFilePath,
-    getServices,
     getMissingImgs,
     waitForService,
     getServiceUrl,
@@ -35,38 +34,6 @@ import {
     displayUpdateMessage,
     getDefaultServiceNames,
 } from '../utils';
-
-export async function removeDockerImages(spinner = ora()) {
-    const docker = new Docker({});
-    startSpinner(spinner, 'Removing Docker images...')
-    const rmiPromises = getServices(dockerComposePath).map(i => docker.command(`rmi ${i}`).catch(()=>{}));
-    try {
-        await Promise.all(rmiPromises);
-        return succeedSpinner(spinner, 'Docker images removed.');
-    } catch (e) {
-        consoleError(e);
-        failSpinner(spinner, 'Could not remove Docker images');
-    } finally {
-        stopSpinner()
-    }
-}
-
-export async function removeDockerContainers(spinner = ora()) {
-    const docker = new Docker({});
-    // startSpinner(spinner, 'Removing Docker containers...')
-    const composePath = path.resolve(__dirname, '..', '..', 'project-template', '.botfront', 'docker-compose-template.yml');
-    const { services } = yaml.safeLoad(fs.readFileSync(composePath), 'utf-8');
-    const rmPromises = getContainerNames(null, services).map(i => docker.command(`rm ${i}`).catch(()=>{}));
-    try {
-        await Promise.all(rmPromises);
-        return succeedSpinner(spinner, 'Docker containers removed.');
-    } catch (e) {
-        consoleError(e);
-        failSpinner(spinner, 'Could not remove Docker containers');
-    } finally {
-        stopSpinner()
-    }
-}
 
 async function postUpLaunch(spinner) {
     const serviceUrl = getServiceUrl('botfront');
@@ -101,10 +68,10 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
         }
     }
     updateEnvFile(process.cwd());
-    generateDockerCompose(exclude);
-    startSpinner(spinner, 'Starting Botfront...')
-    const missingImgs = await getMissingImgs()
-    await pullDockerImages(missingImgs, spinner, 'Downloading Docker images...')
+    await generateDockerCompose(exclude);
+    startSpinner(spinner, 'Starting Botfront...');
+    const missingImgs = await getMissingImgs();
+    await pullDockerImages(missingImgs, spinner, 'Downloading Docker images...');
     await stopRunningProjects('Shutting down running project first...', null, null, spinner);
     let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d`;
     try {
@@ -112,7 +79,8 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
         await shellAsync(command, { silent: !verbose });
         if (ci) process.exit(0); // exit now if ci
         
-        await waitForService('botfront');
+        await Promise.all(getServiceNames(workingDir).map(s => waitForService(s)));
+        // await waitForService('botfront');
         stopSpinner();
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
         const message = 'Useful commands:\n\n' + (
@@ -133,7 +101,7 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
         } else {
             stopSpinner(spinner);
             failSpinner(spinner, 'Couldn\'t start Botfront. Retrying in verbose mode...', { exit: false });
-            return dockerComposeUp({ verbose: true }, workingDir, null, spinner);
+            return dockerComposeUp({ verbose: true, exclude: exclude }, workingDir, null, spinner);
         }
     }
 }
@@ -141,9 +109,11 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
 export async function dockerComposeDown({ verbose }, workingDir) {
     if (workingDir) shell.cd(workingDir)
     if (!isProjectDir()) {
+        const noProject = chalk.yellow.bold('No project found in this directory.');
+        const killall = chalk.cyan.bold('botfront killall');
         const noProjectMessage = (
-            `${chalk.yellow.bold('No project found in this directory.')}\n\nIf you don\'t know where your project is running from,\n` +
-            `${chalk.cyan.bold('botfront killall')} will find and shut down any Botfront\nproject on your machine.`
+            `${noProject}\n\nIf you don't know where your project is running from,\n` +
+            `${killall} will find and shut down any Botfront\nproject on your machine.`
         );
         return console.log(boxen(noProjectMessage));
     }
@@ -181,29 +151,33 @@ export async function dockerComposeCommand(service, {name, action}, verbose, wor
     }
     const allowedServices = getServiceNames(workingDir);
 
+    let services = [service];
+    let regeneratedDockerCompose = false;
     if (!service || !allowedServices.includes(service)) {
-        const defaultServices = await getDefaultServiceNames();
+        const defaultServices = getDefaultServiceNames(workingDir);
         if (name === 'start' && defaultServices.includes(service)) {
             // service had been excluded, regenerate docker compose file
             const exclude = defaultServices.filter(s => ![...allowedServices, service].includes(s))
-            await generateDockerCompose(exclude=exclude);
+            regeneratedDockerCompose = await generateDockerCompose(exclude);
         } else {
-            const services = allowedServices.concat(`${capitalize(name)} all services`);
+            const choices = allowedServices.concat(`${capitalize(name)} all services`);
             const { serv } = await inquirer.prompt({
                 type: 'list',
                 name: 'serv',
                 message: `Which service do you want to ${name}?`,
-                choices: services,
+                choices,
             });
-            service = serv.endsWith('all services')
-                ? 'all services'
-                : serv;
+            services = serv.endsWith('all services')
+                ? allowedServices
+                : [serv];
         }
     }
 
-    const spinner = ora(`${capitalize(action)} ${service}...`)
+    const spinner = ora(`${capitalize(action)} ${services.join(', ')}...`)
     spinner.start();
-    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} ${name} ${allowedServices.includes(service) ? service : ''}`;
+    const command = regeneratedDockerCompose // if docker-compose file has been regenerated, run 'up -d' instead of 'start', to create container
+        ? `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d`
+        : `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} ${name} ${services.join(' ')}`;
     await shellAsync(command, { silent: !verbose })
     spinner.succeed(`Done. ${message}`);
 }
@@ -252,7 +226,6 @@ export async function stopRunningProjects(
         }
         if (volumes && volumes.length) await docker.command(`volume rm ${volumes.join(' ')}`)
         if (networks && networks.length) await docker.command(`network rm ${networks.join(' ')}`);
-        removeDockerContainers(spinner);
         stopSpinner();
     } catch(e) {
         stopSpinner();

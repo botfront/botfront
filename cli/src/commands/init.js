@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import shell from 'shelljs';
-import yaml from 'js-yaml';
 import fs from 'fs-extra';
 import ncp from 'ncp';
 import path from 'path';
@@ -9,10 +8,8 @@ import { Docker } from 'docker-cli-js';
 import ora from 'ora';
 import inquirer from 'inquirer';
 import boxen from 'boxen';
-import { dockerComposeUp } from './services';
 import { uniqueNamesGenerator } from 'unique-names-generator';
 import {
-    getServices,
     updateProjectFile,
     generateDockerCompose,
     failSpinner,
@@ -21,8 +18,6 @@ import {
     verifySystem,
     consoleError,
     stopSpinner,
-    getMissingImgs,
-    getContainerNames,
     displayUpdateMessage,
 } from '../utils';
 
@@ -41,7 +36,6 @@ export async function initCommand(
         if (imgRasa) images = {...images, rasa: imgRasa};
         
         const currentDirEmpty = fs.readdirSync(process.cwd()).length === 0;
-        const spinner = ci ? null : ora();
         if (path) return await createProject(path, images, ci);
         if (!ci && currentDirEmpty) {
             const { current } = await inquirer.prompt({
@@ -114,7 +108,6 @@ export async function pullDockerImages(images,
 }
 
 export async function createProject(targetDirectory, images, ci = false) {
-    const spinner = !ci ? ora() : null;
     let projectAbsPath = process.cwd();
     let projectCreatedInAnotherDir = false;
     if (targetDirectory) {
