@@ -8,12 +8,13 @@ class StoryException {
 }
 
 export class StoryController {
-    constructor(story, slots, notifyUpdate = () => {}, saveUpdate = null, templates = null) {
+    constructor(story, slots, notifyUpdate = () => {}, saveUpdate = null, templates = null, isABranch = false) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.unsafeMd = story;
         this.md = story;
+        this.isABranch = isABranch;
         this.templates = this.loadTemplates(templates) || {};
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
@@ -202,8 +203,10 @@ export class StoryController {
     };
 
     validateResponse = () => {
-        if (!this.intent) this.raiseStoryException('have_intent');
         this.response = this.content.trim();
+        if (!this.intent && !(this.isABranch && this.response.match(/^slot *{/))) {
+            this.raiseStoryException('have_intent');
+        }
         if (this.response.match(/^utter_/)) {
             this.validateUtter();
         } else if (this.response.match(/^action_/)) {
