@@ -90,7 +90,6 @@ const StoryEditorContainer = ({
     useEffect(() => {
         Object.keys(storyControllers).forEach((storyId) => {
             storyControllers[storyId].setTemplates(templates);
-            storyControllers[storyId].refreshController();
         });
     }, [templates]);
 

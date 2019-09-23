@@ -99,6 +99,7 @@ class StoryVisualEditor extends React.Component {
                 },
             ],
         };
+        story.addTemplate(newTemplate);
         insertResponse(newTemplate, (err) => {
             if (!err) {
                 const newLine = { type: 'bot', data: { name: key, new: true } };
