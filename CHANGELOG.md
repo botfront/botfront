@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.8-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.8-ee.1...v0.16.0-rc.8-ee.2) (2019-09-23)
+
+
+### Bug Fixes
+
+* better error message for training ([bbf122c](https://github.com/botfront/botfront/commit/bbf122c))
+
+
+
 ## [0.16.0-rc.8-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.7-ee.2...v0.16.0-rc.8-ee.1) (2019-09-23)
 
 
