@@ -121,7 +121,7 @@ export const extractDomain = (stories, slots, templates = {}) => {
             const val = new StoryController(story, slots, () => {}, null, templates);
             return val.extractDomain();
         } catch (e) {
-            throw new Error('an error has caused training to fail');
+            throw new Error(`an error in the story ${story.title} has caused training to fail`);
         }
     });
     domains = domains.reduce(
