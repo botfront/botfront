@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.8-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.7-ee.2...v0.16.0-rc.8-ee.1) (2019-09-23)
+
+
+### Bug Fixes
+
+* better errors for templates and slots ([c5becb9](https://github.com/botfront/botfront/commit/c5becb9))
+* fixed slots errors ([59f98ee](https://github.com/botfront/botfront/commit/59f98ee))
+* story errors related to templates ([7a2f9ec](https://github.com/botfront/botfront/commit/7a2f9ec))
+
+
+### Features
+
+* added default settings for gke dev ([70f5739](https://github.com/botfront/botfront/commit/70f5739))
+* story error boundary ([e665afb](https://github.com/botfront/botfront/commit/e665afb))
+
+
+### Tests
+
+* fixed broken exceptions tests ([9064bfe](https://github.com/botfront/botfront/commit/9064bfe))
+* test that new slots are detected in stories ([920ce7e](https://github.com/botfront/botfront/commit/920ce7e))
+
+
+
 ## [0.16.0-rc.7-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.7-ee.1...v0.16.0-rc.7-ee.2) (2019-09-17)
 
 
