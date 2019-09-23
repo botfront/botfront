@@ -15,22 +15,25 @@ export class StoryController {
         this.unsafeMd = story;
         this.md = story;
         this.isABranch = isABranch;
-        this.templates = this.loadTemplates(templates) || {};
+        this.templates = this.loadTemplates(templates) || [];
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
         this.validateStory();
     }
-    
-    loadTemplates = (templates) => {
-        if (!Array.isArray(templates)) {
-            return templates;
-        }
-        const templateObject = {};
-        templates.forEach((template) => {
-            templateObject[template.key] = templates.values;
-        });
-        return templateObject;
+
+    setTemplates = (templates) => {
+        this.templates = this.loadTemplates(templates) || [];
+        this.reset(false);
+        this.validateLines();
     }
+
+    addTemplate = (template) => {
+        if (template && template.key) {
+            this.templates = [...this.templates, template.key];
+        }
+    }
+
+    loadTemplates = templates => templates.map(template => template.key);
 
     getSlots = (slots) => {
         const slotsToAdd = {};
@@ -76,14 +79,14 @@ export class StoryController {
 
     raiseStoryException = (code) => {
         // disabled exceptions
-        // this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.idx + 1, code));
+        this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.idx + 1, code));
     };
 
     validateUtter = () => {
         this.form = null;
         if (!this.hasInvalidChars(this.response)) {
             this.domain.actions.add(this.response);
-            if (this.templates[this.response] === undefined) {
+            if (this.templates.indexOf(this.response) === -1) {
                 this.raiseStoryException('no_such_response');
             } else {
                 this.domain.templates[this.response] = this.templates[this.response];
@@ -225,6 +228,10 @@ export class StoryController {
     validateStory = () => {
         this.reset();
         // if (!this.md.replace(/\s/g, '').length) this.raiseStoryException('no_empty');
+        this.validateLines();
+    };
+
+    validateLines = () => {
         for (this.idx; this.idx < this.lines.length; this.idx += 1) {
             const line = this.lines[this.idx].md.replace(/ *<!--.*--> */g, ' ');
             if (line.trim().length !== 0) {
@@ -243,9 +250,9 @@ export class StoryController {
                 }
             }
         }
-    };
+    }
 
-    reset = () => {
+    reset = (resetLines = true) => {
         this.domain = {
             entities: new Set(),
             intents: new Set(),
@@ -261,7 +268,7 @@ export class StoryController {
         this.form = null;
         this.exceptions = [];
         this.idx = 0;
-        this.lines = this.splitLines();
+        this.lines = resetLines ? this.splitLines() : this.lines;
     }
 
     toMd = (line) => {

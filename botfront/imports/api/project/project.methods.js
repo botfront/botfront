@@ -20,7 +20,7 @@ import { Slots } from '../slots/slots.collection';
 import { flattenStory, extractDomain } from '../../lib/story.utils';
 
 if (Meteor.isServer) {
-    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots));
+    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, false));
 
     export const extractData = (models) => {
         const trainingExamples = models.map(model => model.training_data.common_examples);

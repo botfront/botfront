@@ -76,6 +76,7 @@ const requestMailSubscription = async (email, firstName, lastName) => {
             },
         });
     } catch (e) {
+        // eslint-disable-next-line no-console
         console.log('Email subscription failed, probably because you\'ve already subscribed');
     }
 };

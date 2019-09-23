@@ -69,7 +69,7 @@ describe('slots', function() {
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
-            .type('{enter}- slot{{}"name": "Ali"}', { force: true });
+            .type('\n- slot{{}"name": "Ali"}', { force: true });
 
         cy.dataCy('top-menu-error-alert');
         cy.dataCy('slots-tab').click();

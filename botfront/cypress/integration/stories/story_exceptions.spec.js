@@ -16,6 +16,8 @@ describe('story exceptions', function() {
         cy.dataCy('browser-item').children('span').contains('excpetion test').click();
     };
     const typeError = (textareaIndex, aceLineIndex) => {
+        // Makes it wait until it actually exists
+        cy.get('.ace_content');
         cy.get('.ace_content')
             .eq(aceLineIndex)
             .click({ force: true })
@@ -46,10 +48,10 @@ describe('story exceptions', function() {
 
     it('should display errors and warnings in the story top menu', function() {
         createTestStoryGroup();
-        cy.get(':nth-child(1) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
+        cy.get('[data-cy=story-editor] > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
             .find('.ace_line')
             .click({ force: true });
-        cy.get(':nth-child(1) > [data-cy=single-story-editor] > #story')
+        cy.get('[data-cy=story-editor] > [data-cy=single-story-editor] > #story')
             .find('textarea')
             .type('error')
             .type('{enter}')
@@ -68,10 +70,13 @@ describe('story exceptions', function() {
         cy.dataCy('top-menu-error-alert').contains('1 Error').should('exist');
         cy.dataCy('top-menu-warning-alert').contains('1 Warning').should('exist');
         cy.dataCy('create-branch').click();
-        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
+        cy.dataCy('branch-label');
+        cy.dataCy('single-story-editor')
+            .eq(1)
             .find('.ace_line')
             .click({ force: true });
-        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story')
+        cy.dataCy('single-story-editor')
+            .eq(1)
             .find('textarea')
             .type('error')
             .type('{enter}')
@@ -84,10 +89,12 @@ describe('story exceptions', function() {
         cy.dataCy('branch-tab-warning-alert').should('exist');
         
         cy.dataCy('branch-label').eq(1).click();
-        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
+        cy.dataCy('single-story-editor')
+            .eq(1)
             .find('.ace_line')
             .click({ force: true });
-        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story')
+        cy.dataCy('single-story-editor')
+            .eq(1)
             .find('textarea')
             .type('error')
             .type('{enter}')
