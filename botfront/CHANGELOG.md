@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.8](https://github.com/botfront/botfront/compare/v0.16.0-rc.7...v0.16.0-rc.8) (2019-09-23)
+
+
+### Bug Fixes
+
+* fixed slots errors ([59f98ee](https://github.com/botfront/botfront/commit/59f98ee))
+
+
+### Tests
+
+* test that new slots are detected in stories ([920ce7e](https://github.com/botfront/botfront/commit/920ce7e))
+
+
+
 ## [0.16.0-rc.7](https://github.com/botfront/botfront/compare/v0.16.0-rc.6...v0.16.0-rc.7) (2019-09-13)
 
 
