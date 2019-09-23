@@ -122,7 +122,7 @@ export const extractDomain = (stories, slots, templates = {}, crashOnStoryWithEr
             return val.extractDomain();
         } catch (e) {
             if (crashOnStoryWithErrors) {
-                throw new Error('an error in a story has caused training to fail');
+                throw new Error(`an error in the story ${story.title} has caused training to fail`);
             } else {
                 return {
                     entities: [],
