@@ -14,21 +14,16 @@ export class StoryController {
         };
         this.md = story;
         this.isABranch = isABranch;
-        this.templates = this.loadTemplates(templates) || {};
+        this.templates = this.loadTemplates(templates) || [];
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
         this.validateStory();
     }
     
     loadTemplates = (templates) => {
-        if (!Array.isArray(templates)) {
-            return templates;
-        }
-        const templateObject = {};
-        templates.forEach((template) => {
-            templateObject[template.key] = templates.values;
-        });
-        return templateObject;
+        if (templates instanceof Array) return templates.map(template => template.key);
+        const templatesAsArray = [];
+        return Object.keys(templates).forEach(templateKey => templatesAsArray.push(templateKey));
     }
 
     getSlots = (slots) => {
@@ -81,10 +76,8 @@ export class StoryController {
         this.form = null;
         if (!this.hasInvalidChars(this.response)) {
             this.domain.actions.add(this.response);
-            if (this.templates[this.response] === undefined) {
+            if (this.templates.indexOf(this.response) === -1) {
                 this.raiseStoryException('no_such_response');
-            } else {
-                this.domain.templates[this.response] = this.templates[this.response];
             }
             this.lines[this.idx].gui = { type: 'bot', data: { name: this.response } };
         }
