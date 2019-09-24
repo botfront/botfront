@@ -118,10 +118,23 @@ export const extractDomain = (stories, slots, templates = {}) => {
     };
     let domains = stories.map((story) => {
         try {
-            const val = new StoryController(story, slots, () => {}, null, templates);
+            // The ternary condition makes it work if we have an array of story object
+            // Rather than an array of straight up strings.
+            const val = new StoryController(
+                story.story ? story.story : story,
+                slots,
+                () => {},
+                null,
+                templates,
+            );
             return val.extractDomain();
         } catch (e) {
-            throw new Error(`an error in the story ${story.title} has caused training to fail`);
+            // Same thing than previous comment
+            if (story.story) {
+                throw new Error(`an error in the story ${story.title} has caused training to fail`);
+            } else {
+                throw new Error('an error in a story has caused training to fail');
+            }
         }
     });
     domains = domains.reduce(
@@ -190,7 +203,6 @@ export const getStoriesAndDomain = (projectId) => {
         }).fetch();
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-        .map(story => story.story)
         .concat([extraDomain]);
     const storiesForRasa = stories
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
