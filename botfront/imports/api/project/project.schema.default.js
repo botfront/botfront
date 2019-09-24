@@ -1,20 +1,10 @@
 import SimpleSchema from 'simpl-schema';
 import { TemplateSchema } from './response.schema';
 import { validateYaml } from '../../lib/utils';
-import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-
-const getDefaultDefaultDomain = () => {
-    const fields = {
-        'settings.private.defaultdefaultDomain': 1,
-    };
-    const { settings: { private: { defaultdefaultDomain = {} } = {} } = {} } = GlobalSettings.findOne({}, { fields }) || {};
-    return defaultdefaultDomain;
-};
 
 export const DefaultDomainSchema = new SimpleSchema({
     content: {
         type: String,
-        defaultValue: Meteor.isServer ? getDefaultDefaultDomain() : '',
         custom: validateYaml,
     },
 });

@@ -2,6 +2,7 @@ import { check, Match } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { can, getScopesForUser } from '../../lib/scopes';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
 export const Projects = new Mongo.Collection('projects');
 
@@ -11,6 +12,16 @@ Projects.deny({
     update() { return true; },
     remove() { return true; },
 });
+
+const getDefaultDefaultDomain = () => {
+    const fields = {
+        'settings.private.defaultDefaultDomain': 1,
+    };
+    const { settings: { private: { defaultDefaultDomain = {} } = {} } = {} } = GlobalSettings.findOne({}, { fields }) || {};
+    return defaultDefaultDomain;
+};
+
+export const createProject = item => Projects.insert({ ...item, defaultDomain: { content: getDefaultDefaultDomain() } });
 
 
 if (Meteor.isServer) {

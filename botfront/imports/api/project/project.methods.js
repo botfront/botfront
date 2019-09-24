@@ -1,6 +1,6 @@
 import { check, Match } from 'meteor/check';
 import { safeLoad as yamlLoad } from 'js-yaml';
-import { Projects } from './project.collection';
+import { Projects, createProject } from './project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
@@ -65,7 +65,7 @@ if (Meteor.isServer) {
             check(item, Object);
             let _id;
             try {
-                _id = Projects.insert(item);
+                _id = createProject(item);
                 createEndpoints({ _id, ...item });
                 createDeployment({ _id, ...item });
                 createCredentials({ _id, ...item });
