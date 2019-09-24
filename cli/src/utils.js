@@ -285,7 +285,6 @@ export async function waitForService(serviceName) {
                 response = e.response;
             }
             if (response && [200, 404].includes(response.status)) {
-                console.log(`✅ ${serviceName}`)
                 clearInterval(interval);
                 return resolve();
             }
