@@ -255,4 +255,20 @@ describe('stories', function() {
             .children()
             .should('have.lengthOf', 3);
     });
+
+    it('should be only possible to link of leaf stories', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('branch-label').eq(1).first().click({ force: true });
+        cy.dataCy('branch-label').first().click({ force: true });
+        cy.dataCy('stories-linker').should('have.class', 'disabled');
+        cy.dataCy('branch-label').eq(1).first().click({ force: true });
+        cy.dataCy('stories-linker').should('not.have.class', 'disabled');
+        cy.dataCy('branch-label').first().click({ force: true });
+        cy.dataCy('branch-label').eq(2).first().click({ force: true });
+        cy.dataCy('stories-linker').should('not.have.class', 'disabled');
+        cy.dataCy('branch-label').eq(3).first().click({ force: true });
+        cy.dataCy('stories-linker').should('not.have.class', 'disabled');
+    });
 });

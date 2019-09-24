@@ -132,7 +132,7 @@ class StoryFooter extends React.Component {
                             color='green'
                         />
                         Link&nbsp;to:
-                        <StoriesLinker />
+                        <StoriesLinker disabled={!canBranch} />
                     </Menu.Item>
                     <>{this.renderContinue()}</>
                 </Menu>
