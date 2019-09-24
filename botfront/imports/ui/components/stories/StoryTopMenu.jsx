@@ -1,14 +1,17 @@
 import {
-    Popup, Icon, Menu, Dropdown, Label, Message,
+    Popup, Icon, Menu, Dropdown, Label, Message, Header, Segment,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 import { setStoryCollapsed } from '../../store/actions/actions';
+
+import { ConversationOptionsContext } from '../utils/Context';
+import { StoryGroupSchema } from '../../../api/storyGroups/storyGroups.schema';
 
 const StoryTopMenu = ({
     onDelete,
@@ -30,6 +33,8 @@ const StoryTopMenu = ({
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
+
+    const { stories, storyGroups } = useContext(ConversationOptionsContext);
 
     const submitTitleInput = () => {
         if (title === newTitle) {
@@ -82,9 +87,30 @@ const StoryTopMenu = ({
             </Label>
         );
     };
+
     const renderConnectedStories = () => {
-        return originStories.map((path) => {
-            return <p>{path.join(' > ')}</p>;
+        const storyGroupIdDictionary = {};
+
+        storyGroups.forEach((storyGroup) => { storyGroupIdDictionary[storyGroup._id] = storyGroup.name; });
+
+        const storyIdDictionary = {};
+        stories.forEach((story) => {
+            storyIdDictionary[story._id] = { storyGroupId: story.storyGroupId, title: story.title };
+        });
+        const connectedStories = {};
+        originStories.forEach((path) => {
+            if (!Array.isArray(path)) {
+                return;
+            }
+            const story = storyIdDictionary[path[0]];
+            if (story.storyGroupId in connectedStories === false) {
+                connectedStories[story.storyGroupId] = [<p>{story.title}</p>];
+                return;
+            }
+            connectedStories[story.storyGroupId] = [...storyIdDictionary[story.storyGroupId], <p>{story.title}</p>];
+        });
+        return Object.keys(connectedStories).map((key) => {
+            return <><Header>{storyGroupIdDictionary[key]}</Header>{connectedStories[key]}</>;
         });
     };
 
@@ -183,9 +209,9 @@ const StoryTopMenu = ({
                     basic
                     position='bottom left'
                     trigger={(
-                        <Message className='connected-story-alert' attached warning size='mini'>
+                        <Message className='connected-story-alert' attached warning size='tiny'>
                             <Icon name='info circle' />
-                            this story is linked to others
+                            There are one or more stories linked to this story. You can only delete it after unlinking all stories.
                         </Message>
                     )}
                 >

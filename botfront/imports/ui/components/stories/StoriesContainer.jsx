@@ -63,6 +63,7 @@ function StoriesContainer(props) {
                 templates: [...project.templates],
                 slots,
                 stories,
+                storyGroups,
             }}
         >
             <PageMenu title='Stories' icon='book'>

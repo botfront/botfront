@@ -159,7 +159,7 @@ const StoryEditorContainer = ({
                     : 0
             }
             isDestinationStory={true}
-            originStories={}
+            originStories={[false]}
         />
     );
 
