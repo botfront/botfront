@@ -34,11 +34,12 @@ You can use validated examples to evaluate your models’ performances as soon a
 
 The standard way to evaluate, but also the least used for the reasons explained above.
 
-> [!TIP] **Use this method to evaluate your entities**\
-> Suppose you want to teach your model to extract Canadian cities as entities. You won't (you shouldn't) have examples for all the possible cities. How can you make sure your model will pick them up? Generate a dataset containing each of them with a tool such as [Chatito](https://rodrigopivi.github.io/Chatito/) and use that as an uploadable test set. You'll quickly find out which cities are missed.
-
-> [!WARNING]
-> Do not generate your **training dataset** this way! You'll end up with a huge dataset lacking semantic variety.
+::: tip Use this method to evaluate your entities
+Suppose you want to teach your model to extract Canadian cities as entities. You won't (you shouldn't) have examples for all the possible cities. How can you make sure your model will pick them up? Generate a dataset containing each of them with a tool such as [Chatito](https://rodrigopivi.github.io/Chatito/) and use that as an uploadable test set. You'll quickly find out which cities are missed.
+:::
+::: warning
+Do not generate your **training dataset** this way! You'll end up with a huge dataset lacking semantic variety.
+:::
 
 ## Evaluation reports
 
