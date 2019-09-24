@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.8-ee.3](https://github.com/botfront/botfront/compare/v0.16.0-rc.8-ee.2...v0.16.0-rc.8-ee.3) (2019-09-24)
+
+
+### Bug Fixes
+
+* templates for stories training ([1b16259](https://github.com/botfront/botfront/commit/1b16259))
+
+
+### Features
+
+* exclude services when starting ([78f73a8](https://github.com/botfront/botfront/commit/78f73a8))
+
+
+
 ## [0.16.0-rc.8-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.8-ee.1...v0.16.0-rc.8-ee.2) (2019-09-23)
 
 
