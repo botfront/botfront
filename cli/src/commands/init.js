@@ -25,7 +25,7 @@ const access = promisify(fs.access);
 const copy = promisify(ncp);
 
 export async function initCommand(
-    { path, imgBotfront, imgBotfrontApi, imgRasa, ci },
+    { path, imgBotfront, imgBotfrontApi, imgRasa, ci } = {},
 ) {
     await displayUpdateMessage();
     try {
