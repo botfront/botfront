@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Dropdown, Label,
+    Popup, Icon, Menu, Dropdown, Label, Message,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState } from 'react';
@@ -23,6 +23,8 @@ const StoryTopMenu = ({
     collapseStory,
     warnings,
     errors,
+    isDestinationStory,
+    originStories,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -82,94 +84,100 @@ const StoryTopMenu = ({
     };
 
     return (
-        <Menu attached='top' className={`${collapsed ? 'collapsed' : ''}`}>
-            <Menu.Item header>
-                <Icon
-                    name='triangle right'
-                    className={`${collapsed ? '' : 'opened'}`}
-                    link
-                    onClick={() => {
-                        collapseStory(storyId, !collapsed);
-                    }}
-                    data-cy='collapse-story-button'
-                />
-                <span className='story-title-prefix'>##</span>
-                <input
-                    data-cy='story-title'
-                    value={newTitle}
-                    onChange={event => setNewTitle(event.target.value.replace('_', ''))}
-                    onKeyDown={handleInputKeyDown}
-                    onBlur={submitTitleInput}
-                    disabled={disabled}
-                />
-            </Menu.Item>
-            <Menu.Item position='right'>
-                {renderWarnings()}
-                {renderErrors()}
-                <Popup
-                    trigger={<Icon name='dolly' color='grey' link data-cy='move-story' />}
-                    content={(
-                        <ConfirmPopup
-                            title='Move story to :'
-                            content={(
-                                <Dropdown
-                                    button
-                                    openOnFocus
-                                    search
-                                    basic
-                                    placeholder='Select a group'
-                                    fluid
-                                    selection
-                                    value={moveDestination}
-                                    options={groupNames}
-                                    onChange={(e, data) => {
-                                        setMoveDestination(data.value);
-                                    }}
-                                    data-cy='move-story-dropdown'
-                                />
-                            )}
-                            onYes={() => {
-                                if (moveDestination) {
-                                    openMovePopup(false);
-                                    onMove(moveDestination);
-                                }
-                            }}
-                            onNo={() => openMovePopup(false)}
-                        />
-                    )}
-                    on='click'
-                    open={movePopupOpened}
-                    onOpen={() => openMovePopup(true)}
-                    onClose={() => openMovePopup(false)}
-                />
-                <Icon
-                    name='clone'
-                    color='grey'
-                    link
-                    data-cy='duplicate-story'
-                    onClick={onClone}
-                />
-                <Popup
-                    trigger={
-                        <Icon name='trash' color='grey' link data-cy='delete-story' />
-                    }
-                    content={(
-                        <ConfirmPopup
-                            title='Delete story ?'
-                            onYes={() => {
-                                openDeletePopup(false);
-                                onDelete();
-                            }}
-                            onNo={() => openDeletePopup(false)}
-                        />
-                    )}
-                    on='click'
-                    open={deletePopupOpened}
-                    onOpen={() => openDeletePopup(true)}
-                    onClose={() => openDeletePopup(false)}
-                />
-            </Menu.Item>
-        </Menu>
+        <>
+            <Menu attached='top' className={`${collapsed ? 'collapsed' : ''}`}>
+                <Menu.Item header>
+                    <Icon
+                        name='triangle right'
+                        className={`${collapsed ? '' : 'opened'}`}
+                        link
+                        onClick={() => {
+                            collapseStory(storyId, !collapsed);
+                        }}
+                        data-cy='collapse-story-button'
+                    />
+                    <span className='story-title-prefix'>##</span>
+                    <input
+                        data-cy='story-title'
+                        value={newTitle}
+                        onChange={event => setNewTitle(event.target.value.replace('_', ''))}
+                        onKeyDown={handleInputKeyDown}
+                        onBlur={submitTitleInput}
+                        disabled={disabled}
+                    />
+                </Menu.Item>
+                <Menu.Item position='right'>
+                    {renderWarnings()}
+                    {renderErrors()}
+                    <Popup
+                        trigger={<Icon name='dolly' color='grey' link data-cy='move-story' />}
+                        content={(
+                            <ConfirmPopup
+                                title='Move story to :'
+                                content={(
+                                    <Dropdown
+                                        button
+                                        openOnFocus
+                                        search
+                                        basic
+                                        placeholder='Select a group'
+                                        fluid
+                                        selection
+                                        value={moveDestination}
+                                        options={groupNames}
+                                        onChange={(e, data) => {
+                                            setMoveDestination(data.value);
+                                        }}
+                                        data-cy='move-story-dropdown'
+                                    />
+                                )}
+                                onYes={() => {
+                                    if (moveDestination) {
+                                        openMovePopup(false);
+                                        onMove(moveDestination);
+                                    }
+                                }}
+                                onNo={() => openMovePopup(false)}
+                            />
+                        )}
+                        on='click'
+                        open={movePopupOpened}
+                        onOpen={() => openMovePopup(true)}
+                        onClose={() => openMovePopup(false)}
+                    />
+                    <Icon
+                        name='clone'
+                        color='grey'
+                        link
+                        data-cy='duplicate-story'
+                        onClick={onClone}
+                    />
+                    <Popup
+                        trigger={
+                            <Icon name='trash' color='grey' link data-cy='delete-story' />
+                        }
+                        content={(
+                            <ConfirmPopup
+                                title='Delete story ?'
+                                onYes={() => {
+                                    openDeletePopup(false);
+                                    onDelete();
+                                }}
+                                onNo={() => openDeletePopup(false)}
+                            />
+                        )}
+                        on='click'
+                        open={deletePopupOpened}
+                        onOpen={() => openDeletePopup(true)}
+                        onClose={() => openDeletePopup(false)}
+                    />
+                </Menu.Item>
+            </Menu>
+            <Message attached warning>
+                <Icon name='help' />
+                this story is linked to others
+            </Message>
+        </>
     );
 };
 
@@ -186,6 +194,8 @@ StoryTopMenu.propTypes = {
     collapseStory: PropTypes.func.isRequired,
     warnings: PropTypes.number.isRequired,
     errors: PropTypes.number.isRequired,
+    isDestinationStory: PropTypes.bool.isRequired,
+    originStories: PropTypes.array.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({
