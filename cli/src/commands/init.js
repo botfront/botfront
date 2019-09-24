@@ -27,14 +27,14 @@ const copy = promisify(ncp);
 export async function initCommand(
     { path, imgBotfront, imgBotfrontApi, imgRasa, ci },
 ) {
-    if (await displayUpdateMessage()) return;
+    await displayUpdateMessage();
     try {
         await verifySystem();
         let images = {};
         if (imgBotfront) images = {...images, botfront: imgBotfront};
         if (imgBotfrontApi) images = {...images, 'botfront-api': imgBotfrontApi};
         if (imgRasa) images = {...images, rasa: imgRasa};
-        
+
         const currentDirEmpty = fs.readdirSync(process.cwd()).length === 0;
         if (path) return await createProject(path, images, ci);
         if (!ci && currentDirEmpty) {
