@@ -60,12 +60,14 @@ export function succeedSpinner(spinner, message) {
     }
 }
 
-export function failSpinner(spinner, message) {
+export function failSpinner(spinner, message, params = {}) {
+    const { exit = true } = params;
     if (spinner) {
         spinner.fail(message);
     } else {
         console.log(message)
     }
+    if (exit) process.exit(1);
 }
 
 export function stopSpinner(spinner) {
@@ -87,7 +89,7 @@ export async function getLatestVersion() {
     }
 }
 
-export function getProjectVersion(workingDir) {
+export function getProjectVersion() {
     return getProjectConfig(fixDir(null)).version;
 }
 
@@ -141,14 +143,27 @@ export async function updateEnvFile(projectAbsPath) {
     fs.writeFileSync(getProjectEnvFilePath(projectAbsPath), envFileContent);
 }
 
-export async function generateDockerCompose(dir) {
+export async function generateDockerCompose(exclude = [], dir) {
     const dc = getComposeFile(dir, DOCKER_COMPOSE_TEMPLATE_FILENAME);
+    exclude.forEach(excl => { // remove reference to excluded services
+        if (excl in dc.services) delete dc.services[excl]
+        Object.values(dc.services).forEach(service => {
+            if ({}.hasOwnProperty.call(service, 'depends_on')) {
+                service.depends_on = service.depends_on.filter(depend => depend !== excl);
+                if (service.depends_on.length === 0) delete service.depends_on;
+            }
+        })
+    })
     const config = getProjectConfig(dir);
     const dcCopy = JSON.parse(JSON.stringify(dc));
-    Object.keys(dc.services).forEach( service => {
+    Object.keys(dc.services).forEach(service => {
         dcCopy.services[service].image = config.images.current[service]
     })
+    // for (let key in dcCopy.services) {
+    //     console.log(key, dcCopy.services[key].depends_on)
+    // }
     fs.writeFileSync(getComposeFilePath(dir), yaml.safeDump(dcCopy));
+    return true;
 }
 
 export function getProjectConfig(projectAbsPath) {
@@ -160,8 +175,10 @@ export async function verifySystem() {
     const result = await docker.command('info');
     // const version = result.object.server_version;
     if (!result.object) throw `You must install Docker to use Botfront. Please visit ${chalk.green('https://www.docker.com/products/docker-desktop')}`;
-    const results = await promisify(check)({ node: ">= 8.9"});
-    if (!results.versions.node.isSatisfied) throw `You must upgrade your Node.js installation to use Botfront. Please visit ${chalk.green('https://nodejs.org/en/download/')}`;
+    const results = await promisify(check)({ node: '>= 8.9'});
+    if (!results.versions.node.isSatisfied) {
+        throw `You must upgrade your Node.js installation to use Botfront. Please visit ${chalk.green('https://nodejs.org/en/download/')}`
+    };
 }
 
 export function getBotfrontVersion() {
@@ -201,13 +218,18 @@ export function getServices(dir) {
 
 export async function getMissingImgs(dir) {
     const docker = new Docker({});
-    let availableImgs = await docker.command(`images --format "{{.Repository}}:{{.Tag}}"`);
+    let availableImgs = await docker.command('images --format "{{.Repository}}:{{.Tag}}"');
     availableImgs = availableImgs.raw.split('\n');
-    return getServices().filter(service => !availableImgs.includes(service));
+    return getServices(dir).filter(service => !availableImgs.includes(service));
 }
 
 export function getServiceNames(dir) {
     const services = getComposeFile(dir).services;
+    return Object.keys(services);
+}
+
+export function getDefaultServiceNames(dir) {
+    const services = getComposeFile(dir, DOCKER_COMPOSE_TEMPLATE_FILENAME).services;
     return Object.keys(services);
 }
 
@@ -219,9 +241,12 @@ export function getExternalPort(serviceName, dir) {
     return getService(serviceName, dir).ports[0].split(':')[0];
 }
 
-export function getContainerNames(dir, services) {
+export function getContainerAndImageNames(dir, services) {
     let svcs = services || getComposeFile(dir).services;
-    return Object.keys(svcs).map(s => services[s].container_name);
+    return {
+        containers: Object.keys(svcs).map(s => services[s].container_name),
+        images: Object.keys(svcs).map(s => services[s].image),
+    };
 }
 
 export function getServiceUrl(serviceName) {
@@ -253,13 +278,16 @@ export async function waitForService(serviceName) {
                 reject()
             }, 90000)
 
-            try{
-                const response = await axios.get(serviceUrl);
-                if (response.status === 200){
-                    clearInterval(interval);
-                    return resolve()
-                }
-            } catch(e) {}
+            let response;
+            try {
+                response = await axios.get(serviceUrl);
+            } catch (e) {
+                response = e.response;
+            }
+            if (response && [200, 404].includes(response.status)) {
+                clearInterval(interval);
+                return resolve();
+            }
         }, 1000);
     });
 }
