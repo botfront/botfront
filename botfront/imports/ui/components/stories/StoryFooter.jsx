@@ -6,8 +6,8 @@ import {
     Icon,
     Menu,
 } from 'semantic-ui-react';
-
 import StoryPathPopup from './StoryPathPopup.jsx';
+import StoriesLinker from './StoriesLinker.jsx';
 
 class StoryFooter extends React.Component {
     constructor(props) {
@@ -118,6 +118,21 @@ class StoryFooter extends React.Component {
                             color={this.selectIconColor(canBranch)}
                         />
                         Branch Story
+                    </Menu.Item>
+                    <Menu.Item
+                        className={`footer-option-button remove-padding color-${this.selectIconColor(
+                            canBranch,
+                        )}`}
+                        data-cy='link-to'
+                        position='right'
+                    >
+                        <Icon
+                            disabled={!canBranch}
+                            name='arrow right'
+                            color='green'
+                        />
+                        Link&nbsp;to:
+                        <StoriesLinker />
                     </Menu.Item>
                     <>{this.renderContinue()}</>
                 </Menu>

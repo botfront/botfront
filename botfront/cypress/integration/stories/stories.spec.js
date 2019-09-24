@@ -244,4 +244,15 @@ describe('stories', function() {
         cy.contains('Stories').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
     });
+
+    it('should list all linkable stories', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('stories-linker').click({ force: true });
+        // the double children() reach the spans containing the names of stories
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .children()
+            .should('have.lengthOf', 3);
+    });
 });
