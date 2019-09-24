@@ -158,6 +158,8 @@ const StoryEditorContainer = ({
                     ? exceptions[story._id].warnings.length
                     : 0
             }
+            isDestinationStory={true}
+            originStories={}
         />
     );
 
