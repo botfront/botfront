@@ -5,9 +5,15 @@ module.exports = {
         "mocha": true,
     },
     "extends": [
+        "eslint:recommended"
     ],
     "settings": {
         "import/resolver": [
+            {
+                "node": {
+                    "extensions": [".js",".jsx"]
+                }
+            },
         ]
     },
     "parser": "babel-eslint",
@@ -25,10 +31,6 @@ module.exports = {
         "no-trailing-spaces": ["error", {"skipBlankLines": true}],
         "no-extra-boolean-cast": "off",
         "no-nested-ternary": "off",
-        "import/prefer-default-export": "off",
-        "react/jsx-indent": ["error", 4],
-        "react/jsx-indent-props": ["error", 4],
-        "react/forbid-prop-types": "off",
-        "react/no-array-index-key": "off",
+        "import/prefer-default-export": "off"
     },
 };

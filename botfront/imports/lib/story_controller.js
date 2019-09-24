@@ -20,7 +20,7 @@ export class StoryController {
         this.saveUpdate = saveUpdate;
         this.validateStory();
     }
-
+    
     setTemplates = (templates) => {
         this.templates = this.loadTemplates(templates) || [];
         this.reset(false);
@@ -33,7 +33,11 @@ export class StoryController {
         }
     }
 
-    loadTemplates = templates => templates.map(template => template.key);
+    loadTemplates = (templates) => {
+        if (templates instanceof Array) return templates.map(template => template.key);
+        const templatesAsArray = [];
+        return Object.keys(templates).forEach(templateKey => templatesAsArray.push(templateKey));
+    }
 
     getSlots = (slots) => {
         const slotsToAdd = {};
@@ -88,8 +92,6 @@ export class StoryController {
             this.domain.actions.add(this.response);
             if (this.templates.indexOf(this.response) === -1) {
                 this.raiseStoryException('no_such_response');
-            } else {
-                this.domain.templates[this.response] = this.templates[this.response];
             }
             this.lines[this.idx].gui = { type: 'bot', data: { name: this.response } };
         }
