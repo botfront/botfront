@@ -34,7 +34,7 @@ function StoriesContainer(props) {
         instance,
         project: { training: { endTime, status } = {} },
         project,
-        storiesLight,
+        stories,
     } = props;
     const [activeItem, setActiveItem] = useState('stories');
 
@@ -62,7 +62,7 @@ function StoriesContainer(props) {
             value={{
                 templates: [...project.templates],
                 slots,
-                storiesLight,
+                stories,
             }}
         >
             <PageMenu title='Stories' icon='book'>
@@ -191,7 +191,7 @@ const StoriesWithState = connect(mapStateToProps)(StoriesContainer);
 
 export default withTracker((props) => {
     const { project_id: projectId } = props.params;
-    const storiesLightHandler = Meteor.subscribe('stories.light', projectId);
+    const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
@@ -210,7 +210,7 @@ export default withTracker((props) => {
     const project = {
         _id: projectId,
         training,
-        templates, 
+        templates,
     };
 
     return {
@@ -219,11 +219,11 @@ export default withTracker((props) => {
             && projectsHandler.ready()
             && instancesHandler.ready()
             && slotsHandler.ready()
-            && storiesLightHandler.ready(),
+            && storiesHandler.ready(),
         storyGroups: StoryGroups.find({}).fetch(),
         slots: Slots.find({}).fetch(),
         instance,
         project,
-        storiesLight: StoriesData.find({}).fetch(),
+        stories: StoriesData.find({}).fetch(),
     };
 })(StoriesWithState);
