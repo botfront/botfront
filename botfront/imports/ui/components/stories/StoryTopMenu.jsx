@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Dropdown, Label, Message, Header, Segment,
+    Popup, Icon, Menu, Dropdown, Label, Message, Header,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState, useContext } from 'react';
@@ -11,7 +11,6 @@ import ConfirmPopup from '../common/ConfirmPopup';
 import { setStoryCollapsed } from '../../store/actions/actions';
 
 import { ConversationOptionsContext } from '../utils/Context';
-import { StoryGroupSchema } from '../../../api/storyGroups/storyGroups.schema';
 
 const StoryTopMenu = ({
     onDelete,
@@ -109,9 +108,7 @@ const StoryTopMenu = ({
             }
             connectedStories[story.storyGroupId] = [...storyIdDictionary[story.storyGroupId], <p>{story.title}</p>];
         });
-        return Object.keys(connectedStories).map((key) => {
-            return <><Header>{storyGroupIdDictionary[key]}</Header>{connectedStories[key]}</>;
-        });
+        return Object.keys(connectedStories).map(key => (<><Header>{storyGroupIdDictionary[key]}</Header>{connectedStories[key]}</>));
     };
 
     return (
@@ -183,25 +180,27 @@ const StoryTopMenu = ({
                         data-cy='duplicate-story'
                         onClick={onClone}
                     />
-                    <Popup
-                        trigger={
-                            <Icon name='trash' color='grey' link data-cy='delete-story' />
-                        }
-                        content={(
-                            <ConfirmPopup
-                                title='Delete story ?'
-                                onYes={() => {
-                                    openDeletePopup(false);
-                                    onDelete();
-                                }}
-                                onNo={() => openDeletePopup(false)}
-                            />
-                        )}
-                        on='click'
-                        open={deletePopupOpened}
-                        onOpen={() => openDeletePopup(true)}
-                        onClose={() => openDeletePopup(false)}
-                    />
+                    {!isDestinationStory && (
+                        <Popup
+                            trigger={
+                                <Icon name='trash' color='grey' link data-cy='delete-story' />
+                            }
+                            content={(
+                                <ConfirmPopup
+                                    title='Delete story ?'
+                                    onYes={() => {
+                                        openDeletePopup(false);
+                                        onDelete();
+                                    }}
+                                    onNo={() => openDeletePopup(false)}
+                                />
+                            )}
+                            on='click'
+                            open={deletePopupOpened}
+                            onOpen={() => openDeletePopup(true)}
+                            onClose={() => openDeletePopup(false)}
+                        />
+                    )}
                 </Menu.Item>
             </Menu>
             { isDestinationStory && (
