@@ -82,6 +82,11 @@ const StoryTopMenu = ({
             </Label>
         );
     };
+    const renderConnectedStories = () => {
+        return originStories.map((path) => {
+            return <p>{path.join(' > ')}</p>;
+        });
+    };
 
     return (
         <>
@@ -173,10 +178,21 @@ const StoryTopMenu = ({
                     />
                 </Menu.Item>
             </Menu>
-            <Message attached warning>
-                <Icon name='help' />
-                this story is linked to others
-            </Message>
+            { isDestinationStory && (
+                <Popup
+                    basic
+                    position='bottom left'
+                    trigger={(
+                        <Message className='connected-story-alert' attached warning size='mini'>
+                            <Icon name='info circle' />
+                            this story is linked to others
+                        </Message>
+                    )}
+                >
+                    {renderConnectedStories()}
+                </Popup>
+
+            )}
         </>
     );
 };
