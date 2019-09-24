@@ -14,6 +14,7 @@ import moment from 'moment';
 
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Instances } from '../../../api/instances/instances.collection';
+import { Stories as StoriesData } from '../../../api/story/stories.collection';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
@@ -33,8 +34,8 @@ function StoriesContainer(props) {
         instance,
         project: { training: { endTime, status } = {} },
         project,
+        storiesLight,
     } = props;
-
     const [activeItem, setActiveItem] = useState('stories');
 
     function RenderPlaceHolder() {
@@ -61,6 +62,7 @@ function StoriesContainer(props) {
             value={{
                 templates: [...project.templates],
                 slots,
+                storiesLight,
             }}
         >
             <PageMenu title='Stories' icon='book'>
@@ -189,6 +191,7 @@ const StoriesWithState = connect(mapStateToProps)(StoriesContainer);
 
 export default withTracker((props) => {
     const { project_id: projectId } = props.params;
+    const storiesLightHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
@@ -207,7 +210,7 @@ export default withTracker((props) => {
     const project = {
         _id: projectId,
         training,
-        templates,
+        templates, 
     };
 
     return {
@@ -215,10 +218,12 @@ export default withTracker((props) => {
             storyGroupsHandler.ready()
             && projectsHandler.ready()
             && instancesHandler.ready()
-            && slotsHandler.ready(),
+            && slotsHandler.ready()
+            && storiesLightHandler.ready(),
         storyGroups: StoryGroups.find({}).fetch(),
         slots: Slots.find({}).fetch(),
         instance,
         project,
+        storiesLight: StoriesData.find({}).fetch(),
     };
 })(StoriesWithState);
