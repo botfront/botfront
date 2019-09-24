@@ -62,6 +62,7 @@ function StoriesContainer(props) {
             value={{
                 templates: [...project.templates],
                 slots,
+                storiesLight,
             }}
         >
             <PageMenu title='Stories' icon='book'>
