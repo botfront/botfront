@@ -34,7 +34,7 @@ describe('stories', function() {
         cy.dataCy('move-story').click({ force: true });
         cy.dataCy('move-story-dropdown').click({ force: true });
         cy.dataCy('move-story-dropdown')
-            .get('[role=listbox]')
+            .find('[role=listbox]')
             .contains(storyGroupTwo)
             .click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
