@@ -138,7 +138,7 @@ const StoryEditorContainer = ({
         });
     }, [branchPath]);
 
-    const GetExceptionTypeLength = exceptionType => (
+    const GetExceptionsLengthByType = exceptionType => (
         // valid types are "errors" and "warnings"
         exceptions[story._id] && exceptions[story._id][exceptionType]
             ? exceptions[story._id][exceptionType].length
@@ -155,8 +155,8 @@ const StoryEditorContainer = ({
             onRename={onRenameStory}
             onClone={onClone}
             groupNames={groupNames}
-            errors={GetExceptionTypeLength('errors')}
-            warnings={GetExceptionTypeLength('warnings')}
+            errors={GetExceptionsLengthByType('errors')}
+            warnings={GetExceptionsLengthByType('warnings')}
             // isDestinationStory={true}
             // originStories={[['MCGSc8oAYLJBBvbtM', '9pVsFV5lBe'], ['9vBMyFcQvjYS4gmuE'], ['LBX99aFphHgnL8Hf9'], ['cwdi5PGw5Sd6cFT4M'], ['PvzGpwicvhABv3yqT']]}
         />
