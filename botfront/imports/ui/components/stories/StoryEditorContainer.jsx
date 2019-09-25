@@ -138,6 +138,12 @@ const StoryEditorContainer = ({
         });
     }, [branchPath]);
 
+    const GetExceptionTypeLength = exceptionType => (
+        exceptions[story._id] && exceptions[story._id][exceptionType]
+            ? exceptions[story._id][exceptionType].length
+            : 0
+    );
+
     const renderTopMenu = () => (
         <StoryTopMenu
             title={story.title}
@@ -148,16 +154,8 @@ const StoryEditorContainer = ({
             onRename={onRenameStory}
             onClone={onClone}
             groupNames={groupNames}
-            errors={
-                exceptions[story._id] && exceptions[story._id].errors
-                    ? exceptions[story._id].errors.length
-                    : 0
-            }
-            warnings={
-                exceptions[story._id] && exceptions[story._id].warnings
-                    ? exceptions[story._id].warnings.length
-                    : 0
-            }
+            errors={GetExceptionTypeLength('errors')}
+            warnings={GetExceptionTypeLength('warnings')}
             // isDestinationStory={true}
             // originStories={[['MCGSc8oAYLJBBvbtM', '9pVsFV5lBe'], ['9vBMyFcQvjYS4gmuE'], ['LBX99aFphHgnL8Hf9'], ['cwdi5PGw5Sd6cFT4M'], ['PvzGpwicvhABv3yqT']]}
         />
