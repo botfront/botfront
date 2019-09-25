@@ -5,9 +5,10 @@ import {
     Breadcrumb,
     Icon,
     Menu,
+    Dropdown,
 } from 'semantic-ui-react';
 import StoryPathPopup from './StoryPathPopup.jsx';
-import StoriesLinker from './StoriesLinker.jsx';
+import { ConversationOptionsContext } from '../utils/Context';
 
 class StoryFooter extends React.Component {
     constructor(props) {
@@ -78,6 +79,9 @@ class StoryFooter extends React.Component {
         return ' linked';
     }
 
+    reshapeStoriesData = data => data.map(story => ({ key: story._id, text: story.title, value: story.title }));
+
+
     renderContinue = () => {
         const { canContinue, disableContinue } = this.props;
         if (disableContinue) {
@@ -121,7 +125,7 @@ class StoryFooter extends React.Component {
         );
     }
 
-    renderLinkMenu = (linkedTo, canBranch) => (
+    renderLinkMenu = (linkedTo, canBranch, stories) => (
         <Menu.Item
             className={`footer-option-button remove-padding color-${this.selectIconColor(
                 canBranch,
@@ -135,7 +139,20 @@ class StoryFooter extends React.Component {
                 color='green'
             />
             Link&nbsp;to:
-            <StoriesLinker onChange={this.storySelection} disabled={!canBranch} />
+            <Dropdown
+                placeholder='Select story'
+                fluid
+                search
+                selection
+                clearable
+                selectOnBlur={false}
+                className='stories-linker'
+                options={this.reshapeStoriesData(stories)}
+                data-cy='stories-linker'
+                disabled={!canBranch}
+                onChange={this.storySelection}
+            />
+
         </Menu.Item>);
 
 
@@ -149,13 +166,13 @@ class StoryFooter extends React.Component {
 
     render() {
         const { linkedTo } = this.state;
-        const { canBranch } = this.props;
+        const { canBranch, stories } = this.props;
         return (
             <Segment data-cy='story-footer' className={`footer-segment ${linkedTo === '' ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
                     <>{this.renderBranchMenu(linkedTo, canBranch)}</>
-                    <>{this.renderLinkMenu(linkedTo, canBranch)}</>
+                    <>{this.renderLinkMenu(linkedTo, canBranch, stories)}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
@@ -170,6 +187,7 @@ StoryFooter.propTypes = {
     onBranch: PropTypes.func.isRequired,
     onContinue: PropTypes.func.isRequired,
     disableContinue: PropTypes.bool,
+    stories: PropTypes.array.isRequired,
 };
 
 StoryFooter.defaultProps = {
@@ -179,4 +197,13 @@ StoryFooter.defaultProps = {
     disableContinue: true,
 };
 
-export default StoryFooter;
+export default props => (
+    <ConversationOptionsContext.Consumer>
+        {value => (
+            <StoryFooter
+                {...props}
+                stories={value.stories}
+            />
+        )}
+    </ConversationOptionsContext.Consumer>
+);
