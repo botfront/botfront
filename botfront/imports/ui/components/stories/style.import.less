@@ -81,6 +81,20 @@
         transform: rotate(90deg);
       }
     }
+    .trash{
+      color:#767676;
+      &:hover{
+        color: #5c5c5c;
+        cursor: pointer;
+      }
+      &.disabled{
+        color: #767676;
+        &:hover{
+          color: #767676;
+          cursor: not-allowed;
+        }
+      }
+    }
 
     .header {
 
@@ -364,5 +378,13 @@
   border-style: solid;
   border-color: rgb(238, 238, 238);
   border-width: 1px;
+}
 
+
+.ui.popup.connected-stories-popup{
+    padding: 13px 17px;
+    .story-title-prefix{
+      opacity: 0.4;
+      margin-right: 0.25em;
+    }
 }

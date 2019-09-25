@@ -158,8 +158,8 @@ const StoryEditorContainer = ({
                     ? exceptions[story._id].warnings.length
                     : 0
             }
-            // isDestinationStory={false}
-            // originStories={ /* this prop should be an array of story paths */}
+            // isDestinationStory={true}
+            // originStories={[['MCGSc8oAYLJBBvbtM', '9pVsFV5lBe'], ['9vBMyFcQvjYS4gmuE'], ['LBX99aFphHgnL8Hf9'], ['cwdi5PGw5Sd6cFT4M'], ['PvzGpwicvhABv3yqT']]}
         />
     );
 

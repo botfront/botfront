@@ -98,15 +98,14 @@ const StoryTopMenu = ({
         });
         const connectedStories = {};
         originStories.forEach((path) => {
-            if (!Array.isArray(path)) {
+            if (!Array.isArray(path) || storyIdDictionary[path[0]] === undefined) {
                 return;
             }
             const story = storyIdDictionary[path[0]];
-            if (story.storyGroupId in connectedStories === false) {
-                connectedStories[story.storyGroupId] = [<p>{story.title}</p>];
-                return;
+            if (connectedStories[story.storyGroupId] === undefined) {
+                connectedStories[story.storyGroupId] = [];
             }
-            connectedStories[story.storyGroupId] = [...storyIdDictionary[story.storyGroupId], <p>{story.title}</p>];
+            connectedStories[story.storyGroupId] = [...connectedStories[story.storyGroupId], <p><span className='story-title-prefix'>##</span>{story.title}</p>];
         });
         return Object.keys(connectedStories).map(key => (<><Header>{storyGroupIdDictionary[key]}</Header>{connectedStories[key]}</>));
     };
@@ -124,7 +123,10 @@ const StoryTopMenu = ({
                         }}
                         data-cy='collapse-story-button'
                     />
-                    <span className='story-title-prefix'>##</span>
+                    { isDestinationStory
+                        ? (<Icon name='arrow alternate circle right' color='yellow' fitted />)
+                        : (<span className='story-title-prefix'>##</span>)
+                    }
                     <input
                         data-cy='story-title'
                         value={newTitle}
@@ -180,32 +182,33 @@ const StoryTopMenu = ({
                         data-cy='duplicate-story'
                         onClick={onClone}
                     />
-                    {!isDestinationStory && (
-                        <Popup
-                            trigger={
-                                <Icon name='trash' color='grey' link data-cy='delete-story' />
-                            }
-                            content={(
-                                <ConfirmPopup
-                                    title='Delete story ?'
-                                    onYes={() => {
-                                        openDeletePopup(false);
-                                        onDelete();
-                                    }}
-                                    onNo={() => openDeletePopup(false)}
-                                />
-                            )}
-                            on='click'
-                            open={deletePopupOpened}
-                            onOpen={() => openDeletePopup(true)}
-                            onClose={() => openDeletePopup(false)}
-                        />
-                    )}
+                    <Popup
+                        trigger={
+                            <Icon disabled={isDestinationStory} name='trash' data-cy='delete-story' />
+                        }
+                        disabled={isDestinationStory}
+                        content={(
+                            <ConfirmPopup
+                                title='Delete story ?'
+                                onYes={() => {
+                                    openDeletePopup(false);
+                                    onDelete();
+                                }}
+                                onNo={() => openDeletePopup(false)}
+                            />
+                        )}
+                        on='click'
+                        open={deletePopupOpened}
+                        onOpen={() => openDeletePopup(true)}
+                        onClose={() => openDeletePopup(false)}
+                    />
                 </Menu.Item>
             </Menu>
             { isDestinationStory && (
                 <Popup
-                    basic
+                    className='connected-stories-popup'
+                    size='tiny'
+                    // basic
                     position='bottom left'
                     trigger={(
                         <Message className='connected-story-alert' attached warning size='tiny'>
@@ -237,6 +240,10 @@ StoryTopMenu.propTypes = {
     errors: PropTypes.number.isRequired,
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
+};
+StoryTopMenu.defaultProps = {
+    isDestinationStory: false,
+    originStories: [],
 };
 
 const mapStateToProps = (state, ownProps) => ({
