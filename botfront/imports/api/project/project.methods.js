@@ -1,6 +1,6 @@
 import { check, Match } from 'meteor/check';
 import { safeLoad as yamlLoad } from 'js-yaml';
-import { Projects } from './project.collection';
+import { Projects, createProject } from './project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
@@ -20,7 +20,7 @@ import { Slots } from '../slots/slots.collection';
 import { flattenStory, extractDomain } from '../../lib/story.utils';
 
 if (Meteor.isServer) {
-    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, false));
+    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
 
     export const extractData = (models) => {
         const trainingExamples = models.map(model => model.training_data.common_examples);
@@ -68,7 +68,7 @@ if (Meteor.isServer) {
             checkIfCan('global-admin', null, null, { bypassWithCI });
             let _id;
             try {
-                _id = Projects.insert(item);
+                _id = createProject(item);
                 createEndpoints({ _id, ...item });
                 createDeployment({ _id, ...item });
                 createCredentials({ _id, ...item });

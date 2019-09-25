@@ -3,6 +3,14 @@ import { TemplateSchema } from './response.schema';
 import { languages } from '../../lib/languages';
 
 import { ENVIRONMENT_OPTIONS } from '../../ui/components/constants.json';
+import { validateYaml } from '../../lib/utils';
+
+export const DefaultDomainSchema = new SimpleSchema({
+    content: {
+        type: String,
+        custom: validateYaml,
+    },
+});
 
 export const ProjectsSchema = new SimpleSchema({
     name: {
@@ -48,6 +56,7 @@ export const ProjectsSchema = new SimpleSchema({
         allowedValues: ENVIRONMENT_OPTIONS.slice(1),
     },
     
+    defaultDomain: { type: DefaultDomainSchema, optional: true },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

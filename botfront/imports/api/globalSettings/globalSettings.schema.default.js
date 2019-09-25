@@ -10,6 +10,7 @@ export const privateSettingsSchema = new SimpleSchema({
     defaultCredentials: { type: String, custom: validateYaml, optional: true },
     defaultRules: { type: String, custom: validateYaml, optional: true },
     defaultPolicies: { type: String, custom: validateYaml, optional: true },
+    defaultDefaultDomain: { type: String, optional: true, custom: validateYaml },
     reCatpchaSecretServerKey: { type: String, optional: true },
 });
 

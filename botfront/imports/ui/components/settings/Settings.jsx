@@ -13,6 +13,7 @@ import Instances from '../nlu/instances/Instances';
 import Deployment from './Deployment';
 import { can } from '../../../api/roles/roles';
 import CorePolicy from './CorePolicy';
+import DefaultDomain from './DefaultDomain';
 
 class Settings extends React.Component {
     constructor(props) {
@@ -68,6 +69,10 @@ class Settings extends React.Component {
             {
                 menuItem: <Menu.Item className='project-settings-menu-core-policy' icon='newspaper' content='Core Policies' key='Core Policy' />,
                 render: () => <Tab.Pane><CorePolicy /></Tab.Pane>,
+            },
+            {
+                menuItem: <Menu.Item className='project-settings-menu-default-domain' icon='globe' content='Default Domain' key='Default Domain' />,
+                render: () => <Tab.Pane><DefaultDomain /></Tab.Pane>,
             },
         ];
 

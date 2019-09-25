@@ -7,7 +7,8 @@
     },
     "private": {
       "defaultCredentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: /socket.io/",
-      "defaultPolicies": "policies:\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy"
+      "defaultPolicies": "policies:\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy",
+      "defaultDefaultDomain": "slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping"
     }
   }
 }

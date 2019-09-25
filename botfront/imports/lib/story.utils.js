@@ -4,7 +4,6 @@ import { Stories } from '../api/story/stories.collection';
 import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
-import { CorePolicies } from '../api/core_policies';
 
 export const traverseStory = (story, path) => path
     .slice(1)
@@ -98,23 +97,14 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
     [...acc, ...flattenStory(val)]
 ), [{ story: (story.story || ''), title: story.title }]);
 
-const getMappingTriggers = policies => policies
-    .filter(policy => policy.name.includes('BotfrontMappingPolicy'))
-    .map(policy => (policy.triggers || []).map((trigger) => {
-        if (!trigger.extra_actions) return [trigger.action];
-        return [...trigger.extra_actions, trigger.action];
-    }))
-    .reduce((coll, curr) => coll.concat(curr), [])
-    .reduce((coll, curr) => coll.concat(curr), []);
-
-export const extractDomain = (stories, slots, templates = {}, crashOnStoryWithErrors = true) => {
-    const defaultDomain = {
-        actions: new Set(Object.keys(templates)),
-        intents: new Set(),
-        entities: new Set(),
-        forms: new Set(),
-        templates,
-        slots: { disambiguation_message: { type: 'unfeaturized' } },
+export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}, crashOnStoryWithErrors = true) => {
+    const initialDomain = {
+        actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
+        intents: new Set(defaultDomain.intents || []),
+        entities: new Set(defaultDomain.entities || []),
+        forms: new Set(defaultDomain.forms || []),
+        templates: { ...(defaultDomain.templates || {}), ...templates },
+        slots: defaultDomain.slots || {},
     };
     let domains = stories.map((story) => {
         try {
@@ -157,7 +147,7 @@ export const extractDomain = (stories, slots, templates = {}, crashOnStoryWithEr
             templates: { ...d1.templates, ...d2.templates },
             slots: { ...d1.slots, ...d2.slots },
         }),
-        defaultDomain,
+        initialDomain,
     );
     domains = yaml.safeDump({
         entities: Array.from(domains.entities),
@@ -187,11 +177,8 @@ const getAllTemplates = (projectId) => {
 };
 
 export const getStoriesAndDomain = (projectId) => {
-    const { policies } = yaml.safeLoad(CorePolicies.findOne({ projectId }, { policies: 1 }).policies);
-    const mappingTriggers = getMappingTriggers(policies);
-    const extraDomain = mappingTriggers.length
-        ? `* mapping_intent\n - ${mappingTriggers.join('\n  - ')}`
-        : '';
+    let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
+    defaultDomain = yaml.safeLoad(defaultDomain.content);
 
     const selectedStoryGroupsIds = StoryGroups.find(
         { projectId, selected: true },
@@ -213,8 +200,7 @@ export const getStoriesAndDomain = (projectId) => {
             },
         }).fetch();
     const storiesForDomain = stories
-        .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-        .concat([extraDomain]);
+        .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
     const storiesForRasa = stories
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
         .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
@@ -224,7 +210,7 @@ export const getStoriesAndDomain = (projectId) => {
     const slots = Slots.find({ projectId }).fetch();
     return {
         stories: storiesForRasa.join('\n'),
-        domain: extractDomain(storiesForDomain, slots, templates),
+        domain: extractDomain(storiesForDomain, slots, templates, defaultDomain),
     };
 };
 

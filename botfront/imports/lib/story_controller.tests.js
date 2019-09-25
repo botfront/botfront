@@ -13,6 +13,29 @@ const slots = [
     },
 ];
 
+const templates = {
+    utter_valid: '',
+    utter_valid_response: '',
+    utter_noworries: '',
+    utter_anything_else: '',
+    utter_bye: '',
+    utter_moreinformation: '',
+    utter_ask_feedback: '',
+    utter_great: '',
+    utter_can_do: '',
+    utter_docu: '',
+    utter_thumbsup: '',
+    utter_cantsignup: '',
+    utter_ask_continue_newsletter: '',
+    utter_response_why_email: '',
+    utter_nohelp: '',
+    utter_what_help: '',
+    utter_not_sure: '',
+    utter_possibilities: '',
+    utter_react_positive: '',
+    utter_react_negative: '',
+};
+
 const exceptionsGold = [
     { line: 1, code: 'have_intent' },
     { line: 1, code: 'action_name' },
@@ -20,7 +43,7 @@ const exceptionsGold = [
     { line: 4, code: 'prefix' },
     { line: 5, code: 'prefix' },
     { line: 6, code: 'prefix' },
-    { line: 9, code: 'no_such_response'},
+    { line: 9, code: 'no_such_response' },
     { line: 10, code: 'action_name' },
     { line: 11, code: 'invalid_char' },
     { line: 12, code: 'prefix' },
@@ -29,9 +52,9 @@ const exceptionsGold = [
     { line: 16, code: 'prefix' },
     { line: 17, code: 'empty_intent' },
     { line: 17, code: 'intent' },
-    { line: 21, code: 'no_such_response'},
+    { line: 21, code: 'no_such_response' },
     { line: 22, code: 'invalid_char' },
-    { line: 23, code: 'no_such_response'},
+    { line: 23, code: 'no_such_response' },
     { line: 24, code: 'invalid_char' },
     { line: 25, code: 'empty_intent' },
     { line: 27, code: 'form' },
@@ -40,7 +63,7 @@ const exceptionsGold = [
     { line: 33, code: 'intent' },
 ];
 
-const domainGold = `entities:
+const domainGoldYaml = `entities:
 - name
 - feedback_value
 - email
@@ -60,12 +83,11 @@ intents:
 - react_positive
 - react_negative
 actions:
-- utter_fallback
-- utter_default
+- utter_valid
+- utter_valid_response
 - utter_noworries
 - utter_anything_else
 - utter_bye
-- action_greet_user
 - utter_moreinformation
 - utter_ask_feedback
 - utter_great
@@ -74,21 +96,22 @@ actions:
 - utter_thumbsup
 - utter_cantsignup
 - utter_ask_continue_newsletter
-- action_deactivate_form
 - utter_response_why_email
 - utter_nohelp
-- action_chitchat
 - utter_what_help
 - utter_not_sure
 - utter_possibilities
 - utter_react_positive
 - utter_react_negative
+- action_greet_user
+- action_deactivate_form
+- action_chitchat
 forms:
 - sales_form
 - subscribe_newsletter_form
 templates:
-  utter_default: ''
-  utter_fallback: ''
+  utter_valid: ''
+  utter_valid_response: ''
   utter_noworries: ''
   utter_anything_else: ''
   utter_bye: ''
@@ -112,23 +135,41 @@ slots:
     type: categorical
     values:
       - positive
-      - negative
-  latest_response_name:
-    type: unfeaturized
-  followup_response_name:
-    type: unfeaturized
-  parse_data:
-    type: unfeaturized`;
+      - negative`;
+
+const domainGold = safeLoad(domainGoldYaml);
+
+const defaultDomain = {
+    actions: ['action_1', 'action_2'],
+    slots: { slot_1: { type: 'unfeaturized' } },
+    intents: ['intent1'],
+    entities: ['entitiy1'],
+};
+
+const domainGoldWithDefault = {
+    actions: [...defaultDomain.actions, ...domainGold.actions],
+    slots: { ...defaultDomain.slots, ...domainGold.slots },
+    intents: [...defaultDomain.intents, ...domainGold.intents],
+    entities: [...defaultDomain.entities, ...domainGold.entities],
+    templates: domainGold.templates,
+    forms: domainGold.forms,
+};
+
 
 if (Meteor.isServer) {
     describe('extract domain from storyfile fixtures', function() {
         it('should output yaml matching the gold', function() {
             const storiesOne = fs.readFileSync('./assets/app/fixtures/stories_01.md', 'utf8');
-            expect(safeLoad(extractDomain(storiesOne.split('\n\n'), slots))).to.be.deep.equal(safeLoad(domainGold));
+            expect(safeLoad(extractDomain(storiesOne.split('\n\n'), slots, templates))).to.be.deep.equal(domainGold);
+        });
+        it('should output yaml matching the gold with a default domain', function() {
+            const storiesOne = fs.readFileSync('./assets/app/fixtures/stories_01.md', 'utf8');
+            expect(safeLoad(extractDomain(storiesOne.split('\n\n'), slots, templates, defaultDomain)))
+                .to.be.deep.equal(domainGoldWithDefault);
         });
         it('should output exceptions matching the gold', function() {
             const storiesTwo = fs.readFileSync('./assets/app/fixtures/stories_02.md', 'utf8');
-            const val = new StoryController(storiesTwo, slots);
+            const val = new StoryController(storiesTwo, slots, templates);
             const exceptions = val.exceptions.map(exception => ({
                 line: exception.line,
                 code: exception.code,
