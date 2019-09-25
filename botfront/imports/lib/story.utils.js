@@ -189,8 +189,7 @@ export const getStoriesAndDomain = (projectId) => {
             },
         }).fetch();
     const storiesForDomain = stories
-        .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-        .map(story => story.story);
+        .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
     const storiesForRasa = stories
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
         .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
