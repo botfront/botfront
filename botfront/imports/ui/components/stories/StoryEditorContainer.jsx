@@ -139,6 +139,7 @@ const StoryEditorContainer = ({
     }, [branchPath]);
 
     const GetExceptionTypeLength = exceptionType => (
+        // valid types are "errors" and "warnings"
         exceptions[story._id] && exceptions[story._id][exceptionType]
             ? exceptions[story._id][exceptionType].length
             : 0
