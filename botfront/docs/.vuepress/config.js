@@ -54,7 +54,7 @@ module.exports = {
                 ],
             },
             {
-                title: 'Developping conversations', // required
+                title: 'Dialogue', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
@@ -64,7 +64,7 @@ module.exports = {
                 ],
             },
             {
-                title: 'Training NLU', // required
+                title: 'NLU', // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
@@ -76,18 +76,17 @@ module.exports = {
                 ],
             },
             {
-                title: 'Deployment Guide',   // required
+                title: 'Deployment',   // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
-                    '/guide/deployment/',
-                    '/guide/deployment/endpoints',
-                    '/guide/deployment/credentials',
+                    '/guide/deployment/installation',
+                    '/guide/deployment/frontend',
                 ]
             },
             {
-                title: 'Developers Guide',   // required
+                title: 'Developer\'s Guide',   // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,

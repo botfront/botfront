@@ -10,6 +10,7 @@ import moment from 'moment';
 
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Instances } from '../../../api/instances/instances.collection';
+import { Stories as StoriesData } from '../../../api/story/stories.collection';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
@@ -30,8 +31,8 @@ function StoriesContainer(props) {
         instance,
         project: { training: { endTime, status } = {} },
         project,
+        stories,
     } = props;
-
     const [activeItem, setActiveItem] = useState('stories');
     const [availableIntents, setAvailableIntents] = useState([]);
     const [availableEntities, setAvailableEntities] = useState([]);
@@ -165,6 +166,7 @@ function StoriesContainer(props) {
                 addUtteranceToTrainingData,
                 browseToSlots: () => setActiveItem('slots'),
                 templates: [...project.templates],
+                stories,
             }}
         >
             <PageMenu title='Stories' icon='book'>
@@ -299,6 +301,7 @@ const StoriesWithState = connect(mapStateToProps)(StoriesContainer);
 
 export default withTracker((props) => {
     const { project_id: projectId } = props.params;
+    const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
@@ -325,10 +328,12 @@ export default withTracker((props) => {
             storyGroupsHandler.ready()
             && projectsHandler.ready()
             && instancesHandler.ready()
-            && slotsHandler.ready(),
+            && slotsHandler.ready()
+            && storiesHandler.ready(),
         storyGroups: StoryGroups.find({}).fetch(),
         slots: Slots.find({}).fetch(),
         instance,
         project,
+        stories: StoriesData.find({}).fetch(),
     };
 })(StoriesWithState);

@@ -40,6 +40,11 @@ if (Meteor.isServer) {
         checkIfCan('stories:r', projectId);
         return Stories.find({ projectId, storyGroupId: groupId });
     });
+
+    Meteor.publish('stories.light', function(projectId) {
+        check(projectId, String);
+        return Stories.find({ projectId }, { fields: { title: true } });
+    });
 }
 
 Stories.attachSchema(StorySchema);
