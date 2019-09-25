@@ -8,7 +8,7 @@
     "private": {
       "defaultCredentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true",
       "defaultPolicies": "policies:\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy",
-      "defaultDefaultDomain": ""
+      "defaultDefaultDomain": "slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping"
     }
   }
 }
