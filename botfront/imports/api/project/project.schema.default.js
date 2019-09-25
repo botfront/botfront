@@ -41,7 +41,7 @@ export const ProjectsSchema = new SimpleSchema({
     'training.startTime': { type: Date, optional: true },
     'training.endTime': { type: Date, optional: true },
     'training.message': { type: String, optional: true },
-    defaultDomain: { type: DefaultDomainSchema },
+    defaultDomain: { type: DefaultDomainSchema, optional: true },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({
