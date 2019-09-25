@@ -1,5 +1,13 @@
 import SimpleSchema from 'simpl-schema';
 import { TemplateSchema } from './response.schema';
+import { validateYaml } from '../../lib/utils';
+
+export const DefaultDomainSchema = new SimpleSchema({
+    content: {
+        type: String,
+        custom: validateYaml,
+    },
+});
 
 export const ProjectsSchema = new SimpleSchema({
     name: {
@@ -33,7 +41,7 @@ export const ProjectsSchema = new SimpleSchema({
     'training.startTime': { type: Date, optional: true },
     'training.endTime': { type: Date, optional: true },
     'training.message': { type: String, optional: true },
-    
+    defaultDomain: { type: DefaultDomainSchema, optional: true },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

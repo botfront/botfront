@@ -1,10 +1,12 @@
 import SimpleSchema from 'simpl-schema';
 import { privateSettingsSchema as basePrivateSettingsSchema, publicSettingsSchema as basePublicSettingsSchema } from './globalSettings.schema.default';
+import { validateYaml } from '../../lib/utils';
 
 export const privateSettingsSchema = basePrivateSettingsSchema.extend({
     bfApiHost: { type: String, optional: true },
     actionsServerUrl: { type: String, optional: true },
     rasaUrl: { type: String, optional: true },
+    defaultDefaultDomain: { type: String, optional: true, custom: validateYaml },
 });
 
 export const GlobalSettingsSchema = new SimpleSchema(

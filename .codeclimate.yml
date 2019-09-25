@@ -1,13 +1,15 @@
 version: "2"
-plugins: 
+plugins:
     eslint:
         enabled: true
         config: /.eslintrc.js
     nodesecurity:
         enabled: true
-# checks:
-#   similar-code:
-#     enabled: false
+checks:
+    similar-code:
+        enabled: false
+    identical-code:
+        enabled: true
 #   argument-count:
 #     config:
 #       threshold: 4
