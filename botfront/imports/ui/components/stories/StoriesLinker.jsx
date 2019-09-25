@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import { ConversationOptionsContext } from '../utils/Context';
 
 
-function StoriesLinker({ disabled }) {
+function StoriesLinker({ disabled, onChange }) {
     const { stories } = useContext(ConversationOptionsContext);
 
     function reshapeStoriesData(data) {
-        return data.map(story => ({ key: story._id, text: story.title }));
+        return data.map(story => ({ key: story._id, text: story.title, value: story.title }));
     }
 
     return (
@@ -17,20 +17,20 @@ function StoriesLinker({ disabled }) {
             fluid
             search
             selection
+            clearable
+            selectOnBlur={false}
             className='stories-linker'
             options={reshapeStoriesData(stories)}
             data-cy='stories-linker'
             disabled={disabled}
+            onChange={onChange}
         />
     );
 }
 
 StoriesLinker.propTypes = {
-    disabled: PropTypes.bool,
-};
-
-StoriesLinker.defaultProps = {
-    disabled: false,
+    disabled: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 

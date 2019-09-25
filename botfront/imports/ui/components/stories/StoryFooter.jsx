@@ -12,7 +12,8 @@ import StoriesLinker from './StoriesLinker.jsx';
 class StoryFooter extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        // state is used temporarily since the backend is not ready yet
+        this.state = { linkedTo: '' };
     }
 
     renderPath = () => {
@@ -98,42 +99,63 @@ class StoryFooter extends React.Component {
         );
     }
 
+    renderBranchMenu = (linkedTo, canBranch) => {
+        if (linkedTo) {
+            return <></>;
+        }
+        return (
+            <Menu.Item
+                onClick={this.handleBranchClick}
+                className={`footer-option-button color-${this.selectIconColor(
+                    canBranch,
+                )}`}
+                data-cy='create-branch'
+            >
+                <Icon
+                    disabled={!canBranch}
+                    name='code branch'
+                    color={this.selectIconColor(canBranch)}
+                />
+                Branch Story
+            </Menu.Item>
+        );
+    }
+
+    renderLinkMenu = (linkedTo, canBranch) => (
+        <Menu.Item
+            className={`footer-option-button remove-padding color-${this.selectIconColor(
+                canBranch,
+            )}`}
+            data-cy='link-to'
+            position={this.positionStoryLinker(linkedTo)}
+        >
+            <Icon
+                disabled={!canBranch}
+                name='arrow right'
+                color='green'
+            />
+            Link&nbsp;to:
+            <StoriesLinker onChange={this.storySelection} disabled={!canBranch} />
+        </Menu.Item>);
+
+
+    positionStoryLinker = linkedTo => (linkedTo === '' ? 'right' : 'left');
+
+    // should be removed when the retreiving the value throught the backend
+    storySelection = (story, { value }) => {
+        this.setState({ linkedTo: value });
+    };
+
 
     render() {
+        const { linkedTo } = this.state;
         const { canBranch } = this.props;
         return (
-            <Segment className='footer-segment' size='mini' attached='bottom'>
+            <Segment className={`footer-segment ${linkedTo === '' ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
-                    <Menu.Item
-                        onClick={this.handleBranchClick}
-                        className={`footer-option-button color-${this.selectIconColor(
-                            canBranch,
-                        )}`}
-                        data-cy='create-branch'
-                    >
-                        <Icon
-                            disabled={!canBranch}
-                            name='code branch'
-                            color={this.selectIconColor(canBranch)}
-                        />
-                        Branch Story
-                    </Menu.Item>
-                    <Menu.Item
-                        className={`footer-option-button remove-padding color-${this.selectIconColor(
-                            canBranch,
-                        )}`}
-                        data-cy='link-to'
-                        position='right'
-                    >
-                        <Icon
-                            disabled={!canBranch}
-                            name='arrow right'
-                            color='green'
-                        />
-                        Link&nbsp;to:
-                        <StoriesLinker disabled={!canBranch} />
-                    </Menu.Item>
+                    <>{this.renderBranchMenu(linkedTo, canBranch)}</>
+                    <>{this.renderLinkMenu(linkedTo, canBranch)}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
