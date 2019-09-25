@@ -14,7 +14,7 @@ export class StoryController {
         };
         this.md = story;
         this.isABranch = isABranch;
-        this.templates = this.loadTemplates(templates) || [];
+        this.templates = this.loadTemplates(templates || []) || [];
         this.notifyUpdate = notifyUpdate;
         this.saveUpdate = saveUpdate;
         this.validateStory();

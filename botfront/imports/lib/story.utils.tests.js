@@ -154,17 +154,17 @@ describe('proper traversal of story', function() {
     it('should resolve an existing path', function() {
         const {
             branches, story, title, indices, path, pathTitle,
-        } = traverseStory(storyFixture, 'n6ArDvmf7PEBrZ4ph__3jFsC86Oaz__pH8WSjPsYv');
+        } = traverseStory(storyFixture, ['n6ArDvmf7PEBrZ4ph', '3jFsC86Oaz', 'pH8WSjPsYv']);
         expect(branches).to.be.deep.equal(storyFixture.branches[1].branches[1].branches);
         expect(story).to.be.equal('I\'m at level two');
         expect(title).to.be.equal('MyLevel2Branch2');
         expect(indices).to.be.deep.equal([1, 1]);
-        expect(path).to.be.equal('n6ArDvmf7PEBrZ4ph__3jFsC86Oaz__pH8WSjPsYv');
-        expect(pathTitle).to.be.equal('MyRootStory__MyLevel1Branch2__MyLevel2Branch2');
+        expect(path).to.be.deep.equal(['n6ArDvmf7PEBrZ4ph', '3jFsC86Oaz', 'pH8WSjPsYv']);
+        expect(pathTitle).to.be.deep.equal(['MyRootStory', 'MyLevel1Branch2', 'MyLevel2Branch2']);
     });
     it('should throw an error when encountering non-existing path', function() {
-        const traverseFakePath = () => traverseStory(storyFixture, 'n6ArDvmf7PEBrZ4ph__a__fake__path');
-        assert.throws(traverseFakePath, Error, 'Could not access n6ArDvmf7PEBrZ4ph__a');
+        const traverseFakePath = () => traverseStory(storyFixture, ['n6ArDvmf7PEBrZ4ph', 'a', 'fake', 'path']);
+        assert.throws(traverseFakePath, Error, 'Could not access n6ArDvmf7PEBrZ4ph,a');
     });
 });
 
