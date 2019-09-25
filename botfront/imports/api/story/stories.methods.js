@@ -39,4 +39,13 @@ Meteor.methods({
         check(projectId, String);
         return Stories.find({ projectId }).fetch();
     },
+
+    'stories.addCheckpoints'(destinationStory, branchPath) {
+        check(destinationStory, String);
+        check(branchPath, Array);
+        return Stories.update(
+            { destinationStory },
+            { $addToSet: { checkpoints: branchPath } },
+        );
+    },
 });
