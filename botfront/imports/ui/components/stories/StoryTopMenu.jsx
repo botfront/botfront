@@ -209,7 +209,7 @@ const StoryTopMenu = ({
                     className='connected-stories-popup'
                     size='tiny'
                     // basic
-                    position='bottom left'
+                    position='bottom right'
                     trigger={(
                         <Message className='connected-story-alert' attached warning size='tiny'>
                             <Icon name='info circle' />
