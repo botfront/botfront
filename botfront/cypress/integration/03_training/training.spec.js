@@ -18,7 +18,12 @@ describe('Training', function() {
         cy.get('.s-alert-success').should('be.visible');
         cy.wait(500);
     }
-    
+
+    function createFrenchModelWithData() {
+        cy.createNLUModelProgramatically('bf', '', 'fr');
+        importData('fr', 'French');
+    }
+
     function testChat(lang, utterance, expectedResponse) {
         cy.get('#render-target > div > div.project-children > div > div.Pane.vertical.Pane2 > div > div.widget-embedded > div > div:nth-child(1) > span').should('not.be.visible');
         cy.dataCy('restart-chat').click();
@@ -64,7 +69,7 @@ describe('Training', function() {
     afterEach(function() {
         cy.deleteProject('bf');
     });
-    
+
     it('Should train and serve a model containing only stories (no NLU) and adding a language should work', function() {
         createStories();
         // Train and wait for training to finish

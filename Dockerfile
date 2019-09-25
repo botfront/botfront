@@ -3,8 +3,8 @@ FROM botfront/meteor-base:1.8.1
 
 # Copy app package.json and package-lock.json into container
 COPY ./botfront/package*.json $APP_SOURCE_FOLDER/
-
-ENV NODE_ENV production
+ARG ARG_NODE_ENV=production
+ENV NODE_ENV $ARG_NODE_ENV
 # Increase Node memory for build
 ENV TOOL_NODE_FLAGS --max-old-space-size=4096
 
