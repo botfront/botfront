@@ -151,7 +151,7 @@ class StoryFooter extends React.Component {
         const { linkedTo } = this.state;
         const { canBranch } = this.props;
         return (
-            <Segment className={`footer-segment ${linkedTo === '' ? '' : 'linked'}`} size='mini' attached='bottom'>
+            <Segment data-cy='story-footer' className={`footer-segment ${linkedTo === '' ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
                     <>{this.renderBranchMenu(linkedTo, canBranch)}</>

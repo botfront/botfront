@@ -271,4 +271,43 @@ describe('stories', function() {
         cy.dataCy('branch-label').eq(3).first().click({ force: true });
         cy.dataCy('stories-linker').should('not.have.class', 'disabled');
     });
+
+    it('should be possible to link and unlink stories', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('story-footer').should('not.have.class', 'linked');
+        cy.dataCy('stories-linker').find('div').first().should('have.text', 'Select story');
+        cy.dataCy('stories-linker').click({ force: true });
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .first()
+            .click({ force: true });
+        cy.dataCy('story-footer').should('have.class', 'linked');
+        cy.dataCy('stories-linker').find('div').first().should('have.text', 'Get started');
+        cy.dataCy('stories-linker').find('i').click({ force: true });
+        cy.dataCy('story-footer').should('not.have.class', 'linked');
+        cy.dataCy('stories-linker').find('div').first().should('have.text', 'Select story');
+    });
+
+    it('should be possible to change the linked story', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('story-footer').should('not.have.class', 'linked');
+        cy.dataCy('stories-linker').find('div').first().should('have.text', 'Select story');
+        cy.dataCy('stories-linker').click({ force: true });
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .first()
+            .click({ force: true });
+        cy.dataCy('story-footer').should('have.class', 'linked');
+        cy.dataCy('stories-linker').find('div').first().should('have.text', 'Get started');
+        cy.dataCy('stories-linker').click({ force: true });
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .eq(1)
+            .click({ force: true });
+        cy.dataCy('story-footer').should('have.class', 'linked');
+        cy.dataCy('stories-linker').find('div').first().should('have.text', 'Greetings');
+    });
 });
