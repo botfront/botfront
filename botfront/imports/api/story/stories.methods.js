@@ -44,7 +44,7 @@ Meteor.methods({
         check(destinationStory, String);
         check(branchPath, Array);
         return Stories.update(
-            { destinationStory },
+            { _id: destinationStory },
             { $addToSet: { checkpoints: branchPath } },
         );
     },

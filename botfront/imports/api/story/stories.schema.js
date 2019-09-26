@@ -43,6 +43,6 @@ export const StorySchema = new SimpleSchema({
     projectId: { type: String },
     selected: { type: true, optional: true },
     checkpoints: { type: Array, optional: true },
-    'checkpoints.$': { type: Array, optional: true },
-    'checkpoints.$.$': { type: String, optional: true },
+    'checkpoints.$': { type: Array },
+    'checkpoints.$.$': { type: String },
 });

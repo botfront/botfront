@@ -386,6 +386,7 @@ const StoryEditorContainer = ({
                     // If there are, we can't branch
                     canBranch={canBranch()}
                     storyPath={getStoryPath()}
+                    branchPath={branchPath}
                     disableContinue
                 />
             )}

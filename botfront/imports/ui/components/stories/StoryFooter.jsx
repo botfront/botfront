@@ -7,14 +7,14 @@ import {
     Menu,
     Dropdown,
 } from 'semantic-ui-react';
+import { Meteor } from 'meteor/meteor';
 import StoryPathPopup from './StoryPathPopup.jsx';
 import { ConversationOptionsContext } from '../utils/Context';
 
 class StoryFooter extends React.Component {
     constructor(props) {
         super(props);
-        // state is used temporarily since the backend is not ready yet
-        this.state = { linkedTo: '' };
+        this.state = {};
     }
 
     renderPath = () => {
@@ -79,7 +79,7 @@ class StoryFooter extends React.Component {
         return ' linked';
     }
 
-    reshapeStoriesData = data => data.map(story => ({ key: story._id, text: story.title, value: story.title }));
+    reshapeStoriesData = data => data.map(story => ({ key: story._id, text: story.title, value: story._id }));
 
 
     renderContinue = () => {
@@ -141,6 +141,7 @@ class StoryFooter extends React.Component {
             Link&nbsp;to:
             <Dropdown
                 placeholder='Select story'
+                value={linkedTo ? linkedTo._id : ''}
                 fluid
                 search
                 selection
@@ -156,19 +157,19 @@ class StoryFooter extends React.Component {
         </Menu.Item>);
 
 
-    positionStoryLinker = linkedTo => (linkedTo === '' ? 'right' : 'left');
+    positionStoryLinker = linkedTo => (linkedTo === undefined ? 'right' : 'left');
 
-    // should be removed when the retreiving the value throught the backend
     storySelection = (story, { value }) => {
-        this.setState({ linkedTo: value });
+        const { branchPath } = this.props;
+        Meteor.call('stories.addCheckpoints', value, branchPath);
     };
 
 
     render() {
-        const { linkedTo } = this.state;
-        const { canBranch, stories } = this.props;
+        const { canBranch, stories, branchPath } = this.props;
+        const linkedTo = stories.find(story => (story.checkpoints !== undefined ? story.checkpoints.some(checkpoint => checkpoint.includes(branchPath[branchPath.length - 1])) : false));
         return (
-            <Segment data-cy='story-footer' className={`footer-segment ${linkedTo === '' ? '' : 'linked'}`} size='mini' attached='bottom'>
+            <Segment data-cy='story-footer' className={`footer-segment ${linkedTo === undefined ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
                     <>{this.renderBranchMenu(linkedTo, canBranch)}</>
@@ -183,6 +184,7 @@ class StoryFooter extends React.Component {
 StoryFooter.propTypes = {
     storyPath: PropTypes.array,
     canBranch: PropTypes.bool,
+    branchPath: PropTypes.array,
     canContinue: PropTypes.bool,
     onBranch: PropTypes.func.isRequired,
     onContinue: PropTypes.func.isRequired,
@@ -192,6 +194,7 @@ StoryFooter.propTypes = {
 
 StoryFooter.defaultProps = {
     storyPath: [],
+    branchPath: [],
     canBranch: true,
     canContinue: true,
     disableContinue: true,
