@@ -2,6 +2,8 @@ import { Roles } from 'meteor/modweb:roles';
 import { Instances } from '../imports/api/instances/instances.collection';
 import { Credentials } from '../imports/api/credentials';
 import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
+import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
+import { Projects } from '../imports/api/project/project.collection';
 
 /* globals Migrations */
 
@@ -45,6 +47,32 @@ Migrations.add({
                     { _id: i._id },
                     { $set: { environment: 'development' } },
                 );
+            });
+    },
+});
+
+Migrations.add({
+    // Its version 2 on CE
+    version: 3,
+    // add default default domain to global settings, and update projects to have this default domain
+    up: () => {
+        let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
+        if (process.env.NODE_ENV === 'development') spec = `${spec}.dev`;
+        if (process.env.NODE_ENV === 'test') spec = `${spec}.ci`;
+        let globalSettings;
+        
+        try {
+            globalSettings = JSON.parse(Assets.getText(`default-settings${spec}.json`));
+        } catch (e) {
+            globalSettings = JSON.parse(Assets.getText('default-settings.json'));
+        }
+        const { defaultDefaultDomain } = globalSettings.settings.private;
+
+        GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.defaultDefaultDomain': defaultDefaultDomain } });
+
+        Projects.find().fetch()
+            .forEach((i) => {
+                Projects.update({ _id: i._id }, { $set: { defaultDomain: { content: defaultDefaultDomain } } });
             });
     },
 });
