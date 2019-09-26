@@ -103,22 +103,18 @@ class Settings extends React.Component {
         </Tab.Pane>
     );
 
-    renderDefaultRules = () => (
+    renderDefaultDefaultDomain = () => (
         <Tab.Pane>
             <Message
                 info
                 icon='question circle'
                 content={
                     <>
-                        Default Rules (see{' '}
-                        <a target='_blank' rel='noopener noreferrer' href='https://github.com/mrbot-ai/rasa-addons'>
-                            Rasa addons
-                        </a>
-                        ) &nbsp;for new projects
+                        Default default domain for new projects
                     </>
                 }
             />
-            <AceField name='settings.private.defaultRules' label='' fontSize={12} convertYaml />
+            <AceField name='settings.private.defaultDefaultDomain' label='' fontSize={12} convertYaml />
         </Tab.Pane>
     );
 
@@ -145,7 +141,7 @@ class Settings extends React.Component {
             { menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
             { menuItem: 'Default credentials', render: this.renderDefaultCredentials },
             { menuItem: 'Default endpoints', render: this.renderDefaultEndpoints },
-            { menuItem: 'Default rules', render: this.renderDefaultRules },
+            { menuItem: 'Default default domain', render: this.renderDefaultDefaultDomain },
             { menuItem: 'Security', render: this.renderSecurityPane },
             { menuItem: 'Appearance', render: this.renderAppearance },
             { menuItem: 'Misc', render: this.renderMisc },
