@@ -103,6 +103,9 @@ const StoryEditorContainer = ({
         // remove the link if the value of the drop down is empty
         if (value === '') {
             Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+        } else if (value && destinationStory) {
+            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+            Meteor.call('stories.addCheckpoints', value, branchPath);
         } else {
             Meteor.call('stories.addCheckpoints', value, branchPath);
         }
