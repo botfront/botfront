@@ -112,7 +112,12 @@ class BranchTabLabel extends React.Component {
         return <>{alertList}</>;
     };
 
-    renderDeleteButton = () => <Icon name='trash' size='small' data-cy='delete-branch' />;
+    renderDeleteButton = () => {
+        const { isLinked } = this.props;
+        return (
+            <Icon name='trash' disabled={isLinked} size='small' data-cy='delete-branch' />
+        );
+    }
 
     handleOnClick = () => {
         const { title } = this.state;

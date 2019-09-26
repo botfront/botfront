@@ -112,27 +112,45 @@ const StoryTopMenu = ({
         return Object.keys(connectedStories).map(key => (<><Header>{storyGroupIdDictionary[key]}</Header>{connectedStories[key]}</>));
     };
 
-    const renderDeletePopup = () => (
-        // let toolTipText = [];
-        // if (isDestinationStory) {
-        //     toolTipText = [...toolTipText, 'A story that is the destination of a link in another story cannot be deleted.'];
-        // }
-        // if (isDestinationStory) {
-        //     toolTipText = [...toolTipText, 'A story that is linked to another story cannot be deleted.'];
-        // }
-        (isLinked
+    const renderDeletePopup = () => {
+        let toolTipText = [];
+        if (isDestinationStory) {
+            toolTipText = [...toolTipText, 'A story that is the destination of a link in another story cannot be deleted.'];
+        }
+        if (isLinked) {
+            toolTipText = [...toolTipText, 'A story that is linked to another story cannot be deleted.'];
+        }
+        /*
+                <Popup
+                    className='tool-tip-popup'
+                    trigger={
+                        <Icon disabled={isDestinationStory || isLinked} name='trash' data-cy='delete-story' />
+                    }
+                    content={
+                        <>
+                            <Header size='large'>This story cannot be deleted</Header>
+                            <List bulleted>
+                                {isDestinationStory && <List.Item>This story is the destination of a link in another story</List.Item>}
+                                {isLinked && <List.Item>this story Links to another story</List.Item>}
+                            </List>
+                        </>
+                    }
+                />
+        */
+        return (isLinked || isDestinationStory
             ? (
                 <ToolTipPopup
                     trigger={
-                        <Icon disabled={isDestinationStory} name='trash' data-cy='delete-story' />
+                        <Icon disabled={isDestinationStory || isLinked} name='trash' data-cy='delete-story' />
                     }
-                    header='This story cannot be deleted'
-                    toolTipText='A story that is linked to another story cannot be deleted.'
+                    toolTipText={toolTipText}
+                    header='This story Cannot be deleted'
                 />
+
             ) : (
                 <Popup
                     trigger={
-                        <Icon disabled={isDestinationStory} name='trash' data-cy='delete-story' />
+                        <Icon disabled={isDestinationStory || isLinked} name='trash' data-cy='delete-story' />
                     }
                     disabled={isDestinationStory || isLinked}
                     content={(
@@ -150,8 +168,8 @@ const StoryTopMenu = ({
                     onOpen={() => openDeletePopup(true)}
                     onClose={() => openDeletePopup(false)}
                 />
-            ))
-    );
+            ));
+    };
 
     return (
         <>
@@ -252,8 +270,9 @@ const StoryTopMenu = ({
                 <Popup
                     className='connected-stories-popup'
                     size='tiny'
-                    // basic
+                    on={['click']}
                     position='bottom right'
+                    // hoverable
                     trigger={(
                         <Message className='connected-story-alert' attached warning size='tiny'>
                             <Icon name='info circle' />
@@ -287,8 +306,8 @@ StoryTopMenu.propTypes = {
     isLinked: PropTypes.bool,
 };
 StoryTopMenu.defaultProps = {
-    isDestinationStory: true,
-    isLinked: true,
+    isDestinationStory: false,
+    isLinked: false,
     originStories: [],
 };
 

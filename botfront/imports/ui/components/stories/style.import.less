@@ -91,13 +91,12 @@
         color: #767676;
         &:hover{
           color: #767676;
-          cursor: not-allowed;
+          // cursor: not-allowed;
         }
       }
     }
 
     .header {
-
       input {
         margin: 0 5px;
         border-style: solid;
@@ -199,11 +198,12 @@
           color: rgba(0,0,0,0.4);
           padding: 0 10px;
           margin: 0;
-          opacity: 0;
+          visibility: hidden;
         }
         &.active:hover {
           .trash {
             opacity: 1;
+            visibility: visible;
           }
         }
       }
@@ -384,8 +384,15 @@
 .ui.popup.connected-stories-popup{
     padding: 13px 17px;
     text-align: left;
+    overflow-y: scroll;
+    max-height: 200px;
     .story-title-prefix{
       opacity: 0.4;
       margin-right: 0.25em;
     }
+}
+.connected-story-alert{
+  &:hover{
+    cursor: pointer;
+  }
 }
