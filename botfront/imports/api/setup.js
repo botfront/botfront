@@ -86,12 +86,8 @@ if (Meteor.isServer) {
             check(consent, Boolean);
 
             let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
-            if (process.env.NODE_ENV === 'development') {
-                spec = `${spec}.dev`;
-            }
-            if (process.env.NODE_ENV === 'test') {
-                spec = `${spec}.ci`;
-            }
+            if (process.env.NODE_ENV === 'development') spec = `${spec}.dev`;
+            if (process.env.NODE_ENV === 'test') spec = `${spec}.ci`;
             let globalSettings = null;
 
             try {
