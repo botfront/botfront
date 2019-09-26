@@ -387,6 +387,7 @@ const StoryEditorContainer = ({
                     canBranch={canBranch()}
                     storyPath={getStoryPath()}
                     branchPath={branchPath}
+                    currentStoryId={story._id}
                     disableContinue
                 />
             )}

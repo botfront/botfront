@@ -253,7 +253,7 @@ describe('stories', function() {
             .find('div')
             .children()
             .children()
-            .should('have.lengthOf', 3);
+            .should('have.lengthOf', 2);
     });
 
     it('should be only possible to link of leaf stories', function() {

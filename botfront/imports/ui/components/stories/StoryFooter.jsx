@@ -79,7 +79,8 @@ class StoryFooter extends React.Component {
         return ' linked';
     }
 
-    reshapeStoriesData = data => data.map(story => ({ key: story._id, text: story.title, value: story._id }));
+    reshapeStoriesData = (data, currentStoryId) => (data.map(story => ({ key: story._id, text: story.title, value: story._id }))
+        .filter(story => story.key !== currentStoryId))
 
 
     renderContinue = () => {
@@ -125,7 +126,7 @@ class StoryFooter extends React.Component {
         );
     }
 
-    renderLinkMenu = (linkedTo, canBranch, stories) => (
+    renderLinkMenu = (linkedTo, canBranch, stories, currentStoryId) => (
         <Menu.Item
             className={`footer-option-button remove-padding color-${this.selectIconColor(
                 canBranch,
@@ -148,7 +149,7 @@ class StoryFooter extends React.Component {
                 clearable
                 selectOnBlur={false}
                 className='stories-linker'
-                options={this.reshapeStoriesData(stories)}
+                options={this.reshapeStoriesData(stories, currentStoryId)}
                 data-cy='stories-linker'
                 disabled={!canBranch}
                 onChange={this.storySelection}
@@ -166,14 +167,19 @@ class StoryFooter extends React.Component {
 
 
     render() {
-        const { canBranch, stories, branchPath } = this.props;
+        const {
+            canBranch,
+            stories,
+            branchPath,
+            currentStoryId,
+        } = this.props;
         const linkedTo = stories.find(story => (story.checkpoints !== undefined ? story.checkpoints.some(checkpoint => checkpoint.includes(branchPath[branchPath.length - 1])) : false));
         return (
             <Segment data-cy='story-footer' className={`footer-segment ${linkedTo === undefined ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
                     <>{this.renderBranchMenu(linkedTo, canBranch)}</>
-                    <>{this.renderLinkMenu(linkedTo, canBranch, stories)}</>
+                    <>{this.renderLinkMenu(linkedTo, canBranch, stories, currentStoryId)}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
@@ -185,6 +191,7 @@ StoryFooter.propTypes = {
     storyPath: PropTypes.array,
     canBranch: PropTypes.bool,
     branchPath: PropTypes.array,
+    currentStoryId: PropTypes.string.isRequired,
     canContinue: PropTypes.bool,
     onBranch: PropTypes.func.isRequired,
     onContinue: PropTypes.func.isRequired,
