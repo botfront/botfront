@@ -112,8 +112,7 @@ const StoryTopMenu = ({
         return Object.keys(connectedStories).map(key => (<><Header>{storyGroupIdDictionary[key]}</Header>{connectedStories[key]}</>));
     };
 
-    const renderDeletePopup = () => {
-
+    const renderDeletePopup = () => (
         // let toolTipText = [];
         // if (isDestinationStory) {
         //     toolTipText = [...toolTipText, 'A story that is the destination of a link in another story cannot be deleted.'];
@@ -121,8 +120,7 @@ const StoryTopMenu = ({
         // if (isDestinationStory) {
         //     toolTipText = [...toolTipText, 'A story that is linked to another story cannot be deleted.'];
         // }
-
-        return (isLinked
+        (isLinked
             ? (
                 <ToolTipPopup
                     trigger={
@@ -152,8 +150,8 @@ const StoryTopMenu = ({
                     onOpen={() => openDeletePopup(true)}
                     onClose={() => openDeletePopup(false)}
                 />
-            ));
-    };
+            ))
+    );
 
     return (
         <>
