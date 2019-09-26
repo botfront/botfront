@@ -48,4 +48,12 @@ Meteor.methods({
             { $addToSet: { checkpoints: branchPath } },
         );
     },
+    'stories.removeCheckpoints'(destinationStory, branchPath) {
+        check(destinationStory, String);
+        check(branchPath, Array);
+        return Stories.update(
+            { _id: destinationStory },
+            { $pullAll: { checkpoints: [branchPath] } },
+        );
+    },
 });
