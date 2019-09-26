@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.9](https://github.com/botfront/botfront/compare/v0.16.0-rc.8...v0.16.0-rc.9) (2019-09-26)
+
+
+### Bug Fixes
+
+* better error message for training ([bbf122c](https://github.com/botfront/botfront/commit/bbf122c))
+* better errors for failed training ([92b4b2f](https://github.com/botfront/botfront/commit/92b4b2f))
+* rename storiesLight to stories ([0b25ede](https://github.com/botfront/botfront/commit/0b25ede))
+* templates for stories training ([1b16259](https://github.com/botfront/botfront/commit/1b16259))
+
+
+### Features
+
+* **default domain:** declare default domain in project settings ([#224](https://github.com/botfront/botfront/issues/224)) ([5b03ac5](https://github.com/botfront/botfront/commit/5b03ac5))
+* all story of a projet are fetch in the StoryContainer ([bf619fa](https://github.com/botfront/botfront/commit/bf619fa))
+* exclude services when starting ([78f73a8](https://github.com/botfront/botfront/commit/78f73a8))
+
+
+### Tests
+
+* fixed slot test ([0aeed0f](https://github.com/botfront/botfront/commit/0aeed0f))
+* fixed unit tests for story traversal ([da50360](https://github.com/botfront/botfront/commit/da50360))
+
+
+
 ## [0.16.0-rc.8](https://github.com/botfront/botfront/compare/v0.16.0-rc.7...v0.16.0-rc.8) (2019-09-23)
 
 
