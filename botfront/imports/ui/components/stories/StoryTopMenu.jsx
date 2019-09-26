@@ -8,6 +8,7 @@ import 'brace/theme/github';
 import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
+import ToolTipPopup from '../common/ToolTipPopup';
 import { setStoryCollapsed } from '../../store/actions/actions';
 
 import { ConversationOptionsContext } from '../utils/Context';
@@ -27,6 +28,7 @@ const StoryTopMenu = ({
     errors,
     isDestinationStory,
     originStories,
+    isLinked,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -110,6 +112,49 @@ const StoryTopMenu = ({
         return Object.keys(connectedStories).map(key => (<><Header>{storyGroupIdDictionary[key]}</Header>{connectedStories[key]}</>));
     };
 
+    const renderDeletePopup = () => {
+
+        // let toolTipText = [];
+        // if (isDestinationStory) {
+        //     toolTipText = [...toolTipText, 'A story that is the destination of a link in another story cannot be deleted.'];
+        // }
+        // if (isDestinationStory) {
+        //     toolTipText = [...toolTipText, 'A story that is linked to another story cannot be deleted.'];
+        // }
+
+        return (isLinked
+            ? (
+                <ToolTipPopup
+                    trigger={
+                        <Icon disabled={isDestinationStory} name='trash' data-cy='delete-story' />
+                    }
+                    header='This story cannot be deleted'
+                    toolTipText='A story that is linked to another story cannot be deleted.'
+                />
+            ) : (
+                <Popup
+                    trigger={
+                        <Icon disabled={isDestinationStory} name='trash' data-cy='delete-story' />
+                    }
+                    disabled={isDestinationStory || isLinked}
+                    content={(
+                        <ConfirmPopup
+                            title='Delete story ?'
+                            onYes={() => {
+                                openDeletePopup(false);
+                                onDelete();
+                            }}
+                            onNo={() => openDeletePopup(false)}
+                        />
+                    )}
+                    on='click'
+                    open={deletePopupOpened}
+                    onOpen={() => openDeletePopup(true)}
+                    onClose={() => openDeletePopup(false)}
+                />
+            ));
+    };
+
     return (
         <>
             <Menu attached='top' className={`${collapsed ? 'collapsed' : ''}`}>
@@ -182,7 +227,8 @@ const StoryTopMenu = ({
                         data-cy='duplicate-story'
                         onClick={onClone}
                     />
-                    <Popup
+                    {renderDeletePopup()}
+                    {/* <Popup
                         trigger={
                             <Icon disabled={isDestinationStory} name='trash' data-cy='delete-story' />
                         }
@@ -201,7 +247,7 @@ const StoryTopMenu = ({
                         open={deletePopupOpened}
                         onOpen={() => openDeletePopup(true)}
                         onClose={() => openDeletePopup(false)}
-                    />
+                            /> */}
                 </Menu.Item>
             </Menu>
             { isDestinationStory && (
@@ -240,9 +286,11 @@ StoryTopMenu.propTypes = {
     errors: PropTypes.number.isRequired,
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
+    isLinked: PropTypes.bool,
 };
 StoryTopMenu.defaultProps = {
-    isDestinationStory: false,
+    isDestinationStory: true,
+    isLinked: true,
     originStories: [],
 };
 

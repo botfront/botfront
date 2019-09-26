@@ -4,6 +4,7 @@ import propTypes from 'prop-types';
 import React from 'react';
 
 import ConfirmPopup from '../common/ConfirmPopup';
+import ToolTipPopup from '../common/ToolTipPopup';
 
 class BranchTabLabel extends React.Component {
     constructor(props) {
@@ -137,6 +138,50 @@ class BranchTabLabel extends React.Component {
         );
     };
 
+    renderDeletePopup = () => {
+        const { title, deletePopupOpened } = this.state;
+        const { onDelete, siblings, isLinked } = this.props;
+        const confirmMessage = {};
+        if (siblings.length < 3) {
+            const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
+            confirmMessage.content = (
+                <>
+                    The content of <strong>{strandedBranchName}</strong> will be added to
+                    the previous story.
+                </>
+            );
+        }
+        if (isLinked) {
+            return (
+                <ToolTipPopup
+                    header='This story cannot be deleted'
+                    toolTipText={['A story that is linked to another story cannot be deleted']}
+                    trigger={this.renderDeleteButton()}
+                />
+            );
+        }
+        return (
+            <Popup
+                trigger={this.renderDeleteButton()}
+                content={(
+                    <ConfirmPopup
+                        title='Delete branch?'
+                        {...confirmMessage}
+                        onYes={() => {
+                            this.setState({ deletePopupOpened: false });
+                            onDelete();
+                        }}
+                        onNo={() => this.setState({ deletePopupOpened: false })}
+                    />
+                )}
+                on='click'
+                open={deletePopupOpened}
+                onOpen={() => this.setState({ deletePopupOpened: true })}
+                onClose={() => this.setState({ deletePopupOpened: false })}
+            />
+        );
+    }
+
     renderTitleDecorated = () => {
         const { title, deletePopupOpened } = this.state;
         const { onDelete, siblings } = this.props;
@@ -160,24 +205,7 @@ class BranchTabLabel extends React.Component {
                 >
                     {title}
                 </span>
-                <Popup
-                    trigger={this.renderDeleteButton()}
-                    content={(
-                        <ConfirmPopup
-                            title='Delete branch?'
-                            {...confirmMessage}
-                            onYes={() => {
-                                this.setState({ deletePopupOpened: false });
-                                onDelete();
-                            }}
-                            onNo={() => this.setState({ deletePopupOpened: false })}
-                        />
-                    )}
-                    on='click'
-                    open={deletePopupOpened}
-                    onOpen={() => this.setState({ deletePopupOpened: true })}
-                    onClose={() => this.setState({ deletePopupOpened: false })}
-                />
+                {this.renderDeletePopup()}
             </>
         );
     };
@@ -243,11 +271,13 @@ BranchTabLabel.propTypes = {
     active: propTypes.bool,
     onSelect: propTypes.func.isRequired,
     siblings: propTypes.array.isRequired,
+    isLinked: propTypes.bool,
 };
 
 BranchTabLabel.defaultProps = {
     value: '',
     active: false,
     exceptions: {},
+    isLinked: true,
 };
 export default BranchTabLabel;
