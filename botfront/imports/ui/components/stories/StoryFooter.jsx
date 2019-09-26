@@ -7,7 +7,6 @@ import {
     Menu,
     Dropdown,
 } from 'semantic-ui-react';
-import { Meteor } from 'meteor/meteor';
 import StoryPathPopup from './StoryPathPopup.jsx';
 import { ConversationOptionsContext } from '../utils/Context';
 
@@ -104,8 +103,8 @@ class StoryFooter extends React.Component {
         );
     }
 
-    renderBranchMenu = (linkedTo, canBranch) => {
-        if (linkedTo) {
+    renderBranchMenu = (destinationStory, canBranch) => {
+        if (destinationStory) {
             return <></>;
         }
         return (
@@ -126,13 +125,13 @@ class StoryFooter extends React.Component {
         );
     }
 
-    renderLinkMenu = (linkedTo, canBranch, stories, currentStoryId) => (
+    renderLinkMenu = (destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) => (
         <Menu.Item
             className={`footer-option-button remove-padding color-${this.selectIconColor(
                 canBranch,
             )}`}
             data-cy='link-to'
-            position={this.positionStoryLinker(linkedTo)}
+            position={this.positionStoryLinker(destinationStory)}
         >
             <Icon
                 disabled={!canBranch}
@@ -142,7 +141,7 @@ class StoryFooter extends React.Component {
             Link&nbsp;to:
             <Dropdown
                 placeholder='Select story'
-                value={linkedTo ? linkedTo._id : ''}
+                value={destinationStory ? destinationStory._id : ''}
                 fluid
                 search
                 selection
@@ -152,32 +151,27 @@ class StoryFooter extends React.Component {
                 options={this.reshapeStoriesData(stories, currentStoryId)}
                 data-cy='stories-linker'
                 disabled={!canBranch}
-                onChange={this.storySelection}
+                onChange={onDestinationStorySelection}
             />
 
         </Menu.Item>);
 
 
-    positionStoryLinker = linkedTo => (linkedTo === undefined ? 'right' : 'left');
-
-    storySelection = (story, { value }) => {
-        const { branchPath } = this.props;
-        Meteor.call('stories.addCheckpoints', value, branchPath);
-    };
-
+    positionStoryLinker = destinationStory => (destinationStory === null ? 'right' : 'left');
 
     render() {
         const {
             canBranch,
             stories,
-            branchPath,
             currentStoryId,
+            destinationStory,
+            onDestinationStorySelection,
         } = this.props;
-        const linkedTo = stories.find(story => (story.checkpoints !== undefined ? story.checkpoints.some(checkpoint => checkpoint.includes(branchPath[branchPath.length - 1])) : false));
         return (
-            <Segment data-cy='story-footer' className={`footer-segment ${linkedTo === undefined ? '' : 'linked'}`} size='mini' attached='bottom'>
+            <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
+                    <>{this.renderBranchMenu(destinationStory, canBranch)}</>
                     <>{this.renderBranchMenu(linkedTo, canBranch)}</>
                     <>{this.renderLinkMenu(linkedTo, canBranch, stories, currentStoryId)}</>
                     <>{this.renderContinue()}</>
@@ -190,21 +184,22 @@ class StoryFooter extends React.Component {
 StoryFooter.propTypes = {
     storyPath: PropTypes.array,
     canBranch: PropTypes.bool,
-    branchPath: PropTypes.array,
     currentStoryId: PropTypes.string.isRequired,
     canContinue: PropTypes.bool,
     onBranch: PropTypes.func.isRequired,
     onContinue: PropTypes.func.isRequired,
+    onDestinationStorySelection: PropTypes.func.isRequired,
     disableContinue: PropTypes.bool,
     stories: PropTypes.array.isRequired,
+    destinationStory: PropTypes.object,
 };
 
 StoryFooter.defaultProps = {
     storyPath: [],
-    branchPath: [],
     canBranch: true,
     canContinue: true,
     disableContinue: true,
+    destinationStory: null,
 };
 
 export default props => (

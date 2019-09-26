@@ -49,7 +49,7 @@ const StoryEditorContainer = ({
     changeStoryPath,
     collapsed,
 }) => {
-    const { slots, templates } = useContext(ConversationOptionsContext);
+    const { slots, templates, stories } = useContext(ConversationOptionsContext);
     // The next path to go to when a change is made, we wait for the story prop to be updated to go that path
     // useful when we add branch for instance, we have to wait for the branches to actually be in the db
     // set to null when we don't want to go anywhere
@@ -59,6 +59,7 @@ const StoryEditorContainer = ({
     // so we have to use this workaround
     const [editors, setEditors] = useState({});
     const [exceptions, setExceptions] = useState({});
+    const [destinationStory, setDestinationStory] = useState({});
 
     const saveStory = (path, content) => {
         onSaving();
@@ -84,6 +85,30 @@ const StoryEditorContainer = ({
             templates,
         ),
     });
+
+    function findDestinationStory() {
+        return stories.find((aStory) => {
+            if (aStory.checkpoints !== undefined) {
+                return aStory.checkpoints.some(checkpoint => checkpoint[checkpoint.length - 1] === branchPath[branchPath.length - 1]);
+            }
+            return false;
+        });
+    }
+    useEffect(() => {
+        const newDestinationStory = findDestinationStory();
+        setDestinationStory(newDestinationStory);
+    }, [branchPath]);
+
+    function onDestinationStorySelection(event, { value }) {
+        // remove the link if the value of the drop down is empty
+        if (value === '') {
+            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+        } else {
+            Meteor.call('stories.addCheckpoints', value, branchPath);
+        }
+        const newDestinationStory = findDestinationStory();
+        setDestinationStory(newDestinationStory);
+    }
 
     // This is to make sure that all opened branches have corresponding storyController objects
     // attached to them.
@@ -382,11 +407,12 @@ const StoryEditorContainer = ({
                     onBranch={() => handleCreateBranch(branchPath, [], 2)}
                     onContinue={() => {}}
                     canContinue={false}
+                    onDestinationStorySelection={onDestinationStorySelection}
+                    destinationStory={destinationStory}
                     // We just check if there are any branches at the current path
                     // If there are, we can't branch
                     canBranch={canBranch()}
                     storyPath={getStoryPath()}
-                    branchPath={branchPath}
                     currentStoryId={story._id}
                     disableContinue
                 />
