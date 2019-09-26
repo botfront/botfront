@@ -172,8 +172,7 @@ class StoryFooter extends React.Component {
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
                     <>{this.renderBranchMenu(destinationStory, canBranch)}</>
-                    <>{this.renderBranchMenu(linkedTo, canBranch)}</>
-                    <>{this.renderLinkMenu(linkedTo, canBranch, stories, currentStoryId)}</>
+                    <>{canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
