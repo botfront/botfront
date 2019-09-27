@@ -305,7 +305,7 @@ describe('stories', function() {
         cy.dataCy('stories-linker')
             .find('div')
             .first()
-            .should('have.text', 'Greetings');
+            .should('have.text', 'Farewells');
         cy.dataCy('stories-linker')
             .find('i')
             .click({ force: true });
@@ -333,7 +333,7 @@ describe('stories', function() {
         cy.dataCy('stories-linker')
             .find('div')
             .first()
-            .should('have.text', 'Greetings');
+            .should('have.text', 'Farewells');
         cy.dataCy('stories-linker').click({ force: true });
         cy.dataCy('stories-linker')
             .find('div')
@@ -344,6 +344,6 @@ describe('stories', function() {
         cy.dataCy('stories-linker')
             .find('div')
             .first()
-            .should('have.text', 'Farewells');
+            .should('have.text', 'Greetings');
     });
 });

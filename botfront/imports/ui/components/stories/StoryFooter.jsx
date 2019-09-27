@@ -78,9 +78,14 @@ class StoryFooter extends React.Component {
         return ' linked';
     }
 
-    reshapeStoriesData = (data, currentStoryId) => (data.map(story => ({ key: story._id, text: story.title, value: story._id }))
-        .filter(story => story.key !== currentStoryId))
-
+    reshapeStoriesData = (data, currentStoryId) => (data
+        .map(story => ({ key: story._id, text: story.title, value: story._id }))
+        .sort((storyA, storyB) => {
+            if (storyA.text < storyB.text) return -1;
+            if (storyA.text > storyB.text) return 1;
+            return 0;
+        })
+        .filter(story => story.key !== currentStoryId));
 
     renderContinue = () => {
         const { canContinue, disableContinue } = this.props;
