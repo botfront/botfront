@@ -346,4 +346,70 @@ describe('stories', function() {
             .first()
             .should('have.text', 'Greetings');
     });
+
+    it('should disable the delete button in the branch tab for a linked branch and its parent branches', function () {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('stories-linker').click({ force: true });
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .first()
+            .click();
+        cy.dataCy('story-top-menu')
+            .find('.trash.disabled.icon')
+            .should('exist');
+        cy.dataCy('branch-label')
+            .find('.trash.small.disabled');
+        cy.dataCy('single-story-editor')
+            .last()
+            .dataCy('branch-label')
+            .find('.trash.small.disabled')
+            .should('exist');
+        cy.dataCy('single-story-editor')
+            .last()
+            .dataCy('branch-label')
+            .last()
+            .click();
+        cy.dataCy('single-story-editor')
+            .last()
+            .dataCy('branch-label')
+            .last()
+            .find('.trash.small.disabled')
+            .should('not.exist');
+        cy.dataCy('single-story-editor')
+            .eq(1)
+            .dataCy('branch-label')
+            .first()
+            .find('.trash.small.disabled')
+            .should('exist');
+        cy.dataCy('single-story-editor')
+            .eq(1)
+            .dataCy('branch-label')
+            .last()
+            .click();
+        cy.dataCy('single-story-editor')
+            .eq(1)
+            .dataCy('branch-label')
+            .last()
+            .find('.trash.small.disabled')
+            .should('not.exist');
+    });
+    it('should disable the delete button in the story top menu for linked destination stories', function () {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('stories-linker').click({ force: true });
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .first()
+            .click();
+        cy.dataCy('browser-item')
+            .contains('Default stories')
+            .click();
+        cy.dataCy('story-top-menu')
+            .last()
+            .find('.trash.disabled.icon')
+            .should('exist');
+    });
 });

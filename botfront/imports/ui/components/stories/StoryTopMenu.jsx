@@ -156,7 +156,7 @@ const StoryTopMenu = ({
 
     return (
         <>
-            <Menu attached='top' className={`${collapsed ? 'collapsed' : ''}`}>
+            <Menu attached='top' data-cy='story-top-menu' className={`${collapsed ? 'collapsed' : ''}`}>
                 <Menu.Item header>
                     <Icon
                         name='triangle right'
