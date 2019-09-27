@@ -60,6 +60,7 @@ const StoryEditorContainer = ({
     const [editors, setEditors] = useState({});
     const [exceptions, setExceptions] = useState({});
     const [destinationStory, setDestinationStory] = useState({});
+    const [destinationStories, setDestinationStories] = useState([]);
 
     const saveStory = (path, content) => {
         onSaving();
@@ -86,6 +87,25 @@ const StoryEditorContainer = ({
         ),
     });
 
+    const isBranchLinked = (branchId) => {
+        return destinationStories.some((aStory) => {
+            return aStory.checkpoints.some((checkpointPath) => {
+                return checkpointPath.includes(branchId);
+            });
+        });
+    };
+
+    const findDestinationStories = () => {
+        return stories.filter((aStory) => {
+            return branchPath.some((storyId) => {
+                if (aStory.checkpoints === undefined) return false;
+                return aStory.checkpoints.some((checkpointPath) => {
+                    return checkpointPath.includes(storyId);
+                });
+            });
+        })
+    };
+
     function findDestinationStory() {
         return stories.find((aStory) => {
             if (aStory.checkpoints !== undefined) {
@@ -96,7 +116,9 @@ const StoryEditorContainer = ({
     }
     useEffect(() => {
         const newDestinationStory = findDestinationStory();
+        const newDestinationStories = findDestinationStories();
         setDestinationStory(newDestinationStory);
+        setDestinationStories(newDestinationStories);
     }, [branchPath]);
 
     function onDestinationStorySelection(event, { value }) {
@@ -157,8 +179,9 @@ const StoryEditorContainer = ({
             groupNames={groupNames}
             errors={GetExceptionsLengthByType('errors')}
             warnings={GetExceptionsLengthByType('warnings')}
-            // isDestinationStory={true}
-            // originStories={[['MCGSc8oAYLJBBvbtM', '9pVsFV5lBe'], ['9vBMyFcQvjYS4gmuE'], ['LBX99aFphHgnL8Hf9'], ['cwdi5PGw5Sd6cFT4M'], ['PvzGpwicvhABv3yqT']]}
+            isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
+            isLinked={destinationStories.length > 0}
+            originStories={story.checkpoints}
         />
     );
 
@@ -365,6 +388,7 @@ const StoryEditorContainer = ({
                                     }
                                     exceptions={branchLabelExceptions}
                                     siblings={branches}
+                                    isLinked={isBranchLinked(branch._id)}
                                 />
                             );
                         })}
