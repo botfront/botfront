@@ -98,6 +98,7 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
 ), [{ story: (story.story || ''), title: story.title }]);
 
 export const findBranchById = (branchesN0, branchId) => {
+    // recursive search of a branchId in the branches of a story
     const index = branchesN0.findIndex(branchesN1 => branchesN1._id === branchId);
     if (index !== -1) {
         return branchesN0[index];
@@ -115,8 +116,12 @@ export const findBranchById = (branchesN0, branchId) => {
 };
 
 export const addlinkCheckpoints = (stories) => {
+    // adds rasa checkpoints to linked stories */
+
     const checkpointsToAdd = [];
     let checkpointsCounter = 0;
+    /* prepend a given checkpoint title to each story with a link (has a checkpoint property)
+    every checkpoint title is kept along its path to later append it to the origin story */
     const storiesCheckpointed = stories.map((story) => {
         if (story.checkpoints && story.checkpoints.length > 0) {
             let checkpoints = '';
@@ -134,6 +139,7 @@ export const addlinkCheckpoints = (stories) => {
         return story;
     });
 
+    // append the correct checkpoint title to the end of the story/branch
     checkpointsToAdd.forEach((checkpoint) => {
         const originIndex = storiesCheckpointed.findIndex(
             story => story._id === checkpoint.path[0],
