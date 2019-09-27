@@ -120,23 +120,6 @@ const StoryTopMenu = ({
         if (isLinked) {
             toolTipText = [...toolTipText, 'A story that is linked to another story cannot be deleted.'];
         }
-        /*
-                <Popup
-                    className='tool-tip-popup'
-                    trigger={
-                        <Icon disabled={isDestinationStory || isLinked} name='trash' data-cy='delete-story' />
-                    }
-                    content={
-                        <>
-                            <Header size='large'>This story cannot be deleted</Header>
-                            <List bulleted>
-                                {isDestinationStory && <List.Item>This story is the destination of a link in another story</List.Item>}
-                                {isLinked && <List.Item>this story Links to another story</List.Item>}
-                            </List>
-                        </>
-                    }
-                />
-        */
         return (isLinked || isDestinationStory
             ? (
                 <ToolTipPopup
@@ -244,32 +227,12 @@ const StoryTopMenu = ({
                         onClick={onClone}
                     />
                     {renderDeletePopup()}
-                    {/* <Popup
-                        trigger={
-                            <Icon disabled={isDestinationStory} name='trash' data-cy='delete-story' />
-                        }
-                        disabled={isDestinationStory}
-                        content={(
-                            <ConfirmPopup
-                                title='Delete story ?'
-                                onYes={() => {
-                                    openDeletePopup(false);
-                                    onDelete();
-                                }}
-                                onNo={() => openDeletePopup(false)}
-                            />
-                        )}
-                        on='click'
-                        open={deletePopupOpened}
-                        onOpen={() => openDeletePopup(true)}
-                        onClose={() => openDeletePopup(false)}
-                            /> */}
                 </Menu.Item>
             </Menu>
             { isDestinationStory && (
                 <Popup
                     className='connected-stories-popup'
-                    size='tiny'
+                    size='small'
                     on={['click']}
                     position='bottom right'
                     // hoverable
