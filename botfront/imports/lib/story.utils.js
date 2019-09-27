@@ -99,10 +99,14 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
 
 export const findBranchById = (branchesN0, branchId) => {
     // recursive search of a branchId in the branches of a story
+    
+    // check if one of the child branch correspond to branchId
     const index = branchesN0.findIndex(branchesN1 => branchesN1._id === branchId);
     if (index !== -1) {
         return branchesN0[index];
     }
+    
+    // pass the child branches to itself to continue the search
     for (let i = 0; i < branchesN0.length; i += 1) {
         if (branchesN0[i].branches && branchesN0[i].branches.length > 0) {
             const branchesN1 = branchesN0[i].branches;
@@ -112,6 +116,8 @@ export const findBranchById = (branchesN0, branchId) => {
             }
         }
     }
+    /* if there is no more child branches or the searched branch was not found
+    it's get checked for in the if just above */
     return -1;
 };
 
