@@ -97,6 +97,58 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
     [...acc, ...flattenStory(val)]
 ), [{ story: (story.story || ''), title: story.title }]);
 
+export const findBranchById = (branchesN0, branchId) => {
+    const index = branchesN0.findIndex(branchesN1 => branchesN1._id === branchId);
+    if (index !== -1) {
+        return branchesN0[index];
+    }
+    if (branchesN0.branches && branchesN0.branches.length > 0) {
+        for (let i = 0; i < branchesN0.branches.length; i += 1) {
+            const branchesN1 = branchesN0.branches[i];
+            const result = findBranchById(branchesN1, branchId);
+            if (result !== -1) {
+                return result;
+            }
+        }
+    }
+    return -1;
+};
+
+export const addlinkCheckpoints = (stories) => {
+    const checkpointsToAdd = [];
+    let checkpointsCounter = 0;
+    const storiesCheckpointed = stories.map((story) => {
+        if (story.checkpoints && story.checkpoints.length > 0) {
+            let checkpoints = '';
+            story.checkpoints.forEach((checkpoint) => {
+                const checkpointTitle = `checkpoint_${checkpointsCounter}`;
+                checkpoints = `> ${checkpointTitle}\n`.concat(checkpoints);
+                checkpointsToAdd.push({
+                    checkpointTitle,
+                    path: checkpoint,
+                });
+                checkpointsCounter += 1;
+            });
+            return { ...story, story: checkpoints.concat(story.story) };
+        }
+        return story;
+    });
+
+    checkpointsToAdd.forEach((checkpoint) => {
+        const originIndex = storiesCheckpointed.findIndex(
+            story => story._id === checkpoint.path[0],
+        );
+        const linkBranchId = checkpoint.path[checkpoint.path.length - 1];
+        const branch = findBranchById(
+            storiesCheckpointed[originIndex].branches,
+            linkBranchId,
+        );
+        branch.story = branch.story.concat(`> ${checkpoint.checkpointTitle}\n`);
+    });
+
+    return storiesCheckpointed;
+};
+
 export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}) => {
     const initialDomain = {
         actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
