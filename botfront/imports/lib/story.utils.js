@@ -245,20 +245,22 @@ export const getStoriesAndDomain = (projectId) => {
             { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
             {
                 fields: {
-                    story: 1, title: 1, branches: 1, errors: 1,
+                    story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
                 },
             },
         ).fetch()
         : Stories.find({ projectId }, {
             fields: {
-                story: 1, title: 1, branches: 1, errors: 1,
+                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
             },
         }).fetch();
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
-    const storiesForRasa = stories
+    let storiesForRasa = stories
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
-        .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
+        .map(story => appendBranchCheckpoints(story));
+    storiesForRasa = addlinkCheckpoints(storiesForRasa)
+        .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
 
     const templates = getAllTemplates(projectId);
