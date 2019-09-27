@@ -95,9 +95,9 @@ if (Meteor.isServer) {
                 throw formatError(e);
             }
         },
-        'project.delete'(projectId, options) {
+        'project.delete'(projectId, options = { failSilently: false, bypassWithCI: false }) {
             check(projectId, String);
-            check(options, Match.Optional(Object));
+            check(options, Object);
             const { failSilently, bypassWithCI } = options;
             checkIfCan('global-admin', null, null, { bypassWithCI });
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
