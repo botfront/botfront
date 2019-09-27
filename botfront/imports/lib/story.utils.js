@@ -102,9 +102,9 @@ export const findBranchById = (branchesN0, branchId) => {
     if (index !== -1) {
         return branchesN0[index];
     }
-    if (branchesN0.branches && branchesN0.branches.length > 0) {
-        for (let i = 0; i < branchesN0.branches.length; i += 1) {
-            const branchesN1 = branchesN0.branches[i];
+    for (let i = 0; i < branchesN0.length; i += 1) {
+        if (branchesN0[i].branches && branchesN0[i].branches.length > 0) {
+            const branchesN1 = branchesN0[i].branches;
             const result = findBranchById(branchesN1, branchId);
             if (result !== -1) {
                 return result;
@@ -138,12 +138,20 @@ export const addlinkCheckpoints = (stories) => {
         const originIndex = storiesCheckpointed.findIndex(
             story => story._id === checkpoint.path[0],
         );
-        const linkBranchId = checkpoint.path[checkpoint.path.length - 1];
-        const branch = findBranchById(
-            storiesCheckpointed[originIndex].branches,
-            linkBranchId,
-        );
-        branch.story = branch.story.concat(`> ${checkpoint.checkpointTitle}\n`);
+        if (checkpoint.path.length === 1) {
+            storiesCheckpointed[originIndex].story = storiesCheckpointed[
+                originIndex
+            ].story.concat(`\n> ${checkpoint.checkpointTitle}`);
+        } else {
+            const linkBranchId = checkpoint.path[checkpoint.path.length - 1];
+            const branch = findBranchById(
+                storiesCheckpointed[originIndex].branches,
+                linkBranchId,
+            );
+            if (branch !== -1) {
+                branch.story = branch.story.concat(`\n> ${checkpoint.checkpointTitle}`);
+            }
+        }
     });
 
     return storiesCheckpointed;
