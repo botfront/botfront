@@ -97,6 +97,78 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
     [...acc, ...flattenStory(val)]
 ), [{ story: (story.story || ''), title: story.title }]);
 
+export const findBranchById = (branchesN0, branchId) => {
+    // recursive search of a branchId in the branches of a story
+    
+    // check if one of the child branch correspond to branchId
+    const index = branchesN0.findIndex(branchesN1 => branchesN1._id === branchId);
+    if (index !== -1) {
+        return branchesN0[index];
+    }
+    
+    // pass the child branches to itself to continue the search
+    for (let i = 0; i < branchesN0.length; i += 1) {
+        if (branchesN0[i].branches && branchesN0[i].branches.length > 0) {
+            const branchesN1 = branchesN0[i].branches;
+            const result = findBranchById(branchesN1, branchId);
+            if (result !== -1) {
+                return result;
+            }
+        }
+    }
+    /* if there is no more child branches or the searched branch was not found
+    it's get checked for in the if just above */
+    return -1;
+};
+
+export const addlinkCheckpoints = (stories) => {
+    // adds rasa checkpoints to linked stories */
+
+    const checkpointsToAdd = [];
+    let checkpointsCounter = 0;
+    /* prepend a given checkpoint title to each story with a link (has a checkpoint property)
+    every checkpoint title is kept along its path to later append it to the origin story */
+    const storiesCheckpointed = stories.map((story) => {
+        if (story.checkpoints && story.checkpoints.length > 0) {
+            let checkpoints = '';
+            story.checkpoints.forEach((checkpoint) => {
+                const checkpointTitle = `checkpoint_${checkpointsCounter}`;
+                checkpoints = `> ${checkpointTitle}\n`.concat(checkpoints);
+                checkpointsToAdd.push({
+                    checkpointTitle,
+                    path: checkpoint,
+                });
+                checkpointsCounter += 1;
+            });
+            return { ...story, story: checkpoints.concat(story.story) };
+        }
+        return story;
+    });
+
+    // append the correct checkpoint title to the end of the story/branch
+    checkpointsToAdd.forEach((checkpoint) => {
+        const originIndex = storiesCheckpointed.findIndex(
+            story => story._id === checkpoint.path[0],
+        );
+        if (checkpoint.path.length === 1) {
+            storiesCheckpointed[originIndex].story = storiesCheckpointed[
+                originIndex
+            ].story.concat(`\n> ${checkpoint.checkpointTitle}`);
+        } else {
+            const linkBranchId = checkpoint.path[checkpoint.path.length - 1];
+            const branch = findBranchById(
+                storiesCheckpointed[originIndex].branches,
+                linkBranchId,
+            );
+            if (branch !== -1) {
+                branch.story = branch.story.concat(`\n> ${checkpoint.checkpointTitle}`);
+            }
+        }
+    });
+
+    return storiesCheckpointed;
+};
+
 export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}, crashOnStoryWithErrors = true) => {
     const initialDomain = {
         actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
@@ -190,20 +262,22 @@ export const getStoriesAndDomain = (projectId) => {
             { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
             {
                 fields: {
-                    story: 1, title: 1, branches: 1, errors: 1,
+                    story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
                 },
             },
         ).fetch()
         : Stories.find({ projectId }, {
             fields: {
-                story: 1, title: 1, branches: 1, errors: 1,
+                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
             },
         }).fetch();
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
-    const storiesForRasa = stories
+    let storiesForRasa = stories
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
-        .reduce((acc, story) => [...acc, ...flattenStory(appendBranchCheckpoints(story))], [])
+        .map(story => appendBranchCheckpoints(story));
+    storiesForRasa = addlinkCheckpoints(storiesForRasa)
+        .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
 
     const templates = getAllTemplates(projectId);

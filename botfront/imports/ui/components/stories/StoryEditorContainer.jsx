@@ -51,7 +51,7 @@ const StoryEditorContainer = ({
     changeStoryPath,
     collapsed,
 }) => {
-    const { slots, templates } = useContext(ConversationOptionsContext);
+    const { slots, templates, stories } = useContext(ConversationOptionsContext);
     // The next path to go to when a change is made, we wait for the story prop to be updated to go that path
     // useful when we add branch for instance, we have to wait for the branches to actually be in the db
     // set to null when we don't want to go anywhere
@@ -61,6 +61,8 @@ const StoryEditorContainer = ({
     // so we have to use this workaround
     const [editors, setEditors] = useState({});
     const [exceptions, setExceptions] = useState({});
+    const [destinationStory, setDestinationStory] = useState({});
+    const [destinationStories, setDestinationStories] = useState([]);
 
     const saveStory = (path, content) => {
         onSaving();
@@ -92,6 +94,47 @@ const StoryEditorContainer = ({
             storyControllers[storyId].setTemplates(templates);
         });
     }, [templates]);
+    
+    const isBranchLinked = branchId => (
+        destinationStories
+            .some(aStory => (aStory.checkpoints
+                .some(checkpointPath => (checkpointPath
+                    .includes(branchId)
+                )))));
+
+    const findDestinationStories = () => stories.filter(aStory => branchPath.some((storyId) => {
+        if (aStory.checkpoints === undefined) return false;
+        return aStory.checkpoints.some(checkpointPath => checkpointPath.includes(storyId));
+    }));
+
+    function findDestinationStory() {
+        return stories.find((aStory) => {
+            if (aStory.checkpoints !== undefined) {
+                return aStory.checkpoints.some(checkpoint => checkpoint[checkpoint.length - 1] === branchPath[branchPath.length - 1]);
+            }
+            return false;
+        });
+    }
+    useEffect(() => {
+        const newDestinationStory = findDestinationStory();
+        const newDestinationStories = findDestinationStories();
+        setDestinationStory(newDestinationStory);
+        setDestinationStories(newDestinationStories);
+    }, [branchPath]);
+
+    function onDestinationStorySelection(event, { value }) {
+        // remove the link if the value of the drop down is empty
+        if (value === '') {
+            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+        } else if (value && destinationStory) {
+            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+            Meteor.call('stories.addCheckpoints', value, branchPath);
+        } else {
+            Meteor.call('stories.addCheckpoints', value, branchPath);
+        }
+        const newDestinationStory = findDestinationStory();
+        setDestinationStory(newDestinationStory);
+    }
 
     // This is to make sure that all opened branches have corresponding storyController objects
     // attached to them.
@@ -118,6 +161,13 @@ const StoryEditorContainer = ({
         });
     }, [branchPath]);
 
+    const GetExceptionsLengthByType = exceptionType => (
+        // valid types are "errors" and "warnings"
+        exceptions[story._id] && exceptions[story._id][exceptionType]
+            ? exceptions[story._id][exceptionType].length
+            : 0
+    );
+
     const renderTopMenu = () => (
         <StoryTopMenu
             title={story.title}
@@ -128,16 +178,11 @@ const StoryEditorContainer = ({
             onRename={onRenameStory}
             onClone={onClone}
             groupNames={groupNames}
-            errors={
-                exceptions[story._id] && exceptions[story._id].errors
-                    ? exceptions[story._id].errors.length
-                    : 0
-            }
-            warnings={
-                exceptions[story._id] && exceptions[story._id].warnings
-                    ? exceptions[story._id].warnings.length
-                    : 0
-            }
+            errors={GetExceptionsLengthByType('errors')}
+            warnings={GetExceptionsLengthByType('warnings')}
+            isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
+            isLinked={destinationStories.length > 0}
+            originStories={story.checkpoints}
         />
     );
 
@@ -357,6 +402,8 @@ const StoryEditorContainer = ({
                                     }
                                     exceptions={branchLabelExceptions}
                                     siblings={branches}
+                                    isLinked={isBranchLinked(branch._id)}
+                                    isParentLinked={isBranchLinked(pathToRender[pathToRender.length - 1])}
                                 />
                             );
                         })}
@@ -403,10 +450,13 @@ const StoryEditorContainer = ({
                     onBranch={() => handleCreateBranch(branchPath, [], 2)}
                     onContinue={() => {}}
                     canContinue={false}
+                    onDestinationStorySelection={onDestinationStorySelection}
+                    destinationStory={destinationStory}
                     // We just check if there are any branches at the current path
                     // If there are, we can't branch
                     canBranch={canBranch()}
                     storyPath={getStoryPath()}
+                    currentStoryId={story._id}
                     disableContinue
                 />
             )}

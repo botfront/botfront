@@ -59,6 +59,7 @@ function StoriesEditor(props) {
     function handleDuplicateStory(index) {
         const newStory = { ...stories[index] };
         delete newStory._id;
+        delete newStory.checkpoints;
         newStory.title = `${stories[index].title} (copy)`;
         Meteor.call(
             'stories.insert',

@@ -6,7 +6,7 @@ describe('story exceptions', function() {
         cy.deleteProject('bf');
     });
     beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
+        cy.createProject('bf', 'My Project', 'fr');
         cy.login();
     });
     const createTestStoryGroup = () => {
@@ -40,8 +40,8 @@ describe('story exceptions', function() {
     const clearAceEditor = (textareaIndex, aceLineIndex) => {
         cy.get('.ace_line', { timeout: 10000 })
             .eq(aceLineIndex)
-            .click({ force: true })
-            .get('textarea')
+            .click({ force: true });
+        cy.get('textarea')
             .eq(textareaIndex)
             .clear();
     };

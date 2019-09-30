@@ -167,6 +167,7 @@ function StoriesContainer(props) {
                 browseToSlots: () => setActiveItem('slots'),
                 templates: [...project.templates],
                 stories,
+                storyGroups,
             }}
         >
             <PageMenu title='Stories' icon='book'>

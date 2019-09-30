@@ -5,9 +5,10 @@ import {
     Breadcrumb,
     Icon,
     Menu,
+    Dropdown,
 } from 'semantic-ui-react';
-
 import StoryPathPopup from './StoryPathPopup.jsx';
+import { ConversationOptionsContext } from '../utils/Context';
 
 class StoryFooter extends React.Component {
     constructor(props) {
@@ -77,6 +78,15 @@ class StoryFooter extends React.Component {
         return ' linked';
     }
 
+    reshapeStoriesData = (data, currentStoryId) => (data
+        .map(story => ({ key: story._id, text: story.title, value: story._id }))
+        .sort((storyA, storyB) => {
+            if (storyA.text < storyB.text) return -1;
+            if (storyA.text > storyB.text) return 1;
+            return 0;
+        })
+        .filter(story => story.key !== currentStoryId));
+
     renderContinue = () => {
         const { canContinue, disableContinue } = this.props;
         if (disableContinue) {
@@ -98,27 +108,76 @@ class StoryFooter extends React.Component {
         );
     }
 
+    renderBranchMenu = (destinationStory, canBranch) => {
+        if (destinationStory) {
+            return <></>;
+        }
+        return (
+            <Menu.Item
+                onClick={this.handleBranchClick}
+                className={`footer-option-button color-${this.selectIconColor(
+                    canBranch,
+                )}`}
+                data-cy='create-branch'
+            >
+                <Icon
+                    disabled={!canBranch}
+                    name='code branch'
+                    color={this.selectIconColor(canBranch)}
+                />
+                Branch Story
+            </Menu.Item>
+        );
+    }
+
+    renderLinkMenu = (destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) => (
+        <Menu.Item
+            className={`footer-option-button remove-padding color-${this.selectIconColor(
+                canBranch,
+            )}`}
+            data-cy='link-to'
+            position={this.positionStoryLinker(destinationStory)}
+        >
+            <Icon
+                disabled={!canBranch}
+                name='arrow right'
+                color='green'
+            />
+            Link&nbsp;to:
+            <Dropdown
+                placeholder='Select story'
+                value={destinationStory ? destinationStory._id : ''}
+                fluid
+                search
+                selection
+                clearable
+                selectOnBlur={false}
+                className='stories-linker'
+                options={this.reshapeStoriesData(stories, currentStoryId)}
+                data-cy='stories-linker'
+                disabled={!canBranch}
+                onChange={onDestinationStorySelection}
+            />
+
+        </Menu.Item>);
+
+
+    positionStoryLinker = destinationStory => (destinationStory === null ? 'right' : 'left');
 
     render() {
-        const { canBranch } = this.props;
+        const {
+            canBranch,
+            stories,
+            currentStoryId,
+            destinationStory,
+            onDestinationStorySelection,
+        } = this.props;
         return (
-            <Segment className='footer-segment' size='mini' attached='bottom'>
+            <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
-                    <Menu.Item
-                        onClick={this.handleBranchClick}
-                        className={`footer-option-button color-${this.selectIconColor(
-                            canBranch,
-                        )}`}
-                        data-cy='create-branch'
-                    >
-                        <Icon
-                            disabled={!canBranch}
-                            name='code branch'
-                            color={this.selectIconColor(canBranch)}
-                        />
-                        Branch Story
-                    </Menu.Item>
+                    <>{this.renderBranchMenu(destinationStory, canBranch)}</>
+                    <>{canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
@@ -129,10 +188,14 @@ class StoryFooter extends React.Component {
 StoryFooter.propTypes = {
     storyPath: PropTypes.array,
     canBranch: PropTypes.bool,
+    currentStoryId: PropTypes.string.isRequired,
     canContinue: PropTypes.bool,
     onBranch: PropTypes.func.isRequired,
     onContinue: PropTypes.func.isRequired,
+    onDestinationStorySelection: PropTypes.func.isRequired,
     disableContinue: PropTypes.bool,
+    stories: PropTypes.array.isRequired,
+    destinationStory: PropTypes.object,
 };
 
 StoryFooter.defaultProps = {
@@ -140,6 +203,16 @@ StoryFooter.defaultProps = {
     canBranch: true,
     canContinue: true,
     disableContinue: true,
+    destinationStory: null,
 };
 
-export default StoryFooter;
+export default props => (
+    <ConversationOptionsContext.Consumer>
+        {value => (
+            <StoryFooter
+                {...props}
+                stories={value.stories}
+            />
+        )}
+    </ConversationOptionsContext.Consumer>
+);

@@ -9,4 +9,5 @@ export const ConversationOptionsContext = React.createContext({
     updateResponse: () => {},
     getResponse: () => {},
     templates: [],
+    storyGroups: [],
 });
