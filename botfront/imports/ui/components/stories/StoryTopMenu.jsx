@@ -233,9 +233,10 @@ const StoryTopMenu = ({
                 <Popup
                     className='connected-stories-popup'
                     size='small'
-                    on={['click']}
+                    on={['click', 'hover']}
                     position='bottom right'
-                    // hoverable
+                    mouseEnterDelay={500}
+                    hoverable
                     trigger={(
                         <Message className='connected-story-alert' attached warning size='tiny'>
                             <Icon name='info circle' />
