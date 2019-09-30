@@ -1,0 +1,47 @@
+/* eslint-disable no-undef */
+describe('project creation', function() {
+    beforeEach(function() {
+        cy.createProject('bf', 'Duedix', 'fr');
+    });
+
+    afterEach(function() {
+        cy.deleteProject('bf');
+    });
+
+    it('should be possible to create and delete project', function() {
+        cy.visit('/admin/projects');
+        cy.dataCy('new-project').click();
+        cy.get('#uniforms-0000-0001').type('test');
+        cy.get('#uniforms-0000-0003').type('test');
+        cy.get('#uniforms-0000-0004').click();
+        cy.get('#uniforms-0000-0004')
+            .children()
+            .children()
+            .first()
+            .click();
+        cy.get('#uniforms-0000-0006').type('test');
+        cy.dataCy('submit-field').click();
+        cy.location().should((loc) => {
+            expect(loc.href).to.eq('http://localhost:3000/admin/project/add');
+        });
+        cy.get(':nth-child(3) > .rt-tr > :nth-child(1)').should('have.text', 'test');
+        cy.get(':nth-child(3) > .rt-tr > :nth-child(3)').click();
+        cy.location().should((loc) => {
+            expect(loc.href).to.match(/http:\/\/localhost:3000\/admin\/project\/./);
+        });
+        cy.dataCy('delete-project').should('be.disabled');
+        cy.get('.ui > label').click();
+        cy.dataCy('submit-field').click();
+        
+        cy.get(':nth-child(1) > .rt-tr > :nth-child(1)').eq(1).should('have.text', 'test');
+        cy.get(':nth-child(1) > .rt-tr > :nth-child(3)').eq(1).click();
+        cy.location().should((loc) => {
+            expect(loc.href).to.match(/http:\/\/localhost:3000\/admin\/project\/./);
+        });
+        cy.dataCy('delete-project').should('not.be.disabled');
+        cy.dataCy('delete-project').click();
+        cy.get('.primary').click();
+        // \u00a0 is nbsp, the 'empty' value in the table
+        cy.get(':nth-child(3) > .rt-tr > :nth-child(1)').should('have.text', '\u00a0'); // \u00a0 is nbsp, the 'empty' value in the table
+    });
+});
