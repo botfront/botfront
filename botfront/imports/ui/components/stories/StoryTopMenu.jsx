@@ -99,7 +99,7 @@ const StoryTopMenu = ({
             storyIdDictionary[story._id] = { storyGroupId: story.storyGroupId, title: story.title };
         });
         const connectedStories = {};
-        originStories.forEach((path) => {
+        originStories.forEach((path, index) => {
             if (!Array.isArray(path) || storyIdDictionary[path[0]] === undefined) {
                 return;
             }
@@ -107,9 +107,15 @@ const StoryTopMenu = ({
             if (connectedStories[story.storyGroupId] === undefined) {
                 connectedStories[story.storyGroupId] = [];
             }
-            connectedStories[story.storyGroupId] = [...connectedStories[story.storyGroupId], <p><span className='story-title-prefix'>##</span>{story.title}</p>];
+            connectedStories[story.storyGroupId] = [...connectedStories[story.storyGroupId], <p key={index} className='title-list-elem'><span className='story-title-prefix'>##</span>{story.title}</p>];
         });
-        return Object.keys(connectedStories).map(key => (<><Header>{storyGroupIdDictionary[key]}</Header>{connectedStories[key]}</>));
+        return Object.keys(connectedStories).map(key => (
+        <>
+            <Header key={storyGroupIdDictionary[key]}>
+                {storyGroupIdDictionary[key]}
+            </Header>{connectedStories[key]}
+        </>
+        ));
     };
 
     const renderDeletePopup = () => {
@@ -127,7 +133,7 @@ const StoryTopMenu = ({
                         <Icon disabled={isDestinationStory || isLinked} name='trash' data-cy='delete-story' />
                     }
                     toolTipText={toolTipText}
-                    header='This story Cannot be deleted'
+                    header='This story cannot be deleted'
                 />
 
             ) : (
@@ -168,7 +174,7 @@ const StoryTopMenu = ({
                         data-cy='collapse-story-button'
                     />
                     { isDestinationStory
-                        ? (<Icon name='arrow alternate circle right' color='yellow' fitted />)
+                        ? (<Icon name='arrow alternate circle right' color='green' fitted />)
                         : (<span className='story-title-prefix'>##</span>)
                     }
                     <input
@@ -233,10 +239,8 @@ const StoryTopMenu = ({
                 <Popup
                     className='connected-stories-popup'
                     size='small'
-                    on={['click', 'hover']}
-                    position='bottom right'
-                    mouseEnterDelay={500}
-                    hoverable
+                    on='click'
+                    position='bottom left'
                     trigger={(
                         <Message className='connected-story-alert' attached warning size='tiny'>
                             <Icon name='info circle' />
@@ -246,7 +250,6 @@ const StoryTopMenu = ({
                 >
                     {renderConnectedStories()}
                 </Popup>
-
             )}
         </>
     );
