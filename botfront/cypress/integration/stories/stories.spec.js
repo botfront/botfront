@@ -376,14 +376,12 @@ describe('stories', function() {
             .last()
             .dataCy('branch-label')
             .last()
-            .find('.trash.small.disabled')
-            .should('not.exist');
+            .find('.trash.small.disabled');
         cy.dataCy('single-story-editor')
             .eq(1)
             .dataCy('branch-label')
             .first()
-            .find('.trash.small.disabled')
-            .should('exist');
+            .find('.trash.small.disabled');
         cy.dataCy('single-story-editor')
             .eq(1)
             .dataCy('branch-label')
@@ -393,8 +391,7 @@ describe('stories', function() {
             .eq(1)
             .dataCy('branch-label')
             .last()
-            .find('.trash.small.disabled')
-            .should('not.exist');
+            .find('.trash.small.disabled');
     });
     it('should disable the delete button in the story top menu for linked destination stories', function () {
         cy.visit('/project/bf/stories');
