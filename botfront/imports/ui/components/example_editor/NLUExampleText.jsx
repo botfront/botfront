@@ -282,10 +282,11 @@ class NLUExampleText extends React.Component {
 
         // we check that the characters at the edge of the selection are either
         // next to a non word character or at the edge of the text
+        // the regex [a-zA-Z\u00C0-\u017F0-9-] match all letters, numbers, the accentuated characters range 192 to 383 and -
         const anchorCorrect = (anchor === 0 || /\W/.test(text.slice(anchor - 1, anchor)))
-            && /\w/.test(text.slice(anchor, anchor + 1));
+            && /[a-zA-Z\u00C0-\u017F0-9-]/.test(text.slice(anchor, anchor + 1));
         const extentCorrect = (extent === text.length || /\W/.test(text.slice(extent, extent + 1)))
-            && /\w/.test(text.slice(extent - 1, extent));
+            && /[a-zA-Z\u00C0-\u017F0-9-]/.test(text.slice(extent - 1, extent));
 
         if (anchorCorrect && extentCorrect) {
             return {
@@ -320,13 +321,13 @@ class NLUExampleText extends React.Component {
     trimBeginning = (text, anchor, extent) => {
         if (
             anchor === extent
-            || (/\w/.test(text.slice(anchor, anchor + 1)) && /\w/.test(text.slice(anchor - 1, anchor)))
+            || (/[a-zA-Z\u00C0-\u017F0-9-]/.test(text.slice(anchor, anchor + 1)) && /[a-zA-Z\u00C0-\u017F0-9-]/.test(text.slice(anchor - 1, anchor)))
         ) {
             return false;
         }
 
         if (
-            /\w/.test(text.slice(anchor, anchor + 1))
+            /[a-zA-Z\u00C0-\u017F0-9-]/.test(text.slice(anchor, anchor + 1))
             && /\W/.test(text.slice(anchor - 1, anchor))
         ) {
             return anchor;
@@ -340,13 +341,13 @@ class NLUExampleText extends React.Component {
     trimEnding = (text, anchor, extent) => {
         if (
             anchor === extent
-            || (/\w/.test(text.slice(extent - 1, extent)) && /\w/.test(text.slice(extent, extent + 1)))
+            || (/[a-zA-Z\u00C0-\u017F0-9-]/.test(text.slice(extent - 1, extent)) && /[a-zA-Z\u00C0-\u017F0-9-]/.test(text.slice(extent, extent + 1)))
         ) {
             return false;
         }
 
         if (
-            /\w/.test(text.slice(extent - 1, extent))
+            /[a-zA-Z\u00C0-\u017F0-9-]/.test(text.slice(extent - 1, extent))
             && /\W/.test(text.slice(extent, extent + 1))
         ) {
             return extent;
