@@ -382,6 +382,7 @@ const StoryEditorContainer = ({
                                     exceptions={branchLabelExceptions}
                                     siblings={branches}
                                     isLinked={isBranchLinked(branch._id)}
+                                    isParentLinked={isBranchLinked(pathToRender[pathToRender.length - 1])}
                                 />
                             );
                         })}

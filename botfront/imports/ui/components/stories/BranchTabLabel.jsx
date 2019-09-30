@@ -127,9 +127,9 @@ class BranchTabLabel extends React.Component {
     };
 
     renderDeleteButton = () => {
-        const { isLinked } = this.props;
+        const { isLinked, siblings, isParentLinked } = this.props;
         return (
-            <Icon name='trash' disabled={isLinked} size='small' data-cy='delete-branch' />
+            <Icon name='trash' disabled={isLinked || (siblings.length < 3 && isParentLinked === true)} size='small' data-cy='delete-branch' />
         );
     };
 
@@ -159,7 +159,9 @@ class BranchTabLabel extends React.Component {
 
     renderDeletePopup = () => {
         const { title, deletePopupOpened } = this.state;
-        const { onDelete, siblings, isLinked } = this.props;
+        const {
+            onDelete, siblings, isLinked, isParentLinked,
+        } = this.props;
         const confirmMessage = {};
         if (siblings.length < 3) {
             const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
@@ -176,6 +178,17 @@ class BranchTabLabel extends React.Component {
                     header='This story cannot be deleted'
                     toolTipText={[
                         'A story that is linked to another story cannot be deleted',
+                    ]}
+                    trigger={this.renderDeleteButton()}
+                />
+            );
+        }
+        if (siblings.length < 3 && isParentLinked) {
+            return (
+                <ToolTipPopup
+                    header='This story cannot be deleted'
+                    toolTipText={[
+                        'A story that has a only one sibling branch which is linked cannot be deleted',
                     ]}
                     trigger={this.renderDeleteButton()}
                 />
@@ -293,6 +306,7 @@ BranchTabLabel.propTypes = {
     onSelect: propTypes.func.isRequired,
     siblings: propTypes.array.isRequired,
     isLinked: propTypes.bool,
+    isParentLinked: propTypes.bool.isRequired,
 };
 
 BranchTabLabel.defaultProps = {
