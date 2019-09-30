@@ -2,6 +2,68 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.9-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.9-ee.1...v0.16.0-rc.9-ee.2) (2019-09-30)
+
+
+### Bug Fixes
+
+* checkpoint creation with linked stories ([00a4c23](https://github.com/botfront/botfront/commit/00a4c23))
+* codeclimate similar code warning ([2bf176f](https://github.com/botfront/botfront/commit/2bf176f))
+* codeclimate warnings ([0b067de](https://github.com/botfront/botfront/commit/0b067de))
+* connected stories popup trigger behaviour ([a295e5a](https://github.com/botfront/botfront/commit/a295e5a))
+* correction for the test story_exceptionsn3 ([0d89fb9](https://github.com/botfront/botfront/commit/0d89fb9))
+* eslint warning ([25041f7](https://github.com/botfront/botfront/commit/25041f7))
+* move Storylinker code to the StoryFooter ([283ff70](https://github.com/botfront/botfront/commit/283ff70))
+* naming issues of css class for linking state ([919ee35](https://github.com/botfront/botfront/commit/919ee35))
+* padding style for connected alert popup ([4bf3cef](https://github.com/botfront/botfront/commit/4bf3cef))
+* reduce padding for story group title in popup ([93bd8ff](https://github.com/botfront/botfront/commit/93bd8ff))
+* refactor codeclimate similar code ([eb0755b](https://github.com/botfront/botfront/commit/eb0755b))
+* remove import of unexisting file in main.less ([6ec58d0](https://github.com/botfront/botfront/commit/6ec58d0))
+* remove possibility to link a story to itself ([329b70e](https://github.com/botfront/botfront/commit/329b70e))
+* remove usage of important in css ([6eb9070](https://github.com/botfront/botfront/commit/6eb9070))
+* resolve eslint warnings ([479c50e](https://github.com/botfront/botfront/commit/479c50e))
+* stop delete on branches with linked siblings ([0fb6351](https://github.com/botfront/botfront/commit/0fb6351))
+* stop inherit checkpoints on story duplication ([f691fd5](https://github.com/botfront/botfront/commit/f691fd5))
+* style for destination story popup ([176c6f3](https://github.com/botfront/botfront/commit/176c6f3))
+* test on linking leaf stories ([979037f](https://github.com/botfront/botfront/commit/979037f))
+* tests ([4543496](https://github.com/botfront/botfront/commit/4543496))
+* use find insead of get to retreive descendent element ([929698d](https://github.com/botfront/botfront/commit/929698d))
+
+
+### Features
+
+* add disabled prop to the stories linker ([248bcb2](https://github.com/botfront/botfront/commit/248bcb2))
+* add fields and methods to create checkpoints ([2b37ee4](https://github.com/botfront/botfront/commit/2b37ee4))
+* add methods to removeCheckpoints ([67504e6](https://github.com/botfront/botfront/commit/67504e6))
+* add tests for story linking ([29dded5](https://github.com/botfront/botfront/commit/29dded5))
+* comments for addlinkCheckpoints ([cca459d](https://github.com/botfront/botfront/commit/cca459d))
+* connect checkpoint data to frontend ([09501dc](https://github.com/botfront/botfront/commit/09501dc))
+* function to add rasa checkpoints to linked stories ([d4f129b](https://github.com/botfront/botfront/commit/d4f129b))
+* handle changing the link to a story ([3e466e5](https://github.com/botfront/botfront/commit/3e466e5))
+* hide linking menu when linking is not possible ([530902d](https://github.com/botfront/botfront/commit/530902d))
+* improves comments of the reccursiveSearch use to find a branchId ([340379e](https://github.com/botfront/botfront/commit/340379e))
+* linked stories are used in rasa ([75360d1](https://github.com/botfront/botfront/commit/75360d1))
+* list of stories in the story editor footer (link to) ([448a46a](https://github.com/botfront/botfront/commit/448a46a))
+* popup for connected stories alert ([468191c](https://github.com/botfront/botfront/commit/468191c))
+* popup for story is connected Popup ([68e570d](https://github.com/botfront/botfront/commit/68e570d))
+* refactor code from StoryFooter to StoryEditorContainer ([9a23127](https://github.com/botfront/botfront/commit/9a23127))
+* sort stories name in the linking dropdown ([2ce56f8](https://github.com/botfront/botfront/commit/2ce56f8))
+* style for connected story top menu ([d409fd1](https://github.com/botfront/botfront/commit/d409fd1))
+* style for ToolTipPopup ([e1c9d16](https://github.com/botfront/botfront/commit/e1c9d16))
+* support state change linked or not linked ([c5932a5](https://github.com/botfront/botfront/commit/c5932a5))
+* tests  for checkpoint creation of linked stories ([bbdc2fb](https://github.com/botfront/botfront/commit/bbdc2fb))
+* tooltip popup when a story cannot be deleted ([9c9a854](https://github.com/botfront/botfront/commit/9c9a854))
+* ui use backend to add a link to a story ([221e24c](https://github.com/botfront/botfront/commit/221e24c))
+* update stories tests as you cannot link to a story itself ([232b3c5](https://github.com/botfront/botfront/commit/232b3c5))
+* warning in story topMenu when connected ([ed4883e](https://github.com/botfront/botfront/commit/ed4883e))
+
+
+### Tests
+
+* story delete buttons disable on linked ([0f32b05](https://github.com/botfront/botfront/commit/0f32b05))
+
+
+
 ## [0.16.0-rc.9-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.8-ee.3...v0.16.0-rc.9-ee.1) (2019-09-26)
 
 
