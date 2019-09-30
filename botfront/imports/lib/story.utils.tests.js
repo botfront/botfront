@@ -3,6 +3,7 @@ import {
     traverseStory,
     appendBranchCheckpoints,
     flattenStory,
+    addlinkCheckpoints,
 } from './story.utils';
 
 const storyFixture = {
@@ -70,6 +71,194 @@ const storyFixture = {
     ],
     story: 'I\'m at the root level',
 };
+
+const linkedStoriesFixtures = [
+    {
+        _id: '9u2SN8ngA39ZgMBM9',
+        title: 'story0',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        projectId: 'bf',
+        branches: [],
+        story: 'from 3 to 1',
+        checkpoints: [
+            ['qb2jnTi4hC5xS9uER', 'pGza9w5cXX'],
+            ['dRmvJg2EQrxtQbFAd', 'ibH7J2d4a'],
+        ],
+    },
+    {
+        _id: 'CM5Zb6WXAHPRTdzGW',
+        title: 'story1',
+        projectId: 'bf',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        branches: [
+            {
+                title: 'New Branch 1',
+                branches: [
+                    {
+                        title: 'New Branch 1',
+                        branches: [],
+                        _id: 'ySg1XPqzS',
+                        story: 'nothing',
+                    },
+                    {
+                        title: 'New Branch 2',
+                        branches: [],
+                        _id: 'IzZn0TNnpG',
+                        story: 'to 2',
+                    },
+                ],
+                _id: 'ddc57mpAC',
+                story: 'nothing',
+            },
+            {
+                title: 'New Branch 2',
+                branches: [],
+                _id: 'z0scMz2Gtt',
+                story: 'nothing',
+            },
+        ],
+        checkpoints: [['9u2SN8ngA39ZgMBM9']],
+        story: 'from 0',
+    },
+    {
+        _id: 'dRmvJg2EQrxtQbFAd',
+        title: 'story2',
+        projectId: 'bf',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        branches: [
+            {
+                title: 'New Branch 1',
+                branches: [],
+                _id: 'ibH7J2d4a',
+                story: 'to 0',
+            },
+            {
+                title: 'New Branch 2',
+                branches: [],
+                _id: 'IvMKJCfdrr',
+                story: 'to 3',
+            },
+        ],
+        checkpoints: [['CM5Zb6WXAHPRTdzGW', 'ddc57mpAC', 'IzZn0TNnpG']],
+        story: 'from 1',
+    },
+    {
+        _id: 'qb2jnTi4hC5xS9uER',
+        title: 'story3',
+        storyGroupId: '69PLEAAXxxQfekhsS',
+        projectId: 'bf',
+        branches: [
+            {
+                title: 'New Branch 1',
+                branches: [],
+                _id: 'v5oXJB7b4',
+                story: 'nothing',
+            },
+            {
+                title: 'New Branch 2',
+                branches: [],
+                _id: 'pGza9w5cXX',
+                story: 'to 0',
+            },
+        ],
+        checkpoints: [['dRmvJg2EQrxtQbFAd', 'IvMKJCfdrr']],
+        story: 'from 2',
+    },
+];
+
+const linkedStoriesCheckpointed = [
+    {
+        _id: '9u2SN8ngA39ZgMBM9',
+        title: 'story0',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        projectId: 'bf',
+        branches: [],
+        story: '> checkpoint_1\n> checkpoint_0\nfrom 3 to 1\n> checkpoint_2',
+        checkpoints: [
+            ['qb2jnTi4hC5xS9uER', 'pGza9w5cXX'],
+            ['dRmvJg2EQrxtQbFAd', 'ibH7J2d4a'],
+        ],
+    },
+    {
+        _id: 'CM5Zb6WXAHPRTdzGW',
+        title: 'story1',
+        projectId: 'bf',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        branches: [
+            {
+                title: 'New Branch 1',
+                branches: [
+                    {
+                        title: 'New Branch 1',
+                        branches: [],
+                        _id: 'ySg1XPqzS',
+                        story: 'nothing',
+                    },
+                    {
+                        title: 'New Branch 2',
+                        branches: [],
+                        _id: 'IzZn0TNnpG',
+                        story: 'to 2\n> checkpoint_3',
+                    },
+                ],
+                _id: 'ddc57mpAC',
+                story: 'nothing',
+            },
+            {
+                title: 'New Branch 2',
+                branches: [],
+                _id: 'z0scMz2Gtt',
+                story: 'nothing',
+            },
+        ],
+        checkpoints: [['9u2SN8ngA39ZgMBM9']],
+        story: '> checkpoint_2\nfrom 0',
+    },
+    {
+        _id: 'dRmvJg2EQrxtQbFAd',
+        title: 'story2',
+        projectId: 'bf',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        branches: [
+            {
+                title: 'New Branch 1',
+                branches: [],
+                _id: 'ibH7J2d4a',
+                story: 'to 0\n> checkpoint_1',
+            },
+            {
+                title: 'New Branch 2',
+                branches: [],
+                _id: 'IvMKJCfdrr',
+                story: 'to 3\n> checkpoint_4',
+            },
+        ],
+        checkpoints: [['CM5Zb6WXAHPRTdzGW', 'ddc57mpAC', 'IzZn0TNnpG']],
+        story: '> checkpoint_3\nfrom 1',
+    },
+    {
+        _id: 'qb2jnTi4hC5xS9uER',
+        title: 'story3',
+        storyGroupId: '69PLEAAXxxQfekhsS',
+        projectId: 'bf',
+        branches: [
+            {
+                title: 'New Branch 1',
+                branches: [],
+                _id: 'v5oXJB7b4',
+                story: 'nothing',
+            },
+            {
+                title: 'New Branch 2',
+                branches: [],
+                _id: 'pGza9w5cXX',
+                story: 'to 0\n> checkpoint_0',
+            },
+        ],
+        checkpoints: [['dRmvJg2EQrxtQbFAd', 'IvMKJCfdrr']],
+        story: '> checkpoint_4\nfrom 2',
+    },
+];
 
 const checkpointedStory = {
     _id: 'n6ArDvmf7PEBrZ4ph',
@@ -171,6 +360,14 @@ describe('proper traversal of story', function() {
 describe('proper appending of checkpoints to branching story', function() {
     it('should output something matching the gold', function() {
         expect(appendBranchCheckpoints(storyFixture)).to.be.deep.equal(checkpointedStory);
+    });
+});
+
+describe('proper addition of checkpoints to linked stories', function() {
+    it('should output an object matching the control object with correct checkpoints', function() {
+        expect(addlinkCheckpoints(linkedStoriesFixtures)).to.be.deep.equal(
+            linkedStoriesCheckpointed,
+        );
     });
 });
 

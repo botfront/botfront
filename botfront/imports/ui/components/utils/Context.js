@@ -5,4 +5,5 @@ export const ConversationOptionsContext = React.createContext({
     intents: [],
     slots: [],
     templates: [],
+    storyGroups: [],
 });

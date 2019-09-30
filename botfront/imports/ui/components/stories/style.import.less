@@ -81,9 +81,22 @@
         transform: rotate(90deg);
       }
     }
+    .trash{
+      color:#767676;
+      &:hover{
+        color: #5c5c5c;
+        cursor: pointer;
+      }
+      &.disabled{
+        color: #767676;
+        &:hover{
+          color: #767676;
+          // cursor: not-allowed;
+        }
+      }
+    }
 
     .header {
-
       input {
         margin: 0 5px;
         border-style: solid;
@@ -185,11 +198,12 @@
           color: rgba(0,0,0,0.4);
           padding: 0 10px;
           margin: 0;
-          opacity: 0;
+          visibility: hidden;
         }
         &.active:hover {
           .trash {
             opacity: 1;
+            visibility: visible;
           }
         }
       }
@@ -197,6 +211,8 @@
 
     &.bottom {
       background-color: #eeeeee;
+      &.linked {
+        background-color: rgba(0, 181, 173, 0.06);
     }
   }
 }
@@ -283,8 +299,11 @@
   padding: 0px;
   padding-left: 1em;
   background-color: #00000005;
-  color: rgba(0,0,0,0.4);
-  .ui.mini.menu{
+  color: rgba(0, 0, 0, 0.4);
+  &.linked {
+    color: #666666;
+  }
+    .ui.mini.menu {
     margin-top: 0px;
     margin-left: 1em;
     border-style: none;
@@ -296,7 +315,8 @@
       background-color: rgba(0,0,0,0);
       border-style: none;
       border-radius: 0px;
-      &:hover{
+      padding-top: 0;
+      padding-bottom: 0;
         background-color: rgba(0, 0, 0, 0.02);
       }
       &.color-grey{
@@ -352,3 +372,43 @@
   padding: 0px;
 }
 
+.ui.tiny.warning.attached.message.connected-story-alert{
+  padding: 0.75em;
+  box-shadow: none;
+  border-style: solid;
+  border-color: rgb(238, 238, 238);
+  border-width: 1px;
+}
+
+
+.ui.popup.connected-stories-popup{
+    padding: 13px 17px;
+    text-align: left;
+    overflow-y: auto;
+    max-height: 200px;
+    min-width: 250px;
+    .ui.header {
+      margin-bottom: 4px;
+      margin-top: 0em;
+    }
+    .story-title-prefix{
+      opacity: 0.4;
+      margin-right: 0.25em;
+      
+    }
+    .title-list-elem{
+      margin-top: 0px;
+      margin-bottom: 1px;
+      
+    & + .ui.header{
+      margin-bottom: 4px;
+      margin-top: 1em;
+    }
+  }
+}
+.ui.warning.attached.message.connected-story-alert{
+  &:hover{
+    cursor: pointer;
+    background-color: #fff8ef
+  }
+}
