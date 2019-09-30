@@ -18,6 +18,8 @@ import './commands';
 
 require('cypress-plugin-retries');
 
+Cypress.on('uncaught:exception', () => false);
+
 Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
     if (visit) cy.visit('/');
     cy.window().then(

@@ -81,9 +81,22 @@
         transform: rotate(90deg);
       }
     }
+    .trash{
+      color:#767676;
+      &:hover{
+        color: #5c5c5c;
+        cursor: pointer;
+      }
+      &.disabled{
+        color: #767676;
+        &:hover{
+          color: #767676;
+          // cursor: not-allowed;
+        }
+      }
+    }
 
     .header {
-
       input {
         margin: 0 5px;
         border-style: solid;
@@ -185,11 +198,12 @@
           color: rgba(0,0,0,0.4);
           padding: 0 10px;
           margin: 0;
-          opacity: 0;
+          visibility: hidden;
         }
         &.active:hover {
           .trash {
             opacity: 1;
+            visibility: visible;
           }
         }
       }
@@ -358,3 +372,43 @@
   padding: 0px;
 }
 
+.ui.tiny.warning.attached.message.connected-story-alert{
+  padding: 0.75em;
+  box-shadow: none;
+  border-style: solid;
+  border-color: rgb(238, 238, 238);
+  border-width: 1px;
+}
+
+
+.ui.popup.connected-stories-popup{
+    padding: 13px 17px;
+    text-align: left;
+    overflow-y: auto;
+    max-height: 200px;
+    min-width: 250px;
+    .ui.header {
+      margin-bottom: 4px;
+      margin-top: 0em;
+    }
+    .story-title-prefix{
+      opacity: 0.4;
+      margin-right: 0.25em;
+      
+    }
+    .title-list-elem{
+      margin-top: 0px;
+      margin-bottom: 1px;
+      
+    & + .ui.header{
+      margin-bottom: 4px;
+      margin-top: 1em;
+    }
+  }
+}
+.ui.warning.attached.message.connected-story-alert{
+  &:hover{
+    cursor: pointer;
+    background-color: #fff8ef
+  }
+}

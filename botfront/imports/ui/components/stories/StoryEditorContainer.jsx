@@ -60,6 +60,7 @@ const StoryEditorContainer = ({
     const [editors, setEditors] = useState({});
     const [exceptions, setExceptions] = useState({});
     const [destinationStory, setDestinationStory] = useState({});
+    const [destinationStories, setDestinationStories] = useState([]);
 
     const saveStory = (path, content) => {
         onSaving();
@@ -86,6 +87,18 @@ const StoryEditorContainer = ({
         ),
     });
 
+    const isBranchLinked = branchId => (
+        destinationStories
+            .some(aStory => (aStory.checkpoints
+                .some(checkpointPath => (checkpointPath
+                    .includes(branchId)
+                )))));
+
+    const findDestinationStories = () => stories.filter(aStory => branchPath.some((storyId) => {
+        if (aStory.checkpoints === undefined) return false;
+        return aStory.checkpoints.some(checkpointPath => checkpointPath.includes(storyId));
+    }));
+
     function findDestinationStory() {
         return stories.find((aStory) => {
             if (aStory.checkpoints !== undefined) {
@@ -96,7 +109,9 @@ const StoryEditorContainer = ({
     }
     useEffect(() => {
         const newDestinationStory = findDestinationStory();
+        const newDestinationStories = findDestinationStories();
         setDestinationStory(newDestinationStory);
+        setDestinationStories(newDestinationStories);
     }, [branchPath]);
 
     function onDestinationStorySelection(event, { value }) {
@@ -138,6 +153,13 @@ const StoryEditorContainer = ({
         });
     }, [branchPath]);
 
+    const GetExceptionsLengthByType = exceptionType => (
+        // valid types are "errors" and "warnings"
+        exceptions[story._id] && exceptions[story._id][exceptionType]
+            ? exceptions[story._id][exceptionType].length
+            : 0
+    );
+
     const renderTopMenu = () => (
         <StoryTopMenu
             title={story.title}
@@ -148,16 +170,11 @@ const StoryEditorContainer = ({
             onRename={onRenameStory}
             onClone={onClone}
             groupNames={groupNames}
-            errors={
-                exceptions[story._id] && exceptions[story._id].errors
-                    ? exceptions[story._id].errors.length
-                    : 0
-            }
-            warnings={
-                exceptions[story._id] && exceptions[story._id].warnings
-                    ? exceptions[story._id].warnings.length
-                    : 0
-            }
+            errors={GetExceptionsLengthByType('errors')}
+            warnings={GetExceptionsLengthByType('warnings')}
+            isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
+            isLinked={destinationStories.length > 0}
+            originStories={story.checkpoints}
         />
     );
 
@@ -364,6 +381,8 @@ const StoryEditorContainer = ({
                                     }
                                     exceptions={branchLabelExceptions}
                                     siblings={branches}
+                                    isLinked={isBranchLinked(branch._id)}
+                                    isParentLinked={isBranchLinked(pathToRender[pathToRender.length - 1])}
                                 />
                             );
                         })}
