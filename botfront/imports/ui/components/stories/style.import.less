@@ -389,6 +389,7 @@
     min-width: 250px;
     .ui.header {
       margin-bottom: 4px;
+      margin-top: 0em;
     }
     .story-title-prefix{
       opacity: 0.4;
@@ -398,13 +399,12 @@
     .title-list-elem{
       margin-top: 0px;
       margin-bottom: 1px;
-      }
-    }&~{
-      .ui.header {
-        margin-bottom: 4px;
-        margin-top: 1em;
-      }
-    
+      
+    & + .ui.header{
+      margin-bottom: 4px;
+      margin-top: 1em;
+    }
+  }
 }
 .ui.warning.attached.message.connected-story-alert{
   &:hover{
