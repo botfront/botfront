@@ -87,24 +87,17 @@ const StoryEditorContainer = ({
         ),
     });
 
-    const isBranchLinked = (branchId) => {
-        return destinationStories.some((aStory) => {
-            return aStory.checkpoints.some((checkpointPath) => {
-                return checkpointPath.includes(branchId);
-            });
-        });
-    };
+    const isBranchLinked = branchId => (
+        destinationStories
+            .some(aStory => (aStory.checkpoints
+                .some(checkpointPath => (checkpointPath
+                    .includes(branchId)
+                )))));
 
-    const findDestinationStories = () => {
-        return stories.filter((aStory) => {
-            return branchPath.some((storyId) => {
-                if (aStory.checkpoints === undefined) return false;
-                return aStory.checkpoints.some((checkpointPath) => {
-                    return checkpointPath.includes(storyId);
-                });
-            });
-        })
-    };
+    const findDestinationStories = () => stories.filter(aStory => branchPath.some((storyId) => {
+        if (aStory.checkpoints === undefined) return false;
+        return aStory.checkpoints.some(checkpointPath => checkpointPath.includes(storyId));
+    }));
 
     function findDestinationStory() {
         return stories.find((aStory) => {

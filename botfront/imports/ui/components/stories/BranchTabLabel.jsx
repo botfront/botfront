@@ -104,10 +104,24 @@ class BranchTabLabel extends React.Component {
         const { exceptions } = this.props;
         const alertList = [];
         if (exceptions.warnings && exceptions.warnings.length > 0) {
-            alertList.push(<Icon key='warning-icon' name='exclamation circle' color='yellow' data-cy='branch-tab-warning-alert' />);
+            alertList.push(
+                <Icon
+                    key='warning-icon'
+                    name='exclamation circle'
+                    color='yellow'
+                    data-cy='branch-tab-warning-alert'
+                />,
+            );
         }
         if (exceptions.errors && exceptions.errors.length > 0) {
-            alertList.push(<Icon key='error-icon' name='times circle' color='red' data-cy='branch-tab-error-alert' />);
+            alertList.push(
+                <Icon
+                    key='error-icon'
+                    name='times circle'
+                    color='red'
+                    data-cy='branch-tab-error-alert'
+                />,
+            );
         }
         return <>{alertList}</>;
     };
@@ -117,7 +131,7 @@ class BranchTabLabel extends React.Component {
         return (
             <Icon name='trash' disabled={isLinked} size='small' data-cy='delete-branch' />
         );
-    }
+    };
 
     handleOnClick = () => {
         const { title } = this.state;
@@ -160,7 +174,9 @@ class BranchTabLabel extends React.Component {
             return (
                 <ToolTipPopup
                     header='This story cannot be deleted'
-                    toolTipText={['A story that is linked to another story cannot be deleted']}
+                    toolTipText={[
+                        'A story that is linked to another story cannot be deleted',
+                    ]}
                     trigger={this.renderDeleteButton()}
                 />
             );
@@ -185,11 +201,11 @@ class BranchTabLabel extends React.Component {
                 onClose={() => this.setState({ deletePopupOpened: false })}
             />
         );
-    }
+    };
 
     renderTitleDecorated = () => {
-        const { title, deletePopupOpened } = this.state;
-        const { onDelete, siblings } = this.props;
+        const { title } = this.state;
+        const { siblings } = this.props;
         const confirmMessage = {};
         if (siblings.length < 3) {
             const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
