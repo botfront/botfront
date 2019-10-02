@@ -23,6 +23,8 @@ const ImportProject = ({
             key: 'botfront',
             text: ' Import Botfront project',
             value: 'botfront',
+            successText: 'Your current project has been overwritten.',
+            successHeader: 'Botfront import successful!',
         },
         // {
         //     key: 'rasa',
@@ -93,38 +95,35 @@ const ImportProject = ({
         setbackupDownloaded(true);
     };
 
+    const importButtonText = () => {
+        if (importType === 'botfront') {
+            return 'Import Botfront project';
+        }
+        return 'Import project';
+    };
+
     const backupMessage = (backupDownloaded
         ? (
             <>
                 <Message
                     positive
-                    icon
-                >
-                    <Icon name='check circle' />
-                    <Message.Content>
-                        <Header>
-                            Backup successfully downloaded
-                        </Header>
-                    </Message.Content>
-                </Message>
+                    icon='check circle'
+                    header='Backup successfully downloaded!'
+                    content='You may now import your Botfront project.'
+                />
             </>
         )
         : (
             <>
                 <Message
                     warning
-                    icon
-                >
-                    <Icon name='exclamation circle' />
-                    <Message.Content>
-                        <Header>
-                            Your project will be overwritten
-                        </Header>
-                        Please use the button below to download a backup before proceeding
-                    </Message.Content>
-                </Message>
+                    icon='exclamation circle'
+                    header='Your project will be overwritten.'
+                    content='Please use the button below to download a backup before proceeding.'
+                />
                 <Button onClick={backupProject} className='export-option'>
-                    Backup project
+                    <Icon name='download' />
+                    Backup current project
                 </Button>
                 <br />
             </>
@@ -132,12 +131,13 @@ const ImportProject = ({
     );
     if (importSuccessful) {
         return (
-            <Message positive icon className='import-successful'>
-                <Icon name='check circle' />
-                <Message.Content>
-                    <Header>Import Successfull</Header>
-                </Message.Content>
-            </Message>
+            <Message
+                positive
+                className='import-successful'
+                icon='check circle'
+                header={importTypeOptions.find(options => options.value === importType).successHeader}
+                content={importTypeOptions.find(options => options.value === importType).successText}
+            />
         );
     }
 
@@ -146,7 +146,7 @@ const ImportProject = ({
                 <Dropdown
                     key='format'
                     className='export-option'
-                    options={importTypeOptions}
+                    options={importTypeOptions.map(({ value, key, text }) => ({ value, key, text }))}
                     placeholder='Select a format'
                     selection
                     onChange={(x, { value }) => { setImportType(value); }}
@@ -173,6 +173,7 @@ const ImportProject = ({
                         verifyData={verifyBotfrontFile}
                         success={botfrontFileSuccess}
                         fileTag='botfront'
+                        successMessage='Your Botfront project file is ready.'
                     />
                 )}
                 {importType === 'botfront' && botfrontFileSuccess && (
@@ -180,11 +181,10 @@ const ImportProject = ({
                         {backupMessage}
                     </>
                 )}
-                {(importType === 'rasa'
-                    ? validateImportType() && validateImportLanguage() && validateFiles()
-                    : validateImportType() && validateFiles()) && (
+                {validateImportType() && (
                     <Button onClick={importProject} disabled={!backupDownloaded} className='export-option'>
-                        Import
+                        <Icon name='upload' />
+                        {importButtonText()}
                     </Button>
                 )}
             </>

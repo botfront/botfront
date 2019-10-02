@@ -24,11 +24,15 @@ const ExportProject = ({
             key: 'botfront',
             text: 'Export for Botfront',
             value: 'botfront',
+            buttonText: 'Export project for Botfront',
+            successText: 'Your project has been successfully exported for Botfront!',
         },
         {
             key: 'rasa',
             text: 'Export for Rasa/Rasa X',
             value: 'rasa',
+            buttonText: 'Export project for Rasa/Rasa X',
+            successText: 'Your project has been successfully exported for Rasa/Rasa X!',
         },
     ];
 
@@ -79,15 +83,13 @@ const ExportProject = ({
         if (exportType === 'rasa') exportForRasa();
     };
 
-
     if (ExportSuccessful) {
         return (
-            <Message positive icon className='import-successful'>
-                <Icon name='check circle' />
-                <Message.Content>
-                    <Header>Export Successfull</Header>
-                </Message.Content>
-            </Message>
+            <Message
+                positive
+                icon='check circle'
+                header={exportTypeOptions.find(option => option.value === exportType).successText}
+            />
         );
     }
     return (
@@ -95,7 +97,9 @@ const ExportProject = ({
             <Dropdown
                 key='format'
                 className='export-option'
-                options={exportTypeOptions}
+                options={
+                    exportTypeOptions.map(({ value, text, key }) => ({ value, text, key }))
+                }
                 placeholder='Select a format'
                 selection
                 onChange={(x, { value }) => { setExportType(value); }}
@@ -116,10 +120,10 @@ const ExportProject = ({
             )}
             {(exportType === 'rasa' ? validateExportType() && validateLanguage() : validateExportType()) && (
                 <Button onClick={exportProject} className='export-option'>
-                Export Project for Botfront
+                    <Icon name='download' />
+                    {exportTypeOptions.find(option => option.value === exportType).buttonText}
                 </Button>
             )}
-            
         </>
     );
 };

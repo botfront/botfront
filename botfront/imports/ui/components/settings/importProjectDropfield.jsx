@@ -11,6 +11,7 @@ const ImportProjectDropfield = ({
     maxSizeInMb,
     verifyData,
     fileTag,
+    successMessage,
 }) => {
     const handleOnDropped = (data) => {
         const parsedData = manipulateData(data);
@@ -25,6 +26,7 @@ const ImportProjectDropfield = ({
             success={success}
             accept='.json'
             maxSizeInMb={maxSizeInMb}
+            successMessage={successMessage}
         />
     );
 };
@@ -37,6 +39,7 @@ ImportProjectDropfield.propTypes = {
     maxSizeInMb: PropTypes.number,
     verifyData: PropTypes.func,
     fileTag: PropTypes.string.isRequired,
+    successMessage: PropTypes.string,
 };
 
 ImportProjectDropfield.defaultProps = {
@@ -44,6 +47,7 @@ ImportProjectDropfield.defaultProps = {
     manipulateData: data => data,
     maxSizeInMb: 30,
     verifyData: () => true,
+    successMessage: 'Your file is ready',
 };
 
 export default ImportProjectDropfield;

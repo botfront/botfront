@@ -78,8 +78,8 @@ export default class UploadDropzone extends React.Component {
                 ) : (
                     <Message
                         positive
-                        header='Success'
-                        icon='check'
+                        header='Success!'
+                        icon='check circle'
                         content={successMessage}
                     />
                 )}
