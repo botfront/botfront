@@ -18,11 +18,6 @@ describe('Training', function() {
         cy.get('.s-alert-success').should('be.visible');
         cy.wait(500);
     }
-
-    function createFrenchModelWithData() {
-        cy.createNLUModelProgramatically('bf', '', 'fr');
-        importData('fr', 'French');
-    }
     
     function testChat(lang, utterance, expectedResponse) {
         cy.get('#render-target > div > div.project-children > div > div.Pane.vertical.Pane2 > div > div.widget-embedded > div > div:nth-child(1) > span').should('not.be.visible');
@@ -59,10 +54,11 @@ describe('Training', function() {
     });
 
     beforeEach(function() {
-        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
+        cy.waitForResolve(Cypress.env('RASA_URL'));
+        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
     });
 
     afterEach(function() {
@@ -76,8 +72,7 @@ describe('Training', function() {
         cy.wait(1000);
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
         cy.get('[data-cy=open-chat]').click();
-        // This first test never pass
-        // testChat('en', '/chitchat.greet', 'utter_hi');
+        testChat('en', '/chitchat.greet', 'utter_hi');
         importData('en', 'English');
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
@@ -95,7 +90,12 @@ describe('Training', function() {
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
         cy.get('[data-cy=open-chat]').click();
         testChat('en', 'hi', 'utter_hi');
-        createFrenchModelWithData();
+        cy.createNLUModelProgramatically('bf', '', 'fr'); // first don't import NLU data
+        // Train and wait for training to finish
+        cy.get('[data-cy=train-button]').click();
+        cy.wait(1000);
+        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
+        importData('fr', 'French'); // now import the data
         // Train and wait for training to finish
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000);
@@ -106,7 +106,8 @@ describe('Training', function() {
 
     it('Should train and serve a model containing stories and NLU in 2 languages', function() {
         importData('en', 'English');
-        createFrenchModelWithData();
+        cy.createNLUModelProgramatically('bf', '', 'fr');
+        importData('fr', 'French');
         createStories();
         // Open chat and type intent
         cy.get('[data-cy=open-chat]').click();
