@@ -27,6 +27,7 @@ const ImportProjectDropfield = ({
             accept='.json'
             maxSizeInMb={maxSizeInMb}
             successMessage={successMessage}
+            className='file-dropzone'
         />
     );
 };

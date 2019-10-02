@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { Menu, Tab } from 'semantic-ui-react';
 
@@ -35,11 +34,11 @@ class ImportExportProject extends React.Component {
         return [
             {
                 menuItem: this.renderMenuItem('Import'),
-                render: () => <Tab.Pane loading={loading} key='Import'><ImportProject setLoading={this.setLoading} /></Tab.Pane>,
+                render: () => <Tab.Pane loading={loading} key='Import' data-cy='import-project-tab'><ImportProject setLoading={this.setLoading} /></Tab.Pane>,
             },
             {
                 menuItem: this.renderMenuItem('Export'),
-                render: () => <Tab.Pane loading={loading} key='Export'><ExportProject setLoading={this.setLoading} /></Tab.Pane>,
+                render: () => <Tab.Pane loading={loading} key='Export' data-cy='export-project-tab'><ExportProject setLoading={this.setLoading} /></Tab.Pane>,
             },
         ];
     }

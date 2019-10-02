@@ -4,18 +4,16 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 
 import {
-    Dropdown, Button, Message, Icon, Header,
+    Dropdown, Button, Message, Icon,
 } from 'semantic-ui-react';
 
-import { Projects } from '../../../api/project/project.collection';
-
-
-import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+// import { Projects } from '../../../api/project/project.collection';
+// import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
 import ImportDropField from './importProjectDropfield';
 
 const ImportProject = ({
-    projectLanguages,
+    // projectLanguages,
     setLoading,
 }) => {
     const importTypeOptions = [
@@ -34,42 +32,16 @@ const ImportProject = ({
     ];
 
     const [importType, setImportType] = useState('');
-    const [importLanguage, setImportLanguage] = useState('');
     const [botfrontFileSuccess, setBotfrontFileSuccess] = useState(false);
     const [backupDownloaded, setbackupDownloaded] = useState(false);
     const [importSuccessful, setImportSuccessful] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState({});
-
-
-    const getLanguageOptions = () => (
-        projectLanguages.map(({ value, text }) => ({
-            key: value,
-            text,
-            value,
-        }))
-    );
 
     const validateImportType = () => {
         if (!importTypeOptions.some(({ value }) => value === importType)) {
             return false;
         }
         return true;
-    };
-
-    const validateImportLanguage = () => {
-        if (
-            importType === 'rasa'
-            && !getLanguageOptions().some(({ value }) => value === importLanguage)) {
-            return false;
-        }
-        return true;
-    };
-
-    const validateFiles = () => {
-        if (importType === 'botfront' && botfrontFileSuccess) {
-            return true;
-        }
-        return false;
     };
 
     const importProject = () => {
@@ -121,7 +93,7 @@ const ImportProject = ({
                     header='Your project will be overwritten.'
                     content='Please use the button below to download a backup before proceeding.'
                 />
-                <Button onClick={backupProject} className='export-option'>
+                <Button onClick={backupProject} className='export-option' data-cy='backup-project-button'>
                     <Icon name='download' />
                     Backup current project
                 </Button>
@@ -137,6 +109,7 @@ const ImportProject = ({
                 icon='check circle'
                 header={importTypeOptions.find(options => options.value === importType).successHeader}
                 content={importTypeOptions.find(options => options.value === importType).successText}
+                data-cy='project-imported'
             />
         );
     }
@@ -144,6 +117,7 @@ const ImportProject = ({
     return (
             <>
                 <Dropdown
+                    data-cy='import-type-dropdown'
                     key='format'
                     className='export-option'
                     options={importTypeOptions.map(({ value, key, text }) => ({ value, key, text }))}
@@ -152,19 +126,6 @@ const ImportProject = ({
                     onChange={(x, { value }) => { setImportType(value); }}
                 />
                 <br />
-                {importType === 'rasa' && (
-                    <>
-                        <Dropdown
-                            key='language'
-                            className='export-option'
-                            options={getLanguageOptions()}
-                            placeholder='select a language'
-                            selection
-                            onChange={(x, { value }) => { setImportLanguage(value); }}
-                        />
-                        <br />
-                    </>
-                )}
                 {(importType === 'botfront' && validateImportType()) && (
                     <ImportDropField
                         onChange={fileAdded}
@@ -182,7 +143,12 @@ const ImportProject = ({
                     </>
                 )}
                 {validateImportType() && (
-                    <Button onClick={importProject} disabled={!backupDownloaded} className='export-option'>
+                    <Button
+                        onClick={importProject}
+                        disabled={!backupDownloaded}
+                        className='export-option'
+                        data-cy='import-button'
+                    >
                         <Icon name='upload' />
                         {importButtonText()}
                     </Button>
@@ -201,12 +167,12 @@ ImportProject.defaultProps = {
     projectLanguages: [],
 };
 
-const ImportProjectContainer = withTracker(({ projectId }) => {
-    const project = Projects.findOne({ _id: projectId });
-    const projectLanguages = getNluModelLanguages(project.nlu_models, true);
-    return {
-        projectLanguages,
-    };
+const ImportProjectContainer = withTracker((/* { projectId } */) => {
+    // const project = Projects.findOne({ _id: projectId });
+    // const projectLanguages = getNluModelLanguages(project.nlu_models, true);
+    // return {
+    //     projectLanguages,
+    // };
 })(ImportProject);
 
 const mapStateToProps = state => ({

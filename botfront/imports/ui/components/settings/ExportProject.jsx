@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 
 import {
-    Dropdown, Button, Message, Icon, Header,
+    Dropdown, Button, Message, Icon,
 } from 'semantic-ui-react';
 
 import { Projects } from '../../../api/project/project.collection';
@@ -95,6 +95,7 @@ const ExportProject = ({
     return (
         <>
             <Dropdown
+                data-cy='export-type-dropdown'
                 key='format'
                 className='export-option'
                 options={
@@ -108,6 +109,7 @@ const ExportProject = ({
             {exportType === 'rasa' && (
                 <>
                     <Dropdown
+                        data-cy='export-language-dropdown'
                         key='language'
                         className='export-option'
                         options={getLanguageOptions()}
@@ -119,7 +121,7 @@ const ExportProject = ({
                 </>
             )}
             {(exportType === 'rasa' ? validateExportType() && validateLanguage() : validateExportType()) && (
-                <Button onClick={exportProject} className='export-option'>
+                <Button onClick={exportProject} className='export-option' data-cy='export-button'>
                     <Icon name='download' />
                     {exportTypeOptions.find(option => option.value === exportType).buttonText}
                 </Button>
