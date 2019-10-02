@@ -26,15 +26,17 @@
 }
 
 .ui.vertical.menu {
-    .item>#edit-icon {
-        opacity: 0.0;
-        &:hover{
-            opacity: .50;
-        }
+  .item:hover #ellipsis-icon {
+    color: #999999;
+    opacity: 1;
     }
 
-    .item:hover #edit-icon{
-        opacity: .40;
+  .item > #ellipsis-icon {
+    opacity: 0;
+    float: right;
+    &:hover {
+      color: #828282;
+    }
     }
 }
 .ui.vertical.menu{

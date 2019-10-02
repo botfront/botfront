@@ -4,6 +4,7 @@ import {
 import PropTypes from 'prop-types';
 import React from 'react';
 import ExceptionAlerts from '../stories/ExceptionAlerts';
+import EllipsisMenu from './EllipsisMenu';
 
 class Browser extends React.Component {
     constructor(props) {
@@ -125,7 +126,8 @@ class Browser extends React.Component {
                                 onClick={e => this.handleToggle(e, item)}
                             />
                         )}
-                        {allowEdit && (
+                        {<EllipsisMenu />}
+                        { /* allowEdit && (
                             <Icon
                                 id='edit-icon'
                                 name='edit'
@@ -133,7 +135,7 @@ class Browser extends React.Component {
                                 }
                                 data-cy='edit-name-icon'
                             />
-                        )}
+                            ) */}
                         <span className='story-group-menu-item'>{item[nameAccessor]}</span>
                         {indexProp === index && saving && (
                             <Loader active size='tiny' />
