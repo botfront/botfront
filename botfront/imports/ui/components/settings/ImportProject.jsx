@@ -145,6 +145,7 @@ const ImportProject = ({
             <>
                 <Dropdown
                     key='format'
+                    className='export-option'
                     options={importTypeOptions}
                     placeholder='Select a format'
                     selection
