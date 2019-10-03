@@ -275,7 +275,9 @@ const StoryTopMenu = ({
                 <Popup
                     className='connected-stories-popup'
                     size='small'
-                    on='click'
+                    on='hover'
+                    hoverable
+                    mouseEnterDelay={500}
                     position='bottom left'
                     trigger={(
                         <Message
