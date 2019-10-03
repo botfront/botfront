@@ -107,34 +107,6 @@ const ImportProject = ({
     //     )
     // );
 
-    const renderBackupMessage = () => {
-        if (backupDownloaded === true) {
-            return (
-                <Message
-                    positive
-                    icon='check circle'
-                    header='Backup successfully downloaded!'
-                    content='You may now import your Botfront project.'
-                />
-            );
-        }
-        return (
-            <>
-                <Message
-                    warning
-                    icon='exclamation circle'
-                    header='Your project will be overwritten.'
-                    content='Please use the button below to download a backup before proceeding.'
-                />
-                <Button onClick={backupProject} className='export-option' data-cy='backup-project-button'>
-                    <Icon name='download' />
-                    Backup current project
-                </Button>
-                <br />
-            </>
-        );
-    };
-
     if (importSuccessful) {
         return (
             <Message
@@ -171,7 +143,29 @@ const ImportProject = ({
                         successMessage='Your Botfront project file is ready.'
                     />
                 )}
-                {renderBackupMessage()}
+                { !backupDownloaded && botfrontFileSuccess && (
+                    <>
+                        <Message
+                            warning
+                            icon='exclamation circle'
+                            header='Your project will be overwritten.'
+                            content='Please use the button below to download a backup before proceeding.'
+                        />
+                        <Button onClick={backupProject} className='export-option' data-cy='backup-project-button'>
+                            <Icon name='download' />
+                            Backup current project
+                        </Button>
+                        <br />
+                    </>
+                )}
+                {backupDownloaded && (
+                    <Message
+                        positive
+                        icon='check circle'
+                        header='Backup successfully downloaded!'
+                        content='You may now import your Botfront project.'
+                    />
+                )}
                 {validateImportType() && (
                     <Button
                         onClick={importProject}
