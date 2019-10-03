@@ -160,7 +160,7 @@ const ImportProject = ({
                     onChange={(x, { value }) => { setImportType(getImportType(value)); }}
                 />
                 <br />
-                {(importType.value === 'botfront' && validateImportType()) && (
+                {importType.value === 'botfront' && (
                     <ImportDropField
                         onChange={fileAdded}
                         text='Drop your Botfront project in JSON format here. Data should not be larger than 30 Mb.'
