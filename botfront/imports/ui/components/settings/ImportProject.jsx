@@ -7,8 +7,8 @@ import {
     Dropdown, Button, Message, Icon,
 } from 'semantic-ui-react';
 
-// import { Projects } from '../../../api/project/project.collection';
-// import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+import { Projects } from '../../../api/project/project.collection';
+import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
 import ImportDropField from './importProjectDropfield';
 
@@ -167,12 +167,12 @@ ImportProject.defaultProps = {
     projectLanguages: [],
 };
 
-const ImportProjectContainer = withTracker((/* { projectId } */) => {
-    // const project = Projects.findOne({ _id: projectId });
-    // const projectLanguages = getNluModelLanguages(project.nlu_models, true);
-    // return {
-    //     projectLanguages,
-    // };
+const ImportProjectContainer = withTracker(({ projectId }) => {
+    const project = Projects.findOne({ _id: projectId });
+    const projectLanguages = getNluModelLanguages(project.nlu_models, true);
+    return {
+        projectLanguages,
+    };
 })(ImportProject);
 
 const mapStateToProps = state => ({
