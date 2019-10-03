@@ -1,10 +1,10 @@
 import {
-    Menu, Icon, Input, Loader, Button, Confirm,
+    Menu, Icon, Input, Button,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ExceptionAlerts from '../stories/ExceptionAlerts';
-import EllipsisMenu from './EllipsisMenu';
+import StoryGroupItem from './StoryGroupItem';
 
 class Browser extends React.Component {
     constructor(props) {
@@ -15,8 +15,6 @@ class Browser extends React.Component {
             newItemName: '',
             editing: -1,
             itemName: '',
-            deletionModalVisible: false,
-            projectToDelete: {},
         };
     }
 
@@ -82,23 +80,8 @@ class Browser extends React.Component {
         event.stopPropagation();
         const { toggleSelect } = this.props;
         toggleSelect(element);
-    };
-
-    handleEdit = (index, itemName) => {
-        this.setState({ editing: index, itemName });
-    };
-
-
-    handleDelete = (index, project) => {
-        this.setState({ deletionModalVisible: true });
-        this.setState({ projectToDelete: project });
-    }
-
-    removeStoryGroup = (projectToDelete) => {
-        Meteor.call('storyGroups.delete', projectToDelete);
-        this.setState({ deletionModalVisible: false });
-        this.setState({ projectToDelete: {} });
-    }
+    };    
+  
 
     render() {
         const {
@@ -111,77 +94,31 @@ class Browser extends React.Component {
             saving,
             selectAccessor,
             allowEdit,
+            changeName,
             placeholderAddItem,
         } = this.props;
         const {
-            addMode, newItemName, page, editing, itemName, deletionModalVisible, projectToDelete,
+            addMode, newItemName, page,
         } = this.state;
 
         const items = data.map((item, index) => (
-            <Menu.Item
+
+            <StoryGroupItem
                 key={index.toString()}
-                name={item[nameAccessor]}
-                className={indexProp === index ? 'selected-blue' : ''}
-                active={indexProp === index}
-                onClick={() => this.handleClickMenuItem(index)}
-                link={indexProp !== index}
-                data-cy='browser-item'
-            >
-                {editing !== index ? (
-                    <>
-                        {selectAccessor && (
-                            <Icon
-                                id={`${
-                                    item[selectAccessor]
-                                        ? 'selected'
-                                        : 'not-selected'
-                                }`}
-                                name='eye'
-                                onClick={e => this.handleToggle(e, item)}
-                            />
-                        )}
-                        {<EllipsisMenu
-                            handleEdit={() => this.handleEdit(index, item[nameAccessor])}
-                            handleDelete={() => this.handleDelete(index, item)}
-                        />}
-                        { /* allowEdit && (
-                            <Icon
-                                id='edit-icon'
-                                name='edit'
-                                onClick={() => this.handleEdit(index, item[nameAccessor])
-                                }
-                                data-cy='edit-name-icon'
-                            />
-                            ) */}
-                        <span className='story-group-menu-item'>{item[nameAccessor]}</span>
-                        {indexProp === index && saving && (
-                            <Loader active size='tiny' />
-                        )}
-                    </>
-                ) : (
-                    <Input
-                        onChange={this.handleChangeOldName}
-                        value={itemName}
-                        onKeyDown={e => this.handleKeyDownInput(e, item)}
-                        autoFocus
-                        onBlur={() => this.submitTitleInput(item)}
-                        fluid
-                        data-cy='edit-name'
-                    />
-                )}
-            </Menu.Item>
+                index={index}
+                item={item}
+                indexProp={indexProp}
+                nameAccessor={nameAccessor}
+                handleClickMenuItem={() => this.handleClickMenuItem(index)}
+                selectAccessor={selectAccessor}
+                allowEdit={allowEdit}
+                handleToggle={e => this.handleToggle(e, item)}
+                saving={saving}
+                changeName={changeName}
+            />
         ));
         return (
             <>
-                <Confirm
-                    open={deletionModalVisible}
-                    className='warning'
-                    header='Warning!'
-                    confirmButton='Delete'
-                    content={`The story group ${projectToDelete.name} and all its stories in it will be deleted. This action cannot be undone.`}
-                    onCancel={() => this.setState({ deletionModalVisible: false })}
-                    onConfirm={() => this.removeStoryGroup(projectToDelete)}
-                />
                 {allowAddition
                     && (!addMode ? (
                         <Button
