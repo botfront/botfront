@@ -84,8 +84,14 @@ const ExportProject = ({
     };
 
     const handleDropdownOnChange = (x, { value }) => {
-        setExportType(exportTypeOptions.find(option => option.value === value));
+        setExportType(exportTypeOptions.find(option => option.value === value) || {});
     };
+    const exportButton = (
+        <Button onClick={exportProject} className='export-option' data-cy='export-button'>
+            <Icon name='download' />
+            {exportType.buttonText}
+        </Button>
+    );
 
     if (ExportSuccessful) {
         return (
@@ -124,11 +130,11 @@ const ExportProject = ({
                     <br />
                 </>
             )}
-            {(exportType.value === 'rasa' ? validateExportType() && validateLanguage() : validateExportType()) && (
-                <Button onClick={exportProject} className='export-option' data-cy='export-button'>
-                    <Icon name='download' />
-                    {exportTypeOptions.find(option => option.value === exportType.value).buttonText}
-                </Button>
+            {exportType.value === 'rasa' && validateLanguage() && (
+                <>{exportButton}</>
+            )}
+            {exportType.value === 'botfront' && (
+                <>{exportButton}</>
             )}
         </>
     );
