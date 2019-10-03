@@ -83,12 +83,6 @@ const ExportProject = ({
     const handleDropdownOnChange = (x, { value }) => {
         setExportType(exportTypeOptions.find(option => option.value === value) || {});
     };
-    const exportButton = (
-        <Button onClick={exportProject} className='export-option' data-cy='export-button'>
-            <Icon name='download' />
-            {exportType.buttonText}
-        </Button>
-    );
 
     if (ExportSuccessful) {
         return (
@@ -130,7 +124,13 @@ const ExportProject = ({
             {validateExportType() && (
                 <Button onClick={exportProject} className='export-option' data-cy='export-button'>
                     <Icon name='download' />
-                    <>{exportButton}</>
+                    Export project for Botfront
+                </Button>
+            )}
+            {exportType.value === 'botfront' && (
+                <Button onClick={exportProject} className='export-option' data-cy='export-button'>
+                    <Icon name='download' />
+                    Export project for Rasa/Rasa X
                 </Button>
             )}
         </>
