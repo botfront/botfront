@@ -70,4 +70,4 @@ steps:
   - name: 'home'
     path: /root/
 
-timeout: 3600s
+timeout: 7200s

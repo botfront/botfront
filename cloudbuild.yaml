@@ -28,7 +28,7 @@ steps:
     - --exit-code-from
     - e2e
 
-timeout: 3600s
+timeout: 7200s
 images:
     - gcr.io/$PROJECT_ID/cypress-runner:latest
     # - gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
