@@ -45,14 +45,17 @@ const ExportProject = ({
     );
 
     const validateLanguage = () => (
-        !getLanguageOptions().some(({ value }) => value === exportLanguage)
+        getLanguageOptions().some(({ value }) => value === exportLanguage)
     );
 
     const validateExportType = () => {
         if (exportType.value === 'rasa' && validateLanguage()) {
-            return false;
+            return true;
         }
-        return true;
+        if (exportType.value === 'botfront') {
+            return true;
+        }
+        return false;
     };
 
     const exportForBotfront = () => {
@@ -127,13 +130,7 @@ const ExportProject = ({
             {validateExportType() && (
                 <Button onClick={exportProject} className='export-option' data-cy='export-button'>
                     <Icon name='download' />
-                    Export project for Botfront
-                </Button>
-            )}
-            {exportType.value === 'botfront' && (
-                <Button onClick={exportProject} className='export-option' data-cy='export-button'>
-                    <Icon name='download' />
-                    Export project for Rasa/Rasa X
+                    <>{exportButton}</>
                 </Button>
             )}
         </>
