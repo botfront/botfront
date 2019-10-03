@@ -11,6 +11,20 @@ import { Projects } from '../../../api/project/project.collection';
 
 import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
+const exportTypeOptions = [
+    {
+        key: 'botfront',
+        text: 'Export for Botfront',
+        value: 'botfront',
+        successText: 'Your project has been successfully exported for Botfront!',
+    },
+    {
+        key: 'rasa',
+        text: 'Export for Rasa/Rasa X',
+        value: 'rasa',
+        successText: 'Your project has been successfully exported for Rasa/Rasa X!',
+    },
+];
 
 const ExportProject = ({
     projectId, projectLanguages, setLoading,
@@ -18,23 +32,6 @@ const ExportProject = ({
     const [exportType, setExportType] = useState({});
     const [exportLanguage, setExportLanguage] = useState('');
     const [ExportSuccessful, setExportSuccessful] = useState(false);
-
-    const exportTypeOptions = [
-        {
-            key: 'botfront',
-            text: 'Export for Botfront',
-            value: 'botfront',
-            buttonText: 'Export project for Botfront',
-            successText: 'Your project has been successfully exported for Botfront!',
-        },
-        {
-            key: 'rasa',
-            text: 'Export for Rasa/Rasa X',
-            value: 'rasa',
-            buttonText: 'Export project for Rasa/Rasa X',
-            successText: 'Your project has been successfully exported for Rasa/Rasa X!',
-        },
-    ];
 
     const getLanguageOptions = () => (
         projectLanguages.map(({ value, text }) => ({
@@ -50,9 +47,6 @@ const ExportProject = ({
 
     const validateExportType = () => {
         if (exportType.value === 'rasa' && validateLanguage()) {
-            return true;
-        }
-        if (exportType.value === 'botfront') {
             return true;
         }
         return false;
