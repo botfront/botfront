@@ -15,7 +15,7 @@ import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 const ExportProject = ({
     projectId, projectLanguages, setLoading,
 }) => {
-    const [exportType, setExportType] = useState('');
+    const [exportType, setExportType] = useState({});
     const [exportLanguage, setExportLanguage] = useState('');
     const [ExportSuccessful, setExportSuccessful] = useState(false);
 
@@ -45,7 +45,7 @@ const ExportProject = ({
     );
 
     const validateExportType = () => {
-        if (!exportTypeOptions.some(({ value }) => value === exportType)) {
+        if (!exportTypeOptions.some(({ value }) => value === exportType.value)) {
             return false;
         }
         return true;
@@ -53,7 +53,7 @@ const ExportProject = ({
 
     const validateLanguage = () => {
         if (
-            exportType === 'rasa'
+            exportType.value === 'rasa'
             && !getLanguageOptions().some(({ value }) => value === exportLanguage)
         ) {
             return false;
@@ -79,8 +79,12 @@ const ExportProject = ({
     };
 
     const exportProject = () => {
-        if (exportType === 'botfront') exportForBotfront();
-        if (exportType === 'rasa') exportForRasa();
+        if (exportType.value === 'botfront') exportForBotfront();
+        if (exportType.value === 'rasa') exportForRasa();
+    };
+
+    const handleDropdownOnChange = (x, { value }) => {
+        setExportType(exportTypeOptions.find(option => option.value === value));
     };
 
     if (ExportSuccessful) {
@@ -88,7 +92,7 @@ const ExportProject = ({
             <Message
                 positive
                 icon='check circle'
-                header={exportTypeOptions.find(option => option.value === exportType).successText}
+                header={exportTypeOptions.find(option => option.value === exportType.value).successText}
             />
         );
     }
@@ -103,10 +107,10 @@ const ExportProject = ({
                 }
                 placeholder='Select a format'
                 selection
-                onChange={(x, { value }) => { setExportType(value); }}
+                onChange={handleDropdownOnChange}
             />
             <br />
-            {exportType === 'rasa' && (
+            {exportType.value === 'rasa' && (
                 <>
                     <Dropdown
                         data-cy='export-language-dropdown'
@@ -120,10 +124,10 @@ const ExportProject = ({
                     <br />
                 </>
             )}
-            {(exportType === 'rasa' ? validateExportType() && validateLanguage() : validateExportType()) && (
+            {(exportType.value === 'rasa' ? validateExportType() && validateLanguage() : validateExportType()) && (
                 <Button onClick={exportProject} className='export-option' data-cy='export-button'>
                     <Icon name='download' />
-                    {exportTypeOptions.find(option => option.value === exportType).buttonText}
+                    {exportTypeOptions.find(option => option.value === exportType.value).buttonText}
                 </Button>
             )}
         </>
@@ -138,7 +142,8 @@ ExportProject.propTypes = {
 
 const ExportProjectContainer = withTracker(({ projectId }) => {
     const project = Projects.findOne({ _id: projectId });
-    const projectLanguages = getNluModelLanguages(project.nlu_models, true);
+    const projectLanguages = getNluModelLanguages(project.nlu_models, true)
+        .map(({ value, text }) => ({ key: value, text, value }));
     return {
         projectLanguages,
     };
