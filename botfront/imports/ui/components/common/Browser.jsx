@@ -1,5 +1,5 @@
 import {
-    Menu, Icon, Input, Loader, Button,
+    Menu, Icon, Input, Loader, Button, Confirm,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -15,6 +15,8 @@ class Browser extends React.Component {
             newItemName: '',
             editing: -1,
             itemName: '',
+            deletionModalVisible: false,
+            projectToDelete: {},
         };
     }
 
@@ -86,6 +88,18 @@ class Browser extends React.Component {
         this.setState({ editing: index, itemName });
     };
 
+
+    handleDelete = (index, project) => {
+        this.setState({ deletionModalVisible: true });
+        this.setState({ projectToDelete: project });
+    }
+
+    removeStoryGroup = (projectToDelete) => {
+        Meteor.call('storyGroups.delete', projectToDelete);
+        this.setState({ deletionModalVisible: false });
+        this.setState({ projectToDelete: {} });
+    }
+
     render() {
         const {
             children,
@@ -100,7 +114,7 @@ class Browser extends React.Component {
             placeholderAddItem,
         } = this.props;
         const {
-            addMode, newItemName, page, editing, itemName,
+            addMode, newItemName, page, editing, itemName, deletionModalVisible, projectToDelete,
         } = this.state;
 
         const items = data.map((item, index) => (
@@ -126,7 +140,10 @@ class Browser extends React.Component {
                                 onClick={e => this.handleToggle(e, item)}
                             />
                         )}
-                        {<EllipsisMenu />}
+                        {<EllipsisMenu
+                            handleEdit={() => this.handleEdit(index, item[nameAccessor])}
+                            handleDelete={() => this.handleDelete(index, item)}
+                        />}
                         { /* allowEdit && (
                             <Icon
                                 id='edit-icon'
@@ -156,6 +173,15 @@ class Browser extends React.Component {
         ));
         return (
             <>
+                <Confirm
+                    open={deletionModalVisible}
+                    className='warning'
+                    header='Warning!'
+                    confirmButton='Delete'
+                    content={`The story group ${projectToDelete.name} and all its stories in it will be deleted. This action cannot be undone.`}
+                    onCancel={() => this.setState({ deletionModalVisible: false })}
+                    onConfirm={() => this.removeStoryGroup(projectToDelete)}
+                />
                 {allowAddition
                     && (!addMode ? (
                         <Button
