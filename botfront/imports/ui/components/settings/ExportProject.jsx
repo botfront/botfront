@@ -89,7 +89,7 @@ const ExportProject = ({
             <Message
                 positive
                 icon='check circle'
-                header={exportTypeOptions.find(option => option.value === exportType.value).successText}
+                header={exportType.successText}
             />
         );
     }
