@@ -131,10 +131,16 @@ const ExportProject = ({
                 </>
             )}
             {exportType.value === 'rasa' && validateLanguage() && (
-                <>{exportButton}</>
+                <Button onClick={exportProject} className='export-option' data-cy='export-button'>
+                    <Icon name='download' />
+                    Export project for Botfront
+                </Button>
             )}
             {exportType.value === 'botfront' && (
-                <>{exportButton}</>
+                <Button onClick={exportProject} className='export-option' data-cy='export-button'>
+                    <Icon name='download' />
+                    Export project for Rasa/Rasa X
+                </Button>
             )}
         </>
     );
