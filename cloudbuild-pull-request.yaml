@@ -6,7 +6,7 @@ steps:
   dir: /workspace/botfront/cypress
   args:
   - --dockerfile=Dockerfile_cypress
-  - --context=/workspace/botfront/cypress
+  - --context=/workspnace/botfront/cypress
   - --destination=gcr.io/$PROJECT_ID/cypress-runner:latest
   - --cache=true
   - --cache-ttl=24h
