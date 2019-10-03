@@ -44,18 +44,12 @@ const ExportProject = ({
         }))
     );
 
-    const validateExportType = () => {
-        if (!exportTypeOptions.some(({ value }) => value === exportType.value)) {
-            return false;
-        }
-        return true;
-    };
+    const validateLanguage = () => (
+        !getLanguageOptions().some(({ value }) => value === exportLanguage)
+    );
 
-    const validateLanguage = () => {
-        if (
-            exportType.value === 'rasa'
-            && !getLanguageOptions().some(({ value }) => value === exportLanguage)
-        ) {
+    const validateExportType = () => {
+        if (exportType.value === 'rasa' && validateLanguage()) {
             return false;
         }
         return true;
@@ -130,7 +124,7 @@ const ExportProject = ({
                     <br />
                 </>
             )}
-            {exportType.value === 'rasa' && validateLanguage() && (
+            {validateExportType() && (
                 <Button onClick={exportProject} className='export-option' data-cy='export-button'>
                     <Icon name='download' />
                     Export project for Botfront
