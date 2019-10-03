@@ -34,4 +34,4 @@ steps:
 images:
 - "gcr.io/${PROJECT_ID}/botfront:$BRANCH_NAME"
 
-timeout: 60m    
+timeout: 120m

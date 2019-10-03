@@ -11,8 +11,9 @@
   "license": "AGPL",
   "private": true,
   "devDependencies": {
+    "axios": "^0.19.0",
     "cypress": "3.4.1",
-    "js-yaml": "^3.13.1",
-    "cypress-plugin-retries": "1.2.2"
+    "cypress-plugin-retries": "1.2.2",
+    "js-yaml": "^3.13.1"
   }
 }
