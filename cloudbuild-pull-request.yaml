@@ -29,3 +29,6 @@ steps:
     - e2e
 
 timeout: 120m
+
+images:
+    - gcr.io/$PROJECT_ID/cypress-runner:latest
