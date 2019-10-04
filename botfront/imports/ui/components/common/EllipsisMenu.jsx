@@ -21,7 +21,7 @@ function EllipsisMenu(props) {
         >
             <Dropdown.Menu id='ellipsis-menu'>
                 <Dropdown.Item data-cy='edit-menu' onClick={handleEdit}>Edit</Dropdown.Item>
-                {/* the disabling of the delete menu is handled with css, disabling it with the props cause the */}
+                {/* the disabling of the delete menu is handled with css, disabling it with the props also disable the popup */}
                 <Popup
                     content='There are stories linking to this group or stories from this group are linked to others stories'
                     disabled={deletable}
