@@ -74,10 +74,10 @@ The simplest way to branch a conversation is to use different intents at some po
 
 Those stories implement two different paths, one where the user is happy and one where the user is not. Observe that half of the story is duplicated. It may not be a problem here, but when your tree branches on several levels this may become difficult to maintain. That is where the **branch story** option becomes useful:
 
-![](../../../images/branching_6.png)
+![](../../../images/branching_2.png)
 
 
-![](../../../images/branching_7.png)
+![](../../../images/branching_3.png)
 
 
 ### Branching with entity values
@@ -106,11 +106,11 @@ Another way is to use entity values. Here we want to implement the following use
 ```
 And this can be done as follows with branches:
 
-![](../../../images/branching_9.png)
+![](../../../images/branching_4.png)
 
-![](../../../images/branching_10.png)
+![](../../../images/branching_5.png)
 
-![](../../../images/branching_11.png)
+![](../../../images/branching_6.png)
 
 
 ::: warning But wait, that doesn't work!
@@ -119,7 +119,7 @@ random. The reason is that if the value of the entity is not stored somewhere, R
 
 If you want the stories above to work, you need to **create a slot**. In this case we're going to create a **categorical** slot, and add the categories **business** and **eco**. Then retrain and it should work.
 
-![](../../../images/branching_12.png)
+![](../../../images/branching_7.png)
 
 :::
 
@@ -145,9 +145,9 @@ In plain text file you would have to write the following stories:
 ```
 You can implement that as follows with branches:
 
-![](../../../images/branching_13.png)
+![](../../../images/branching_8.png)
 
-![](../../../images/branching_14.png)
+![](../../../images/branching_9.png)
 
 
 As you can see, the `- slot{"class":"..."}` in the branches guides the conversation into different paths.
@@ -155,7 +155,7 @@ As you can see, the `- slot{"class":"..."}` in the branches guides the conversat
 ::: tip What if the class has not been set yet?
 You can add a third category **not_set** to the `class` slot in a new branch, and set the initial value to **not_set**. Then you can gracefully handle the case where no class is set like this:
 
-![](../../../images/branching_15.png)
+![](../../../images/branching_10.png)
 
 This is the equivalent of adding this story in a story file.
 
@@ -174,21 +174,53 @@ Under the hood, Botfront uses [Rasa checkpoints](https://rasa.com/docs/rasa/core
 
 You can easily see which branch you're on by looking at the breadcrumbs on the story footer:
 
-![](../../../images/branching_8.png)
+![](../../../images/branching_11.png)
 
 You can rename the branches as desired by clicking on the branch name and add as many as you want using the **+** icon:
 
-![](../../../images/branching_3.png)
+![](../../../images/branching_12.png)
 
 You can delete branches by clicking the trash icon while on the selected branch:
 
-![](../../../images/branching_4.png)
+![](../../../images/branching_13.png)
 
 ::: tip NOTE
-Deleting either one of the last two branches would automatically delete the other branch as well. The content in the last remaining branch will be added to the parent story so you don't loose any data:
+Deleting either one of the last two branches would automatically delete the other branch as well. The content in the last remaining branch will be added to the parent story.
 :::
 
-![](../../../images/branching_5.png)
+![](../../../images/branching_14.png)
+
+## Linking stories
+
+Linking stories is a powerful way to prevent repetition, and to easily connect stories with each other. You may simply select a story as a destination on the right side of the story footer. Any story can be linked to any story, or be used as a destination. This feature is especially useful where you would want to present a frequently repeated flow in the end of multiple stories, like a **feedback** flow.
+
+![](../../../images/linking_1.png)
+
+![](../../../images/linking_2.png)
+
+When a story is set as a destination, this is shown by a yellow information bar on the story header. 
+
+![](../../../images/linking_3.png)
+
+A list of linked stories would be available when clicked on the bar.
+
+![](../../../images/linking_4.png)
+
+Stories that are destination stories or that have links cannot be deleted until the linking is removed.
+
+![](../../../images/linking_5.png)
+
+![](../../../images/linking_6.png)
+
+Branches can be linked to other stories as well.
+
+![](../../../images/linking_7.png)
+
+![](../../../images/linking_8.png)
+
+::: tip
+Using linking too much could overcomplicate your story flows, making them difficult to understand. Also, excessive usage could lead into an increase training time.
+:::
 
 
 ## Organizing your stories in groups
@@ -199,9 +231,11 @@ By selecting the **Move** icon as seen below, you may move any story to any stor
 
 ![](../../../images/move-story.png)
 
+<!---
 ### Duplicating stories
 
-You may duplicate stories using the **Duplicate** icon next to the Move icon
+You may duplicate stories using the **Duplicate** icon next to the Move icon 
+--->
 
 ### Renaming stories
 
