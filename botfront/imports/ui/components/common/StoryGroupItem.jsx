@@ -25,18 +25,21 @@ function StoryGroupItem(props) {
     const [editing, setEditing] = useState(false);
     const [storyName, setStoryName] = useState(item[nameAccessor]);
     const [deletable, setDeletable] = useState(false);
-
+    
     function checkDeletable() {
+        let originStoriesInTheGroup = false;
         const storiesOfTheGroup = stories
             .filter(story => story.storyGroupId === item._id);
-        const originStories = stories
-            .filter(story => story.checkpoints !== undefined)
-            .map(story => story.checkpoints.map(checkpoint => checkpoint[0]))
-            .flat();
-        const storiesIdsOfTheGroup = storiesOfTheGroup
-            .map(story => story._id);
-        const originStoriesInTheGroup = storiesIdsOfTheGroup.some(storyId => originStories.includes(storyId));
-        const destinationStoriesInTheGroup = storiesOfTheGroup.some(story => story.checkpoint !== undefined);
+        const storiesIdsOfTheGroup = storiesOfTheGroup.map(story => story._id);
+        const storiesWithCheckpoints = stories
+            .filter(story => story.checkpoints !== undefined);
+        if (storiesWithCheckpoints !== []) {
+            let originStories = storiesWithCheckpoints.map(story => story.checkpoints.map(checkpoint => checkpoint[0]));
+            originStories = originStories.flat(); // flatten the array, same as originStories.flat(), but flat is not supported by electron used by cypress
+            originStoriesInTheGroup = storiesIdsOfTheGroup.some(storyId => originStories.includes(storyId));
+        }
+        
+        const destinationStoriesInTheGroup = storiesOfTheGroup.some(story => story.checkpoints !== undefined && story.checkpoints !== []);
 
         setDeletable(!originStoriesInTheGroup && !destinationStoriesInTheGroup);
     }
