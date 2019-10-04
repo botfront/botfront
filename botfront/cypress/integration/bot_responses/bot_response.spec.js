@@ -119,4 +119,48 @@ describe('Bot responses', function() {
         cy.deleteResponse('bf', responseName);
         cy.get('[data-cy=remove-response-0]').should('not.be.visible');
     });
+    it('should not be possible to create a reponse in the wrong format', function() {
+        cy.visit('/project/bf/dialogue/templates/add');
+        cy.contains('German').click();
+        cy.get('[data-cy=response-name] input').type(responseName);
+        cy.get('.response-message-next > .big > .ui').click();
+        cy.get('.response-message-next.sequence-add-message')
+            .contains('Text')
+            .click();
+        cy.get('.ace_editor').click();
+        cy.get('.ace_text-input').clear();
+        cy.get('.ace_text-input').type('tes: wrong');
+        cy.get('.warning').should('exist');
+    });
+   
+
+    it('should be possible to create a quickreply without the type field', function() {
+        cy.visit('/project/bf/dialogue/templates/add');
+        cy.contains('German').click();
+        cy.get('[data-cy=response-name] input').type(responseName);
+        cy.get('.response-message-next > .big > .ui').click();
+        cy.get('.response-message-next.sequence-add-message')
+            .contains('Text')
+            .click();
+        cy.get('.ace_editor').click();
+        cy.get('.ace_text-input').clear();
+        // eslint-disable-next-line max-len
+        cy.get('.ace_text-input').type('text: text above the buttons{enter}buttons:{enter}  - title: Button title 1{enter}    payload: /payload1{enter}  - title: Button title 2{enter}    payload: /payload2');
+        cy.get('.warning').should('not.exist');
+    });
+
+    it('should be possible to create a quickreply with the type field', function() {
+        cy.visit('/project/bf/dialogue/templates/add');
+        cy.contains('German').click();
+        cy.get('[data-cy=response-name] input').type(responseName);
+        cy.get('.response-message-next > .big > .ui').click();
+        cy.get('.response-message-next.sequence-add-message')
+            .contains('Text')
+            .click();
+        cy.get('.ace_editor').click();
+        cy.get('.ace_text-input').clear();
+        // eslint-disable-next-line max-len
+        cy.get('.ace_text-input').type('text: text above the buttons{enter}buttons:{enter}  - title: Button1{enter}    type: postback{enter}    payload: /payload1{enter}  - title: Button2{enter}    payload: /payload2');
+        cy.get('.warning').should('not.exist');
+    });
 });
