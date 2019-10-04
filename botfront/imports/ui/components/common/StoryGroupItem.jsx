@@ -5,7 +5,6 @@ import {
 import PropTypes from 'prop-types';
 import EllipsisMenu from './EllipsisMenu';
 
-
 function StoryGroupItem(props) {
     const {
         index,
@@ -25,21 +24,25 @@ function StoryGroupItem(props) {
     const [editing, setEditing] = useState(false);
     const [storyName, setStoryName] = useState(item[nameAccessor]);
     const [deletable, setDeletable] = useState(false);
-    
+
     function checkDeletable() {
         let originStoriesInTheGroup = false;
-        const storiesOfTheGroup = stories
-            .filter(story => story.storyGroupId === item._id);
+        const storiesOfTheGroup = stories.filter(
+            story => story.storyGroupId === item._id,
+        );
         const storiesIdsOfTheGroup = storiesOfTheGroup.map(story => story._id);
-        const storiesWithCheckpoints = stories
-            .filter(story => story.checkpoints !== undefined);
+        const storiesWithCheckpoints = stories.filter(
+            story => story.checkpoints !== undefined,
+        );
         if (storiesWithCheckpoints !== []) {
             let originStories = storiesWithCheckpoints.map(story => story.checkpoints.map(checkpoint => checkpoint[0]));
             originStories = [].concat(...originStories); // flatten the array, same as originStories.flat(), but flat is not supported by electron used by cypress
             originStoriesInTheGroup = storiesIdsOfTheGroup.some(storyId => originStories.includes(storyId));
         }
-        
-        const destinationStoriesInTheGroup = storiesOfTheGroup.some(story => story.checkpoints !== undefined && story.checkpoints !== []);
+
+        const destinationStoriesInTheGroup = storiesOfTheGroup.some(
+            story => story.checkpoints !== undefined && story.checkpoints !== [],
+        );
 
         setDeletable(!originStoriesInTheGroup && !destinationStoriesInTheGroup);
     }
@@ -70,7 +73,6 @@ function StoryGroupItem(props) {
         setStoryName(data.value);
     }
 
-
     function removeStoryGroup() {
         Meteor.call('storyGroups.delete', item);
         setDeletionModalVisible(false);
@@ -87,7 +89,6 @@ function StoryGroupItem(props) {
         >
             {!editing ? (
                 <>
-
                     {allowEdit && (
                         <EllipsisMenu
                             handleEdit={() => setEditing(true)}
@@ -95,21 +96,16 @@ function StoryGroupItem(props) {
                             onClick={() => checkDeletable()}
                             deletable={deletable}
                         />
-                    )}{selectAccessor && (
+                    )}
+                    {selectAccessor && (
                         <Icon
-                            id={`${
-                                item[selectAccessor]
-                                    ? 'selected'
-                                    : 'not-selected'
-                            }`}
+                            id={`${item[selectAccessor] ? 'selected' : 'not-selected'}`}
                             name='eye'
                             onClick={e => handleToggle(e, item)}
                         />
                     )}
                     <span className='story-group-menu-item'>{item[nameAccessor]}</span>
-                    {indexProp === index && saving && (
-                        <Loader active size='tiny' />
-                    )}
+                    {indexProp === index && saving && <Loader active size='tiny' />}
                 </>
             ) : (
                 <Input
@@ -127,13 +123,15 @@ function StoryGroupItem(props) {
                 className='warning'
                 header='Warning!'
                 confirmButton='Delete'
-                content={`The story group ${item[nameAccessor]} and all its stories in it will be deleted. This action cannot be undone.`}
+                content={`The story group ${
+                    item[nameAccessor]
+                } and all its stories in it will be deleted. This action cannot be undone.`}
                 onCancel={() => setDeletionModalVisible(false)}
                 onConfirm={removeStoryGroup}
             />
-        </Menu.Item>);
+        </Menu.Item>
+    );
 }
-
 
 StoryGroupItem.propTypes = {
     index: PropTypes.number.isRequired,
