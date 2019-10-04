@@ -185,7 +185,8 @@ describe('stories', function() {
             .type(`{selectall}{backspace}${testText}`, { force: true });
         cy.wait(500);
         cy.contains(storyGroupOne).trigger('mouseover');
-        cy.contains(storyGroupOne).find('[data-cy=edit-name-icon]').click({ force: true });
+        cy.contains(storyGroupOne).find('[data-cy=ellipsis-menu]').click({ force: true });
+        cy.contains(storyGroupOne).find('[data-cy=edit-menu]').click({ force: true });
         // Change name of a story group
         cy.get('[data-cy=edit-name] input')
             .click({ force: true })

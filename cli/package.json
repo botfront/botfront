@@ -33,7 +33,7 @@
     "check-node-version": "^4.0.1",
     "chokidar": "^3.0.2",
     "commander": "^2.20.0",
-    "docker-cli-js": "^2.5.3",
+    "docker-cli-js": "~2.5.3",
     "esm": "^3.2.25",
     "fs-extra": "^8.1.0",
     "inquirer": "^6.5.0",

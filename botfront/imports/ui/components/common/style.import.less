@@ -26,15 +26,18 @@
 }
 
 .ui.vertical.menu {
-    .item>#edit-icon {
-        opacity: 0.0;
-        &:hover{
-            opacity: .50;
-        }
+  .item:hover #ellipsis-icon {
+    color: #999999;
+    opacity: 1;
     }
 
-    .item:hover #edit-icon{
-        opacity: .40;
+  .item > #ellipsis-icon {
+    opacity: 0;
+    float: right;
+    right: -8px;
+    &:hover {
+      color: #828282;
+    }
     }
 }
 .ui.vertical.menu{
@@ -47,4 +50,21 @@
 .ui.popup.tool-tip-popup{
     padding: 13px 17px;
     text-align: left;
+}
+
+.warning .ui.primary.button {
+    background-color: #d02121;
+    &:hover {
+        background-color:#c21616;
+      }
+}
+
+
+.ui.menu .ui.dropdown .menu>.item#deleteDisabled{
+    cursor: not-allowed;
+    color: #828282 !important; //important is used by semantic-ui, making the usage of important the only way to overide it
+    background-color: #f2f2f2 !important; //important is used by semantic-ui, making the usage of important the only way to overide it
+    &:hover {
+        background-color:#f2f2f2; //important is used by semantic-ui, making the usage of important the only way to overide it
+      } 
 }

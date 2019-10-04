@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
 import { StoryGroups } from './storyGroups.collection';
+import { Stories } from '../story/stories.collection';
 
 export const createIntroStoryGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -69,7 +70,7 @@ Meteor.methods({
     'storyGroups.delete'(storyGroup) {
         check(storyGroup, Object);
         checkIfCan('stories:w', storyGroup.projectId);
-        return StoryGroups.remove({ _id: storyGroup._id });
+        return StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id });
     },
 
     'storyGroups.insert'(storyGroup) {
