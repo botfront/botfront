@@ -35,7 +35,7 @@ function StoryGroupItem(props) {
             .filter(story => story.checkpoints !== undefined);
         if (storiesWithCheckpoints !== []) {
             let originStories = storiesWithCheckpoints.map(story => story.checkpoints.map(checkpoint => checkpoint[0]));
-            originStories = originStories.flat(); // flatten the array, same as originStories.flat(), but flat is not supported by electron used by cypress
+            originStories = [].concat(...originStories); // flatten the array, same as originStories.flat(), but flat is not supported by electron used by cypress
             originStoriesInTheGroup = storiesIdsOfTheGroup.some(storyId => originStories.includes(storyId));
         }
         
