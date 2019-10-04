@@ -14,11 +14,13 @@ function EllipsisMenu(props) {
             icon='ellipsis vertical'
             compact
             direction='left'
+            data-cy='ellipsis-menu'
+            
 
             onClick={() => onClick()}
         >
             <Dropdown.Menu id='ellipsis-menu'>
-                <Dropdown.Item onClick={handleEdit}>Edit</Dropdown.Item>
+                <Dropdown.Item data-cy='edit-menu' onClick={handleEdit}>Edit</Dropdown.Item>
                 {/* the disabling of the delete menu is handled with css, disabling it with the props cause the */}
                 <Popup
                     content='There are stories linking to this group or stories from this group are linked to others stories'
@@ -28,6 +30,7 @@ function EllipsisMenu(props) {
                         <Dropdown.Item
                             onClick={deletable ? handleDelete : null}
                             id={deletable ? '' : 'deleteDisabled'}
+                            data-cy='delete-menu'
                         >
                             <div>Delete</div>
                         </Dropdown.Item>
