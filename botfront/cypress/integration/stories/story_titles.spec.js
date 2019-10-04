@@ -69,7 +69,8 @@ describe('story title editing', function() {
 
     it('should have consistant behaviour', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('edit-name-icon').click({ force: true });
+        cy.dataCy('ellipsis-menu').click({ force: true });
+        cy.dataCy('edit-menu').click({ force: true });
         cy.dataCy('edit-name')
             .find('input')
             .clear()
@@ -79,7 +80,8 @@ describe('story title editing', function() {
             .contains(editedGroupOne)
             .should('exist');
 
-        cy.dataCy('edit-name-icon').click({ force: true });
+        cy.dataCy('ellipsis-menu').click({ force: true });
+        cy.dataCy('edit-menu').click({ force: true });
         cy.dataCy('edit-name')
             .find('input')
             .clear()
@@ -90,7 +92,8 @@ describe('story title editing', function() {
             .contains(editedGroupTwo)
             .should('exist');
 
-        cy.dataCy('edit-name-icon').click({ force: true });
+        cy.dataCy('ellipsis-menu').click({ force: true });
+        cy.dataCy('edit-menu').click({ force: true });
         cy.dataCy('edit-name')
             .find('input')
             .clear()
