@@ -242,7 +242,7 @@ class StoryVisualEditor extends React.Component {
     )
 
     render() {
-        const { story } = this.props;
+        const { story, language } = this.props;
         const { menuCloser } = this.state;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
@@ -255,6 +255,7 @@ class StoryVisualEditor extends React.Component {
                     <React.Fragment key={`bot${line.gui.data.name}`}>
                         <ExceptionWrapper exceptions={exceptions}>
                             <BotResponsesContainer
+                                language={language}
                                 deletable
                                 exceptions={exceptions}
                                 name={line.gui.data.name}
