@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.11](https://github.com/botfront/botfront/compare/v0.16.0-rc.10...v0.16.0-rc.11) (2019-10-04)
+
+
+### Bug Fixes
+
+* **cli:** fixed docker-cli-js to 2.5.x ([a909ef4](https://github.com/botfront/botfront/commit/a909ef4))
+* improve branching tab color ([ece007d](https://github.com/botfront/botfront/commit/ece007d))
+* not complete comment ([d665519](https://github.com/botfront/botfront/commit/d665519))
+* remplace flat() so it is supported by electron ([b9ceac3](https://github.com/botfront/botfront/commit/b9ceac3))
+
+
+### Features
+
+* add ellipsis menu in place of story edit ([9b6b668](https://github.com/botfront/botfront/commit/9b6b668))
+* add tests for story group deletion ([84c4bc5](https://github.com/botfront/botfront/commit/84c4bc5))
+* check before storygroup deletion ([14180be](https://github.com/botfront/botfront/commit/14180be))
+* component for each story group ([fb4b75b](https://github.com/botfront/botfront/commit/fb4b75b))
+* storygroup deletion without checks ([a450ca3](https://github.com/botfront/botfront/commit/a450ca3))
+* update tests to support new ellipsis menu ([cb3a98f](https://github.com/botfront/botfront/commit/cb3a98f))
+
+
+
 ## [0.16.0-rc.10](https://github.com/botfront/botfront/compare/v0.16.0-rc.9...v0.16.0-rc.10) (2019-10-03)
 
 
