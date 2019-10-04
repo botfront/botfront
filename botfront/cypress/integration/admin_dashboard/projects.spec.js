@@ -41,7 +41,8 @@ describe('project creation', function() {
         cy.dataCy('delete-project').should('not.be.disabled');
         cy.dataCy('delete-project').click();
         cy.get('.primary').click();
-        // \u00a0 is nbsp, the 'empty' value in the table
         cy.get(':nth-child(3) > .rt-tr > :nth-child(1)').should('have.text', '\u00a0'); // \u00a0 is nbsp, the 'empty' value in the table
+        cy.get(':nth-child(2) > .rt-tr > :nth-child(1)').should('have.text', 'Duedix');
+        cy.get(':nth-child(1) > .rt-tr > :nth-child(1)').eq(1).should('have.text', 'Chitchat');
     });
 });
