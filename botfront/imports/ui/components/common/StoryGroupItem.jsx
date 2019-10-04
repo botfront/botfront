@@ -24,6 +24,22 @@ function StoryGroupItem(props) {
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
     const [editing, setEditing] = useState(false);
     const [storyName, setStoryName] = useState(item[nameAccessor]);
+    const [deletable, setDeletable] = useState(false);
+
+    function checkDeletable() {
+        const storiesOfTheGroup = stories
+            .filter(story => story.storyGroupId === item._id);
+        const originStories = stories
+            .filter(story => story.checkpoints !== undefined)
+            .map(story => story.checkpoints.map(checkpoint => checkpoint[0]))
+            .flat();
+        const storiesIdsOfTheGroup = storiesOfTheGroup
+            .map(story => story._id);
+        const originStoriesInTheGroup = storiesIdsOfTheGroup.some(storyId => originStories.includes(storyId));
+        const destinationStoriesInTheGroup = storiesOfTheGroup.some(story => story.checkpoint !== undefined);
+
+        setDeletable(!originStoriesInTheGroup && !destinationStoriesInTheGroup);
+    }
 
     function resetNameEdit() {
         setEditing(false);
@@ -51,7 +67,7 @@ function StoryGroupItem(props) {
         setStoryName(data.value);
     }
 
-    
+
     function removeStoryGroup() {
         Meteor.call('storyGroups.delete', item);
         setDeletionModalVisible(false);
@@ -67,29 +83,31 @@ function StoryGroupItem(props) {
             data-cy='browser-item'
         >
             {!editing ? (
-            <>
-                {selectAccessor && (
-                    <Icon
-                        id={`${
-                            item[selectAccessor]
-                                ? 'selected'
-                                : 'not-selected'
-                        }`}
-                        name='eye'
-                        onClick={e => handleToggle(e, item)}
-                    />
-                )}
-                {allowEdit && (
-                    <EllipsisMenu
-                        handleEdit={() => setEditing(true)}
-                        handleDelete={() => setDeletionModalVisible(true)}
-                    />
-                )}
-                <span className='story-group-menu-item'>{item[nameAccessor]}</span>
-                {indexProp === index && saving && (
-                    <Loader active size='tiny' />
-                )}
-            </>
+                <>
+
+                    {allowEdit && (
+                        <EllipsisMenu
+                            handleEdit={() => setEditing(true)}
+                            handleDelete={() => setDeletionModalVisible(true)}
+                            onClick={() => checkDeletable()}
+                            deletable={deletable}
+                        />
+                    )}{selectAccessor && (
+                        <Icon
+                            id={`${
+                                item[selectAccessor]
+                                    ? 'selected'
+                                    : 'not-selected'
+                            }`}
+                            name='eye'
+                            onClick={e => handleToggle(e, item)}
+                        />
+                    )}
+                    <span className='story-group-menu-item'>{item[nameAccessor]}</span>
+                    {indexProp === index && saving && (
+                        <Loader active size='tiny' />
+                    )}
+                </>
             ) : (
                 <Input
                     onChange={handleNameChange}

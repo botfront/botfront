@@ -69,7 +69,7 @@ function handleError(e) {
 Meteor.methods({
     'storyGroups.delete'(storyGroup) {
         check(storyGroup, Object);
-        return StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id }); 
+        return StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id });
     },
 
     'storyGroups.insert'(storyGroup) {

@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ExceptionAlerts from '../stories/ExceptionAlerts';
 import StoryGroupItem from './StoryGroupItem';
+import { ConversationOptionsContext } from '../utils/Context';
+
 
 class Browser extends React.Component {
     constructor(props) {
@@ -95,6 +97,7 @@ class Browser extends React.Component {
             selectAccessor,
             allowEdit,
             changeName,
+            stories,
             placeholderAddItem,
         } = this.props;
         const {
@@ -115,6 +118,7 @@ class Browser extends React.Component {
                 handleToggle={e => this.handleToggle(e, item)}
                 saving={saving}
                 changeName={changeName}
+                stories={stories}
             />
         ));
         return (
@@ -171,6 +175,7 @@ Browser.propTypes = {
     allowEdit: PropTypes.bool,
     placeholderAddItem: PropTypes.string,
     children: PropTypes.element,
+    stories: PropTypes.array.isRequired,
 };
 
 Browser.defaultProps = {
@@ -189,4 +194,14 @@ Browser.defaultProps = {
     children: <></>,
 };
 
-export default Browser;
+
+export default props => (
+    <ConversationOptionsContext.Consumer>
+        {value => (
+            <Browser
+                {...props}
+                stories={value.stories}
+            />
+        )}
+    </ConversationOptionsContext.Consumer>
+);
