@@ -17,6 +17,12 @@ const exportTypeOptions = [
         text: 'Export for Botfront',
         value: 'botfront',
         successText: 'Your project has been successfully exported for Botfront!',
+        content: (
+            <p>
+                If your download does not start withing 5 seconds click{' '}
+                <a href='http://localhost:8080/project/bf/export' download>here </a>
+                to retry
+            </p>),
     },
     {
         key: 'rasa',
@@ -27,7 +33,7 @@ const exportTypeOptions = [
 ];
 
 const ExportProject = ({
-    projectId, projectLanguages, setLoading,
+    projectId, projectLanguages, setLoading, apiHost,
 }) => {
     const [exportType, setExportType] = useState({});
     const [exportLanguage, setExportLanguage] = useState('');
@@ -54,8 +60,8 @@ const ExportProject = ({
 
     const exportForBotfront = () => {
         setLoading(true);
-        console.log('----BOTFRONT EXPORT----');
-        console.log(projectId);
+        console.log(apiHost);
+        window.location.href = `${apiHost}/project/bf/export`;
         setExportSuccessful(true);
         setLoading(false);
     };
@@ -84,6 +90,7 @@ const ExportProject = ({
                 positive
                 icon='check circle'
                 header={exportType.successText}
+                content={<>{exportType.content}</>}
             />
         );
     }
@@ -118,13 +125,13 @@ const ExportProject = ({
             {validateExportType() && (
                 <Button onClick={exportProject} className='export-option' data-cy='export-button'>
                     <Icon name='download' />
-                    Export project for Botfront
+                    Export project for Rasa/Rasa X
                 </Button>
             )}
             {exportType.value === 'botfront' && (
                 <Button onClick={exportProject} className='export-option' data-cy='export-button'>
                     <Icon name='download' />
-                    Export project for Rasa/Rasa X
+                    Export project for Botfront
                 </Button>
             )}
         </>
@@ -135,6 +142,7 @@ ExportProject.propTypes = {
     projectId: PropTypes.string.isRequired,
     projectLanguages: PropTypes.array.isRequired,
     setLoading: PropTypes.func.isRequired,
+    apiHost: PropTypes.string.isRequired,
 };
 
 const ExportProjectContainer = withTracker(({ projectId }) => {

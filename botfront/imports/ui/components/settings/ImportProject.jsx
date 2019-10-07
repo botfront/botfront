@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
+
 
 import {
     Dropdown, Button, Message, Icon,
@@ -15,6 +17,7 @@ import ImportDropField from './importProjectDropfield';
 const ImportProject = ({
     // projectLanguages,
     setLoading,
+    apiHost,
 }) => {
     const importTypeOptions = [
         {
@@ -53,6 +56,8 @@ const ImportProject = ({
         setLoading(true);
         console.log('importing...');
         console.log(uploadedFiles);
+        // fetch(`${apiHost}/project/bf/export`, { method: 'PUT', mode: 'no-cors' });
+        Meteor.call('importProject', uploadedFiles.botfront, apiHost);
         setLoading(false);
         setImportSuccessful(true);
     };
@@ -69,6 +74,7 @@ const ImportProject = ({
     };
 
     const backupProject = () => {
+        window.location.href = `${apiHost}/project/bf/export`;
         setbackupDownloaded(true);
     };
 
@@ -137,7 +143,7 @@ const ImportProject = ({
                         positive
                         icon='check circle'
                         header='Backup successfully downloaded!'
-                        content='You may now import your Botfront project.'
+                        content={<p>If the download did not automatically start click<a href={`${apiHost}/project/bf/export`}> here </a> to retry.<br />Please verify that the backup has downloaded before continuing.</p>}
                     />
                 )}
                 {validateImportType() && (
@@ -159,6 +165,7 @@ ImportProject.propTypes = {
     projectId: PropTypes.string.isRequired,
     projectLanguages: PropTypes.array,
     setLoading: PropTypes.func.isRequired,
+    apiHost: PropTypes.string.isRequired,
 };
 
 ImportProject.defaultProps = {
