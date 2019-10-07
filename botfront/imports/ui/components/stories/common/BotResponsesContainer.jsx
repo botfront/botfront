@@ -17,6 +17,7 @@ const BotResponsesContainer = (props) => {
         exceptions,
         isNew,
         removeNewState,
+        language,
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
 
@@ -26,7 +27,11 @@ const BotResponsesContainer = (props) => {
 
     const getSequence = () => {
         if (!template) return [];
-        return template.values[0].sequence;
+        const response = template.values
+            .find(({ lang }) => lang === language)
+            .sequence;
+        if (!response) return [];
+        return response;
     };
 
     const setSequence = (newSequence) => {
@@ -178,6 +183,7 @@ BotResponsesContainer.propTypes = {
     exceptions: PropTypes.array,
     isNew: PropTypes.bool.isRequired,
     removeNewState: PropTypes.func.isRequired,
+    language: PropTypes.string.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
