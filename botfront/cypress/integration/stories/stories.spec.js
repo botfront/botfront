@@ -112,6 +112,7 @@ describe('stories', function() {
         cy.contains('xxx').should('exist');
     });
 
+    /* the story duplication is deactivated for now, it may cause issues with response edition
     it('should be able to duplicate a story', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click({ force: true });
@@ -132,6 +133,7 @@ describe('stories', function() {
             .click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
     });
+    */
 
     it('should be able to rename a story', function() {
         cy.visit('/project/bf/stories');

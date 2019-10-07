@@ -20,7 +20,7 @@ const StoryTopMenu = ({
     title,
     onRename,
     disabled,
-    onClone,
+    // onClone, the story duplication is deactivated for now, it may cause issues with response edition
     groupNames,
     collapsed,
     collapseStory,
@@ -261,13 +261,15 @@ const StoryTopMenu = ({
                         onOpen={() => openMovePopup(true)}
                         onClose={() => openMovePopup(false)}
                     />
-                    <Icon
+                    { /*
+                        the story duplication is deactivated for now, it may cause issues with response edition
+                        <Icon
                         name='clone'
                         color='grey'
                         link
                         data-cy='duplicate-story'
                         onClick={onClone}
-                    />
+                    /> */}
                     {renderDeletePopup()}
                 </Menu.Item>
             </Menu>
