@@ -222,6 +222,9 @@ Branches can be linked to other stories as well.
 Using linking too much could overcomplicate your story flows, making them difficult to understand. Also, excessive usage could lead into an increase training time.
 :::
 
+### How linking is handled
+
+Similar to branching, Botfront uses [Rasa checkpoints](https://rasa.com/docs/rasa/core/stories/#checkpoints) to accommodate linking as well. When you click **Link to**, the originating and destination stories are linked seamlessly with checkpoints. Please note that `> checkpoints` are not allowed in stories.
 
 ## Organizing your stories in groups
 
