@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.11-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.11-ee.1...v0.16.0-rc.11-ee.2) (2019-10-07)
+
+
+### Bug Fixes
+
+* display the current language response content ([9fe6d2f](https://github.com/botfront/botfront/commit/9fe6d2f))
+
+
+
 ## [0.16.0-rc.11-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.10-ee.2...v0.16.0-rc.11-ee.1) (2019-10-04)
 
 
