@@ -39,9 +39,9 @@ function StoryGroupItem(props) {
             originStories = [].concat(...originStories); // flatten the array, same as originStories.flat(), but flat is not supported by electron used by cypress
             originStoriesInTheGroup = storiesIdsOfTheGroup.some(storyId => originStories.includes(storyId));
         }
-
+        
         const destinationStoriesInTheGroup = storiesOfTheGroup.some(
-            story => story.checkpoints !== undefined && story.checkpoints !== [],
+            story => story.checkpoints !== undefined && story.checkpoints.length > 0,
         );
 
         setDeletable(!originStoriesInTheGroup && !destinationStoriesInTheGroup);
