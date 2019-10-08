@@ -19,7 +19,7 @@ const exportTypeOptions = [
         successText: 'Your project has been successfully exported for Botfront!',
         content: (
             <p>
-                If your download does not start withing 5 seconds click{' '}
+                If your download does not start within 5 seconds click{' '}
                 <a href='http://localhost:8080/project/bf/export' download>here </a>
                 to retry
             </p>),

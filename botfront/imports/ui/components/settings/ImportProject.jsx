@@ -37,11 +37,11 @@ const ImportProject = ({
     const [importType, setImportType] = useState({});
     const [botfrontFileSuccess, setBotfrontFileSuccess] = useState(false);
     const [backupDownloaded, setbackupDownloaded] = useState(false);
-    const [importSuccessful, setImportSuccessful] = useState(false);
+    const [importSuccessful, setImportSuccessful] = useState(undefined);
+    const [importErrorMessage, setImportErrorMessage] = useState({});
     const [uploadedFiles, setUploadedFiles] = useState({});
 
     const validateImportType = () => {
-        console.log(importType);
         if (!importTypeOptions.some(({ value }) => value === importType.value)) {
             return false;
         }
@@ -54,23 +54,31 @@ const ImportProject = ({
 
     const importProject = () => {
         setLoading(true);
-        console.log('importing...');
-        console.log(uploadedFiles);
         // fetch(`${apiHost}/project/bf/export`, { method: 'PUT', mode: 'no-cors' });
-        Meteor.call('importProject', uploadedFiles.botfront, apiHost);
-        setLoading(false);
-        setImportSuccessful(true);
+        Meteor.call('importProject', uploadedFiles.botfront, apiHost, (error, response) => {
+            if (response === 200) {
+                setImportSuccessful(true);
+            } else if (response === 422) {
+                setImportSuccessful(false);
+                setImportErrorMessage({ header: 'Import Failed', text: 'Uploaded file is not a valid Botfront JSON file' });
+            } else {
+                setImportSuccessful(false);
+                setImportErrorMessage({ header: 'Import Failed', text: `Status code: ${response}` });
+            }
+            setLoading(false);
+        });
     };
 
     const fileAdded = (file) => {
-        console.log('new file added');
         setUploadedFiles({ ...uploadedFiles, ...file });
         setBotfrontFileSuccess(true);
     };
 
     const verifyBotfrontFile = (file) => {
-        console.log(file);
-        return true;
+        if (typeof file === 'object') {
+            return true;
+        }
+        return false;
     };
 
     const backupProject = () => {
@@ -84,17 +92,45 @@ const ImportProject = ({
         }
         return 'Import project';
     };
+    
+    const refreshImportPage = () => {
+        console.log('refreshing');
+        setImportType({});
+        setBotfrontFileSuccess(false);
+        setbackupDownloaded(false);
+        setImportSuccessful(undefined);
+        setImportErrorMessage({});
+        setUploadedFiles({});
+    };
 
-    if (importSuccessful) {
+    if (importSuccessful === true) {
         return (
-            <Message
-                positive
-                className='import-successful'
-                icon='check circle'
-                header={importType.successHeader}
-                content={importTypeOptions.successText}
-                data-cy='project-imported'
-            />
+            <>
+                <Message
+                    positive
+                    className='import-successful'
+                    icon='check circle'
+                    header={importType.successHeader}
+                    content={importTypeOptions.successText}
+                    data-cy='project-imported'
+                />
+                <Button onClick={refreshImportPage}><Icon name='upload' />Import again</Button>
+            </>
+        );
+    }
+    if (importSuccessful === false) {
+        return (
+            <>
+                <Message
+                    error
+                    className='import-successful'
+                    icon='times circle'
+                    header={importErrorMessage.header}
+                    content={importErrorMessage.text}
+                    data-cy='project-imported'
+                />
+                <Button onClick={refreshImportPage}><Icon name='upload' />Import a different file</Button>
+            </>
         );
     }
 
