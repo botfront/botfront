@@ -52,18 +52,18 @@ class Evaluation extends React.Component {
             evaluation: {
                 results: {
                     intent_evaluation: intentEvaluation,
-                    intent_evaluation: {
-                        report,
-                        predictions,
-                        accuracy,
-                        f1_score: f1Score,
-                        precision,
-                    } = {},
                 } = {},
             } = {},
         } = this.state;
 
         if (intentEvaluation) {
+            const {
+                report,
+                predictions,
+                accuracy,
+                f1_score: f1Score,
+                precision,
+            } = intentEvaluation;
             return [{
                 menuItem: 'Intents',
                 render: () => (
