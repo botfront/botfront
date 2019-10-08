@@ -22,6 +22,12 @@ export const QuickRepliesSchema = new SimpleSchema(
         'buttons.$.title': String,
         'buttons.$.image_url': { type: String, required: false },
         'buttons.$.payload': String,
+        'buttons.$.type': {
+            type: String,
+            required: false,
+            allowedValues: ['postback', 'web_url'],
+            defaultValue: 'postback',
+        },
     },
     { tracker: Tracker },
 ).extend(sequenceSchema);
