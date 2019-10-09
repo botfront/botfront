@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.12-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.11-ee.2...v0.16.0-rc.12-ee.1) (2019-10-09)
+
+
+### Bug Fixes
+
+* crash on null intent_evaluation result ([0444424](https://github.com/botfront/botfront/commit/0444424))
+* fixed stories crashing after update ([760d01e](https://github.com/botfront/botfront/commit/760d01e))
+* import of large nlu files ([e622a1c](https://github.com/botfront/botfront/commit/e622a1c))
+* quick reply schema also add tests ([259bffc](https://github.com/botfront/botfront/commit/259bffc))
+* storyGroup deletion was not available after a unlinking ([03e373f](https://github.com/botfront/botfront/commit/03e373f))
+* tagging of accentuated characters ([24becda](https://github.com/botfront/botfront/commit/24becda))
+* wrong slot properties ([66df140](https://github.com/botfront/botfront/commit/66df140))
+
+
+### Tests
+
+* removed useless scrolling test ([5d92d45](https://github.com/botfront/botfront/commit/5d92d45))
+
+
+
 ## [0.16.0-rc.11-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.11-ee.1...v0.16.0-rc.11-ee.2) (2019-10-07)
 
 
