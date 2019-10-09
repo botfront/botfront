@@ -15,7 +15,11 @@ if (Meteor.isServer) {
             checkIfCan('global-admin');
             const data = JSON.stringify(projectFile);
 
-            const options = getRequestOptions(apiHost, '/project/bf/import');
+            const headers = {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length,
+            };
+            const options = getRequestOptions(apiHost, '/project/bf/import', 'PUT', headers);
 
             const importRequest = new Promise((resolve) => {
                 const req = http.request(options, (res) => {
@@ -25,7 +29,7 @@ if (Meteor.isServer) {
                         resolve({
                             success: false,
                             errorMessage: {
-                                header: 'Import Failed', text: 'The uploaded file is not a valid Botfront JSON file'
+                                header: 'Import Failed', text: 'The uploaded file is not a valid Botfront JSON file',
                             },
                         });
                     } else {

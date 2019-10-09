@@ -1,4 +1,4 @@
-export const getRequestOptions = (apiHost, path) => {
+export const getRequestOptions = (apiHost, path, method, headers) => {
     const splitUrl = apiHost.split(':');
     const options = {
         hostname: splitUrl[1].slice(2),
@@ -6,9 +6,12 @@ export const getRequestOptions = (apiHost, path) => {
         path,
         connection: 'keep-alive',
         localAddress: '127.0.0.1',
-        method: 'GET',
+        method,
         protovol: splitUrl[0],
     };
+    if (method === 'PUT') {
+        options.headers = headers;
+    }
     return options;
 };
 

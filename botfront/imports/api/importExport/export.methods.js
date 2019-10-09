@@ -13,7 +13,7 @@ if (Meteor.isServer) {
             check(apiHost, String);
             checkIfCan('global-admin');
 
-            const options = getRequestOptions(apiHost, '/project/bf/export');
+            const options = getRequestOptions(apiHost, '/project/bf/export', 'GET');
 
             const exportRequest = new Promise((resolve) => {
                 const req = http.request(options, (res) => {
