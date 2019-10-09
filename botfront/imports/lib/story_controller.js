@@ -44,21 +44,10 @@ export class StoryController {
         if (!slots) return {};
         slots.forEach((slot) => {
             const options = {};
-            const { type } = slot;
-            if (type === 'float') {
-                if (slot.minValue) {
-                    options.minValue = slot.minValue;
-                }
-                if (slot.maxValue) {
-                    options.maxValue = slot.maxValue;
-                }
-            }
-            if (slot.initialValue) {
-                options.initial_value = slot.initialValue;
-            }
-            if (type === 'categorical' && slot.categories) {
-                options.values = slot.categories;
-            }
+            if (slot.minValue) options.min_value = slot.minValue;
+            if (slot.maxValue) options.max_value = slot.maxValue;
+            if (slot.initialValue) options.initial_value = slot.initialValue;
+            if (slot.categories) options.values = slot.categories;
             slotsToAdd[slot.name] = {
                 type: slot.type,
                 ...options,

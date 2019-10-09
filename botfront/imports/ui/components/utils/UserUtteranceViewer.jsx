@@ -116,14 +116,14 @@ function UserUtteranceViewer({
     function trimBeginning(completeText, anchor, extent) {
         if (
             anchor === extent
-            || (/\w/.test(completeText.slice(anchor, anchor + 1))
-                && /\w/.test(completeText.slice(anchor - 1, anchor)))
+            || (/[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1))
+                && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor - 1, anchor)))
         ) {
             return false;
         }
 
         if (
-            /\w/.test(completeText.slice(anchor, anchor + 1))
+            /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1))
             && /\W/.test(completeText.slice(anchor - 1, anchor))
         ) {
             return anchor;
@@ -137,14 +137,14 @@ function UserUtteranceViewer({
     function trimEnding(completeText, anchor, extent) {
         if (
             anchor === extent
-            || (/\w/.test(completeText.slice(extent - 1, extent))
-                && /\w/.test(completeText.slice(extent, extent + 1)))
+            || (/[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent))
+                && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent, extent + 1)))
         ) {
             return false;
         }
 
         if (
-            /\w/.test(completeText.slice(extent - 1, extent))
+            /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent))
             && /\W/.test(completeText.slice(extent, extent + 1))
         ) {
             return extent;
@@ -161,10 +161,10 @@ function UserUtteranceViewer({
         // we check that the characters at the edge of the selection are either
         // next to a non word character or at the edge of the completeText
         const anchorCorrect = (anchor === 0 || /\W/.test(completeText.slice(anchor - 1, anchor)))
-            && /\w/.test(completeText.slice(anchor, anchor + 1));
+            && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1));
         const extentCorrect = (extent === completeText.length
                 || /\W/.test(completeText.slice(extent, extent + 1)))
-            && /\w/.test(completeText.slice(extent - 1, extent));
+            && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent));
 
         if (anchorCorrect && extentCorrect) {
             return {
@@ -217,7 +217,7 @@ function UserUtteranceViewer({
             return;
         }
         setSelection({
-            text: selection.toString(),
+            text: text.slice(selectionBoundary.anchor, selectionBoundary.extent),
             start: selectionBoundary.anchor,
             end: selectionBoundary.extent,
         });

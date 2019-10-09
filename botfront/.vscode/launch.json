@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Meteor",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "debug"],
+            "outputCapture": "std",
+            "port": 9229,
+            "timeout": 30000
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Meteor Docker Compose",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "debug"],
+            "outputCapture": "std",
+            "port": 9229,
+            "timeout": 30000,
+            "env": {
+                "NODE_ENV": "production",
+                "BF_PROJECT_ID": "bf",
+                "MONGO_URL": "mongodb://localhost:27017/bf",
+                "ORCHESTRATOR": "docker-compose",
+                "MODELS_LOCAL_PATH": "/app/models"
+            }
+        }
+    ]
+}

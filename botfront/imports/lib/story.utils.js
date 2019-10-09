@@ -319,15 +319,17 @@ export const accumulateExceptions = (
         const currrentWarnings = currentController.getWarnings();
         let errors = [...currentErrors];
         let warnings = [...currrentWarnings];
-        currentStory.branches.forEach((branchStory) => {
-            const childBranch = traverseBranch(
-                branchStory,
-                [...currentPath, branchStory._id],
-                true,
-            );
-            errors = [...errors, ...childBranch.errors];
-            warnings = [...warnings, ...childBranch.warnings];
-        });
+        if (currentStory.branches) {
+            currentStory.branches.forEach((branchStory) => {
+                const childBranch = traverseBranch(
+                    branchStory,
+                    [...currentPath, branchStory._id],
+                    true,
+                );
+                errors = [...errors, ...childBranch.errors];
+                warnings = [...warnings, ...childBranch.warnings];
+            });
+        }
         exceptions[currentPathAsString] = { errors, warnings };
         return { errors, warnings };
     };

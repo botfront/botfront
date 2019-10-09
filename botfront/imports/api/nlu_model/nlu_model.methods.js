@@ -2,7 +2,7 @@ import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
 import {
-    uniq, uniqBy, sortBy, intersectionBy, find, uniqWith, isEqual,
+    uniq, uniqBy, sortBy, intersectionBy, find,
 } from 'lodash';
 import { formatError, getProjectIdFromModelId, getModelIdsFromProjectId } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
@@ -10,11 +10,9 @@ import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
 import {
     checkNoEmojisInExamples,
-    checkNoDuplicatesInExamples,
     renameIntentsInTemplates,
     getNluModelLanguages,
 } from './nlu_model.utils';
-import { setGazetteDefaults } from '../../ui/components/synonyms/GazetteConfig';
 import { Projects } from '../project/project.collection';
 import { checkIfCan } from '../../lib/scopes';
 
@@ -22,6 +20,10 @@ const getModelWithTrainingData = (chitChatProjectId, language) => {
     const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
     const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { 'training_data.common_examples': 1 } });
     return model;
+};
+
+const gazetteDefaults = {
+    mode: 'ratio', minScoreDefault: 80,
 };
 
 Meteor.methods({
@@ -113,8 +115,7 @@ Meteor.methods({
             return NLUModels.update({ _id: modelId, 'training_data.fuzzy_gazette._id': item._id }, { $set: { 'training_data.fuzzy_gazette.$': item } });
         }
 
-        const gazette = { _id: uuidv4(), ...item };
-        setGazetteDefaults(gazette);
+        const gazette = { _id: uuidv4(), ...gazetteDefaults, ...item };
 
         return NLUModels.update({ _id: modelId }, { $push: { 'training_data.fuzzy_gazette': gazette } });
     },
@@ -133,6 +134,19 @@ if (Meteor.isServer) {
     const getChitChatProjectid = () => {
         const { settings: { public: { chitChatProjectId = null } = {} } = {} } = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
         return chitChatProjectId;
+    };
+
+    const filterExistent = (current, toImport, identifier, defaultsToInsert) => {
+        // identifier is a selected key to determine sameness, for example nlu example 'text'
+        const toFilter = {};
+        current.forEach((item) => { toFilter[item[identifier]] = true; }); // keep hashmap of existing items by chosen identifier
+        const addToKeys = (input, curr) => { toFilter[curr[identifier]] = true; return input; };
+        return toImport
+            .reduce((acc, curr) => (
+                curr[identifier] in toFilter // if item with same identifier exists
+                    ? acc // pass
+                    : addToKeys([...acc, { ...curr, ...defaultsToInsert, _id: uuidv4() }], curr) // else add example, giving it new id, and add to hashmap
+            ), []);
     };
 
     Meteor.methods({
@@ -228,7 +242,7 @@ if (Meteor.isServer) {
 
             return model ? sortBy(uniq(model.training_data.common_examples.map(e => e.intent))) : [];
         },
-       
+        
         'nlu.addChitChatToTrainingData'(modelId, language, intents) {
             check(modelId, String);
             check(language, String);
@@ -262,45 +276,37 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
             try {
-                const command = overwrite ? '$set' : '$push';
-                const ops = {};
-                ops[command] = {};
+                const currentModel = NLUModels.findOne({ _id: modelId }, { training_data: 1 });
+                let commonExamples; let entitySynonyms; let fuzzyGazette;
+
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
-                    // remove perfect duplicates before adding ids
-                    // eslint-disable-next-line no-param-reassign
-                    nluData.common_examples = uniqWith(nluData.common_examples, isEqual).map(e => ExampleUtils.stripBare(e));
-                    // eslint-disable-next-line no-return-assign
-                    nluData.common_examples.forEach(e => (e._id = uuidv4()));
-                    checkNoDuplicatesInExamples(nluData.common_examples);
-                    checkNoEmojisInExamples(JSON.stringify(nluData.common_examples));
-                    if (command === '$push') {
-                        const normalizedItems = uniqBy(nluData.common_examples, 'text');
-                        const pullItemsText = intersectionBy(nluData.common_examples, normalizedItems, 'text').map(({ text }) => text);
-                        NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItemsText } } } });
-                    }
-                    ops[command]['training_data.common_examples'] = overwrite ? nluData.common_examples : { $each: nluData.common_examples };
+                    commonExamples = {
+                        'training_data.common_examples': overwrite
+                            ? nluData.common_examples
+                            : { $each: filterExistent(currentModel.training_data.common_examples, nluData.common_examples, 'text') },
+                    };
                 }
 
-                // TODO: fix bug with simple-schema hanging when there are empty strings
                 if (nluData.entity_synonyms && nluData.entity_synonyms.length > 0) {
-                    nluData.entity_synonyms.forEach((e) => {
-                        // pre-process
-                        e._id = uuidv4();
-                        e.synonyms = e.synonyms.filter(s => s !== '');
-                    });
-                    ops[command]['training_data.entity_synonyms'] = overwrite ? nluData.entity_synonyms : { $each: nluData.entity_synonyms };
+                    entitySynonyms = {
+                        'training_data.entity_synonyms': overwrite
+                            ? nluData.entity_synonyms
+                            : { $each: filterExistent(currentModel.training_data.entity_synonyms, nluData.entity_synonyms, 'value') },
+                    };
                 }
 
                 if (nluData.fuzzy_gazette && nluData.fuzzy_gazette.length > 0) {
-                    nluData.fuzzy_gazette.forEach((e) => {
-                        e._id = uuidv4();
-                        e.gazette = e.gazette.filter(s => s !== '');
-                        setGazetteDefaults(e);
-                    });
-                    ops[command]['training_data.fuzzy_gazette'] = overwrite ? nluData.fuzzy_gazette : { $each: nluData.fuzzy_gazette };
+                    fuzzyGazette = {
+                        'training_data.fuzzy_gazette': overwrite
+                            ? nluData.fuzzy_gazette
+                            : { $each: filterExistent(currentModel.training_data.fuzzy_gazette, nluData.fuzzy_gazette, 'value', gazetteDefaults) },
+                    };
                 }
 
-                return NLUModels.update({ _id: modelId }, ops);
+                const op = overwrite
+                    ? { $set: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } }
+                    : { $push: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } };
+                return NLUModels.update({ _id: modelId }, op);
             } catch (e) {
                 if (e instanceof Meteor.Error) throw e;
                 throw new Meteor.Error(e);
