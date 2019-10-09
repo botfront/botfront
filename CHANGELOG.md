@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.12-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.12-ee.1...v0.16.0-rc.12-ee.2) (2019-10-09)
+
+
+### Bug Fixes
+
+* improve project test to ensure ([e7b9f00](https://github.com/botfront/botfront/commit/e7b9f00))
+* project deletionan optional argument did not have default value ([ba0bd0b](https://github.com/botfront/botfront/commit/ba0bd0b))
+
+
+### Features
+
+* test for the creation/deletion of  a project ([8f2e536](https://github.com/botfront/botfront/commit/8f2e536))
+
+
+
 ## [0.16.0-rc.12-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.11-ee.2...v0.16.0-rc.12-ee.1) (2019-10-09)
 
 
