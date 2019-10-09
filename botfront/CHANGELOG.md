@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0-rc.13-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.12-ee.2...v0.16.0-rc.13-ee.1) (2019-10-09)
+
+
+### Bug Fixes
+
+* chitchat data not added ([1b7aeac](https://github.com/botfront/botfront/commit/1b7aeac))
+
+
+
 ## [0.16.0-rc.12-ee.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.12-ee.1...v0.16.0-rc.12-ee.2) (2019-10-09)
 
 
