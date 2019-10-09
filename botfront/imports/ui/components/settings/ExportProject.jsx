@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Meteor } from 'meteor/meteor';
+import { saveAs } from 'file-saver';
 
 import {
     Dropdown, Button, Message, Icon,
@@ -60,8 +62,12 @@ const ExportProject = ({
 
     const exportForBotfront = () => {
         setLoading(true);
-        console.log(apiHost);
-        window.location.href = `${apiHost}/project/bf/export`;
+        // console.log(apiHost);
+        Meteor.call('exportProject', apiHost, (err, jsonFile) => {
+            const blob = new Blob([jsonFile], { type: 'text/plain;charset=utf-8' });
+            const filename = `BotfrontProject_${projectId}.json`;
+            saveAs(blob, filename);
+        });
         setExportSuccessful(true);
         setLoading(false);
     };

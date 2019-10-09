@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
+import { saveAs } from 'file-saver';
 
 
 import {
@@ -18,6 +19,7 @@ const ImportProject = ({
     // projectLanguages,
     setLoading,
     apiHost,
+    projectId,
 }) => {
     const importTypeOptions = [
         {
@@ -82,7 +84,11 @@ const ImportProject = ({
     };
 
     const backupProject = () => {
-        window.location.href = `${apiHost}/project/bf/export`;
+        Meteor.call('exportProject', apiHost, (err, jsonFile) => {
+            const blob = new Blob([jsonFile], { type: 'text/plain;charset=utf-8' });
+            const filename = `BotfrontProjectBackup_${projectId}.json`;
+            saveAs(blob, filename);
+        });
         setbackupDownloaded(true);
     };
 
@@ -94,7 +100,6 @@ const ImportProject = ({
     };
     
     const refreshImportPage = () => {
-        console.log('refreshing');
         setImportType({});
         setBotfrontFileSuccess(false);
         setbackupDownloaded(false);
