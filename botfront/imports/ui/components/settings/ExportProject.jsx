@@ -39,7 +39,8 @@ const ExportProject = ({
 }) => {
     const [exportType, setExportType] = useState({});
     const [exportLanguage, setExportLanguage] = useState('');
-    const [ExportSuccessful, setExportSuccessful] = useState(false);
+    const [ExportSuccessful, setExportSuccessful] = useState(undefined);
+    const [errorMessage, setErrorMessage] = useState({ header: 'Export Failed', text: 'There was an unexpected error in the api request.' });
 
     const getLanguageOptions = () => (
         projectLanguages.map(({ value, text }) => ({
@@ -63,13 +64,18 @@ const ExportProject = ({
     const exportForBotfront = () => {
         setLoading(true);
         // console.log(apiHost);
-        Meteor.call('exportProject', apiHost, (err, jsonFile) => {
-            const blob = new Blob([jsonFile], { type: 'text/plain;charset=utf-8' });
-            const filename = `BotfrontProject_${projectId}.json`;
-            saveAs(blob, filename);
+        Meteor.call('exportProject', apiHost, (err, { data, success, errorText }) => {
+            if (success === true) {
+                const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+                const filename = `BotfrontProject_${projectId}.json`;
+                saveAs(blob, filename);
+                setExportSuccessful(true);
+            } else {
+                setErrorMessage({ header: 'Export Failed', text: !!errorText ? errorText : errorMessage.text });
+                setExportSuccessful(false);
+            }
+            setLoading(false);
         });
-        setExportSuccessful(true);
-        setLoading(false);
     };
 
     const exportForRasa = () => {
@@ -90,13 +96,24 @@ const ExportProject = ({
         setExportType(exportTypeOptions.find(option => option.value === value) || {});
     };
 
-    if (ExportSuccessful) {
+    if (ExportSuccessful === true) {
         return (
             <Message
+                data-cy='export-success-message'
                 positive
                 icon='check circle'
                 header={exportType.successText}
                 content={<>{exportType.content}</>}
+            />
+        );
+    }
+    if (ExportSuccessful === false) {
+        return (
+            <Message
+                error
+                icon='times circle'
+                header={errorMessage.header}
+                content={<>{errorMessage.text}</>}
             />
         );
     }

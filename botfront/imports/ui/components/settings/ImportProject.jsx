@@ -40,8 +40,8 @@ const ImportProject = ({
     const [botfrontFileSuccess, setBotfrontFileSuccess] = useState(false);
     const [backupDownloaded, setbackupDownloaded] = useState(false);
     const [importSuccessful, setImportSuccessful] = useState(undefined);
-    const [importErrorMessage, setImportErrorMessage] = useState({});
-    const [uploadedFiles, setUploadedFiles] = useState({});
+    const [importErrorMessage, setImportErrorMessage] = useState({ header: 'Import failed' });
+    const [uploadedFiles, setUploadedFiles] = useState({ header: 'Import Failed', text: '' });
 
     const validateImportType = () => {
         if (!importTypeOptions.some(({ value }) => value === importType.value)) {
@@ -56,16 +56,12 @@ const ImportProject = ({
 
     const importProject = () => {
         setLoading(true);
-        // fetch(`${apiHost}/project/bf/export`, { method: 'PUT', mode: 'no-cors' });
-        Meteor.call('importProject', uploadedFiles.botfront, apiHost, (error, response) => {
-            if (response === 200) {
+        Meteor.call('importProject', uploadedFiles.botfront, apiHost, (error, { success, errorMessage }) => {
+            if (success === true) {
                 setImportSuccessful(true);
-            } else if (response === 422) {
-                setImportSuccessful(false);
-                setImportErrorMessage({ header: 'Import Failed', text: 'Uploaded file is not a valid Botfront JSON file' });
             } else {
                 setImportSuccessful(false);
-                setImportErrorMessage({ header: 'Import Failed', text: `Status code: ${response}` });
+                setImportErrorMessage(!!errorMessage ? errorMessage : importErrorMessage);
             }
             setLoading(false);
         });
@@ -113,11 +109,11 @@ const ImportProject = ({
             <>
                 <Message
                     positive
-                    className='import-successful'
+                    className='import-result-message'
                     icon='check circle'
                     header={importType.successHeader}
                     content={importTypeOptions.successText}
-                    data-cy='project-imported'
+                    data-cy='project-import-success'
                 />
                 <Button onClick={refreshImportPage}><Icon name='upload' />Import again</Button>
             </>
@@ -128,11 +124,11 @@ const ImportProject = ({
             <>
                 <Message
                     error
-                    className='import-successful'
+                    className='import-result-message'
                     icon='times circle'
                     header={importErrorMessage.header}
                     content={importErrorMessage.text}
-                    data-cy='project-imported'
+                    data-cy='project-import-fail'
                 />
                 <Button onClick={refreshImportPage}><Icon name='upload' />Import a different file</Button>
             </>
