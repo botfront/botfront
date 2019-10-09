@@ -194,7 +194,7 @@ if (Meteor.isServer) {
             try {
                 const client = axios.create({
                     baseURL: instance.host,
-                    timeout: 60 * 1000,
+                    timeout: 3 * 60 * 1000,
                 });
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < nluModels.length; ++i) {

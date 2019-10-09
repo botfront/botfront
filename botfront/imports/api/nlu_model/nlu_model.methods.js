@@ -278,6 +278,13 @@ if (Meteor.isServer) {
             try {
                 const currentModel = NLUModels.findOne({ _id: modelId }, { training_data: 1 });
                 let commonExamples; let entitySynonyms; let fuzzyGazette;
+                
+                // eslint-disable-next-line no-return-assign
+                nluData.common_examples.forEach(e => (e._id = uuidv4()));
+                // eslint-disable-next-line no-return-assign
+                nluData.entity_synonyms.forEach(e => (e._id = uuidv4()));
+                // eslint-disable-next-line no-return-assign
+                nluData.fuzzy_gazette.forEach(e => (e._id = uuidv4()));
 
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
                     commonExamples = {
