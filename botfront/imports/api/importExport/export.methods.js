@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import http from 'http';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
+import { getRequestOptions, generateErrorText } from '../../ui/components/templates/import-export/ImportExport.utils';
 
 
 if (Meteor.isServer) {
@@ -12,17 +13,7 @@ if (Meteor.isServer) {
             check(apiHost, String);
             checkIfCan('global-admin');
 
-            const splitUrl = apiHost.split(':');
-
-            const options = {
-                hostname: splitUrl[1].slice(2),
-                port: splitUrl[2],
-                path: '/project/bf/export',
-                connection: 'keep-alive',
-                localAddress: '127.0.0.1',
-                method: 'GET',
-                protovol: splitUrl[0],
-            };
+            const options = getRequestOptions(apiHost, '/project/bf/export');
 
             const exportRequest = new Promise((resolve) => {
                 const req = http.request(options, (res) => {
@@ -41,13 +32,7 @@ if (Meteor.isServer) {
                     });
                 });
                 req.on('error', (error) => {
-                    let errorText;
-                    if (error.code === 'ENOTFOUND') {
-                        errorText = 'The botfront API was not found. Please verify your api url host setting is correct';
-                    } else {
-                        errorText = `Error code: ${error.code}`;
-                    }
-                    resolve({ success: false, errorText });
+                    resolve({ success: false, errorText: generateErrorText(error) });
                 });
                 req.end();
             });

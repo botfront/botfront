@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import http from 'http';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
+import { getRequestOptions, generateErrorText } from '../../ui/components/templates/import-export/ImportExport.utils';
 
 
 if (Meteor.isServer) {
@@ -14,21 +15,7 @@ if (Meteor.isServer) {
             checkIfCan('global-admin');
             const data = JSON.stringify(projectFile);
 
-            const splitUrl = apiHost.split(':');
-            
-            const options = {
-                hostname: splitUrl[1].slice(2),
-                port: splitUrl[2],
-                path: '/project/bf/import',
-                connection: 'keep-alive',
-                localAddress: '127.0.0.1',
-                method: 'PUT',
-                protovol: splitUrl[0],
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': data.length,
-                },
-            };
+            const options = getRequestOptions(apiHost, '/project/bf/import');
 
             const importRequest = new Promise((resolve) => {
                 const req = http.request(options, (res) => {
@@ -51,16 +38,10 @@ if (Meteor.isServer) {
                     }
                 });
                 req.on('error', (error) => {
-                    let errorText = 'Encountered an unexpected error when trying to access the botfront API';
-                    if (error.code === 'ENOTFOUND') {
-                        errorText = 'The botfront API was not found. Please verify your api url host setting is correct';
-                    } else {
-                        errorText = `Error code: ${error.code}`;
-                    }
                     resolve({
                         success: false,
                         errorMessage: {
-                            header: 'Import Failed', text: errorText,
+                            header: 'Import Failed', text: generateErrorText(error),
                         },
                     });
                 });
