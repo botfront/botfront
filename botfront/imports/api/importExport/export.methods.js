@@ -43,9 +43,9 @@ if (Meteor.isServer) {
                 req.on('error', (error) => {
                     let errorText;
                     if (error.code === 'ENOTFOUND') {
-                        errorText = 'The botfront API was not found. Please verify your API url is correct';
+                        errorText = 'The botfront API was not found. Please verify your api url host setting is correct';
                     } else {
-                        errorText = `the API request returned an error. Error code: ${error.code}`;
+                        errorText = `Error code: ${error.code}`;
                     }
                     resolve({ success: false, errorText });
                 });
