@@ -11,8 +11,10 @@ import 'react-select/dist/react-select.css';
 
 import ConversationViewer from './ConversationViewer';
 import { Conversations } from '../../../api/conversations';
+import { Projects } from '../../../api/project/project.collection';
 import { Loading, PageMenu } from '../utils/Utils';
 import { wrapMeteorCallback } from '../utils/Errors';
+import EnvSelector from '../common/EnvSelector';
 
 const PAGE_SIZE = 20;
 class ConversationsBrowser extends React.Component {
@@ -179,11 +181,22 @@ ConversationsBrowser.defaultProps = {
 };
 
 function ConversationBrowserSegment({
-    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId,
+    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, projectEnvs,
 }) {
+    const envs = [{ text: 'development', value: 'development' }]
+    if (!loading) {
+        envs.push(...projectEnvs[0].deploymentEnvironments
+            .map(env => ({ text: env, value: env })));
+    }
+
     return (
         <div>
-            <PageMenu title='Conversations History' icon='comments' />
+            <PageMenu title='Conversations History' icon='comments'>
+                <Menu.Item className='env-select'>
+                    <EnvSelector availableEnvs={envs} envChange={() => console.log(projectEnvs)} />
+                </Menu.Item>
+
+            </PageMenu>
             <Loading loading={loading}>
                 <Container>
                     <Segment>
@@ -208,6 +221,7 @@ ConversationBrowserSegment.propTypes = {
     loading: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
     page: PropTypes.number.isRequired,
+    projectEnvs: PropTypes.array,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
 };
@@ -215,6 +229,7 @@ ConversationBrowserSegment.propTypes = {
 ConversationBrowserSegment.defaultProps = {
     trackers: [],
     activeConversationId: null,
+    projectEnvs: null,
     prevConvoId: null,
     nextConvoId: null,
 };
@@ -236,7 +251,10 @@ const ConversationsBrowserContainer = withTracker((props) => {
         projectId,
         status: { $in: ['new', 'read', 'flagged'] },
     };
-
+    Meteor.subscribe('projects', projectId);
+    const projectEnvs = Projects
+        .find({ _id: projectId }, { fields: { deploymentEnvironments: 1 } })
+        .fetch();
     const componentProps = { page, projectId, loading: true };
     const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit);
     
@@ -287,6 +305,7 @@ const ConversationsBrowserContainer = withTracker((props) => {
             activeConversationId,
             prevConvoId,
             nextConvoId,
+            projectEnvs,
         });
 
         return componentProps;
