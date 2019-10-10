@@ -13,9 +13,7 @@ if (Meteor.isServer) {
             check(apiHost, String);
             check(projectId, String);
             checkIfCan('global-admin');
-
             const options = getRequestOptions(apiHost, `/project/${projectId}/export`, 'GET');
-
             const exportRequest = new Promise((resolve) => {
                 const req = http.request(options, (res) => {
                     if (res.statusCode !== 200) {
@@ -24,17 +22,13 @@ if (Meteor.isServer) {
                     let data = '';
                     res.on('data', (d) => {
                         data += d;
-                        if (
-                            res.statusCode === 200
-                            && data.length === parseInt(res.headers['content-length'], 10)
-                        ) {
+                        if (res.statusCode === 200
+                            && data.length === parseInt(res.headers['content-length'], 10)) {
                             resolve({ data, success: true });
                         }
                     });
                 });
-                req.on('error', (error) => {
-                    resolve({ success: false, errorText: generateErrorText(error) });
-                });
+                req.on('error', (error) => { resolve({ success: false, errorText: generateErrorText(error) }); });
                 req.end();
             });
             return exportRequest;
