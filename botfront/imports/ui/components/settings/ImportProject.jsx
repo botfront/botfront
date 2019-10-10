@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
-import { saveAs } from 'file-saver';
+// import { saveAs } from 'file-saver';
 
 
 import {
@@ -56,7 +56,7 @@ const ImportProject = ({
 
     const importProject = () => {
         setLoading(true);
-        Meteor.call('importProject', uploadedFiles.botfront, apiHost, (error, { success, errorMessage }) => {
+        Meteor.call('importProject', uploadedFiles.botfront, apiHost, projectId, (error, { success, errorMessage }) => {
             if (success === true) {
                 setImportSuccessful(true);
             } else {
@@ -80,11 +80,12 @@ const ImportProject = ({
     };
 
     const backupProject = () => {
-        Meteor.call('exportProject', apiHost, (err, { data }) => {
-            const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-            const filename = `BotfrontProjectBackup_${projectId}.json`;
-            saveAs(blob, filename);
-        });
+        // Meteor.call('exportProject', apiHost, projectId, (err, { data }) => {
+        //     const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+        //     const filename = `BotfrontProjectBackup_${projectId}.json`;
+        //     saveAs(blob, filename);
+        // });
+        window.location.href = `${apiHost}/project/${projectId}/export`;
         setbackupDownloaded(true);
     };
 

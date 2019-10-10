@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Meteor } from 'meteor/meteor';
-import { saveAs } from 'file-saver';
+// import { Meteor } from 'meteor/meteor';
+// import { saveAs } from 'file-saver';
 
 import {
     Dropdown, Button, Message, Icon,
@@ -13,26 +13,6 @@ import { Projects } from '../../../api/project/project.collection';
 
 import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
-const exportTypeOptions = [
-    {
-        key: 'botfront',
-        text: 'Export for Botfront',
-        value: 'botfront',
-        successText: 'Your project has been successfully exported for Botfront!',
-        content: (
-            <p>
-                If your download does not start within 5 seconds click{' '}
-                <a href='http://localhost:8080/project/bf/export' download>here </a>
-                to retry.
-            </p>),
-    },
-    // {
-    //     key: 'rasa',
-    //     text: 'Export for Rasa/Rasa X',
-    //     value: 'rasa',
-    //     successText: 'Your project has been successfully exported for Rasa/Rasa X!',
-    // },
-];
 
 const ExportProject = ({
     projectId, projectLanguages, setLoading, apiHost,
@@ -40,7 +20,29 @@ const ExportProject = ({
     const [exportType, setExportType] = useState({});
     const [exportLanguage, setExportLanguage] = useState('');
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
+    // eslint-disable-next-line no-unused-vars
     const [errorMessage, setErrorMessage] = useState({ header: 'Export Failed', text: 'There was an unexpected error in the api request.' });
+
+    const exportTypeOptions = [
+        {
+            key: 'botfront',
+            text: 'Export for Botfront',
+            value: 'botfront',
+            successText: 'Your project has been successfully exported for Botfront!',
+            content: (
+                <p>
+                    If your download does not start within 5 seconds click{' '}
+                    <a href={`${apiHost}/project/${projectId}/export`} download>here </a>
+                    to retry.
+                </p>),
+        },
+        // {
+        //     key: 'rasa',
+        //     text: 'Export for Rasa/Rasa X',
+        //     value: 'rasa',
+        //     successText: 'Your project has been successfully exported for Rasa/Rasa X!',
+        // },
+    ];
 
     const getLanguageOptions = () => (
         projectLanguages.map(({ value, text }) => ({
@@ -63,19 +65,22 @@ const ExportProject = ({
 
     const exportForBotfront = () => {
         setLoading(true);
-        // console.log(apiHost);
-        Meteor.call('exportProject', apiHost, (err, { data, success, errorText }) => {
-            if (success === true) {
-                const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-                const filename = `BotfrontProject_${projectId}.json`;
-                saveAs(blob, filename);
-                setExportSuccessful(true);
-            } else {
-                setErrorMessage({ header: 'Export Failed', text: !!errorText ? errorText : errorMessage.text });
-                setExportSuccessful(false);
-            }
-            setLoading(false);
-        });
+        window.location.href = `${apiHost}/project/${projectId}/export`;
+        setExportSuccessful(true);
+        setLoading(false);
+        // Meteor.call('exportProject', apiHost, projectId, (err, { data, success, errorText }) => {
+        //     console.log('in');
+        //     if (success === true) {
+        //         const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+        //         const filename = `BotfrontProject_${projectId}.json`;
+        //         saveAs(blob, filename);
+        //         setExportSuccessful(true);
+        //     } else {
+        //         setErrorMessage({ header: 'Export Failed', text: !!errorText ? errorText : errorMessage.text });
+        //         setExportSuccessful(false);
+        //     }
+        //     setLoading(false);
+        // });
     };
 
     const exportForRasa = () => {

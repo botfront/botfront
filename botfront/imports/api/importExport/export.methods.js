@@ -4,34 +4,55 @@ import { Meteor } from 'meteor/meteor';
 import http from 'http';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
-import { getRequestOptions, generateErrorText } from '../../ui/components/templates/import-export/ImportExport.utils';
+import { getRequestOptions, generateErrorText } from './importExport.utils';
 
 
 if (Meteor.isServer) {
     Meteor.methods({
-        'exportProject'(apiHost) {
+        'exportProject'(apiHost, projectId) {
+            console.log(projectId);
             check(apiHost, String);
+            check(projectId, String);
             checkIfCan('global-admin');
 
-            const options = getRequestOptions(apiHost, '/project/bf/export', 'GET');
+            let timeOut = false;
+            let resolveByTimeOut;
+
+            const options = getRequestOptions(apiHost, `/project/${projectId}/export`, 'GET');
 
             const exportRequest = new Promise((resolve) => {
                 const req = http.request(options, (res) => {
+                    console.log(res.statusCode);
                     if (res.statusCode !== 200) {
+                        if (resolveByTimeOut !== undefined) clearInterval(resolveByTimeOut);
                         resolve({ success: false, errorText: `${res.statusCode} API was not found` });
                     }
                     let data = '';
                     res.on('data', (d) => {
                         data += d;
+                        timeOut = false;
+                        if (resolveByTimeOut !== undefined) clearInterval(resolveByTimeOut);
+                        resolveByTimeOut = setInterval(() => {
+                            if (timeOut === true) {
+                                if (resolveByTimeOut !== undefined) clearInterval(resolveByTimeOut);
+                                resolve({ data, success: true });
+                            }
+                            console.log(timeOut);
+                            timeOut = true;
+                        }, 2000);
+                        console.log('match', data.length);
+                        console.log('max', res.headers['content-length']);
                         if (
                             res.statusCode === 200
                             && data.length === parseInt(res.headers['content-length'], 10)
                         ) {
+                            if (resolveByTimeOut !== undefined) clearInterval(resolveByTimeOut);
                             resolve({ data, success: true });
                         }
                     });
                 });
                 req.on('error', (error) => {
+                    if (resolveByTimeOut !== undefined) clearInterval(resolveByTimeOut);
                     resolve({ success: false, errorText: generateErrorText(error) });
                 });
                 req.end();
