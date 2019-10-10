@@ -26,12 +26,12 @@ const exportTypeOptions = [
                 to retry
             </p>),
     },
-    {
-        key: 'rasa',
-        text: 'Export for Rasa/Rasa X',
-        value: 'rasa',
-        successText: 'Your project has been successfully exported for Rasa/Rasa X!',
-    },
+    // {
+    //     key: 'rasa',
+    //     text: 'Export for Rasa/Rasa X',
+    //     value: 'rasa',
+    //     successText: 'Your project has been successfully exported for Rasa/Rasa X!',
+    // },
 ];
 
 const ExportProject = ({
