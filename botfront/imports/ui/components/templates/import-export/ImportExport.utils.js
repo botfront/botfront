@@ -17,10 +17,10 @@ export const getRequestOptions = (apiHost, path, method, headers) => {
 
 export const generateErrorText = (error) => {
     if (error.code === 'ENOTFOUND') {
-        return 'The botfront API was not found. Please verify your api url host setting is correct.';
+        return 'The botfront API was not found. Please verify your API url host setting is correct.';
     }
     if (error.code === 'ECONNREFUSED') {
-        return 'The Botfront api connection was refused. Please verify that you are accessing the correct port by checking your api url host setting.';
+        return 'The Botfront API connection was refused. Please verify that you are accessing the correct port by checking your API url host setting.';
     }
     return `Error code: ${error.code}`;
 };
