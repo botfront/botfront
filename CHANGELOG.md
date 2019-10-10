@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.13...v0.16.2) (2019-10-10)
+
+
+### Bug Fixes
+
+*  cognetive complexity in ExportProject ([90699d3](https://github.com/botfront/botfront/commit/90699d3))
+* add import/export tests to ignoreTestFiles ([fb212b3](https://github.com/botfront/botfront/commit/fb212b3))
+* add period to success message ([abfbfb0](https://github.com/botfront/botfront/commit/abfbfb0))
+* capital API in error message ([8760e8f](https://github.com/botfront/botfront/commit/8760e8f))
+* change slot name to a better name ([67de146](https://github.com/botfront/botfront/commit/67de146))
+* code climate cognetive complexity ([60b8b65](https://github.com/botfront/botfront/commit/60b8b65))
+* code climate complexity in ExportProject ([8a6bf74](https://github.com/botfront/botfront/commit/8a6bf74))
+* code climate complexity in ImportProject ([b9d91ed](https://github.com/botfront/botfront/commit/b9d91ed))
+* code climate complexity in ImportProject ([f9ffa2e](https://github.com/botfront/botfront/commit/f9ffa2e))
+* code climate complexity in ImportProject ([57b1a75](https://github.com/botfront/botfront/commit/57b1a75))
+* code climate complexity in ImportProject ([f13b1d2](https://github.com/botfront/botfront/commit/f13b1d2))
+* cogenetive complexity in ExportProject ([88c01f7](https://github.com/botfront/botfront/commit/88c01f7))
+* cognetive complexity in ExportProject ([3cbd3b9](https://github.com/botfront/botfront/commit/3cbd3b9))
+* cognetive complexity in ExportProject ([f928a85](https://github.com/botfront/botfront/commit/f928a85))
+* cognetive complextiy in ExportProject ([4362697](https://github.com/botfront/botfront/commit/4362697))
+* cognitive complexity in ExportProject ([ef11501](https://github.com/botfront/botfront/commit/ef11501))
+* force a refresh after importing a project ([c701e26](https://github.com/botfront/botfront/commit/c701e26))
+* import project button alignment ([81d7031](https://github.com/botfront/botfront/commit/81d7031))
+* import project tab crashing when opened ([9409901](https://github.com/botfront/botfront/commit/9409901))
+* import/export error message text ([897aec8](https://github.com/botfront/botfront/commit/897aec8))
+* import/export failing for medium+ projects ([7fe11f2](https://github.com/botfront/botfront/commit/7fe11f2))
+* importProject codeclimate complexity ([24ccab4](https://github.com/botfront/botfront/commit/24ccab4))
+* missing request settings for import request ([dd580b0](https://github.com/botfront/botfront/commit/dd580b0))
+* prevent build from failing when slow ([e239cbe](https://github.com/botfront/botfront/commit/e239cbe))
+* reduced length of exportProject method ([bed56b5](https://github.com/botfront/botfront/commit/bed56b5))
+* remove importAgain button ([3e85bd1](https://github.com/botfront/botfront/commit/3e85bd1))
+* remove timeout interval from export.methods ([cb183ce](https://github.com/botfront/botfront/commit/cb183ce))
+* replace identical code code with utils ([dd5e243](https://github.com/botfront/botfront/commit/dd5e243))
+
+
+### Features
+
+* connect export ui to api ([cd288d2](https://github.com/botfront/botfront/commit/cd288d2))
+* connect import UI to API ([23271f1](https://github.com/botfront/botfront/commit/23271f1))
+* ui for Import and Export of a project ([b949f23](https://github.com/botfront/botfront/commit/b949f23))
+
+
+### Tests
+
+* import project and export project Ui tests ([b0106e7](https://github.com/botfront/botfront/commit/b0106e7))
+* verify botfront project import ([cc05fbb](https://github.com/botfront/botfront/commit/cc05fbb))
+
+
+
 ## [0.16.0-rc.13](https://github.com/botfront/botfront/compare/v0.16.0-rc.12...v0.16.0-rc.13) (2019-10-09)
 
 
