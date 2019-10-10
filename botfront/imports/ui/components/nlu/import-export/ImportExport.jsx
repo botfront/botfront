@@ -1,8 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types"
-import {Divider, Header} from "semantic-ui-react";
-import DataExport from "./DataExport";
-import DataImport from "./DataImport";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Divider, Header } from 'semantic-ui-react';
+import DataExport from './DataExport';
+import DataImport from './DataImport';
+
 export default class ImportExport extends React.Component {
 
     render() {

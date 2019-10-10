@@ -37,6 +37,8 @@ import '../imports/api/slots/slots.methods';
 import '../imports/api/slots/slots.schema';
 import '../imports/api/orchestration/orchestration.methods.js';
 import '../imports/lib/scopes';
+import '../imports/api/importExport/import.methods';
+import '../imports/api/importExport/export.methods';
 
 
 import './migrations';

@@ -83,7 +83,7 @@ function EntityLabel({ entity, entities, isSynonym, onUpdateText, editable }) {
 export default function Entity({ entity, entities, text, colour, showLabel, onUpdateText, editable, size, style }) {
     const labelStyle = { ...style, borderRadius: '0.15rem' };
     return (
-        <Label className={`${size}-entity entity`} basic image size={size} color={colour} style={labelStyle}>
+        <Label className={`${size}-entity entity`} basic image size={size} color={colour} style={labelStyle} data-cy='entity-label'>
             {text}
             {showLabel && <EntityLabel entity={entity} entities={entities} isSynonym={isSynonym(entity, text)} onUpdateText={onUpdateText} editable={editable} />}
         </Label>

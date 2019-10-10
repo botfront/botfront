@@ -14,6 +14,7 @@ import Deployment from './Deployment';
 import { can } from '../../../api/roles/roles';
 import CorePolicy from './CorePolicy';
 import DefaultDomain from './DefaultDomain';
+import ImportExportProject from './ImportExportProject';
 
 class Settings extends React.Component {
     constructor(props) {
@@ -73,6 +74,10 @@ class Settings extends React.Component {
             {
                 menuItem: <Menu.Item className='project-settings-menu-default-domain' icon='globe' content='Default Domain' key='Default Domain' />,
                 render: () => <Tab.Pane><DefaultDomain /></Tab.Pane>,
+            },
+            {
+                menuItem: <Menu.Item className='project-settings-menu-default-domain' icon='download' content='Import/Export' key='Import/Export' />,
+                render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
             },
         ];
 
