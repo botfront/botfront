@@ -80,8 +80,8 @@ const ImportProject = ({
     };
 
     const backupProject = () => {
-        Meteor.call('exportProject', apiHost, (err, jsonFile) => {
-            const blob = new Blob([jsonFile], { type: 'text/plain;charset=utf-8' });
+        Meteor.call('exportProject', apiHost, (err, { data }) => {
+            const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
             const filename = `BotfrontProjectBackup_${projectId}.json`;
             saveAs(blob, filename);
         });
@@ -93,15 +93,6 @@ const ImportProject = ({
             return 'Import Botfront project';
         }
         return 'Import project';
-    };
-    
-    const refreshImportPage = () => {
-        setImportType({});
-        setBotfrontFileSuccess(false);
-        setbackupDownloaded(false);
-        setImportSuccessful(undefined);
-        setImportErrorMessage({});
-        setUploadedFiles({});
     };
 
     if (importSuccessful === true) {
@@ -115,7 +106,6 @@ const ImportProject = ({
                     content={importTypeOptions.successText}
                     data-cy='project-import-success'
                 />
-                <Button onClick={refreshImportPage}><Icon name='upload' />Import again</Button>
             </>
         );
     }
@@ -130,7 +120,6 @@ const ImportProject = ({
                     content={importErrorMessage.text}
                     data-cy='project-import-fail'
                 />
-                <Button onClick={refreshImportPage}><Icon name='upload' />Import a different file</Button>
             </>
         );
     }
@@ -180,7 +169,14 @@ const ImportProject = ({
                         positive
                         icon='check circle'
                         header='Backup successfully downloaded!'
-                        content={<p>If the download did not automatically start click<a href={`${apiHost}/project/bf/export`}> here </a> to retry.<br />Please verify that the backup has downloaded before continuing.</p>}
+                        content={(
+                            <p>
+                                If the download did not automatically start click
+                                <a href={`${apiHost}/project/bf/export`}> here </a>
+                                to retry.<br />
+                                Please verify that the backup has downloaded before continuing.
+                            </p>
+                        )}
                     />
                 )}
                 {validateImportType() && (
