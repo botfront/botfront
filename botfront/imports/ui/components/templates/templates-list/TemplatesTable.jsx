@@ -171,7 +171,7 @@ class TemplatesTable extends React.Component {
                 Header: 'Key',
                 filterable: true,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['key'] }),
-                Cell: props => <div><Label horizontal basic size='tiny'>{props.value}</Label></div>,
+                Cell: props => <div data-cy='template-intent'><Label horizontal basic size='tiny'>{props.value}</Label></div>,
                 filterAll: true,
                 width: 200,
             });

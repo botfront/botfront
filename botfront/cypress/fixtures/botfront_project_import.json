@@ -1,0 +1,334 @@
+{
+  "project": {
+    "_id": "bf",
+    "name": "trial",
+    "defaultLanguage": "en",
+    "defaultDomain": {
+      "content": "slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping"
+    },
+    "nluThreshold": 0.75,
+    "disabled": false,
+    "nlu_models": ["2ycXQvjcbvrcBnYQe"],
+    "templates": [
+      {
+        "key": "utter_get_started",
+        "values": [
+          { "sequence": [{ "content": "text: utter_get_started" }], "lang": "en" }
+        ]
+      },
+      {
+        "key": "utter_hi",
+        "values": [{ "sequence": [{ "content": "text: utter_hi" }], "lang": "en" }]
+      },
+      {
+        "key": "utter_bye",
+        "values": [{ "sequence": [{ "content": "text: utter_bye" }], "lang": "en" }]
+      },
+      {
+        "key": "utter_g2FiL5tLA",
+        "values": [
+          {
+            "sequence": [
+              {
+                "content": "text: which account would you like to access\nbuttons:\n  - title: checking account\n    type: postback\n    payload: /access_account_checking\n  - title: saving account\n    type: postback\n    payload: /access_account_saving"
+              }
+            ],
+            "lang": "en"
+          }
+        ]
+      },
+      {
+        "key": "utter_9F70lub99",
+        "values": [{ "sequence": [{ "content": "text: ''" }], "lang": "en" }]
+      },
+      {
+        "key": "utter_DKsIE1c4O",
+        "values": [
+          {
+            "sequence": [
+              { "content": "text: your checking account has a balance of  XXXX.XX$" }
+            ],
+            "lang": "en"
+          }
+        ]
+      },
+      {
+        "key": "utter_kgLzUkBmR",
+        "values": [
+          {
+            "sequence": [{ "content": "text: your savings account has XXXX.XX$" }],
+            "lang": "en"
+          }
+        ]
+      },
+      {
+        "key": "utter_sI3hO5H7I",
+        "values": [
+          {
+            "sequence": [
+              { "content": "text: 'right now it is 8:00pm on Thursday January 8th 2013'" }
+            ],
+            "lang": "en"
+          }
+        ]
+      }
+    ],
+    "updatedAt": "2019-10-09T15:21:22.903Z",
+    "deploymentEnvironments": [],
+    "instance": "dCKuCRCZLcpRAQAbe",
+    "responsesUpdatedAt": 1570634383514,
+    "training": { "status": "success", "endTime": "2019-10-09T15:21:22.902Z" }
+  },
+  "models": [
+    {
+      "_id": "2ycXQvjcbvrcBnYQe",
+      "name": "My First Model",
+      "language": "en",
+      "published": true,
+      "config": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
+      "evaluations": [],
+      "intents": [],
+      "chitchat_intents": [],
+      "training_data": {
+        "common_examples": [
+          {
+            "_id": "3a48b06e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "what is today",
+            "intent": "date",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "fc3c2dc1-8ca5-4437-87fb-7f8465230a7d",
+            "text": "what's the date",
+            "intent": "date",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "a1d84867-e32a-46c2-a4d6-25e209c2f355",
+            "text": "is today the",
+            "intent": "date",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "5e95338c-80d7-42db-8e70-85a58ea83c8a",
+            "text": "I want to check my account",
+            "intent": "access_account",
+            "entities": [{ "start": 10, "end": 15, "value": "check", "entity": "open" }],
+            "updatedAt": "2019-10-09T15:15:29.639Z"
+          },
+          {
+            "_id": "fe29121e-60a9-4344-91f9-1251c12b22fe",
+            "text": "open account",
+            "intent": "access_account",
+            "entities": [{ "start": 0, "end": 4, "value": "open", "entity": "open" }],
+            "updatedAt": "2019-10-09T15:15:25.902Z"
+          },
+          {
+            "_id": "c19dfc62-ea42-43a5-b991-32cb6da4dedd",
+            "text": "access bank account",
+            "intent": "access_account",
+            "entities": [{ "start": 0, "end": 6, "value": "access", "entity": "open" }],
+            "updatedAt": "2019-10-09T15:15:19.147Z"
+          },
+          {
+            "_id": "a78235f8-4cc4-48f4-8f32-09557e4a2507",
+            "text": "how much money do i have",
+            "intent": "access_account",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:14:13.097Z"
+          },
+          {
+            "_id": "e4e710ad-a73b-44c9-90c1-71a42797c737",
+            "text": "I would like to access my account",
+            "intent": "access_account",
+            "entities": [{ "start": 16, "end": 22, "value": "access", "entity": "open" }],
+            "updatedAt": "2019-10-09T15:15:47.107Z"
+          }
+        ],
+        "entity_synonyms": [
+          {
+            "_id": "088eabf0-69d2-4263-9f64-2f842b2c02ab",
+            "value": "open",
+            "synonyms": ["check", "open", "see", "look"]
+          }
+        ],
+        "regex_features": [],
+        "fuzzy_gazette": []
+      },
+      "updatedAt": "2019-10-09T15:17:20.154Z"
+    }
+  ],
+  "activity": [],
+  "evaluations": [],
+  "storyGroups": [
+    {
+      "_id": "E7DwHKTz5EgyqdaD2",
+      "name": "Account",
+      "projectId": "bf",
+      "hasErrors": [],
+      "hasWarnings": [],
+      "updatedAt": "2019-10-09T15:07:12.126Z",
+      "selected": false
+    },
+    {
+      "_id": "vudLiWE2kTfQuvXTA",
+      "name": "Date and time",
+      "projectId": "bf",
+      "hasErrors": [],
+      "hasWarnings": [],
+      "updatedAt": "2019-10-09T15:17:40.502Z",
+      "selected": false
+    },
+    {
+      "_id": "fN2v5mg5djagEsS8s",
+      "name": "Default stories",
+      "projectId": "bf",
+      "updatedAt": "2019-10-09T15:06:34.709Z",
+      "selected": false,
+      "hasErrors": [],
+      "hasWarnings": []
+    },
+    {
+      "_id": "jhTuSs8DEjH8aBMGq",
+      "name": "Intro stories",
+      "projectId": "bf",
+      "introStory": true,
+      "updatedAt": "2019-10-09T15:06:34.680Z",
+      "selected": false,
+      "hasErrors": [],
+      "hasWarnings": []
+    }
+  ],
+  "stories": [
+    {
+      "_id": "EthpLZuDmof2PZsR2",
+      "story": "* get_started\n  - utter_get_started",
+      "title": "Get started",
+      "storyGroupId": "jhTuSs8DEjH8aBMGq",
+      "projectId": "bf",
+      "branches": []
+    },
+    {
+      "_id": "BHvcqMwjc8BwebdcR",
+      "story": "* chitchat.greet\n  - utter_hi",
+      "title": "Greetings",
+      "storyGroupId": "fN2v5mg5djagEsS8s",
+      "projectId": "bf",
+      "branches": []
+    },
+    {
+      "_id": "hYLiRYS5PyzcTjARG",
+      "story": "* chitchat.bye\n  - utter_bye",
+      "title": "Farewells",
+      "storyGroupId": "fN2v5mg5djagEsS8s",
+      "projectId": "bf",
+      "branches": []
+    },
+    {
+      "_id": "yRFZWxdaRkXPrD4D4",
+      "title": "Account",
+      "storyGroupId": "E7DwHKTz5EgyqdaD2",
+      "projectId": "bf",
+      "branches": [
+        {
+          "title": "New Branch 1",
+          "branches": [],
+          "_id": "8pC12FtnK",
+          "story": "* access_account_checking\n  - utter_DKsIE1c4O"
+        },
+        {
+          "title": "New Branch 2",
+          "branches": [],
+          "_id": "PgVXIwGDfa",
+          "story": "* access_account_saving\n  - utter_kgLzUkBmR"
+        }
+      ],
+      "story": "* access_account\n  - utter_g2FiL5tLA"
+    },
+    {
+      "_id": "9yMxdLz2Fk7DAikNf",
+      "title": "Date and time",
+      "storyGroupId": "vudLiWE2kTfQuvXTA",
+      "projectId": "bf",
+      "branches": [],
+      "story": "* date\n  - utter_sI3hO5H7I\n  - slot{\"test_slot\":true}\n  - action_date"
+    }
+  ],
+  "slots": [
+    {
+      "_id": "kTGPPc4EmLNMbTtZN",
+      "type": "bool",
+      "initialValue": false,
+      "projectId": "bf",
+      "name": "test_slot"
+    }
+  ],
+  "instances": [
+    {
+      "_id": "dCKuCRCZLcpRAQAbe",
+      "name": "Default Instance",
+      "host": "http://localhost:5005",
+      "projectId": "bf"
+    }
+  ],
+  "endpoints": [
+    {
+      "_id": "HRX2Wq6zqz26ak5mX",
+      "endpoints": "nlg:\n  url: 'http://botfront-api:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://actions:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://botfront-api:8080'\n  project_id: 'bf'",
+      "projectId": "bf",
+      "environment": "development",
+      "updatedAt": "2019-10-09T15:23:02.233Z"
+    },
+    {
+      "_id": "BykTGA8ypGhr4g4u5",
+      "endpoints": "nlg:\n  url: 'http://localhost:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://localhost:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://localhost:8080'\n  project_id: 'bf'",
+      "projectId": "bf",
+      "environment": "production",
+      "updatedAt": "2019-10-09T15:06:34.650Z"
+    },
+    {
+      "_id": "tsQkXKzoQhTLaXRBS",
+      "endpoints": "nlg:\n  url: 'http://localhost:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://localhost:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://localhost:8080'\n  project_id: 'bf'",
+      "projectId": "bf",
+      "environment": "staging",
+      "updatedAt": "2019-10-09T15:06:34.642Z"
+    }
+  ],
+  "credentials": [
+    {
+      "_id": "AxbA6GGjxjw8fZXKx",
+      "projectId": "bf",
+      "environment": "production",
+      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
+      "updatedAt": "2019-10-09T15:06:34.631Z"
+    },
+    {
+      "_id": "p7vKcQ2y9mntGNnPP",
+      "projectId": "bf",
+      "environment": "staging",
+      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
+      "updatedAt": "2019-10-09T15:06:34.620Z"
+    },
+    {
+      "_id": "8EnpKQa9aWvhWKxoH",
+      "projectId": "bf",
+      "environment": "development",
+      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
+      "updatedAt": "2019-10-09T15:06:34.581Z"
+    }
+  ],
+  "corePolicies": [
+    {
+      "_id": "z4Qw2KAJLCx68vPNH",
+      "projectId": "bf",
+      "policies": "policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy",
+      "createdAt": "2019-10-09T15:06:03.984Z",
+      "updatedAt": "2019-10-09T15:06:34.656Z"
+    }
+  ],
+  "conversations": [],
+  "timestamp": 1570634673739
+}

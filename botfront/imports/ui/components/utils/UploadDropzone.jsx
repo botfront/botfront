@@ -53,13 +53,14 @@ export default class UploadDropzone extends React.Component {
 
     render() {
         const {
-            success, text, successMessage, accept,
+            success, text, successMessage, accept, className,
         } = this.props;
 
         return (
             <Loading loading={this.isLoading()}>
                 {!success ? (
                     <Dropzone
+                        className={className}
                         style={{
                             padding: '10px',
                             width: '100%',
@@ -78,8 +79,8 @@ export default class UploadDropzone extends React.Component {
                 ) : (
                     <Message
                         positive
-                        header='Success'
-                        icon='check'
+                        header='Success!'
+                        icon='check circle'
                         content={successMessage}
                     />
                 )}
@@ -98,6 +99,7 @@ UploadDropzone.propTypes = {
     loading: PropTypes.bool,
     binary: PropTypes.bool,
     maxSizeInMb: PropTypes.number,
+    className: PropTypes.string,
 };
 
 UploadDropzone.defaultProps = {
@@ -108,4 +110,5 @@ UploadDropzone.defaultProps = {
     binary: true,
     onError: console.log,
     maxSizeInMb: 2,
+    className: '',
 };

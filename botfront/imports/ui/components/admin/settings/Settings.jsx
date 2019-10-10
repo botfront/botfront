@@ -98,7 +98,7 @@ class Settings extends React.Component {
     renderSettings = (saving, settings, schema) => (
         <>
             <PageMenu icon='setting' title='Global Settings' />
-            <Container id='admin-settings'>
+            <Container id='admin-settings' data-cy='admin-settings-menu'>
                 <AutoForm schema={schema} model={settings} onSubmit={this.onSave} disabled={saving}>
                     <Tab menu={{ vertical: true }} grid={{ paneWidth: 13, tabWidth: 3 }} panes={this.getSettingsPanes()} />
                     <br />
