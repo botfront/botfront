@@ -23,7 +23,7 @@ const exportTypeOptions = [
             <p>
                 If your download does not start within 5 seconds click{' '}
                 <a href='http://localhost:8080/project/bf/export' download>here </a>
-                to retry
+                to retry.
             </p>),
     },
     // {
