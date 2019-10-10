@@ -33,6 +33,9 @@ describe('stories', function() {
         cy.dataCy('add-item-input')
             .find('input')
             .type(`${storyGroupOne}{enter}`);
+        cy.dataCy('browser-item')
+            .contains(storyGroupOne)
+            .click();
         cy.dataCy('stories-linker').click({ force: true });
         cy.dataCy('stories-linker')
             .find('div')
