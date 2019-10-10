@@ -64,6 +64,7 @@ const ImportProject = ({
                 setImportErrorMessage(!!errorMessage ? errorMessage : importErrorMessage);
             }
             setLoading(false);
+            window.location.reload();
         });
     };
 
