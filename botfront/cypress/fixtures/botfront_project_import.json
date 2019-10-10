@@ -254,7 +254,7 @@
       "storyGroupId": "vudLiWE2kTfQuvXTA",
       "projectId": "bf",
       "branches": [],
-      "story": "* date\n  - utter_sI3hO5H7I\n  - slot{\"name\":true}\n  - action_date"
+      "story": "* date\n  - utter_sI3hO5H7I\n  - slot{\"test_slot\":true}\n  - action_date"
     }
   ],
   "slots": [
