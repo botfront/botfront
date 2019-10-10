@@ -1,4 +1,5 @@
 import { AutoForm, ErrorsField } from 'uniforms-semantic';
+import { Message } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import { connect } from 'react-redux';
@@ -45,26 +46,41 @@ class DefaultDomain extends React.Component {
         const { defaultDomain } = this.props;
         const { saved, showConfirmation, saving } = this.state;
         return (
-            <AutoForm
-                disabled={saving}
-                schema={DefaultDomainSchema}
-                model={defaultDomain}
-                onSubmit={this.onSave}
-            >
-                <AceField name='content' label='Default Domain' fontSize={12} mode='yaml' />
-                <ErrorsField />
-                {showConfirmation && (
-                    <ChangesSaved
-                        onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
-                        content={(
-                            <p>
-                                You need to retrain your model
-                            </p>
-                        )}
-                    />
-                )}
-                <SaveButton saved={saved} saving={saving} />
-            </AutoForm>
+            <>
+                <Message
+                    info
+                    icon='question circle'
+                    content={(
+                        <>
+                            You may put <b>actions</b> and <b>slots </b>
+                            in this domain which cannot be inferred from stories
+                            or slots defined in the <b>Stories</b> section. It will
+                            be merged with the generated domain at the time of
+                            training.
+                        </>
+                    )}
+                />
+                <AutoForm
+                    disabled={saving}
+                    schema={DefaultDomainSchema}
+                    model={defaultDomain}
+                    onSubmit={this.onSave}
+                >
+                    <AceField name='content' label='Default Domain' fontSize={12} mode='yaml' />
+                    <ErrorsField />
+                    {showConfirmation && (
+                        <ChangesSaved
+                            onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
+                            content={(
+                                <p>
+                                    You need to retrain your model
+                                </p>
+                            )}
+                        />
+                    )}
+                    <SaveButton saved={saved} saving={saving} />
+                </AutoForm>
+            </>
         );
     };
 
