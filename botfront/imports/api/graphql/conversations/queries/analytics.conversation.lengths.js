@@ -1,11 +1,6 @@
-import Conversations from './conversations.model';
+import Conversations from '../conversations.model';
 
-export const getIntentsFrequencies = async (
-    projectId,
-    from = 0,
-    to = new Date().getTime(),
-    position = 1,
-) => Conversations.aggregate([
+export const getConversationLengths = async (projectId, from = 0, to = new Date().getTime()) => Conversations.aggregate([
     {
         $match: {
             projectId,
@@ -24,34 +19,29 @@ export const getIntentsFrequencies = async (
         },
     },
     {
-        $project: {
-            'tracker.events': {
-                $filter: {
-                    input: '$tracker.events',
-                    as: 'event',
-                    cond: { $and: [{ $eq: ['$$event.event', 'user'] }] },
-                },
-            },
-        },
-    },
-    {
-        $project: {
-            'tracker.events': { $arrayElemAt: ['$tracker.events', position] },
-        },
-    },
-    {
-        $project: {
-            intent: '$tracker.events.parse_data.original_data.intent.name',
+        $unwind: {
+            path: '$tracker.events',
         },
     },
     {
         $match: {
-            intent: { $exists: true },
+            $and: [
+                { 'tracker.events.event': 'user' },
+                // {"$tracker.events.parse_data.original_data.intent.confidence": {$ne: 1}},
+            ],
         },
     },
     {
         $group: {
-            _id: '$intent',
+            _id: '$tracker.sender_id',
+            length: {
+                $sum: 1,
+            },
+        },
+    },
+    {
+        $group: {
+            _id: '$length',
             count: {
                 $sum: 1,
             },
@@ -68,11 +58,12 @@ export const getIntentsFrequencies = async (
     {
         $project: {
             _id: false,
-            name: '$data._id',
+            length: { $subtract: ['$data._id', 1] },
             frequency: { $divide: ['$data.count', '$total'] },
             count: '$data.count',
         },
     },
 
-    { $sort: { count: -1 } },
+    { $sort: { frequency: -1 } },
+    // { $limit : 100 }
 ]);

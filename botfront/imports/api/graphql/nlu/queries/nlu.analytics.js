@@ -1,4 +1,4 @@
-import Model from './nlu.model';
+import Model from '../nlu.model';
 
 export const getIntentDistribution = async id => Model.aggregate([
     {

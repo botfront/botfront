@@ -1,4 +1,4 @@
-import { getIntentDistribution } from '../nlu.analytics';
+import { getIntentDistribution } from './queries/nlu.analytics';
 import { checkIfCan } from '../../../lib/scopes';
 
 export default {

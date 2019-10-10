@@ -1,4 +1,4 @@
-import { getConversationLengths } from '../analytics.conversation.lengths';
+import { getConversationLengths } from './queries/analytics.conversation.lengths';
 import { checkIfCan } from '../../../lib/scopes';
 
 export default {

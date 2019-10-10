@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { getConversationDurations } from '../analytics.conversation.durations';
+import { getConversationDurations } from './queries/analytics.conversation.durations';
 import { checkIfCan } from '../../../lib/scopes';
 
 export default {

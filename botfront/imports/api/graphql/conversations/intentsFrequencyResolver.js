@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { getIntentsFrequencies } from '../analytics.intents.frequencies';
+import { getIntentsFrequencies } from './queries/analytics.intents.frequencies';
 import { checkIfCan } from '../../../lib/scopes';
 
 export default {

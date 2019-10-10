@@ -1,4 +1,4 @@
-import { getEntityDistribution } from '../nlu.analytics';
+import { getEntityDistribution } from './queries/nlu.analytics';
 
 export default {
     Query: {
