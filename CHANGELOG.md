@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.2-ee.2](https://github.com/botfront/botfront/compare/v0.16.2-ee.1...v0.16.2-ee.2) (2019-10-10)
+
+
+### Bug Fixes
+
+* project deletion test was not working on the cloud ci ([ba08842](https://github.com/botfront/botfront/commit/ba08842))
+
+
+
 ### [0.16.2-ee.1](https://github.com/botfront/botfront/compare/v0.16.0-rc.13-ee.1...v0.16.2-ee.1) (2019-10-10)
 
 
