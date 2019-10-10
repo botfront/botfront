@@ -10,7 +10,6 @@ import { getRequestOptions, generateErrorText } from './importExport.utils';
 if (Meteor.isServer) {
     Meteor.methods({
         'exportProject'(apiHost, projectId) {
-            console.log(projectId);
             check(apiHost, String);
             check(projectId, String);
             checkIfCan('global-admin');
@@ -22,7 +21,6 @@ if (Meteor.isServer) {
 
             const exportRequest = new Promise((resolve) => {
                 const req = http.request(options, (res) => {
-                    console.log(res.statusCode);
                     if (res.statusCode !== 200) {
                         if (resolveByTimeOut !== undefined) clearInterval(resolveByTimeOut);
                         resolve({ success: false, errorText: `${res.statusCode} API was not found` });
@@ -37,11 +35,8 @@ if (Meteor.isServer) {
                                 if (resolveByTimeOut !== undefined) clearInterval(resolveByTimeOut);
                                 resolve({ data, success: true });
                             }
-                            console.log(timeOut);
                             timeOut = true;
                         }, 2000);
-                        console.log('match', data.length);
-                        console.log('max', res.headers['content-length']);
                         if (
                             res.statusCode === 200
                             && data.length === parseInt(res.headers['content-length'], 10)
