@@ -16,11 +16,31 @@ export const getRequestOptions = (apiHost, path, method, headers) => {
 };
 
 export const generateErrorText = (error) => {
-    let errorText;
     if (error.code === 'ENOTFOUND') {
-        errorText = 'The botfront API was not found. Please verify your api url host setting is correct';
-    } else {
-        errorText = `Error code: ${error.code}`;
+        return 'The botfront API was not found. Please verify your api url host setting is correct.';
     }
-    return errorText;
+    if (error.code === 'ECONNREFUSED') {
+        return 'The Botfront api connection was refused. Please verify that you are accessing the correct port by checking your api url host setting.';
+    }
+    return `Error code: ${error.code}`;
+};
+
+export const generateImportResponse = (statusCode) => {
+    if (statusCode === 200) {
+        return ({ success: true, statusCode });
+    }
+    if (statusCode === 422) {
+        return ({
+            success: false,
+            errorMessage: {
+                header: 'Import Failed', text: 'The uploaded file is not a valid Botfront JSON file.',
+            },
+        });
+    }
+    return ({
+        success: false,
+        errorMessage: {
+            header: 'Import Failed', text: `the request to the Botfront API failed. status: ${statusCode}`,
+        },
+    });
 };

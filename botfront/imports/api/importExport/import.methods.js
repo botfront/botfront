@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import http from 'http';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
-import { getRequestOptions, generateErrorText } from '../../ui/components/templates/import-export/ImportExport.utils';
+import { getRequestOptions, generateErrorText, generateImportResponse } from '../../ui/components/templates/import-export/ImportExport.utils';
 
 
 if (Meteor.isServer) {
@@ -23,30 +23,28 @@ if (Meteor.isServer) {
 
             const importRequest = new Promise((resolve) => {
                 const req = http.request(options, (res) => {
-                    if (res.statusCode === 200) {
-                        resolve({ success: true, statusCode: res.statusCode });
-                    } else if (res.statusCode === 422) {
-                        resolve({
-                            success: false,
-                            errorMessage: {
-                                header: 'Import Failed', text: 'The uploaded file is not a valid Botfront JSON file',
-                            },
-                        });
-                    } else {
-                        resolve({
-                            success: false,
-                            errorMessage: {
-                                header: 'Import Failed', text: `the import project request to the Botfront API failed. status: ${res.statusCode}`,
-                            },
-                        });
-                    }
+                    resolve(generateImportResponse(res.statusCode));
+                    // if (res.statusCode === 200) {
+                    //     resolve({ success: true, statusCode: res.statusCode });
+                    // } else if (res.statusCode === 422) {
+                    //     resolve({
+                    //         success: false,
+                    //         errorMessage: {
+                    //             header: 'Import Failed', text: 'The uploaded file is not a valid Botfront JSON file',
+                    //         },
+                    //     });
+                    // } else {
+                    //     resolve({
+                    //         success: false,
+                    //         errorMessage: {
+                    //             header: 'Import Failed', text: `the request to the Botfront API failed. status: ${res.statusCode}`,
+                    //         },
+                    //     });
+                    // }
                 });
                 req.on('error', (error) => {
                     resolve({
-                        success: false,
-                        errorMessage: {
-                            header: 'Import Failed', text: generateErrorText(error),
-                        },
+                        success: false, errorMessage: { header: 'Import Failed', text: generateErrorText(error) },
                     });
                 });
                 req.write(data);
@@ -56,5 +54,3 @@ if (Meteor.isServer) {
         },
     });
 }
-
-// { header: 'Import Failed', text: 'Uploaded file is not a valid Botfront JSON file' }
