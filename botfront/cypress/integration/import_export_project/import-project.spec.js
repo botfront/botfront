@@ -39,7 +39,7 @@ describe('Importing a project', function() {
     });
 
     describe('Importing a project user interface', function() {
-        it('import story groups', function() {
+        it('should import the right number and names of story groups', function() {
             cy.visit('/project/bf/stories');
             cy.dataCy('browser-item')
                 .contains('Default stories')
@@ -115,7 +115,7 @@ describe('Importing a project', function() {
             cy.contains('* access_account_saving').should('exist');
             cy.contains(' - utter_kgLzUkBmR').should('exist');
         });
-        it('import slots', function() {
+        it('should import slots with the right type and name', function() {
             cy.visit('/project/bf/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
@@ -146,7 +146,7 @@ describe('Importing a project', function() {
                 .find('b')
                 .contains(slotType);
         });
-        it('import slots', function() {
+        it('should import the right number of examples for an intent', function() {
             cy.visit('/project/bf/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
@@ -186,7 +186,7 @@ describe('Importing a project', function() {
                 .should('not.exist');
         });
         
-        it('import responses', function() {
+        it('should import all responses', function() {
             cy.visit('/project/bf/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
@@ -213,7 +213,7 @@ describe('Importing a project', function() {
             cy.dataCy('template-intent')
                 .should('have.length', 8);
         });
-        it('import responses', function() {
+        it('should include entities in the intent example imports', function() {
             cy.visit('/project/bf/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')

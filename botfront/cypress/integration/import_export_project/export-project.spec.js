@@ -6,7 +6,7 @@ describe('Exporting a Project', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
         cy.login();
-        cy.visit('/project/bf/settings')
+        cy.visit('/project/bf/settings');
         cy.dataCy('project-settings-more')
             .click();
         cy.dataCy('admin-settings-menu')
@@ -68,21 +68,4 @@ describe('Exporting a Project', function() {
             cy.contains('Your project has been successfully exported for Rasa/Rasa X!').should('exist');
         });
     });
-
-    // it('should be able to import an exported file', function() {
-    //     cy.visit('/project/bf/settings');
-    //     cy.contains('Import/Export').click();
-    //     cy.get('.ui.pointing.secondary')
-    //         .find('.item')
-    //         .contains('Export')
-    //         .click();
-    //     cy.dataCy('export-type-dropdown')
-    //         .click()
-    //         .find('span')
-    //         .contains('Botfront')
-    //         .click();
-    //     cy.dataCy('export-button')
-    //         .click();
-    //     cy.contains('Your project has been successfully exported for Botfront!').should('exist');
-    // });
 });
