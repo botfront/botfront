@@ -5,15 +5,15 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 function EnvSelector(props) {
-    const { availableEnvs, envChange } = props;
+    const { availableEnvs, envChange, value } = props;
 
     return (
         <span>
             Data source:{'\u00A0'}
             <Dropdown
                 inline
-                onChange={() => envChange()}
-                defaultValue='development'
+                onChange={(event, data) => envChange(data.value)}
+                value={value}
                 options={availableEnvs}
             />
         </span>
@@ -22,5 +22,13 @@ function EnvSelector(props) {
 
 export default EnvSelector;
 
-// margin: 0.5rem 0rem 0.3rem 0rem;
-// padding: 0.3rem 0rem 0.3rem 0rem;
+
+EnvSelector.propTypes = {
+    availableEnvs: PropTypes.array.isRequired,
+    envChange: PropTypes.func.isRequired,
+    value: PropTypes.string,
+};
+
+EnvSelector.defaultProps = {
+    value: 'development',
+};

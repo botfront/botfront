@@ -14,10 +14,11 @@ Conversations.deny({
 if (Meteor.isServer) {
     // This code only runs on the server
     // Only publish tasks that are public or belong to the current user
-    Meteor.publish('conversations', function(projectId, skip, limit) {
+    Meteor.publish('conversations', function(projectId, skip, limit, env) {
         check(projectId, String);
         check(skip, Number);
         check(limit, Number);
+        check(env, String);
         const options = {
             sort: { updatedAt: -1 },
             skip,
@@ -27,9 +28,13 @@ if (Meteor.isServer) {
             },
         };
 
+        let envSelector = { env };
+        if (env === 'development') {
+            envSelector = { env: { $in: ['development', null] } };
+        }
         try {
             checkIfCan('conversations:r', projectId);
-            return Conversations.find({ projectId }, options);
+            return Conversations.find({ projectId, ...envSelector }, options);
         } catch (e) {
             return this.ready();
         }

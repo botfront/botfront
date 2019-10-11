@@ -31,14 +31,18 @@ class ConversationsBrowser extends React.Component {
     };
 
     goToNextPage = () => {
-        const { projectId, page, nextConvoId } = this.props;
-        browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/p/${page + 1}/c/${nextConvoId}` });
+        const {
+            projectId, page, nextConvoId, env,
+        } = this.props;
+        browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${env}/p/${page + 1}/c/${nextConvoId}` });
     };
 
     goToPreviousPage = () => {
-        const { projectId, page, prevConvoId } = this.props;
+        const {
+            projectId, page, prevConvoId, env,
+        } = this.props;
         if (page > 1) {
-            browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/p/${page - 1}` });
+            browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${env}/p/${page - 1}` });
         }
     };
 
@@ -100,20 +104,20 @@ class ConversationsBrowser extends React.Component {
             page, trackers, prevConvoId, nextConvoId,
         } = this.props;
         const index = trackers.map(t => t._id).indexOf(conversationId);
-        
+
         // deleted convo is not the last of the current page
         if (index < trackers.length - 1) {
             this.goToConversation(page, trackers[index + 1]._id, true);
-        // or deleted convo is the last but there is a next page
+            // or deleted convo is the last but there is a next page
         } else if (index === trackers.length - 1 && this.hasNextPage()) {
             this.goToConversation(page, nextConvoId, true);
             // deleted convo is the last but not the only one and there is no next page
         } else if (index === trackers.length - 1 && trackers.length > 1 && !this.hasNextPage()) {
             this.goToConversation(page, trackers[index - 1]._id, true);
-        // deleted convo is the last and only but there's a previous page
+            // deleted convo is the last and only but there's a previous page
         } else if (index === trackers.length - 1 && trackers.length === 1 && this.hasPreviousPage()) {
             this.goToConversation(page - 1, prevConvoId, true);
-        // Anything else
+            // Anything else
         } else {
             this.goToConversation(Math.min(page - 1, 1), true);
         }
@@ -121,8 +125,9 @@ class ConversationsBrowser extends React.Component {
     }
 
     goToConversation(page, conversationId, replace = false) {
-        const { projectId } = this.props;
-        let url = `/project/${projectId}/dialogue/conversations/p/${page}`;
+        const { projectId, env } = this.props;
+        let url = `/project/${projectId}/dialogue/conversations/env/${env}/p/${page}`;
+
         if (conversationId) url += `/c/${conversationId}`;
         if (replace) return browserHistory.replace({ pathname: url });
         return browserHistory.push({ pathname: url });
@@ -170,6 +175,7 @@ ConversationsBrowser.propTypes = {
     activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
     projectId: PropTypes.string.isRequired,
+    env: PropTypes.string.isRequired,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
 };
@@ -181,19 +187,22 @@ ConversationsBrowser.defaultProps = {
 };
 
 function ConversationBrowserSegment({
-    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, projectEnvs,
+    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, projectEnvs, env,
 }) {
-    const envs = [{ text: 'development', value: 'development' }]
-    if (!loading) {
-        envs.push(...projectEnvs[0].deploymentEnvironments
-            .map(env => ({ text: env, value: env })));
+    function changeEnv(newEnv) {
+        browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${newEnv}/p/${page}` });
+    }
+    const availableEnvs = [{ text: 'development', value: 'development' }];
+    if (!loading && projectEnvs !== null) {
+        availableEnvs.push(...projectEnvs[0].deploymentEnvironments
+            .map(projectEnv => ({ text: projectEnv, value: projectEnv })));
     }
 
     return (
         <div>
             <PageMenu title='Conversations History' icon='comments'>
                 <Menu.Item className='env-select'>
-                    <EnvSelector availableEnvs={envs} envChange={() => console.log(projectEnvs)} />
+                    <EnvSelector availableEnvs={availableEnvs} value={env} envChange={newEnv => changeEnv(newEnv)} />
                 </Menu.Item>
 
             </PageMenu>
@@ -207,6 +216,7 @@ function ConversationBrowserSegment({
                             page={page}
                             prevConvoId={prevConvoId}
                             nextConvoId={nextConvoId}
+                            env={env}
                         />
                     </Segment>
                 </Container>
@@ -221,6 +231,7 @@ ConversationBrowserSegment.propTypes = {
     loading: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
     page: PropTypes.number.isRequired,
+    env: PropTypes.string.isRequired,
     projectEnvs: PropTypes.array,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
@@ -235,7 +246,7 @@ ConversationBrowserSegment.defaultProps = {
 };
 
 const ConversationsBrowserContainer = withTracker((props) => {
-    const projectId = props.router.params.project_id;
+    const { project_id: projectId, env } = props.router.params;
     let activeConversationId = props.router.params.conversation_id;
     let page = parseInt(props.router.params.page, 10);
     if (!Number.isInteger(page) || page < 1) {
@@ -247,39 +258,49 @@ const ConversationsBrowserContainer = withTracker((props) => {
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
     const options = { sort: { updatedAt: -1 } };
+
+    let envSelector = { env };
+    if (env === 'development') {
+        envSelector = { env: { $in: ['development', null] } };
+    }
     const selector = {
         projectId,
         status: { $in: ['new', 'read', 'flagged'] },
+        ...envSelector,
     };
     Meteor.subscribe('projects', projectId);
     const projectEnvs = Projects
         .find({ _id: projectId }, { fields: { deploymentEnvironments: 1 } })
         .fetch();
-    const componentProps = { page, projectId, loading: true };
-    const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit);
-    
+    const componentProps = {
+        page, projectId, loading: true, env, projectEnvs,
+    };
+    const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit, env);
+
     if (conversationsHandler.ready()) {
         const conversations = Conversations.find(selector, options).fetch();
         // If for some reason the conversation is not in the current page, discard it.
+
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
         let nextConvoId; let prevConvoId; let from; let to;
-        
+
+
         // first page but there are more
         if (page === 1 && conversations.length > PAGE_SIZE) {
             nextConvoId = conversations[conversations.length - 1]._id;
             from = 0;
             to = PAGE_SIZE;
-        // first page with less than PAGE_SIZE conversations but not empty
+            // first page with less than PAGE_SIZE conversations but not empty
         } else if (page === 1 && conversations.length && conversations.length <= PAGE_SIZE) {
             from = 0;
             to = PAGE_SIZE - 1;
-        // not first page but there are more
+            // not first page but there are more
         } else if (page > 1 && conversations.length === PAGE_SIZE + 2) {
             nextConvoId = conversations[conversations.length - 1]._id;
             prevConvoId = conversations[0]._id;
             from = 1;
             to = PAGE_SIZE + 1;
-        // not first page but last one
+            // not first page but last one
         } else if (page > 1 && conversations.length <= PAGE_SIZE + 1) {
             prevConvoId = conversations[0]._id;
             from = 1;
@@ -291,21 +312,20 @@ const ConversationsBrowserContainer = withTracker((props) => {
             * conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
             return componentProps;
         }
-        
-        if (!activeConversationId) {
-            let url = `/project/${projectId}/dialogue/conversations/p/${page}`;
-            if (conversations.length > 0) url += `/c/${conversations[from]._id}`;
-            props.router.replace({ pathname: url });
-            return componentProps;
-        }
 
+        if (!activeConversationId) {
+            if (conversations.length > 0) {
+                const url = `/project/${projectId}/dialogue/conversations/env/${env}/p/${page}/c/${conversations[from]._id}`;
+                props.router.replace({ pathname: url });
+                return componentProps;
+            }
+        }
         Object.assign(componentProps, {
             loading: false,
             trackers: conversations.slice(from, to),
             activeConversationId,
             prevConvoId,
             nextConvoId,
-            projectEnvs,
         });
 
         return componentProps;
@@ -315,6 +335,7 @@ const ConversationsBrowserContainer = withTracker((props) => {
         loading: true,
         projectId,
         page,
+        env,
     };
 })(ConversationBrowserSegment);
 

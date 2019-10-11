@@ -28,7 +28,7 @@ class Index extends React.Component {
             return `/project/${pId}/dialogue/templates`;
         }
         if (can('conversations:r', pId)) {
-            return `/project/${pId}/dialogue/conversations/p/1`;
+            return `/project/${pId}/dialogue/conversations/env/development/p/1`;
         }
         if (can('project-settings:r', pId)) {
             return `/project/${pId}/settings`;
