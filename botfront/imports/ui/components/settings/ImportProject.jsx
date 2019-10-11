@@ -165,7 +165,7 @@ const ImportProject = ({
                         content={(
                             <p>
                                 If the download did not automatically start click
-                                <a href={`${apiHost}/project/${projectId}/export`}> here </a>
+                                <a href={`${apiHost}/project/${projectId}/export`} data-cy='backup-link'> here </a>
                                 to retry.<br />
                                 Please verify that the backup has downloaded before continuing.
                             </p>
@@ -176,7 +176,7 @@ const ImportProject = ({
                     <Message
                         error
                         icon='times circle'
-                        header={backupErrorMessage.header}
+                        header='Backup Failed'
                         content={backupErrorMessage.text}
                     />
                 ))}

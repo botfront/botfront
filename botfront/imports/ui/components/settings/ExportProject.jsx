@@ -31,7 +31,7 @@ const ExportProject = ({
             content: (
                 <p>
                     If your download does not start within 5 seconds click{' '}
-                    <a href={`${apiHost}/project/${projectId}/export`} download>here </a>
+                    <a href={`${apiHost}/project/${projectId}/export`} data-cy='export-link'>here </a>
                     to retry.
                 </p>),
         },

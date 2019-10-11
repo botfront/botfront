@@ -16,9 +16,9 @@ const entityValue = 'check';
 
 describe('Importing a project', function() {
     beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr');
+        cy.createProject('test_project', 'My Project', 'fr');
         cy.login();
-        cy.visit('/project/bf/settings');
+        cy.visit('/project/test_project/settings');
         cy.dataCy('project-settings-more')
             .click();
         cy.dataCy('admin-settings-menu')
@@ -35,12 +35,60 @@ describe('Importing a project', function() {
 
     afterEach(function() {
         cy.logout();
-        cy.deleteProject('bf');
+        cy.deleteProject('test_project');
     });
 
-    describe('Importing a project user interface', function() {
+    describe('Importing a Botfront project', function() {
+        it('should display the correct backup project API link in the backup project success message', function() {
+            cy.visit('/project/test_project/settings');
+            cy.contains('Import/Export').click();
+            cy.dataCy('import-type-dropdown')
+                .click();
+            cy.dataCy('import-type-dropdown')
+                .find('span')
+                .contains('Botfront')
+                .click();
+            cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
+                cy.get('.file-dropzone').upload(content, 'data.json');
+            });
+            cy.dataCy('backup-project-button')
+                .click();
+            cy.contains('Backup successfully downloaded!').should('exist');
+            cy.dataCy('backup-link')
+                .should('have.attr', 'href')
+                .and('equal', `${apiHost}/project/test_project/export`);
+        });
+        it('should display an error message when the backup fails', function() {
+            cy.visit('/project/test_project/settings');
+            cy.dataCy('project-settings-more')
+                .click();
+            cy.dataCy('admin-settings-menu')
+                .find('a')
+                .contains('Docker Compose')
+                .click();
+            cy.dataCy('docker-api-host')
+                .click();
+            cy.dataCy('docker-api-host')
+                .find('input')
+                .clear()
+                .type(`${apiHost}1{enter}`);
+            cy.visit('/project/test_project/settings');
+            cy.contains('Import/Export').click();
+            cy.dataCy('import-type-dropdown')
+                .click();
+            cy.dataCy('import-type-dropdown')
+                .find('span')
+                .contains('Botfront')
+                .click();
+            cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
+                cy.get('.file-dropzone').upload(content, 'data.json');
+            });
+            cy.dataCy('backup-project-button')
+                .click();
+            cy.contains('Backup Failed').should('exist');
+        });
         it('should import the right number and names of story groups', function() {
-            cy.visit('/project/bf/stories');
+            cy.visit('/project/test_project/stories');
             cy.dataCy('browser-item')
                 .contains('Default stories')
                 .click();
@@ -57,7 +105,7 @@ describe('Importing a project', function() {
                 .last()
                 .click({ force: true });
 
-            cy.visit('/project/bf/settings');
+            cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
                 .click();
@@ -75,7 +123,7 @@ describe('Importing a project', function() {
                 .click();
             cy.dataCy('project-import-success').should('exist');
 
-            cy.visit('/project/bf/stories');
+            cy.visit('/project/test_project/stories');
             cy.dataCy('browser-item')
                 .contains(storyGroupName)
                 .should('exist');
@@ -83,7 +131,7 @@ describe('Importing a project', function() {
         });
         
         it('should import story contents', function() {
-            cy.visit('/project/bf/settings');
+            cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
                 .click();
@@ -101,7 +149,7 @@ describe('Importing a project', function() {
                 .click();
             cy.dataCy('project-import-success').should('exist');
 
-            cy.visit('/project/bf/stories');
+            cy.visit('/project/test_project/stories');
             cy.dataCy('browser-item')
                 .contains(storyGroupName)
                 .click();
@@ -116,7 +164,7 @@ describe('Importing a project', function() {
             cy.contains(' - utter_kgLzUkBmR').should('exist');
         });
         it('should import slots with the right type and name', function() {
-            cy.visit('/project/bf/settings');
+            cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
                 .click();
@@ -134,7 +182,7 @@ describe('Importing a project', function() {
                 .click();
             cy.dataCy('project-import-success').should('exist');
 
-            cy.visit('/project/bf/stories');
+            cy.visit('/project/test_project/stories');
             cy.dataCy('slots-tab')
                 .click();
             cy.dataCy('slot-editor').should('have.lengthOf', 1);
@@ -147,7 +195,7 @@ describe('Importing a project', function() {
                 .contains(slotType);
         });
         it('should import the right number of examples for an intent', function() {
-            cy.visit('/project/bf/settings');
+            cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
                 .click();
@@ -165,7 +213,7 @@ describe('Importing a project', function() {
                 .click();
             cy.dataCy('project-import-success').should('exist');
 
-            cy.visit('/project/bf/nlu/models');
+            cy.visit('/project/test_project/nlu/models');
             cy.contains(intentExampleText)
                 .closest('.rt-tr')
                 .contains(intent)
@@ -187,7 +235,7 @@ describe('Importing a project', function() {
         });
         
         it('should import all responses', function() {
-            cy.visit('/project/bf/settings');
+            cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
                 .click();
@@ -205,7 +253,7 @@ describe('Importing a project', function() {
                 .click();
             cy.dataCy('project-import-success').should('exist');
 
-            cy.visit('/project/bf/dialogue/templates');
+            cy.visit('/project/test_project/dialogue/templates');
             cy.contains(responseIntent)
                 .closest('.rt-tr')
                 .contains(responseText)
@@ -214,7 +262,7 @@ describe('Importing a project', function() {
                 .should('have.length', 8);
         });
         it('should include entities in the intent example imports', function() {
-            cy.visit('/project/bf/settings');
+            cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('import-type-dropdown')
                 .click();
@@ -232,7 +280,7 @@ describe('Importing a project', function() {
                 .click();
             cy.dataCy('project-import-success').should('exist');
 
-            cy.visit('/project/bf/nlu/models');
+            cy.visit('/project/test_project/nlu/models');
             cy.dataCy('entity-label')
                 .should('have.lengthOf', 4);
             cy.dataCy('entity-label')
