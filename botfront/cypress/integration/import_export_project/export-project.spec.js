@@ -30,7 +30,7 @@ describe('Exporting a Project', function() {
         it('should navigate the UI for exporting to Botfront', function() {
             cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
-            cy.get('.ui.pointing.secondary')
+            cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
                 .click();
@@ -64,7 +64,7 @@ describe('Exporting a Project', function() {
                 .type(`${apiHost}1{enter}`);
             cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
-            cy.get('.ui.pointing.secondary')
+            cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
                 .click();
@@ -82,7 +82,7 @@ describe('Exporting a Project', function() {
         // it('should navigate the UI for exporting to Rasa/Rasa X', function() {
         //     cy.visit('/project/test_project/settings');
         //     cy.contains('Import/Export').click();
-        //     cy.get('.ui.pointing.secondary')
+        //     cy.dataCy('port-project-menu')
         //         .find('.item')
         //         .contains('Export')
         //         .click();
