@@ -266,35 +266,31 @@ if (Meteor.isServer) {
             try {
                 const currentModel = NLUModels.findOne({ _id: modelId }, { training_data: 1 });
                 let commonExamples; let entitySynonyms; let fuzzyGazette;
-                
-                // eslint-disable-next-line no-return-assign
-                nluData.common_examples.forEach(e => (e._id = uuidv4()));
-                // eslint-disable-next-line no-return-assign
-                nluData.entity_synonyms.forEach(e => (e._id = uuidv4()));
-                // eslint-disable-next-line no-return-assign
-                nluData.fuzzy_gazette.forEach(e => (e._id = uuidv4()));
 
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
+                    commonExamples = nluData.common_examples.map(e => ({ ...e, _id: uuidv4() }));
                     commonExamples = {
                         'training_data.common_examples': overwrite
-                            ? nluData.common_examples
-                            : { $each: filterExistent(currentModel.training_data.common_examples, nluData.common_examples, 'text') },
+                            ? commonExamples
+                            : { $each: filterExistent(currentModel.training_data.common_examples, commonExamples, 'text') },
                     };
                 }
 
                 if (nluData.entity_synonyms && nluData.entity_synonyms.length > 0) {
+                    entitySynonyms = nluData.entity_synonyms.map(e => ({ ...e, _id: uuidv4() }));
                     entitySynonyms = {
                         'training_data.entity_synonyms': overwrite
-                            ? nluData.entity_synonyms
-                            : { $each: filterExistent(currentModel.training_data.entity_synonyms, nluData.entity_synonyms, 'value') },
+                            ? entitySynonyms
+                            : { $each: filterExistent(currentModel.training_data.entity_synonyms, entitySynonyms, 'value') },
                     };
                 }
 
                 if (nluData.fuzzy_gazette && nluData.fuzzy_gazette.length > 0) {
+                    fuzzyGazette = nluData.fuzzy_gazette.map(e => ({ ...e, _id: uuidv4() }));
                     fuzzyGazette = {
                         'training_data.fuzzy_gazette': overwrite
-                            ? nluData.fuzzy_gazette
-                            : { $each: filterExistent(currentModel.training_data.fuzzy_gazette, nluData.fuzzy_gazette, 'value', gazetteDefaults) },
+                            ? fuzzyGazette
+                            : { $each: filterExistent(currentModel.training_data.fuzzy_gazette, fuzzyGazette, 'value', gazetteDefaults) },
                     };
                 }
 
