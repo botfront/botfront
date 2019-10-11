@@ -1,10 +1,10 @@
 
 import { Meteor } from 'meteor/meteor';
 
-import http from 'http';
+import superagent from 'superagent';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
-import { getRequestOptions, generateErrorText, generateImportResponse } from './importExport.utils';
+import { generateErrorText, generateImportResponse } from './importExport.utils';
 
 
 if (Meteor.isServer) {
@@ -14,26 +14,19 @@ if (Meteor.isServer) {
             check(apiHost, String);
             check(projectId, String);
             checkIfCan('global-admin');
-            const data = JSON.stringify(projectFile);
-
-            const headers = {
-                'Content-Type': 'application/json',
-            };
-            const options = getRequestOptions(apiHost, `/project/${projectId}/import`, 'PUT', headers);
 
             const importRequest = new Promise((resolve) => {
-                const req = http.request(options, (res) => {
-                    if (res.statusCode) {
-                        resolve(generateImportResponse(res.statusCode));
-                    }
-                });
-                req.on('error', (error) => {
-                    resolve({
-                        success: false, errorMessage: { header: 'Import Failed', text: generateErrorText(error) },
+                superagent
+                    .put(`${apiHost}/project/${projectId}/import`)
+                    .send(projectFile)
+                    .then((res) => {
+                        console.log(res.status);
+                        resolve(generateImportResponse(res.status));
+                        resolve({ success: true });
+                    })
+                    .catch((err) => {
+                        resolve({ error: { header: 'Export Failed', text: generateErrorText(err) } });
                     });
-                });
-                req.write(data);
-                req.end();
             });
             return importRequest;
         },

@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
-// import { saveAs } from 'file-saver';
+import { saveAs } from 'file-saver';
 
 
 import {
@@ -38,7 +38,8 @@ const ImportProject = ({
 
     const [importType, setImportType] = useState({});
     const [botfrontFileSuccess, setBotfrontFileSuccess] = useState(false);
-    const [backupDownloaded, setbackupDownloaded] = useState(false);
+    const [backupSuccess, setbackupSuccess] = useState(undefined);
+    const [backupErrorMessage, setBackupErrorMessage] = useState({ header: 'Backup failed!', text: '' });
     const [importSuccessful, setImportSuccessful] = useState(undefined);
     const [importErrorMessage, setImportErrorMessage] = useState({ header: 'Import failed' });
     const [uploadedFiles, setUploadedFiles] = useState({ header: 'Import Failed', text: '' });
@@ -64,7 +65,7 @@ const ImportProject = ({
                 setImportErrorMessage(!!errorMessage ? errorMessage : importErrorMessage);
             }
             setLoading(false);
-            window.location.reload();
+            // window.location.reload();
         });
     };
 
@@ -81,13 +82,19 @@ const ImportProject = ({
     };
 
     const backupProject = () => {
-        // Meteor.call('exportProject', apiHost, projectId, (err, { data }) => {
-        //     const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-        //     const filename = `BotfrontProjectBackup_${projectId}.json`;
-        //     saveAs(blob, filename);
-        // });
-        window.location.href = `${apiHost}/project/${projectId}/export`;
-        setbackupDownloaded(true);
+        Meteor.call('exportProject', apiHost, projectId, (err, { data, error }) => {
+            if (data) {
+                const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+                const filename = `BotfrontProjectBackup_${projectId}.json`;
+                saveAs(blob, filename);
+                setbackupSuccess(true);
+                return;
+            }
+            if (error) {
+                setBackupErrorMessage(error);
+            }
+            setbackupSuccess(false);
+        });
     };
 
     const importButtonText = () => {
@@ -151,22 +158,7 @@ const ImportProject = ({
                         successMessage='Your Botfront project file is ready.'
                     />
                 )}
-                { !backupDownloaded && botfrontFileSuccess && (
-                    <>
-                        <Message
-                            warning
-                            icon='exclamation circle'
-                            header='Your project will be overwritten.'
-                            content='Please use the button below to download a backup before proceeding.'
-                        />
-                        <Button onClick={backupProject} className='export-option' data-cy='backup-project-button'>
-                            <Icon name='download' />
-                            Backup current project
-                        </Button>
-                        <br />
-                    </>
-                )}
-                {backupDownloaded && (
+                {backupSuccess === true && (
                     <Message
                         positive
                         icon='check circle'
@@ -174,17 +166,42 @@ const ImportProject = ({
                         content={(
                             <p>
                                 If the download did not automatically start click
-                                <a href={`${apiHost}/project/bf/export`}> here </a>
+                                <a href={`${apiHost}/project/${projectId}/export`}> here </a>
                                 to retry.<br />
                                 Please verify that the backup has downloaded before continuing.
                             </p>
                         )}
                     />
                 )}
+                {(backupSuccess === false && (
+                    <Message
+                        error
+                        icon='times circle'
+                        header={backupErrorMessage.header}
+                        content={backupErrorMessage.text}
+                    />
+                ))}
+                {backupSuccess === undefined && botfrontFileSuccess && (
+                    <Message
+                        warning
+                        icon='exclamation circle'
+                        header='Your project will be overwritten.'
+                        content='Please use the button below to download a backup before proceeding.'
+                    />
+                )}
+                { backupSuccess === undefined && botfrontFileSuccess && (
+                    <>
+                        <Button onClick={backupProject} className='export-option' data-cy='backup-project-button'>
+                            <Icon name='download' />
+                            Backup current project
+                        </Button>
+                        <br />
+                    </>
+                )}
                 {validateImportType() && (
                     <Button
                         onClick={importProject}
-                        disabled={!backupDownloaded}
+                        disabled={!backupSuccess}
                         className='export-option'
                         data-cy='import-button'
                     >

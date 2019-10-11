@@ -1,10 +1,11 @@
 
 import { Meteor } from 'meteor/meteor';
 
-import http from 'http';
+import superagent from 'superagent';
+// import http from 'http';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
-import { getRequestOptions, generateErrorText } from './importExport.utils';
+import { generateErrorText } from './importExport.utils';
 
 
 if (Meteor.isServer) {
@@ -13,23 +14,16 @@ if (Meteor.isServer) {
             check(apiHost, String);
             check(projectId, String);
             checkIfCan('global-admin');
-            const options = getRequestOptions(apiHost, `/project/${projectId}/export`, 'GET');
             const exportRequest = new Promise((resolve) => {
-                const req = http.request(options, (res) => {
-                    if (res.statusCode !== 200) {
-                        resolve({ success: false, errorText: `${res.statusCode} API was not found` });
-                    }
-                    let data = '';
-                    res.on('data', (d) => {
-                        data += d;
-                        if (res.statusCode === 200
-                            && data.length === parseInt(res.headers['content-length'], 10)) {
-                            resolve({ data, success: true });
-                        }
+                superagent
+                    .get(`${apiHost}/project/${projectId}/export`)
+                    .then((res) => {
+                        console.log(res.body);
+                        resolve({ data: JSON.stringify(res.body) });
+                    })
+                    .catch((err) => {
+                        resolve({ error: { header: 'Export Failed', text: generateErrorText(err) } });
                     });
-                });
-                req.on('error', (error) => { resolve({ success: false, errorText: generateErrorText(error) }); });
-                req.end();
             });
             return exportRequest;
         },
