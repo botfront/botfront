@@ -20,7 +20,6 @@ const ExportProject = ({
     const [exportType, setExportType] = useState({});
     const [exportLanguage, setExportLanguage] = useState('');
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
-    // eslint-disable-next-line no-unused-vars
     const [errorMessage, setErrorMessage] = useState({ header: 'Export Failed', text: 'There was an unexpected error in the api request.' });
 
     const exportTypeOptions = [
@@ -65,9 +64,6 @@ const ExportProject = ({
 
     const exportForBotfront = () => {
         setLoading(true);
-        // window.location.href = `${apiHost}/project/${projectId}/export`;
-        // setExportSuccessful(true);
-        // setLoading(false);
         Meteor.call('exportProject', apiHost, projectId, (err, { data, error }) => {
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
