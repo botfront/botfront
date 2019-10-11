@@ -91,16 +91,16 @@ describe('Importing a project', function() {
             cy.visit('/project/test_project/stories');
             cy.dataCy('browser-item')
                 .contains('Default stories')
-                .click();
+                .click({ force: true });
             cy.dataCy('delete-story')
                 .last()
-                .click();
+                .click({ force: true });
             cy.dataCy('confirm-yes')
                 .last()
                 .click({ force: true });
             cy.dataCy('delete-story')
                 .last()
-                .click();
+                .click({ force: true });
             cy.dataCy('confirm-yes')
                 .last()
                 .click({ force: true });

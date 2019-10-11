@@ -116,6 +116,7 @@ const ExportProject = ({
     if (ExportSuccessful === false) {
         return (
             <Message
+                data-cy='export-failure-message'
                 error
                 icon='times circle'
                 header={errorMessage.header}
