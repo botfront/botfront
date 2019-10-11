@@ -41,7 +41,7 @@ export const getIntentsFrequencies = async (
     },
     {
         $project: {
-            intent: '$tracker.events.parse_data.original_data.intent.name',
+            intent: '$tracker.events.parse_data.intent.name',
         },
     },
     {

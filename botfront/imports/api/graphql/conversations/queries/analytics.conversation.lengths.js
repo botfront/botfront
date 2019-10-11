@@ -27,7 +27,7 @@ export const getConversationLengths = async (projectId, from = 0, to = new Date(
         $match: {
             $and: [
                 { 'tracker.events.event': 'user' },
-                // {"$tracker.events.parse_data.original_data.intent.confidence": {$ne: 1}},
+                // {"$tracker.events.parse_data.intent.confidence": {$ne: 1}},
             ],
         },
     },

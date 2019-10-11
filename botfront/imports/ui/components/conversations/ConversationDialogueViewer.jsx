@@ -93,7 +93,7 @@ function ConversationDialogueViewer({ tracker, mode }) {
 
         if (type === 'user' && !!event.text) {
             // The text check here is to remove the null userUttered events that are triggered by reminders
-            const example = ExampleUtils.fromParseData(event.parse_data.original_data || event.parse_data);
+            const example = ExampleUtils.fromParseData(event.parse_data);
 
             if (example.text.startsWith('/')) {
                 // TODO: check entity collisions
