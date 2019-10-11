@@ -219,15 +219,17 @@
         // Chat widget
 
         .header-and-loading {
-            height: 30px;
+            .loading {
+                height: 30px;
+            }
         }
         
         .messages-container {
             height: 100vh;
             max-height: ~"calc(100vh - 100px)"; /* 100px: 2 * (sender height + padding) */
-            .header-and-loading + & {
-                max-height: ~"calc(100vh - 130px)";
-            }
+        }
+        .header-and-loading + .messages-container {
+            max-height: ~"calc(100vh - 130px)";
         }
     }
 
