@@ -50,6 +50,19 @@ describe('Exporting a Project', function() {
         });
         it('should display an error message when the api request fails', function() {
             cy.visit('/project/test_project/settings');
+            cy.dataCy('project-settings-more')
+                .click();
+            cy.dataCy('admin-settings-menu')
+                .find('a')
+                .contains('Docker Compose')
+                .click();
+            cy.dataCy('docker-api-host')
+                .click();
+            cy.dataCy('docker-api-host')
+                .find('input')
+                .clear()
+                .type(`${apiHost}1{enter}`);
+            cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.get('.ui.pointing.secondary')
                 .find('.item')
@@ -62,12 +75,8 @@ describe('Exporting a Project', function() {
                 .click();
             cy.dataCy('export-button')
                 .click();
-            cy.dataCy('export-success-message')
-                .contains('Your project has been successfully exported for Botfront!')
+            cy.dataCy('export-failure-message')
                 .should('exist');
-            cy.dataCy('export-link')
-                .should('have.attr', 'href')
-                .and('equal', `${apiHost}/project/test_project/export`);
         });
 
         // it('should navigate the UI for exporting to Rasa/Rasa X', function() {
