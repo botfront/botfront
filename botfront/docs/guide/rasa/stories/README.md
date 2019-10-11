@@ -13,8 +13,9 @@ Botfront is based on Rasa and provides interfaces to build and edit Rasa stories
 The first two sections explain the basics. If you are already familiar with stories, you can safely skip them.
 
 ## Rasa stories
+
 Stories are the building blocks of conversation flows. It's a symbolic language used to describe conversations a user can have with a bot.
-In their simplest form, stories are made of user messages, starting with a `*`, and bot responses, starting with a `-`. 
+In their simplest form, stories are made of user messages, starting with a `*`, and bot responses, starting with a `-`.
 
 ```
 * chitchat.greet
@@ -51,12 +52,11 @@ In the story above (previous section), if you say **_Hi_** three times to the bo
 
 Conversations are often designed as tree-like flow charts. Stories are *real* conversation examples. Simply click on the **Branch Story** button on the story footer:
 
-![](../../../images/branching_1.png)
-
+![Branching button](../../../images/branching_1.png)
 
 ### Branching with intents
 
-The simplest way to branch a conversation is to use different intents at some point. Consider the following stories. 
+The simplest way to branch a conversation is to use different intents at some point. Consider the following stories.
 
 ```{3}
 * chitchat.greet
@@ -74,11 +74,9 @@ The simplest way to branch a conversation is to use different intents at some po
 
 Those stories implement two different paths, one where the user is happy and one where the user is not. Observe that half of the story is duplicated. It may not be a problem here, but when your tree branches on several levels this may become difficult to maintain. That is where the **branch story** option becomes useful:
 
-![](../../../images/branching_2.png)
+![Branch 1: happy](../../../images/branching_2.png)
 
-
-![](../../../images/branching_3.png)
-
+![Branch 2: sad](../../../images/branching_3.png)
 
 ### Branching with entity values
 
@@ -104,14 +102,14 @@ Another way is to use entity values. Here we want to implement the following use
 * book
   - utter_which_class
 ```
+
 And this can be done as follows with branches:
 
-![](../../../images/branching_4.png)
+![Branch 1: book-eco](../../../images/branching_4.png)
 
-![](../../../images/branching_5.png)
+![Branch 2: book-business](../../../images/branching_5.png)
 
-![](../../../images/branching_6.png)
-
+![Branch 3: book-undecided](../../../images/branching_6.png)
 
 ::: warning But wait, that doesn't work!
 If you train and try those stories, you'll see that if you type `/book` the agent will utter `utter_which_class` as expected, but if you type `book{"class":"eco"}` or `book{"class":"business"}` the response will be.
@@ -119,7 +117,7 @@ random. The reason is that if the value of the entity is not stored somewhere, R
 
 If you want the stories above to work, you need to **create a slot**. In this case we're going to create a **categorical** slot, and add the categories **business** and **eco**. Then retrain and it should work.
 
-![](../../../images/branching_7.png)
+![Categorical slot](../../../images/branching_7.png)
 
 :::
 
@@ -143,19 +141,19 @@ In plain text file you would have to write the following stories:
   - slot{"class":"business"}
   - utter_booking_canceled
 ```
+
 You can implement that as follows with branches:
 
-![](../../../images/branching_8.png)
+![Branch 1: cancel-eco](../../../images/branching_8.png)
 
-![](../../../images/branching_9.png)
-
+![Branch 2: cancel-business](../../../images/branching_9.png)
 
 As you can see, the `- slot{"class":"..."}` in the branches guides the conversation into different paths.
 
 ::: tip What if the class has not been set yet?
 You can add a third category **not_set** to the `class` slot in a new branch, and set the initial value to **not_set**. Then you can gracefully handle the case where no class is set like this:
 
-![](../../../images/branching_10.png)
+![Branch 3: cancel-notset](../../../images/branching_10.png)
 
 This is the equivalent of adding this story in a story file.
 
@@ -164,6 +162,7 @@ This is the equivalent of adding this story in a story file.
   - slot{"class":"not_set"}
   - utter_which_class
 ```
+
 :::
 
 ### How branches are handled
@@ -174,49 +173,49 @@ Under the hood, Botfront uses [Rasa checkpoints](https://rasa.com/docs/rasa/core
 
 You can easily see which branch you're on by looking at the breadcrumbs on the story footer:
 
-![](../../../images/branching_11.png)
+![Branching readcrumbs](../../../images/branching_11.png)
 
 You can rename the branches as desired by clicking on the branch name and add as many as you want using the **+** icon:
 
-![](../../../images/branching_12.png)
+![Rename branch](../../../images/branching_12.png)
 
 You can delete branches by clicking the trash icon while on the selected branch:
 
-![](../../../images/branching_13.png)
+![Delete branch](../../../images/branching_13.png)
 
 ::: tip NOTE
 Deleting either one of the last two branches would automatically delete the other branch as well. The content in the last remaining branch will be added to the parent story.
 :::
 
-![](../../../images/branching_14.png)
+![Delete last branch](../../../images/branching_14.png)
 
 ## Linking stories
 
 Linking stories is a powerful way to prevent repetition, and to easily connect stories with each other. You may simply select a story as a destination on the right side of the story footer. Any story can be linked to any story, or be used as a destination. This feature is especially useful where you would want to present a frequently repeated flow in the end of multiple stories, like a **feedback** flow.
 
-![](../../../images/linking_1.png)
+![Link story](../../../images/linking_1.png)
 
-![](../../../images/linking_2.png)
+![Story linked](../../../images/linking_2.png)
 
-When a story is set as a destination, this is shown by a yellow information bar on the story header. 
+When a story is set as a destination, this is shown by a yellow information bar on the story header.
 
-![](../../../images/linking_3.png)
+![Destination story](../../../images/linking_3.png)
 
 A list of linked stories would be available when clicked on the bar.
 
-![](../../../images/linking_4.png)
+![Destination story detail](../../../images/linking_4.png)
 
 Stories that are destination stories or that have links cannot be deleted until the linking is removed.
 
-![](../../../images/linking_5.png)
+![Destination story no delete](../../../images/linking_5.png)
 
-![](../../../images/linking_6.png)
+![Initial story no delete](../../../images/linking_6.png)
 
 Branches can be linked to other stories as well.
 
-![](../../../images/linking_7.png)
+![Linked branch 1: Good](../../../images/linking_7.png)
 
-![](../../../images/linking_8.png)
+![Linked branch 2: Bad](../../../images/linking_8.png)
 
 ::: tip
 Using linking too much could overcomplicate your story flows, making them difficult to understand. Also, excessive usage could lead into an increase training time.
@@ -232,19 +231,19 @@ Stories are grouped in story groups in order to keep them neat and tidy. You can
 
 By selecting the **Move** icon as seen below, you may move any story to any story group.
 
-![](../../../images/move-story.png)
+![Move story](../../../images/move-story.png)
 
 <!---
 ### Duplicating stories
 
-You may duplicate stories using the **Duplicate** icon next to the Move icon 
+You may duplicate stories using the **Duplicate** icon next to the Move icon.
 --->
 
 ### Renaming stories
 
 Stories can be renamed on the story header.
 
-![](../../../images/rename-story.png)
+![Rename story](../../../images/rename-story.png)
 
 ### Collapsing and expanding stories
 
@@ -266,8 +265,22 @@ Depending on the policies you are using and the number of stories, training can 
 
 You may click on the **focus (eye)** icon which appears when you hover besides story group names. Please note that the blue Train everything button will change to a yellow **Partial training** button, and it will have a tooltip stating the number of stories that are going to be trained.
 
-![](../../../images/story_focus_1.png)
+![Story group hover](../../../images/story_focus_1.png)
 
-![](../../../images/story_focus_2.png)
+![Stroy group focus](../../../images/story_focus_2.png)
 
-![](../../../images/story_focus_3.png)
+![Partial training button](../../../images/story_focus_3.png)
+
+## Warnings and errors
+
+The display of warnings and errors is a very useful part of the story editor. It guides you when you write your stories for them to work properly, and prevents training if there's an error which would affect the model and the chat experience.
+
+When there is a warning or an error, it is flagged on the corresponding line, and also indicated on the story header. When you hover over the icon, you get a suggestive explanation to resolve the issue.
+
+![Warning hover](../../../images/warnings_and_errors_1.png)
+
+![Error hover](../../../images/warnings_and_errors_2.png)
+
+![Warning and error](../../../images/warnings_and_errors_3.png)
+
+Warnings and errors cover a comprehensive list of possible situations, which are in line with Botfront updates.
