@@ -24,7 +24,11 @@ if (Meteor.isServer) {
             skip,
             limit,
             fields: {
-                _id: 1, updatedAt: 1, status: 1, projectId: 1,
+                _id: 1,
+                updatedAt: 1,
+                status: 1,
+                projectId: 1,
+                env,
             },
         };
 

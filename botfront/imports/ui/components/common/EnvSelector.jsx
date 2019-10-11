@@ -11,6 +11,7 @@ function EnvSelector(props) {
         <span>
             Data source:{'\u00A0'}
             <Dropdown
+                data-cy='env-selector'
                 inline
                 onChange={(event, data) => envChange(data.value)}
                 value={value}
