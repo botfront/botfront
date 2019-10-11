@@ -217,21 +217,9 @@
     .widget-embedded {
         position: unset;
         // Chat widget
-
-        .header-and-loading {
-            .loading {
-                height: 30px;
-            }
-        }
-        
-        .messages-container {
-            height: 100vh;
-            max-height: ~"calc(100vh - 100px)"; /* 100px: 2 * (sender height + padding) */
-        }
-        .header-and-loading + .messages-container {
-            max-height: ~"calc(100vh - 130px)";
-        }
+        height: ~"calc(100% - 46px)";
     }
+
 
     .ui.active.visible.item.dropdown .menu.transition.visible {
         max-width: 300px;
