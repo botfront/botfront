@@ -4,4 +4,3 @@
 
 FROM nginx:alpine
 COPY .vuepress/dist /usr/share/nginx/html
-RUN ls  /usr/share/nginx/html

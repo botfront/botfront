@@ -31,6 +31,13 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "tag", "botfront-local", "botfront/botfront:branch-$BRANCH_NAME"]
 
+- name: 'gcr.io/cloud-builders/npm'
+  dir: './botfront'
+  args: [ "run",  "docs:build"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",  "-t", "botfront/botfront-docs:branch-$BRANCH_NAME", "./botfront/docs"]
+
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "login",
         "-u", "$_DOCKER_USERNAME",
@@ -39,5 +46,8 @@ steps:
 
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "push", "botfront/botfront:branch-$BRANCH_NAME"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/botfront-docs:branch-$BRANCH_NAME"]
 
 timeout: 120m
