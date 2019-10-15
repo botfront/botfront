@@ -1,5 +1,5 @@
-import { getConversationDurations } from './queries/analytics.conversation.durations';
-import { checkIfCan } from '../../../lib/scopes';
+import { getConversationDurations } from '../queries/conversationDurations';
+import { checkIfCan } from '../../../../lib/scopes';
 
 export default {
     Query: {

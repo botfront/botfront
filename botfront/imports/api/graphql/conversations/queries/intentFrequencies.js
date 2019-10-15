@@ -1,6 +1,6 @@
 import Conversations from '../conversations.model';
 
-export const getIntentsFrequencies = async (
+export const getIntentFrequencies = async (
     projectId,
     from = 0,
     to = new Date().getTime(),

@@ -106,10 +106,10 @@ function Analytics(props) {
         );
     };
 
-    const renderIntentsFrequencies = () => {
+    const renderIntentFrequencies = () => {
         const GET_INTENTS_FREQUENCIES = gql`
-            query IntentsFrequencies($projectId: String!) {
-                intentsFrequencies(projectId: $projectId) {
+            query IntentFrequencies($projectId: String!) {
+                intentFrequencies(projectId: $projectId) {
                     frequency
                     count
                     name
@@ -119,15 +119,15 @@ function Analytics(props) {
 
         return (
             <Query query={GET_INTENTS_FREQUENCIES} variables={{ projectId }}>
-                {({ loading, error, data: { intentsFrequencies } }) => {
+                {({ loading, error, data: { intentFrequencies } }) => {
                     if (loading) return <Loader active inline='centered' />;
                     if (error) return `Error! ${error.message}`;
                     return (
                         <>
-                            <Message content='Most frequenc user intents of 1st message' />
+                            <Message content='Most frequent user intents of 1st message' />
                             <div style={{ height: 500 }}>
                                 <IntentFrequenciesWidget
-                                    data={intentsFrequencies.map(
+                                    data={intentFrequencies.map(
                                         ({ name, frequency, count }) => ({
                                             id: name,
                                             label: name,
@@ -195,7 +195,7 @@ function Analytics(props) {
         },
         {
             menuItem: 'Intents frequencies',
-            render: () => <Tab.Pane>{renderIntentsFrequencies()}</Tab.Pane>,
+            render: () => <Tab.Pane>{renderIntentFrequencies()}</Tab.Pane>,
         },
     ];
 

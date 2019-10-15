@@ -1,9 +1,0 @@
-type Query {
-    intentsFrequencies(projectId: String!, from: Int, to: Int, position: Int): [IntentFrequency!]!
-}
-
-type IntentFrequency {
-  name: String,
-  frequency: Float,
-  count: Int,
-}
