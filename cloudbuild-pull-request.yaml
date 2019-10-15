@@ -5,21 +5,12 @@ steps:
 - name: 'gcr.io/kaniko-project/executor:latest'
   dir: /workspace/botfront/cypress
   args:
-  - --dockerfile=Dockerfile_cypress  
+  - --dockerfile=Dockerfile_cypress
   - --context=/workspace/botfront/cypress
   - --destination=gcr.io/$PROJECT_ID/cypress-runner:latest
   - --cache=true
   - --cache-ttl=24h
 
-# - name: 'gcr.io/kaniko-project/executor:latest'
-#   dir: /workspace/botfront/cypress
-#   args:
-#   - --dockerfile=Dockerfile_rasa
-#   - --context=/workspace/botfront/cypress
-#   - --destination=gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
-#   - --cache=true
-#   - --cache-ttl=24h
-  
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: /workspace/botfront/cypress
   args:
@@ -28,7 +19,7 @@ steps:
     - --exit-code-from
     - e2e
 
-timeout: 7200s
+timeout: 120m
+
 images:
     - gcr.io/$PROJECT_ID/cypress-runner:latest
-    # - gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
