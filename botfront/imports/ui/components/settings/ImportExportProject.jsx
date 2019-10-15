@@ -59,7 +59,7 @@ class ImportExportProject extends React.Component {
 
     render () {
         return (
-            <Tab className='import-export-project' menu={{ pointing: true, secondary: true }} panes={this.getMenuPanes()} />
+            <Tab className='import-export-project' menu={{ pointing: true, secondary: true, 'data-cy': 'port-project-menu' }} panes={this.getMenuPanes()} />
         );
     }
 }
@@ -70,7 +70,7 @@ ImportExportProject.propTypes = {
 
 ImportExportProject.defaultProps = {
     apiHost: '',
-}
+};
 
 export default withTracker(() => {
     const apiHost = GlobalSettings
