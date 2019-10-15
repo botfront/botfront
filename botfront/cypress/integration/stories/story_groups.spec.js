@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 const storyGroupOne = 'storyGroupOne';
 const defaultStories = 'Default stories';
+const editedName = 'zstory';
 
 describe('stories', function() {
     afterEach(function() {
@@ -79,5 +80,31 @@ describe('stories', function() {
             .find('span')
             .contains(defaultStories)
             .should('exist');
+    });
+
+    it('after name edit, editing should display the right name', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click({ force: true });
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type(`${storyGroupOne}{enter}`);
+        cy.contains(defaultStories)
+            .find('[data-cy=ellipsis-menu]')
+            .click({ force: true })
+            .find('[data-cy=edit-menu]')
+            .click({ force: true });
+        cy.dataCy('edit-name')
+            .find('input')
+            .clear()
+            .type(`${editedName}{enter}`);
+
+        cy.contains(editedName)
+            .find('[data-cy=ellipsis-menu]')
+            .click({ force: true })
+            .find('[data-cy=edit-menu]')
+            .click({ force: true });
+        cy.dataCy('edit-name')
+            .find('input')
+            .should('have.value', editedName);
     });
 });
