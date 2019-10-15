@@ -1,9 +1,16 @@
 type Query {
-    intentFrequencies(projectId: String!, from: Int, to: Int, position: Int): [IntentFrequency!]!
+    intentFrequencies(
+        projectId: String!,
+        from: Int = 0,
+        to: Int,
+        position: Int = 1,
+        exclude: [String] = [],
+        only: [String] = []
+    ): [IntentFrequency!]!
 }
 
 type IntentFrequency {
-  name: String,
-  frequency: Float,
-  count: Int,
+    name: String,
+    frequency: Float,
+    count: Int,
 }

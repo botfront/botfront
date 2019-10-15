@@ -1,9 +1,5 @@
 import Conversations from '../conversations.model';
 
-const defaultCutoffs = [
-    30, 60, 90, 120, 180,
-];
-
 const generateBucket = bounds => ({
     case: {
         $cond: [
@@ -29,12 +25,12 @@ const generateBuckets = (cuttoffs, variable) => {
     return buckets;
 };
 
-export const getConversationDurations = async (
+export const getConversationDurations = async ({
     projectId,
-    from = 0,
+    from,
     to = new Date().getTime(),
-    cuttoffs = defaultCutoffs,
-) => Conversations.aggregate([
+    cuttoffs,
+}) => Conversations.aggregate([
     {
         $match: {
             projectId,

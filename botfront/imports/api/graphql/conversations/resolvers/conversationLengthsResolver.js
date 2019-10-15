@@ -4,8 +4,9 @@ import { checkIfCan } from '../../../../lib/scopes';
 export default {
     Query: {
         async conversationLengths(parent, args, context, info) {
+            if (!args.projectId) throw new Error('ProjectId is required');
             // checkIfCan('analytics:r', args.projectId, context.user._id);
-            return getConversationLengths(args.projectId, args.from, args.to);
+            return getConversationLengths(args);
         },
     },
     ConversationLengths: {

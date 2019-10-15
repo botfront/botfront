@@ -1,11 +1,25 @@
 import Conversations from '../conversations.model';
 
-export const getIntentFrequencies = async (
+const getExcludeClause = exclude => (
+    (!exclude || !exclude.length)
+        ? []
+        : [{ $not: { $in: ['$$event.parse_data.intent.name', exclude] } }]
+);
+
+const getOnlyClause = only => (
+    (!only || !only.length)
+        ? []
+        : [{ $in: ['$$event.parse_data.intent.name', only] }]
+);
+
+export const getIntentFrequencies = async ({
     projectId,
-    from = 0,
+    from,
     to = new Date().getTime(),
-    position = 1,
-) => Conversations.aggregate([
+    position,
+    only,
+    exclude,
+}) => Conversations.aggregate([
     {
         $match: {
             projectId,
@@ -29,7 +43,13 @@ export const getIntentFrequencies = async (
                 $filter: {
                     input: '$tracker.events',
                     as: 'event',
-                    cond: { $and: [{ $eq: ['$$event.event', 'user'] }] },
+                    cond: {
+                        $and: [
+                            { $eq: ['$$event.event', 'user'] },
+                            ...getExcludeClause(exclude),
+                            ...getOnlyClause(only),
+                        ],
+                    },
                 },
             },
         },

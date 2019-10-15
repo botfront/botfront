@@ -1,5 +1,10 @@
 type Query {
-    conversationDurations(projectId: String!, from: Int, to: Int): [ConversationDurations!]!
+    conversationDurations(
+        projectId: String!,
+        from: Int = 0,
+        to: Int,
+        cuttoffs: [Int] = [30, 60, 90, 120, 180],
+    ): [ConversationDurations!]!
 }
 
 type ConversationDurations {
