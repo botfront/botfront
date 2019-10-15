@@ -5,7 +5,6 @@ export default {
     Query: {
         async intentDistribution(parent, args, context, info) {
             return getIntentDistribution(args.modelId);
-            // return find(authors, { id: args.id });
         },
     },
     IntentCount: {

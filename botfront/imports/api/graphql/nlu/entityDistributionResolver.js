@@ -1,10 +1,10 @@
 import { getEntityDistribution } from './queries/nlu.analytics';
+import { checkIfCan } from '../../../lib/scopes';
 
 export default {
     Query: {
         async entityDistribution(parent, args, context, info) {
             return getEntityDistribution(args.modelId);
-            // return find(authors, { id: args.id });
         },
     },
     EntityCount: {

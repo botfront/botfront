@@ -7,4 +7,3 @@ type ConversationLengths {
   frequency: Float,
   count: Int,
 }
-

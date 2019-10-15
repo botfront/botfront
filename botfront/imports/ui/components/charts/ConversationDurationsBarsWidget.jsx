@@ -5,18 +5,12 @@ import PropTypes from 'prop-types';
 function ConversationDurationsBarWidget(props) {
     const { data, margin } = props;
 
-    const keys = ['< 30s', '30s < 60s', '60s < 90s', '90s < 120s', '120s < 180s', '> 180s'];
-    const transformedData = Object.keys(data).map((key, i) => ({
-        timeframe: keys[i],
-        value: data[key],
-    }));
-
     return (
         <>
             <ResponsiveBar
-                data={transformedData}
-                keys={['value']}
-                indexBy='timeframe'
+                data={data}
+                keys={['count']}
+                indexBy='duration'
                 margin={margin}
                 padding={0.3}
                 colors={{ scheme: 'nivo' }}
@@ -35,7 +29,6 @@ function ConversationDurationsBarWidget(props) {
                 borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
                 axisTop={null}
                 axisRight={null}
-               
                 labelSkipWidth={12}
                 labelSkipHeight={12}
                 labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}

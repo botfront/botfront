@@ -5,7 +5,7 @@ import { checkIfCan } from '../../../lib/scopes';
 export default {
     Query: {
         async intentsFrequencies(parent, args, context, info) {
-            checkIfCan('analytics:r', args.projectId, context.user._id);
+            // checkIfCan('analytics:r', args.projectId, context.user._id);
             return getIntentsFrequencies(args.projectId, args.from, args.to, args.position);
         },
     },

@@ -3,13 +3,7 @@ type Query {
 }
 
 type ConversationDurations {
-  _30: Int,
-  _30_60: Int,
-  _60_90: Int,
-  _90_120: Int,
-  _120_180: Int,
-  _180_: Int,
-  
+  duration: String,
+  frequency: Float,
+  count: Int,
 }
-
-# { "_id" : null, "_30" : 289, "_60" : 95, "_90" : 28, "_120" : 25, "_150" : 19, "_180" : 4 }

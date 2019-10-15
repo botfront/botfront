@@ -1,13 +1,43 @@
 import Conversations from '../conversations.model';
 
+const defaultCutoffs = [
+    30, 60, 90, 120, 180,
+];
+
+const generateBucket = bounds => ({
+    case: {
+        $cond: [
+            { $and: bounds }, 1, 0,
+        ],
+    },
+    then: bounds[0].$gte[1].toString(),
+});
+
+const generateBuckets = (cuttoffs, variable) => {
+    const buckets = [];
+    cuttoffs.forEach((val, idx, array) => {
+        const bounds = [{ $gte: [variable, val] }];
+        if (idx + 1 !== array.length) {
+            bounds.push({ $lt: [variable, array[idx + 1]] });
+        }
+        buckets.push(generateBucket(bounds));
+    });
+    buckets.unshift(generateBucket([
+        { $gte: [variable, 0] },
+        { $lt: [variable, cuttoffs[0]] },
+    ]));
+    return buckets;
+};
+
 export const getConversationDurations = async (
     projectId,
     from = 0,
     to = new Date().getTime(),
+    cuttoffs = defaultCutoffs,
 ) => Conversations.aggregate([
     {
         $match: {
-            projectId: 'RnbbKrctuBFQ7aC3T',
+            projectId,
         },
     },
     {
@@ -45,84 +75,38 @@ export const getConversationDurations = async (
         },
     },
     {
-        $group: {
-            _id: '$someField',
-            _30: {
-                $sum: { $cond: [{ $and: [{ $lt: ['$difference', 30] }] }, 1, 0] },
-            },
-            _60: {
-                $sum: {
-                    $cond: [
-                        {
-                            $and: [
-                                { $gte: ['$difference', 30] },
-                                { $lt: ['$difference', 60] },
-                            ],
-                        },
-                        1,
-                        0,
-                    ],
+        $project: {
+            duration: {
+                $switch: {
+                    branches: generateBuckets(cuttoffs, '$difference'),
                 },
-            },
-            _90: {
-                $sum: {
-                    $cond: [
-                        {
-                            $and: [
-                                { $gte: ['$difference', 60] },
-                                { $lt: ['$difference', 90] },
-                            ],
-                        },
-                        1,
-                        0,
-                    ],
-                },
-            },
-            _120: {
-                $sum: {
-                    $cond: [
-                        {
-                            $and: [
-                                { $gte: ['$difference', 90] },
-                                { $lt: ['$difference', 120] },
-                            ],
-                        },
-                        1,
-                        0,
-                    ],
-                },
-            },
-            _180: {
-                $sum: {
-                    $cond: [
-                        {
-                            $and: [
-                                { $gte: ['$difference', 120] },
-                                { $lt: ['$difference', 180] },
-                            ],
-                        },
-                        1,
-                        0,
-                    ],
-                },
-            },
-            _180more: {
-                $sum: { $cond: [{ $and: [{ $gte: ['$difference', 180] }] }, 1, 0] },
             },
         },
     },
     {
-        $project: {
-            _id: false,
-            _30: '$_30',
-            _30_60: '$_60',
-            _60_90: '$_90',
-            _90_120: '$_120',
-            _120_180: '$_180',
-            _180_: '$_180more',
+        $group: {
+            _id: '$duration',
+            count: {
+                $sum: 1,
+            },
         },
     },
-
-    // { $sort : { frequency : -1} }
+    {
+        $group: {
+            _id: null,
+            total: { $sum: '$count' },
+            data: { $push: '$$ROOT' },
+        },
+    },
+    { $unwind: '$data' },
+    {
+        $project: {
+            _id: false,
+            duration: '$data._id',
+            frequency: { $divide: ['$data.count', '$total'] },
+            count: '$data.count',
+        },
+    },
+    { $sort: { frequency: -1 } },
     // { $limit : 100 }
 ]);

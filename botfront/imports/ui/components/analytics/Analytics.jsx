@@ -150,12 +150,7 @@ function Analytics(props) {
         const GET_CONVERSATION_DURATIONS = gql`
             query ConversationDurations($projectId: String!) {
                 conversationDurations(projectId: $projectId) {
-                    _30
-                    _30_60
-                    _60_90
-                    _90_120
-                    _120_180
-                    _180_
+                    duration, count, frequency,
                 }
             }
         `;
@@ -188,7 +183,7 @@ function Analytics(props) {
             </Query>
         );
     };
-
+    
     const panes = [
         {
             menuItem: 'Conversation lengths',
