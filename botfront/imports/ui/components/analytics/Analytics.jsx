@@ -19,7 +19,7 @@ function Analytics(props) {
 
     const renderConversationLengths = () => {
         const GET_CONVERSATIONS_LENGTH = gql`
-            query EntityDistribution($projectId: String!) {
+            query ConversationLengths($projectId: String!) {
                 conversationLengths(projectId: $projectId) {
                     frequency
                     count
@@ -148,7 +148,7 @@ function Analytics(props) {
 
     const renderConversationDurations = () => {
         const GET_CONVERSATION_DURATIONS = gql`
-            query EntityDistribution($projectId: String!) {
+            query ConversationDurations($projectId: String!) {
                 conversationDurations(projectId: $projectId) {
                     _30
                     _30_60
@@ -171,7 +171,7 @@ function Analytics(props) {
                             <Message content='# of conversations by duration' />
                             <div style={{ height: 500 }}>
                                 <ConversationDurationsBarWidget
-                                    data={conversationDurations[0]}
+                                    data={conversationDurations}
                                     width={900}
                                     height={500}
                                     margin={{
