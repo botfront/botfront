@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.2-ee.4](https://github.com/botfront/botfront/compare/v0.16.2-ee.3...v0.16.2-ee.4) (2019-10-16)
+
+
+### Tests
+
+* fixed test for exceptions in story branches ([9f32c31](https://github.com/botfront/botfront/commit/9f32c31))
+
+
+
 ### [0.16.2-ee.3](https://github.com/botfront/botfront/compare/v0.16.2-ee.2...v0.16.2-ee.3) (2019-10-16)
 
 
