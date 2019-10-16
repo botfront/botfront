@@ -75,14 +75,14 @@ describe('Training', function() {
         // Train and wait for training to finish
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000);
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
+        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled', { timeout: 20000 });
         cy.get('[data-cy=open-chat]').click();
         testChat('en', '/chitchat.greet', 'utter_hi');
         importData('en', 'English');
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
         cy.get('[data-cy=train-button]').click();
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
+        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled', { timeout: 20000 });
         testChat('en', 'hi', 'utter_hi');
     });
 
@@ -92,19 +92,19 @@ describe('Training', function() {
         // Train and wait for training to finish
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000);
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
+        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled', { timeout: 20000 });
         cy.get('[data-cy=open-chat]').click();
         testChat('en', 'hi', 'utter_hi');
         cy.createNLUModelProgramatically('bf', '', 'fr'); // first don't import NLU data
         // Train and wait for training to finish
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000);
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
+        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled', { timeout: 20000 });
         importData('fr', 'French'); // now import the data
         // Train and wait for training to finish
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000);
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
+        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled', { timeout: 20000 });
         cy.get('[data-cy=open-chat]').click();
         testChat('fr', 'salut', 'utter_hi');
     });
@@ -119,7 +119,7 @@ describe('Training', function() {
         // Train and wait for training to finish
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000); // wait a bit so the state changes to disabled
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
+        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled', { timeout: 20000 });
         testChat('en', 'hi', 'utter_hi');
         testChat('fr', 'salut', 'utter_hi');
     });
