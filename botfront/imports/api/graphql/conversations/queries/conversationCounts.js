@@ -26,6 +26,7 @@ export const getConversationCounts = async ({
     from = new Date().getTime() - (86400 * 7),
     to = new Date().getTime(),
     nBuckets,
+    exclude,
 }) => Conversations.aggregate([
     {
         $match: {
@@ -67,7 +68,7 @@ export const getConversationCounts = async ({
                                 cond: {
                                     $and: [
                                         { $eq: ['$$event.event', 'user'] },
-                                        { $not: { $in: ['$$event.parse_data.intent.name', ['get_started']] } },
+                                        { $not: { $in: ['$$event.parse_data.intent.name', exclude] } },
                                     ],
                                 },
                             },

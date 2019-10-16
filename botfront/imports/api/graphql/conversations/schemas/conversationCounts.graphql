@@ -4,6 +4,7 @@ type Query {
         from: Int,
         to: Int,
         nBuckets: Int = 7,
+        exclude: [String] = ["get_started"],
     ): [ConversationCount!]!
 }
 
