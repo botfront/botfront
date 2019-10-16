@@ -5,7 +5,7 @@ export default {
     Query: {
         async intentFrequencies(parent, args, context, info) {
             if (!args.projectId) throw new Error('ProjectId is required');
-            // checkIfCan('analytics:r', args.projectId, context.user._id);
+            if (context.user) checkIfCan('analytics:r', args.projectId, context.user._id);
             return getIntentFrequencies(args);
         },
     },
