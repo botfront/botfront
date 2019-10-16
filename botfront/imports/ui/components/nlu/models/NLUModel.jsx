@@ -72,6 +72,7 @@ class NLUModel extends React.Component {
 
     static getExamplesWithExtraSynonyms = (props) => {
         const { model: { training_data: { common_examples, entity_synonyms } = {} } = {} } = props;
+        if (!common_examples) return [];
         return common_examples.map(e => _appendSynonymsToText(e, entity_synonyms));
     };
 
@@ -292,7 +293,7 @@ class NLUModel extends React.Component {
         } = this.state;
         if (!project) return null;
         if (!model) return null;
-        if (!ready) {
+        if (!ready || !model.training_data) {
             return (
                 <Container text style={{ paddingTop: '6em' }}>
                     <Placeholder fluid>
@@ -430,8 +431,22 @@ const handleDefaultRoute = (projectId) => {
 
 const NLUDataLoaderContainer = withTracker((props) => {
     const { params: { model_id: modelId, project_id: projectId } = {} } = props;
+
+    const {
+        name,
+        nlu_models,
+        defaultLanguage,
+        training,
+        nluThreshold,
+    } = Projects.findOne({ _id: projectId }, {
+        fields: {
+            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1, nluThreshold: 1,
+        },
+    });
+    const instances = Instances.find({ projectId }).fetch();
+    const instance = instances && instances.length ? instances[0] : null;
     // For handling '/project/:project_id/nlu/models'
-    if (!modelId) {
+    if (!modelId || !nlu_models.includes(modelId)) {
         handleDefaultRoute(projectId);
     }
     // for handling '/project/:project_id/nlu/model/:model_id'
@@ -465,20 +480,6 @@ const NLUDataLoaderContainer = withTracker((props) => {
         }
     });
 
-    const {
-        name,
-        nlu_models,
-        defaultLanguage,
-        instance: instanceId,
-        training,
-        nluThreshold,
-    } = Projects.findOne({ _id: projectId }, {
-        fields: {
-            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1, nluThreshold: 1,
-        },
-    });
-    const instances = Instances.find({ projectId }).fetch();
-    const instance = instances && instances.length ? instances[0] : null;
     if (!name) return browserHistory.replace({ pathname: '/404' });
     const nluModelLanguages = getPublishedNluModelLanguages(nlu_models, true);
     const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();

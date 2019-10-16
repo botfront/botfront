@@ -128,4 +128,16 @@ describe('story exceptions', function() {
         cy.dataCy('top-menu-error-alert').should('not.exist');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
+
+    it('should not display errors if no intents in branches', function() {
+        createTestStoryGroup();
+        cy.dataCy('create-branch').click();
+        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
+            .find('.ace_line')
+            .click({ force: true });
+        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story')
+            .find('textarea')
+            .type('- action_test');
+        cy.dataCy('top-menu-warning-alert').should('not.exist');
+    });
 });

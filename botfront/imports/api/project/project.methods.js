@@ -32,7 +32,10 @@ if (Meteor.isServer) {
             intents = trainingData.map(example => example.intent);
             entities = trainingData.map(example => example.entities);
             if (entities.length !== 0) {
-                entities = entities.reduce((acc, x) => acc.concat(x));
+                entities = entities.reduce((acc, x) => {
+                    if (x) return acc.concat(x);
+                    return acc; // in case training example had no entities key
+                });
                 entities = entities.map(entity => entity.entity);
             }
             return {
