@@ -22,7 +22,7 @@ services:
       - CYPRESS_RETRIES=2
 
   botfront:
-    image: botfront-local
+    image: botfront/botfront:branch-master
     container_name: botfront-test-app
     restart: always
     volumes:
@@ -55,6 +55,9 @@ services:
     image: botfront/rasa-for-botfront:v1.3.3-bf.5
     container_name: botfront-test-rasa
     restart: always
+    command:
+      - run
+      - --enable-api
     # ports:
     #   - '5005:5005'
     depends_on:
