@@ -22,7 +22,7 @@ services:
       - CYPRESS_RETRIES=2
 
   botfront:
-    image: botfront/botfront:branch-master
+    image: botfront-local
     container_name: botfront-test-app
     restart: always
     volumes:

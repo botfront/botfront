@@ -1,6 +1,6 @@
 steps:
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: [ "build",  "-t", "botfront-local", "."]
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",  "-t", "botfront-local", "."]
 
 - name: 'gcr.io/kaniko-project/executor:latest'
   dir: /workspace/botfront/cypress
