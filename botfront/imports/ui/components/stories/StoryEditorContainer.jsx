@@ -84,8 +84,19 @@ const StoryEditorContainer = ({
             () => {},
             content => saveStory(story._id, { story: content }),
             templates,
+            story.checkpoints && story.checkpoints.length > 0,
         ),
     });
+
+    useEffect(() => {
+        if (storyControllers[story._id]) {
+            const change = storyControllers[story._id].isABranch !== (story.checkpoints && story.checkpoints.length > 0);
+            storyControllers[story._id].isABranch = story.checkpoints && story.checkpoints.length > 0;
+            if (change) {
+                storyControllers[story._id].validateStory();
+            }
+        }
+    }, [story.checkpoints && story.checkpoints.length]);
 
     const isBranchLinked = branchId => (
         destinationStories
