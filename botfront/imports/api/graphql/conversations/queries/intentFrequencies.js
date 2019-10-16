@@ -44,7 +44,7 @@ export const getIntentFrequencies = async ({
             $and: [
                 {
                     'tracker.latest_event_time': {
-                        $lte: to, // timestamp
+                        $lt: to, // timestamp
                         $gte: from, // timestamp
                     },
                 },

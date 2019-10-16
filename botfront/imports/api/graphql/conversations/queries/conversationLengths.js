@@ -15,7 +15,7 @@ export const getConversationLengths = async ({
             $and: [
                 {
                     'tracker.latest_event_time': {
-                        $lte: to, // timestamp
+                        $lt: to, // timestamp
                         $gte: from, // timestamp
                     },
                 },
