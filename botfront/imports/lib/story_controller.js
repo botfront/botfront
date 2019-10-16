@@ -182,9 +182,7 @@ export class StoryController {
 
     validateResponse = () => {
         this.response = this.content.trim();
-        if (!this.intent && !(this.isABranch && this.response.match(/^slot *{/))) {
-            this.raiseStoryException('have_intent');
-        }
+        if (!this.intent && !this.isABranch) this.raiseStoryException('have_intent');
         if (this.response.match(/^utter_/)) {
             this.validateUtter();
         } else if (this.response.match(/^action_/)) {
