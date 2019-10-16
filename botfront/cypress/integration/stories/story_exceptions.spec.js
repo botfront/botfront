@@ -133,14 +133,14 @@ describe('story exceptions', function() {
         createTestStoryGroup();
         cy.dataCy('create-branch').should('have.length.of', 1);
         cy.dataCy('create-branch').click();
-        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
-            .find('.ace_line')
-            .should('have.length.of', 1);
-        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
-            .find('.ace_line')
+        cy.get('.ace_line')
+            .should('have.length.of', 2);
+        cy.get('.ace_line')
+            .eq(1)
             .click({ force: true });
         cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story')
             .find('textarea')
+            .eq(1)
             .type('- action_test');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
