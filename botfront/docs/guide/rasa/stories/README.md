@@ -284,3 +284,146 @@ When there is a warning or an error, it is flagged on the corresponding line, an
 ![Warning and error](../../../images/warnings_and_errors_3.png)
 
 Warnings and errors cover a comprehensive list of possible situations, which are in line with Botfront updates.
+
+## Default Domain Management
+
+An important part of developing and maintaining a Rasa virtual assistant is keeping [domain files](https://rasa.com/docs/rasa/core/domains/) up to date. Thankfully, Botfront makes this easier by automatically parsing the contents of your stories and extracting the different actions, entities, slots, etc. referenced within.
+
+However, it’s not always possible to infer everything that needs to go into the domain. For example, you might need to invoke a custom action, which in turn invokes another action, or makes use of a slot.
+
+![Default domain management](../../../images/default_domain_management_1.png)
+
+This new release introduces a dedicated place in your project to declare such actions or slots, the Default Domain.
+
+## Botfront Disambiguation Policy
+
+When your virtual assistant receives a user utterance, it calculates, for each intent in your domain, the confidence that the utterance is an instance of that intent. Sooner or later, your virtual assistant will be faced with utterances where none of the calculated confidences are particularly high.
+
+It’s very often best to treat these cases separately, since it may mean that your virtual assistant does not understand, or is unsure. Within the Rasa framework, this is done using [policies](https://rasa.com/docs/rasa/core/policies/).
+
+### rasa_addons.core.policies.BotfrontDisambiguationPolicy
+
+This policy implements fallback and suggestion-based disambiguation.
+
+#### Example usage
+
+```
+policies:
+...
+  - name: rasa_addons.core.policies.BotfrontDisambiguationPolicy
+    fallback_trigger: 0.30
+    disambiguation_trigger: '$0 < 2 * $1'
+    deny_suggestions: 'deny_suggestions'
+    n_suggestions: 3
+    excluded_intents:
+      - ^chitchat\..*
+    disambiguation_title:
+      en: "Sorry, I'm not sure I understood. Did you mean..."
+      fr: "J'ai mal compris. Voulez-vous dire..."
+    intent_mappings:
+      basics.yes:
+        en: "Yes"
+        fr: "Oui"
+      basics.no:
+        en: "No"
+        fr: "Non"
+      I_need_help:
+        en: "Help me"
+        fr: "Aidez-moi"
+      I_come_from:
+        en: "I come from {from}"
+        fr: "Je viens de {from}"
+      want_shirt:
+        en: "I want a {color} shirt"
+        fr: "Je veux un chandail {color}"
+      deny_suggestions:
+        en: "Something else"
+        fr: "Autre chose"
+...
+```
+
+#### Parameters
+
+`fallback_trigger`
+
+Float (default `0.30`): if confidence of top-ranking intent is below this threshold, fallback is triggered. Fallback is an action that utters the template `utter_fallback` and returns to the previous conversation state.
+
+`disambiguation_trigger`
+
+String (default `'$0 < 2 * $1'`): if this expression holds, disambiguation is triggered. (If it has already been triggered on the previous turn, fallback is triggered instead.) Here this expression resolves to "the score of the top-ranking intent is below twice the score of the second-ranking intent". Disambiguation is an action that lets the user to choose from the top-ranking intents using a button prompt.
+
+In addition, an 'Other' option is shown with payload defined in `deny_suggestions` param is shown. It is up to the conversation designer to implement a story to handle the continuation of this interaction.
+
+`deny_suggestions`
+
+String: the intent associated in the payload for the 'Other' option.
+
+`n_suggestions`
+
+Int (default 3): the maximum number of suggestions to display (excluding the 'Other' option).
+
+`excluded_intents`
+
+List (regex string): any intent (exactly) matching one of these regular expressions will not be shown as a suggestion.
+
+`disambiguation_title`
+
+Dict (language string -> string): localized disambiguation message title.
+
+`intent_mappings`
+
+Dict (intent string -> language string -> string): localized representative button title for intents. If no title is defined for a given intent, the intent name is rendered instead. These titles support entity substitution: any entity name enclosed in curly brackets (`{entity}`) will be filled with entity information from the user utterance.
+
+::: tip Important
+
+The title for the 'Other' option is also defined here.
+
+:::
+
+### rasa_addons.core.policies.BotfrontMappingPolicy
+
+This policy implements regular expression-based direct mapping from intent to action.
+
+#### Example usage
+
+```
+policies:
+...
+  - name: rasa_addons.core.policies.BotfrontMappingPolicy
+    triggers:
+      - trigger: '^map\..+'
+        action: 'action_botfront_mapping'
+        extra_actions:
+          - 'action_myaction'
+...
+```
+
+#### ActionBotfrontMapping
+
+The default action ActionBotfrontMapping takes the intent that triggered the mapping policy, e.g. `map.my_intent` and tries to generate the template `utter_map.my_intent`.
+
+### rasa_addons.core.channels.rest.RestInput
+
+#### Example usage
+
+```
+credentials:
+...
+rasa_addons.core.channels.webchat.WebchatInput:
+  session_persistence: true
+  base_url: {{rasa_url}}
+  socket_path: '/socket.io/'
+...
+```
+
+### rasa_addons.core.channels.webchat.WebchatInput
+
+#### Example usage
+
+```
+credentials:
+...
+rasa_addons.core.channels.rest.RestInput:
+  # POST {{rasa_url}}/webhooks/rest/
+...
+```
