@@ -71,11 +71,11 @@ describe('Training', function() {
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000);
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
-        cy.get('[data-cy=open-chat]').click();
+        cy.get('[data-cy=open-chat]').click({ force: true });
         testChat('en', '/chitchat.greet', 'utter_hi');
         importData('en', 'English');
         cy.visit('/project/bf/stories');
-        cy.get('[data-cy=open-chat]').click();
+        cy.get('[data-cy=open-chat]').click({ force: true });
         cy.get('[data-cy=train-button]').click();
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
         testChat('en', 'hi', 'utter_hi');
@@ -88,7 +88,7 @@ describe('Training', function() {
         cy.get('[data-cy=train-button]').click();
         cy.wait(1000);
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
-        cy.get('[data-cy=open-chat]').click();
+        cy.get('[data-cy=open-chat]').click({ force: true });
         testChat('en', 'hi', 'utter_hi');
         cy.createNLUModelProgramatically('bf', '', 'fr'); // first don't import NLU data
         // Train and wait for training to finish
@@ -97,7 +97,7 @@ describe('Training', function() {
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
         importData('fr', 'French'); // now import the data
         // Train and wait for training to finish
-        cy.get('[data-cy=train-button]').click();
+        cy.get('[data-cy=train-button]').click({ force: true });
         cy.wait(1000);
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
         cy.get('[data-cy=open-chat]').click();
