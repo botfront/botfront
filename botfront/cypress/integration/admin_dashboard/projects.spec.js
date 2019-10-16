@@ -23,21 +23,16 @@ describe('project creation', function() {
             .click();
         cy.get('#uniforms-0000-0006').type('test');
         cy.dataCy('submit-field').click();
-        cy.location('href').should('eq', 'http://localhost:3000/admin/projects');
+        cy.location('href').should('match', /http:\/\/\w*:*[0-9]*\/admin\/projects/);
         cy.get(':nth-child(3) > .rt-tr > :nth-child(1)').should('have.text', 'test');
         cy.get(':nth-child(3) > .rt-tr > :nth-child(3)').click();
-        cy.location().should((loc) => {
-            expect(loc.href).to.match(/http:\/\/localhost:3000\/admin\/project\/./);
-        });
+        cy.location('href').should('match', /http:\/\/\w*:*[0-9]*\/admin\/project\/./);
         cy.dataCy('delete-project').should('be.disabled');
         cy.get('.ui > label').click();
         cy.dataCy('submit-field').click();
-        
         cy.get(':nth-child(1) > .rt-tr > :nth-child(1)').eq(1).should('have.text', 'test');
         cy.get(':nth-child(1) > .rt-tr > :nth-child(3)').eq(1).click();
-        cy.location().should((loc) => {
-            expect(loc.href).to.match(/http:\/\/localhost:3000\/admin\/project\/./);
-        });
+        cy.location('href').should('match',/http:\/\/\w*:*[0-9]*\/admin\/project\/./);
         cy.dataCy('delete-project').should('not.be.disabled');
         cy.dataCy('delete-project').click();
         cy.get('.primary').click();
