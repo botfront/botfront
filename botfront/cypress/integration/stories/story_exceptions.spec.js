@@ -131,7 +131,11 @@ describe('story exceptions', function() {
 
     it('should not display errors if no intents in branches', function() {
         createTestStoryGroup();
+        cy.dataCy('create-branch').should('have.length.of', 1);
         cy.dataCy('create-branch').click();
+        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
+            .find('.ace_line')
+            .should('have.length.of', 1);
         cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
             .find('.ace_line')
             .click({ force: true });
