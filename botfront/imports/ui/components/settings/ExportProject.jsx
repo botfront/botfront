@@ -86,6 +86,11 @@ const ExportProject = ({
         });
     };
 
+    const blobAndSaveYaml = (data, name) => {
+        const rasaComponentBlob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+        saveAs(rasaComponentBlob, `${projectId}_${name}.yaml`);
+    };
+
     const exportForRasa = () => {
         setLoading(true);
         Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaData) => {
