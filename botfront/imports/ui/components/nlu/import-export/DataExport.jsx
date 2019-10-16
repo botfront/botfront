@@ -5,7 +5,7 @@ import {
 } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
-import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.methods';
+import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.utils';
 
 export default class DataExport extends React.Component {
     constructor(props) {

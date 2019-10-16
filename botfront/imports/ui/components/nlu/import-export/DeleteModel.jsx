@@ -7,7 +7,7 @@ import 'brace/mode/json';
 import 'brace/theme/github';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
-import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.methods';
+import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.utils';
 
 export default class DeleteModel extends React.Component {
     constructor(props) {
