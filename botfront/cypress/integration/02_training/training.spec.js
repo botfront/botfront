@@ -25,7 +25,7 @@ describe('Training', function() {
     }
 
     function testChat(lang, utterance, expectedResponse) {
-        cy.get('#render-target > div > div.project-children > div > div.Pane.vertical.Pane2 > div > div.widget-embedded > div > div:nth-child(1) > span').should('not.be.visible');
+        // cy.get('#render-target > div > div.project-children > div > div.Pane.vertical.Pane2 > div > div.widget-embedded > div > div:nth-child(1) > span').should('not.be.visible');
         cy.dataCy('restart-chat').click();
         cy.get('[data-cy=chat-language-option]').click();
         cy.get('[data-cy=chat-language-option] .visible.menu')
