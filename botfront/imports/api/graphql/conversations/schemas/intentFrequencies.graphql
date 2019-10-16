@@ -3,7 +3,6 @@ type Query {
         projectId: String!,
         from: Int = 0,
         to: Int,
-        position: Int = 1,
         exclude: [String] = [],
         only: [String] = [],
         first: Int,
