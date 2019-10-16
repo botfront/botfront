@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.2-ee.3](https://github.com/botfront/botfront/compare/v0.16.2-ee.2...v0.16.2-ee.3) (2019-10-16)
+
+
+### Bug Fixes
+
+* add test triggering the bug ([27a7a09](https://github.com/botfront/botfront/commit/27a7a09))
+* bug introduced with nlu import ([abd0b4b](https://github.com/botfront/botfront/commit/abd0b4b))
+* can't fetch entities when an nlu example has no entities key ([f4d78c1](https://github.com/botfront/botfront/commit/f4d78c1))
+* crash in NLU page after loading ([b559399](https://github.com/botfront/botfront/commit/b559399))
+* css for rasa-webchat ([882d2b9](https://github.com/botfront/botfront/commit/882d2b9))
+* disabled api dependant tests ([bf4b73b](https://github.com/botfront/botfront/commit/bf4b73b))
+* export test expects success msg on fail ([d644d07](https://github.com/botfront/botfront/commit/d644d07))
+* fixed empty stories not training ([b55453d](https://github.com/botfront/botfront/commit/b55453d))
+* force clicks on elements that may be hidden ([a695514](https://github.com/botfront/botfront/commit/a695514))
+* test failing to find .popup when slow ([242f104](https://github.com/botfront/botfront/commit/242f104))
+* update regex so it handle change of root url ([d4bd05f](https://github.com/botfront/botfront/commit/d4bd05f))
+* use data-cy instead of class names ([8a64aca](https://github.com/botfront/botfront/commit/8a64aca))
+* useEffect to update the group name on render ([4853ada](https://github.com/botfront/botfront/commit/4853ada))
+* webchat on firefox ([c644d16](https://github.com/botfront/botfront/commit/c644d16))
+
+
+### Tests
+
+* porting error messages and export link url ([f5ce211](https://github.com/botfront/botfront/commit/f5ce211))
+
+
+
 ### [0.16.2-ee.2](https://github.com/botfront/botfront/compare/v0.16.2-ee.1...v0.16.2-ee.2) (2019-10-10)
 
 
