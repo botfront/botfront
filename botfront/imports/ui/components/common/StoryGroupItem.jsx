@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Menu, Icon, Input, Loader, Confirm,
 } from 'semantic-ui-react';
@@ -24,6 +24,11 @@ function StoryGroupItem(props) {
     const [editing, setEditing] = useState(false);
     const [storyName, setStoryName] = useState(item[nameAccessor]);
     const [deletable, setDeletable] = useState(false);
+
+    useEffect(() => {
+        setStoryName(item[nameAccessor]);
+    }, [item]);
+
 
     function checkDeletable() {
         let originStoriesInTheGroup = false;
