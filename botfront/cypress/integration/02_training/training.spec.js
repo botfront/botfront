@@ -20,6 +20,7 @@ describe('Training', function() {
     }
 
     function testChat(lang, utterance, expectedResponse) {
+        cy.get('.new-message').should('not.have.class', 'disabled');
         cy.dataCy('open-chat').should('not.be.visible');
         cy.dataCy('restart-chat').click();
         cy.get('[data-cy=chat-language-option]').click();
