@@ -1,11 +1,7 @@
 import Conversations from '../conversations.model';
 
 const generateBucket = bounds => ({
-    case: {
-        $cond: [
-            { $and: bounds }, 1, 0,
-        ],
-    },
+    case: { $and: bounds },
     then: bounds[0].$gte[1].toString(),
 });
 

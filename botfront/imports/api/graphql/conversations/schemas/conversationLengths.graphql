@@ -1,8 +1,8 @@
 type Query {
-    conversationLengths(projectId: String!, from: Int = 0, to: Int): [ConversationLengths!]!
+    conversationLengths(projectId: String!, from: Int = 0, to: Int): [ConversationLength!]!
 }
 
-type ConversationLengths {
+type ConversationLength {
   length: Int,
   frequency: Float,
   count: Int,

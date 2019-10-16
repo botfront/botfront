@@ -1,0 +1,15 @@
+type Query {
+    conversationCounts(
+        projectId: String!,
+        from: Int,
+        to: Int,
+        nBuckets: Int = 7,
+    ): [ConversationCount!]!
+}
+
+type ConversationCount {
+    bucket: String,
+    count: Int,
+    engagements: Int,
+    proportion: Float,
+}

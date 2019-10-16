@@ -9,7 +9,7 @@ export default {
             return getConversationLengths(args);
         },
     },
-    ConversationLengths: {
+    ConversationLength: {
         length: (parent, args, context, info) => parent.length,
         frequency: (parent, args, context, info) => parent.frequency,
         count: (parent, args, context, info) => parent.count,

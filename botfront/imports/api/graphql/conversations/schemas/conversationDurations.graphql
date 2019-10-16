@@ -4,10 +4,10 @@ type Query {
         from: Int = 0,
         to: Int,
         cuttoffs: [Int] = [30, 60, 90, 120, 180],
-    ): [ConversationDurations!]!
+    ): [ConversationDuration!]!
 }
 
-type ConversationDurations {
+type ConversationDuration {
   duration: String,
   frequency: Float,
   count: Int,
