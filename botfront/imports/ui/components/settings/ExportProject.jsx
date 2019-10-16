@@ -36,12 +36,12 @@ const ExportProject = ({
                     to retry.
                 </p>),
         },
-        // {
-        //     key: 'rasa',
-        //     text: 'Export for Rasa/Rasa X',
-        //     value: 'rasa',
-        //     successText: 'Your project has been successfully exported for Rasa/Rasa X!',
-        // },
+        {
+            key: 'rasa',
+            text: 'Export for Rasa/Rasa X',
+            value: 'rasa',
+            successText: 'Your project has been successfully exported for Rasa/Rasa X!',
+        },
     ];
 
     const getLanguageOptions = () => (
@@ -86,11 +86,32 @@ const ExportProject = ({
         });
     };
 
+    const blobAndSaveYaml = (data, name) => {
+        const rasaComponentBlob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+        saveAs(rasaComponentBlob, `${projectId}_${name}.yaml`);
+    };
+
     const exportForRasa = () => {
         setLoading(true);
         console.log('----RASA EXPORT----');
         console.log(projectId);
         console.log(exportLanguage);
+
+        Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaData) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            console.log(rasaData);
+            const rasaComponentBlob = new Blob([rasaData.domain], { type: 'text/plain;charset=utf-8' });
+            saveAs(rasaComponentBlob, `${projectId}_'domain'.md`);
+            blobAndSaveYaml(rasaData.config, 'config');
+            blobAndSaveYaml(rasaData.nlu, 'nlu');
+            blobAndSaveYaml(rasaData.stories, 'stories');
+            blobAndSaveYaml(rasaData.endpoints, 'endpoints');
+            blobAndSaveYaml(rasaData.credentials, 'credentials');
+        });
+
         setExportSuccessful(true);
         setLoading(false);
     };
