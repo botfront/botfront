@@ -5,7 +5,11 @@ type Query {
         to: Int,
         position: Int = 1,
         exclude: [String] = [],
-        only: [String] = []
+        only: [String] = [],
+        first: Int,
+        last: Int,
+        beg: Int,
+        end: Int,
     ): [IntentFrequency!]!
 }
 

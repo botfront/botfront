@@ -109,7 +109,11 @@ function Analytics(props) {
     const renderIntentFrequencies = () => {
         const GET_INTENTS_FREQUENCIES = gql`
             query IntentFrequencies($projectId: String!) {
-                intentFrequencies(projectId: $projectId) {
+                intentFrequencies(
+                    projectId: $projectId,
+                    beg: 2,
+                    end: 2,
+                ) {
                     frequency
                     count
                     name
@@ -124,7 +128,7 @@ function Analytics(props) {
                     if (error) return `Error! ${error.message}`;
                     return (
                         <>
-                            <Message content='Most frequent user intents of 1st message' />
+                            <Message content='Most frequent user intents of 2nd message' />
                             <div style={{ height: 500 }}>
                                 <IntentFrequenciesWidget
                                     data={intentFrequencies.map(

@@ -3,22 +3,36 @@ import Conversations from '../conversations.model';
 const getExcludeClause = exclude => (
     (!exclude || !exclude.length)
         ? []
-        : [{ $not: { $in: ['$$event.parse_data.intent.name', exclude] } }]
+        : [{ intents: { $not: { $in: exclude } } }]
 );
 
 const getOnlyClause = only => (
     (!only || !only.length)
         ? []
-        : [{ $in: ['$$event.parse_data.intent.name', only] }]
+        : [{ intents: { $in: only } }]
 );
+
+const getSliceParams = ({
+    first, last, beg, end,
+}) => {
+    if (first) return [first];
+    if (last) return [-last];
+    if (beg && end) return [beg - 1, end - beg + 1];
+    if (beg) return [beg - 1, 10000];
+    if (end) return [end];
+    return [];
+};
 
 export const getIntentFrequencies = async ({
     projectId,
     from,
     to = new Date().getTime(),
-    position,
     only,
     exclude,
+    first,
+    last,
+    beg,
+    end,
 }) => Conversations.aggregate([
     {
         $match: {
@@ -39,39 +53,47 @@ export const getIntentFrequencies = async ({
     },
     {
         $project: {
-            'tracker.events': {
+            events: {
                 $filter: {
                     input: '$tracker.events',
                     as: 'event',
-                    cond: {
-                        $and: [
-                            { $eq: ['$$event.event', 'user'] },
-                            ...getExcludeClause(exclude),
-                            ...getOnlyClause(only),
-                        ],
-                    },
+                    cond: { $eq: ['$$event.event', 'user'] },
                 },
             },
         },
     },
+    ...((first || last || beg || end)
+        ? [{
+            $project: {
+                events: {
+                    $slice: ['$events', ...getSliceParams({
+                        first, last, beg, end,
+                    })],
+                },
+            },
+        }]
+        : []
+    ),
     {
-        $project: {
-            'tracker.events': { $arrayElemAt: ['$tracker.events', position] },
-        },
+        $unwind: '$events',
     },
     {
         $project: {
-            intent: '$tracker.events.parse_data.intent.name',
+            intents: '$events.parse_data.intent.name',
         },
     },
     {
         $match: {
-            intent: { $exists: true },
+            $and: [
+                { intents: { $exists: true } },
+                ...getExcludeClause(exclude),
+                ...getOnlyClause(only),
+            ],
         },
     },
     {
         $group: {
-            _id: '$intent',
+            _id: '$intents',
             count: {
                 $sum: 1,
             },
