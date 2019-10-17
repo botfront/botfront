@@ -20,13 +20,14 @@ describe('Training', function() {
     }
 
     function testChat(lang, utterance, expectedResponse) {
-        cy.get('.new-message').should('not.have.class', 'disabled');
         cy.dataCy('open-chat').should('not.be.visible');
         cy.dataCy('restart-chat').click();
         cy.get('[data-cy=chat-language-option]').click();
         cy.get('[data-cy=chat-language-option] .visible.menu')
             .contains(lang)
             .click();
+
+        cy.get('input.new-message').should('not.have.class', 'disabled');
         cy.get('input.new-message').click().type(`${utterance}{enter}`, { force: true });
         // Verify response
         cy.get('.conversation-container').contains(expectedResponse);
