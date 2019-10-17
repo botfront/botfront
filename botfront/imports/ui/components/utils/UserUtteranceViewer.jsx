@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import EntityPopup from '../example_editor/EntityPopup';
@@ -7,7 +8,7 @@ import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 
 function UserUtteranceViewer({
-    value, size, onChange, disableEditing,
+    value, size, onChange, disableEditing, projectId,
 }) {
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
@@ -271,6 +272,7 @@ function UserUtteranceViewer({
                         selection
                         key={element.start}
                         onAddOrChange={(_e, data) => handleAddEntity(data.value, element)}
+                        projectId={projectId}
                     />
                 );
             })}
@@ -293,6 +295,7 @@ UserUtteranceViewer.propTypes = {
     size: PropTypes.string,
     disableEditing: PropTypes.bool,
     onChange: PropTypes.func,
+    projectId: PropTypes.string.isRequired,
 };
 
 UserUtteranceViewer.defaultProps = {
@@ -301,4 +304,9 @@ UserUtteranceViewer.defaultProps = {
     onChange: () => {},
 };
 
-export default UserUtteranceViewer;
+
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(UserUtteranceViewer);

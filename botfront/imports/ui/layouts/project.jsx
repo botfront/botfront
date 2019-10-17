@@ -19,7 +19,6 @@ import { setProjectId } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
-import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import { GlobalSettings } from '../../api/globalSettings/globalSettings.collection';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
@@ -219,8 +218,7 @@ const ProjectContainer = withTracker((props) => {
     }
 
     if (project) {
-        const nluModelLanguages = getNluModelLanguages(project.nlu_models, true);
-        renderLegacyModels = project.nlu_models.length !== nluModelLanguages.length;
+        renderLegacyModels = false;
     }
 
     let channel = null;
