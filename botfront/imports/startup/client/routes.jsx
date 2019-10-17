@@ -20,6 +20,8 @@ import NLUModels from '../../ui/components/nlu/models/NLUModels';
 import SetupSteps from '../../ui/components/setup/SetupSteps';
 import Welcome from '../../ui/components/setup/Welcome';
 import Login from '../../ui/components/account/Login';
+import Incoming from '../../ui/components/incoming/Incoming';
+
 import { can, areScopeReady } from '../../lib/scopes';
 import AccountLayout from '../../ui/layouts/account';
 import NotFound from '../../ui/components/NotFound';
@@ -89,6 +91,7 @@ Meteor.startup(() => {
                             name='Conversations'
                             onEnter={authenticateProject}
                         />
+                        <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticateProject} />
