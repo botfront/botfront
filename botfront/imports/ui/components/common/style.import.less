@@ -65,6 +65,53 @@
     color: #828282 !important; //important is used by semantic-ui, making the usage of important the only way to overide it
     background-color: #f2f2f2 !important; //important is used by semantic-ui, making the usage of important the only way to overide it
     &:hover {
-        background-color:#f2f2f2; //important is used by semantic-ui, making the usage of important the only way to overide it
+    background-color: #f2f2f2; //important is used by semantic-ui, making the usage of important the only way to overide it
+  }
+}
+
+
+//Date picker related styling
+.date-picker .ui.menu:not(.vertical) .item > .button {
+  margin: 0rem 0.6rem;
+}
+
+.date-picker .ui.form .field {
+  margin: 0rem 1.5rem;
+  width: auto;
+}
+
+.date-picker .ui.secondary.menu {
+  margin-top: 0rem;
+}
+.date-picker .CalendarDay__selected_span,
+.date-picker .CalendarDay__selected_span:hover {
+  background: #ebf5fa;
+  color: #333333;
+  border: 1px solid #dfe3e8//background;
+}
+
+// Will edit selected date or the endpoints of a range of dates
+.date-picker .CalendarDay__selected {
+  background: #007ace;
+  color: white;
+  border: 1px solid #dfe3e8//ba;
+}
+
+// Will edit when hovered over. _span style also has this property
+.date-picker .CalendarDay__selected:hover {
+  background: #00558d;
+  color: white;
+  border: 1px solid #dfe3e8//background;
+}
+
+// Will edit when the second date (end date) in a range of dates
+// is not yet selected. Edits the dates between your mouse and said date
+.date-picker .CalendarDay__hovered_span:hover,
+.date-picker .CalendarDay__hovered_span {
+  background: #ebf5fa;
+  border: 1px solid #dfe3e8;
       } 
+
+.date-picker .CalendarMonth_table {
+  margin-top: 1rem;
 }
