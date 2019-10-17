@@ -62,5 +62,5 @@ storiesOf('Slot Label', module)
         </ConversationOptionsContext.Provider>
     ))
     .add('default', () => (
-        <SlotLabelWrapped size={select('size', ['mini', 'tiny'])} value={select('Selected slot', selected, null)} />
+        <SlotLabelWrapped value={select('Selected slot', selected, null)} />
     ));

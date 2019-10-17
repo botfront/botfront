@@ -2,15 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ActionPopupContent from './common/ActionPopupContent';
 
-export default function ActionLable({ value, onChange, size }) {
+export default function ActionLable({ value, onChange }) {
     return (
         <ActionPopupContent
             trigger={(
-                <div className='label-container action'>
-                    <div className={`${size}-label-text label-context action`}>
+                <div className='label-container orange'>
+                    <div>
                         action
                     </div>
-                    <div className={`${size}-label-value label-context action`}>
+                    <div>
                         {value}
                     </div>
                 </div>
@@ -23,10 +23,5 @@ export default function ActionLable({ value, onChange, size }) {
 
 ActionLable.propTypes = {
     value: PropTypes.string.isRequired,
-    size: PropTypes.string,
     onChange: PropTypes.func.isRequired,
-};
-
-ActionLable.defaultProps = {
-    size: 'mini',
 };

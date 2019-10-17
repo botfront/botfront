@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { withKnobs, select, text } from '@storybook/addon-knobs';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
 
-const color = {
+export const color = {
     red: 'red',
     orange: 'orange',
     yellow: 'yellow',
@@ -29,7 +29,7 @@ const size = {
     big: 'big',
     huge: 'huge',
     massive: 'massive',
-}
+};
 
 storiesOf('DashedButton', module)
     .addDecorator(withKnobs)

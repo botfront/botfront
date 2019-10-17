@@ -304,41 +304,22 @@
   line-height: 1;
   top: 0.09rem;
   line-height: 1;
-  margin: 0px 3px 0px 1px; 
-  .label-context {
-    display: inline-block;
-  }
-
-  .mini-label-text {
-    padding: 3px 3px 3px 6px;
-    font-weight: normal;
-    color: white;
-    font-size: inherit;
-  }
-
-  .tiny-label-text {
-    padding: 5px 5px 3px 10px;
-    font-weight: bold;
-    color: white;
-    font-size: inherit;
-  }
+  margin: 0px 3px 0px 1px;
   
-  .mini-label-value {
+  div {
+    display: inline-block;
     background-color: white;
     padding: 3px 6px 3px 3px;
-    border-radius: 0px 4px 4px 0px;
+    font-size: inherit;
     font-weight: normal;
-    color: @black;
-    font-size: inherit;
-  }
-  
-  .tiny-label-value {
-    background-color: white;
-    padding: 5px 10px 3px 5px;
-    border-radius: 0px 4px 4px 0px;
-    font-weight: bold;
-    color: @black;
-    font-size: inherit;
+    &:not(:first-of-type) {
+      border-radius: 0px 4px 4px 0px;
+      color: @black;
+    }
+    &:first-of-type {
+      padding: 3px 3px 3px 6px;
+      color: white;
+    }
   }
 
   .slot-content {
@@ -346,62 +327,25 @@
   }
 }
 
-.label-container.action {
-  border-color: @action-color; 
-  .mini-label-text.action {
-    background-color: @action-color;
+.createlabelcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
+  @name: extract(extract(@basic-colors, @i), 1);
+  @color: extract(extract(@basic-colors, @i), 2);
+
+  .label-container.@{name} {
+    border-color: @color;
+    div:first-of-type {
+      background-color: @color;
+    }
+    &:hover {
+      div:first-of-type {
+        background-color: darken(@color, 3%);
+      }
+    }
   }
-  .tiny-label-text.action {
-    background-color: @action-color;
-  }
+  .createlabelcolorclasses(@i + 1);
 }
 
-.label-container.action:hover {
-  .mini-label-text {
-    background-color: @action-hover;
-  }
-  .tiny-label-text {
-    background-color: @action-hover;
-  }
-}
-
-.label-container.bad-line {
-  border-color:  black;
-  .mini-label-text.bad-line {
-    background-color: black;
-  }
-  .tiny-label-text.bad-line {
-    background-color: black;
-  }
-}
-
-.label-container.bad-line:hover {
-  .mini-label-text {
-    background-color: black;
-  }
-  .tiny-label-text {
-    background-color: black;
-  }
-}
-
-.label-container.slot {
-  border-color: @slot-color; 
-  .mini-label-text.slot {
-    background-color: @slot-color;
-  }
-  .tiny-label-text.slot {
-    background-color: @slot-color;
-  }
-}
-
-.label-container.slot:hover {
-  .mini-label-text {
-    background-color: @slot-hover;
-  }
-  .tiny-label-text {
-    background-color: @slot-hover;
-  }
-}
+.createlabelcolorclasses();
 
 .stories-toggles {
   display: flex;

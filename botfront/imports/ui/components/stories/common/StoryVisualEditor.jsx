@@ -13,6 +13,7 @@ import SlotLabel from '../SlotLabel';
 import BadLineLabel from '../BadLineLabel';
 import { ConversationOptionsContext } from '../../utils/Context';
 import ExceptionWrapper from './ExceptionWrapper';
+import GenericLabel from '../GenericLabel';
 
 export const defaultTemplate = (template) => {
     if (template === 'text') {
@@ -241,6 +242,25 @@ class StoryVisualEditor extends React.Component {
         </React.Fragment>
     )
 
+    renderFormLine = (index, line, exceptions) => (
+        <React.Fragment key={`FormLine-${index}`}>
+            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+                <ExceptionWrapper exceptions={exceptions}>
+                    <GenericLabel
+                        label={line.gui.type}
+                        value={line.gui.data.name}
+                        color={line.gui.type === 'form' ? 'yellow' : 'olive'}
+                    />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(index)}
+                    />
+                </ExceptionWrapper>
+            </div>
+            {this.renderAddLine(index)}
+        </React.Fragment>
+    )
+
     render() {
         const { story, language } = this.props;
         const { menuCloser } = this.state;
@@ -272,25 +292,30 @@ class StoryVisualEditor extends React.Component {
                     </React.Fragment>
                 );
             }
-            if (exceptions.filter(({ type }) => (type === 'error')).length > 0) return this.renderBadLine(index, line, exceptions);
-            return (
-                <React.Fragment
-                    key={`user${
-                        line.md
-                            ? line.md
-                            : index
-                    }`}
-                >
-                    <UserUtteranceContainer
-                        exceptions={exceptions}
-                        value={line.gui.data[0]} // for now, data is a singleton
-                        onInput={v => this.handleSaveUserUtterance(index, v)}
-                        onDelete={() => this.handleDeleteLine(index)}
-                        onAbort={() => this.handleDeleteLine(index)}
-                    />
-                    {this.renderAddLine(index)}
-                </React.Fragment>
-            );
+            if (line.gui.type === 'user') {
+                return (
+                    <React.Fragment
+                        key={`user${
+                            line.md
+                                ? line.md
+                                : index
+                        }`}
+                    >
+                        <UserUtteranceContainer
+                            exceptions={exceptions}
+                            value={line.gui.data[0]} // for now, data is a singleton
+                            onInput={v => this.handleSaveUserUtterance(index, v)}
+                            onDelete={() => this.handleDeleteLine(index)}
+                            onAbort={() => this.handleDeleteLine(index)}
+                        />
+                        {this.renderAddLine(index)}
+                    </React.Fragment>
+                );
+            }
+            if (['form_decl', 'form'].includes(line.gui.type)) {
+                return this.renderFormLine(index, line, exceptions);
+            }
+            return this.renderBadLine(index, line, exceptions);
         });
 
         return (
