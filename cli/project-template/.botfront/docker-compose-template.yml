@@ -19,7 +19,7 @@ services:
     - .botfront/.env
     environment:
       PORT: 3000
-      
+
   botfront-api:
     image: botfront/botfront-api
     container_name: botfront-api
@@ -82,9 +82,9 @@ services:
     - "27017:27017"
     env_file:
       - .botfront/.env
-    
 
-networks: 
+
+networks:
   botfront-network: {}
 volumes:
   botfront-db:

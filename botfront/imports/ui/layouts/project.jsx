@@ -216,7 +216,7 @@ const ProjectContainer = withTracker((props) => {
     if (store.getState().settings.get('projectId') !== projectId) {
         store.dispatch(setProjectId(projectId));
     }
-    
+
     return {
         loading: !ready,
         projectId,
