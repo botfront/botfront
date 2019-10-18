@@ -353,21 +353,16 @@ describe('stories', function() {
     it('should be possible to self link when a story has branches', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('stories-linker')
-            .find('div')
-            .children()
-            .children()
+            .find('div.item')
             .should('have.lengthOf', 2);
         cy.dataCy('create-branch').click({ force: true });
-        cy.dataCy('stories-linker').should('exist');
+        cy.dataCy('branch-label').should('exist');
         cy.dataCy('stories-linker')
-            .find('div')
-            .children()
-            .children()
+            .find('div.item')
             .should('have.lengthOf', 3);
         cy.dataCy('stories-linker').click({ force: true });
         cy.dataCy('stories-linker')
-            .find('div')
-            .children()
+            .find('div.item')
             .eq(1)
             .click({ force: true });
         cy.dataCy('story-footer').should('have.class', 'linked');
