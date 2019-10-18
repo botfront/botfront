@@ -13,7 +13,8 @@ if (Meteor.isServer) {
             check(apiHost, String);
             check(projectId, String);
 
-            const exportRequest = axios.get(`${apiHost}/project/${projectId}/export`)
+            const exportRequest = axios.get(`${apiHost}/project/${projectId}/export`,
+                { params: { output: 'json' } })
                 .then(res => ({ data: JSON.stringify(res.data) }))
                 .catch(err => (
                     { error: { header: 'Export Failed', text: generateErrorText(err) } }
