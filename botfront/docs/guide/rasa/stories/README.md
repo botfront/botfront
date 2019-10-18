@@ -273,7 +273,7 @@ You may click on the **focus (eye)** icon which appears when you hover besides s
 
 ## Warnings and errors
 
-The display of warnings and errors is a very useful part of the story editor. It guides you when you write your stories for them to work properly, and prevents training if there's an error which would affect the model and the chat experience.
+The display of warnings and errors is a very useful part of the story editor. It guides you when you write your stories for them to work properly, and prevents training if there's an error that would affect the model and the chat experience.
 
 When there is a warning or an error, it is flagged on the corresponding line, and also indicated on the story header. When you hover over the icon, you get a suggestive explanation to resolve the issue.
 
@@ -292,8 +292,6 @@ An important part of developing and maintaining a Rasa virtual assistant is keep
 However, it’s not always possible to infer everything that needs to go into the domain. For example, you might need to invoke a custom action, which in turn invokes another action, or makes use of a slot.
 
 ![Default domain management](../../../images/default_domain_management_1.png)
-
-This new release introduces a dedicated place in your project to declare such actions or slots, the Default Domain.
 
 ## Botfront Disambiguation Policy
 
@@ -379,24 +377,6 @@ Dict (intent string -> language string -> string): localized representative butt
 The title for the 'Other' option is also defined here.
 
 :::
-
-### rasa_addons.core.policies.BotfrontMappingPolicy
-
-This policy implements regular expression-based direct mapping from intent to action.
-
-#### Example usage
-
-```
-policies:
-...
-  - name: rasa_addons.core.policies.BotfrontMappingPolicy
-    triggers:
-      - trigger: '^map\..+'
-        action: 'action_botfront_mapping'
-        extra_actions:
-          - 'action_myaction'
-...
-```
 
 #### ActionBotfrontMapping
 
