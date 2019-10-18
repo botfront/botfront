@@ -81,7 +81,8 @@ const ImportProject = ({
     };
 
     const backupProject = () => {
-        Meteor.call('exportProject', apiHost, projectId, (err, { data, error }) => {
+        const options = {};
+        Meteor.call('exportProject', apiHost, projectId, options, (err, { data, error }) => {
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
                 const filename = `BotfrontProjectBackup_${projectId}.json`;
