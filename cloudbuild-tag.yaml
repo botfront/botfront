@@ -3,24 +3,6 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",  "-t", "botfront-local", "."]
 
-# - name: 'gcr.io/kaniko-project/executor:latest'
-#   dir: /workspace/botfront/cypress
-#   args:
-#   - --dockerfile=Dockerfile_cypress  
-#   - --context=/workspace/botfront/cypress
-#   - --destination=gcr.io/$PROJECT_ID/cypress-runner:latest
-#   - --cache=true
-#   - --cache-ttl=24h
-
-# - name: 'gcr.io/kaniko-project/executor:latest'
-#   dir: /workspace/botfront/cypress
-#   args:
-#   - --dockerfile=Dockerfile_rasa
-#   - --context=/workspace/botfront/cypress
-#   - --destination=gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
-#   - --cache=true
-#   - --cache-ttl=24h
-
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: /workspace/botfront/cypress
   args:
@@ -36,6 +18,9 @@ steps:
   args: [ "tag", "botfront-local", "botfront/botfront:$TAG_NAME"]
 
 - name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",  "-t", "botfront/botfront-docs:$TAG_NAME", "-t", "botfront/botfront-docs:latest", "./botfront/docs"]
+
+- name: 'gcr.io/cloud-builders/docker'
   args: [ "login",
         "-u", "$_DOCKER_USERNAME",
         "-p", "$_DOCKER_PASSWORD",
@@ -46,6 +31,12 @@ steps:
 
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "push", "botfront/botfront:latest"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/botfront-docs:$TAG_NAME"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/botfront-docs:latest"]
 
 - name: 'gcr.io/cloud-builders/gcloud'
   args:

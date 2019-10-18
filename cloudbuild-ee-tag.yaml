@@ -25,12 +25,11 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "tag", "botfront-local", "gcr.io/${PROJECT_ID}/botfront:$TAG_NAME"]
 
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "tag", "botfront-local", "gcr.io/${PROJECT_ID}/botfront-docs:latest"]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "tag", "botfront-local", "gcr.io/botfront-cloud/botfront:latest"]
-
-- name: 'gcr.io/cloud-builders/docker'
-  args: [ "tag", "botfront-local", "gcr.io/botfront-cloud/botfront:$TAG_NAME"]
+  args: [ "tag", "botfront-local", "gcr.io/${PROJECT_ID}/botfront-docs:$TAG_NAME"]
 
 # - name: 'gcr.io/cloud-builders/kubectl'
 #   args:
@@ -48,6 +47,8 @@ steps:
 images:
 - "gcr.io/${PROJECT_ID}/botfront:latest"
 - "gcr.io/${PROJECT_ID}/botfront:$TAG_NAME"
+- "gcr.io/${PROJECT_ID}/botfront-docs:latest"
+- "gcr.io/${PROJECT_ID}/botfront-docs:$TAG_NAME"
 
 timeout: 60m
 options:

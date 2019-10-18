@@ -144,4 +144,28 @@ describe('story exceptions', function() {
             .type('- action_test');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
+
+    it('should not display errors if no intents in destinationStory', function() {
+        createTestStoryGroup();
+        cy.dataCy('add-story').click();
+        cy.get(
+            ':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content',
+        )
+            .find('.ace_line')
+            .click({ force: true });
+        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story')
+            .find('textarea')
+            .type('- action_test');
+        cy.dataCy('top-menu-warning-alert').should('exist');
+
+        cy.dataCy('stories-linker')
+            .first()
+            .click();
+        cy.dataCy('stories-linker')
+            .children()
+            .children()
+            .eq(3)
+            .click();
+        cy.dataCy('top-menu-warning-alert').should('not.exist');
+    });
 });

@@ -5,22 +5,13 @@ steps:
 - name: 'gcr.io/kaniko-project/executor:latest'
   dir: /workspace/botfront/cypress
   args:
-  - --dockerfile=Dockerfile_cypress  
+  - --dockerfile=Dockerfile_cypress
   - --context=/workspace/botfront/cypress
   - --destination=gcr.io/$PROJECT_ID/cypress-runner:latest
   - --cache=true
   - --cache-ttl=24h
 
-# - name: 'gcr.io/kaniko-project/executor:latest'
-#   dir: /workspace/botfront/cypress
-#   args:
-#   - --dockerfile=Dockerfile_rasa
-#   - --context=/workspace/botfront/cypress
-#   - --destination=gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
-#   - --cache=true
-#   - --cache-ttl=24h
-
-- name: gcr.io/$PROJECT_ID/docker-compose
+- name: docker.io/docker/compose:1.24.1
   dir: /workspace/botfront/cypress
   args:
     - up
@@ -31,7 +22,15 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "tag", "botfront-local", "botfront/botfront:branch-$BRANCH_NAME"]
 
+- name: 'gcr.io/cloud-builders/npm'
+  dir: './botfront'
+  args: [ "run",  "docs:build"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",  "-t", "gcr.io/${PROJECT_ID}/botfront-docs:$BRANCH_NAME", "./botfront/docs"]
+
 images:
 - "gcr.io/${PROJECT_ID}/botfront:$BRANCH_NAME"
+- "gcr.io/${PROJECT_ID}/botfront-docs:$BRANCH_NAME"
 
 timeout: 120m

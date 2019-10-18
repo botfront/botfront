@@ -11,7 +11,7 @@ steps:
   - --cache=true
   - --cache-ttl=24h
 
-- name: gcr.io/$PROJECT_ID/docker-compose
+- name: docker.io/docker/compose:1.24.1
   dir: /workspace/botfront/cypress
   args:
     - up
@@ -19,7 +19,7 @@ steps:
     - --exit-code-from
     - e2e
 
-timeout: 120m
+timeout: 7200s
 
 images:
     - gcr.io/$PROJECT_ID/cypress-runner:latest

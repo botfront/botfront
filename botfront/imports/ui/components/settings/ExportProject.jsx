@@ -6,7 +6,7 @@ import { Meteor } from 'meteor/meteor';
 import { saveAs } from 'file-saver';
 
 import {
-    Dropdown, Button, Message, Icon,
+    Dropdown, Button, Message, Icon, Checkbox,
 } from 'semantic-ui-react';
 
 import { Projects } from '../../../api/project/project.collection';
@@ -21,6 +21,7 @@ const ExportProject = ({
     const [exportLanguage, setExportLanguage] = useState('');
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState({ header: 'Export Failed', text: 'There was an unexpected error in the api request.' });
+    const [includeConversations, setIncludeConversations] = useState(true);
 
     const exportTypeOptions = [
         {
@@ -64,7 +65,8 @@ const ExportProject = ({
 
     const exportForBotfront = () => {
         setLoading(true);
-        Meteor.call('exportProject', apiHost, projectId, (err, { data, error }) => {
+        const exportOptions = { conversations: includeConversations };
+        Meteor.call('exportProject', apiHost, projectId, exportOptions, (err, { data, error }) => {
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
                 const filename = `BotfrontProject_${projectId}.json`;
@@ -138,6 +140,18 @@ const ExportProject = ({
                 onChange={handleDropdownOnChange}
             />
             <br />
+            {exportType.value === 'botfront' && (
+                <>
+                    <Checkbox
+                        toggle
+                        checked={includeConversations}
+                        onChange={() => { setIncludeConversations(!includeConversations); }}
+                        label='Export Conversations'
+                        className='export-option'
+                    />
+                    <br />
+                </>
+            )}
             {exportType.value === 'rasa' && (
                 <>
                     <Dropdown
