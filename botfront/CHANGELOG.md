@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.3-ee.1](https://github.com/botfront/botfront/compare/v0.16.2-ee.6...v0.16.3-ee.1) (2019-10-18)
+
+
+### Bug Fixes
+
+* destination stories don't trigger warnings if no intent ([2dd38a8](https://github.com/botfront/botfront/commit/2dd38a8))
+
+
+### Features
+
+* add option to export conversations ([f82ecee](https://github.com/botfront/botfront/commit/f82ecee))
+* add test triggering the bug ([2e1dc3e](https://github.com/botfront/botfront/commit/2e1dc3e))
+* conversation environement selector ui ([15472b3](https://github.com/botfront/botfront/commit/15472b3))
+* corrections following tests ([532a336](https://github.com/botfront/botfront/commit/532a336))
+* environement selector in conversations ([0e958bd](https://github.com/botfront/botfront/commit/0e958bd))
+* export request optional and default settings ([6cfa259](https://github.com/botfront/botfront/commit/6cfa259))
+* self link when a story has branches ([63d67e5](https://github.com/botfront/botfront/commit/63d67e5))
+* test to self link on stories with branches ([c68969f](https://github.com/botfront/botfront/commit/c68969f))
+* tests for multi environments in conversations ([ba98e92](https://github.com/botfront/botfront/commit/ba98e92))
+
+
+
 ### [0.16.2-ee.6](https://github.com/botfront/botfront/compare/v0.16.2-ee.5...v0.16.2-ee.6) (2019-10-17)
 
 
