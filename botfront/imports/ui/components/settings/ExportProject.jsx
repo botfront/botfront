@@ -96,13 +96,13 @@ const ExportProject = ({
                 return;
             }
             import('../utils/ZipFolder').then(({ ZipFolder }) => {
-                const rasaZip = new ZipFolder(`${projectId}_`);
+                const rasaZip = new ZipFolder();
                 rasaZip.addFile(rasaData.config, 'config.yaml');
-                rasaZip.addFile(rasaData.nlu, 'nlu.yaml');
-                rasaZip.addFile(rasaData.stories, 'stories.yaml');
+                rasaZip.addFile(rasaData.nlu, 'data/nlu.md');
+                rasaZip.addFile(rasaData.stories, 'data/stories.md');
                 rasaZip.addFile(rasaData.endpoints, 'endpoints.yaml');
                 rasaZip.addFile(rasaData.credentials, 'credentials.yaml');
-                rasaZip.addFile(rasaData.domain, 'credentials.md');
+                rasaZip.addFile(rasaData.domain, 'domain.yaml');
                 rasaZip.downloadAs(`${projectId}_RasaExport`, () => {
                     setExportSuccessful(true);
                     setLoading(false);
