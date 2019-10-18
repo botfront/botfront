@@ -41,6 +41,7 @@ module.exports = {
                 children: [
                     '/guide/getting-started/setup',
                     '/guide/getting-started/quick-start',
+                    '/guide/getting-started/import-export',
                     '/guide/getting-started/cli',
                 ],
             },
