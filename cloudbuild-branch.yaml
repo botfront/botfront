@@ -11,15 +11,6 @@ steps:
   - --cache=true
   - --cache-ttl=24h
 
-# - name: 'gcr.io/kaniko-project/executor:latest'
-#   dir: /workspace/botfront/cypress
-#   args:
-#   - --dockerfile=Dockerfile_rasa
-#   - --context=/workspace/botfront/cypress
-#   - --destination=gcr.io/$PROJECT_ID/rasa-for-botfront-ci:latest
-#   - --cache=true
-#   - --cache-ttl=24h
-
 - name: docker.io/docker/compose:1.24.1
   dir: /workspace/botfront/cypress
   args:
