@@ -1,21 +1,17 @@
 import {
-    Container, Button, Tab, Message, Loader,
+    Container, Tab, Message, Loader,
 } from 'semantic-ui-react';
-import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useEffect, useContext } from 'react';
+import React from 'react';
 import { Query } from 'react-apollo';
 
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
 import ReactTable from 'react-table';
-import ConversationLengthsWidget from '../charts/ConversationLengthsPieWidget';
-import ConversationLengthsBarWidget from '../charts/ConversationLengthsBarsWidget';
-import ConversationDurationsBarWidget from '../charts/ConversationDurationsBarsWidget';
-import IntentFrequenciesWidget from '../charts/IntentsFrequenciesWidget';
+import PieChart from '../charts/PieChart';
+import BarChart from '../charts/BarChart';
 
 function Analytics(props) {
     const { projectId } = props;
-    const [errors, setErrors] = useState([]);
 
     const renderConversationLengths = () => {
         const GET_CONVERSATIONS_LENGTH = gql`
@@ -27,6 +23,9 @@ function Analytics(props) {
                 }
             }
         `;
+        const params = {
+            x: 'length', y: 'count', relY: 'frequency',
+        };
 
         return (
             <Query query={GET_CONVERSATIONS_LENGTH} variables={{ projectId }}>
@@ -36,41 +35,20 @@ function Analytics(props) {
                     return (
                         <>
                             <Message content='# of user messages sent by conversation' />
-                            <div style={{ height: 500 }}>
-                                <ConversationLengthsWidget
-                                    data={conversationLengths.map(
-                                        ({ length, frequency, count }) => ({
-                                            id: length,
-                                            label: length,
-                                            strValue: `${(frequency * 100).toFixed(
-                                                2,
-                                            )}% (${count})`,
-                                            value: (frequency * 100).toFixed(2),
-                                        }),
-                                    )}
+                            <div style={{ height: 300 }}>
+                                <PieChart
+                                    data={conversationLengths}
+                                    {...params}
                                 />
                             </div>
                             <br />
-                            <div style={{ height: 500 }}>
-                                <ConversationLengthsBarWidget
-                                    data={conversationLengths.map(
-                                        ({ length, count, frequency }) => ({
-                                            count,
-                                            length,
-                                        }),
-                                    )}
-                                    keys={['count']}
-                                    width={900}
-                                    height={500}
-                                    margin={{
-                                        top: 40,
-                                        right: 80,
-                                        bottom: 80,
-                                        left: 80,
-                                    }}
+                            <div style={{ height: 300 }}>
+                                <BarChart
+                                    data={conversationLengths}
+                                    {...params}
                                 />
                             </div>
-                            <ReactTable
+                            {/* <ReactTable
                                 data={conversationLengths.map(i => ({
                                     ...i,
                                     frequency: `${(i.frequency * 100).toFixed(2)}%`,
@@ -97,7 +75,7 @@ function Analytics(props) {
                                         Header: 'Frequency',
                                     },
                                 ]}
-                            />
+                            /> */}
                             <br />
                         </>
                     );
@@ -121,6 +99,10 @@ function Analytics(props) {
             }
         `;
 
+        const params = {
+            x: 'name', y: 'count', relY: 'frequency',
+        };
+
         return (
             <Query query={GET_INTENTS_FREQUENCIES} variables={{ projectId }}>
                 {({ loading, error, data: { intentFrequencies } }) => {
@@ -129,18 +111,10 @@ function Analytics(props) {
                     return (
                         <>
                             <Message content='Most frequent user intents of 2nd message' />
-                            <div style={{ height: 500 }}>
-                                <IntentFrequenciesWidget
-                                    data={intentFrequencies.map(
-                                        ({ name, frequency, count }) => ({
-                                            id: name,
-                                            label: name,
-                                            strValue: `${(frequency * 100).toFixed(
-                                                2,
-                                            )}% (${count})`,
-                                            value: (frequency * 100).toFixed(2),
-                                        }),
-                                    )}
+                            <div style={{ height: 300 }}>
+                                <PieChart
+                                    data={intentFrequencies}
+                                    {...params}
                                 />
                             </div>
                         </>
@@ -159,6 +133,10 @@ function Analytics(props) {
             }
         `;
 
+        const params = {
+            x: 'duration', y: 'count', relY: 'frequency',
+        };
+
         return (
             <Query query={GET_CONVERSATION_DURATIONS} variables={{ projectId }}>
                 {({ loading, error, data: { conversationDurations } }) => {
@@ -168,17 +146,10 @@ function Analytics(props) {
                         <>
                             {' '}
                             <Message content='# of conversations by duration' />
-                            <div style={{ height: 500 }}>
-                                <ConversationDurationsBarWidget
+                            <div style={{ height: 300 }}>
+                                <BarChart
                                     data={conversationDurations}
-                                    width={900}
-                                    height={500}
-                                    margin={{
-                                        top: 40,
-                                        right: 80,
-                                        bottom: 80,
-                                        left: 80,
-                                    }}
+                                    {...params}
                                 />
                             </div>
                         </>

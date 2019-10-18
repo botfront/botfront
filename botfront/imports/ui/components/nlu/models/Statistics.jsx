@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { Statistic, Tab, Grid } from 'semantic-ui-react';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-import IntentDistributionWidget from '../../charts/IntentDistributionWidget';
-import EntityDistributionWidget from '../../charts/EntityDistributionWidget';
+import PieChart from '../../charts/PieChart';
 
 export default class Statistics extends React.Component {
     renderStatistics() {
@@ -46,12 +45,14 @@ export default class Statistics extends React.Component {
                     if (loading) return 'Loading...';
                     if (error) return `Error! ${error.message}`;
                     return (
-                        <EntityDistributionWidget
+                        <PieChart
                             data={entityDistribution.map(({ entity, count }) => ({
                                 id: entity,
                                 label: entity,
                                 value: count,
                             }))}
+                            sliceLabel={null}
+                            radialLabel={null}
                         />
                     );
                 }}
@@ -76,12 +77,14 @@ export default class Statistics extends React.Component {
                     if (loading) return 'Loading...';
                     if (error) return `Error! ${error.message}`;
                     return (
-                        <IntentDistributionWidget
+                        <PieChart
                             data={intentDistribution.map(({ intent, count }) => ({
                                 id: intent,
                                 label: intent,
                                 value: count,
                             }))}
+                            sliceLabel={null}
+                            radialLabel={null}
                         />
                     );
                 }}
