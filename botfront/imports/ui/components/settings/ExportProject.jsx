@@ -65,7 +65,7 @@ const ExportProject = ({
 
     const exportForBotfront = () => {
         setLoading(true);
-        const exportOptions = { includeConversations };
+        const exportOptions = { conversations: includeConversations };
         Meteor.call('exportProject', apiHost, projectId, exportOptions, (err, { data, error }) => {
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });

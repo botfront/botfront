@@ -14,14 +14,14 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(options, Object);
 
-            const includeConversations = options.includeConversations !== undefined
-                ? options.includeConversations
-                : true;
-            check(includeConversations, Boolean);
+            const params = { ...options };
+            params.output = 'json';
+            console.log(params);
+
 
             const exportRequest = axios.get(
                 `${apiHost}/project/${projectId}/export`,
-                { params: { includeConversations: options.includeConversations } },
+                { params },
             )
                 .then(res => ({ data: JSON.stringify(res.data) }))
                 .catch(err => (
