@@ -29,6 +29,7 @@ It is very important to set the language you want to use, even if you only have 
   })
 </script>
 ```
+
 ### Multilingual sites
 
 If your website supports several languages, you can translate your bot in Botfront and initialize the widget with the current selected language.
@@ -74,6 +75,20 @@ rasa_addons.core.channels.webchat.WebchatInput:
   socket_path: '/socket.io/'
 ```
 
+### rasa_addons.core.channels.rest.RestInput
+
+#### Example usage
+
+```yaml
+credentials:
+...
+rasa_addons.core.channels.webchat.WebchatInput:
+  session_persistence: true
+  base_url: {{rasa_url}}
+  socket_path: '/socket.io/'
+...
+```
+
 <!-- ## Facebook
 
 ::: warning
@@ -104,6 +119,7 @@ You need special permissions to access profile info (except first and last name)
 ::: warning IMPORTANT
 You must restart Rasa Core for your changes to take effect. If you are running Botfront with **docker-compose** you can run `docker-compose restart core`
 ::: -->
+
 ## Endpoints
 
 Endpoints let you define how your Rasa instance communicates with`:
@@ -152,5 +168,3 @@ tracker_store:
   max_events: < Maximum number of events kept in memory >
   tracker_persist_time: < Delay of inactivity before the conversation gets removed from memory >
 ```
-
-

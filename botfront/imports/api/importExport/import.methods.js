@@ -20,7 +20,7 @@ if (Meteor.isServer) {
             )
                 .then(res => (generateImportResponse(res.status)))
                 .catch(err => (
-                    { error: { header: 'Export Failed', text: generateErrorText(err) } }
+                    { error: { header: 'Import Failed', text: generateErrorText(err) } }
                 ));
 
             return importRequest;
