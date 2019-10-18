@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.3](https://github.com/botfront/botfront/compare/v0.16.2...v0.16.3) (2019-10-18)
+
+
+### Bug Fixes
+
+* add test triggering the bug ([27a7a09](https://github.com/botfront/botfront/commit/27a7a09))
+* bug introduced with nlu import ([abd0b4b](https://github.com/botfront/botfront/commit/abd0b4b))
+* can't fetch entities when an nlu example has no entities key ([f4d78c1](https://github.com/botfront/botfront/commit/f4d78c1))
+* crash in NLU page after loading ([b559399](https://github.com/botfront/botfront/commit/b559399))
+* css for rasa-webchat ([882d2b9](https://github.com/botfront/botfront/commit/882d2b9))
+* destination stories don't trigger warnings if no intent ([2dd38a8](https://github.com/botfront/botfront/commit/2dd38a8))
+* disabled api dependant tests ([bf4b73b](https://github.com/botfront/botfront/commit/bf4b73b))
+* export test expects success msg on fail ([d644d07](https://github.com/botfront/botfront/commit/d644d07))
+* fixed empty stories not training ([b55453d](https://github.com/botfront/botfront/commit/b55453d))
+* force clicks on elements that may be hidden ([a695514](https://github.com/botfront/botfront/commit/a695514))
+* test failing to find .popup when slow ([242f104](https://github.com/botfront/botfront/commit/242f104))
+* use data-cy instead of class names ([8a64aca](https://github.com/botfront/botfront/commit/8a64aca))
+* useEffect to update the group name on render ([4853ada](https://github.com/botfront/botfront/commit/4853ada))
+* webchat on firefox ([c644d16](https://github.com/botfront/botfront/commit/c644d16))
+
+
+### Features
+
+* add option to export conversations ([f82ecee](https://github.com/botfront/botfront/commit/f82ecee))
+* add test triggering the bug ([2e1dc3e](https://github.com/botfront/botfront/commit/2e1dc3e))
+* export request optional and default settings ([6cfa259](https://github.com/botfront/botfront/commit/6cfa259))
+* self link when a story has branches ([63d67e5](https://github.com/botfront/botfront/commit/63d67e5))
+* test to self link on stories with branches ([c68969f](https://github.com/botfront/botfront/commit/c68969f))
+
+
+### Tests
+
+* fixed test for exceptions in story branches ([9f32c31](https://github.com/botfront/botfront/commit/9f32c31))
+* porting error messages and export link url ([f5ce211](https://github.com/botfront/botfront/commit/f5ce211))
+
+
+
 ### [0.16.2](https://github.com/botfront/botfront/compare/v0.16.0-rc.13...v0.16.2) (2019-10-10)
 
 
