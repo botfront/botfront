@@ -350,6 +350,32 @@ describe('stories', function() {
             .should('have.text', 'Greetings');
     });
 
+    it('should be possible to self link when a story has branches', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .children()
+            .should('have.lengthOf', 2);
+        cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('stories-linker').should('exist');
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .children()
+            .should('have.lengthOf', 3);
+        cy.dataCy('stories-linker').click({ force: true });
+        cy.dataCy('stories-linker')
+            .find('div')
+            .children()
+            .eq(1)
+            .click({ force: true });
+        cy.dataCy('story-footer').should('have.class', 'linked');
+        cy.dataCy('story-footer')
+            .find('div.active')
+            .should('have.text', 'Get started');
+    });
+
     it('should disable the delete button in the branch tab for a linked branch and its parent branches', function () {
         cy.visit('/project/bf/stories');
         cy.dataCy('create-branch').click({ force: true });
