@@ -75,7 +75,7 @@ class ConversationViewer extends React.Component {
                 </Segment>
             );
         }
-            
+
         return (
             <Segment style={style} attached>
                 {active === 'Text' && <ConversationDialogueViewer tracker={tracker.tracker} mode='text' />}
@@ -141,7 +141,7 @@ const ConversationViewerContainer = withTracker((props) => {
     if (conversationDetailsHandler.ready()) {
         conversation = Conversations.findOne(conversationId);
         if (!conversation) {
-            browserHistory.replace({ pathname: `/project/${projectId}/dialogue/conversations/p/1` });
+            browserHistory.replace({ pathname: `/project/${projectId}/dialogue/conversations/env/development/p/1` });
         }
     }
 
