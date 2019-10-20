@@ -150,15 +150,16 @@ describe('story exceptions', function() {
             .find('textarea')
             .type('- action_test');
         cy.dataCy('top-menu-warning-alert').should('exist');
-
         cy.dataCy('stories-linker')
             .first()
             .click();
         cy.dataCy('stories-linker')
-            .children()
-            .children()
+            .find('div.item')
             .eq(3)
             .click();
+        cy.dataCy('stories-linker')
+            .first()
+            .should('contains.text', 'excpetion test 2');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
 });
