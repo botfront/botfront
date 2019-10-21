@@ -541,7 +541,7 @@ export const dataPresets = {
 storiesOf('PieChart', module)
     .addDecorator(withKnobs)
     .add('default', () => (
-        <div style={{ height: 400 }}>
+        <div style={{ height: '80vh' }}>
             <PieChart
                 {...select('data', dataPresets, dataPresets.intentFrequencies)}
             />

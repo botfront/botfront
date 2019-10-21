@@ -7,7 +7,7 @@ import { dataPresets } from './PieChart.stories';
 storiesOf('LineChart', module)
     .addDecorator(withKnobs)
     .add('default', () => (
-        <div style={{ height: 400 }}>
+        <div style={{ height: '80vh' }}>
             <LineChart
                 {...select('data', dataPresets, dataPresets.intentFrequencies)}
             />

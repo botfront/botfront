@@ -7,7 +7,7 @@ import { dataPresets } from './PieChart.stories';
 storiesOf('BarChart', module)
     .addDecorator(withKnobs)
     .add('default', () => (
-        <div style={{ height: 400 }}>
+        <div style={{ height: '80vh' }}>
             <BarChart
                 {...select('data', dataPresets, dataPresets.intentFrequencies)}
             />
