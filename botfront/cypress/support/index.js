@@ -425,66 +425,56 @@ Cypress.Commands.add('removeTestConversationEnv', (id) => {
 });
 
 Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = null) => {
-    let envToSet = `'${env}'`;
-    if (env === null) {
-        envToSet = null;
-    }
+    const body = JSON.stringify({
+        conversations: [{
+            _id: id,
+            env,
+            tracker: {
+                events: [
 
-    const commandToAddConversation = `mongo bf --host localhost:27017 --eval "db.conversations.insert({
-        _id:'${id}',
-        env:${envToSet},
-        tracker:{
-           events:[
-
-           ],
-           slots:{
-              latest_response_name:null,
-              followup_response_name:null,
-              parse_data:null
-           },
-           latest_input_channel:'socketio',
-           paused:false,
-           followup_action:null,
-           latest_message:{
-              text:'/get_started',
-              entities:[
+                ],
+                slots: {
+                    latest_response_name: null,
+                    followup_response_name: null,
+                    parse_data: null,
+                },
+                latest_input_channel: 'socketio',
+                paused: false,
+                followup_action: null,
+                latest_message: {
+                    text: '/get_started',
+                    entities: [
      
-              ],
-              intent_ranking:[
-                 {
-                    name:'get_started',
-                    confidence:{
-                       '$numberInt':'1'
-                    }
-                 }
-              ],
-              intent:{
-                 name:'get_started',
-                 confidence:{
-                    '$numberInt':'1'
-                 }
-              }
-           },
-           sender_id:'6f1800deea7f469b8dafd928f092a280',
-           latest_event_time:{
-              '$numberDouble':'1551194858.7705371'
-           },
-           latest_action_name:'action_listen'
-        },
-        status:'read',
-        projectId:'${projectId}',
-        createdAt:{
-           '$date':{
-              '$numberLong':'1551194858732'
-           }
-        },
-        updatedAt:{
-           '$date':{
-              '$numberLong':'1551194858788'
-           }
-        }
-    });"`;
-    cy.exec(commandToAddConversation);
+                    ],
+                    intent_ranking: [
+                        {
+                            name: 'get_started',
+                            confidence: 1,
+                        },
+                    ],
+                    intent: {
+                        name: 'get_started',
+                        confidence: 1,
+                    },
+                },
+                sender_id: '6f1800deea7f469b8dafd928f092a280',
+                latest_event_time: '2019-10-08T18:52:46.343Z',
+                latest_action_name: 'action_listen',
+            },
+            status: 'read',
+            projectId,
+            createdAt: '2019-10-08T18:52:46.343Z',
+            updatedAt: '2019-10-08T18:52:46.343Z',
+        }],
+        processNlu: true,
+    });
+
+    cy.request({
+        method: 'POST',
+        url: `http://localhost:8080/conversations/bf/environment/${env}?apiKey=`,
+        headers: { 'Content-Type': 'application/json' },
+        body,
+    });
 });
 
 Cypress.Commands.add('removeTestConversation', () => {
