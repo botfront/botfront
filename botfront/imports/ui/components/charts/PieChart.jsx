@@ -1,16 +1,22 @@
 import { ResponsivePie } from '@nivo/pie';
 import React from 'react';
+import { Icon } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
 function PieChart(props) {
     const {
-        data, margin, radialLabel, sliceLabel, x, y, relY,
+        data, margin, radialLabel, sliceLabel, tooltip, x, y, relY,
     } = props;
 
     const nivoData = data
-        .map(d => ({ x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(), y: d[y], relY: (d[relY] * 100).toFixed(2) }))
         .map(d => ({
-            ...d, id: d.x, label: d.x, value: d.y,
+            ...d,
+            x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
+            y: d[y[0]],
+            relY: (d[relY] * 100).toFixed(2),
+        }))
+        .map(d => ({
+            ...d, id: d.x, value: d.y,
         }));
 
     return (
@@ -21,13 +27,14 @@ function PieChart(props) {
                 innerRadius={0.5}
                 padAngle={0.7}
                 cornerRadius={3}
-                colors={{ scheme: 'nivo' }}
+                colors={{ scheme: 'blues' }}
                 borderWidth={1}
                 borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
                 sliceLabel={sliceLabel}
                 radialLabel={radialLabel}
-                radialLabelsSkipAngle={10}
-                slicesLabelsSkipAngle={10}
+                tooltip={tooltip}
+                radialLabelsSkipAngle={15}
+                slicesLabelsSkipAngle={15}
                 animate
                 motionStiffness={90}
                 motionDamping={15}
@@ -37,12 +44,13 @@ function PieChart(props) {
 }
 
 PieChart.propTypes = {
-    data: PropTypes.object.isRequired,
+    data: PropTypes.array.isRequired,
     margin: PropTypes.object,
     radialLabel: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     sliceLabel: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    x: PropTypes.string,
-    y: PropTypes.string,
+    tooltip: PropTypes.func,
+    x: PropTypes.string.isRequired,
+    y: PropTypes.array.isRequired,
     relY: PropTypes.string,
 };
 
@@ -54,7 +62,18 @@ PieChart.defaultProps = {
         left: 30,
     },
     sliceLabel: 'x',
-    radialLabel: (d => `${d.relY}% (${d.y})`),
+    radialLabel: d => `${d.relY}% (${d.y})`,
+    tooltip: d => (
+        <div>
+            <strong>{d.x}</strong>
+            <div>
+                <span style={{ color: d.color }}>
+                    <Icon name='square' />
+                </span>
+                {`${d.relY}% (${d.y})`}
+            </div>
+        </div>
+    ),
 };
 
 export default PieChart;

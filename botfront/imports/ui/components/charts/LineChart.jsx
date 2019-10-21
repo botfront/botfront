@@ -1,35 +1,36 @@
-import { ResponsiveBar } from '@nivo/bar';
+import { ResponsiveLine } from '@nivo/line';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function BarChart(props) {
+function LineChart(props) {
     const {
-        data, margin, x, y, relY, tooltip, label,
+        data, margin, x, y, tooltip, label,
     } = props;
 
-    const nivoData = data
-        .map(d => ({
-            ...d,
-            x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
-            y: d[y[0]],
-            relY: (d[relY] * 100).toFixed(2),
+    const nivoData = y
+        .map(measure => ({
+            id: measure,
+            data: data.map(d => ({
+                ...d,
+                x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
+                y: d[measure],
+            })),
         }));
 
     return (
         <>
-            <ResponsiveBar
+            <ResponsiveLine
                 data={nivoData}
-                indexBy='x'
-                keys={y}
                 margin={margin}
                 padding={0.3}
                 colors='#1f77b4'
                 borderWidth={1}
                 borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
-                tooltip={tooltip}
-                label={label}
-                labelSkipWidth={16}
-                labelSkipHeight={16}
+                useMesh
+                // tooltip={tooltip}
+                // label={label}
+                // labelSkipWidth={16}
+                // labelSkipHeight={16}
                 animate
                 motionStiffness={90}
                 motionDamping={15}
@@ -38,25 +39,24 @@ function BarChart(props) {
     );
 }
 
-BarChart.propTypes = {
+LineChart.propTypes = {
     data: PropTypes.array.isRequired,
     margin: PropTypes.object,
     label: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     tooltip: PropTypes.func,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
-    relY: PropTypes.string,
 };
 
-BarChart.defaultProps = {
+LineChart.defaultProps = {
     margin: {
         top: 30,
         right: 30,
         bottom: 30,
         left: 60,
     },
-    label: ({ data: d }) => '', // disable label
-    tooltip: ({ data: d }) => ( // input format different from PieChart...
+    label: ({ data: d }) => null,
+    tooltip: ({ data: d }) => (
         <div>
             <strong>{d.x}</strong>
             <div>
@@ -66,4 +66,4 @@ BarChart.defaultProps = {
     ),
 };
 
-export default BarChart;
+export default LineChart;

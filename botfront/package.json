@@ -29,6 +29,7 @@
     "@babel/runtime": "^7.4.5",
     "@google-cloud/storage": "^2.4.2",
     "@nivo/bar": "^0.59.2",
+    "@nivo/line": "^0.59.3",
     "@nivo/pie": "^0.59.1",
     "apollo-boost": "^0.4.3",
     "apollo-server-express": "^2.8.1",

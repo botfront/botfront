@@ -6,29 +6,37 @@ import { Query } from 'react-apollo';
 
 import { connect } from 'react-redux';
 import gql from 'graphql-tag';
-import ReactTable from 'react-table';
+// import ReactTable from 'react-table';
 import PieChart from '../charts/PieChart';
 import BarChart from '../charts/BarChart';
+import LineChart from '../charts/LineChart';
 
 function Analytics(props) {
     const { projectId } = props;
 
+    const from = 1564580540;
+    const to = 1564780540;
+
     const renderConversationLengths = () => {
         const GET_CONVERSATIONS_LENGTH = gql`
-            query ConversationLengths($projectId: String!) {
-                conversationLengths(projectId: $projectId) {
-                    frequency
-                    count
+            query ConversationLengths($projectId: String!, $from: Int, $to: Int) {
+                conversationLengths(
+                    projectId: $projectId,
+                    from: $from,
+                    to: $to,
+                ) {
+                    frequency,
+                    count,
                     length
                 }
             }
         `;
         const params = {
-            x: 'length', y: 'count', relY: 'frequency',
+            x: 'length', y: ['count'], relY: 'frequency',
         };
 
         return (
-            <Query query={GET_CONVERSATIONS_LENGTH} variables={{ projectId }}>
+            <Query query={GET_CONVERSATIONS_LENGTH} variables={{ projectId, from, to }}>
                 {({ loading, error, data: { conversationLengths } }) => {
                     if (loading) return <Loader active inline='centered' />;
                     if (error) return `Error! ${error.message}`;
@@ -86,25 +94,27 @@ function Analytics(props) {
 
     const renderIntentFrequencies = () => {
         const GET_INTENTS_FREQUENCIES = gql`
-            query IntentFrequencies($projectId: String!) {
+            query IntentFrequencies($projectId: String!, $from: Int, $to: Int) {
                 intentFrequencies(
                     projectId: $projectId,
+                    from: $from,
+                    to: $to,
                     beg: 2,
                     end: 2,
                 ) {
-                    frequency
-                    count
+                    frequency,
+                    count,
                     name
                 }
             }
         `;
 
         const params = {
-            x: 'name', y: 'count', relY: 'frequency',
+            x: 'name', y: ['count'], relY: 'frequency',
         };
 
         return (
-            <Query query={GET_INTENTS_FREQUENCIES} variables={{ projectId }}>
+            <Query query={GET_INTENTS_FREQUENCIES} variables={{ projectId, from, to }}>
                 {({ loading, error, data: { intentFrequencies } }) => {
                     if (loading) return <Loader active inline='centered' />;
                     if (error) return `Error! ${error.message}`;
@@ -124,21 +134,66 @@ function Analytics(props) {
         );
     };
 
+    const renderVisits = () => {
+        const GET_CONVERSATION_DURATIONS = gql`
+            query ConversationCounts($projectId: String!, $from: Int, $to: Int) {
+                conversationCounts(
+                    projectId: $projectId,
+                    from: $from,
+                    to: $to,
+                ) {
+                    bucket, count
+                }
+            }
+        `;
+
+        const params = {
+            x: 'bucket', y: ['count'],
+        };
+
+        return (
+            <Query query={GET_CONVERSATION_DURATIONS} variables={{ projectId, from, to }}>
+                {({ loading, error, data: { conversationCounts } }) => {
+                    if (loading) return <Loader active inline='centered' />;
+                    if (error) return `Error! ${error.message}`;
+                    return (
+                        <>
+                            <Message content='Visits' />
+                            <div style={{ height: 300 }}>
+                                <LineChart
+                                    data={conversationCounts.map(c => ({
+                                        ...c,
+                                        bucket: new Date(parseInt(c.bucket, 10)).toLocaleDateString(),
+                                    }))}
+                                    {...params}
+                                />
+                            </div>
+                        </>
+                    );
+                }}
+            </Query>
+        );
+    };
+
     const renderConversationDurations = () => {
         const GET_CONVERSATION_DURATIONS = gql`
-            query ConversationDurations($projectId: String!) {
-                conversationDurations(projectId: $projectId) {
+            query ConversationDurations($projectId: String!, $from: Int, $to: Int) {
+                conversationDurations(
+                    projectId: $projectId,
+                    from: $from,
+                    to: $to,
+                ) {
                     duration, count, frequency,
                 }
             }
         `;
 
         const params = {
-            x: 'duration', y: 'count', relY: 'frequency',
+            x: 'duration', y: ['count'], relY: 'frequency',
         };
 
         return (
-            <Query query={GET_CONVERSATION_DURATIONS} variables={{ projectId }}>
+            <Query query={GET_CONVERSATION_DURATIONS} variables={{ projectId, from, to }}>
                 {({ loading, error, data: { conversationDurations } }) => {
                     if (loading) return <Loader active inline='centered' />;
                     if (error) return `Error! ${error.message}`;
@@ -171,6 +226,10 @@ function Analytics(props) {
         {
             menuItem: 'Intents frequencies',
             render: () => <Tab.Pane>{renderIntentFrequencies()}</Tab.Pane>,
+        },
+        {
+            menuItem: 'Visits',
+            render: () => <Tab.Pane>{renderVisits()}</Tab.Pane>,
         },
     ];
 
