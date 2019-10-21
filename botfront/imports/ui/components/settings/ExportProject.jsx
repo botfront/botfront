@@ -183,7 +183,7 @@ const ExportProject = ({
                     />
                     <Message
                         info
-                        header='Botfront responses in Rasa'
+                        header='Responses in Rasa'
                         content={(
                             <p>
                                 Responses (templates) are lists. Rasa treats them as variants that should be randomly displayed,{' '}
@@ -197,8 +197,8 @@ const ExportProject = ({
                         header='Credentials and endpoints'
                         content={(
                             <p>
-                                You probably don{'\''}t need to change them,{' '}
-                                or if you need to keep credentials from Botfront,{' '}
+                                In most cases, you do not need to change credentials or endpoints.{' '}
+                                If you need to keep credentials from Botfront,{' '}
                                 be sure to keep the <b>rasa</b> and <b>rest</b> fields from the <b>credentials.yml</b> provided by Rasa X.
                             </p>
                         )}
