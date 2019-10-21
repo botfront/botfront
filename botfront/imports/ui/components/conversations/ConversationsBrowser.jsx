@@ -163,8 +163,8 @@ class ConversationsBrowser extends React.Component {
                         </Grid.Column>
                     </Grid>
                 ) : (
-                        <Message info>No conversation to load</Message>
-                    )}
+                    <Message info>No conversation to load</Message>
+                )}
             </div>
         );
     }
@@ -193,8 +193,8 @@ function ConversationBrowserSegment({
         browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${newEnv}/p/1` });
     }
     const availableEnvs = [{ text: 'development', value: 'development' }];
-    if (!loading && projectEnvs !== null) {
-        availableEnvs.push(...projectEnvs[0].deploymentEnvironments
+    if (!loading && projectEnvs !== undefined && projectEnvs.length > 0) {
+        availableEnvs.push(...projectEnvs
             .map(projectEnv => ({ text: projectEnv, value: projectEnv })));
     }
 
@@ -269,9 +269,9 @@ const ConversationsBrowserContainer = withTracker((props) => {
         env: envSelector,
     };
     Meteor.subscribe('projects', projectId);
-    const projectEnvs = Projects
+    const { deploymentEnvironments: projectEnvs } = Projects
         .find({ _id: projectId }, { fields: { deploymentEnvironments: 1 } })
-        .fetch();
+        .fetch()[0];
     const componentProps = {
         page, projectId, loading: true, env, projectEnvs,
     };
