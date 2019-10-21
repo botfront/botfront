@@ -91,7 +91,15 @@ Meteor.startup(() => {
                             name='Conversations'
                             onEnter={authenticateProject}
                         />
+                        <Route
+                            path='/project/:project_id/incoming/conversations(/:page)(/:conversation_id)'
+                            component={Incoming}
+                            name='Conversations'
+                            onEnter={authenticateProject}
+                        />
                         <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticateProject} />
+                        <Route path='/project/:project_id/incoming/model/:model_id' component={Incoming} name='Incoming' onEnter={authenticateProject} />
+                        
                         <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticateProject} />

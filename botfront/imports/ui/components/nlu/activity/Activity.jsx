@@ -18,6 +18,7 @@ import { ActivityCollection } from '../../../../api/activity';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { getPureIntents } from '../../../../api/nlu_model/nlu_model.utils';
 import { wrapMeteorCallback } from '../../utils/Errors';
+import ConversationBrowser from '../../conversations/ConversationsBrowser';
 
 class Activity extends React.Component {
     getDefaultState = () => ({ filterFn: utterances => utterances }); // eslint-disable-line react/sort-comp
@@ -93,7 +94,12 @@ class Activity extends React.Component {
             <Loading loading={!ready}>
                 <Tab
                     menu={{ pointing: true, secondary: true }}
-                    panes={[{ menuItem: 'Incoming', render: this.renderIncomingTab }, { menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> }]}
+                    panes={[
+                        { menuItem: 'Incoming', render: this.renderIncomingTab },
+                        { menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> },
+                        { menuItem: 'Conversations', render: () => <Tab.Pane><ConversationBrowser /></Tab.Pane> },
+                        { menuItem: 'Out of Scope', render: () => <Tab.Pane>Out of Scope data</Tab.Pane> },
+                    ]}
                 />
             </Loading>
         );
@@ -150,7 +156,7 @@ const ActivityContainer = withTracker((props) => {
                 }),
         );
     }
-
+    console.log(entities);
     return {
         model,
         pureIntents,

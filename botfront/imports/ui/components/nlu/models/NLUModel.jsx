@@ -409,6 +409,7 @@ const handleDefaultRoute = (projectId) => {
 
 const NLUDataLoaderContainer = withTracker((props) => {
     const { params: { model_id: modelId, project_id: projectId } = {} } = props;
+    console.log(modelId);
 
     const {
         name,
