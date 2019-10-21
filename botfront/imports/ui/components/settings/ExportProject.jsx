@@ -4,9 +4,8 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import { saveAs } from 'file-saver';
-
 import {
-    Dropdown, Button, Message, Icon, Checkbox,
+    Dropdown, Button, Message, Icon, Checkbox, List,
 } from 'semantic-ui-react';
 
 import { Projects } from '../../../api/project/project.collection';
@@ -172,35 +171,31 @@ const ExportProject = ({
                 <>
                     <Message
                         info
-                        header='Botfront NLU in Rasa'
+                        header='A few things to keep in mind when exporting for Rasa'
                         content={(
-                            <p>
-                                Consider removing Botfront specific NLU components, such as{' '}
-                                <b>rasa_addons.nlu.components.gazette.Gazette</b> and
-                                <b> rasa_addons.nlu.components.language_setter.LanguageSetter</b>
-                            </p>
-                        )}
-                    />
-                    <Message
-                        info
-                        header='Responses in Rasa'
-                        content={(
-                            <p>
-                                Responses (templates) are lists. Rasa treats them as variants that should be randomly displayed,{' '}
+                            <>
+                                <h5>NLU pipeline</h5>
+                                <p>
+                                    Consider removing Botfront specific NLU components, such as:
+                                    <List as='ul'>
+                                        <List.Item as='li'>rasa_addons.nlu.components.gazette.Gazette</List.Item>
+                                        <List.Item as='li'>rasa_addons.nlu.components.language_setter.LanguageSetter</List.Item>
+                                    </List>
+                                </p>
+                                <h5>Responses</h5>
+                                <p>
+                                Responses (templates) are lists. Rasa treats them as <strong>variants</strong> that should be randomly displayed,{' '}
                                 Botfront treats them as sequence (each item is uttered). If you used the sequence feature in Botfront,{' '}
                                 you will need to rework your stories accordingly.
-                            </p>
-                        )}
-                    />
-                    <Message
-                        info
-                        header='Credentials and endpoints'
-                        content={(
-                            <p>
+                                </p>
+                                <h5>Credentials and endpoints</h5>
+                                <p>
                                 In most cases, you do not need to change credentials or endpoints.{' '}
                                 If you need to keep credentials from Botfront,{' '}
                                 be sure to keep the <b>rasa</b> and <b>rest</b> fields from the <b>credentials.yml</b> provided by Rasa X.
-                            </p>
+                                </p>
+
+                            </>
                         )}
                     />
                     <Dropdown
