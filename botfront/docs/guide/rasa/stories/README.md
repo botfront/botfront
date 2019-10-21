@@ -218,7 +218,7 @@ Branches can be linked to other stories as well.
 ![Linked branch 2: Bad](../../../images/linking_8.png)
 
 ::: tip
-Using linking too much could overcomplicate your story flows, making them difficult to understand. Also, excessive usage could lead into an increase training time.
+Using linking too much could overcomplicate your story flows, making them difficult to understand. Also, excessive usage could lead into an increase in training time.
 :::
 
 ### How linking is handled
@@ -293,7 +293,7 @@ However, it’s not always possible to infer everything that needs to go into th
 
 ![Default domain management](../../../images/default_domain_management_1.png)
 
-## Disambiguatinf user input
+## Disambiguation user input
 
 When your virtual assistant receives a user utterance, it calculates, for each intent in your domain, the confidence that the utterance is an instance of that intent. Sooner or later, your virtual assistant will be faced with utterances where none of the calculated confidences are particularly high.
 
