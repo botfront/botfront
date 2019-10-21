@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.3-rc.1-ee.3](https://github.com/botfront/botfront/compare/v0.16.3-rc.1-ee.2...v0.16.3-rc.1-ee.3) (2019-10-21)
+
+
+### Bug Fixes
+
+* check if there is environments before adding them to the options ([bb29363](https://github.com/botfront/botfront/commit/bb29363))
+* test for env change, uses api to insert new conversations ([f728eaa](https://github.com/botfront/botfront/commit/f728eaa))
+
+
+
 ### [0.16.3-rc.1-ee.2](https://github.com/botfront/botfront/compare/v0.16.3-rc.1-ee.1...v0.16.3-rc.1-ee.2) (2019-10-21)
 
 
