@@ -505,10 +505,15 @@ Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = n
         }],
         processNlu: true,
     });
+   
+    let url = `http://localhost:8080/conversations/bf/environment/${env}?apiKey=`;
+    if (Cypress.env('MODE') && Cypress.env('MODE') === 'CI_RUN') {
+        url = `http://botfront-api:8080/conversations/bf/environment/${env}?apiKey=`;
+    }
 
     cy.request({
         method: 'POST',
-        url: `http://localhost:8080/conversations/bf/environment/${env}?apiKey=`,
+        url,
         headers: { 'Content-Type': 'application/json' },
         body,
     });
