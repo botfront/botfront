@@ -7,7 +7,6 @@ const LanguageDropdown = ({
     selectedLanguage,
     handleLanguageChange,
 }) => {
-    console.log(languageOptions);
     return (
         <Dropdown
             placeholder='Select Langugage'
