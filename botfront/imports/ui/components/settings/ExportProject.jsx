@@ -170,6 +170,39 @@ const ExportProject = ({
             )}
             {exportType.value === 'rasa' && (
                 <>
+                    <Message
+                        info
+                        header='Botfront NLU in Rasa'
+                        content={(
+                            <p>
+                                Consider removing Botfront specific NLU components, such as{' '}
+                                <b>rasa_addons.nlu.components.gazette.Gazette</b> and
+                                <b> rasa_addons.nlu.components.language_setter.LanguageSetter</b>
+                            </p>
+                        )}
+                    />
+                    <Message
+                        info
+                        header='Botfront responses in Rasa'
+                        content={(
+                            <p>
+                                Responses (templates) are lists. Rasa treats them as variants that should be randomly displayed,{' '}
+                                Botfront treats them as sequence (each item is uttered). If you used the sequence feature in Botfront,{' '}
+                                you will need to rework your stories accordingly
+                            </p>
+                        )}
+                    />
+                    <Message
+                        info
+                        header='Credentials and endpoints'
+                        content={(
+                            <p>
+                                You probably don{'\''}t need to change them,{' '}
+                                or if you need to keep credentials from Botfront,{' '}
+                                be sure to keep the <b>rasa</b> and <b>rest</b> fields from the <b>credentials.yml</b> provided by Rasa X.
+                            </p>
+                        )}
+                    />
                     <Dropdown
                         data-cy='export-language-dropdown'
                         key='language'
