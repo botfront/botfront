@@ -37,7 +37,7 @@ import ProjectContainer from '../../ui/components/admin/Project';
 import UsersListContainer from '../../ui/components/admin/Users';
 import UserContainer from '../../ui/components/admin/User';
 import AdminLayout from '../../ui/layouts/admin';
-import Analytics from '../../ui/components/analytics/Analytics.jsx';
+import AnalyticsContainer from '../../ui/components/analytics/AnalyticsContainer';
 
 const client = new ApolloClient({
     uri: '/graphql',
@@ -118,7 +118,7 @@ Meteor.startup(() => {
                             <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
                             <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
                             <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
-                            <Route path='/project/:project_id/analytics' component={Analytics} name='Analytics' onEnter={authenticate('analytics:r')} />
+                            <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
                             <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('project-settings:r')} />
                             <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-admin')} />
                             <Route path='*' component={NotFound} />
