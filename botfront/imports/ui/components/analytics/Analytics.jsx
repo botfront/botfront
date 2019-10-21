@@ -175,6 +175,48 @@ function Analytics(props) {
         );
     };
 
+    const renderEngagement = () => {
+        const GET_CONVERSATION_COUNTS = gql`
+            query ConversationCounts($projectId: String!, $from: Float, $to: Float) {
+                conversationCounts(
+                    projectId: $projectId,
+                    from: $from,
+                    to: $to,
+                ) {
+                    bucket, proportion,
+                }
+            }
+        `;
+
+        const params = {
+            x: 'bucket', y: [['proportion']],
+        };
+
+        return (
+            <Query query={GET_CONVERSATION_COUNTS} variables={{ projectId, from, to }}>
+                {({ loading, error, data: { conversationCounts } }) => {
+                    if (loading) return <Loader active inline='centered' />;
+                    if (error) return `Error! ${error.message}`;
+                    return (
+                        <>
+                            <Message content='Engagement %' />
+                            <div style={{ height: 300 }}>
+                                <LineChart
+                                    data={conversationCounts.map(c => ({
+                                        ...c,
+                                        bucket: new Date(parseInt(c.bucket, 10) * 1000).toLocaleDateString(),
+                                    }))}
+                                    {...params}
+                                    axisLeft={{ tickValues: [0, 0.2, 0.4, 0.6, 0.8, 1] }}
+                                />
+                            </div>
+                        </>
+                    );
+                }}
+            </Query>
+        );
+    };
+
     const renderConversationDurations = () => {
         const GET_CONVERSATION_DURATIONS = gql`
             query ConversationDurations($projectId: String!, $from: Float, $to: Float) {
@@ -230,6 +272,10 @@ function Analytics(props) {
         {
             menuItem: 'Visits',
             render: () => <Tab.Pane>{renderVisits()}</Tab.Pane>,
+        },
+        {
+            menuItem: 'Engagement %',
+            render: () => <Tab.Pane>{renderEngagement()}</Tab.Pane>,
         },
     ];
 

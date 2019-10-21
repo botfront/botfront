@@ -38,6 +38,9 @@ export default class Statistics extends React.Component {
                 }
             }
         `;
+        const params = {
+            x: 'entity', y: [['count']],
+        };
 
         return (
             <Query query={GET_ENTITY_DISTRIBUTION} variables={{ modelId: model._id }}>
@@ -46,11 +49,8 @@ export default class Statistics extends React.Component {
                     if (error) return `Error! ${error.message}`;
                     return (
                         <PieChart
-                            data={entityDistribution.map(({ entity, count }) => ({
-                                id: entity,
-                                label: entity,
-                                value: count,
-                            }))}
+                            data={entityDistribution}
+                            {...params}
                             sliceLabel={null}
                             radialLabel={null}
                         />
@@ -64,12 +64,16 @@ export default class Statistics extends React.Component {
         const { model } = this.props;
         const GET_INTENT_DISTRIBUTION = gql`
             query IntentDistribution($modelId: String!) {
-            intentDistribution(modelId: $modelId) {
-                intent
-                count
+                intentDistribution(modelId: $modelId) {
+                    intent
+                    count
+                }
             }
-        }
-    `;
+        `;
+
+        const params = {
+            x: 'intent', y: [['count']],
+        };
 
         return (
             <Query query={GET_INTENT_DISTRIBUTION} variables={{ modelId: model._id }}>
@@ -78,11 +82,8 @@ export default class Statistics extends React.Component {
                     if (error) return `Error! ${error.message}`;
                     return (
                         <PieChart
-                            data={intentDistribution.map(({ intent, count }) => ({
-                                id: intent,
-                                label: intent,
-                                value: count,
-                            }))}
+                            data={intentDistribution}
+                            {...params}
                             sliceLabel={null}
                             radialLabel={null}
                         />

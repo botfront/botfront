@@ -7,7 +7,7 @@ import { labelWithPercent } from './PieChart';
 
 function LineChart(props) {
     const {
-        data, margin, x, y, tooltip,
+        data, margin, x, y, tooltip, ...otherProps
     } = props;
 
     const nivoData = y
@@ -24,6 +24,7 @@ function LineChart(props) {
     return (
         <>
             <ResponsiveLine
+                {...otherProps}
                 data={nivoData}
                 margin={margin}
                 padding={0.3}
