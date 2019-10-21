@@ -1,5 +1,4 @@
 import 'react-dates/initialize';
-import 'react-dates/lib/css/_datepicker.css';
 import moment from 'moment';
 import { DayPickerRangeController } from 'react-dates';
 import React, { useState } from 'react';
@@ -22,7 +21,7 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     }
 
     function getDateString(start, end) {
-        return `${start ? `${start.format('DD MMM YYYY')} - ` : ''} ${end ? end.format('DD MMM YYYY') : ''}`;
+        return `${start ? `${start.format('DD MMM YYYY')} - ` : ''}${end ? end.format('DD MMM YYYY') : ''}`;
     }
 
     function sendNewDates() {
