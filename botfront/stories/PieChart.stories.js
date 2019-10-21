@@ -1,13 +1,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { withKnobs, select } from '@storybook/addon-knobs';
 import PieChart from '../imports/ui/components/charts/PieChart';
 
-export const {
-    intentFrequencies,
-    conversationLengths,
-    conversationDurations,
-    conversationCounts,
-} = {
+const data = {
     intentFrequencies: [
         {
             name: 'get_started',
@@ -481,37 +477,37 @@ export const {
     ],
     conversationCounts: [
         {
-            bucket: '1564580540',
+            bucket: new Date(1564580540 * 1000).toLocaleDateString(),
             count: 1623,
             engagements: 686,
             proportion: 0.4226740603820086,
         },
         {
-            bucket: '1565595682',
+            bucket: new Date(1565595682 * 1000).toLocaleDateString(),
             count: 1307,
             engagements: 583,
             proportion: 0.44605967865340473,
         },
         {
-            bucket: '1566610823',
+            bucket: new Date(1566610823 * 1000).toLocaleDateString(),
             count: 972,
             engagements: 397,
             proportion: 0.40843621399176955,
         },
         {
-            bucket: '1567625965',
+            bucket: new Date(1567625965 * 1000).toLocaleDateString(),
             count: 1078,
             engagements: 456,
             proportion: 0.4230055658627087,
         },
         {
-            bucket: '1568641106',
+            bucket: new Date(1568641106 * 1000).toLocaleDateString(),
             count: 1123,
             engagements: 471,
             proportion: 0.41941228851291185,
         },
         {
-            bucket: '1569656248',
+            bucket: new Date(1569656248 * 1000).toLocaleDateString(),
             count: 633,
             engagements: 231,
             proportion: 0.36492890995260663,
@@ -519,14 +515,35 @@ export const {
     ],
 };
 
+export const dataPresets = {
+    intentFrequencies: {
+        data: data.intentFrequencies,
+        x: 'name',
+        y: [['count', 'frequency']],
+    },
+    conversationLengths: {
+        data: data.conversationLengths,
+        x: 'length',
+        y: [['count', 'frequency']],
+    },
+    conversationDurations: {
+        data: data.conversationDurations,
+        x: 'duration',
+        y: [['count', 'frequency']],
+    },
+    conversationCounts: {
+        data: data.conversationCounts,
+        x: 'bucket',
+        y: [['count'], ['engagements', 'proportion']],
+    },
+};
+
 storiesOf('PieChart', module)
-    // .addDecorator(withKnobs)
-    .add('with props', () => (
-        <div style={{ height: 500 }}>
+    .addDecorator(withKnobs)
+    .add('default', () => (
+        <div style={{ height: 400 }}>
             <PieChart
-                data={intentFrequencies}
-                x='name'
-                y={[['count', 'frequency']]}
+                {...select('data', dataPresets, dataPresets.intentFrequencies)}
             />
         </div>
     ));
