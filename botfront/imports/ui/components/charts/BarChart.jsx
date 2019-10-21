@@ -1,18 +1,19 @@
 import { ResponsiveBar } from '@nivo/bar';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { labelWithPercent } from './PieChart';
 
 function BarChart(props) {
     const {
-        data, margin, x, y, relY, tooltip, label,
+        data, margin, x, y, tooltip, label,
     } = props;
 
     const nivoData = data
         .map(d => ({
             ...d,
             x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
-            y: d[y[0]],
-            relY: (d[relY] * 100).toFixed(2),
+            y: d[y[0][0]],
+            yRel: (d[y[0][1]] * 100).toFixed(2),
         }));
 
     return (
@@ -20,7 +21,7 @@ function BarChart(props) {
             <ResponsiveBar
                 data={nivoData}
                 indexBy='x'
-                keys={y}
+                keys={y.map(v => v[0])}
                 margin={margin}
                 padding={0.3}
                 colors='#1f77b4'
@@ -45,7 +46,6 @@ BarChart.propTypes = {
     tooltip: PropTypes.func,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
-    relY: PropTypes.string,
 };
 
 BarChart.defaultProps = {
@@ -56,11 +56,11 @@ BarChart.defaultProps = {
         left: 60,
     },
     label: ({ data: d }) => '', // disable label
-    tooltip: ({ data: d }) => ( // input format different from PieChart...
+    tooltip: ({ data: d }) => (
         <div>
             <strong>{d.x}</strong>
             <div>
-                {d.y}
+                {labelWithPercent(d.y, d.yRel)}
             </div>
         </div>
     ),

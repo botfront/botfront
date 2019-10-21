@@ -3,17 +3,19 @@ import React from 'react';
 import { Icon } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
+export const labelWithPercent = (val, relVal) => `${val}${(relVal && !Number.isNaN(+relVal)) ? ` (${relVal}%)` : ''}`;
+
 function PieChart(props) {
     const {
-        data, margin, radialLabel, sliceLabel, tooltip, x, y, relY,
+        data, margin, radialLabel, sliceLabel, tooltip, x, y,
     } = props;
 
     const nivoData = data
         .map(d => ({
             ...d,
             x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
-            y: d[y[0]],
-            relY: (d[relY] * 100).toFixed(2),
+            y: d[y[0][0]],
+            yRel: (d[y[0][1]] * 100).toFixed(2),
         }))
         .map(d => ({
             ...d, id: d.x, value: d.y,
@@ -51,7 +53,6 @@ PieChart.propTypes = {
     tooltip: PropTypes.func,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
-    relY: PropTypes.string,
 };
 
 PieChart.defaultProps = {
@@ -62,7 +63,7 @@ PieChart.defaultProps = {
         left: 30,
     },
     sliceLabel: 'x',
-    radialLabel: d => `${d.relY}% (${d.y})`,
+    radialLabel: d => labelWithPercent(d.y, d.yRel),
     tooltip: d => (
         <div>
             <strong>{d.x}</strong>
@@ -70,7 +71,7 @@ PieChart.defaultProps = {
                 <span style={{ color: d.color }}>
                     <Icon name='square' />
                 </span>
-                {`${d.relY}% (${d.y})`}
+                {labelWithPercent(d.y, d.yRel)}
             </div>
         </div>
     ),

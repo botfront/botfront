@@ -1,8 +1,8 @@
 type Query {
     intentFrequencies(
         projectId: String!,
-        from: Int = 0,
-        to: Int,
+        from: Float = 0,
+        to: Float,
         exclude: [String] = [],
         only: [String] = [],
         first: Int,

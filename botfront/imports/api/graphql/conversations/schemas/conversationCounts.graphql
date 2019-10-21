@@ -1,8 +1,8 @@
 type Query {
     conversationCounts(
         projectId: String!,
-        from: Int,
-        to: Int,
+        from: Float,
+        to: Float,
         nBuckets: Int = 7,
         exclude: [String] = ["get_started"],
     ): [ConversationCount!]!

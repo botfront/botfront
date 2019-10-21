@@ -15,11 +15,11 @@ function Analytics(props) {
     const { projectId } = props;
 
     const from = 1564580540;
-    const to = 1564780540;
+    const to = new Date().getTime() / 1000;
 
     const renderConversationLengths = () => {
         const GET_CONVERSATIONS_LENGTH = gql`
-            query ConversationLengths($projectId: String!, $from: Int, $to: Int) {
+            query ConversationLengths($projectId: String!, $from: Float, $to: Float) {
                 conversationLengths(
                     projectId: $projectId,
                     from: $from,
@@ -32,7 +32,7 @@ function Analytics(props) {
             }
         `;
         const params = {
-            x: 'length', y: ['count'], relY: 'frequency',
+            x: 'length', y: [['count', 'frequency']],
         };
 
         return (
@@ -94,7 +94,7 @@ function Analytics(props) {
 
     const renderIntentFrequencies = () => {
         const GET_INTENTS_FREQUENCIES = gql`
-            query IntentFrequencies($projectId: String!, $from: Int, $to: Int) {
+            query IntentFrequencies($projectId: String!, $from: Float, $to: Float) {
                 intentFrequencies(
                     projectId: $projectId,
                     from: $from,
@@ -110,7 +110,7 @@ function Analytics(props) {
         `;
 
         const params = {
-            x: 'name', y: ['count'], relY: 'frequency',
+            x: 'name', y: [['count', 'frequency']],
         };
 
         return (
@@ -135,24 +135,24 @@ function Analytics(props) {
     };
 
     const renderVisits = () => {
-        const GET_CONVERSATION_DURATIONS = gql`
-            query ConversationCounts($projectId: String!, $from: Int, $to: Int) {
+        const GET_CONVERSATION_COUNTS = gql`
+            query ConversationCounts($projectId: String!, $from: Float, $to: Float) {
                 conversationCounts(
                     projectId: $projectId,
                     from: $from,
                     to: $to,
                 ) {
-                    bucket, count
+                    bucket, count, engagements, proportion,
                 }
             }
         `;
 
         const params = {
-            x: 'bucket', y: ['count'],
+            x: 'bucket', y: [['count'], ['engagements', 'proportion']],
         };
 
         return (
-            <Query query={GET_CONVERSATION_DURATIONS} variables={{ projectId, from, to }}>
+            <Query query={GET_CONVERSATION_COUNTS} variables={{ projectId, from, to }}>
                 {({ loading, error, data: { conversationCounts } }) => {
                     if (loading) return <Loader active inline='centered' />;
                     if (error) return `Error! ${error.message}`;
@@ -163,7 +163,7 @@ function Analytics(props) {
                                 <LineChart
                                     data={conversationCounts.map(c => ({
                                         ...c,
-                                        bucket: new Date(parseInt(c.bucket, 10)).toLocaleDateString(),
+                                        bucket: new Date(parseInt(c.bucket, 10) * 1000).toLocaleDateString(),
                                     }))}
                                     {...params}
                                 />
@@ -177,7 +177,7 @@ function Analytics(props) {
 
     const renderConversationDurations = () => {
         const GET_CONVERSATION_DURATIONS = gql`
-            query ConversationDurations($projectId: String!, $from: Int, $to: Int) {
+            query ConversationDurations($projectId: String!, $from: Float, $to: Float) {
                 conversationDurations(
                     projectId: $projectId,
                     from: $from,
@@ -189,7 +189,7 @@ function Analytics(props) {
         `;
 
         const params = {
-            x: 'duration', y: ['count'], relY: 'frequency',
+            x: 'duration', y: [['count', 'frequency']],
         };
 
         return (
