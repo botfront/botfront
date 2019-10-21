@@ -188,7 +188,7 @@ const ExportProject = ({
                             <p>
                                 Responses (templates) are lists. Rasa treats them as variants that should be randomly displayed,{' '}
                                 Botfront treats them as sequence (each item is uttered). If you used the sequence feature in Botfront,{' '}
-                                you will need to rework your stories accordingly
+                                you will need to rework your stories accordingly.
                             </p>
                         )}
                     />
