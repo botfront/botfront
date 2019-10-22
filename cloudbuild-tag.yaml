@@ -1,8 +1,9 @@
 steps:
-
+# Build Botfront Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",  "-t", "botfront-local", "."]
 
+# Run e2e tests
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: /workspace/botfront/cypress
   args:
@@ -11,15 +12,22 @@ steps:
     - --exit-code-from
     - e2e
 
+# Tag Botfront image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "tag", "botfront-local", "botfront/botfront:latest"]
 
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "tag", "botfront-local", "botfront/botfront:$TAG_NAME"]
 
-- name: 'gcr.io/cloud-builders/docker'
-  args: [ "build",  "-t", "botfront/botfront-docs:$TAG_NAME", "-t", "botfront/botfront-docs:latest", "./botfront/docs"]
+# Build docs
+- name: 'gcr.io/cloud-builders/npm'
+  dir: './botfront'
+  args: [ "run",  "docs:build"]
 
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",  "-t", "botfront/botfront-docs:branch-$BRANCH_NAME", "./botfront/docs"]
+
+# Push images to Docker registry
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "login",
         "-u", "$_DOCKER_USERNAME",
@@ -38,6 +46,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "push", "botfront/botfront-docs:latest"]
 
+# Deploy to npmjs
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
   - kms
