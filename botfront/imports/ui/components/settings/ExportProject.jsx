@@ -203,7 +203,7 @@ const ExportProject = ({
                         key='language'
                         className='export-option'
                         options={getLanguageOptions()}
-                        placeholder='select a language'
+                        placeholder='Select a language'
                         selection
                         onChange={(x, { value }) => { setExportLanguage(value); }}
                     />
