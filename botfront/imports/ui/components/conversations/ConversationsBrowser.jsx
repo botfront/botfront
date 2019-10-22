@@ -193,7 +193,7 @@ function ConversationBrowserSegment({
         browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${newEnv}/p/1` });
     }
     const availableEnvs = [{ text: 'development', value: 'development' }];
-    if (!loading && projectEnvs !== undefined && projectEnvs.length > 0) {
+    if (!loading && projectEnvs && projectEnvs.length > 0) {
         availableEnvs.push(...projectEnvs
             .map(projectEnv => ({ text: projectEnv, value: projectEnv })));
     }
