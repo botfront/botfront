@@ -1,0 +1,9 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",
+          "-t", "botfront/botfront-api:branch-$BRANCH_NAME",
+          "."]
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "login", "-u", "$_DOCKER_LOGIN", "-p", "$_DOCKER_PASSWORD"]
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/botfront-api:branch-$BRANCH_NAME"]
