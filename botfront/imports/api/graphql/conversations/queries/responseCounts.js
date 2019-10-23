@@ -1,0 +1,85 @@
+import Conversations from '../conversations.model';
+import { generateBuckets } from '../../utils';
+
+export const getResponseCounts = async ({
+    projectId,
+    from = new Date().getTime() - (86400 * 7),
+    to = new Date().getTime(),
+    nBuckets,
+    responses,
+}) => Conversations.aggregate([
+    {
+        $match: {
+            projectId,
+        },
+    },
+    {
+        $match: {
+            $and: [
+                {
+                    'tracker.latest_event_time': {
+                        $lt: to, // timestamp
+                        $gte: from, // timestamp
+                    },
+                },
+            ],
+        },
+    },
+    {
+        $unwind: {
+            path: '$tracker.events',
+        },
+    },
+    {
+        $match: {
+            $and: [
+                { 'tracker.events.event': 'action' },
+                { 'tracker.events.name': { $regex: /^utter_/ } },
+            ],
+        },
+    },
+    {
+        $addFields: {
+            bucket: {
+                $switch: {
+                    branches: generateBuckets(from, to, '$tracker.events.timestamp', nBuckets),
+                    default: 'hey',
+                },
+            },
+        },
+    },
+    {
+        $group: {
+            _id: '$bucket',
+            total: {
+                $sum: 1,
+            },
+            count: {
+                $sum: {
+                    $cond: {
+                        if: { $in: ['$tracker.events.name', responses] },
+                        then: 1,
+                        else: 0,
+                    },
+                },
+            },
+        },
+    },
+    {
+        $addFields: {
+            proportion: {
+                $divide: ['$count', '$total'],
+            },
+        },
+    },
+    {
+        $project: {
+            _id: null,
+            bucket: '$_id',
+            count: '$count',
+            total: '$total',
+            proportion: '$proportion',
+        },
+    },
+    { $sort: { bucket: 1 } },
+]);

@@ -1,25 +1,5 @@
 import Conversations from '../conversations.model';
-
-const generateCuttoffs = (from, to, nBuckets) => {
-    const delta = Math.abs(from - to);
-    const bucketSize = (delta / nBuckets).toFixed(7);
-    return Array.from(Array(nBuckets)).map((_e, i) => [
-        from + i * bucketSize, i === nBuckets - 1 ? to : from + (i + 1) * bucketSize,
-    ]);
-};
-
-const generateBuckets = (from, to, nBuckets) => (
-    generateCuttoffs(from, to, nBuckets)
-        .map(bounds => ({
-            case: {
-                $and: [
-                    { $gte: ['$tracker.latest_event_time', bounds[0]] },
-                    { $lt: ['$tracker.latest_event_time', bounds[1]] },
-                ],
-            },
-            then: bounds[0].toFixed(0).toString(),
-        }))
-);
+import { generateBuckets } from '../../utils';
 
 export const getConversationCounts = async ({
     projectId,
@@ -49,7 +29,7 @@ export const getConversationCounts = async ({
         $addFields: {
             bucket: {
                 $switch: {
-                    branches: generateBuckets(from, to, nBuckets),
+                    branches: generateBuckets(from, to, '$tracker.latest_event_time', nBuckets),
                     default: 'hey',
                 },
             },
@@ -78,6 +58,32 @@ export const getConversationCounts = async ({
             },
         },
     },
+    // ...((fallback)
+    //     ? [{
+    //         $addFields: {
+    //             fallbacks: {
+    //                 $min: [
+    //                     1,
+    //                     {
+    //                         $size: {
+    //                             $filter: {
+    //                                 input: '$tracker.events',
+    //                                 as: 'event',
+    //                                 cond: {
+    //                                     $and: [
+    //                                         { $eq: ['$$event.event', 'user'] },
+    //                                         { $not: { $in: ['$$event.parse_data.intent.name', exclude] } },
+    //                                     ],
+    //                                 },
+    //                             },
+    //                         },
+    //                     },
+    //                 ],
+    //             },
+    //         },
+    //     }]
+    //     : []
+    // ),
     {
         $group: {
             _id: '$bucket',
