@@ -13,5 +13,7 @@ storiesOf('AnalyticsCard', module)
             displayDateRange={boolean('displayDateRange', true)}
             chartTypeOptions={array('charTypeOptions', ['bar', 'line'])}
             title={text('title', 'Engagement rate')}
+            displayAbsoluteRelative={boolean('displayAbsoluteRelative', true)}
+            titleDescription={text('title description', 'A title description')}
         />
     ));

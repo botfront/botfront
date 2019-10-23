@@ -19,6 +19,11 @@
         left: 15px;
         font-size: 1.2em;
         border-bottom: #999999 2px dotted;
+        font-weight: bold;
+        max-width: 400px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     .top-right-buttons {
@@ -34,17 +39,27 @@
                     transition: color 0.3s;
                     color: #999999;
                     font-size: 1.3em;
-                    &:hover {
-                        color: #555555;
-                    }
                 }
                 &.selected {
                     i {
                         color: #212121;
                     }
                 }
+                &:hover {
+                    i {
+                        color: #555555;
+                    }
+                }
             }
         }
+    }
+
+    .graph-render-zone {
+        position: absolute;
+        height: 350px;
+        width: 526px;
+        top: 100px;
+        left: 15px;
     }
 
 }

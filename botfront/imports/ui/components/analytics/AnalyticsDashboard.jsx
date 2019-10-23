@@ -7,7 +7,22 @@ function AnalyticsDashboard() {
     return (
         <Container className='analytics-container'>
             <div className='analytics-dashboard'>
-                <AnalyticsCard />
+                {/* <AnalyticsCard
+                    dataFetchPromise={
+                        (start, end) => {
+                            return new Promise((resolve, reject) => {
+                                fetchSomeData(start, end, () => resolve);
+                            });
+                        }
+                    }
+                    render={(dataObject) => {
+                        if (dataObject.chartType === 'line') {
+                            return <LineChart data={dataObject.dataLoaded} />
+                        }
+                    }}
+                    chartTypeOptions={['line', 'bar']}
+                    title={'phil'}
+                /> */}
                 <AnalyticsCard />
                 <AnalyticsCard />
                 <AnalyticsCard />
