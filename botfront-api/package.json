@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "test": "cross-env NODE_ENV=test MONGO_URL=mongodb://dummy ./node_modules/.bin/mocha --ui bdd --timeout 25000 --reporter spec --colors \"./!(node_modules)/**/port_project.test.js\" --exit",
+    "test": "cross-env NODE_ENV=test MONGO_URL=mongodb://dummy ./node_modules/.bin/mocha --ui bdd --timeout 25000 --reporter spec --colors \"./!(node_modules)/**/*.test.js\" --exit",
     "test:watch": "yarn test -- --watch",
     "release": "standard-version",
     "licenses:summary": "license-checker --summary",
