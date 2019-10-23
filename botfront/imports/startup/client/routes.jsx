@@ -109,7 +109,7 @@ Meteor.startup(() => {
                             <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
                             <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
                             <Route
-                                path='/project/:project_id/dialogue/conversations(/p)(/:page)(/c)(/:conversation_id)'
+                                path='/project/:project_id/dialogue/conversations(/env)(/:env)(/p)(/:page)(/c)(/:conversation_id)'
                                 component={ConversationsBrowser}
                                 name='Conversations'
                                 onEnter={authenticate('conversations:r')}
