@@ -2,40 +2,33 @@ import { Button, Popup, Loader } from 'semantic-ui-react';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-
+import { useQuery } from '@apollo/react-hooks';
 import DatePicker from '../common/DatePicker';
+import PieChart from '../charts/PieChart';
+import BarChart from '../charts/BarChart';
+import LineChart from '../charts/LineChart';
 
-function AnalyticsCards(props) {
-    const [dataLoaded, setDataLoaded] = useState(null);
+function AnalyticsCard(props) {
     const [startDate, setStartDate] = useState(moment().subtract(7, 'days'));
     const [endDate, setEndDate] = useState(moment());
 
     const {
-        render,
         displayDateRange,
         chartTypeOptions,
         title,
         titleDescription,
         displayAbsoluteRelative,
-        dataFetchPromise,
+        query,
+        queryName,
+        variables: propVars,
+        graphParams,
     } = props;
 
-    // This fetches the data
-    useEffect(() => {
-        if (dataFetchPromise) {
-            const promise = dataFetchPromise(startDate, endDate);
-            promise
-                .then((data) => {
-                    setDataLoaded(data);
-                })
-                .catch((error) => {
-                    // eslint-disable-next-line no-console
-                    console.log(
-                        `an error occured while fetching analytics data : ${error}`,
-                    );
-                });
-        }
-    }, []);
+    const variables = { ...propVars, from: startDate.valueOf() / 1000, to: endDate.valueOf() / 1000 };
+
+    const { loading, error, data } = query
+        ? useQuery(query, { variables })
+        : { loading: true };
 
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
@@ -43,6 +36,13 @@ function AnalyticsCards(props) {
     const [valueType, setValueType] = useState(
         displayAbsoluteRelative ? 'absolute' : null,
     );
+
+    const renderChart = () => {
+        if (chartType === 'pie') return <PieChart {...graphParams} data={data[queryName]} />;
+        if (chartType === 'bar') return <BarChart {...graphParams} data={data[queryName]} />;
+        if (chartType === 'line') return <LineChart {...graphParams} data={data[queryName]} />;
+        return null;
+    };
 
     return (
         <div className='analytics-card'>
@@ -95,14 +95,8 @@ function AnalyticsCards(props) {
                 <span className='title'>{title}</span>
             )}
             <div className='graph-render-zone'>
-                {dataLoaded ? (
-                    render({
-                        startDate,
-                        endDate,
-                        chartType,
-                        valueType,
-                        dataLoaded,
-                    })
+                {(!error && !loading && data) ? (
+                    renderChart()
                 ) : (
                     <Loader active size='large'>Loading</Loader>
                 )}
@@ -111,22 +105,24 @@ function AnalyticsCards(props) {
     );
 }
 
-AnalyticsCards.propTypes = {
-    render: PropTypes.func,
+AnalyticsCard.propTypes = {
     title: PropTypes.string.isRequired,
     titleDescription: PropTypes.string,
     displayDateRange: PropTypes.bool,
     chartTypeOptions: PropTypes.arrayOf(PropTypes.oneOf(['line', 'bar', 'pie'])),
     displayAbsoluteRelative: PropTypes.bool,
-    dataFetchPromise: PropTypes.func.isRequired,
+    query: PropTypes.any.isRequired,
+    queryName: PropTypes.string.isRequired,
+    variables: PropTypes.object.isRequired,
+    graphParams: PropTypes.object,
 };
 
-AnalyticsCards.defaultProps = {
-    render: () => {},
+AnalyticsCard.defaultProps = {
     displayDateRange: true,
     chartTypeOptions: ['line', 'bar'],
     displayAbsoluteRelative: false,
     titleDescription: null,
+    graphParams: {},
 };
 
-export default AnalyticsCards;
+export default AnalyticsCard;
