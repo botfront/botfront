@@ -1,0 +1,17 @@
+[
+    {
+        "_id": "model1",
+        "language": "fr",
+        "published": true
+    },
+    {
+        "_id": "model2",
+        "language": "en",
+        "published": true
+    },
+    {
+        "_id": "model3",
+        "language": "en",
+        "published": false
+    }
+]
