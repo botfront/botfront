@@ -10,16 +10,16 @@ export const slotValueToLabel = value => (
             : value.toString()
 );
 
-export default function SlotLabel({ value, onChange, size }) {
+export default function SlotLabel({ value, onChange }) {
     const { type, name, slotValue } = value;
     return (
         <SlotPopupContent
             trigger={(
-                <div className='label-container slot'>
-                    <div className={`${size}-label-text label-context slot`}>
+                <div className='label-container pink'>
+                    <div>
                         {type}
                     </div>
-                    <div className={`${size}-label-value label-context slot`}>
+                    <div>
                         {name}:&nbsp; <span className='slot-content'>{slotValueToLabel(slotValue)}</span>
                     </div>
                 </div>
@@ -32,10 +32,5 @@ export default function SlotLabel({ value, onChange, size }) {
 
 SlotLabel.propTypes = {
     value: PropTypes.object.isRequired,
-    size: PropTypes.string,
     onChange: PropTypes.func.isRequired,
-};
-
-SlotLabel.defaultProps = {
-    size: 'mini',
 };

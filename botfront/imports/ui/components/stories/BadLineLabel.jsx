@@ -8,9 +8,9 @@ const BadLineLabel = (props) => {
         <Popup
             on='click'
             trigger={(
-                <div className='label-container bad-line'>
-                    <div className='mini-label-text label-context bad-line'>bad line</div>
-                    <div className='mini-label-value label-context bad-line'>
+                <div className='label-container black'>
+                    <div>bad line</div>
+                    <div>
                         {lineMd}
                     </div>
                 </div>
