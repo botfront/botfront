@@ -85,7 +85,7 @@ class ProjectInfo extends React.Component {
     onSave = (project, modelLanguages) => {
         const { value } = this.state;
         const {
-            name, _id, defaultLanguage, nluThreshold,
+            name, _id, defaultLanguage, nluThreshold, deploymentEnvironments,
         } = project;
         const modelLanguageCodes = modelLanguages.map(lang => lang.value);
         const differenceArray = this.diffArray(value, modelLanguageCodes);
@@ -97,7 +97,7 @@ class ProjectInfo extends React.Component {
         Meteor.call(
             'project.update',
             {
-                name, _id, defaultLanguage, nluThreshold,
+                name, _id, defaultLanguage, nluThreshold, deploymentEnvironments,
             },
             wrapMeteorCallback((err) => {
                 if (!err) {
@@ -115,12 +115,12 @@ class ProjectInfo extends React.Component {
         <Message
             size='tiny'
             info
-            content={
+            content={(
                 <>
                     To remove a language from the project, go to{' '}
                     <strong> NLU &gt; Settings &gt; Delete </strong>.
                 </>
-            }
+            )}
         />
     );
 
@@ -196,7 +196,29 @@ class ProjectInfo extends React.Component {
                             data-cy='change-nlu-threshold'
                         />
                         <br />
+                        
+                        <InfoField
+                            name='deploymentEnvironments'
+                            label='Deployment environments'
+                            info='Botfront will enable additional environments for your workflow'
+                            data-cy='deployment-environments'
+                        />
+                        <br />
                         <ErrorsField />
+                        
+                        {/* <Button
+                            onClick={this.HandleDevToStaging}
+                            className='deployment-button'
+                        >
+                                Send development to staging
+                        </Button>
+                        <Button
+                            onClick={this.handleStagingToProd}
+                            className='deployment-button'
+                        >
+                            Send staging to production
+                        </Button> */}
+
                         <SubmitField
                             className='primary save-project-info-button'
                             value='Save Changes'
@@ -226,6 +248,7 @@ const ProjectInfoContainer = withTracker(({ projectId }) => {
                 apiKey: 1,
                 nlu_models: 1,
                 defaultLanguage: 1,
+                deploymentEnvironments: 1,
                 nluThreshold: 1,
             },
         },

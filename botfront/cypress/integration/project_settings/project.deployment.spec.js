@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 describe('enable an environment', function() {
-
+    
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
         cy.login();
@@ -15,7 +15,6 @@ describe('enable an environment', function() {
     describe('Environments', function() {
         it('can enable, edit, and disable staging', function() {
             cy.visit('/project/bf/settings');
-            cy.contains('Deployment').click();
             cy.get('[data-cy=deployment-environments]')
                 .children().contains('staging').click();
             cy.get('[data-cy=save-changes]').click();
@@ -57,7 +56,6 @@ describe('enable an environment', function() {
             cy.contains('verify saved endpoints staging').should('exist');
 
             cy.visit('/project/bf/settings');
-            cy.contains('Deployment').click();
             cy.get('[data-cy=deployment-environments]')
                 .children().contains('staging').click();
             cy.get('[data-cy=save-changes]').click();
@@ -74,7 +72,6 @@ describe('enable an environment', function() {
         });
         it('can enable, edit, and disable production', function() {
             cy.visit('/project/bf/settings');
-            cy.contains('Deployment').click();
             cy.get('[data-cy=deployment-environments]')
                 .children().contains('production').click();
             cy.get('[data-cy=save-changes]').click();
@@ -115,7 +112,6 @@ describe('enable an environment', function() {
             cy.contains('verify saved endpoints production').should('exist');
 
             cy.visit('/project/bf/settings');
-            cy.contains('Deployment').click();
             cy.get('[data-cy=deployment-environments]')
                 .children().contains('production').click();
             cy.get('[data-cy=save-changes]').click();
