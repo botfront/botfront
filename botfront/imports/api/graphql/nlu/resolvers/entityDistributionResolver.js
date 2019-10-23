@@ -1,4 +1,4 @@
-import { getEntityDistribution } from '../queries/nlu.analytics';
+import { getEntityDistribution } from '../mongo/nlu.analytics';
 import { checkIfCan } from '../../../../lib/scopes';
 
 export default {

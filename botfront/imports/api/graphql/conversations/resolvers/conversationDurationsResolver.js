@@ -1,4 +1,4 @@
-import { getConversationDurations } from '../queries/conversationDurations';
+import { getConversationDurations } from '../mongo/conversationDurations';
 import { checkIfCan } from '../../../../lib/scopes';
 
 export default {

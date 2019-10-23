@@ -13,7 +13,7 @@ export const resolvers = [
     ...nluResolvers,
 ];
 const basePath = path.join(/(.+)\.meteor/.exec(process.cwd())[1], __dirname);
-const typesArray = fileLoader(path.join(basePath, '..', '**', '*.graphql'));
+const typesArray = fileLoader(path.join(basePath, '..', '**', '*.types.graphql'));
 
 // const resolversArray = fileLoader(path.join(basePath, '..', '**', '*Resolver.js'));
 

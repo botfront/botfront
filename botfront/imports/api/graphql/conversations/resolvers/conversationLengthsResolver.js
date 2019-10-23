@@ -1,4 +1,4 @@
-import { getConversationLengths } from '../queries/conversationLengths';
+import { getConversationLengths } from '../mongo/conversationLengths';
 import { checkIfCan } from '../../../../lib/scopes';
 
 export default {

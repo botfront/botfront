@@ -1,5 +1,5 @@
 import { Button, Popup, Loader } from 'semantic-ui-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { useQuery } from '@apollo/react-hooks';

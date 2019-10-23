@@ -1,4 +1,4 @@
-import { getConversationCounts } from '../queries/conversationCounts';
+import { getConversationCounts } from '../mongo/conversationCounts';
 import { checkIfCan } from '../../../../lib/scopes';
 
 export default {

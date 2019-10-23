@@ -1,4 +1,4 @@
-import { getIntentFrequencies } from '../queries/intentFrequencies';
+import { getIntentFrequencies } from '../mongo/intentFrequencies';
 import { checkIfCan } from '../../../../lib/scopes';
 
 export default {

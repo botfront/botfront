@@ -1,4 +1,4 @@
-import { getResponseCounts } from '../queries/responseCounts';
+import { getResponseCounts } from '../mongo/responseCounts';
 import { checkIfCan } from '../../../../lib/scopes';
 
 export default {
