@@ -519,22 +519,22 @@ export const dataPresets = {
     intentFrequencies: {
         data: data.intentFrequencies,
         x: 'name',
-        y: [['count', 'frequency']],
+        y: [{ abs: 'count', rel: 'frequency' }],
     },
     conversationLengths: {
         data: data.conversationLengths,
         x: 'length',
-        y: [['count', 'frequency']],
+        y: [{ abs: 'count', rel: 'frequency' }],
     },
     conversationDurations: {
         data: data.conversationDurations,
         x: 'duration',
-        y: [['count', 'frequency']],
+        y: [{ abs: 'count', rel: 'frequency' }],
     },
     conversationCounts: {
         data: data.conversationCounts,
         x: 'bucket',
-        y: [['count'], ['engagements', 'proportion']],
+        y: [{ abs: 'count' }, { abs: 'engagements', rel: 'proportion' }],
     },
 };
 

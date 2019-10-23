@@ -14,8 +14,8 @@ function PieChart(props) {
         .map(d => ({
             ...d,
             x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
-            y: d[y[0][0]],
-            yRel: (d[y[0][1]] * 100).toFixed(2),
+            y: d[y[0].abs],
+            yRel: (d[y[0].rel] * 100).toFixed(2),
         }))
         .map(d => ({
             ...d, id: d.x, value: d.y,

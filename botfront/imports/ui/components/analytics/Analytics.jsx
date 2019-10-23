@@ -32,7 +32,7 @@ function Analytics(props) {
             }
         `;
         const params = {
-            x: 'length', y: [['count', 'frequency']],
+            x: 'length', y: [{ abs: 'count', rel: 'frequency' }],
         };
 
         return (
@@ -110,7 +110,7 @@ function Analytics(props) {
         `;
 
         const params = {
-            x: 'name', y: [['count', 'frequency']],
+            x: 'name', y: [{ abs: 'count', rel: 'frequency' }],
         };
 
         return (
@@ -148,7 +148,7 @@ function Analytics(props) {
         `;
 
         const params = {
-            x: 'bucket', y: [['count'], ['engagements', 'proportion']],
+            x: 'bucket', y: [{ abs: 'count' }, { abs: 'engagements', rel: 'proportion' }],
         };
 
         return (
@@ -189,7 +189,7 @@ function Analytics(props) {
         `;
 
         const params = {
-            x: 'bucket', y: [['proportion']],
+            x: 'bucket', y: [{ abs: 'proportion' }],
         };
 
         return (
@@ -231,7 +231,7 @@ function Analytics(props) {
         `;
 
         const params = {
-            x: 'duration', y: [['count', 'frequency']],
+            x: 'duration', y: [{ abs: 'count', rel: 'frequency' }],
         };
 
         return (
@@ -283,7 +283,7 @@ function Analytics(props) {
         <>
             <br />
             <Container>
-                {<Tab menu={{ vertical: true, pointing: true }} panes={panes} />}
+                <Tab menu={{ vertical: true, pointing: true }} panes={panes} />
             </Container>
         </>
     );
