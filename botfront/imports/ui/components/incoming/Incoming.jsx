@@ -39,7 +39,7 @@ class Incoming extends React.Component {
 
     renderPanes = () => {
         const panes = [
-            { menuItem: 'Incoming', render: () => <Tab.Pane>Incoming data</Tab.Pane> },
+            { menuItem: 'New Utterances', render: () => <Tab.Pane>Incoming data</Tab.Pane> },
             { menuItem: 'Conversations', render: () => <Tab.Pane>Conversations</Tab.Pane> },
             { menuItem: 'Out of Scope', render: () => <Tab.Pane>Out of Scope data</Tab.Pane> },
             { menuItem: 'Populate', render: () => <Tab.Pane>Populate data</Tab.Pane> },
