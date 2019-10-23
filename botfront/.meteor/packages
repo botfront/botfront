@@ -34,3 +34,4 @@ audit-argument-checks@1.0.7
 #browser-policy
 ddp-rate-limiter@1.0.7
 apollo
+swydo:graphql
