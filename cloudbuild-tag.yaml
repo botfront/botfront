@@ -25,7 +25,7 @@ steps:
   args: [ "run",  "docs:build"]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "build",  "-t", "botfront/botfront-docs:branch-$BRANCH_NAME", "./botfront/docs"]
+  args: [ "build",  "-t", "botfront/botfront-docs:branch-$TAG_NAME", "./botfront/docs"]
 
 # Push images to Docker registry
 - name: 'gcr.io/cloud-builders/docker'
