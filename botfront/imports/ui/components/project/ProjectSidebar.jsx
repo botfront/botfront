@@ -38,7 +38,7 @@ class ProjectSidebar extends React.Component {
                     <Link to={`/project/${projectId}/dialogue/templates`}>
                         <Menu.Item name='Responses' icon='comment' />
                     </Link>
-                    <Link to={`/project/${projectId}/Incoming`}>
+                    <Link to={`/project/${projectId}/incoming`}>
                         <Menu.Item name='Incoming' icon='paper plane' />
                     </Link>
                     <Link to={`/project/${projectId}/dialogue/conversations/p/1`}>

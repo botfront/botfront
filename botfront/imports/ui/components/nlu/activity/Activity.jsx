@@ -21,9 +21,48 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import ConversationBrowser from '../../conversations/ConversationsBrowser';
 
 class Activity extends React.Component {
-    getDefaultState = () => ({ filterFn: utterances => utterances }); // eslint-disable-line react/sort-comp
+    getDefaultState = () => ({ filterFn: utterances => utterances, activeTabIndex: undefined }); // eslint-disable-line react/sort-comp
 
     state = this.getDefaultState();
+
+    createMenuItem = (name, index) => {
+        const {
+            model, projectId, params, replaceUrl,
+        } = this.props;
+        const { activeTabIndex } = this.state;
+        const regexp = / /g;
+        const urlId = name.toLowerCase().replace(regexp, '');
+        const url = `/project/${projectId}/incoming/${model._id}/${urlId}`;
+        if (activeTabIndex === undefined && params.tab === urlId) {
+            this.setState({ activeTabIndex: index });
+        }
+        return {
+            name,
+            // active: params.tab === urlId,
+            onClick: () => {
+                // const url = `/project/${projectId}/model/${model._id}/${urlId}`;
+                if (params.tab === urlId) return;
+                replaceUrl({ pathname: url });
+                this.setState({ activeTabIndex: index });
+            },
+        };
+    }
+
+    getPanes = () => {
+        const {
+            model, instance, project, params, replaceUrl,
+        } = this.props;
+        return [
+            { menuItem: this.createMenuItem('Incoming', 0), render: this.renderIncomingTab },
+            { menuItem: this.createMenuItem('Populate', 1), render: () => <ActivityInsertions model={model} instance={instance} /> },
+            {
+                menuItem: this.createMenuItem('Conversations', 2),
+                render: () => <Tab.Pane><ConversationBrowser projectId={project._id} params={params} modelId={model._id} replaceUrl={replaceUrl} /></Tab.Pane>,
+            },
+            { menuItem: this.createMenuItem('Out of Scope', 3), render: () => <Tab.Pane>Out of Scope data</Tab.Pane> },
+        ];
+    }
+    
 
     batchAdd = () => {
         const { modelId } = this.props;
@@ -87,19 +126,22 @@ class Activity extends React.Component {
         );
     };
 
-    render() {
-        const { model, ready, instance } = this.props;
+    selectInitialTab = () => {
+        const { params } = this.props;
+        const { activeTabIndex } = this.state;
+        if (activeTabIndex === undefined && !params.tab) this.setState({ activeTabIndex: 0 });
+    }
 
+    render() {
+        const { ready } = this.props;
+        const { activeTabIndex } = this.state;
+        this.selectInitialTab();
         return (
             <Loading loading={!ready}>
                 <Tab
+                    activeIndex={activeTabIndex}
                     menu={{ pointing: true, secondary: true }}
-                    panes={[
-                        { menuItem: 'Incoming', render: this.renderIncomingTab },
-                        { menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> },
-                        { menuItem: 'Conversations', render: () => <Tab.Pane><ConversationBrowser /></Tab.Pane> },
-                        { menuItem: 'Out of Scope', render: () => <Tab.Pane>Out of Scope data</Tab.Pane> },
-                    ]}
+                    panes={this.getPanes()}
                 />
             </Loading>
         );
@@ -114,6 +156,12 @@ Activity.propTypes = {
     instance: PropTypes.object.isRequired,
     linkRender: PropTypes.func.isRequired,
     outDatedUtteranceIds: PropTypes.array.isRequired,
+    params: PropTypes.object,
+    replaceUrl: PropTypes.func.isRequired,
+};
+
+Activity.defaultProps = {
+    params: {},
 };
 
 const ActivityContainer = withTracker((props) => {
@@ -156,7 +204,6 @@ const ActivityContainer = withTracker((props) => {
                 }),
         );
     }
-    console.log(entities);
     return {
         model,
         pureIntents,

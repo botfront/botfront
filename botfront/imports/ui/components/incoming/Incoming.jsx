@@ -5,15 +5,14 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { Menu, Container, Tab } from 'semantic-ui-react';
-import { browserHistory, Link } from 'react-router';
-import { uniq, sortBy, find } from 'lodash';
+import { browserHistory } from 'react-router';
+import { uniq, sortBy } from 'lodash';
 
 import { Projects } from '../../../api/project/project.collection';
 import { NLUModels } from '../../../api/nlu_model/nlu_model.collection';
-import { getPublishedNluModelLanguages, getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+import { getPublishedNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../api/instances/instances.collection';
 
-import ConversationsBrowser from '../conversations/ConversationsBrowser.jsx';
 import Activity from '../nlu/activity/Activity';
 
 import LanguageDropdown from '../common/LanguageDropdown';
@@ -31,16 +30,12 @@ class Incoming extends React.Component {
 
     handleLanguageChange = (value) => {
         const { models, projectId } = this.props;
-        const { selectedModel } = this.state;
 
         const modelMatch = models.find(({ language }) => language === value);
-        console.log(modelMatch);
         if (modelMatch) {
-            this.setState({ selectedModel: modelMatch }, browserHistory.push({ pathname: `/project/${projectId}/incoming/model/${modelMatch._id}` }));
+            this.setState({ selectedModel: modelMatch }, browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` }));
         }
     }
-
-    // renderConversationBrowser = () => {}
 
     renderPanes = () => {
         const panes = [
@@ -53,13 +48,16 @@ class Incoming extends React.Component {
     }
 
     render () {
-        const { projectLanguages, ready, instance, entities, intents, modelId, project, model } = this.props;
+        const {
+            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router,
+        } = this.props;
         const { selectedModel } = this.state;
 
+
+        // console.log(instances);
         if (!ready || !model) {
             return <div>loading</div>;
         }
-        console.log(model);
         return (
             <>
                 <Menu pointing secondary className='top-menu'>
@@ -73,58 +71,53 @@ class Incoming extends React.Component {
                 </Menu>
                 <>
                     <Container>
-                        <Activity project={project} modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} />
+                        <Activity
+                            project={project}
+                            modelId={modelId}
+                            entities={entities}
+                            intents={intents}
+                            linkRender={this.linkRender}
+                            instance={instance}
+                            params={params}
+                            replaceUrl={router.replace}
+                        />
                     </Container>
                     
                 </>
             </>
         );
-        // return (
-        //     <>
-        //         <Menu pointing secondary className='top-menu'>
-        //             <Menu.Item header className='top-menu-item'>
-        //                 <LanguageDropdown
-        //                     languageOptions={projectLanguages}
-        //                     selectedLanguage={selectedModel.language}
-        //                     handleLanguageChange={this.handleLanguageChange}
-        //                 />
-        //             </Menu.Item>
-        //         </Menu>
-        //         <>
-        //             <Container>
-        //                 <Tab
-        //                     panes={this.renderPanes()}
-        //                     menu={{ secondary: true, pointing: true }}
-        //                 />
-        //             </Container>
-        //             <Activity project={project} modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} />
-        //         </>
-        //     </>
-        // );
     }
 }
 
 Incoming.propTypes = {
     projectLanguages: PropTypes.array,
     projectId: PropTypes.string,
-    project: PropTypes.object.isRequired,
+    project: PropTypes.object,
     ready: PropTypes.bool,
-    model: PropTypes.object.isRequired,
-    models: PropTypes.array.isRequired,
-    utterances: PropTypes.array.isRequired,
-    entities: PropTypes.array.isRequired,
-    intents: PropTypes.array.isRequired,
-    instances: PropTypes.array.isRequired,
-    instance: PropTypes.object.isRequired,
-    linkRender: PropTypes.func.isRequired,
-    outDatedUtteranceIds: PropTypes.array.isRequired,
-    modelId: PropTypes.string.isRequired,
+    model: PropTypes.object,
+    models: PropTypes.array,
+    entities: PropTypes.array,
+    intents: PropTypes.array,
+    instance: PropTypes.object,
+    modelId: PropTypes.string,
+    params: PropTypes.object,
+    router: PropTypes.object,
 };
 
 Incoming.defaultProps = {
     projectLanguages: [],
+    projectId: '',
     // projectId: '',
     ready: false,
+    params: {},
+    intents: [],
+    models: [],
+    model: {},
+    project: {},
+    instance: {},
+    entities: [],
+    modelId: '',
+    router: {},
 };
 
 const handleDefaultRoute = (projectId) => {
@@ -133,9 +126,9 @@ const handleDefaultRoute = (projectId) => {
 
     try {
         const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/model/${defaultModelId}` });
+        browserHistory.push({ pathname: `/project/${projectId}/incoming/${defaultModelId}` });
     } catch (e) {
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/model/${modelIds[0]}` });
+        browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelIds[0]}` });
     }
 };
 
@@ -147,25 +140,29 @@ const IncomingContainer = withTracker((props) => {
             return false;
         },
     };
+
+    const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
+    const project = Projects.findOne({ _id: projectId }) || {};
+    const projectLanguages = getPublishedNluModelLanguages(project.nlu_models, true);
+    const instances = Instances.find({ projectId }).fetch();
+
     if (modelId) {
         modelHandler = Meteor.subscribe('nlu_models', modelId);
     }
-    
-    const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
-    const project = Projects.findOne({ _id: projectId }) || {};
-    const projectLanguages = getNluModelLanguages(project.nlu_models, true);
-    const instances = Instances.find({ projectId }).fetch();
-    const instance = instances ? instances.find(({ _id }) => _id === project.instance) : {};
 
-    const model = NLUModels.findOne({ _id: modelId });
+    const instance = instances ? instances.find(({ _id }) => _id === project.instance) : undefined;
     const models = NLUModels.find({ _id: { $in: project.nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
-
+    const defaultModelId = models.find(model => model.language === project.defaultLanguage)._id;
+    let model = {};
     if (!modelId || !project.nlu_models.includes(modelId)) {
         handleDefaultRoute(projectId);
+        model = NLUModels.findOne({ _id: defaultModelId });
+    } else {
+        model = NLUModels.findOne({ _id: modelId });
     }
+    
 
     if (!model) {
-        console.log('no model');
         return {};
     }
     const { training_data: { common_examples = [] } = {} } = model;
@@ -185,7 +182,7 @@ const IncomingContainer = withTracker((props) => {
 
     return {
         projectLanguages,
-        ready: !!projectLanguages && !!instances && instancesHandler.ready() && modelHandler.ready(),
+        ready: !!projectLanguages && !!instances && instancesHandler.ready() && modelHandler.ready() && !!instance,
         project,
         instances,
         instance,
