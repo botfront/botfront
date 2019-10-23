@@ -160,6 +160,7 @@ describe('story exceptions', function() {
         cy.dataCy('stories-linker')
             .first()
             .should('contains.text', 'excpetion test 2');
+        cy.get('.tiny').should('exist'); // check for the message signaling that it has been linked
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
 });
