@@ -19,5 +19,5 @@ jobs:
       run: |
         cd botfront
         npm ci
-        npm run test-watch
+        npm run test-once
         
