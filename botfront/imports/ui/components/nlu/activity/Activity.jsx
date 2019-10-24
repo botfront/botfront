@@ -6,7 +6,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { sortBy, uniq } from 'lodash';
 import moment from 'moment';
 import {
-    Tab, Message,
+    Tab, Message, Dropdown, Segment,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
@@ -21,7 +21,7 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import ConversationBrowser from '../../conversations/ConversationsBrowser';
 
 class Activity extends React.Component {
-    getDefaultState = () => ({ filterFn: utterances => utterances, activeTabIndex: undefined }); // eslint-disable-line react/sort-comp
+    getDefaultState = () => ({ filterFn: utterances => utterances, activeTabIndex: undefined, sortType: 'mostRecent' }); // eslint-disable-line react/sort-comp
 
     state = this.getDefaultState();
 
@@ -94,22 +94,45 @@ class Activity extends React.Component {
             numValidated,
         } = this.props;
 
-        const { filterFn } = this.state;
+        const { filterFn, sortType } = this.state;
         const filteredExamples = filterFn(utterances);
-
         return utterances && utterances.length > 0 ? (
             <>
-                <ActivityActions
-                    onEvaluate={this.onEvaluate}
-                    onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
-                    onAddToTraining={this.batchAdd}
-                    onDone={() => this.setState(this.getDefaultState())}
-                    onValidate={() => this.onValidateExamples(filteredExamples)}
-                    numValidated={numValidated}
-                    // eslint-disable-next-line no-shadow
-                    onFilterChange={filterFn => this.setState({ filterFn })}
-                    projectId={projectId}
-                />
+                <Segment.Group className='new-utterances-topbar' horizontal borderless>
+                    <Segment className='new-utterances-topbar-section' inline tertiary compact floated='left'>
+                        <ActivityActions
+                            onEvaluate={this.onEvaluate}
+                            onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
+                            onAddToTraining={this.batchAdd}
+                            onDone={() => this.setState(this.getDefaultState())}
+                            onValidate={() => this.onValidateExamples(filteredExamples)}
+                            numValidated={numValidated}
+                            // eslint-disable-next-line no-shadow
+                            onFilterChange={filterFn => this.setState({ filterFn })}
+                            projectId={projectId}
+                        />
+                    </Segment>
+                    <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
+                        <Segment className='sort-utterances-wrapper' compact floated='right'>
+                            sort by:{' '}
+                            <Dropdown
+                                inline
+                                floating
+                                placeholder='Sort by:'
+                                value={sortType}
+                                options={[
+                                    { value: 'mostRecent', text: 'Date descending' },
+                                    { value: 'leastRecent', text: 'Date ascending' },
+                                ]}
+                                onChange={(e, option) => {
+                                    this.setState({ sortType: option.value });
+                                }}
+                            />
+                        </Segment>
+                        
+                    </Segment>
+                </Segment.Group>
+                
                 <br />
                 <ActivityDataTable
                     utterances={utterances}
@@ -118,6 +141,7 @@ class Activity extends React.Component {
                     projectId={projectId}
                     outDatedUtteranceIds={outDatedUtteranceIds}
                     modelId={modelId}
+                    sortBy={sortType}
                 />
             </>
         ) : (
