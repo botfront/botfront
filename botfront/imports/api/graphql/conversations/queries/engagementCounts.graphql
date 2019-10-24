@@ -1,4 +1,4 @@
-query ConversationCounts(
+query EngagementCounts(
     $projectId: String!,
     $from: Float,
     $to: Float,
@@ -12,6 +12,6 @@ query ConversationCounts(
         exclude: $exclude,
         nBuckets: $nBuckets,
     ) {
-        bucket, count, engagements, proportion,
+        bucket, proportion,
     }
 }

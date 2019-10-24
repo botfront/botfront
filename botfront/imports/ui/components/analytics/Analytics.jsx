@@ -175,23 +175,6 @@ function Analytics(props) {
         );
     };
 
-    const renderEngagement = () => {
-        const GET_CONVERSATION_COUNTS = gql`
-            query ConversationCounts($projectId: String!, $from: Float, $to: Float) {
-                conversationCounts(
-                    projectId: $projectId,
-                    from: $from,
-                    to: $to,
-                ) {
-                    bucket, proportion,
-                }
-            }
-        `;
-
-        const params = {
-            x: 'bucket', y: [{ abs: 'proportion' }],
-        };
-
         return (
             <Query query={GET_CONVERSATION_COUNTS} variables={{ projectId, from, to }}>
                 {({ loading, error, data: { conversationCounts } }) => {
@@ -272,10 +255,6 @@ function Analytics(props) {
         {
             menuItem: 'Visits',
             render: () => <Tab.Pane>{renderVisits()}</Tab.Pane>,
-        },
-        {
-            menuItem: 'Engagement %',
-            render: () => <Tab.Pane>{renderEngagement()}</Tab.Pane>,
         },
     ];
 

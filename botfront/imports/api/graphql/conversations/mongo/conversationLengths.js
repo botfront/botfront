@@ -63,11 +63,21 @@ export const getConversationLengths = async ({
         $project: {
             _id: false,
             length: { $subtract: ['$data._id', 1] },
-            frequency: { $divide: ['$data.count', '$total'] },
+            frequency: {
+                $divide: [
+                    {
+                        $subtract: [
+                            { $multiply: [{ $divide: ['$data.count', '$total'] }, 10000] },
+                            { $mod: [{ $multiply: [{ $divide: ['$data.count', '$total'] }, 10000] }, 1] },
+                        ],
+                    },
+                    100,
+                ],
+            },
             count: '$data.count',
         },
     },
 
-    { $sort: { frequency: -1 } },
-    // { $limit : 100 }
+    { $sort: { length: 1 } },
+    { $limit: 10 },
 ]);

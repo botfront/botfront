@@ -111,10 +111,21 @@ export const getIntentFrequencies = async ({
         $project: {
             _id: false,
             name: '$data._id',
-            frequency: { $divide: ['$data.count', '$total'] },
+            frequency: {
+                $divide: [
+                    {
+                        $subtract: [
+                            { $multiply: [{ $divide: ['$data.count', '$total'] }, 10000] },
+                            { $mod: [{ $multiply: [{ $divide: ['$data.count', '$total'] }, 10000] }, 1] },
+                        ],
+                    },
+                    100,
+                ],
+            },
             count: '$data.count',
         },
     },
 
     { $sort: { count: -1 } },
+    { $limit: 10 },
 ]);

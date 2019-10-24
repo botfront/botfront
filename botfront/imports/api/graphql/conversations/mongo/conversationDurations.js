@@ -71,6 +71,7 @@ export const getConversationDurations = async ({
             duration: {
                 $switch: {
                     branches: generateBuckets(cuttoffs, '$difference'),
+                    default: 'ha',
                 },
             },
         },
@@ -94,11 +95,20 @@ export const getConversationDurations = async ({
     {
         $project: {
             _id: false,
-            duration: '$data._id',
-            frequency: { $divide: ['$data.count', '$total'] },
+            duration: { $toInt: '$data._id' },
+            frequency: {
+                $divide: [
+                    {
+                        $subtract: [
+                            { $multiply: [{ $divide: ['$data.count', '$total'] }, 10000] },
+                            { $mod: [{ $multiply: [{ $divide: ['$data.count', '$total'] }, 10000] }, 1] },
+                        ],
+                    },
+                    100,
+                ],
+            },
             count: '$data.count',
         },
     },
-    { $sort: { frequency: -1 } },
-    // { $limit : 100 }
+    { $sort: { duration: 1 } },
 ]);

@@ -1,0 +1,15 @@
+query ConversationDurations(
+    $projectId: String!,
+    $from: Float,
+    $to: Float,
+    $cuttoffs: [Int] = [30, 60, 90, 120, 180],
+) {
+    conversationDurations(
+        projectId: $projectId,
+        from: $from,
+        to: $to,
+        cuttoffs: $cuttoffs,
+    ) {
+        duration, count, frequency,
+    }
+}

@@ -68,7 +68,15 @@ export const getResponseCounts = async ({
     {
         $addFields: {
             proportion: {
-                $divide: ['$count', '$total'],
+                $divide: [
+                    {
+                        $subtract: [
+                            { $multiply: [{ $divide: ['$count', '$total'] }, 10000] },
+                            { $mod: [{ $multiply: [{ $divide: ['$count', '$total'] }, 10000] }, 1] },
+                        ],
+                    },
+                    100,
+                ],
             },
         },
     },

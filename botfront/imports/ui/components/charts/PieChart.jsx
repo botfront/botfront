@@ -3,11 +3,11 @@ import React from 'react';
 import { Icon } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
-export const labelWithPercent = (val, relVal) => `${val}${(relVal && !Number.isNaN(+relVal)) ? ` (${relVal}%)` : ''}`;
+export const labelWithPercent = (val, relVal, suffix) => `${val}${suffix}${(relVal && !Number.isNaN(+relVal)) ? ` (${relVal}%)` : ''}`;
 
 function PieChart(props) {
     const {
-        data, margin, radialLabel, sliceLabel, tooltip, x, y,
+        data, margin, radialLabel, sliceLabel, tooltip, x, y, suffixes, ...otherProps
     } = props;
 
     const nivoData = data
@@ -15,7 +15,7 @@ function PieChart(props) {
             ...d,
             x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
             y: d[y[0].abs],
-            yRel: (d[y[0].rel] * 100).toFixed(2),
+            yRel: d[y[0].rel],
         }))
         .map(d => ({
             ...d, id: d.x, value: d.y,
@@ -34,12 +34,13 @@ function PieChart(props) {
                 borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
                 sliceLabel={sliceLabel}
                 radialLabel={radialLabel}
-                tooltip={tooltip}
+                tooltip={tooltip({ suffixes, x, y })}
                 radialLabelsSkipAngle={15}
                 slicesLabelsSkipAngle={15}
                 animate
                 motionStiffness={90}
                 motionDamping={15}
+                {...otherProps}
             />
         </>
     );
@@ -50,7 +51,8 @@ PieChart.propTypes = {
     margin: PropTypes.object,
     radialLabel: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     sliceLabel: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    tooltip: PropTypes.func,
+    tooltip: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+    suffixes: PropTypes.object,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
 };
@@ -62,16 +64,17 @@ PieChart.defaultProps = {
         bottom: 60,
         left: 30,
     },
+    suffixes: {},
     sliceLabel: 'x',
-    radialLabel: d => labelWithPercent(d.y, d.yRel),
-    tooltip: d => (
+    radialLabel: d => labelWithPercent(d.y, d.yRel, ''),
+    tooltip: ({ suffixes, x, y }) => d => (
         <div>
-            <strong>{d.x}</strong>
+            <strong>{`${d[x]}${suffixes[x] || ''}`}</strong>
             <div>
                 <span style={{ color: d.color }}>
                     <Icon name='square' />
                 </span>
-                {labelWithPercent(d.y, d.yRel)}
+                {labelWithPercent(d.y, d.yRel, suffixes[y[0].abs] || '')}
             </div>
         </div>
     ),

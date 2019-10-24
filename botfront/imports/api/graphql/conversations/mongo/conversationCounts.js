@@ -58,32 +58,6 @@ export const getConversationCounts = async ({
             },
         },
     },
-    // ...((fallback)
-    //     ? [{
-    //         $addFields: {
-    //             fallbacks: {
-    //                 $min: [
-    //                     1,
-    //                     {
-    //                         $size: {
-    //                             $filter: {
-    //                                 input: '$tracker.events',
-    //                                 as: 'event',
-    //                                 cond: {
-    //                                     $and: [
-    //                                         { $eq: ['$$event.event', 'user'] },
-    //                                         { $not: { $in: ['$$event.parse_data.intent.name', exclude] } },
-    //                                     ],
-    //                                 },
-    //                             },
-    //                         },
-    //                     },
-    //                 ],
-    //             },
-    //         },
-    //     }]
-    //     : []
-    // ),
     {
         $group: {
             _id: '$bucket',
@@ -98,7 +72,15 @@ export const getConversationCounts = async ({
     {
         $addFields: {
             proportion: {
-                $divide: ['$engagements', '$count'],
+                $divide: [
+                    {
+                        $subtract: [
+                            { $multiply: [{ $divide: ['$engagements', '$count'] }, 10000] },
+                            { $mod: [{ $multiply: [{ $divide: ['$engagements', '$count'] }, 10000] }, 1] },
+                        ],
+                    },
+                    100,
+                ],
             },
         },
     },

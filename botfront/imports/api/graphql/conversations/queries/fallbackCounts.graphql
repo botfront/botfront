@@ -1,17 +1,17 @@
-query ConversationCounts(
+query FallbackCounts(
     $projectId: String!,
     $from: Float,
     $to: Float,
+    $fallbacks: [String] = ["utter_fallback"],
     $nBuckets: Int = 7,
-    $exclude: [String] = ["get_started"],
 ) {
-    conversationCounts(
+    responseCounts(
         projectId: $projectId,
         from: $from,
         to: $to,
-        exclude: $exclude,
+        responses: $fallbacks,
         nBuckets: $nBuckets,
     ) {
-        bucket, count, engagements, proportion,
+        bucket, count, total, proportion
     }
 }

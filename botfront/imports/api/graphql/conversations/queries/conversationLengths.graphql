@@ -1,4 +1,8 @@
-query ConversationLengths($projectId: String!, $from: Float, $to: Float) {
+query ConversationLengths(
+    $projectId: String!,
+    $from: Float,
+    $to: Float
+) {
     conversationLengths(
         projectId: $projectId,
         from: $from,

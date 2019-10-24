@@ -9,7 +9,7 @@ import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
 
 function AnalyticsCard(props) {
-    const [startDate, setStartDate] = useState(moment().subtract(7, 'days'));
+    const [startDate, setStartDate] = useState(moment().subtract(90, 'days'));
     const [endDate, setEndDate] = useState(moment());
 
     const {
@@ -17,30 +17,67 @@ function AnalyticsCard(props) {
         chartTypeOptions,
         title,
         titleDescription,
-        displayAbsoluteRelative,
         query,
-        queryName,
-        variables: propVars,
+        queryParams,
         graphParams,
     } = props;
+    
+    const displayAbsoluteRelative = 'rel' in graphParams;
 
-    const variables = { ...propVars, from: startDate.valueOf() / 1000, to: endDate.valueOf() / 1000 };
+    const calculateTemporalBuckets = () => {
+        const nDays = +((endDate.valueOf() - startDate.valueOf()) / 86400000);
+        if (nDays <= 1) return { tickValues: 7, nBuckets: 24 };
+        if (nDays <= 7) return { tickValues: +nDays.toFixed(0), nBuckets: +nDays.toFixed(0) };
+        if (nDays <= 90) return { tickValues: 7, nBuckets: +nDays.toFixed(0) };
+        return { tickValues: 7, nBuckets: +nDays.toFixed(0) % 7 };
+    };
+
+    const formatDateBuckets = data => data
+        .map(c => ({
+            ...c,
+            bucket: moment(parseInt(c.bucket, 10) * 1000).format('DD/MM'),
+        }));
+
+    const { tickValues, nBuckets } = calculateTemporalBuckets();
+
+    const variables = {
+        projectId: queryParams.projectId,
+        from: startDate.valueOf() / 1000,
+        to: endDate.valueOf() / 1000,
+        nBuckets,
+    };
 
     const { loading, error, data } = query
         ? useQuery(query, { variables })
         : { loading: true };
 
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
-
     const [chartType, setChartType] = useState(uniqueChartOptions[0] || 'line');
     const [valueType, setValueType] = useState(
         displayAbsoluteRelative ? 'absolute' : null,
     );
 
     const renderChart = () => {
-        if (chartType === 'pie') return <PieChart {...graphParams} data={data[queryName]} />;
-        if (chartType === 'bar') return <BarChart {...graphParams} data={data[queryName]} />;
-        if (chartType === 'line') return <LineChart {...graphParams} data={data[queryName]} />;
+        let dataToDisplay = data[queryParams.queryName];
+        if (queryParams.temporal) dataToDisplay = formatDateBuckets(dataToDisplay);
+        let paramsToUse = valueType === 'relative'
+            ? {
+                ...graphParams,
+                yScale: { type: 'linear', min: 0, max: 100 },
+                axisLeft: { legend: '%' },
+                ...graphParams.rel,
+            }
+            : graphParams;
+        paramsToUse = queryParams.temporal
+            ? {
+                ...paramsToUse,
+                axisBottom: { tickValues, format: '%d/%m' },
+                xScale: { type: 'time', format: '%d/%m', precision: 'day' },
+            }
+            : paramsToUse;
+        if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
+        if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} />;
+        if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} />;
         return null;
     };
 
@@ -110,17 +147,14 @@ AnalyticsCard.propTypes = {
     titleDescription: PropTypes.string,
     displayDateRange: PropTypes.bool,
     chartTypeOptions: PropTypes.arrayOf(PropTypes.oneOf(['line', 'bar', 'pie'])),
-    displayAbsoluteRelative: PropTypes.bool,
     query: PropTypes.any.isRequired,
-    queryName: PropTypes.string.isRequired,
-    variables: PropTypes.object.isRequired,
+    queryParams: PropTypes.object.isRequired,
     graphParams: PropTypes.object,
 };
 
 AnalyticsCard.defaultProps = {
     displayDateRange: true,
     chartTypeOptions: ['line', 'bar'],
-    displayAbsoluteRelative: false,
     titleDescription: null,
     graphParams: {},
 };

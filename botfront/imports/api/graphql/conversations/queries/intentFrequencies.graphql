@@ -1,0 +1,27 @@
+query IntentFrequencies(
+    $projectId: String!,
+    $from: Float,
+    $to: Float,
+    $exclude: [String] = [],
+    $only: [String] = [],
+    $first: Int,
+    $last: Int,
+    $beg: Int = 2,
+    $end: Int = 2,
+) {
+    intentFrequencies(
+        projectId: $projectId,
+        from: $from,
+        to: $to,
+        exclude: $exclude,
+        only: $only,
+        first: $first,
+        last: $last,
+        beg: $beg,
+        end: $end
+    ) {
+        frequency,
+        count,
+        name
+    }
+}
