@@ -100,7 +100,6 @@ class Evaluation extends React.Component {
         } = this.props;
 
         const { data } = this.state;
-        console.log(data);
 
         Meteor.call('rasa.evaluate.nlu', modelId, projectId, data, (err) => {
             this.setState({ evaluating: false });
@@ -137,7 +136,6 @@ class Evaluation extends React.Component {
                     data: { rasa_nlu_data: { common_examples: validExamples, entity_synonyms: [], gazetter: [] } },
                     loading: false,
                 }, callback);
-                //  ? this.evaluate : () => { console.log('no callback'); }
             } else {
                 const message = (
                     <Message warning>
@@ -183,10 +181,7 @@ class Evaluation extends React.Component {
 
         let defaultSelection = 0;
         if (validationRender()) {
-            console.log('did validate');
             defaultSelection = 2;
-        } else {
-            console.log('not validate');
         }
 
         return (

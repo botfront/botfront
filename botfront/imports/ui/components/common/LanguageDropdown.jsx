@@ -6,19 +6,18 @@ const LanguageDropdown = ({
     languageOptions,
     selectedLanguage,
     handleLanguageChange,
-}) => {
-    return (
-        <Dropdown
-            placeholder='Select Langugage'
-            search
-            selection
-            value={selectedLanguage}
-            options={languageOptions}
-            onChange={(e, lang) => { handleLanguageChange(lang.value); }}
-            data-cy='model-selector'
-        />
-    );
-};
+}) => (
+    <Dropdown
+        className='language-dropdown'
+        placeholder='Select Langugage'
+        search
+        selection
+        value={selectedLanguage}
+        options={languageOptions}
+        onChange={(e, lang) => { handleLanguageChange(lang.value); }}
+        data-cy='model-selector'
+    />
+);
 
 LanguageDropdown.propTypes = {
     languageOptions: PropTypes.array.isRequired,

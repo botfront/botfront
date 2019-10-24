@@ -61,8 +61,8 @@ class Incoming extends React.Component {
         }
         return (
             <>
-                <Menu pointing secondary className='top-menu'>
-                    <Menu.Item header className='top-menu-item'>
+                <Menu borderless className='top-menu'>
+                    <Menu.Item header>
                         <LanguageDropdown
                             languageOptions={projectLanguages}
                             selectedLanguage={selectedModel.language}
