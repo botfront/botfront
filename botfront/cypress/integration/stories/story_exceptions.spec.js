@@ -41,7 +41,7 @@ describe('story exceptions', function() {
             .click({ force: true });
         cy.get('textarea')
             .eq(textareaIndex)
-            .clear();
+            .type('{selectAll}{del}{selectAll}{del}');
     };
 
     it('should display errors and warnings in the story top menu', function() {
@@ -84,6 +84,7 @@ describe('story exceptions', function() {
         cy.dataCy('branch-tab-warning-alert').should('exist');
         
         cy.dataCy('branch-label').eq(1).click();
+        cy.get('.ace_content').eq(1).contains('error').should('not.exist');
         cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
             .find('.ace_line')
             .click({ force: true });
@@ -119,6 +120,7 @@ describe('story exceptions', function() {
         cy.dataCy('branch-tab-error-alert').eq(1).should('exist');
         cy.dataCy('branch-tab-warning-alert').eq(1).should('exist');
 
+        
         clearAceEditor(2, 3);
         cy.dataCy('top-menu-error-alert').should('not.exist');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
@@ -142,6 +144,7 @@ describe('story exceptions', function() {
 
     it('should not display errors if no intents in destinationStory', function() {
         createTestStoryGroup();
+        cy.dataCy('create-branch').should('have.length.of', 1);
         cy.dataCy('add-story').click();
         cy.get(
             ':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content',
