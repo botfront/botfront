@@ -1,4 +1,5 @@
 import { find, intersectionBy, sortBy } from 'lodash';
+import { safeDump } from 'js-yaml';
 import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
 import { formatError } from '../../lib/utils';
@@ -52,21 +53,43 @@ if (Meteor.isServer) {
             check(lang, String);
 
             try {
-                const template = Projects.findOne({
-                    _id: projectId,
-                    templates: { $elemMatch: { key, 'values.lang': lang } },
-                }, { fields: { 'values.content': 1, 'values.yaml': 1 } });
-                if (!template) {
-                    Projects.update({ _id: projectId }, {
-                        $addToSet: {
-                            templates: [{
-                                key,
-                                values: { locale: 'en_US' },
-                            }],
+                let template = Projects.findOne(
+                    {
+                        _id: projectId,
+                        templates: { $elemMatch: { key } },
+                    },
+                    {
+                        fields: {
+                            templates: { $elemMatch: { key } },
                         },
-                    });
+                    },
+                );
+                const newSeq = {
+                    sequence: [{ content: safeDump({ text: key }) }],
+                    lang,
+                };
+                if (!template) {
+                    template = { key, values: [newSeq] };
+                    Projects.update(
+                        { _id: projectId },
+                        {
+                            $push: { templates: template },
+                            $set: { responsesUpdatedAt: Date.now() },
+                        },
+                    );
+                    return template;
                 }
-                return template;
+                if (!template.templates[0].values.some(v => v.lang === lang)) {
+                    template.templates[0].values.push(newSeq);
+                    Projects.update(
+                        { _id: projectId, 'templates.key': key },
+                        {
+                            $push: { 'templates.$.values': newSeq },
+                            $set: { responsesUpdatedAt: Date.now() },
+                        },
+                    );
+                }
+                return template.templates[0];
             } catch (e) {
                 throw new Meteor.Error(e);
             }
