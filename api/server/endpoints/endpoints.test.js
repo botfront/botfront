@@ -7,7 +7,6 @@ chai.config.includeStack = true;
 const { Projects, Endpoints } = require('../../models/models');
 
 before(function(done) {
-    console.log('4')
     const fs = require('fs');
     const projectsFile = __dirname + '/test_data/projects.json';
     const endpointsFile = __dirname + '/test_data/endpoints.json';

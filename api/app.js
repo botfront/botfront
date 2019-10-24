@@ -9,15 +9,12 @@ const bodyParser = require('body-parser');
 const port = process.env.PORT || 8080;
 const app = express();
 
-console.log('hey')
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.raw({ limit: '100mb' }));
-console.log('hey')
 
 
 config().then(async config => {
-console.log('hey')
 
     const routes = require('./routes/index.js');
     app.use('/', routes);
@@ -42,7 +39,6 @@ console.log('hey')
                 console.log(`Connection to ${config.mongo.host} failed. Retrying... (#${i})`);
         }
     }
-    console.log('hoy')
 
     app.listen(port, function() {
         // eslint-disable-next-line no-console

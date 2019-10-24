@@ -7,7 +7,6 @@ chai.config.includeStack = true;
 const { Projects } = require('../../models/models');
 
 before(function(done) {
-    console.log('7')
     const fs = require('fs');
     const projectsFile = __dirname + '/test_data/projects.json';
     const projects = JSON.parse(fs.readFileSync(projectsFile, 'utf8'));

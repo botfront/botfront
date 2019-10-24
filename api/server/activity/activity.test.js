@@ -7,7 +7,6 @@ chai.config.includeStack = true;
 const { NLUModels } = require('../../models/models');
 
 before(function(done) {
-    console.log('2')
     const fs = require('fs');
     const modelsFile = __dirname + '/../nlu_models/test_data/nlu_models.json';
     const models = JSON.parse(fs.readFileSync(modelsFile, 'utf8'));
