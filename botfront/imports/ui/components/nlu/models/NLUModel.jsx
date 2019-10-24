@@ -84,7 +84,7 @@ class NLUModel extends React.Component {
     validationRender = () => {
         const { activityLinkRender } = this.state;
         if (activityLinkRender === true) {
-            this.setState({activityLinkRender: false });
+            this.setState({ activityLinkRender: false });
             return true;
         }
         return false;
