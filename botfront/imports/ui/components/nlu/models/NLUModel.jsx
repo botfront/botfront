@@ -49,9 +49,8 @@ class NLUModel extends React.Component {
         const { openTo: { subPage, isActivityLinkRender } } = props;
 
         this.state = {
-            activeItem: subPage, ...NLUModel.getDerivedStateFromProps(props), modelId: '',
+            activeItem: subPage, ...NLUModel.getDerivedStateFromProps(props), modelId: '', activityLinkRender: isActivityLinkRender,
         };
-        this.activityLinkRender = isActivityLinkRender || false;
     }
 
     static getDerivedStateFromProps(props) {
@@ -79,15 +78,15 @@ class NLUModel extends React.Component {
 
     linkRender = () => {
         this.activityLinkRender = true;
-        this.setState({ activeItem: 'evaluation' });
+        this.setState({ activeItem: 'evaluation', activityLinkRender: true });
     };
 
     validationRender = () => {
-        if (this.activityLinkRender) {
-            this.activityLinkRender = false;
+        const { activityLinkRender } = this.state;
+        if (activityLinkRender === true) {
+            this.setState({activityLinkRender: false });
             return true;
         }
-
         return false;
     };
 
@@ -398,7 +397,7 @@ NLUModel.defaultProps = {
     projectId: '',
     model: {},
     project: {},
-    openTo: { subPage: 'evaluation', isActivityLinkRender: true },
+    openTo: { subPage: 'data', isActivityLinkRender: false },
 };
 
 const handleDefaultRoute = (projectId) => {

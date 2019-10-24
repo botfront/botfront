@@ -69,6 +69,18 @@ if (Meteor.isServer) {
 ActivityCollection.attachSchema(ActivitySchema);
 
 Meteor.methods({
+    'activity.getValidatedExamples'(modelId) {
+        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        check(modelId, String);
+        console.log('data');
+        try {
+            const data = ActivityCollection.find({ modelId }).fetch() || [];
+            return data;
+        } catch (err) {
+            throw new Meteor.Error('500', err.message);
+        }
+    },
+
     'activity.deleteExamples'(modelId, itemIds) {
         checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
         check(itemIds, Array);

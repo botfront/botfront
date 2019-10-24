@@ -91,25 +91,18 @@ class Evaluation extends React.Component {
         return [];
     }
 
-    evaluate(incomingData) {
+    evaluate() {
         this.setState({ evaluating: true });
-        const { data: dataFromState } = this.state;
-        
         const {
             projectId,
             model: {
                 _id: modelId,
             } = {},
         } = this.props;
-        let data = incomingData;
-        if (!data) {
-            data = dataFromState;
-        }
-        try {
-            console.log(data.length);
-        } catch (err) {
-            console.log('there was an issue');
-        }
+
+        const { data } = this.state;
+        console.log(data);
+
         Meteor.call('rasa.evaluate.nlu', modelId, projectId, data, (err) => {
             this.setState({ evaluating: false });
             if (err) {
@@ -136,18 +129,16 @@ class Evaluation extends React.Component {
                 _id: modelId,
             } = {},
         } = this.props;
-        Meteor.subscribe('activity', modelId, () => {
-            const examples = ActivityCollection.find({ modelId }).fetch() || [];
+        Meteor.call('activity.getValidatedExamples', modelId, (error, examples) => {
             const validExamples = examples.filter(({ validated }) => validated)
                 .map(example => ExampleUtils.stripBare(example, false));
-
             // Check that there are nonzero validated examples
             if (validExamples.length > 0) {
                 this.setState({
-                    data: { rasa_nlu_data: { common_examples: validExamples } },
+                    data: { rasa_nlu_data: { common_examples: validExamples, entity_synonyms: [], gazetter: [] } },
                     loading: false,
-                });
-                callback({ rasa_nlu_data: { common_examples: validExamples } });
+                }, callback);
+                //  ? this.evaluate : () => { console.log('no callback'); }
             } else {
                 const message = (
                     <Message warning>
@@ -192,11 +183,12 @@ class Evaluation extends React.Component {
         } = this.state;
 
         let defaultSelection = 0;
-        console.log(validationRender());
         if (validationRender()) {
+            console.log('did validate');
             defaultSelection = 2;
+        } else {
+            console.log('not validate');
         }
-        console.log(defaultSelection);
 
         return (
             <Tab.Pane textAlign='center'>
