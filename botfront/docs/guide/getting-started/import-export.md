@@ -5,7 +5,8 @@ Botfront lets you export your project in 2 formats. For Botfront and Rasa / Rasa
 ## Botfront
 Projects can be exported and imported in Botfront, everything will be retained. NLU, stories, branches, links, policies, config, etc. You can choose whether to export conversational data or not.
 
-If you export without conversations, the export file will not overwrite existing conversations when imported. If you choose to include conversations in the export, the export file will overwite all exsiting conversations when imported.
+If you activate the Export Conversations toggle in the Botfront export interface; the conversation logs will be added to the export file. When that export file is imported it will overwrite any existing conversations with the conversations in the export file.
+If you export a Botfront project with the default settings, conversations will not be included in the export file and any existing conversations in a project will stay after that file is imported.
 
 ## Compatibility with Rasa / Rasa X
 
