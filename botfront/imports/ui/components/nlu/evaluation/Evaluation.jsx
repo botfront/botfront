@@ -27,7 +27,10 @@ import 'react-select/dist/react-select.css';
 class Evaluation extends React.Component {
     constructor(props) {
         super(props);
-        const { evaluation } = props;
+        const { evaluation, initialState, validationRender } = props;
+
+        let defaultSelection = 0;
+        if (validationRender()) defaultSelection = 2;
 
         this.state = {
             evaluation,
@@ -36,6 +39,8 @@ class Evaluation extends React.Component {
             evaluating: false,
             exampleSet: 'train',
             errorMessage: null,
+            selectedIndex: defaultSelection,
+            ...initialState,
         };
 
         this.evaluate = this.evaluate.bind(this);
@@ -86,17 +91,23 @@ class Evaluation extends React.Component {
         return [];
     }
 
-    evaluate() {
+    evaluate(incomingData) {
         this.setState({ evaluating: true });
+        
         const {
             projectId,
             model: {
                 _id: modelId,
             } = {},
         } = this.props;
-
-        const { data } = this.state;
-
+        if (!data) {
+        { data } = this.state;
+        }
+        try {
+            console.log(data.length);
+        } catch (err) {
+            console.log('there was an issue');
+        }
         Meteor.call('rasa.evaluate.nlu', modelId, projectId, data, (err) => {
             this.setState({ evaluating: false });
             if (err) {
@@ -133,7 +144,8 @@ class Evaluation extends React.Component {
                 this.setState({
                     data: { rasa_nlu_data: { common_examples: validExamples } },
                     loading: false,
-                }, callback);
+                });
+                callback({ rasa_nlu_data: { common_examples: validExamples } });
             } else {
                 const message = (
                     <Message warning>
@@ -174,12 +186,15 @@ class Evaluation extends React.Component {
             errorMessage,
             evaluating,
             loading: dataLoading,
+            selectedIndex,
         } = this.state;
 
         let defaultSelection = 0;
+        console.log(validationRender());
         if (validationRender()) {
             defaultSelection = 2;
         }
+        console.log(defaultSelection);
 
         return (
             <Tab.Pane textAlign='center'>
@@ -189,6 +204,7 @@ class Evaluation extends React.Component {
                         operations={[this.useTrainingSet.bind(this), this.useTestSet.bind(this), this.useValidatedSet.bind(this)]}
                         defaultSelection={defaultSelection}
                         onDefaultLoad={defaultSelection === 2 ? this.evaluate : () => {}}
+                        selectedIndex={selectedIndex}
                     />
                 </div>
                 {exampleSet === 'test' && (
@@ -224,11 +240,13 @@ Evaluation.propTypes = {
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     validationRender: PropTypes.func,
+    initialState: PropTypes.object,
 };
 
 Evaluation.defaultProps = {
     validationRender: () => false,
     evaluation: undefined,
+    initialState: {},
 };
 
 const EvaluationContainer = withTracker((props) => {

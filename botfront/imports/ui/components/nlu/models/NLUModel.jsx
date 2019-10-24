@@ -46,8 +46,12 @@ class NLUModel extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { activeItem: 'data', ...NLUModel.getDerivedStateFromProps(props), modelId: '' };
-        this.activityLinkRender = false;
+        const { openTo: { subPage, isActivityLinkRender } } = props;
+
+        this.state = {
+            activeItem: subPage, ...NLUModel.getDerivedStateFromProps(props), modelId: '',
+        };
+        this.activityLinkRender = isActivityLinkRender || false;
     }
 
     static getDerivedStateFromProps(props) {
@@ -271,7 +275,7 @@ class NLUModel extends React.Component {
             ready,
         } = this.props;
         const {
-            activeItem, instance, entities, intents,
+            activeItem, instance, entities, intents, subPageInitialState,
         } = this.state;
         if (!project) return null;
         if (!model) return null;
@@ -362,7 +366,7 @@ class NLUModel extends React.Component {
                     <br />
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
-                    {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} />}
+                    {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} initialState={subPageInitialState} />}
                     {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
                     {activeItem === 'activity' && <Activity project={project} modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} />}
                 </Container>
@@ -381,6 +385,7 @@ NLUModel.propTypes = {
     models: PropTypes.array,
     projectDefaultLanguage: PropTypes.string,
     project: PropTypes.object,
+    openTo: PropTypes.object,
 };
 
 NLUModel.defaultProps = {
@@ -393,6 +398,7 @@ NLUModel.defaultProps = {
     projectId: '',
     model: {},
     project: {},
+    openTo: { subPage: 'evaluation', isActivityLinkRender: true },
 };
 
 const handleDefaultRoute = (projectId) => {
@@ -409,7 +415,6 @@ const handleDefaultRoute = (projectId) => {
 
 const NLUDataLoaderContainer = withTracker((props) => {
     const { params: { model_id: modelId, project_id: projectId } = {} } = props;
-    console.log(modelId);
 
     const {
         name,

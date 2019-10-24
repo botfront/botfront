@@ -59,7 +59,6 @@ class Activity extends React.Component {
                 menuItem: this.createMenuItem('Conversations', 2),
                 render: () => <Tab.Pane><ConversationBrowser projectId={project._id} params={params} modelId={model._id} replaceUrl={replaceUrl} /></Tab.Pane>,
             },
-            { menuItem: this.createMenuItem('Out of Scope', 3), render: () => <Tab.Pane>Out of Scope data</Tab.Pane> },
         ];
     }
     
@@ -81,6 +80,9 @@ class Activity extends React.Component {
     onValidateExamples = utterances => this.onExamplesEdit(utterances.map(e => ({ ...e, validated: !e.validated })));
 
     onExamplesEdit = (utterances, callback) => {
+        console.log('in examples edit');
+        console.log(utterances);
+
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
     };
 
