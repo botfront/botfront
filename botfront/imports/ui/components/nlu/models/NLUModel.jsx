@@ -24,7 +24,6 @@ import { Instances } from '../../../../api/instances/instances.collection';
 import NluDataTable from './NluDataTable';
 import NLUPlayground from '../../example_editor/NLUPlayground';
 import Evaluation from '../evaluation/Evaluation';
-import Activity from '../activity/Activity';
 import ChitChat from './ChitChat';
 import IntentBulkInsert from './IntentBulkInsert';
 import Synonyms from '../../synonyms/Synonyms';
@@ -76,11 +75,6 @@ class NLUModel extends React.Component {
         const { model: { training_data: { common_examples, entity_synonyms } = {} } = {} } = props;
         if (!common_examples) return [];
         return common_examples.map(e => _appendSynonymsToText(e, entity_synonyms));
-    };
-
-    linkRender = () => {
-        this.activityLinkRender = true;
-        this.setState({ activeItem: 'evaluation', activityLinkRender: true });
     };
 
     validationRender = () => {
@@ -263,9 +257,6 @@ class NLUModel extends React.Component {
         const {
             projectId,
             model,
-            model: {
-                _id: modelId,
-            } = {},
             project,
             project: {
                 training: {
@@ -276,7 +267,7 @@ class NLUModel extends React.Component {
             ready,
         } = this.props;
         const {
-            activeItem, instance, entities, intents, subPageInitialState,
+            activeItem, instance, entities, subPageInitialState,
         } = this.state;
         if (!project) return null;
         if (!model) return null;
@@ -306,10 +297,6 @@ class NLUModel extends React.Component {
             <div id='nlu-model'>
                 <Menu pointing secondary>
                     <Menu.Item header>{this.getHeader()}</Menu.Item>
-                    <Menu.Item name='activity' active={activeItem === 'activity'} onClick={this.handleMenuItemClick}>
-                        <Icon size='small' name='history' />
-                        {'Activity'}
-                    </Menu.Item>
                     <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
                         <Icon size='small' name='database' />
                         {'Training Data'}
@@ -369,7 +356,6 @@ class NLUModel extends React.Component {
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} initialState={subPageInitialState} />}
                     {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
-                    {activeItem === 'activity' && <Activity project={project} modelId={modelId} entities={entities} intents={intents} linkRender={this.linkRender} instance={instance} />}
                 </Container>
             </div>
         );
