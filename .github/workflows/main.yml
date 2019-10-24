@@ -1,0 +1,23 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: Install Meteor
+      run: curl https://install.meteor.com/ | sh
+    - name: Run meteor test-watch
+      run: |
+        cd botfront
+        npm ci
+        npm run test-once
+        
