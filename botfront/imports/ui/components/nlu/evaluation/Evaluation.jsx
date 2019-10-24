@@ -93,6 +93,7 @@ class Evaluation extends React.Component {
 
     evaluate(incomingData) {
         this.setState({ evaluating: true });
+        const { data: dataFromState } = this.state;
         
         const {
             projectId,
@@ -100,8 +101,9 @@ class Evaluation extends React.Component {
                 _id: modelId,
             } = {},
         } = this.props;
+        let data = incomingData;
         if (!data) {
-        { data } = this.state;
+            data = dataFromState;
         }
         try {
             console.log(data.length);
