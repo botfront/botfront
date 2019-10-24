@@ -15,9 +15,9 @@ jobs:
         node-version: '10.x'
     - name: Install Meteor
       run: curl https://install.meteor.com/ | sh
-    - name: Run a multi-line script
+    - name: Run meteor test-watch
       run: |
-        cd botfront,
-        npm ci,
-        npm run test-watch.
+        cd botfront
+        npm ci
+        npm run test-watch
         
