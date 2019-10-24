@@ -23,7 +23,6 @@ function dateParser(key, value) {
   return value;
 }
 before(function(done) {
-  console.log('5')
   const projectsFile = __dirname + "/test_data/projects.json";
   const modelsFile = __dirname + "/test_data/nluModels.json";
   const conversationFile = __dirname + "/test_data/conversations.json";
