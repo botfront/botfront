@@ -101,7 +101,9 @@ describe('story exceptions', function() {
     it('should display warnings from nested branches in the story top menu and each level of branch menus', function() {
         createTestStoryGroup();
         cy.dataCy('create-branch').click();
+        cy.dataCy('branch-label').should('have.length', 2);
         cy.dataCy('create-branch').click();
+        cy.dataCy('branch-label').should('have.length', 4);
         cy.get(':nth-child(3) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
             .find('.ace_line')
             .click({ force: true });
