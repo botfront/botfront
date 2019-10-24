@@ -72,7 +72,6 @@ Meteor.methods({
     'activity.getValidatedExamples'(modelId) {
         checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
         check(modelId, String);
-        console.log('data');
         try {
             const data = ActivityCollection.find({ modelId }).fetch() || [];
             return data;

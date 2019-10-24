@@ -24,8 +24,9 @@ class Incoming extends React.Component {
         this.state = { selectedModel: model || {} };
     }
 
-    linkRender = () => {
-        console.log('link rendered');
+    linkToEvaluation = () => {
+        const { router, projectId, model } = this.props;
+        router.push({ pathname: `/project/${projectId}/nlu/model/${model._id}`, state: { isActivityLinkRender: true } });
     };
 
     handleLanguageChange = (value) => {
@@ -76,7 +77,7 @@ class Incoming extends React.Component {
                             modelId={modelId}
                             entities={entities}
                             intents={intents}
-                            linkRender={this.linkRender}
+                            linkRender={this.linkToEvaluation}
                             instance={instance}
                             params={params}
                             replaceUrl={router.replace}

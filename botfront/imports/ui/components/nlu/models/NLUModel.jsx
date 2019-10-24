@@ -45,11 +45,13 @@ import { Projects } from '../../../../api/project/project.collection';
 class NLUModel extends React.Component {
     constructor(props) {
         super(props);
-
-        const { openTo: { subPage, isActivityLinkRender } } = props;
+        const { location: { state: incomingState } } = props;
 
         this.state = {
-            activeItem: subPage, ...NLUModel.getDerivedStateFromProps(props), modelId: '', activityLinkRender: isActivityLinkRender,
+            activeItem: incomingState && incomingState.isActivityLinkRender === true ? 'evaluation' : 'data',
+            ...NLUModel.getDerivedStateFromProps(props),
+            modelId: '',
+            activityLinkRender: (incomingState && incomingState.isActivityLinkRender) || false,
         };
     }
 
@@ -384,7 +386,7 @@ NLUModel.propTypes = {
     models: PropTypes.array,
     projectDefaultLanguage: PropTypes.string,
     project: PropTypes.object,
-    openTo: PropTypes.object,
+    location: PropTypes.object.isRequired,
 };
 
 NLUModel.defaultProps = {
@@ -397,7 +399,6 @@ NLUModel.defaultProps = {
     projectId: '',
     model: {},
     project: {},
-    openTo: { subPage: 'data', isActivityLinkRender: false },
 };
 
 const handleDefaultRoute = (projectId) => {

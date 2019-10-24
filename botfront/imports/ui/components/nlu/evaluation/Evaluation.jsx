@@ -17,7 +17,6 @@ import EntityReport from './EntityReport';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { InputButtons } from './InputButtons.jsx';
 import { Evaluations } from '../../../../api/nlu_evaluation';
-import { ActivityCollection } from '../../../../api/activity';
 import { TestImport } from '../import-export/TestImport';
 import { Loading } from '../../utils/Utils';
 
