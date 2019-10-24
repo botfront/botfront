@@ -55,7 +55,7 @@ exports.insertConversation = function(req, res) {
 
 exports.updateConversation = async function(req, res) {
     const { project_id: projectId, sender_id: senderId } = req.params;
-    logUtterancesFromTracker(projectId, req);
+    if (process.argv.includes('--logUtterancesFromTracker')) logUtterancesFromTracker(projectId, req);
     checkApiKeyAgainstProject(projectId, req)
         .then(() => {
             const tracker = req.body;
