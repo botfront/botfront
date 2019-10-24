@@ -8,8 +8,7 @@ steps:
   args: ["run", "test"]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "build",
-          "-t", "botfront-api-local", "./api"]
+  args: [ "build", "-t", "botfront-api-local", "./api"]
 
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",  "-t", "botfront-local", "."]
@@ -35,7 +34,7 @@ steps:
   args: [ "tag", "botfront-local", "botfront/botfront:branch-$BRANCH_NAME"]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "tag", "botfront-local-api", "botfront/botfront-api:branch-$BRANCH_NAME"]
+  args: [ "tag", "botfront-local-api", ""botfront/botfront-api:branch-$BRANCH_NAME"]
 
 - name: 'gcr.io/cloud-builders/npm'
   dir: './botfront'
