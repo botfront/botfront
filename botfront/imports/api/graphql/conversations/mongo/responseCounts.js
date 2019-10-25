@@ -43,10 +43,13 @@ export const getResponseCounts = async ({
             bucket: {
                 $switch: {
                     branches: generateBuckets(from, to, '$tracker.events.timestamp', nBuckets),
-                    default: 'hey',
+                    default: 'bad_timestamp',
                 },
             },
         },
+    },
+    {
+        $match: { bucket: { $ne: 'bad_timestamp' } },
     },
     {
         $group: {

@@ -71,10 +71,13 @@ export const getConversationDurations = async ({
             duration: {
                 $switch: {
                     branches: generateBuckets(cuttoffs, '$difference'),
-                    default: 'ha',
+                    default: 'bad_timestamp',
                 },
             },
         },
+    },
+    {
+        $match: { duration: { $ne: 'bad_timestamp' } },
     },
     {
         $group: {

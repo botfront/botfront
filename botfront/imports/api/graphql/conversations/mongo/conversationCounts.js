@@ -30,10 +30,13 @@ export const getConversationCounts = async ({
             bucket: {
                 $switch: {
                     branches: generateBuckets(from, to, '$tracker.latest_event_time', nBuckets),
-                    default: 'hey',
+                    default: 'bad_timestamp',
                 },
             },
         },
+    },
+    {
+        $match: { bucket: { $ne: 'bad_timestamp' } },
     },
     {
         $addFields: {
