@@ -44,7 +44,7 @@ class Activity extends React.Component {
         }
         return {
             name,
-            // active: params.tab === urlId,
+            'data-cy': `incoming-${urlId}-tab`,
             onClick: () => {
                 // const url = `/project/${projectId}/model/${model._id}/${urlId}`;
                 if (params.tab === urlId) return;
@@ -137,7 +137,7 @@ class Activity extends React.Component {
                                 className='button icon'
                                 value={sortType}
                                 trigger={(
-                                    <Segment className='button sort-dropdown-trigger'>
+                                    <Segment className='button sort-dropdown-trigger' data-cy='sort-utterances-dropdown'>
                                         Sort by: <b>{this.dropdownOptions.find(({ value }) => value === sortType).text}</b>
                                     </Segment>
                                 )}

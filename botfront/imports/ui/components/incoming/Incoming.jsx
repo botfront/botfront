@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { Menu, Container, Tab } from 'semantic-ui-react';
+import { Menu, Container } from 'semantic-ui-react';
 import { browserHistory } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
@@ -36,16 +36,6 @@ class Incoming extends React.Component {
         if (modelMatch) {
             this.setState({ selectedModel: modelMatch }, browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` }));
         }
-    }
-
-    renderPanes = () => {
-        const panes = [
-            { menuItem: 'New Utterances', render: () => <Tab.Pane>Incoming data</Tab.Pane> },
-            { menuItem: 'Conversations', render: () => <Tab.Pane>Conversations</Tab.Pane> },
-            { menuItem: 'Out of Scope', render: () => <Tab.Pane>Out of Scope data</Tab.Pane> },
-            { menuItem: 'Populate', render: () => <Tab.Pane>Populate data</Tab.Pane> },
-        ];
-        return panes;
     }
 
     render () {

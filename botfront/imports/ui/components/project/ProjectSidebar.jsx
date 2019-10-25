@@ -39,7 +39,7 @@ class ProjectSidebar extends React.Component {
                         <Menu.Item name='Responses' icon='comment' />
                     </Link>
                     <Link to={`/project/${projectId}/incoming`}>
-                        <Menu.Item name='Incoming' icon='paper plane' />
+                        <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-page' />
                     </Link>
                     <Link to={`/project/${projectId}/settings`}>
                         <Menu.Item name='Settings' icon='setting' />

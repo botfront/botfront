@@ -52,14 +52,24 @@ export default class ActivityDataTable extends React.Component {
                         )
                         : <Button size={size} disabled basic icon='redo' loading />;
                 } else if (!!validated) {
-                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />;
+                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' data-cy='valid-utterance-button' />;
                 } else {
                     action = (
                         <Popup
                             size='mini'
                             inverted
                             content='Mark this utterance valid'
-                            trigger={<Button basic size={size} disabled={ooS} onClick={() => this.onValidate(utterance)} color='green' icon='check' />}
+                            trigger={(
+                                <Button
+                                    basic
+                                    size={size}
+                                    disabled={ooS}
+                                    onClick={() => this.onValidate(utterance)}
+                                    color='green'
+                                    icon='check'
+                                    data-cy='invalid-utterance-button'
+                                />
+                            )}
                         />
                     );
                 }

@@ -15,7 +15,7 @@ const LanguageDropdown = ({
         value={selectedLanguage}
         options={languageOptions}
         onChange={(e, lang) => { handleLanguageChange(lang.value); }}
-        data-cy='model-selector'
+        data-cy='language-selector'
     />
 );
 
