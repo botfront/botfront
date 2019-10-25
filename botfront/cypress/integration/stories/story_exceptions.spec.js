@@ -122,6 +122,7 @@ describe('story exceptions', function() {
 
         
         clearAceEditor(2, 3);
+        cy.get('textarea').should('have.text', '');
         cy.dataCy('top-menu-error-alert').should('not.exist');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
@@ -130,6 +131,7 @@ describe('story exceptions', function() {
         createTestStoryGroup();
         cy.dataCy('create-branch').should('have.length.of', 1);
         cy.dataCy('create-branch').click();
+        cy.dataCy('branch-label').should('have.length', 2);
         cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story > .ace_scroller > .ace_content')
             .find('.ace_line')
             .should('have.length.of', 1);
@@ -162,6 +164,7 @@ describe('story exceptions', function() {
             .find('div.item')
             .eq(3)
             .click();
+        cy.dataCy('story-footer').should('have.class', 'linked');
         cy.dataCy('stories-linker')
             .first()
             .should('contains.text', 'excpetion test 2');
