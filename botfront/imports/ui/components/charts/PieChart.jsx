@@ -35,8 +35,8 @@ function PieChart(props) {
                 sliceLabel={sliceLabel}
                 radialLabel={radialLabel}
                 tooltip={tooltip({ suffixes, x, y })}
-                radialLabelsSkipAngle={15}
-                slicesLabelsSkipAngle={15}
+                radialLabelsSkipAngle={20}
+                slicesLabelsSkipAngle={20}
                 animate
                 motionStiffness={90}
                 motionDamping={15}

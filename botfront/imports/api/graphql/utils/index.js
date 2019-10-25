@@ -16,6 +16,6 @@ export const generateBuckets = (from, to, pathToTimestamp, nBuckets) => (
                     { $lt: [pathToTimestamp, bounds[1]] },
                 ],
             },
-            then: bounds[0].toFixed(0).toString(),
+            then: bounds[1].toFixed(0).toString(),
         }))
 );

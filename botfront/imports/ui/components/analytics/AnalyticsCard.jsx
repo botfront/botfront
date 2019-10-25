@@ -29,7 +29,7 @@ function AnalyticsCard(props) {
         if (nDays <= 1) return { tickValues: 7, nBuckets: 24 };
         if (nDays <= 7) return { tickValues: +nDays.toFixed(0), nBuckets: +nDays.toFixed(0) };
         if (nDays <= 90) return { tickValues: 7, nBuckets: +nDays.toFixed(0) };
-        return { tickValues: 7, nBuckets: +nDays.toFixed(0) % 7 };
+        return { tickValues: 7, nBuckets: Math.floor(+nDays.toFixed(0) / 7) };
     };
 
     const formatDateBuckets = data => data
@@ -64,7 +64,7 @@ function AnalyticsCard(props) {
             ? {
                 ...graphParams,
                 yScale: { type: 'linear', min: 0, max: 100 },
-                axisLeft: { legend: '%' },
+                axisLeft: { legend: '%', legendOffset: -36 },
                 ...graphParams.rel,
             }
             : graphParams;
