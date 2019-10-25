@@ -8,7 +8,7 @@ steps:
   args: ["run", "test"]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "build", "-t", "botfront-api-local", "./api"]
+  args: [ "build", "-t", "botfront-local-api", "./api"]
 
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",  "-t", "botfront-local", "."]
