@@ -12,6 +12,7 @@ export const TrainingExampleSchema = new SimpleSchema({
             }
         },
     },
+    canonical: { type: Boolean, optional: true },
     intent: String,
     entities: { type: Array, optional: true },
     'entities.$': Object,

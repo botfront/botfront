@@ -44,11 +44,10 @@ describe('stories', function() {
             .first()
             .click({ force: true });
         cy.dataCy('browser-item').first().click();
-        cy.contains(storyGroupOne).trigger('mouseover', { force: true });
+        cy.contains(storyGroupOne).click({ force: true });
         cy.contains(storyGroupOne).find('[data-cy=ellipsis-menu]').click({ force: true });
-        cy.contains(defaultStories).find('#deleteDisabled').should('exist');
-        cy.contains(storyGroupOne).find('[data-cy=delete-menu]').trigger('mouseover', { force: true });
-        cy.get('.popup').should('exist');
+        cy.wait(200); // the popup appear after a computation, waiting so it completes
+        cy.contains(storyGroupOne).find('#deleteDisabled').should('exist');
         cy.contains(storyGroupOne).find('[data-cy=delete-menu]').click({ force: true });
         cy.get('.actions > .primary').should('not.exist');
         cy.dataCy('browser-item')
@@ -72,8 +71,8 @@ describe('stories', function() {
         cy.dataCy('link-to').should('exist');
         cy.contains(defaultStories).click({ force: true });
         cy.contains(defaultStories).find('[data-cy=ellipsis-menu]').click({ force: true });
-        cy.contains(storyGroupOne).find('[data-cy=delete-menu]').trigger('mouseover', { force: true });
-        cy.get('.popup').should('exist');
+        cy.wait(200); // the popup appear after a computation, waiting so it completes
+        cy.contains(storyGroupOne).find('[data-cy=delete-menu]').should('have.id', 'deleteDisabled');
         cy.contains(defaultStories).find('[data-cy=delete-menu]').click({ force: true });
         cy.get('.actions > .primary').should('not.exist');
         cy.dataCy('browser-item')

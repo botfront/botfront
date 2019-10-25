@@ -1,4 +1,15 @@
 steps:
+- name: 'gcr.io/cloud-builders/npm'
+  dir: /workspace/api
+  args: ["install"]
+  
+- name: 'gcr.io/cloud-builders/npm'
+  dir: /workspace/api
+  args: ["run", "test"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build", "-t", "botfront-api-local", "./api"]
+
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",  "-t", "botfront-local", "."]
 

@@ -1,8 +1,22 @@
 steps:
+# Run Botfront api tests
+- name: 'gcr.io/cloud-builders/npm'
+  dir: /workspace/api
+  args: ["install"]
 
+- name: 'gcr.io/cloud-builders/npm'
+  dir: /workspace/api
+  args: ["run", "test"]
+
+# Build Botfront Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "build",  "-t", "botfront-local", "."]
 
+# Build Botfront api Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build", "-t", "botfront-api-local", "./api"]
+
+# Run e2e tests
 - name: gcr.io/$PROJECT_ID/docker-compose
   dir: /workspace/botfront/cypress
   args:
@@ -11,15 +25,33 @@ steps:
     - --exit-code-from
     - e2e
 
+# Tag Botfront image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "tag", "botfront-local", "botfront/botfront:latest"]
 
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "tag", "botfront-local", "botfront/botfront:$TAG_NAME"]
 
+# Tag Botfront api image
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "build",  "-t", "botfront/botfront-docs:$TAG_NAME", "-t", "botfront/botfront-docs:latest", "./botfront/docs"]
+  args: [ "tag", "botfront-api-local", "botfront/botfront-api:latest"]
 
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "tag", "botfront-api-local", "botfront/botfront-api:$TAG_NAME"]
+
+# Build docs
+- name: 'gcr.io/cloud-builders/npm'
+  dir: './botfront'
+  args: [ "run",  "docs:build"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "build",
+    "-t", "botfront/botfront-docs:$TAG_NAME",
+    "-t", "botfront/botfront-docs:latest",
+    "./botfront/docs"
+    ]
+
+# Push images to Docker registry
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "login",
         "-u", "$_DOCKER_USERNAME",
@@ -33,11 +65,18 @@ steps:
   args: [ "push", "botfront/botfront:latest"]
 
 - name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/botfront-api:$TAG_NAME"]
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ "push", "botfront/botfront-api:latest"]
+
+- name: 'gcr.io/cloud-builders/docker'
   args: [ "push", "botfront/botfront-docs:$TAG_NAME"]
 
 - name: 'gcr.io/cloud-builders/docker'
   args: [ "push", "botfront/botfront-docs:latest"]
 
+# Deploy to npmjs
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
   - kms

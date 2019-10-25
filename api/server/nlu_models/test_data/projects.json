@@ -1,0 +1,14 @@
+[
+    {
+        "_id": "project_id_models",
+        "nlu_models": ["model1", "model2", "model3"]
+    },
+    {
+        "_id": "project_id_models_with_default_lang",
+        "defaultLanguage": "fr",
+        "nlu_models": ["model1", "model2", "model3"]
+    },
+    {
+        "_id": "project_without_models"
+    }
+]

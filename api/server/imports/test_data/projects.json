@@ -1,0 +1,10 @@
+[
+  {
+    "_id": "pro1",
+    "nlu_models": ["nlu1", "nlu2"]
+  },
+  {
+    "_id": "pro2",
+    "nlu_models": ["nlu3", "nlu4"]
+  }
+]
