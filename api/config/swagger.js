@@ -2,8 +2,8 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('js-yaml');
 const fs = require('fs');
 
-module.exports = function(app) {
-    const openApiSpec = './openapi.yaml';
+module.exports = function (app) {
+    const openApiSpec = __dirname + '/../openapi.yaml';
     const swaggerDocument = YAML.safeLoad(fs.readFileSync(openApiSpec, 'utf8'));
     const idsToHide = ['apiDocs', 'apiDocsDeps'];
     const customCss =
