@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.5](https://github.com/botfront/botfront/compare/v0.16.4...v0.16.5) (2019-10-25)
+
+
+### Bug Fixes
+
+* potential fix for the story exceptions ([46275e4](https://github.com/botfront/botfront/commit/46275e4))
+* potential fix for the story group test not passing ([ce2414a](https://github.com/botfront/botfront/commit/ce2414a))
+* removes popup presence checking ([ea5c4fd](https://github.com/botfront/botfront/commit/ea5c4fd))
+* test destination story warning ([627eda1](https://github.com/botfront/botfront/commit/627eda1))
+
+
+### Features
+
+* widen the story name input field ([d037702](https://github.com/botfront/botfront/commit/d037702))
+
+
+### Tests
+
+* story exceptions fixes ([17e99c6](https://github.com/botfront/botfront/commit/17e99c6))
+* storygroups test fixes ([#289](https://github.com/botfront/botfront/issues/289)) ([5d56479](https://github.com/botfront/botfront/commit/5d56479))
+* udpated github action ([0e4d0d4](https://github.com/botfront/botfront/commit/0e4d0d4))
+
+
+
 ### [0.16.4](https://github.com/botfront/botfront/compare/v0.16.3-rc.1...v0.16.4) (2019-10-23)
 
 
