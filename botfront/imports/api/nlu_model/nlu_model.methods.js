@@ -43,7 +43,7 @@ Meteor.methods({
             throw formatError(e);
         }
     },
-    
+
     'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
         check(items, Array);
@@ -77,6 +77,30 @@ Meteor.methods({
         } catch (e) {
             throw formatError(e);
         }
+    },
+
+    'nlu.switchCanonical'(modelId, item) {
+        check(modelId, String);
+        check(item, Object);
+        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        const entities = item.entities ? item.entities : [];
+        let query = {
+            _id: modelId,
+            'training_data.common_examples.intent': item.intent,
+            'training_data.common_examples.entities': { $size: entities.length },
+        };
+
+        if (entities.length > 0) {
+            const entitiesNames = entities.map(entity => entity.entity);
+            const values = entities.map(entity => entity.values);
+            query = {
+                ...query,
+                'training_data.common_examples.entities.entity': { $all: entitiesNames },
+                'training_data.common_examples.entities.value': { $all: values }
+            }
+        }
+        console.log(query);
+
     },
 
     'nlu.deleteExample'(modelId, itemId) {
@@ -129,7 +153,7 @@ Meteor.methods({
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
 
-    
+
 });
 
 if (Meteor.isServer) {
@@ -225,7 +249,7 @@ if (Meteor.isServer) {
 
             return model ? sortBy(uniq(model.training_data.common_examples.map(e => e.intent))) : [];
         },
-        
+
         'nlu.addChitChatToTrainingData'(modelId, language, intents) {
             check(modelId, String);
             check(language, String);
@@ -320,9 +344,9 @@ if (Meteor.isServer) {
 
                 if (renameBotResponses) {
                     const project = Projects.find({ nlu_models: modelId }).fetch();
-    
+
                     const newTemplates = renameIntentsInTemplates(project[0].templates, oldIntent, newIntent);
-    
+
                     Projects.update({ nlu_models: modelId }, { $set: { templates: newTemplates } });
                 }
 
@@ -405,7 +429,7 @@ if (Meteor.isServer) {
                     namespace: 'chitchat',
                     defaultLanguage: 'en',
                 });
-                
+
                 // eslint-disable-next-line no-restricted-syntax
                 for (const lang of Object.keys(data)) {
                     // eslint-disable-next-line no-await-in-loop
@@ -427,4 +451,10 @@ if (Meteor.isServer) {
             }
         },
     });
+}
+
+
+{
+    _id: 'AusajSDmb7qRyBy9s', 'training_data.common_examples.intent' : 'basics.yes', 'training_data.common_examples.entities.entity' : { $all: [] },
+    'training_data.common_examples.entities.value' : { $all: [] }, 'training_data.common_examples.entities' : { $size: 0 }
 }

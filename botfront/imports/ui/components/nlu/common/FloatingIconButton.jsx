@@ -4,7 +4,7 @@ import { Icon } from 'semantic-ui-react';
 
 export default function FloatingIconButton(props) {
     const {
-        onClick, style, icon, size: sizeProp, color,
+        onClick, style, icon, size: sizeProp, color, iconClass,
     } = props;
     const size = sizeProp === 'medium' ? null : { size: sizeProp };
 
@@ -22,7 +22,7 @@ export default function FloatingIconButton(props) {
                 // this prop allows the icon to become focused
                 tabIndex={0}
                 link
-                className='viewOnHover'
+                className={iconClass}
                 onClick={onClick}
             />
         </div>
@@ -35,10 +35,12 @@ FloatingIconButton.propTypes = {
     icon: PropTypes.string.isRequired,
     size: PropTypes.string,
     color: PropTypes.string,
+    iconClass: PropTypes.string,
 };
 
 FloatingIconButton.defaultProps = {
     style: {},
     size: 'small',
     color: 'grey',
+    iconClass: 'viewOnHover',
 };

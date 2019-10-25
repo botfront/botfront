@@ -112,6 +112,11 @@ class NLUModel extends React.Component {
         Meteor.call('nlu.deleteExample', modelId, itemId, wrapMeteorCallback());
     };
 
+    onSwitchCanonical = (value) => {
+        const { model: { _id: modelId } = {} } = this.props;
+        Meteor.call('nlu.switchCanonical', modelId, value);
+    };
+
     onRenameIntent = (oldIntent, newIntent, renameBotResponse = false) => {
         const { model: { _id: modelId } = {} } = this.props;
         Meteor.call('nlu.renameIntent', modelId, oldIntent, newIntent, renameBotResponse, wrapMeteorCallback());
@@ -147,6 +152,7 @@ class NLUModel extends React.Component {
                     <NluDataTable
                         onEditExample={this.onEditExample}
                         onDeleteExample={this.onDeleteExample}
+                        onSwitchCanonical={this.onSwitchCanonical}
                         onRenameIntent={this.onRenameIntent}
                         examples={examples}
                         entities={entities}
@@ -244,7 +250,7 @@ class NLUModel extends React.Component {
                     size='tiny'
                     content={(
                         <div><Icon name='warning' />
-                        You need at least two distinct intents to train NLU
+                            You need at least two distinct intents to train NLU
                         </div>
                     )}
                     info
