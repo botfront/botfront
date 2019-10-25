@@ -41,6 +41,8 @@ import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import { Projects } from '../../../../api/project/project.collection';
 
+import { extractEntities } from './nluModel.utils';
+
 class NLUModel extends React.Component {
     constructor(props) {
         super(props);
@@ -437,17 +439,8 @@ const NLUDataLoaderContainer = withTracker((props) => {
     const { training_data: { common_examples = [] } = {} } = model;
     const instances = Instances.find({ projectId }).fetch();
     const intents = sortBy(uniq(common_examples.map(e => e.intent)));
-    const entities = [];
+    const entities = extractEntities(common_examples);
     const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
-    common_examples.forEach((e) => {
-        if (e.entities) {
-            e.entities.forEach((ent) => {
-                if (entities.indexOf(ent.entity) === -1) {
-                    entities.push(ent.entity);
-                }
-            });
-        }
-    });
 
     if (!name) return browserHistory.replace({ pathname: '/404' });
     const nluModelLanguages = getPublishedNluModelLanguages(nlu_models, true);

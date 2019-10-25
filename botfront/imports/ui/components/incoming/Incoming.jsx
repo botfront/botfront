@@ -8,10 +8,14 @@ import { Menu, Container } from 'semantic-ui-react';
 import { browserHistory } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
+import { Loading } from '../utils/Utils';
 import { Projects } from '../../../api/project/project.collection';
 import { NLUModels } from '../../../api/nlu_model/nlu_model.collection';
 import { getPublishedNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../api/instances/instances.collection';
+import TopMenu from './TopMenu';
+
+import { extractEntities } from '../nlu/models/nluModel.utils';
 
 import Activity from '../nlu/activity/Activity';
 
@@ -38,30 +42,38 @@ class Incoming extends React.Component {
         }
     }
 
+    renderTopMenu = () => {
+        const {
+            projectLanguages,
+        } = this.props;
+        const { selectedModel } = this.state;
+        return (
+            <Menu borderless className='top-menu'>
+                <Menu.Item header>
+                    <LanguageDropdown
+                        languageOptions={projectLanguages}
+                        selectedLanguage={selectedModel.language}
+                        handleLanguageChange={this.handleLanguageChange}
+                    />
+                </Menu.Item>
+            </Menu>
+        );
+    }
+
     render () {
         const {
             projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router,
         } = this.props;
         const { selectedModel } = this.state;
-
-
-        // console.log(instances);
-        if (!ready || !model) {
-            return <div>loading</div>;
-        }
         return (
             <>
-                <Menu borderless className='top-menu'>
-                    <Menu.Item header>
-                        <LanguageDropdown
-                            languageOptions={projectLanguages}
-                            selectedLanguage={selectedModel.language}
-                            handleLanguageChange={this.handleLanguageChange}
-                        />
-                    </Menu.Item>
-                </Menu>
-                <>
-                    <Container>
+                <TopMenu
+                    projectLanguages={projectLanguages}
+                    selectedModel={selectedModel}
+                    handleLanguageChange={this.handleLanguageChange}
+                />
+                <Container>
+                    <Loading loading={!ready || !model}>
                         <Activity
                             project={project}
                             modelId={modelId}
@@ -72,9 +84,8 @@ class Incoming extends React.Component {
                             params={params}
                             replaceUrl={router.replace}
                         />
-                    </Container>
-                    
-                </>
+                    </Loading>
+                </Container>
             </>
         );
     }
@@ -98,7 +109,6 @@ Incoming.propTypes = {
 Incoming.defaultProps = {
     projectLanguages: [],
     projectId: '',
-    // projectId: '',
     ready: false,
     params: {},
     intents: [],
@@ -131,19 +141,24 @@ const IncomingContainer = withTracker((props) => {
             return false;
         },
     };
+    if (modelId) {
+        modelHandler = Meteor.subscribe('nlu_models', modelId);
+    }
 
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const project = Projects.findOne({ _id: projectId }) || {};
     const projectLanguages = getPublishedNluModelLanguages(project.nlu_models, true);
     const instances = Instances.find({ projectId }).fetch();
+    const instance = instances && instances.find(({ _id }) => _id === project.instance);
 
-    if (modelId) {
-        modelHandler = Meteor.subscribe('nlu_models', modelId);
-    }
-
-    const instance = instances ? instances.find(({ _id }) => _id === project.instance) : undefined;
-    const models = NLUModels.find({ _id: { $in: project.nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
+    
+    const models = NLUModels.find(
+        { _id: { $in: project.nlu_models }, published: true },
+        { sort: { language: 1 } },
+        { fields: { language: 1, _id: 1 } },
+    ).fetch();
     const defaultModelId = models.find(model => model.language === project.defaultLanguage)._id;
+
     let model = {};
     if (!modelId || !project.nlu_models.includes(modelId)) {
         handleDefaultRoute(projectId);
@@ -151,25 +166,11 @@ const IncomingContainer = withTracker((props) => {
     } else {
         model = NLUModels.findOne({ _id: modelId });
     }
-    
 
-    if (!model) {
-        return {};
-    }
     const { training_data: { common_examples = [] } = {} } = model;
 
     const intents = sortBy(uniq(common_examples.map(e => e.intent)));
-    const entities = [];
-    common_examples.forEach((e) => {
-        if (e.entities) {
-            e.entities.forEach((ent) => {
-                if (entities.indexOf(ent.entity) === -1) {
-                    entities.push(ent.entity);
-                }
-            });
-        }
-    });
-
+    const entities = extractEntities(common_examples);
 
     return {
         projectLanguages,

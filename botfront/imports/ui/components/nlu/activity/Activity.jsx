@@ -31,19 +31,22 @@ class Activity extends React.Component {
 
     state = this.getDefaultState();
 
+    componentDidMount = () => {
+        const { params } = this.props;
+        const { activeTabIndex } = this.state;
+        if (activeTabIndex === undefined && !params.tab) this.setState({ activeTabIndex: 0 });
+    }
+
     createMenuItem = (name, index) => {
         const {
             model, projectId, params, replaceUrl,
         } = this.props;
-        const { activeTabIndex } = this.state;
         const regexp = / /g;
         const urlId = name.toLowerCase().replace(regexp, '');
         const url = `/project/${projectId}/incoming/${model._id}/${urlId}`;
-        if (activeTabIndex === undefined && params.tab === urlId) {
-            this.setState({ activeTabIndex: index });
-        }
         return {
             name,
+            key: `incoming-tab-${index}`,
             'data-cy': `incoming-${urlId}-tab`,
             onClick: () => {
                 // const url = `/project/${projectId}/model/${model._id}/${urlId}`;
@@ -62,7 +65,7 @@ class Activity extends React.Component {
             { menuItem: this.createMenuItem('New Utterances', 0), render: this.renderIncomingTab },
             {
                 menuItem: this.createMenuItem('Conversations', 1),
-                render: () => <Tab.Pane><ConversationBrowser projectId={project._id} params={params} modelId={model._id} replaceUrl={replaceUrl} /></Tab.Pane>,
+                render: () => <ConversationBrowser projectId={project._id} params={params} modelId={model._id} replaceUrl={replaceUrl} />,
             },
             { menuItem: this.createMenuItem('Populate', 2), render: () => <ActivityInsertions model={model} instance={instance} /> },
         ];
@@ -114,8 +117,8 @@ class Activity extends React.Component {
         const filteredExamples = filterFn(utterances);
         return utterances && utterances.length > 0 ? (
             <>
-                <Segment.Group className='new-utterances-topbar' horizontal borderless>
-                    <Segment className='new-utterances-topbar-section' inline tertiary compact floated='left'>
+                <Segment.Group className='new-utterances-topbar' horizontal>
+                    <Segment className='new-utterances-topbar-section' tertiary compact floated='left'>
                         <ActivityActions
                             onEvaluate={this.onEvaluate}
                             onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
@@ -145,7 +148,6 @@ class Activity extends React.Component {
                                 onChange={(e, option) => {
                                     this.setState({ sortType: option.value, isSortDropdownOpen: false });
                                 }}
-                                onMouseLeave
                             />
                         </Button.Group>
                     </Segment>
@@ -167,16 +169,9 @@ class Activity extends React.Component {
         );
     };
 
-    selectInitialTab = () => {
-        const { params } = this.props;
-        const { activeTabIndex } = this.state;
-        if (activeTabIndex === undefined && !params.tab) this.setState({ activeTabIndex: 0 });
-    }
-
     render() {
         const { ready } = this.props;
         const { activeTabIndex } = this.state;
-        this.selectInitialTab();
         return (
             <Loading loading={!ready}>
                 <Tab
