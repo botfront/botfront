@@ -40,7 +40,7 @@ services:
       - ROOT_URL=http://botfront:3000
 
   botfront-api:
-    image: 'botfront-api-local'
+    image: 'botfront-local-api'
     container_name: botfront-test-api
     restart: always
     depends_on:
