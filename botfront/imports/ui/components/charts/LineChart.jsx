@@ -32,8 +32,8 @@ function LineChart(props) {
                 colors={['#1f77b4', '#ff0000']}
                 borderWidth={1}
                 borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
-                useMesh
-                tooltip={tooltip({ suffixes, x })}
+                enableSlices='x'
+                sliceTooltip={tooltip({ suffixes, x })}
                 animate
                 motionStiffness={90}
                 motionDamping={15}
@@ -60,15 +60,17 @@ LineChart.defaultProps = {
         left: 60,
     },
     suffixes: {},
-    tooltip: ({ suffixes, x }) => ({ point, point: { data: d, serieId } }) => (
+    tooltip: ({ suffixes, x }) => ({ slice: { points } }) => (
         <div style={defaultTheme.tooltip.container}>
-            <strong>{`${d[x]}${suffixes[x] || ''}`}</strong>
-            <div>
-                <span style={{ color: point.color }}>
-                    <Icon name='window minimize' />
-                </span>
-                {labelWithPercent(d.y, d.yRel, suffixes[serieId] || '')}
-            </div>
+            <strong>{`${points[0].data[x]}${suffixes[x] || ''}`}</strong>
+            { points.map(({ data: d, serieId, color }) => (
+                <div>
+                    <span style={{ color }}>
+                        <Icon name='window minimize' />
+                    </span>
+                    {labelWithPercent(d.y, d.yRel, suffixes[serieId] || '')}
+                </div>
+            ))}
         </div>
     ),
 };
