@@ -6,7 +6,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { sortBy, uniq } from 'lodash';
 import moment from 'moment';
 import {
-    Tab, Message, Dropdown, Segment,
+    Tab, Message, Dropdown, Segment, Button,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
@@ -21,7 +21,13 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import ConversationBrowser from '../../conversations/ConversationsBrowser';
 
 class Activity extends React.Component {
-    getDefaultState = () => ({ filterFn: utterances => utterances, activeTabIndex: undefined, sortType: 'mostRecent' }); // eslint-disable-line react/sort-comp
+    // eslint-disable-next-line react/sort-comp
+    getDefaultState = () => ({
+        filterFn: utterances => utterances,
+        activeTabIndex: undefined,
+        sortType: 'mostRecent',
+        isSortDropdownOpen: false,
+    });
 
     state = this.getDefaultState();
 
@@ -83,6 +89,16 @@ class Activity extends React.Component {
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
     };
 
+    dropdownOptions = [
+        { value: 'mostRecent', text: 'Newest' },
+        { value: 'leastRecent', text: 'Oldest' },
+    ];
+
+    toggleSortDropdown = () => {
+        const { isSortDropdownOpen } = this.state;
+        this.setState({ isSortDropdownOpen: !isSortDropdownOpen });
+    }
+
     renderIncomingTab = () => {
         const {
             model: { _id: modelId },
@@ -94,7 +110,7 @@ class Activity extends React.Component {
             numValidated,
         } = this.props;
 
-        const { filterFn, sortType } = this.state;
+        const { filterFn, sortType, isSortDropdownOpen } = this.state;
         const filteredExamples = filterFn(utterances);
         return utterances && utterances.length > 0 ? (
             <>
@@ -113,23 +129,25 @@ class Activity extends React.Component {
                         />
                     </Segment>
                     <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
-                        <Segment className='sort-utterances-wrapper' compact floated='right'>
-                            sort by:{' '}
+                        <Button.Group className='sort-dropdown' basic onClick={() => { this.setState({ isSortDropdownOpen: !isSortDropdownOpen }); }}>
                             <Dropdown
-                                inline
+                                onClick={() => { this.setState({ isSortDropdownOpen: !isSortDropdownOpen }); }}
+                                open={isSortDropdownOpen}
                                 floating
-                                placeholder='Sort by:'
+                                className='button icon'
                                 value={sortType}
-                                options={[
-                                    { value: 'mostRecent', text: 'Date descending' },
-                                    { value: 'leastRecent', text: 'Date ascending' },
-                                ]}
+                                trigger={(
+                                    <Segment className='button sort-dropdown-trigger'>
+                                        Sort by: <b>{this.dropdownOptions.find(({ value }) => value === sortType).text}</b>
+                                    </Segment>
+                                )}
+                                options={this.dropdownOptions}
                                 onChange={(e, option) => {
-                                    this.setState({ sortType: option.value });
+                                    this.setState({ sortType: option.value, isSortDropdownOpen: false });
                                 }}
+                                onMouseLeave
                             />
-                        </Segment>
-                        
+                        </Button.Group>
                     </Segment>
                 </Segment.Group>
                 
