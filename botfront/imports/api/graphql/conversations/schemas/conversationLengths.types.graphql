@@ -1,5 +1,10 @@
 type Query {
-    conversationLengths(projectId: String!, from: Float = 0, to: Float): [ConversationLength!]!
+    conversationLengths(
+        projectId: String!,
+        envs: [String],
+        from: Float = 0,
+        to: Float
+    ): [ConversationLength!]!
 }
 
 type ConversationLength {

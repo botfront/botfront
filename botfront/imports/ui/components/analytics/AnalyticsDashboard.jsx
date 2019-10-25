@@ -6,11 +6,14 @@ import AnalyticsCard from './AnalyticsCard';
 import conversationLengths from '../../../api/graphql/conversations/queries/conversationLengths.graphql';
 import conversationDurations from '../../../api/graphql/conversations/queries/conversationDurations.graphql';
 import intentFrequencies from '../../../api/graphql/conversations/queries/intentFrequencies.graphql';
-import conversationCounts from '../../../api/graphql/conversations/queries/conversationCounts.graphql';
+import visitCounts from '../../../api/graphql/conversations/queries/visitCounts.graphql';
 import fallbackCounts from '../../../api/graphql/conversations/queries/fallbackCounts.graphql';
 
 function AnalyticsDashboard(props) {
-    const { projectId } = props;
+    const { projectId, environment } = props;
+
+    const envs = [environment];
+    if (environment === 'development') envs.push(null);
 
     return (
         <Container className='analytics-container'>
@@ -18,7 +21,7 @@ function AnalyticsDashboard(props) {
                 <AnalyticsCard
                     chartTypeOptions={['bar', 'pie']}
                     title='Conversation Lengths'
-                    queryParams={{ projectId, queryName: 'conversationLengths' }}
+                    queryParams={{ projectId, envs, queryName: 'conversationLengths' }}
                     query={conversationLengths}
                     graphParams={{
                         x: 'length',
@@ -31,7 +34,7 @@ function AnalyticsDashboard(props) {
                 <AnalyticsCard
                     chartTypeOptions={['bar', 'pie']}
                     title='Top 10 Intents'
-                    queryParams={{ projectId, queryName: 'intentFrequencies' }}
+                    queryParams={{ projectId, envs, queryName: 'intentFrequencies' }}
                     query={intentFrequencies}
                     graphParams={{
                         x: 'name',
@@ -42,7 +45,7 @@ function AnalyticsDashboard(props) {
                 <AnalyticsCard
                     chartTypeOptions={['bar', 'pie']}
                     title='Conversation Durations'
-                    queryParams={{ projectId, queryName: 'conversationDurations' }}
+                    queryParams={{ projectId, envs, queryName: 'conversationDurations' }}
                     query={conversationDurations}
                     graphParams={{
                         x: 'duration',
@@ -55,7 +58,9 @@ function AnalyticsDashboard(props) {
                 <AnalyticsCard
                     chartTypeOptions={['line']}
                     title='Fallback'
-                    queryParams={{ temporal: true, projectId, queryName: 'responseCounts' }}
+                    queryParams={{
+                        temporal: true, envs, projectId, queryName: 'responseCounts',
+                    }}
                     query={fallbackCounts}
                     graphParams={{
                         x: 'bucket',
@@ -69,8 +74,10 @@ function AnalyticsDashboard(props) {
                 <AnalyticsCard
                     chartTypeOptions={['line']}
                     title='Visits & Engagement'
-                    queryParams={{ temporal: true, projectId, queryName: 'conversationCounts' }}
-                    query={conversationCounts}
+                    queryParams={{
+                        temporal: true, projectId, envs, queryName: 'conversationCounts',
+                    }}
+                    query={visitCounts}
                     graphParams={{
                         x: 'bucket',
                         y: [{ abs: 'count' }, { abs: 'engagements', rel: 'proportion' }],
@@ -89,12 +96,14 @@ function AnalyticsDashboard(props) {
 
 AnalyticsDashboard.propTypes = {
     projectId: PropTypes.string.isRequired,
+    environment: PropTypes.string.isRequired,
 };
 
 AnalyticsDashboard.defaultProps = {};
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    environment: state.settings.get('workingDeploymentEnvironment'),
 });
 
 export default connect(mapStateToProps)(AnalyticsDashboard);

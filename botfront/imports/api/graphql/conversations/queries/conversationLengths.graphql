@@ -1,10 +1,12 @@
 query ConversationLengths(
     $projectId: String!,
+    $envs: [String] = ["development", null],
     $from: Float,
     $to: Float
 ) {
     conversationLengths(
         projectId: $projectId,
+        envs: $envs,
         from: $from,
         to: $to,
     ) {

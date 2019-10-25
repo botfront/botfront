@@ -1,6 +1,7 @@
 type Query {
     responseCounts(
         projectId: String!,
+        envs: [String],
         from: Float,
         to: Float,
         nBuckets: Int = 7,

@@ -42,6 +42,7 @@ function AnalyticsCard(props) {
 
     const variables = {
         projectId: queryParams.projectId,
+        envs: queryParams.envs,
         from: startDate.valueOf() / 1000,
         to: endDate.valueOf() / 1000,
         nBuckets,

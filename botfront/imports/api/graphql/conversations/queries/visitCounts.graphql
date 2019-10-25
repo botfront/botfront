@@ -1,5 +1,6 @@
-query EngagementCounts(
+query VisitCounts(
     $projectId: String!,
+    $envs: [String] = ["development", null],
     $from: Float,
     $to: Float,
     $nBuckets: Int = 7,
@@ -7,11 +8,12 @@ query EngagementCounts(
 ) {
     conversationCounts(
         projectId: $projectId,
+        envs: $envs,
         from: $from,
         to: $to,
         exclude: $exclude,
         nBuckets: $nBuckets,
     ) {
-        bucket, proportion,
+        bucket, count, engagements, proportion,
     }
 }

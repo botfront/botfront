@@ -1,5 +1,6 @@
 query FallbackCounts(
     $projectId: String!,
+    $envs: [String] = ["development", null],
     $from: Float,
     $to: Float,
     $fallbacks: [String] = ["utter_fallback"],
@@ -7,6 +8,7 @@ query FallbackCounts(
 ) {
     responseCounts(
         projectId: $projectId,
+        envs: $envs,
         from: $from,
         to: $to,
         responses: $fallbacks,

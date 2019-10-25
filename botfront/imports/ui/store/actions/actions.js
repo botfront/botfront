@@ -63,3 +63,10 @@ export function setStoryCollapsed(storyId, collapsed) {
         collapsed,
     };
 }
+
+export function setWorkingDeploymentEnvironment(env) {
+    return {
+        type: types.SET_WORKING_DEPLOYMENT_ENVIRONMENT,
+        env,
+    };
+}

@@ -3,6 +3,7 @@ import { generateBuckets } from '../../utils';
 
 export const getConversationCounts = async ({
     projectId,
+    envs,
     from = new Date().getTime() - (86400 * 7),
     to = new Date().getTime(),
     nBuckets,
@@ -11,6 +12,7 @@ export const getConversationCounts = async ({
     {
         $match: {
             projectId,
+            ...(envs ? { env: { $in: envs } } : {}),
         },
     },
     {

@@ -197,6 +197,19 @@ if (Meteor.isServer) {
             }
         },
 
+        async 'project.getDeploymentEnvironments'(projectId) {
+            check(projectId, String);
+            try {
+                const project = Projects.findOne({ _id: projectId }, { fields: { deploymentEnvironments: 1 } });
+                const { deploymentEnvironments } = project;
+                if (!deploymentEnvironments) return ['development']; // key doesn't exist
+                if (!deploymentEnvironments.includes('development')) return ['development', ...deploymentEnvironments]; // key doesn't include dev
+                return deploymentEnvironments;
+            } catch (error) {
+                throw error;
+            }
+        },
+
         async 'project.getSlots'(projectId) {
             check(projectId, String);
             checkIfCan(['stories:r'], projectId);

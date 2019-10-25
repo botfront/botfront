@@ -2,12 +2,14 @@ import Conversations from '../conversations.model';
 
 export const getConversationLengths = async ({
     projectId,
+    envs,
     from,
     to = new Date().getTime(),
 }) => Conversations.aggregate([
     {
         $match: {
             projectId,
+            ...(envs ? { env: { $in: envs } } : {}),
         },
     },
     {

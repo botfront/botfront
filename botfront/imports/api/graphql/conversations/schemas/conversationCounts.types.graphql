@@ -1,6 +1,7 @@
 type Query {
     conversationCounts(
         projectId: String!,
+        envs: [String],
         from: Float,
         to: Float,
         nBuckets: Int = 7,
