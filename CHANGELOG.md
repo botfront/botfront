@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.17.0-rc.0](https://github.com/botfront/botfront/compare/v0.16.7...v0.17.0-rc.0) (2019-10-26)
+
+
+### Bug Fixes
+
+* missing stash files from the latest commit ([8b89667](https://github.com/botfront/botfront/commit/8b89667))
+
+
+### Features
+
+* add botfront api files ([a0513e6](https://github.com/botfront/botfront/commit/a0513e6))
+* add support for cli arguments ([292a79f](https://github.com/botfront/botfront/commit/292a79f))
+
+
+### Tests
+
+* fix storygroup test ([03ebfc2](https://github.com/botfront/botfront/commit/03ebfc2))
+
+
+
 ### [0.16.7](https://github.com/botfront/botfront/compare/v0.16.6...v0.16.7) (2019-10-25)
 
 
