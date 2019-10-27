@@ -59,10 +59,13 @@ cp ../README.md ../cli/.
 echo "Copy of README in the CLI project"
 
 # Amend release commit with new and changed files
-git add ../CHANGELOG.md 
+git add ../CHANGELOG.md
 git add ../cli/README.md
-git add ../cli/project-template/.botfront/botfront.yml 
+git add ../cli/project-template/.botfront/botfront.yml
 git add ../cli/package.json
-git add ../cli/package-lock.json 
+git add ../cli/package-lock.json
+git add ../api/package.json
+git add ../api/package-lock.json
+
 git commit --amend --no-edit
 
