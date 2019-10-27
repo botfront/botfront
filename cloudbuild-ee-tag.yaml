@@ -11,7 +11,7 @@ steps:
   args: [ "build",  "-t", "botfront-local", "."]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "build", "-t", "botfront-local-api", "./api"]
+  args: [ "build", "-t", "botfront-api-local", "./api"]
 
 - name: 'gcr.io/kaniko-project/executor:latest'
   dir: /workspace/botfront/cypress
@@ -52,10 +52,10 @@ steps:
   args: [ "tag", "botfront-local", "gcr.io/${PROJECT_ID}/botfront:$TAG_NAME"]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "tag", "botfront-local-api", "gcr.io/${PROJECT_ID}/botfront-api:$TAG_NAME"]
+  args: [ "tag", "botfront-api-local", "gcr.io/${PROJECT_ID}/botfront-api:$TAG_NAME"]
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ "tag", "botfront-local-api", "gcr.io/${PROJECT_ID}/botfront-api:latest"]
+  args: [ "tag", "botfront-api-local", "gcr.io/${PROJECT_ID}/botfront-api:latest"]
 
 # - name: 'gcr.io/cloud-builders/kubectl'
 #   args:

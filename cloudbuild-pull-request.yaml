@@ -2,7 +2,7 @@ steps:
 - name: 'gcr.io/cloud-builders/npm'
   dir: /workspace/api
   args: ["install"]
-  
+
 - name: 'gcr.io/cloud-builders/npm'
   dir: /workspace/api
   args: ["run", "test"]
