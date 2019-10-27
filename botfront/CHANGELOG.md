@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.17.0-ee.2](https://github.com/botfront/botfront/compare/v0.17.0-ee.1...v0.17.0-ee.2) (2019-10-27)
+
+
+### Tests
+
+* test project namespace starts with 'bf-' ([8f906ac](https://github.com/botfront/botfront/commit/8f906ac))
+
+
+
 ## [0.17.0-ee.1](https://github.com/botfront/botfront/compare/v0.17.0...v0.17.0-ee.1) (2019-10-27)
 
 
