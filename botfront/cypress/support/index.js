@@ -126,7 +126,6 @@ Cypress.Commands.add('MeteorCall', (method, args) => {
 //             cy.fixture('nlu_import.json', 'utf8').then((content) => {
 //                 cy.get('.file-dropzone').upload(content, 'data.json');
 //             });
-        
 //             cy.contains('Import Training Data').click();
 //         });
 // });
@@ -202,7 +201,7 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         _id: projectId,
         name,
         defaultLanguage,
-        namespace: projectId,
+        namespace: `bf-${projectId}`,
     };
     return cy.visit('/')
         .then(() => cy.login())
@@ -345,7 +344,6 @@ Cypress.Commands.add('addTestActivity', (modelId, projectId) => {
         text: 'bonjour , avez vous un f1 à lyon autour de l apardieu ?',
         intent: 'faq.find_hotel',
         entities:[
-    
         ],
         confidence: '0.50',
         modelId: '${modelId}',
