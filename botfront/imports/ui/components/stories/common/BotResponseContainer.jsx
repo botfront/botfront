@@ -11,12 +11,20 @@ const BotResponseContainer = (props) => {
     } = props;
 
     const [input, setInput] = useState();
-    const [shiftPressed, setShiftPressed] = useState(false);
+    const [shiftPressed, setshiftPressed] = useState(false);
+    const [cursorPosition, setCursorPosition] = useState(undefined);
     const focusGrabber = useRef();
-    const isTextResponse = Object.keys(value).length === 1 && Object.keys(value).includes('text');
+    const isTextResponse = Object.keys(value).length === 1 && Object.keys(value)[0] === 'text';
     const hasText = Object.keys(value).includes('text');
     const hasButtons = Object.keys(value).includes('buttons');
 
+    useEffect(() => {
+        if (cursorPosition !== undefined) {
+            focusGrabber.current.selectionStart = cursorPosition;
+            focusGrabber.current.selectionEnd = cursorPosition;
+            setCursorPosition(undefined);
+        }
+    }, [cursorPosition]);
     useEffect(() => {
         setInput(value.text);
         if (focus) focusGrabber.current.focus();
@@ -27,13 +35,18 @@ const BotResponseContainer = (props) => {
         if (isTextResponse) onChange({ text: input }, false);
         if (hasButtons) onChange({ text: input, buttons: value.buttons }, false);
     }
+    const insertChar = (char, selectionStart, selectionEnd) => (
+        `${input.slice(0, selectionStart)}\n${input.slice(selectionEnd, input.length)}`
+    );
 
     const handleKeyDown = (e) => {
         if (e.key === 'Shift') {
-            setShiftPressed(true);
+            setshiftPressed(true);
         }
         if (e.key === 'Enter' && isTextResponse) {
-            if (shiftPressed === true) {
+            if (shiftPressed) {
+                onChange(insertChar('/n', e.target.selectionStart, e.target.selectionEnd));
+                setCursorPosition(e.target.selectionStart + 1);
                 return;
             }
             e.preventDefault();
@@ -43,7 +56,7 @@ const BotResponseContainer = (props) => {
 
     const handleKeyUp = (e) => {
         if (e.key === 'Shift') {
-            setShiftPressed(false);
+            setshiftPressed(false);
         }
     };
 
@@ -54,7 +67,9 @@ const BotResponseContainer = (props) => {
             role='button'
             tabIndex={0}
             value={input}
-            onChange={event => setInput(event.target.value)}
+            onChange={(event) => {
+                setInput(event.target.value);
+            }}
             onKeyDown={handleKeyDown}
             onKeyUp={handleKeyUp}
             onFocus={() => onFocus()}
