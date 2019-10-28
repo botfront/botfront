@@ -28,7 +28,7 @@ function AnalyticsDashboard(props) {
                         x: 'length',
                         y: [{ abs: 'count', rel: 'frequency' }],
                         formats: {
-                            length: v => `${v} utterances`,
+                            length: v => `${v} utterance${v !== 1 ? 's' : ''}`,
                         },
                     }}
                 />
@@ -54,7 +54,7 @@ function AnalyticsDashboard(props) {
                         x: 'duration',
                         y: [{ abs: 'count', rel: 'frequency' }],
                         formats: {
-                            duration: v => `${v}s`,
+                            duration: v => `${v} s`,
                         },
                     }}
                 />
@@ -89,8 +89,8 @@ function AnalyticsDashboard(props) {
                         y: [{ abs: 'count' }, { abs: 'engagements', rel: 'proportion' }],
                         formats: {
                             bucket: v => v.toLocaleDateString(),
-                            count: v => `${v} visits`,
-                            engagements: v => `${v} engagements`,
+                            count: v => `${v} visit${v !== 1 ? 's' : ''}`,
+                            engagements: v => `${v} engagement${v !== 1 ? 's' : ''}`,
                             proportion: v => `${v}%`,
                         },
                         rel: { y: [{ abs: 'proportion' }] },
