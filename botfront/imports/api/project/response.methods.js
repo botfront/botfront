@@ -59,26 +59,20 @@ if (Meteor.isServer) {
                 let template = Projects.findOne(
                     {
                         _id: projectId,
-                        templates: { $elemMatch: { key, 'values.lang': lang } },
+                        templates: { $elemMatch: { key } },
                     },
                     {
                         fields: {
-                            templates: { $elemMatch: { key, 'values.lang': lang } },
+                            templates: { $elemMatch: { key } },
                         },
                     },
                 );
+                const newSeq = {
+                    sequence: [{ content: safeDump({ text: key }) }],
+                    lang,
+                };
                 if (!template) {
-                    template = {
-                        key,
-                        values: [
-                            {
-                                sequence: [
-                                    { content: safeDump({ text: key }) },
-                                ],
-                                lang,
-                            },
-                        ],
-                    };
+                    template = { key, values: [newSeq] };
                     Projects.update(
                         { _id: projectId },
                         {
@@ -87,6 +81,16 @@ if (Meteor.isServer) {
                         },
                     );
                     return template;
+                }
+                if (!template.templates[0].values.some(v => v.lang === lang)) {
+                    template.templates[0].values.push(newSeq);
+                    Projects.update(
+                        { _id: projectId, 'templates.key': key },
+                        {
+                            $push: { 'templates.$.values': newSeq },
+                            $set: { responsesUpdatedAt: Date.now() },
+                        },
+                    );
                 }
                 return template.templates[0];
             } catch (e) {
