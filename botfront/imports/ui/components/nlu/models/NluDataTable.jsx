@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Checkbox, Tab, Grid,
+    Checkbox, Tab, Grid, Loader,
 } from 'semantic-ui-react';
 import _, { difference } from 'lodash';
 import ReactTable from 'react-table';
@@ -21,7 +21,7 @@ export default class NluDataTable extends React.Component {
         super(props);
         const { showLabels } = this.props;
         this.state = {
-            expanded: {},
+            waiting: new Set(),
             filter: {
                 intents: [],
                 entities: [],
@@ -82,7 +82,7 @@ export default class NluDataTable extends React.Component {
             onRenameIntent, examples, projectId, entities, extraColumns, onDeleteExample, onSwitchCanonical,
         } = this.props;
         let { intentColumns } = this.props;
-        const { showLabels } = this.state;
+        const { showLabels, waiting } = this.state;
         intentColumns = intentColumns || [
             {
                 accessor: 'intent',
@@ -135,17 +135,24 @@ export default class NluDataTable extends React.Component {
             accessor: '_id',
             filterable: false,
             Cell: (props) => {
+                if (waiting.has(props.row.example._id)) {
+                    return (<Loader active inline size='mini' />);
+                }
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                 return (
                     <FloatingIconButton
                         icon='gem'
                         color={canonical ? 'black' : undefined}
-                        onClick={() => onSwitchCanonical(props.row.example)}
+                        onClick={async () => {
+                            // need to recreate a set since state do not detect update through mutations
+                            this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
+                            const result = await onSwitchCanonical(props.row.example);
+                            waiting.delete(props.row.example._id);
+                            this.setState({ waiting: new Set(waiting) });
+                        }}
                         iconClass={canonical ? '' : undefined} // remove the on hover class if canonical
                     />);
-            }
-
-            ,
+            },
             Header: '',
             width: 30,
         });

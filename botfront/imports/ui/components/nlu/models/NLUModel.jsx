@@ -112,9 +112,9 @@ class NLUModel extends React.Component {
         Meteor.call('nlu.deleteExample', modelId, itemId, wrapMeteorCallback());
     };
 
-    onSwitchCanonical = (value) => {
+    onSwitchCanonical = async (value) => {
         const { model: { _id: modelId } = {} } = this.props;
-        Meteor.call('nlu.switchCanonical', modelId, value);
+        return Meteor.callWithPromise('nlu.switchCanonical', modelId, value);
     };
 
     onRenameIntent = (oldIntent, newIntent, renameBotResponse = false) => {
