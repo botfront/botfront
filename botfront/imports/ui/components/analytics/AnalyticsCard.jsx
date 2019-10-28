@@ -1,4 +1,6 @@
-import { Button, Popup, Loader } from 'semantic-ui-react';
+import {
+    Button, Popup, Loader, Message, Icon,
+} from 'semantic-ui-react';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -76,6 +78,7 @@ function AnalyticsCard(props) {
                 xScale: { type: 'time', format: 'native' },
             }
             : paramsToUse;
+        if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
         if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} />;
         if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} />;
