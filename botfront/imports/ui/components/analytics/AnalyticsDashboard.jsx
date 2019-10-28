@@ -20,20 +20,22 @@ function AnalyticsDashboard(props) {
             <div className='analytics-dashboard'>
                 <AnalyticsCard
                     chartTypeOptions={['bar', 'pie']}
-                    title='Conversation Lengths'
+                    title='Conversation Length'
+                    titleDescription='The number of user utterances contained in a conversation.'
                     queryParams={{ projectId, envs, queryName: 'conversationLengths' }}
                     query={conversationLengths}
                     graphParams={{
                         x: 'length',
                         y: [{ abs: 'count', rel: 'frequency' }],
-                        suffixes: {
-                            length: ' utterances',
+                        formats: {
+                            length: v => `${v} utterances`,
                         },
                     }}
                 />
                 <AnalyticsCard
                     chartTypeOptions={['bar', 'pie']}
                     title='Top 10 Intents'
+                    titleDescription='The number of user utterances classified as having a given intent.'
                     queryParams={{ projectId, envs, queryName: 'intentFrequencies' }}
                     query={intentFrequencies}
                     graphParams={{
@@ -44,20 +46,22 @@ function AnalyticsDashboard(props) {
                 />
                 <AnalyticsCard
                     chartTypeOptions={['bar', 'pie']}
-                    title='Conversation Durations'
+                    title='Conversation Duration'
+                    titleDescription='The number of seconds elapsed between the first and the last message of a conversation.'
                     queryParams={{ projectId, envs, queryName: 'conversationDurations' }}
                     query={conversationDurations}
                     graphParams={{
                         x: 'duration',
                         y: [{ abs: 'count', rel: 'frequency' }],
-                        suffixes: {
-                            duration: 's',
+                        formats: {
+                            duration: v => `${v}s`,
                         },
                     }}
                 />
                 <AnalyticsCard
                     chartTypeOptions={['line']}
                     title='Fallback'
+                    titleDescription='The number of times the bot uttered fallback (out of all bot utterances).'
                     queryParams={{
                         temporal: true, envs, projectId, queryName: 'responseCounts',
                     }}
@@ -65,8 +69,9 @@ function AnalyticsDashboard(props) {
                     graphParams={{
                         x: 'bucket',
                         y: [{ abs: 'count', rel: 'proportion' }],
-                        suffixes: {
-                            proportion: '%',
+                        formats: {
+                            bucket: v => v.toLocaleDateString(),
+                            proportion: v => `${v}%`,
                         },
                         rel: { y: [{ abs: 'proportion' }] },
                     }}
@@ -74,6 +79,7 @@ function AnalyticsDashboard(props) {
                 <AnalyticsCard
                     chartTypeOptions={['line']}
                     title='Visits & Engagement'
+                    titleDescription='Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.'
                     queryParams={{
                         temporal: true, projectId, envs, queryName: 'conversationCounts',
                     }}
@@ -81,10 +87,11 @@ function AnalyticsDashboard(props) {
                     graphParams={{
                         x: 'bucket',
                         y: [{ abs: 'count' }, { abs: 'engagements', rel: 'proportion' }],
-                        suffixes: {
-                            count: ' visits',
-                            engagements: ' engagements',
-                            proportion: '%',
+                        formats: {
+                            bucket: v => v.toLocaleDateString(),
+                            count: v => `${v} visits`,
+                            engagements: v => `${v} engagements`,
+                            proportion: v => `${v}%`,
                         },
                         rel: { y: [{ abs: 'proportion' }] },
                     }}

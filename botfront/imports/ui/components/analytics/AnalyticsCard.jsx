@@ -35,7 +35,7 @@ function AnalyticsCard(props) {
     const formatDateBuckets = data => data
         .map(c => ({
             ...c,
-            bucket: moment(parseInt(c.bucket, 10) * 1000).format('DD/MM'),
+            bucket: new Date(parseInt(c.bucket, 10) * 1000),
         }));
 
     const { tickValues, nBuckets } = calculateTemporalBuckets();
@@ -73,7 +73,7 @@ function AnalyticsCard(props) {
             ? {
                 ...paramsToUse,
                 axisBottom: { tickValues, format: '%d/%m' },
-                xScale: { type: 'time', format: '%d/%m', precision: 'day' },
+                xScale: { type: 'time', format: 'native' },
             }
             : paramsToUse;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;

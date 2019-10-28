@@ -2,11 +2,11 @@ import { ResponsiveBar } from '@nivo/bar';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from 'semantic-ui-react';
-import { labelWithPercent } from './PieChart';
+import { labelWithPercent, formatOrIdent } from './PieChart';
 
 function BarChart(props) {
     const {
-        data, margin, x, y, tooltip, label, suffixes, ...otherProps
+        data, margin, x, y, tooltip, label, formats, ...otherProps
     } = props;
 
     const nivoData = data
@@ -28,7 +28,7 @@ function BarChart(props) {
                 colors={['#1f77b4', '#ff0000']}
                 borderWidth={1}
                 borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
-                tooltip={tooltip({ relMap, suffixes, x })}
+                tooltip={tooltip({ relMap, formats, x })}
                 label={label}
                 labelSkipWidth={16}
                 labelSkipHeight={16}
@@ -46,7 +46,7 @@ BarChart.propTypes = {
     margin: PropTypes.object,
     label: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     tooltip: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    suffixes: PropTypes.object,
+    formats: PropTypes.object,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
 };
@@ -58,16 +58,16 @@ BarChart.defaultProps = {
         bottom: 60,
         left: 60,
     },
-    suffixes: {},
-    label: ({ data: d }) => '', // disable label
-    tooltip: ({ suffixes, relMap, x }) => ({ data: d, id, color }) => (
+    formats: {},
+    label: () => '', // disable label
+    tooltip: ({ formats, relMap, x }) => ({ data: d, id, color }) => (
         <div>
-            <strong>{`${d[x]}${suffixes[x] || ''}`}</strong>
+            <strong>{formatOrIdent(formats, x)(d[x])}</strong>
             <div>
                 <span style={{ color }}>
                     <Icon name='window minimize' />
                 </span>
-                {labelWithPercent(d[id], d[relMap[id]], suffixes[id] || '')}
+                {labelWithPercent(formatOrIdent(formats, formats[id])(d[id]), d[relMap[id]])}
             </div>
         </div>
     ),

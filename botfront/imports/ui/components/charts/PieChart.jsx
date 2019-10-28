@@ -3,11 +3,12 @@ import React from 'react';
 import { Icon } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
-export const labelWithPercent = (val, relVal, suffix) => `${val}${suffix}${(relVal && !Number.isNaN(+relVal)) ? ` (${relVal}%)` : ''}`;
+export const formatOrIdent = (formats, key) => formats[key] || (v => v);
+export const labelWithPercent = (val, relVal) => `${val}${(relVal && !Number.isNaN(+relVal)) ? ` (${relVal}%)` : ''}`;
 
 function PieChart(props) {
     const {
-        data, margin, radialLabel, sliceLabel, tooltip, x, y, suffixes, ...otherProps
+        data, margin, radialLabel, sliceLabel, tooltip, x, y, formats, ...otherProps
     } = props;
 
     const nivoData = data
@@ -34,7 +35,7 @@ function PieChart(props) {
                 borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
                 sliceLabel={sliceLabel}
                 radialLabel={radialLabel}
-                tooltip={tooltip({ suffixes, x, y })}
+                tooltip={tooltip({ formats, x, y })}
                 radialLabelsSkipAngle={20}
                 slicesLabelsSkipAngle={20}
                 animate
@@ -52,7 +53,7 @@ PieChart.propTypes = {
     radialLabel: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     sliceLabel: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     tooltip: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    suffixes: PropTypes.object,
+    formats: PropTypes.object,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
 };
@@ -64,17 +65,17 @@ PieChart.defaultProps = {
         bottom: 60,
         left: 30,
     },
-    suffixes: {},
+    formats: {},
     sliceLabel: 'x',
     radialLabel: d => labelWithPercent(d.y, d.yRel, ''),
-    tooltip: ({ suffixes, x, y }) => d => (
+    tooltip: ({ formats, x, y }) => d => (
         <div>
-            <strong>{`${d[x]}${suffixes[x] || ''}`}</strong>
+            <strong>{formatOrIdent(formats, x)(d[x])}</strong>
             <div>
                 <span style={{ color: d.color }}>
                     <Icon name='square' />
                 </span>
-                {labelWithPercent(d.y, d.yRel, suffixes[y[0].abs] || '')}
+                {labelWithPercent(formatOrIdent(formats, y[0].abs)(d.y), d.yRel)}
             </div>
         </div>
     ),

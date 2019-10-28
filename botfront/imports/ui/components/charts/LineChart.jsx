@@ -3,11 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defaultTheme } from '@nivo/core';
 import { Icon } from 'semantic-ui-react';
-import { labelWithPercent } from './PieChart';
+import { labelWithPercent, formatOrIdent } from './PieChart';
 
 function LineChart(props) {
     const {
-        data, margin, x, y, tooltip, suffixes, ...otherProps
+        data, margin, x, y, tooltip, formats, ...otherProps
     } = props;
 
     const nivoData = y
@@ -15,7 +15,7 @@ function LineChart(props) {
             id: measure.abs,
             data: data.map(d => ({
                 ...d,
-                x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
+                x: d[x] || d[x] === 0 ? d[x] : 'null',
                 y: d[measure.abs],
                 yRel: d[measure.rel],
             })),
@@ -33,7 +33,7 @@ function LineChart(props) {
                 borderWidth={1}
                 borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
                 enableSlices='x'
-                sliceTooltip={tooltip({ suffixes, x })}
+                sliceTooltip={tooltip({ formats, x })}
                 animate
                 motionStiffness={90}
                 motionDamping={15}
@@ -47,7 +47,7 @@ LineChart.propTypes = {
     data: PropTypes.array.isRequired,
     margin: PropTypes.object,
     tooltip: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    suffixes: PropTypes.object,
+    formats: PropTypes.object,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
 };
@@ -59,16 +59,16 @@ LineChart.defaultProps = {
         bottom: 60,
         left: 60,
     },
-    suffixes: {},
-    tooltip: ({ suffixes, x }) => ({ slice: { points } }) => (
+    formats: {},
+    tooltip: ({ formats, x }) => ({ slice: { points } }) => (
         <div style={defaultTheme.tooltip.container}>
-            <strong>{`${points[0].data[x]}${suffixes[x] || ''}`}</strong>
+            <strong>{formatOrIdent(formats, x)(points[0].data[x])}</strong>
             { points.map(({ data: d, serieId, color }) => (
                 <div>
                     <span style={{ color }}>
                         <Icon name='window minimize' />
                     </span>
-                    {labelWithPercent(d.y, d.yRel, suffixes[serieId] || '')}
+                    {labelWithPercent(formatOrIdent(formats, serieId)(d.y), d.yRel)}
                 </div>
             ))}
         </div>

@@ -8,7 +8,7 @@ query IntentFrequencies(
     $first: Int,
     $last: Int,
     $beg: Int = 2,
-    $end: Int = 2,
+    $end: Int,
 ) {
     intentFrequencies(
         projectId: $projectId,
