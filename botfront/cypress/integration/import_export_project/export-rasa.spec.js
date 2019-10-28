@@ -2,18 +2,21 @@
 
 describe('Exporting a Project', function() {
     beforeEach(function() {
-        cy.createProject('test_project', 'My Project', 'fr');
-        cy.login();
+        cy.createProject('bf', 'My Project', 'fr').then(() => {
+            cy.login();
+        });
+        cy.waitForResolve(Cypress.env('RASA_URL'));
+        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
     });
 
     afterEach(function() {
         cy.logout();
-        cy.deleteProject('test_project');
+        cy.deleteProject('bf');
     });
 
     describe('Export UI', function() {
         it('should navigate the UI for exporting to Rasa/Rasa X', function() {
-            cy.visit('/project/test_project/settings');
+            cy.visit('/project/bf/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('port-project-menu')
                 .find('.item')
@@ -37,7 +40,7 @@ describe('Exporting a Project', function() {
         it('should list project languages in the language dropdown', function() {
             // French should be available
             // English should not be available
-            cy.visit('/project/test_project/settings');
+            cy.visit('/project/bf/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('port-project-menu')
                 .find('.item')
