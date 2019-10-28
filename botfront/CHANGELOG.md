@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.17.0-ee.3](https://github.com/botfront/botfront/compare/v0.17.0-ee.2...v0.17.0-ee.3) (2019-10-28)
+
+
+### Tests
+
+* ensured namespace start with 'bf-" ([7b151ea](https://github.com/botfront/botfront/commit/7b151ea))
+* fixes for ee ([d9333d9](https://github.com/botfront/botfront/commit/d9333d9))
+
+
+
 ## [0.17.0-ee.2](https://github.com/botfront/botfront/compare/v0.17.0-ee.1...v0.17.0-ee.2) (2019-10-27)
 
 
