@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.17.0-ee.4](https://github.com/botfront/botfront/compare/v0.17.0-ee.3...v0.17.0-ee.4) (2019-10-28)
+
+
+### Tests
+
+* fix test for namespace rule ([6963b57](https://github.com/botfront/botfront/commit/6963b57))
+
+
+
 ## [0.17.0-ee.3](https://github.com/botfront/botfront/compare/v0.17.0-ee.2...v0.17.0-ee.3) (2019-10-28)
 
 
