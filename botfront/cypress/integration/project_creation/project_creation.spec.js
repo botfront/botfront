@@ -13,7 +13,7 @@ describe('Project Creation', function() {
         // Creating a project
         cy.dataCy('new-project').click();
         cy.dataCy('project-name').find('input').type('Test Project');
-        cy.dataCy('project-namespace').find('input').type('testproject');
+        cy.dataCy('project-namespace').find('input').type('bf-testproject');
         cy.contains('Select the default language of your project').click();
         cy.get('[role=listbox]').contains('English').click();
         cy.dataCy('disable').click();

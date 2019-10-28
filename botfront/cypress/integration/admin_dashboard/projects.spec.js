@@ -14,7 +14,7 @@ describe('project creation', function() {
         cy.visit('/admin/projects');
         cy.dataCy('new-project').click();
         cy.get('#uniforms-0000-0001').type('test');
-        cy.get('#uniforms-0000-0003').type('test');
+        cy.get('#uniforms-0000-0003').type('bf-test');
         cy.get('#uniforms-0000-0004').click();
         cy.get('#uniforms-0000-0004')
             .children()
