@@ -79,28 +79,46 @@ Meteor.methods({
         }
     },
 
-    'nlu.switchCanonical'(modelId, item) {
+    async 'nlu.switchCanonical'(modelId, item) {
         check(modelId, String);
         check(item, Object);
         checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
-        const entities = item.entities ? item.entities : [];
-        let query = {
-            _id: modelId,
-            'training_data.common_examples.intent': item.intent,
-            'training_data.common_examples.entities': { $size: entities.length },
-        };
+        if (!item.canonical) {
+            /* try to match a canonical item with the same characteristics (intent, entity, entity value) 
+            to check if the selected item can be used as canonical
+            */
+            const entities = item.entities ? item.entities : [];
+            let elemMatch = {
+                canonical: true, intent: item.intent, entities: { $size: entities.length },
+            };
 
-        if (entities.length > 0) {
-            const entitiesNames = entities.map(entity => entity.entity);
-            const values = entities.map(entity => entity.values);
-            query = {
-                ...query,
-                'training_data.common_examples.entities.entity': { $all: entitiesNames },
-                'training_data.common_examples.entities.value': { $all: values }
+            if (entities.length > 0) {
+                const entityElemMatchs = entities.map(entity => (
+                    {
+                        $elemMatch: { entity: entity.entity, value: entity.value },
+                    }));
+                elemMatch = {
+                    ...elemMatch,
+                    $and: [{ entities: { $size: entities.length } }, { entities: { $all: entityElemMatchs } }],
+                };
+                delete elemMatch.entities; // remove the entities field as the size condition is now in the $and
             }
-        }
-        console.log(query);
 
+            const query = {
+                _id: modelId,
+                'training_data.common_examples': {
+                    $elemMatch: elemMatch,
+                },
+            };
+
+            const results = NLUModels.findOne(query, { fields: { 'training_data.common_examples.$': 1 } });
+            if (results === undefined) {
+                return Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: true });
+            }
+
+            return false;
+        }
+        return Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: false });
     },
 
     'nlu.deleteExample'(modelId, itemId) {
@@ -451,10 +469,4 @@ if (Meteor.isServer) {
             }
         },
     });
-}
-
-
-{
-    _id: 'AusajSDmb7qRyBy9s', 'training_data.common_examples.intent' : 'basics.yes', 'training_data.common_examples.entities.entity' : { $all: [] },
-    'training_data.common_examples.entities.value' : { $all: [] }, 'training_data.common_examples.entities' : { $size: 0 }
 }
