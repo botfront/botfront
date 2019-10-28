@@ -15,7 +15,7 @@ export default function SlotLabel({ value, onChange }) {
     return (
         <SlotPopupContent
             trigger={(
-                <div className='label-container pink'>
+                <div className='label-container orange'>
                     <div>
                         {type}
                     </div>
