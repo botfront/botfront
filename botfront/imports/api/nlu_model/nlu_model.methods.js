@@ -481,7 +481,7 @@ if (Meteor.isServer) {
                 const projectId = await Meteor.callWithPromise('project.insert', {
                     name: 'Chitchat',
                     _id: `chitchat-${shortid.generate()}`,
-                    namespace: 'chitchat',
+                    namespace: 'bf-chitchat',
                     defaultLanguage: 'en',
                 });
                 
