@@ -76,7 +76,8 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
     let common_examples = model.training_data.common_examples.map(e => ExampleUtils.stripBare(e, false));
     if (intents.length > 0) {
         // filter by intent if specified
-        common_examples = common_examples.filter(e => intents.indexOf(e.intent) >= 0);
+        common_examples = common_examples.filter(e => intents.indexOf(e.intent) >= 0)
+            .sort((a, b) => b.canonical - a.canonical);
     }
 
     const entity_synonyms = withSynonyms && model.training_data.entity_synonyms ? model.training_data.entity_synonyms.map(copyAndFilter) : [];
