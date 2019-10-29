@@ -84,7 +84,7 @@ Meteor.methods({
         check(item, Object);
         checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
         if (!item.canonical) {
-            /* try to match a canonical item with the same characteristics (intent, entity, entity value) 
+            /* try to match a canonical item with the same characteristics (intent, entity, entity value)
             to check if the selected item can be used as canonical
             */
             const entities = item.entities ? item.entities : [];
@@ -112,11 +112,11 @@ Meteor.methods({
             };
 
             const results = NLUModels.findOne(query, { fields: { 'training_data.common_examples.$': 1 } });
-            if (results === undefined) {
-                return Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: true });
+           
+            if (results !== undefined) {
+                await Meteor.callWithPromise('nlu.updateExample', modelId, { ...results.training_data.common_examples[0], canonical: false });
             }
-
-            return false;
+            return Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: true });
         }
         return Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: false });
     },
