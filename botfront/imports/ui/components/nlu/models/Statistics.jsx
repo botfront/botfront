@@ -98,10 +98,10 @@ export default class Statistics extends React.Component {
             <Tab.Pane>
                 <Statistic.Group widths='four'>{this.renderStatistics()}</Statistic.Group>
                 <Grid>
-                    <Grid.Row style={{ height: 500 }}>
+                    {/* <Grid.Row style={{ height: 500 }}>
                         <Grid.Column width={8} style={{ height: 500 }}>{this.renderIntentDistribution()}</Grid.Column>
                         <Grid.Column width={8} style={{ height: 500 }}>{this.renderEntityDistribution()}</Grid.Column>
-                    </Grid.Row>
+                    </Grid.Row> */}
                 </Grid>
                 
                 
