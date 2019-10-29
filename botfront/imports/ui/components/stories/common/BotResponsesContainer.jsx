@@ -38,10 +38,15 @@ const BotResponsesContainer = (props) => {
         const newTemplate = {
             ...template,
             values: [
-                {
-                    ...template.values[0],
-                    sequence: newSequence,
-                },
+                ...template.values.map((value, index) => {
+                    if (value.lang === language) {
+                        return {
+                            sequence: newSequence,
+                            ...template.values[index],
+                        };
+                    }
+                    return value;
+                }),
             ],
         };
         setTemplate(newTemplate);
