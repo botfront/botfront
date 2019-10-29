@@ -5,10 +5,18 @@ export const formatNewlines = (sequence) => {
     const regexNewline = /\n/g;
     const updatedSequence = sequence.map(({ content: contentYaml }) => {
         const content = yamlLoad(contentYaml);
-        const formattedText = content.text
+        content.text = content.text
             .replace(regexSpacedNewline, '\n')
             .replace(regexNewline, '  \n');
-        return { content: yamlDump({ text: formattedText }) };
+        return { content: yamlDump({ ...content }) };
     });
     return updatedSequence;
 };
+
+export const formatTextOnSave = (values) => {
+    return values.map(item => {
+        const updatedItem = item;
+        item.sequence = formatNewlines(item.sequence)
+        return updatedItem
+    })
+} 

@@ -4,7 +4,7 @@ import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
 import { formatError } from '../../lib/utils';
 import { checkIfCan } from '../../lib/scopes';
-import { formatNewlines } from './response.utils';
+import { formatNewlines, formatTextOnSave } from './response.utils';
 
 export const getTemplateLanguages = (templates) => {
     const langs = [];
@@ -21,9 +21,8 @@ Meteor.methods({
         check(key, String);
         check(item, Object);
 
-        // item.values[0].sequence needs to be changed to work with the new items
         const formattedItem = item;
-        formattedItem.values[0].sequence = formatNewlines(item.values[0].sequence);
+        formattedItem.values = formatTextOnSave(formattedItem.values);
 
         try {
             return Projects.update(
