@@ -6,7 +6,11 @@ import { typeDefs, resolvers } from '../../api/graphql/index';
 
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:3001/meteor';
 
-mongoose.connect(MONGO_URL, { server: { socketOptions: { keepAlive: 1 } } });
+mongoose.connect(MONGO_URL, {
+    keepAlive: 1,
+    useUnifiedTopology: 1,
+    useNewUrlParser: 1,
+});
 mongoose.connection.on('error', () => {
     throw new Error(`unable to connect to database: ${MONGO_URL}`);
 });
