@@ -17,8 +17,18 @@ const BotResponseContainer = (props) => {
     const hasText = Object.keys(value).includes('text');
     const hasButtons = Object.keys(value).includes('buttons');
 
+    const unformatNewlines = (response) => {
+        if (!response) {
+            return response;
+        }
+        let unformattedResponse = response;
+        const regex = / {2}\n/g;
+        unformattedResponse = unformattedResponse.replace(regex, '\n');
+        return unformattedResponse;
+    };
+
     useEffect(() => {
-        setInput(value.text);
+        setInput(unformatNewlines(value.text));
         if (focus) focusGrabber.current.focus();
     }, [value, focus]);
 
