@@ -146,13 +146,16 @@ export default class NluDataTable extends React.Component {
                         <Popup.Content style={{ textAlign: 'left' }}>
                             This example is canonical for the intent
                             <Intent size='mini' value={props.row.example.intent} />
-                            and for the following entity - entity value combinations: <br /><br />
-                            {props.row.example.entities.map(entity => (<Entity value={entity} onChange={() => {}} />))}
+                            {props.row.example.entities && props.row.example.entities.length > 0 ?
+                                (<>and for the following entity - entity value combinations: <br />
+                                    {props.row.example.entities.map(entity => (<Entity value={entity} onChange={() => { }} />))}</>)
+                                : ''}
+
                         </Popup.Content></>);
                 }
 
                 return (
-                    
+
                     <FloatingIconButton
                         toolTip={toolTip}
                         toolTipInverted={!canonical}
@@ -221,18 +224,18 @@ export default class NluDataTable extends React.Component {
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 {entities.length > 0
                                     && showLabels === undefined && (
-                                    <Checkbox
-                                        checked={showLabels}
-                                        onChange={() => this.setState({
-                                            showLabels: !showLabels,
-                                        })
-                                        }
-                                        slider
-                                        label='Entity names'
-                                        style={{ marginBottom: '10px' }}
-                                        data-cy='trigger-entity-names'
-                                    />
-                                )}
+                                        <Checkbox
+                                            checked={showLabels}
+                                            onChange={() => this.setState({
+                                                showLabels: !showLabels,
+                                            })
+                                            }
+                                            slider
+                                            label='Entity names'
+                                            style={{ marginBottom: '10px' }}
+                                            data-cy='trigger-entity-names'
+                                        />
+                                    )}
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
