@@ -28,6 +28,7 @@ export default class NluDataTable extends React.Component {
                 entities: [],
             },
             showLabels,
+            onlyCanonical: false,
         };
     }
 
@@ -68,7 +69,8 @@ export default class NluDataTable extends React.Component {
             const intentOk = intents.length === 0 || difference([e.intent], intents).length === 0;
             const entitiesOk = !!e.entities
                 && difference(entities, e.entities.map(ent => ent.entity)).length === 0;
-            return intentOk && entitiesOk;
+            const canonicalOk = this.state.onlyCanonical ? e.canonical : true;
+            return intentOk && entitiesOk && canonicalOk;
         });
         if (query) {
             let matchCriteria = { keys: ['text', 'intent'] };
@@ -219,6 +221,17 @@ export default class NluDataTable extends React.Component {
                                     entities={entities}
                                     filter={this.scrapFilter()}
                                     onChange={filter => this.setState({ filter })}
+                                />
+                            </Grid.Column>
+                            <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
+                                <Checkbox
+                                    onChange={() => this.setState({
+                                        onlyCanonical: !this.state.onlyCanonical,
+                                    })
+                                    }
+                                    slider
+                                    label='Only show canonical '
+
                                 />
                             </Grid.Column>
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
