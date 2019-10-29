@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import {
     Checkbox, Tab, Grid, Loader, Popup,
 } from 'semantic-ui-react';
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
 import _, { difference } from 'lodash';
 import ReactTable from 'react-table';
 import matchSorter from 'match-sorter';
@@ -148,8 +150,8 @@ export default class NluDataTable extends React.Component {
                         <Popup.Content style={{ textAlign: 'left' }}>
                             This example is canonical for the intent
                             <Intent size='mini' value={props.row.example.intent} />
-                            {props.row.example.entities && props.row.example.entities.length > 0 ?
-                                (<>and for the following entity - entity value combinations: <br />
+                            {props.row.example.entities && props.row.example.entities.length > 0
+                                ? (<>and for the following entity - entity value combinations: <br />
                                     {props.row.example.entities.map(entity => (<Entity value={entity} onChange={() => { }} />))}</>)
                                 : ''}
 
@@ -166,7 +168,15 @@ export default class NluDataTable extends React.Component {
                         onClick={async () => {
                             // need to recreate a set since state do not detect update through mutations
                             this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
-                            await onSwitchCanonical(props.row.example);
+                            const result = await onSwitchCanonical(props.row.example);
+                            if (result.change) {
+                                Alert.warning(`The previous canonical example with the same intent 
+                                and entity - entity value combination 
+                                (if applicable) with this example has been unmarked canonical`, {
+                                    position: 'top',
+                                    timeout: 5000,
+                                });
+                            }
                             waiting.delete(props.row.example._id);
                             this.setState({ waiting: new Set(waiting) });
                         }}
@@ -179,12 +189,19 @@ export default class NluDataTable extends React.Component {
         firstColumns.push({
             accessor: '_id',
             filterable: false,
-            Cell: props => (
-                <FloatingIconButton
-                    icon='trash'
-                    onClick={() => onDeleteExample(props.value)}
-                />
-            ),
+            Cell: (props) => {
+                const canonical = props.row.example.canonical ? props.row.example.canonical : false;
+                return (
+                    <FloatingIconButton
+                        toolTip={canonical ? <>Cannot delete a canonical example</> : null}
+                        toolTipInverted={!canonical}
+                        disabled={canonical}
+                        icon='trash'
+                        onClick={() => onDeleteExample(props.value)}
+                        iconClass={canonical ? 'disabled-delete' : undefined}
+                    />
+                );
+            },
             Header: '',
             width: 30,
         });
@@ -237,18 +254,18 @@ export default class NluDataTable extends React.Component {
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 {entities.length > 0
                                     && showLabels === undefined && (
-                                        <Checkbox
-                                            checked={showLabels}
-                                            onChange={() => this.setState({
-                                                showLabels: !showLabels,
-                                            })
-                                            }
-                                            slider
-                                            label='Entity names'
-                                            style={{ marginBottom: '10px' }}
-                                            data-cy='trigger-entity-names'
-                                        />
-                                    )}
+                                    <Checkbox
+                                        checked={showLabels}
+                                        onChange={() => this.setState({
+                                            showLabels: !showLabels,
+                                        })
+                                        }
+                                        slider
+                                        label='Entity names'
+                                        style={{ marginBottom: '10px' }}
+                                        data-cy='trigger-entity-names'
+                                    />
+                                )}
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>

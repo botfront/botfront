@@ -112,13 +112,15 @@ Meteor.methods({
             };
 
             const results = NLUModels.findOne(query, { fields: { 'training_data.common_examples.$': 1 } });
-           
+
             if (results !== undefined) {
                 await Meteor.callWithPromise('nlu.updateExample', modelId, { ...results.training_data.common_examples[0], canonical: false });
             }
-            return Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: true });
+            await Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: true });
+            return { change: results !== undefined };
         }
-        return Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: false });
+        await Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: false });
+        return { change: false };
     },
 
     'nlu.deleteExample'(modelId, itemId) {
