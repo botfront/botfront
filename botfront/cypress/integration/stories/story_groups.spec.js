@@ -14,6 +14,7 @@ describe('stories', function() {
     
     it('should be possible to delete a story group', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -30,6 +31,7 @@ describe('stories', function() {
 
     it('it should not be possible to delete a story group with a story linking to another one', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -58,6 +60,7 @@ describe('stories', function() {
 
     it('it should not be possible to delete a story group with a story destination story in it', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -83,6 +86,7 @@ describe('stories', function() {
 
     it('after name edit, editing should display the right name', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')

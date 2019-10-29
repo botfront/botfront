@@ -11,6 +11,7 @@ describe('story exceptions', function() {
     });
     const createTestStoryGroup = () => {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input').children('input').type('excpetion test{enter}');
         cy.dataCy('browser-item').children('span').contains('excpetion test').click();

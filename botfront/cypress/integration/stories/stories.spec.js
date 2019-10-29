@@ -255,6 +255,7 @@ describe('stories', function() {
 
     it('should be able to collapse stories and to persist that across application state', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('single-story-editor');
         cy.dataCy('collapse-story-button').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
@@ -276,6 +277,7 @@ describe('stories', function() {
 
     it('should be only possible to link of leaf stories', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.length', 2);
         cy.dataCy('create-branch').click({ force: true });
@@ -308,6 +310,7 @@ describe('stories', function() {
 
     it('should be possible to link and unlink stories', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-footer').should('not.have.class', 'linked');
         cy.dataCy('stories-linker')
             .find('div')
@@ -336,6 +339,7 @@ describe('stories', function() {
 
     it('should be possible to change the linked story', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-footer').should('not.have.class', 'linked');
         cy.dataCy('stories-linker')
             .find('div')
@@ -367,6 +371,7 @@ describe('stories', function() {
 
     it('should be possible to self link when a story has branches', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('stories-linker')
             .find('div.item')
             .should('have.lengthOf', 2);
@@ -388,6 +393,7 @@ describe('stories', function() {
 
     it('should disable the delete button in the branch tab for a linked branch and its parent branches', function () {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('stories-linker').click({ force: true });
@@ -434,6 +440,7 @@ describe('stories', function() {
     });
     it('should disable the delete button in the story top menu for linked destination stories', function () {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('stories-linker').click({ force: true });
         cy.dataCy('stories-linker')
             .find('div')
