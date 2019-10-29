@@ -80,8 +80,8 @@ const ImportProject = ({
         return false;
     };
 
-    const backupProject = () => {
-        const options = {};
+    const backupProject = (withConversations = true) => {
+        const options = withConversations ? {} : { conversations: false };
         Meteor.call('exportProject', apiHost, projectId, options, (err, { data, error }) => {
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
@@ -191,10 +191,19 @@ const ImportProject = ({
                 )}
                 { backupSuccess === undefined && botfrontFileSuccess && (
                     <>
-                        <Button onClick={backupProject} className='export-option' data-cy='backup-project-button'>
-                            <Icon name='download' />
-                            Backup current project
-                        </Button>
+                        <Button.Group>
+                            <Button onClick={backupProject} className='export-option' data-cy='export-button'>
+                                Export with conversations
+                            </Button>
+                            <Button.Or />
+                            <Button onClick={() => backupProject(false)} className='export-option'>
+                                Export without conversations
+                            </Button>
+                            <Button.Or />
+                            <Button onClick={() => setbackupSuccess('skipped')} className='export-option' data-cy='skip' negative>
+                                Skip
+                            </Button>
+                        </Button.Group>
                         <br />
                     </>
                 )}
