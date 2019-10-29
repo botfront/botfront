@@ -41,8 +41,8 @@ const BotResponsesContainer = (props) => {
                 ...template.values.map((value, index) => {
                     if (value.lang === language) {
                         return {
-                            sequence: newSequence,
                             ...template.values[index],
+                            sequence: [...newSequence],
                         };
                     }
                     return value;
