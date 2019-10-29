@@ -6,7 +6,7 @@ export default function ActionLable({ value, onChange }) {
     return (
         <ActionPopupContent
             trigger={(
-                <div className='label-container orange'>
+                <div className='label-container pink'>
                     <div>
                         action
                     </div>
