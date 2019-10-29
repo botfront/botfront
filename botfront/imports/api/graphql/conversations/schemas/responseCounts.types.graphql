@@ -1,0 +1,17 @@
+type Query {
+    responseCounts(
+        projectId: String!,
+        envs: [String],
+        from: Float,
+        to: Float,
+        nBuckets: Int = 7,
+        responses: [String] = ["utter_fallback"],
+    ): [ResponseCount!]!
+}
+
+type ResponseCount {
+    bucket: String,
+    count: Int,
+    total: Int,
+    proportion: Float,
+}

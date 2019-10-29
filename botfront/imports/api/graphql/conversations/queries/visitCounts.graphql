@@ -1,0 +1,19 @@
+query VisitCounts(
+    $projectId: String!,
+    $envs: [String] = ["development", null],
+    $from: Float,
+    $to: Float,
+    $nBuckets: Int = 7,
+    $exclude: [String] = ["get_started"],
+) {
+    conversationCounts(
+        projectId: $projectId,
+        envs: $envs,
+        from: $from,
+        to: $to,
+        exclude: $exclude,
+        nBuckets: $nBuckets,
+    ) {
+        bucket, count, engagements, proportion,
+    }
+}

@@ -12,6 +12,7 @@ const initialState = Map({
     templatesTableFilter: '',
     templatesTableShowMatching: false,
     workingLanguage: 'en',
+    workingDeploymentEnvironment: 'development',
 });
 
 function settings(state = initialState, action) {
@@ -29,6 +30,8 @@ function settings(state = initialState, action) {
             );
         case types.SET_WORKING_LANGUAGE:
             return state.set('workingLanguage', action.workingLanguage);
+        case types.SET_WORKING_DEPLOYMENT_ENVIRONMENT:
+            return state.set('workingDeploymentEnvironment', action.env);
         default:
             return state;
     }

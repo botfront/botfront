@@ -8,7 +8,8 @@ import {
     Container, Grid, Icon, Menu, Message, Segment,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
-
+import { connect } from 'react-redux';
+import { setWorkingDeploymentEnvironment } from '../../store/actions/actions';
 import ConversationViewer from './ConversationViewer';
 import { Conversations } from '../../../api/conversations';
 import { Projects } from '../../../api/project/project.collection';
@@ -192,10 +193,9 @@ function ConversationBrowserSegment({
     function changeEnv(newEnv) {
         browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${newEnv}/p/1` });
     }
-    const availableEnvs = [{ text: 'development', value: 'development' }];
+    const availableEnvs = ['development'];
     if (!loading && projectEnvs && projectEnvs.length > 0) {
-        availableEnvs.push(...projectEnvs
-            .map(projectEnv => ({ text: projectEnv, value: projectEnv })));
+        availableEnvs.push(...projectEnvs);
     }
 
     return (
@@ -246,7 +246,7 @@ ConversationBrowserSegment.defaultProps = {
 };
 
 const ConversationsBrowserContainer = withTracker((props) => {
-    const { project_id: projectId, env } = props.router.params;
+    const { project_id: projectId } = props.router.params;
     let activeConversationId = props.router.params.conversation_id;
     let page = parseInt(props.router.params.page, 10);
     if (!Number.isInteger(page) || page < 1) {
@@ -258,6 +258,9 @@ const ConversationsBrowserContainer = withTracker((props) => {
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
     const options = { sort: { updatedAt: -1 } };
+
+    const env = props.router.params.env || props.workingEnvironment;
+    if (props.router.params.env) props.changeWorkingEnv(env);
 
     let envSelector = env;
     if (env === 'development') {
@@ -339,4 +342,13 @@ const ConversationsBrowserContainer = withTracker((props) => {
     };
 })(ConversationBrowserSegment);
 
-export default ConversationsBrowserContainer;
+const mapStateToProps = state => ({
+    workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
+    projectId: state.settings.get('projectId'),
+});
+
+const mapDispatchToProps = {
+    changeWorkingEnv: setWorkingDeploymentEnvironment,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConversationsBrowserContainer);

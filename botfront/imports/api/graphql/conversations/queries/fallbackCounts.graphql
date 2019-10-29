@@ -1,0 +1,19 @@
+query FallbackCounts(
+    $projectId: String!,
+    $envs: [String] = ["development", null],
+    $from: Float,
+    $to: Float,
+    $fallbacks: [String] = ["utter_fallback"],
+    $nBuckets: Int = 7,
+) {
+    responseCounts(
+        projectId: $projectId,
+        envs: $envs,
+        from: $from,
+        to: $to,
+        responses: $fallbacks,
+        nBuckets: $nBuckets,
+    ) {
+        bucket, count, total, proportion
+    }
+}

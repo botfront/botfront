@@ -1,0 +1,9 @@
+type Query {
+  intentDistribution(modelId: String): [IntentCount!]!
+}
+
+type IntentCount {
+  intent: String,
+  count: Int,
+  user: String,
+}

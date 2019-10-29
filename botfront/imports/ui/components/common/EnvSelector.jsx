@@ -15,7 +15,7 @@ function EnvSelector(props) {
                 inline
                 onChange={(event, data) => envChange(data.value)}
                 value={value}
-                options={availableEnvs}
+                options={availableEnvs.map(projectEnv => ({ text: projectEnv, value: projectEnv }))}
             />
         </span>
     );

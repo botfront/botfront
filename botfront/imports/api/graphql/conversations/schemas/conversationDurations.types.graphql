@@ -1,0 +1,15 @@
+type Query {
+    conversationDurations(
+        projectId: String!,
+        envs: [String],
+        from: Float = 0,
+        to: Float,
+        cuttoffs: [Int] = [30, 60, 90, 120, 180],
+    ): [ConversationDuration!]!
+}
+
+type ConversationDuration {
+  duration: String,
+  frequency: Float,
+  count: Int,
+}
