@@ -2,6 +2,58 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.17.0-ee.7](https://github.com/botfront/botfront/compare/v0.17.0-ee.6...v0.17.0-ee.7) (2019-10-29)
+
+
+### Bug Fixes
+
+* dimensions in NLU statistics ([33de3f1](https://github.com/botfront/botfront/commit/33de3f1))
+* fixed press enter to add message ([2743081](https://github.com/botfront/botfront/commit/2743081))
+* routes broken after merge ([8051772](https://github.com/botfront/botfront/commit/8051772))
+
+
+### Features
+
+* **analytics:** add conversationCounts query ([5f1d017](https://github.com/botfront/botfront/commit/5f1d017))
+* **analytics:** add environment selector ([1f6e02a](https://github.com/botfront/botfront/commit/1f6e02a))
+* **analytics:** add exclude param to conversationCounts ([d551dee](https://github.com/botfront/botfront/commit/d551dee))
+* **analytics:** add LineChart ([4cc6362](https://github.com/botfront/botfront/commit/4cc6362))
+* **analytics:** add placeholder for missing data ([f265613](https://github.com/botfront/botfront/commit/f265613))
+* **analytics:** add query params to intent freqs ([3ade828](https://github.com/botfront/botfront/commit/3ade828))
+* **analytics:** add responseCounts query ([2a97d48](https://github.com/botfront/botfront/commit/2a97d48))
+* **analytics:** add storybook ([163a7cb](https://github.com/botfront/botfront/commit/163a7cb))
+* **analytics:** added title and chart selection ([4b829b8](https://github.com/botfront/botfront/commit/4b829b8))
+* **analytics:** analyticsCard ([f9d7f71](https://github.com/botfront/botfront/commit/f9d7f71))
+* **analytics:** change from voronoi mesh to slice tooltips ([3f3d11b](https://github.com/botfront/botfront/commit/3f3d11b))
+* **analytics:** defaults, add query fields ([0db2d38](https://github.com/botfront/botfront/commit/0db2d38))
+* **analytics:** discard data points with no timestamp ([fe09821](https://github.com/botfront/botfront/commit/fe09821))
+* **analytics:** fix axis/point alignment ([5b35f4c](https://github.com/botfront/botfront/commit/5b35f4c))
+* **analytics:** graph components ([6f583e9](https://github.com/botfront/botfront/commit/6f583e9))
+* **analytics:** name buckets by right bound ([d904198](https://github.com/botfront/botfront/commit/d904198))
+* **analytics:** new cards ([1236f50](https://github.com/botfront/botfront/commit/1236f50))
+* **analytics:** pluralization ([9335719](https://github.com/botfront/botfront/commit/9335719))
+* **analytics:** refactor using useQuery hook ([eefc3e1](https://github.com/botfront/botfront/commit/eefc3e1))
+* add a date picker component ([03f484d](https://github.com/botfront/botfront/commit/03f484d))
+* add role for analytics ([b5044f5](https://github.com/botfront/botfront/commit/b5044f5))
+* basic analytics dashboard structure ([5ce6b9f](https://github.com/botfront/botfront/commit/5ce6b9f))
+* move import css from Datepicker to main.less ([5090659](https://github.com/botfront/botfront/commit/5090659))
+* nlu analytics with graphql ([1d258a8](https://github.com/botfront/botfront/commit/1d258a8))
+* tests for the datepicker Component ([553ba02](https://github.com/botfront/botfront/commit/553ba02))
+* **analytics:** refactor props ([4ec2c5e](https://github.com/botfront/botfront/commit/4ec2c5e))
+* **analytics:** refactor props ([58a5807](https://github.com/botfront/botfront/commit/58a5807))
+* **analytics:** storybook ([4d7e32e](https://github.com/botfront/botfront/commit/4d7e32e))
+* conversation durations chart ([3f95093](https://github.com/botfront/botfront/commit/3f95093))
+* intent frequencies ([588b2fb](https://github.com/botfront/botfront/commit/588b2fb))
+* prototyp convo length charts ([466b86d](https://github.com/botfront/botfront/commit/466b86d))
+
+
+### Tests
+
+* fixed test for viz editor as default ([263b631](https://github.com/botfront/botfront/commit/263b631))
+* fixed unit tests ([7f92c19](https://github.com/botfront/botfront/commit/7f92c19))
+
+
+
 ## [0.17.0-ee.6](https://github.com/botfront/botfront/compare/v0.17.0-ee.5...v0.17.0-ee.6) (2019-10-29)
 
 
