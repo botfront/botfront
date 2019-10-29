@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.17.0-ee.6](https://github.com/botfront/botfront/compare/v0.17.0-ee.5...v0.17.0-ee.6) (2019-10-29)
+
+
+### Features
+
+* choose export option ([8087106](https://github.com/botfront/botfront/commit/8087106))
+
+
+### Tests
+
+* correct data cy ([ff6ff71](https://github.com/botfront/botfront/commit/ff6ff71))
+
+
+
 ## [0.17.0-ee.5](https://github.com/botfront/botfront/compare/v0.17.0-ee.4...v0.17.0-ee.5) (2019-10-29)
 
 
