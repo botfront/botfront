@@ -11,7 +11,7 @@ import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
 
 function AnalyticsCard(props) {
-    const [startDate, setStartDate] = useState(moment().subtract(90, 'days'));
+    const [startDate, setStartDate] = useState(moment().subtract(7, 'days'));
     const [endDate, setEndDate] = useState(moment());
 
     const {
