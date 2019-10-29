@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Checkbox, Tab, Grid, Loader,
+    Checkbox, Tab, Grid, Loader, Popup,
 } from 'semantic-ui-react';
 import _, { difference } from 'lodash';
 import ReactTable from 'react-table';
 import matchSorter from 'match-sorter';
-
+import Intent from '../../utils/IntentLabel';
+import Entity from '../../utils/EntityLabel';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
 import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import NLUExampleText from '../../example_editor/NLUExampleText';
@@ -139,14 +140,28 @@ export default class NluDataTable extends React.Component {
                     return (<Loader active inline size='mini' />);
                 }
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
+                let toolTip = (<div>Mark as canonical</div>);
+                if (canonical) {
+                    toolTip = (<><Popup.Header>Canonical Example</Popup.Header>
+                        <Popup.Content style={{ textAlign: 'left' }}>
+                            This example is canonical for the intent
+                            <Intent size='mini' value={props.row.example.intent} />
+                            and for the following entity - entity value combinations: <br /><br />
+                            {props.row.example.entities.map(entity => (<Entity value={entity} onChange={() => {}} />))}
+                        </Popup.Content></>);
+                }
+
                 return (
+                    
                     <FloatingIconButton
+                        toolTip={toolTip}
+                        toolTipInverted={!canonical}
                         icon='gem'
                         color={canonical ? 'black' : undefined}
                         onClick={async () => {
                             // need to recreate a set since state do not detect update through mutations
                             this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
-                            const result = await onSwitchCanonical(props.row.example);
+                            await onSwitchCanonical(props.row.example);
                             waiting.delete(props.row.example._id);
                             this.setState({ waiting: new Set(waiting) });
                         }}
@@ -206,18 +221,18 @@ export default class NluDataTable extends React.Component {
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 {entities.length > 0
                                     && showLabels === undefined && (
-                                        <Checkbox
-                                            checked={showLabels}
-                                            onChange={() => this.setState({
-                                                showLabels: !showLabels,
-                                            })
-                                            }
-                                            slider
-                                            label='Entity names'
-                                            style={{ marginBottom: '10px' }}
-                                            data-cy='trigger-entity-names'
-                                        />
-                                    )}
+                                    <Checkbox
+                                        checked={showLabels}
+                                        onChange={() => this.setState({
+                                            showLabels: !showLabels,
+                                        })
+                                        }
+                                        slider
+                                        label='Entity names'
+                                        style={{ marginBottom: '10px' }}
+                                        data-cy='trigger-entity-names'
+                                    />
+                                )}
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
