@@ -192,7 +192,7 @@ const ImportProject = ({
                 { backupSuccess === undefined && botfrontFileSuccess && (
                     <>
                         <Button.Group>
-                            <Button onClick={backupProject} className='export-option' data-cy='export-with-convs'>
+                            <Button onClick={backupProject} className='export-option' data-cy='export-button'>
                                 Export with conversations
                             </Button>
                             <Button.Or />
