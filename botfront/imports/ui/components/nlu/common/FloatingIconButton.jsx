@@ -4,7 +4,7 @@ import { Icon, Popup } from 'semantic-ui-react';
 
 export default function FloatingIconButton(props) {
     const {
-        onClick, style, icon, size: sizeProp, color, iconClass, toolTip, toolTipInverted,
+        onClick, style, icon, size: sizeProp, color, iconClass, toolTip, toolTipInverted, disabled,
     } = props;
     const size = sizeProp === 'medium' ? null : { size: sizeProp };
 
@@ -27,6 +27,7 @@ export default function FloatingIconButton(props) {
                         // this prop allows the icon to become focused
                         tabIndex={0}
                         link
+                        disabled={disabled}
                         className={iconClass}
                         onClick={onClick}
                     />
@@ -58,4 +59,5 @@ FloatingIconButton.defaultProps = {
     iconClass: 'viewOnHover',
     toolTip: null,
     toolTipInverted: true,
+    disabled: false,
 };
