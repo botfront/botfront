@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.17.0-ee.9](https://github.com/botfront/botfront/compare/v0.17.0-ee.8...v0.17.0-ee.9) (2019-10-30)
+
+
+### Bug Fixes
+
+* **analytics:** get rid of file-loader ([df30d76](https://github.com/botfront/botfront/commit/df30d76))
+
+
+
 ## [0.17.0-ee.8](https://github.com/botfront/botfront/compare/v0.17.0-ee.7...v0.17.0-ee.8) (2019-10-29)
 
 
