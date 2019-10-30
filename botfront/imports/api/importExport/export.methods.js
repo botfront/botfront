@@ -38,11 +38,10 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(language, String);
             
-            console.log('exporting for rasa');
             const instance = await Instances.findOne({ projectId });
             const credentials = await Credentials.findOne({ projectId }, { fields: { credentials: 1 } });
             const endpoints = await Endpoints.findOne({ projectId }, { fields: { endpoints: 1 } });
-            const rasaData = await Meteor.callWithPromise('rasa.trainingPayload', projectId, instance);
+            const rasaData = await Meteor.callWithPromise('rasa.getTrainingPayload', projectId, instance);
 
             const exportData = {
                 config: rasaData.config[language],

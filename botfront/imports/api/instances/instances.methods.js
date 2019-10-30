@@ -164,8 +164,7 @@ if (Meteor.isServer) {
             
             return data;
         },
-
-        async 'rasa.train'(projectId, instance) {
+        async 'rasa.getTrainingPayload'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
@@ -212,6 +211,25 @@ if (Meteor.isServer) {
                     config,
                     fixed_model_name: getProjectModelFileName(projectId),
                 };
+                return payload;
+            } catch (e) {
+                Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
+                throw getAxiosError(e);
+            }
+        },
+        
+        async 'rasa.train'(projectId, instance) {
+            check(projectId, String);
+            check(instance, Object);
+
+            try {
+                const client = axios.create({
+                    baseURL: instance.host,
+                    timeout: 3 * 60 * 1000,
+                });
+
+                const payload = await Meteor.call('rasa.getTrainingPayload', projectId, instance);
+
                 const trainingClient = axios.create({
                     baseURL: instance.host,
                     timeout: 30 * 60 * 1000,
