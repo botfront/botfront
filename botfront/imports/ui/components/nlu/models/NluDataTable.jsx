@@ -95,18 +95,23 @@ export default class NluDataTable extends React.Component {
                 Header: 'Intent',
                 width: 200,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['intent'] }),
-                Cell: props => (
-                    <IntentNameEditor
-                        intent={props.value}
-                        onRenameIntent={onRenameIntent}
-                        examples={examples}
-                        intents={this.getIntentForDropdown(false)}
-                        onSave={this.onEditExample}
-                        example={props.original}
-                        enableRenaming
-                        projectId={projectId}
-                    />
-                ),
+                Cell: (props) => {
+                    const canonical = props.row.example.canonical ? props.row.example.canonical : false;
+                    return (
+                        <IntentNameEditor
+                            intent={props.value}
+                            onRenameIntent={onRenameIntent}
+                            examples={examples}
+                            intents={this.getIntentForDropdown(false)}
+                            onSave={this.onEditExample}
+                            example={props.original}
+                            enableRenaming={props.row && !canonical}
+                            projectId={projectId}
+                            canonical={canonical}
+                        />
+                    );
+                },
+                
             },
         ];
 
@@ -122,15 +127,18 @@ export default class NluDataTable extends React.Component {
                 sortable: true,
                 accessor: e => e,
                 Header: 'Example',
-                Cell: props => (
-                    <NLUExampleText
-                        example={props.value}
-                        entities={entities}
-                        showLabels={showLabels}
-                        onSave={this.onEditExample}
-                        editable
-                    />
-                ),
+                Cell: (props) => {
+                    const canonical = props.row.example.canonical ? props.row.example.canonical : false;
+                    return (
+                        <NLUExampleText
+                            example={props.value}
+                            entities={entities}
+                            showLabels={showLabels}
+                            onSave={this.onEditExample}
+                            editable={!canonical}
+                        />
+                    );
+                },
                 style: { overflow: 'visible' },
             },
         ];
