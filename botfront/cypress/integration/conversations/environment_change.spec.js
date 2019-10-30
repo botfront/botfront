@@ -49,7 +49,6 @@
 //             .children()
 //             .should('have.lengthOf', 1);
 //         cy.visit('/project/bf/settings');
-//         cy.contains('Deployment').click();
 //         cy.dataCy('deployment-environments')
 //             .children()
 //             .contains('staging')
@@ -66,7 +65,6 @@
 
 //     it('should be possible to switch between environments even if they are empty', function() {
 //         cy.visit('/project/bf/settings');
-//         cy.contains('Deployment').click();
 //         cy.dataCy('deployment-environments')
 //             .children()
 //             .contains('staging')
@@ -91,7 +89,6 @@
 //         cy.addTestConversationToEnv('bf', 'prod', 'production');
 //         cy.addTestConversationToEnv('bf', 'stage', 'staging');
 //         cy.visit('/project/bf/settings');
-//         cy.contains('Deployment').click();
 //         cy.dataCy('deployment-environments')
 //             .children()
 //             .contains('staging')
