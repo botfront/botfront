@@ -373,6 +373,7 @@ class NLUExampleText extends React.Component {
                             ref={this.textDiv}
                             onMouseUp={this.handleTextMouseUp}
                             style={{ whiteSpace: 'normal', lineHeight: '2.4em' }}
+                            data-cy='nlu-table-text'
                         >
                             <Icon name='quote left' size='small' />
                             {isEmpty(example.entities) && !stateEntity && !selectedEntity

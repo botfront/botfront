@@ -62,7 +62,7 @@ describe('NLU Batch Insert', function () {
         cy.get('.popup .content').should('have.text', 'This example is canonical for the intentintenttest');
     });
 
-    it('should not be possible to delete a canonical example', function () {
+    it('should not be possible to delete or edit a canonical example', function () {
         cy.visit('/project/bf/nlu/models');
         cy.get('.nlu-menu-training-data').click();
         cy.contains('Insert many').click();
@@ -78,6 +78,13 @@ describe('NLU Batch Insert', function () {
         cy.dataCy('trash')
             .children()
             .should('have.class', 'disabled-delete');
+        cy.dataCy('nlu-table-intent').trigger('mouseover');
+        cy.get('.popup').should('exist');
+        cy.get('.popup').should('have.text', 'Cannot edit a canonical example');
+        cy.dataCy('nlu-table-intent').trigger('mouseover');
+        cy.dataCy('nlu-table-text').trigger('mouseover');
+        cy.get('.popup').should('exist');
+        cy.get('.popup').should('have.text', 'Cannot edit a canonical example');
     });
 
     it('should be possible switch canonical examples ', function () {
