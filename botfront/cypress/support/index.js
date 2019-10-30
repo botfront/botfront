@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 /* eslint-disable no-await-in-loop */
 // ***********************************************************
 // This example support/index.js is processed and
@@ -15,7 +15,7 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-import './commands';
+import './chat.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -227,9 +227,41 @@ Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Pro
         try {
             await axios(url);
             resolve();
+            break;
         } catch (error) {
-            if (!error.toString().includes('ERR_EMPTY_RESPONSE')) resolve();
+            if (!error.toString().includes('ERR_EMPTY_RESPONSE')) { resolve(); break; }
             if (i > maxTries) reject(`Can't connect to ${url}`);
         }
     }
 }));
+
+Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(fixture, 'utf8')
+    .then((data) => {
+        axios.put(
+            `${Cypress.env('API_URL')}/project/${projectId}/import`,
+            data,
+        ).then((response) => {
+            if (response.status !== 200) throw new Error();
+        });
+    }));
+
+Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, langName = 'English') => {
+    cy.visit(`/project/${projectId}/nlu/models`);
+    cy.get('[data-cy=model-selector]').click();
+    cy.get('[data-cy=model-selector] input').type(`${langName}{enter}`);
+    cy.get('.nlu-menu-settings').click();
+    cy.contains('Import').click({ force: true });
+    cy.fixture(fixture, 'utf8').then((content) => {
+        cy.get('.file-dropzone').upload(content, 'data.json');
+    });
+    cy.contains('Import Training Data').click();
+    cy.get('.s-alert-success').should('be.visible');
+    return cy.wait(500);
+});
+
+Cypress.Commands.add('train', () => {
+    cy.visit('/project/bf/stories');
+    cy.dataCy('train-button').click();
+    cy.wait(5000);
+    cy.dataCy('train-button').should('not.have.class', 'disabled');
+});
