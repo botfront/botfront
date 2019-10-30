@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2-ee.1](https://github.com/botfront/botfront/compare/v0.17.0-ee.9...v0.17.2-ee.1) (2019-10-30)
+
+
+### Tests
+
+* fixes test for new default story mode ([67c809f](https://github.com/botfront/botfront/commit/67c809f))
+
+
+
 ## [0.17.0-ee.9](https://github.com/botfront/botfront/compare/v0.17.0-ee.8...v0.17.0-ee.9) (2019-10-30)
 
 
