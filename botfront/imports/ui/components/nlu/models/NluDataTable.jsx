@@ -247,25 +247,27 @@ export default class NluDataTable extends React.Component {
                                     })
                                     }
                                     slider
-                                    label='Only show canonical '
+                                    label='Only show canonical'
+                                    data-cy='only-canonical'
+                                    readOnly={false}
 
                                 />
                             </Grid.Column>
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 {entities.length > 0
                                     && showLabels === undefined && (
-                                    <Checkbox
-                                        checked={showLabels}
-                                        onChange={() => this.setState({
-                                            showLabels: !showLabels,
-                                        })
-                                        }
-                                        slider
-                                        label='Entity names'
-                                        style={{ marginBottom: '10px' }}
-                                        data-cy='trigger-entity-names'
-                                    />
-                                )}
+                                        <Checkbox
+                                            checked={showLabels}
+                                            onChange={() => this.setState({
+                                                showLabels: !showLabels,
+                                            })
+                                            }
+                                            slider
+                                            label='Entity names'
+                                            style={{ marginBottom: '10px' }}
+                                            data-cy='trigger-entity-names'
+                                        />
+                                    )}
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
