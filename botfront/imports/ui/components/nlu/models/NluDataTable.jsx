@@ -173,7 +173,7 @@ export default class NluDataTable extends React.Component {
                                 Alert.warning(`The previous canonical example with the same intent 
                                 and entity - entity value combination 
                                 (if applicable) with this example has been unmarked canonical`, {
-                                    position: 'top',
+                                    position: 'top-right',
                                     timeout: 5000,
                                 });
                             }
