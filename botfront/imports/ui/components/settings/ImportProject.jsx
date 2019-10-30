@@ -7,7 +7,7 @@ import { saveAs } from 'file-saver';
 
 
 import {
-    Dropdown, Button, Message, Icon,
+    Dropdown, Button, Message, Icon, Confirm,
 } from 'semantic-ui-react';
 
 import { Projects } from '../../../api/project/project.collection';
@@ -43,6 +43,7 @@ const ImportProject = ({
     const [importSuccessful, setImportSuccessful] = useState(undefined);
     const [importErrorMessage, setImportErrorMessage] = useState({ header: 'Import failed' });
     const [uploadedFiles, setUploadedFiles] = useState({ header: 'Import Failed', text: '' });
+    const [confirmSkipOpen, setConfirmSkipOpen] = useState(false);
 
     const validateImportType = () => {
         if (!importTypeOptions.some(({ value }) => value === importType.value)) {
@@ -50,10 +51,6 @@ const ImportProject = ({
         }
         return true;
     };
-
-    // const getImportType = value => (
-    //     importTypeOptions.find(options => options.value === value)
-    // );
 
     const importProject = () => {
         setLoading(true);
@@ -147,7 +144,7 @@ const ImportProject = ({
                     }}
                 />
                 <br />
-                {importType.value === 'botfront' && (
+                {importType.value === 'botfront' && !botfrontFileSuccess && (
                     <ImportDropField
                         onChange={fileAdded}
                         text='Drop your Botfront project in JSON format here. Data should not be larger than 30 Mb.'
@@ -163,6 +160,7 @@ const ImportProject = ({
                         positive
                         icon='check circle'
                         header='Backup successfully downloaded!'
+                        on='click'
                         content={(
                             <p>
                                 If the download did not automatically start click
@@ -181,28 +179,44 @@ const ImportProject = ({
                         content={backupErrorMessage.text}
                     />
                 ))}
+                {backupSuccess === 'skipped' && (
+                    <Message
+                        warning
+                        icon='exclamation circle'
+                        header='Project backup skipped!'
+                        content='Your current project will be permanatly overwritten.'
+                    />
+                )}
                 {backupSuccess === undefined && botfrontFileSuccess && (
                     <Message
                         warning
                         icon='exclamation circle'
                         header='Your project will be overwritten.'
-                        content='Please use the button below to download a backup before proceeding.'
+                        content='It is highly advised to download a backup of your current project before importing a new one.'
                     />
                 )}
                 { backupSuccess === undefined && botfrontFileSuccess && (
                     <>
                         <Button.Group>
                             <Button onClick={backupProject} className='export-option' data-cy='export-button'>
-                                Export with conversations
+                                Download backup with conversations
                             </Button>
                             <Button.Or />
                             <Button onClick={() => backupProject(false)} className='export-option'>
-                                Export without conversations
+                                Download backup without conversations
                             </Button>
                             <Button.Or />
-                            <Button onClick={() => setbackupSuccess('skipped')} className='export-option' data-cy='skip' negative>
-                                Skip
-                            </Button>
+                            <Button onClick={() => setConfirmSkipOpen(true)} className='export-option' data-cy='skip' negative>Skip</Button>
+                            <Confirm
+                                header='Are you sure you want ot skip creating a backup?'
+                                content='The data in your currently project will be permanatly erased.'
+                                open={confirmSkipOpen}
+                                onCancel={() => setConfirmSkipOpen(false)}
+                                onConfirm={() => {
+                                    setbackupSuccess('skipped');
+                                    setConfirmSkipOpen(false);
+                                }}
+                            />
                         </Button.Group>
                         <br />
                     </>
