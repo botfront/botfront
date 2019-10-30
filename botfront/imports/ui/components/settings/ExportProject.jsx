@@ -102,6 +102,13 @@ const ExportProject = ({
                 rasaZip.addFile(rasaData.endpoints, 'endpoints.yml');
                 rasaZip.addFile(rasaData.credentials, 'credentials.yml');
                 rasaZip.addFile(rasaData.domain, 'domain.yml');
+                
+                // prevents the file from being downloaded durring cypress tests
+                if (window.Cypress) {
+                    setExportSuccessful(true);
+                    setLoading(false);
+                    return;
+                }
                 rasaZip.downloadAs(`${projectId}_RasaExport`, () => {
                     setExportSuccessful(true);
                     setLoading(false);
