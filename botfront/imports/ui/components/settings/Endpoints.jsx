@@ -140,12 +140,22 @@ class Endpoints extends React.Component {
 
     render() {
         const { ready } = this.props;
+        const { projectSettings } = this.props;
         if (ready) {
+            const isMultipleTabs = projectSettings.deploymentEnvironments && projectSettings.deploymentEnvironments.length > 0;
+            if (isMultipleTabs) {
+                return (
+                    <>
+                        <Menu secondary pointing data-cy='endpoints-environment-menu'>
+                            {this.renderMenu()}
+                        </Menu>
+                        {this.renderContents()}
+                    </>
+                );
+            }
             return (
                 <>
-                    <Menu pointing secondary data-cy='endpoints-environment-menu'>
-                        {this.renderMenu()}
-                    </Menu>
+                    <h4 data-cy='endpoints-environment-menu'>Development</h4>
                     {this.renderContents()}
                 </>
             );
