@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 
-describe('NLU Batch Insert', function () {
+describe('NLU canonical examples', function () {
     before(function () {
         cy.createProject('bf', 'My Project', 'fr');
     });
