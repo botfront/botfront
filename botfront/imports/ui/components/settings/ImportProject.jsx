@@ -44,6 +44,7 @@ const ImportProject = ({
     const [importErrorMessage, setImportErrorMessage] = useState({ header: 'Import failed' });
     const [uploadedFiles, setUploadedFiles] = useState({ header: 'Import Failed', text: '' });
     const [confirmSkipOpen, setConfirmSkipOpen] = useState(false);
+    const [includeConvos, setIncludeConvos] = useState('conversations=true');
 
     const validateImportType = () => {
         if (!importTypeOptions.some(({ value }) => value === importType.value)) {
@@ -157,24 +158,9 @@ const ImportProject = ({
                 )}
                 {backupSuccess === true && (
                     <p className='plain-text-message'>
-                        If the backup download did not automatically start after 10 seconds, click <a href={`${apiHost}/project/${projectId}/export?output=json`}>here</a> to retry.
+                        If the backup download did not automatically start after 10 seconds, click
+                        <a href={`${apiHost}/project/${projectId}/export?output=json&conversations=${includeConvos}`}> here</a> to retry.
                         <br />Please verify that the backup has downloaded before continuing.
-                        {/*
-                        <Message
-                            positive
-                            icon='check circle'
-                            header='Backup successfully downloaded!'
-                            on='click'
-                            content={(
-                                <p>
-                                    If the download did not automatically start click
-                                    <a href={`${apiHost}/project/${projectId}/export`} data-cy='backup-link'> here </a>
-                                    to retry.<br />
-                                    Please verify that the backup has downloaded before continuing.
-                                </p>
-                            )}
-                        />
-                        */}
                     </p>
                 )}
                 {(backupSuccess === false && (
@@ -209,11 +195,11 @@ const ImportProject = ({
                 { backupSuccess === undefined && botfrontFileSuccess && (
                     <>
                         <Button.Group>
-                            <Button onClick={backupProject} className='export-option' data-cy='export-button'>
+                            <Button onClick={() => { backupProject(true); setIncludeConvos(true); }} className='export-option' data-cy='export-button'>
                                 Download backup with conversations
                             </Button>
                             <Button.Or />
-                            <Button onClick={() => backupProject(false)} className='export-option'>
+                            <Button onClick={() => { backupProject(false); setIncludeConvos(false); }} className='export-option'>
                                 Download backup without conversations
                             </Button>
                             <Button.Or />
