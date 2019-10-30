@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2](https://github.com/botfront/botfront/compare/v0.17.0...v0.17.2) (2019-10-30)
+
+
+### Bug Fixes
+
+* no response duplication ([384c096](https://github.com/botfront/botfront/commit/384c096))
+
+
+### Features
+
+* choose export option ([8087106](https://github.com/botfront/botfront/commit/8087106))
+
+
+### Tests
+
+* correct data cy ([ff6ff71](https://github.com/botfront/botfront/commit/ff6ff71))
+
+
+
 ## [0.17.0](https://github.com/botfront/botfront/compare/v0.17.0-rc.1...v0.17.0) (2019-10-26)
 
 
