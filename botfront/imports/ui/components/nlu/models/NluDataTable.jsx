@@ -71,7 +71,8 @@ export default class NluDataTable extends React.Component {
             const intentOk = intents.length === 0 || difference([e.intent], intents).length === 0;
             const entitiesOk = !!e.entities
                 && difference(entities, e.entities.map(ent => ent.entity)).length === 0;
-            const canonicalOk = this.state.onlyCanonical ? e.canonical : true;
+            const { onlyCanonical } = this.state;
+            const canonicalOk = onlyCanonical ? e.canonical : true;
             return intentOk && entitiesOk && canonicalOk;
         });
         if (query) {
@@ -242,9 +243,12 @@ export default class NluDataTable extends React.Component {
                             </Grid.Column>
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 <Checkbox
-                                    onChange={() => this.setState({
-                                        onlyCanonical: !this.state.onlyCanonical,
-                                    })
+                                    onChange={() => {
+                                        const { onlyCanonical } = this.state;
+                                        this.setState({
+                                            onlyCanonical: !onlyCanonical,
+                                        });
+                                    }
                                     }
                                     slider
                                     label='Only show canonical'
@@ -256,18 +260,18 @@ export default class NluDataTable extends React.Component {
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 {entities.length > 0
                                     && showLabels === undefined && (
-                                        <Checkbox
-                                            checked={showLabels}
-                                            onChange={() => this.setState({
-                                                showLabels: !showLabels,
-                                            })
-                                            }
-                                            slider
-                                            label='Entity names'
-                                            style={{ marginBottom: '10px' }}
-                                            data-cy='trigger-entity-names'
-                                        />
-                                    )}
+                                    <Checkbox
+                                        checked={showLabels}
+                                        onChange={() => this.setState({
+                                            showLabels: !showLabels,
+                                        })
+                                        }
+                                        slider
+                                        label='Entity names'
+                                        style={{ marginBottom: '10px' }}
+                                        data-cy='trigger-entity-names'
+                                    />
+                                )}
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
@@ -345,6 +349,7 @@ NluDataTable.propTypes = {
     extraColumns: PropTypes.array,
     intentColumns: PropTypes.arrayOf(PropTypes.object),
     projectId: PropTypes.string.isRequired,
+    onSwitchCanonical: PropTypes.func.isRequired,
 };
 
 NluDataTable.defaultProps = {
