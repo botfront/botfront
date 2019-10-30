@@ -147,7 +147,7 @@ const ImportProject = ({
                 {importType.value === 'botfront' && !botfrontFileSuccess && (
                     <ImportDropField
                         onChange={fileAdded}
-                        text='Drop your Botfront project in JSON format here. Data should not be larger than 30 Mb.'
+                        text='Drop your Botfront project in JSON format here.'
                         manipulateData={JSON.parse}
                         verifyData={verifyBotfrontFile}
                         success={botfrontFileSuccess}
@@ -156,20 +156,26 @@ const ImportProject = ({
                     />
                 )}
                 {backupSuccess === true && (
-                    <Message
-                        positive
-                        icon='check circle'
-                        header='Backup successfully downloaded!'
-                        on='click'
-                        content={(
-                            <p>
-                                If the download did not automatically start click
-                                <a href={`${apiHost}/project/${projectId}/export`} data-cy='backup-link'> here </a>
-                                to retry.<br />
-                                Please verify that the backup has downloaded before continuing.
-                            </p>
-                        )}
-                    />
+                    <p className='plain-text-message'>
+                        If the backup download did not automatically start after 10 seconds, click <a href={`${apiHost}/project/${projectId}/export?output=json`}>here</a> to retry.
+                        <br />Please verify that the backup has downloaded before continuing.
+                        {/*
+                        <Message
+                            positive
+                            icon='check circle'
+                            header='Backup successfully downloaded!'
+                            on='click'
+                            content={(
+                                <p>
+                                    If the download did not automatically start click
+                                    <a href={`${apiHost}/project/${projectId}/export`} data-cy='backup-link'> here </a>
+                                    to retry.<br />
+                                    Please verify that the backup has downloaded before continuing.
+                                </p>
+                            )}
+                        />
+                        */}
+                    </p>
                 )}
                 {(backupSuccess === false && (
                     <Message
@@ -183,8 +189,13 @@ const ImportProject = ({
                     <Message
                         warning
                         icon='exclamation circle'
-                        header='Project backup skipped!'
-                        content='Your current project will be permanatly overwritten.'
+                        header='Warning!'
+                        content={(
+                            <>
+                                All your current project data will be permanently overwritten and erased when you click
+                                <b> Import Botfront Project. </b>
+                            </>
+                        )}
                     />
                 )}
                 {backupSuccess === undefined && botfrontFileSuccess && (
@@ -208,8 +219,8 @@ const ImportProject = ({
                             <Button.Or />
                             <Button onClick={() => setConfirmSkipOpen(true)} className='export-option' data-cy='skip' negative>Skip</Button>
                             <Confirm
-                                header='Are you sure you want ot skip creating a backup?'
-                                content='The data in your currently project will be permanatly erased.'
+                                header='Are you sure you want to skip backing up your project?'
+                                content='All your current project data will be permanently overwritten and erased.'
                                 open={confirmSkipOpen}
                                 onCancel={() => setConfirmSkipOpen(false)}
                                 onConfirm={() => {
