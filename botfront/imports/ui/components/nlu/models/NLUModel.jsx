@@ -60,13 +60,12 @@ class NLUModel extends React.Component {
         const {
             intents,
             entities,
-            instances,
             ready,
             instance,
         } = props;
         return {
             examples: ready ? NLUModel.getExamplesWithExtraSynonyms(props) : [],
-            instance: find(instances, i => i._id === instance),
+            instance,
             intents,
             entities,
             ready,
@@ -166,14 +165,9 @@ class NLUModel extends React.Component {
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
             { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
+            { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
         ];
         if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
-        if (instance) {
-            tabs.push({
-                menuItem: 'API',
-                render: () => (<API model={model} instance={instance} />),
-            });
-        }
         return tabs;
     };
 
@@ -220,28 +214,6 @@ class NLUModel extends React.Component {
     };
 
     handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
-
-    renderWarningMessage = () => {
-        const { projectId } = this.props;
-        return (
-            <Message
-                header='The model has no NLU instance set'
-                icon='warning'
-                content={(
-                    <div>
-                        {'Go to the '}
-                        <Icon name='setting' />
-                        {' Settings > General to assign an instance to this model to enable training and other NLU features. If you don\'t have instances you can '}
-                        <Link to={`/project/${projectId}/settings`}>
-                            {'create one '}
-                        </Link>
-                        in the <Icon name='server' />Instances menu.
-                    </div>
-                )}
-                warning
-            />
-        );
-    };
 
     renderWarningMessageIntents = () => {
         const { intents } = this.props;
@@ -414,11 +386,10 @@ const NLUDataLoaderContainer = withTracker((props) => {
         name,
         nlu_models,
         defaultLanguage,
-        instance,
         training,
     } = Projects.findOne({ _id: projectId }, {
         fields: {
-            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1,
+            name: 1, nlu_models: 1, defaultLanguage: 1, training: 1,
         },
     });
     // For handling '/project/:project_id/nlu/models'
@@ -443,7 +414,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         return {};
     }
     const { training_data: { common_examples = [] } = {} } = model;
-    const instances = Instances.find({ projectId }).fetch();
+    const instance = Instances.findOne({ projectId });
     const intents = sortBy(uniq(common_examples.map(e => e.intent)));
     const entities = extractEntities(common_examples);
     const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
@@ -461,7 +432,6 @@ const NLUDataLoaderContainer = withTracker((props) => {
         ready,
         models,
         model,
-        instances,
         intents,
         entities,
         projectId,
