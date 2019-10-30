@@ -30,6 +30,7 @@ export default function FloatingIconButton(props) {
                         disabled={disabled}
                         className={iconClass}
                         onClick={onClick}
+                        data-cy={`icon-${icon}`}
                     />
                 )}
                 inverted={toolTipInverted}
@@ -50,6 +51,7 @@ FloatingIconButton.propTypes = {
     size: PropTypes.string,
     color: PropTypes.string,
     iconClass: PropTypes.string,
+    disabled: PropTypes.bool,
 };
 
 FloatingIconButton.defaultProps = {

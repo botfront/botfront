@@ -96,16 +96,12 @@ describe('NLU canonical examples', function () {
         cy.get('.purple > .ui > .search').type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
-        cy.contains('hello')
-            .closest('.rt-tr')
-            .find('[data-cy=gem]')
-            .children()
+        cy.dataCy('icon-gem')
+            .first()
             .click({ force: true });
         cy.wait(100);
-        cy.contains('welcome')
-            .closest('.rt-tr')
-            .find('[data-cy=gem]')
-            .children()
+        cy.dataCy('icon-gem')
+            .eq(1)
             .click({ force: true });
         cy.wait(100);
         cy.dataCy('gem')
@@ -145,6 +141,7 @@ describe('NLU canonical examples', function () {
         cy.wait(100);
         cy.contains('welcome').should('exist');
         cy.dataCy('only-canonical').find('input').click({ force: true });
+        cy.dataCy('only-canonical').should('have.class', 'checked');
         cy.contains('hello').should('exist');
         cy.contains('welcome').should('not.exist');
     });
