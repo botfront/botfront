@@ -136,6 +136,7 @@ const handleDefaultRoute = (projectId) => {
 const IncomingContainer = withTracker((props) => {
     const { params: { model_id: modelId, project_id: projectId } = {} } = props;
 
+    // setup model subscription
     let modelHandler = {
         ready() {
             return false;
@@ -145,36 +146,46 @@ const IncomingContainer = withTracker((props) => {
         modelHandler = Meteor.subscribe('nlu_models', modelId);
     }
 
-    const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
+    // get project and projectLanguages
     const project = Projects.findOne({ _id: projectId }) || {};
     const projectLanguages = getPublishedNluModelLanguages(project.nlu_models, true);
-    const instances = Instances.find({ projectId }).fetch();
-    const instance = instances && instances.find(({ _id }) => _id === project.instance);
 
-    
+    // get instance and instanced
+    const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
+    const instances = Instances.find({ projectId }).fetch();
+    const instance = instances && instances.find(
+        ({ projectId: instanceProjectId }) => instanceProjectId === projectId,
+    );
+
+    // get models and current model
     const models = NLUModels.find(
         { _id: { $in: project.nlu_models }, published: true },
         { sort: { language: 1 } },
         { fields: { language: 1, _id: 1 } },
     ).fetch();
-    const defaultModelId = models.find(model => model.language === project.defaultLanguage)._id;
 
     let model = {};
-    if (!modelId || !project.nlu_models.includes(modelId)) {
-        handleDefaultRoute(projectId);
-        model = NLUModels.findOne({ _id: defaultModelId });
-    } else {
-        model = NLUModels.findOne({ _id: modelId });
+    try {
+        const defaultModelId = models.find(modelMatch => modelMatch.language === project.defaultLanguage)._id;
+        if (!modelId || !project.nlu_models.includes(modelId)) {
+            handleDefaultRoute(projectId);
+            model = NLUModels.findOne({ _id: defaultModelId });
+        } else {
+            model = NLUModels.findOne({ _id: modelId });
+        }
+    } catch (err) {
+        model = { training_data: { common_examples: [] } };
     }
 
+    // SECTION
     const { training_data: { common_examples = [] } = {} } = model;
-
     const intents = sortBy(uniq(common_examples.map(e => e.intent)));
     const entities = extractEntities(common_examples);
 
+    // End
     return {
         projectLanguages,
-        ready: !!projectLanguages && !!instances && instancesHandler.ready() && modelHandler.ready() && !!instance,
+        ready: !!projectLanguages && instancesHandler.ready() && modelHandler.ready() && !!instance,
         project,
         instances,
         instance,

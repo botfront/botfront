@@ -61,7 +61,7 @@ export const getPublishedNluModelLanguages = (modelIds, asOptions = false) => {
     return languageCodes;
 };
 
-export const getPureIntents = (commonExamples) => {
+export const getPureIntents = (commonExamples = []) => {
     const pureIntents = new Set();
     commonExamples.forEach((e) => {
         if ((!e.entities || e.entities.length === 0) && e.intent) {

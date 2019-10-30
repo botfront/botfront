@@ -172,14 +172,15 @@ class Activity extends React.Component {
     render() {
         const { ready } = this.props;
         const { activeTabIndex } = this.state;
+        if (!ready) {
+            return <Loading loading={!ready} />;
+        }
         return (
-            <Loading loading={!ready}>
-                <Tab
-                    activeIndex={activeTabIndex}
-                    menu={{ pointing: true, secondary: true }}
-                    panes={this.getPanes()}
-                />
-            </Loading>
+            <Tab
+                activeIndex={activeTabIndex}
+                menu={{ pointing: true, secondary: true }}
+                panes={this.getPanes()}
+            />
         );
     }
 }
@@ -209,9 +210,8 @@ const ActivityContainer = withTracker((props) => {
     const getOutdatedUtterances = (utterances, projectData) => utterances.filter(u => isUtteranceOutdated(projectData, u));
 
     const activityHandler = Meteor.subscribe('activity', modelId);
-    const ready = activityHandler.ready();
     const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1, language: 1 } });
-    const trainingExamples = model.training_data.common_examples;
+    const trainingExamples = model && model.training_data && (model.training_data.common_examples || []);
     const pureIntents = getPureIntents(trainingExamples);
     const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
     const outDatedUtteranceIds = getOutdatedUtterances(utterances, project).map(u => u._id);
@@ -240,6 +240,8 @@ const ActivityContainer = withTracker((props) => {
                 }),
         );
     }
+
+    const ready = activityHandler.ready() && model && model._id;
     return {
         model,
         pureIntents,
