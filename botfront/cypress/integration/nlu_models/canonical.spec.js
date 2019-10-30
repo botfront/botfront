@@ -145,4 +145,21 @@ describe('NLU Batch Insert', function () {
         cy.contains('hello').should('exist');
         cy.contains('welcome').should('not.exist');
     });
+
+    it('canonical should be unique per intent, entity and entity value', function () {
+        // firstly import all the testing data
+        cy.visit('/project/bf/nlu/models');
+        cy.get('.nlu-menu-settings').click();
+        cy.contains('Import').click();
+        cy.fixture('nlu_import_canonical.json', 'utf8').then((content) => {
+            cy.get('.file-dropzone').upload(content, 'data.json');
+        });
+        cy.contains('Import Training Data').click();
+        cy.get('.s-alert-success').should('be.visible');
+        cy.visit('/project/bf/nlu/models');
+        cy.contains('Training Data').click();
+        // we should be able to mark all those as canonical
+        cy.dataCy('gem').children().click({ force: true, multiple: true });
+        cy.dataCy('gem').children().should('have.class', 'black');
+    });
 });
