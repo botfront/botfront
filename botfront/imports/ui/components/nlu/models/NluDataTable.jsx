@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Checkbox, Tab, Grid, Loader, Popup,
+    Checkbox, Tab, Grid, Loader, Popup, Icon,
 } from 'semantic-ui-react';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
@@ -114,6 +114,22 @@ export default class NluDataTable extends React.Component {
                 
             },
         ];
+        const expanderColumn = [{
+            expander: true,
+            Expander: (row) => {
+                if (row.row.example.canonical) {
+                    return null;
+                }
+                return (
+                    <div>
+                        {row.isExpanded
+                            ? <Icon size='large' name='caret down' />
+                            : <Icon size='large' name='caret right' />
+                        }
+                    </div>
+                );
+            },
+        }];
 
         let firstColumns = [
             {
@@ -143,7 +159,7 @@ export default class NluDataTable extends React.Component {
             },
         ];
 
-        firstColumns = intentColumns.concat(firstColumns.concat(extraColumns || []));
+        firstColumns = expanderColumn.concat(intentColumns.concat(firstColumns.concat(extraColumns || [])));
 
         firstColumns.push({
             accessor: '_id',
@@ -328,17 +344,20 @@ export default class NluDataTable extends React.Component {
                         },
                     })}
                     className=''
-                    SubComponent={row => (
-                        <NLUExampleEditMode
-                            floated='right'
-                            example={row.original}
-                            entities={entities}
-                            intents={this.getIntentForDropdown(false)}
-                            onSave={this.onEditExample}
-                            onCancel={() => this.setState({ expanded: {} })}
-                            postSaveAction='close'
-                        />
-                    )}
+                    SubComponent={(row) => {
+                        if (row.row.example.canonical) return undefined;
+                        return (
+                            <NLUExampleEditMode
+                                floated='right'
+                                example={row.original}
+                                entities={entities}
+                                intents={this.getIntentForDropdown(false)}
+                                onSave={this.onEditExample}
+                                onCancel={() => this.setState({ expanded: {} })}
+                                postSaveAction='close'
+                            />
+                        );
+                    }}
                 />
             </Tab.Pane>
         );
