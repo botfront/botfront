@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Label } from 'semantic-ui-react';
+import { Icon, Label, Popup } from 'semantic-ui-react';
 import { sortBy, isEmpty } from 'lodash';
 
 import Entity from './Entity';
@@ -357,34 +357,44 @@ class NLUExampleText extends React.Component {
     };
 
     render() {
-        const { withMargin, example, showIntent } = this.props;
+        const {
+            withMargin, example, showIntent, canonical,
+        } = this.props;
         const { stateEntity, selectedEntity } = this.state;
         return (
             <div style={{ position: 'relative' }}>
-                {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-                <span
-                    className={withMargin ? ' with_margin' : ''}
-                    ref={this.textDiv}
-                    onMouseUp={this.handleTextMouseUp}
-                    style={{ whiteSpace: 'normal', lineHeight: '2.4em' }}
-                >
-                    <Icon name='quote left' size='small' />
-                    {isEmpty(example.entities) && !stateEntity && !selectedEntity
-                        ? example.text
-                        : this.renderText()}
-                    {example.intent && showIntent && (
-                        <Label
-                            basic
-                            size='small'
-                            horizontal
-                            color='purple'
-                            pointing='left'
-                            style={{ display: 'inline-flex', borderRadius: '0.15rem' }}
+               
+                <Popup
+                    disabled={!canonical}
+                    trigger={(
+                        /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */
+                        <span
+                            className={withMargin ? ' with_margin' : ''}
+                            ref={this.textDiv}
+                            onMouseUp={this.handleTextMouseUp}
+                            style={{ whiteSpace: 'normal', lineHeight: '2.4em' }}
                         >
-                            {this.getIntentName(example.intent)}
-                        </Label>
+                            <Icon name='quote left' size='small' />
+                            {isEmpty(example.entities) && !stateEntity && !selectedEntity
+                                ? example.text
+                                : this.renderText()}
+                            {example.intent && showIntent && (
+                                <Label
+                                    basic
+                                    size='small'
+                                    horizontal
+                                    color='purple'
+                                    pointing='left'
+                                    style={{ display: 'inline-flex', borderRadius: '0.15rem' }}
+                                >
+                                    {this.getIntentName(example.intent)}
+                                </Label>
+                            )}
+                        </span>
                     )}
-                </span>
+                    content='Cannot edit a canonical example'
+                />
+                
             </div>
         );
     }
@@ -400,6 +410,8 @@ NLUExampleText.propTypes = {
     onSave: PropTypes.func,
     editable: PropTypes.bool,
     disablePopup: PropTypes.bool,
+    canonical: PropTypes.bool,
+
 };
 
 NLUExampleText.defaultProps = {
@@ -411,6 +423,7 @@ NLUExampleText.defaultProps = {
     editable: false,
     disablePopup: false,
     onSave: () => {},
+    canonical: false,
 };
 
 export default NLUExampleText;

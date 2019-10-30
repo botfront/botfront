@@ -162,7 +162,7 @@ class IntentNameEditor extends React.Component {
         );
         return (
             <Popup
-                content={(
+                content={canonical ? (<>Cannot edit a canonical example</>) : (
                     <div ref={this.popup} data-cy='intent-popup'>
                         <Grid>
                             <Grid.Row
@@ -182,7 +182,6 @@ class IntentNameEditor extends React.Component {
                 )}
                 trigger={trigger}
                 hoverable
-                disabled={canonical}
                 position='top center'
                 // if we don't check confirmOpen then the popup appears on top of the confirm modal
                 open={(hovering && !confirmOpen)}

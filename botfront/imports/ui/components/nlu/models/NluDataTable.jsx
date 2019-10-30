@@ -152,6 +152,8 @@ export default class NluDataTable extends React.Component {
                             showLabels={showLabels}
                             onSave={this.onEditExample}
                             editable={!canonical}
+                            disablePopup={canonical}
+                            canonical={canonical}
                         />
                     );
                 },
