@@ -11,20 +11,51 @@ const BotResponseContainer = (props) => {
     } = props;
 
     const [input, setInput] = useState();
+    const [shiftPressed, setshiftPressed] = useState(false);
     const focusGrabber = useRef();
     const isTextResponse = Object.keys(value).length === 1 && Object.keys(value)[0] === 'text';
     const hasText = Object.keys(value).includes('text');
     const hasButtons = Object.keys(value).includes('buttons');
 
+    const unformatNewlines = (response) => {
+        if (!response) {
+            return response;
+        }
+        let unformattedResponse = response;
+        const regex = / {2}\n/g;
+        unformattedResponse = unformattedResponse.replace(regex, '\n');
+        return unformattedResponse;
+    };
+
     useEffect(() => {
-        setInput(value.text);
+        setInput(unformatNewlines(value.text));
         if (focus) focusGrabber.current.focus();
     }, [value, focus]);
+
 
     function handleTextBlur() {
         if (isTextResponse) onChange({ text: input }, false);
         if (hasButtons) onChange({ text: input, buttons: value.buttons }, false);
     }
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Shift') {
+            setshiftPressed(true);
+        }
+        if (e.key === 'Enter' && isTextResponse) {
+            if (shiftPressed) {
+                return;
+            }
+            e.preventDefault();
+            onChange({ text: input }, true);
+        }
+    };
+
+    const handleKeyUp = (e) => {
+        if (e.key === 'Shift') {
+            setshiftPressed(false);
+        }
+    };
 
     const renderText = () => (
         <TextareaAutosize
@@ -33,13 +64,11 @@ const BotResponseContainer = (props) => {
             role='button'
             tabIndex={0}
             value={input}
-            onChange={event => setInput(event.target.value)}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter' && isTextResponse) {
-                    e.preventDefault();
-                    onChange({ text: input }, true);
-                }
+            onChange={(event) => {
+                setInput(event.target.value);
             }}
+            onKeyDown={handleKeyDown}
+            onKeyUp={handleKeyUp}
             onFocus={() => onFocus()}
             onBlur={handleTextBlur}
         />

@@ -4,6 +4,7 @@ import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
 import { formatError } from '../../lib/utils';
 import { checkIfCan } from '../../lib/scopes';
+import { formatNewlines, formatTextOnSave } from './response.utils';
 
 export const getTemplateLanguages = (templates) => {
     const langs = [];
@@ -20,10 +21,13 @@ Meteor.methods({
         check(key, String);
         check(item, Object);
 
+        const formattedItem = item;
+        formattedItem.values = formatTextOnSave(formattedItem.values);
+
         try {
             return Projects.update(
                 { _id: projectId, 'templates.key': key },
-                { $set: { 'templates.$': item, responsesUpdatedAt: Date.now() } },
+                { $set: { 'templates.$': formattedItem, responsesUpdatedAt: Date.now() } },
             );
         } catch (e) {
             throw new Meteor.Error(e);
