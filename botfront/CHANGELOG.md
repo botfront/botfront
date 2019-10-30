@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2-ee.2](https://github.com/botfront/botfront/compare/v0.17.2-ee.1...v0.17.2-ee.2) (2019-10-30)
+
+
+### Bug Fixes
+
+* newline applies to multilingual responses ([5130863](https://github.com/botfront/botfront/commit/5130863))
+* newline does not need event.preventDefault ([433377d](https://github.com/botfront/botfront/commit/433377d))
+* replace spacednewlines with newlines ([ccaed6a](https://github.com/botfront/botfront/commit/ccaed6a))
+* revert code for identifying isTextResponse ([c3b7568](https://github.com/botfront/botfront/commit/c3b7568))
+
+
+### Features
+
+* format newlines for React Markdown component ([fe5a276](https://github.com/botfront/botfront/commit/fe5a276))
+* removes tabs in settings when only one environment ([5041644](https://github.com/botfront/botfront/commit/5041644))
+* shift enter creates newline ([af2af20](https://github.com/botfront/botfront/commit/af2af20))
+* test for the apperance of tabs ([07f5d1f](https://github.com/botfront/botfront/commit/07f5d1f))
+
+
+
 ### [0.17.2-ee.1](https://github.com/botfront/botfront/compare/v0.17.0-ee.9...v0.17.2-ee.1) (2019-10-30)
 
 
