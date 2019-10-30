@@ -12,7 +12,7 @@ import Dropzone from 'react-dropzone';
 import Alert from 'react-s-alert';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
-import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.utils';
+import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.methods';
 import { wrapMeteorCallback } from '../../utils/Errors';
 
 export default class DataImport extends React.Component {

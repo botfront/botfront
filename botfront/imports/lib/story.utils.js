@@ -169,17 +169,7 @@ export const addlinkCheckpoints = (stories) => {
     return storiesCheckpointed;
 };
 
-const removeTemplatesLanguage = (templates, language) => {
-    const newTemplates = {};
-    Object.keys(templates).forEach((key) => {
-        if (templates[key][language]) {
-            newTemplates[key] = templates[key][language];
-        }
-    });
-    return newTemplates;
-};
-
-export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}, language) => {
+export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}) => {
     const initialDomain = {
         actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
         intents: new Set(defaultDomain.intents || []),
@@ -213,9 +203,9 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
         } catch (e) {
             // Same thing than previous comment
             if (story.story) {
-                throw new Error(`There is an error in the following story: ${story.title}`);
+                throw new Error(`an error in the story ${story.title} has caused training to fail`);
             } else {
-                throw new Error('There is an error in a story');
+                throw new Error('an error in a story has caused training to fail');
             }
         }
     });
@@ -230,11 +220,6 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
         }),
         initialDomain,
     );
-
-    if (language && language.length > 0) {
-        domains.templates = removeTemplatesLanguage(domains.templates, language);
-    }
-
     domains = yaml.safeDump({
         entities: Array.from(domains.entities),
         intents: Array.from(domains.intents),
@@ -262,7 +247,7 @@ const getAllTemplates = (projectId) => {
     return templates;
 };
 
-export const getStoriesAndDomain = (projectId, language) => {
+export const getStoriesAndDomain = (projectId) => {
     let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
     defaultDomain = yaml.safeLoad(defaultDomain.content);
 
@@ -298,7 +283,7 @@ export const getStoriesAndDomain = (projectId, language) => {
     const slots = Slots.find({ projectId }).fetch();
     return {
         stories: storiesForRasa.join('\n'),
-        domain: extractDomain(storiesForDomain, slots, templates, defaultDomain, language),
+        domain: extractDomain(storiesForDomain, slots, templates, defaultDomain),
     };
 };
 

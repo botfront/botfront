@@ -2,7 +2,7 @@ import { check, Match } from 'meteor/check';
 import { safeLoad as yamlLoad } from 'js-yaml';
 import { Projects, createProject } from './project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
-import { createInstance } from '../instances/instances.utils';
+import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import { ActivityCollection } from '../activity';
 import { formatError } from '../../lib/utils';
