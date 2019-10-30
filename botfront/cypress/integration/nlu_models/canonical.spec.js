@@ -108,6 +108,9 @@ describe('NLU canonical examples', function () {
             .children()
             .click({ force: true });
         cy.wait(100);
+        cy.dataCy('gem')
+            .children()
+            .should('have.class', 'black');
         cy.get('.s-alert-box-inner').should('exist');
         // just match the first part of the message as linebreaks may happen and are difficult to match
         cy.get('.s-alert-box-inner').should('contain.text',
