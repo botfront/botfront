@@ -221,6 +221,18 @@ Branches can be linked to other stories as well.
 Using linking too much could overcomplicate your story flows, making them difficult to understand. Also, excessive usage could lead into an increase in training time.
 :::
 
+
+### Linking a story to itself
+
+Linking a story to itself is only available on a story that has branches. For example this can be used to create a menu dialogue, with a "go back" option looping back to the start of the story. 
+However, when using this feature the story that is linking to itself also need to be a destination story of another story, that will serve as an introduction story to the loop. **Otherwise the self linking story would not be reachable.**
+
+Schema of a self linking story (Menu story) with an intro story 
+![Move story](../../../images/story_self_link.png)
+
+
+
+
 ### How linking is handled
 
 Similar to branching, Botfront uses [Rasa checkpoints](https://rasa.com/docs/rasa/core/stories/#checkpoints) to accommodate linking as well. When you click **Link to**, the originating and destination stories are linked seamlessly with checkpoints. Please note that `> checkpoints` are not allowed in stories.
