@@ -35,11 +35,11 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='Legacy NLU' icon='history' />
                         </Link>
                     )}
+                    <Link to={`/project/${projectId}/incoming`}>
+                        <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-page' />
+                    </Link>
                     <Link to={`/project/${projectId}/dialogue/templates`}>
                         <Menu.Item name='Responses' icon='comment' />
-                    </Link>
-                    <Link to={`/project/${projectId}/dialogue/conversations/p/1`}>
-                        <Menu.Item name='Conversations' icon='comments' />
                     </Link>
                     <Link to={`/project/${projectId}/settings`}>
                         <Menu.Item name='Settings' icon='setting' />
@@ -51,9 +51,9 @@ class ProjectSidebar extends React.Component {
                         <Menu.Item name='help' icon='bell' content='Get help' />
                     </a>
                     <Divider inverted />
-                        <Link to='/login'>
-                            <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
-                        </Link>
+                    <Link to='/login'>
+                        <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
+                    </Link>
                     <Divider inverted />
                 </Menu>
             </DocumentTitle>

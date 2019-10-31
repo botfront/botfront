@@ -7,7 +7,6 @@ import DocumentTitle from 'react-document-title';
 import { Meteor } from 'meteor/meteor';
 import { Provider } from 'react-redux';
 
-import ConversationsBrowser from '../../ui/components/conversations/ConversationsBrowser.jsx';
 import TemplatesContainer from '../../ui/components/templates/templates-list/Templates';
 import TemplateContainer from '../../ui/components/templates/template-upsert/Template';
 import SettingsContainer from '../../ui/components/admin/settings/Settings';
@@ -20,6 +19,8 @@ import NLUModels from '../../ui/components/nlu/models/NLUModels';
 import SetupSteps from '../../ui/components/setup/SetupSteps';
 import Welcome from '../../ui/components/setup/Welcome';
 import Login from '../../ui/components/account/Login';
+import Incoming from '../../ui/components/incoming/Incoming';
+
 import { can, areScopeReady } from '../../lib/scopes';
 import AccountLayout from '../../ui/layouts/account';
 import NotFound from '../../ui/components/NotFound';
@@ -83,12 +84,32 @@ Meteor.startup(() => {
                         <Route path='/project/:project_id/nlu/legacy-models' component={NLUModels} name='NLU Models' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
+                        <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticateProject} />
                         <Route
-                            path='/project/:project_id/dialogue/conversations(/p)(/:page)(/c)(/:conversation_id)'
-                            component={ConversationsBrowser}
-                            name='Conversations'
+                            path='/project/:project_id/incoming/:model_id'
+                            component={Incoming}
+                            name='Incoming'
                             onEnter={authenticateProject}
                         />
+                        <Route
+                            path='/project/:project_id/incoming/:model_id/:tab'
+                            component={Incoming}
+                            name='Incoming'
+                            onEnter={authenticateProject}
+                        />
+                        <Route
+                            path='/project/:project_id/incoming/:model_id/:tab/:page'
+                            component={Incoming}
+                            name='Incoming'
+                            onEnter={authenticateProject}
+                        />
+                        <Route
+                            path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
+                            component={Incoming}
+                            name='Incoming'
+                            onEnter={authenticateProject}
+                        />
+                        
                         <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
                         <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticateProject} />

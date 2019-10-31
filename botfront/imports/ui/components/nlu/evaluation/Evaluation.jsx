@@ -17,7 +17,6 @@ import EntityReport from './EntityReport';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { InputButtons } from './InputButtons.jsx';
 import { Evaluations } from '../../../../api/nlu_evaluation';
-import { ActivityCollection } from '../../../../api/activity';
 import { TestImport } from '../import-export/TestImport';
 import { Loading } from '../../utils/Utils';
 
@@ -27,7 +26,10 @@ import 'react-select/dist/react-select.css';
 class Evaluation extends React.Component {
     constructor(props) {
         super(props);
-        const { evaluation } = props;
+        const { evaluation, initialState, validationRender } = props;
+
+        let defaultSelection = 0;
+        if (validationRender()) defaultSelection = 2;
 
         this.state = {
             evaluation,
@@ -36,6 +38,8 @@ class Evaluation extends React.Component {
             evaluating: false,
             exampleSet: 'train',
             errorMessage: null,
+            selectedIndex: defaultSelection,
+            ...initialState,
         };
 
         this.evaluate = this.evaluate.bind(this);
@@ -123,15 +127,13 @@ class Evaluation extends React.Component {
                 _id: modelId,
             } = {},
         } = this.props;
-        Meteor.subscribe('activity', modelId, () => {
-            const examples = ActivityCollection.find({ modelId }).fetch() || [];
+        Meteor.call('activity.getValidatedExamples', modelId, (error, examples) => {
             const validExamples = examples.filter(({ validated }) => validated)
                 .map(example => ExampleUtils.stripBare(example, false));
-
             // Check that there are nonzero validated examples
             if (validExamples.length > 0) {
                 this.setState({
-                    data: { rasa_nlu_data: { common_examples: validExamples } },
+                    data: { rasa_nlu_data: { common_examples: validExamples, entity_synonyms: [], gazetter: [] } },
                     loading: false,
                 }, callback);
             } else {
@@ -174,6 +176,7 @@ class Evaluation extends React.Component {
             errorMessage,
             evaluating,
             loading: dataLoading,
+            selectedIndex,
         } = this.state;
 
         let defaultSelection = 0;
@@ -189,6 +192,7 @@ class Evaluation extends React.Component {
                         operations={[this.useTrainingSet.bind(this), this.useTestSet.bind(this), this.useValidatedSet.bind(this)]}
                         defaultSelection={defaultSelection}
                         onDefaultLoad={defaultSelection === 2 ? this.evaluate : () => {}}
+                        selectedIndex={selectedIndex}
                     />
                 </div>
                 {exampleSet === 'test' && (
@@ -224,11 +228,13 @@ Evaluation.propTypes = {
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     validationRender: PropTypes.func,
+    initialState: PropTypes.object,
 };
 
 Evaluation.defaultProps = {
     validationRender: () => false,
     evaluation: undefined,
+    initialState: {},
 };
 
 const EvaluationContainer = withTracker((props) => {

@@ -52,14 +52,24 @@ export default class ActivityDataTable extends React.Component {
                         )
                         : <Button size={size} disabled basic icon='redo' loading />;
                 } else if (!!validated) {
-                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' />;
+                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' data-cy='valid-utterance-button' />;
                 } else {
                     action = (
                         <Popup
                             size='mini'
                             inverted
                             content='Mark this utterance valid'
-                            trigger={<Button basic size={size} disabled={ooS} onClick={() => this.onValidate(utterance)} color='green' icon='check' />}
+                            trigger={(
+                                <Button
+                                    basic
+                                    size={size}
+                                    disabled={ooS}
+                                    onClick={() => this.onValidate(utterance)}
+                                    color='green'
+                                    icon='check'
+                                    data-cy='invalid-utterance-button'
+                                />
+                            )}
                         />
                     );
                 }
@@ -233,14 +243,30 @@ export default class ActivityDataTable extends React.Component {
         </Button>
     );
 
+    sortUtterances = () => {
+        const { sortBy } = this.props;
+        const { utterances } = this.props;
+        if (sortBy === 'mostRecent') {
+            return utterances.sort(({ createdAt: dateA }, { createdAt: dateB }) => (
+                new Date(dateB) - new Date(dateA)
+            ));
+        }
+        if (sortBy === 'leastRecent') {
+            return utterances.sort(({ createdAt: dateA }, { createdAt: dateB }) => (
+                new Date(dateA) - new Date(dateB)
+            ));
+        }
+        return utterances;
+    }
+
     render() {
         const columns = this.getColumns();
-        const { utterances } = this.props;
+        const sortedUtterances = this.sortUtterances();
         return (
             <Tab.Pane as='div'>
                 <div style={{ padding: '0px', background: '#fff' }}>
                     <ReactTable
-                        data={utterances}
+                        data={sortedUtterances}
                         columns={columns}
                         minRows={1}
                         style={{ overflow: 'visible' }}
@@ -289,4 +315,8 @@ ActivityDataTable.propTypes = {
     projectId: PropTypes.string.isRequired,
     outDatedUtteranceIds: PropTypes.array.isRequired,
     modelId: PropTypes.string.isRequired,
+    sortBy: PropTypes.string,
+};
+ActivityDataTable.defaultProps = {
+    sortBy: 'mostRecent',
 };

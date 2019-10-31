@@ -156,7 +156,7 @@ class IntentNameEditor extends React.Component {
                 {intent}
             </Label>
         ) : (
-            <Label color='grey' style={style} basic>
+            <Label color='grey' style={style} basic data-cy='null-nlu-table-intent'>
                 -
             </Label>
         );
