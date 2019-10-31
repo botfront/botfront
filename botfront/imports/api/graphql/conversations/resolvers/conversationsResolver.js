@@ -1,4 +1,4 @@
-import { getConversations } from './conversations';
+import { getConversations } from '../mongo/conversations';
 
 export default {
     Query: {

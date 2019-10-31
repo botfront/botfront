@@ -1,4 +1,4 @@
-import Conversations from './conversations.model';
+import Conversations from '../conversations.model';
 
 export const getConversations = async (projectId, page, limit = 20) => Conversations.find(
     {

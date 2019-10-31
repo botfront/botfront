@@ -1,10 +1,9 @@
-import { getEntityDistribution } from '../nlu.analytics';
+import { getEntityDistribution } from '../mongo/nlu.analytics';
 
 export default {
     Query: {
         async entityDistribution(parent, args, context, info) {
             return getEntityDistribution(args.modelId);
-            // return find(authors, { id: args.id });
         },
     },
     EntityCount: {
