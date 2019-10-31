@@ -18,7 +18,7 @@ describe('Exporting a Project', function() {
         cy.dataCy('docker-api-host')
             .find('input')
             .clear()
-            .type(`${apiHost}{enter}`);
+            .type(`${Cypress.env('API_URL')}{enter}`);
     });
 
     afterEach(function() {

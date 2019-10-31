@@ -84,6 +84,10 @@ const ImportProject = ({
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
                 const filename = `BotfrontProjectBackup_${projectId}.json`;
+                if (window.Cypress) {
+                    setbackupSuccess(true);
+                    return;
+                }
                 saveAs(blob, filename);
                 setbackupSuccess(true);
                 return;
@@ -159,7 +163,11 @@ const ImportProject = ({
                 {backupSuccess === true && (
                     <p className='plain-text-message'>
                         If the backup download did not automatically start after 10 seconds, click
-                        <a href={`${apiHost}/project/${projectId}/export?output=json&conversations=${includeConvos}`}> here</a> to retry.
+                        <a
+                            href={`${apiHost}/project/${projectId}/export?output=json&conversations=${includeConvos}`}
+                            data-cy='backup-link'
+                        > here
+                        </a> to retry.
                         <br />Please verify that the backup has downloaded before continuing.
                     </p>
                 )}
@@ -176,6 +184,7 @@ const ImportProject = ({
                         warning
                         icon='exclamation circle'
                         header='Warning!'
+                        data-cy='skiped-backup-warning'
                         content={(
                             <>
                                 All your current project data will be permanently overwritten and erased when you click
@@ -195,11 +204,11 @@ const ImportProject = ({
                 { backupSuccess === undefined && botfrontFileSuccess && (
                     <>
                         <Button.Group>
-                            <Button onClick={() => { backupProject(true); setIncludeConvos(true); }} className='export-option' data-cy='export-button'>
+                            <Button onClick={() => { backupProject(true); setIncludeConvos(true); }} className='export-option' data-cy='export-with-conversations'>
                                 Download backup with conversations
                             </Button>
                             <Button.Or />
-                            <Button onClick={() => { backupProject(false); setIncludeConvos(false); }} className='export-option'>
+                            <Button onClick={() => { backupProject(false); setIncludeConvos(false); }} className='export-option' data-cy='export-without-conversations'>
                                 Download backup without conversations
                             </Button>
                             <Button.Or />

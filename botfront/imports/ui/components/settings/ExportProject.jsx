@@ -69,6 +69,11 @@ const ExportProject = ({
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
                 const filename = `BotfrontProject_${projectId}.json`;
+                if (window.Cypress) {
+                    setExportSuccessful(true);
+                    setLoading(false);
+                    return;
+                }
                 saveAs(blob, filename);
                 setExportSuccessful(true);
                 setLoading(false);
