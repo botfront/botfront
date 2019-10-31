@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { Menu, Container } from 'semantic-ui-react';
 import { browserHistory } from 'react-router';
 import { uniq, sortBy } from 'lodash';
+import { setWorkingDeploymentEnvironment } from '../../store/actions/actions';
 
 import { Loading } from '../utils/Utils';
 import { Projects } from '../../../api/project/project.collection';
@@ -24,8 +25,8 @@ import LanguageDropdown from '../common/LanguageDropdown';
 class Incoming extends React.Component {
     constructor (props) {
         super(props);
-        const { model } = props;
-        this.state = { selectedModel: model || {} };
+        const { model, workingEnvironment } = props;
+        this.state = { selectedModel: model || {}, selectedEnvironment: workingEnvironment };
     }
 
     linkToEvaluation = () => {
@@ -40,6 +41,12 @@ class Incoming extends React.Component {
         if (modelMatch) {
             this.setState({ selectedModel: modelMatch }, browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` }));
         }
+    }
+
+    handleEnvChange = (value) => {
+        const { changeWorkingEnv } = this.props;
+        this.setState({ selectedEnvironment: value });
+        changeWorkingEnv(value);
     }
 
     renderTopMenu = () => {
@@ -60,17 +67,21 @@ class Incoming extends React.Component {
         );
     }
 
+
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router,
+            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router, projectEnvironments,
         } = this.props;
-        const { selectedModel } = this.state;
+        const { selectedModel, selectedEnvironment } = this.state;
         return (
             <>
                 <TopMenu
                     projectLanguages={projectLanguages}
                     selectedModel={selectedModel}
                     handleLanguageChange={this.handleLanguageChange}
+                    projectEnvironments={projectEnvironments}
+                    handleEnvChange={this.handleEnvChange}
+                    selectedEnvironment={selectedEnvironment}
                 />
                 <Container>
                     <Loading loading={!ready || !model}>
@@ -83,6 +94,7 @@ class Incoming extends React.Component {
                             instance={instance}
                             params={params}
                             replaceUrl={router.replace}
+                            environment={selectedEnvironment}
                         />
                     </Loading>
                 </Container>
@@ -104,6 +116,9 @@ Incoming.propTypes = {
     modelId: PropTypes.string,
     params: PropTypes.object,
     router: PropTypes.object,
+    projectEnvironments: PropTypes.array,
+    workingEnvironment: PropTypes.string.isRequired,
+    changeWorkingEnv: PropTypes.func.isRequired,
 };
 
 Incoming.defaultProps = {
@@ -119,10 +134,11 @@ Incoming.defaultProps = {
     entities: [],
     modelId: '',
     router: {},
+    projectEnvironments: ['development'],
 };
 
 const handleDefaultRoute = (projectId) => {
-    const { nlu_models: modelIds = [], defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, defaultLanguage: 1 } }) || {};
+    const { nlu_models: modelIds = [], defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, defaultLanguage: 1, deploymentEnvironments: 1 } }) || {};
     const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
 
     try {
@@ -182,6 +198,10 @@ const IncomingContainer = withTracker((props) => {
     const intents = sortBy(uniq(common_examples.map(e => e.intent)));
     const entities = extractEntities(common_examples);
 
+    // get this from a param if it exists
+    const environment = 'development';
+    const { deploymentEnvironments } = project;
+    console.log(deploymentEnvironments);
     // End
     return {
         projectLanguages,
@@ -194,11 +214,18 @@ const IncomingContainer = withTracker((props) => {
         models,
         intents,
         entities,
+        environment,
+        projectEnvironments: ['development', ...deploymentEnvironments],
     };
 })(Incoming);
 
 const mapStateToProps = state => ({
+    workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
     projectId: state.settings.get('projectId'),
 });
 
-export default connect(mapStateToProps)(IncomingContainer);
+const mapDispatchToProps = {
+    changeWorkingEnv: setWorkingDeploymentEnvironment,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(IncomingContainer);

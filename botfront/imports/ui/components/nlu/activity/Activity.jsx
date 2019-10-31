@@ -69,13 +69,14 @@ class Activity extends React.Component {
             projectId,
             intents,
             entities,
+            environment,
         } = this.props;
         const oosPaneTitle = oosUtterances.length ? `Out of Scope (${oosUtterances.length})` : 'Out of Scope';
         return [
             { menuItem: this.createMenuItem('New Utterances', 0), render: this.renderIncomingTab },
             {
                 menuItem: this.createMenuItem('Conversations', 1),
-                render: () => <ConversationBrowser projectId={project._id} params={params} replaceUrl={replaceUrl} />,
+                render: () => <ConversationBrowser projectId={project._id} params={params} replaceUrl={replaceUrl} environment={environment} />,
             },
             { menuItem: this.createMenuItem('Populate', 2), render: () => <ActivityInsertions model={model} instance={instance} /> },
             {
@@ -250,10 +251,12 @@ Activity.propTypes = {
     outDatedUtteranceIds: PropTypes.array.isRequired,
     params: PropTypes.object,
     replaceUrl: PropTypes.func.isRequired,
+    environment: PropTypes.string,
 };
 
 Activity.defaultProps = {
     params: {},
+    environment: 'development',
 };
 
 const ActivityContainer = withTracker((props) => {

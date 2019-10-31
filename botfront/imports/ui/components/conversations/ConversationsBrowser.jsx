@@ -226,7 +226,7 @@ ConversationBrowserSegment.propTypes = {
     loading: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
     page: PropTypes.number.isRequired,
-    // env: PropTypes.string.isRequired,
+    // environment: PropTypes.string.isRequired,
     // projectEnvs: PropTypes.array,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
@@ -263,36 +263,27 @@ const ConversationsBrowserContainer = withTracker((props) => {
     // const env = props.router.params.env || props.workingEnvironment;
     // if (props.router.params.env) props.changeWorkingEnv(env);
 
-    // let envSelector = env;
-    // if (env === 'development') {
-    //     envSelector = { $in: ['development', null] };
-    // }
+    let envSelector = props.environment;
+    if (props.environment === 'development') {
+        envSelector = { $in: ['development', null] };
+    }
     const selector = {
         projectId,
         status: { $in: ['new', 'read', 'flagged'] },
-        // env: envSelector,
+        env: envSelector,
     };
     Meteor.subscribe('projects', projectId);
-    // const { deploymentEnvironments: projectEnvs } = Projects
-    //     .find({ _id: projectId }, { fields: { deploymentEnvironments: 1 } })
-    //     .fetch()[0];
-    // const componentProps = {
-    //     page, projectId, loading: true, env, projectEnvs, modelId: props.params.model_id,
-    // };
-    // const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit, env);
 
     const componentProps = {
         page, projectId, loading: true, modelId: props.params.model_id,
     };
-    const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit);
-    
+    const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit, props.environment || 'development');
     if (conversationsHandler.ready()) {
         const conversations = Conversations.find(selector, options).fetch();
         // If for some reason the conversation is not in the current page, discard it.
 
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
         let nextConvoId; let prevConvoId; let from; let to;
-
 
         // first page but there are more
         if (page === 1 && conversations.length > PAGE_SIZE) {
