@@ -366,6 +366,7 @@ class NLUExampleText extends React.Component {
                
                 <Popup
                     disabled={!canonical}
+                    inverted
                     trigger={(
                         /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */
                         <span

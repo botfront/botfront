@@ -182,6 +182,7 @@ class IntentNameEditor extends React.Component {
                 )}
                 trigger={trigger}
                 hoverable
+                inverted={canonical}
                 position='top center'
                 // if we don't check confirmOpen then the popup appears on top of the confirm modal
                 open={(hovering && !confirmOpen)}

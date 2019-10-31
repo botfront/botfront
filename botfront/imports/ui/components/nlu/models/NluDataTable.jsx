@@ -8,7 +8,6 @@ import 'react-s-alert/dist/s-alert-default.css';
 import _, { difference } from 'lodash';
 import ReactTable from 'react-table';
 import matchSorter from 'match-sorter';
-import Intent from '../../utils/IntentLabel';
 import Entity from '../../utils/EntityLabel';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
 import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
@@ -111,7 +110,7 @@ export default class NluDataTable extends React.Component {
                         />
                     );
                 },
-                
+
             },
         ];
         const expanderColumn = [{
@@ -168,25 +167,25 @@ export default class NluDataTable extends React.Component {
             filterable: false,
             Cell: (props) => {
                 if (waiting.has(props.row.example._id)) {
-                    return (<Loader active inline size='mini' />);
+                    return (<Loader className='loader-canonical' active inline size='mini' />);
                 }
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                 let toolTip = (<div>Mark as canonical</div>);
                 if (canonical) {
                     toolTip = (<><Popup.Header>Canonical Example</Popup.Header>
-                        <Popup.Content style={{ textAlign: 'left' }}>
+                        <Popup.Content className='popup-canonical'>
                             This example is canonical for the intent
-                            <Intent size='mini' value={props.row.example.intent} />
+                            <span className='intent-name'> {props.row.example.intent} </span>
+
                             {props.row.example.entities && props.row.example.entities.length > 0
                                 ? (<>and for the following entity - entity value combinations: <br />
-                                    {props.row.example.entities.map(entity => (<Entity value={entity} onChange={() => { }} />))}</>)
+                                    {props.row.example.entities.map(entity => (<Entity size='tiny' value={entity} onChange={() => { }} />))}</>)
                                 : ''}
 
                         </Popup.Content></>);
                 }
 
                 return (
-
                     <FloatingIconButton
                         toolTip={toolTip}
                         toolTipInverted={!canonical}
@@ -221,7 +220,7 @@ export default class NluDataTable extends React.Component {
                 return (
                     <FloatingIconButton
                         toolTip={canonical ? <>Cannot delete a canonical example</> : null}
-                        toolTipInverted={!canonical}
+                        toolTipInverted
                         disabled={canonical}
                         icon='trash'
                         onClick={() => onDeleteExample(props.value)}

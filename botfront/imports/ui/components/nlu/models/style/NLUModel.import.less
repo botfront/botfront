@@ -37,23 +37,24 @@
   padding-bottom: 0.3rem;
 }
 
-.rt-td > .ui.inline.loader.active{
+.rt-td > .loader-canonical.ui.inline.loader.active{
   animation-name: fadein;
   animation-duration: 0.4s;
   animation-timing-function: cubic-bezier(0.95, 0.26, 0.57, 0.7);
 }
 
-.popup #intent.ui.label {
-  padding: 0.3em 0.5em 0.3em 0.5em;
-
-}
-
-.popup .entity-container{
-  line-height: 0em;
-  .entity{
-    padding: 0.6em 0.5em 0.7em 0.5em;
+.popup .content.popup-canonical{
+  text-align: left;
+  .entity-container{
+    line-height: 0em;
+    .entity{
+      padding: 0.6em 0.5em 0.7em 0.5em;
+    }
   }
-} 
+  .intent-name{
+    color: #a333c8
+  }
+}
 
 
 .floating-icon-button i.link.icon.disabled-delete{
