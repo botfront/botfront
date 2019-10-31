@@ -1,9 +1,8 @@
 import {
     Button, Popup, Loader, Message, Icon,
 } from 'semantic-ui-react';
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { useQuery } from '@apollo/react-hooks';
 import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
@@ -11,9 +10,6 @@ import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
 
 function AnalyticsCard(props) {
-    const [startDate, setStartDate] = useState(moment().subtract(7, 'days'));
-    const [endDate, setEndDate] = useState(moment());
-
     const {
         displayDateRange,
         chartTypeOptions,
@@ -22,9 +18,17 @@ function AnalyticsCard(props) {
         query,
         queryParams,
         graphParams,
+        settings: {
+            endDate,
+            startDate,
+            chartType,
+            valueType,
+        },
+        onChangeSettings,
     } = props;
     
     const displayAbsoluteRelative = 'rel' in graphParams;
+    const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const calculateTemporalBuckets = () => {
         const nDays = +((endDate.valueOf() - startDate.valueOf()) / 86400000);
@@ -53,12 +57,6 @@ function AnalyticsCard(props) {
     const { loading, error, data } = query
         ? useQuery(query, { variables })
         : { loading: true };
-
-    const uniqueChartOptions = [...new Set(chartTypeOptions)];
-    const [chartType, setChartType] = useState(uniqueChartOptions[0] || 'line');
-    const [valueType, setValueType] = useState(
-        displayAbsoluteRelative ? 'absolute' : null,
-    );
 
     const renderChart = () => {
         let dataToDisplay = data[queryParams.queryName];
@@ -93,8 +91,8 @@ function AnalyticsCard(props) {
                         startDate={startDate}
                         endDate={endDate}
                         onConfirm={(newStart, newEnd) => {
-                            setStartDate(newStart);
-                            setEndDate(newEnd);
+                            onChangeSettings('startDate', newStart);
+                            onChangeSettings('endDate', newEnd);
                         }}
                     />
                 </div>
@@ -107,7 +105,7 @@ function AnalyticsCard(props) {
                                 icon={`chart ${chartOption}`}
                                 key={chartOption}
                                 className={chartType === chartOption ? 'selected' : ''}
-                                onClick={() => setChartType(chartOption)}
+                                onClick={() => onChangeSettings('chartType', chartOption)}
                             />
                         ))}
                     </Button.Group>
@@ -116,12 +114,12 @@ function AnalyticsCard(props) {
                     <Button.Group basic size='small' className='unit-selector'>
                         <Button
                             icon='hashtag'
-                            onClick={() => setValueType('absolute')}
+                            onClick={() => onChangeSettings('valueType', 'absolute')}
                             className={valueType === 'absolute' ? 'selected' : ''}
                         />
                         <Button
                             icon='percent'
-                            onClick={() => setValueType('relative')}
+                            onClick={() => onChangeSettings('valueType', 'relative')}
                             className={valueType === 'relative' ? 'selected' : ''}
                         />
                     </Button.Group>
@@ -154,6 +152,8 @@ AnalyticsCard.propTypes = {
     query: PropTypes.any.isRequired,
     queryParams: PropTypes.object.isRequired,
     graphParams: PropTypes.object,
+    settings: PropTypes.object.isRequired,
+    onChangeSettings: PropTypes.func.isRequired,
 };
 
 AnalyticsCard.defaultProps = {

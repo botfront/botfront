@@ -3,6 +3,7 @@ import { Map } from 'immutable';
 
 import * as types from '../actions/types';
 import stories from './story.reducer';
+import analytics from './analytics.reducer';
 
 /* eslint-disable indent */
 
@@ -40,4 +41,5 @@ function settings(state = initialState, action) {
 export default combineReducers({
     settings,
     stories,
+    analytics,
 });

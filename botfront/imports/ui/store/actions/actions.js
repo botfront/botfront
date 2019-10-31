@@ -70,3 +70,20 @@ export function setWorkingDeploymentEnvironment(env) {
         env,
     };
 }
+
+export function swapAnalyticsCards(i, j) {
+    return {
+        type: types.SWAP_ANALYTICS_CARDS,
+        i,
+        j,
+    };
+}
+
+export function setAnalyticsCardSettings(cardId, setting, value) {
+    return {
+        type: types.SET_ANALYTICS_CARD_SETTINGS,
+        cardId,
+        setting,
+        value,
+    };
+}
