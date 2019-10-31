@@ -329,7 +329,6 @@ policies:
 
 #### Parameters
 
-
 | Parameter | What it does | type |
 | ------- | --------------- |--------------- |
 |`fallback_trigger`| if confidence of top-ranking intent is below this threshold, fallback is triggered. Fallback is an action that utters the template `utter_fallback` and returns to the previous conversation state. | `string` |
