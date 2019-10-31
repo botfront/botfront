@@ -4,6 +4,7 @@ import {
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@apollo/react-hooks';
+import { calculateTemporalBuckets, getDataToDisplayAndParamsToUse } from '../../../lib/graphs';
 import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
 import BarChart from '../charts/BarChart';
@@ -23,6 +24,8 @@ function AnalyticsCard(props) {
             startDate,
             chartType,
             valueType,
+            exclude,
+            responses,
         },
         onChangeSettings,
         onReorder,
@@ -31,27 +34,15 @@ function AnalyticsCard(props) {
     const displayAbsoluteRelative = 'rel' in graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
-    const calculateTemporalBuckets = () => {
-        const nDays = +((endDate.valueOf() - startDate.valueOf()) / 86400000);
-        if (nDays <= 1) return { tickValues: 7, nBuckets: 24 };
-        if (nDays <= 7) return { tickValues: +nDays.toFixed(0), nBuckets: +nDays.toFixed(0) };
-        if (nDays <= 90) return { tickValues: 7, nBuckets: +nDays.toFixed(0) };
-        return { tickValues: 7, nBuckets: Math.floor(+nDays.toFixed(0) / 7) };
-    };
-
-    const formatDateBuckets = data => data
-        .map(c => ({
-            ...c,
-            bucket: new Date(parseInt(c.bucket, 10) * 1000),
-        }));
-
-    const { tickValues, nBuckets } = calculateTemporalBuckets();
+    const { tickValues, nBuckets } = calculateTemporalBuckets(startDate, endDate);
 
     const variables = {
         projectId: queryParams.projectId,
         envs: queryParams.envs,
         from: startDate.valueOf() / 1000,
         to: endDate.valueOf() / 1000,
+        ...(exclude ? { exclude } : {}),
+        ...(responses ? { responses } : {}),
         nBuckets,
     };
 
@@ -60,23 +51,9 @@ function AnalyticsCard(props) {
         : { loading: true };
 
     const renderChart = () => {
-        let dataToDisplay = data[queryParams.queryName];
-        if (queryParams.temporal) dataToDisplay = formatDateBuckets(dataToDisplay);
-        let paramsToUse = valueType === 'relative'
-            ? {
-                ...graphParams,
-                yScale: { type: 'linear', min: 0, max: 100 },
-                axisLeft: { legend: '%', legendOffset: -36 },
-                ...graphParams.rel,
-            }
-            : graphParams;
-        paramsToUse = queryParams.temporal
-            ? {
-                ...paramsToUse,
-                axisBottom: { tickValues, format: '%d/%m' },
-                xScale: { type: 'time', format: 'native' },
-            }
-            : paramsToUse;
+        const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
+            data, queryParams, graphParams, tickValues, valueType,
+        });
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
         if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} />;
@@ -134,6 +111,9 @@ function AnalyticsCard(props) {
             ) : (
                 <span className='title'>{title}</span>
             )}
+            {(exclude || responses) && (
+                <span className='extra-options-linklike'>wacko</span>
+            )}
             <div className='graph-render-zone'>
                 {(!error && !loading && data) ? (
                     renderChart()
@@ -141,12 +121,14 @@ function AnalyticsCard(props) {
                     <Loader active size='large'>Loading</Loader>
                 )}
             </div>
-            {onReorder && (
-                <div className='bottom-right-buttons'>
-                    <Icon link name='caret left' onClick={() => onReorder(-1)} />
-                    <Icon link name='caret right' onClick={() => onReorder(1)} />
-                </div>
-            )}
+            {onReorder
+                && (
+                    <div className='bottom-right-buttons'>
+                        <Icon link name='caret left' onClick={() => onReorder(-1)} />
+                        <Icon link name='caret right' onClick={() => onReorder(1)} />
+                    </div>
+                )
+            }
         </div>
     );
 }

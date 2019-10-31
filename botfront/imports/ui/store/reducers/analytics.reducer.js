@@ -1,4 +1,4 @@
-import { Map, OrderedMap } from 'immutable';
+import { Map, OrderedMap, List } from 'immutable';
 import moment from 'moment';
 import * as types from '../actions/types';
 
@@ -20,6 +20,7 @@ const initialState = Map({
             endDate,
             chartType: 'bar',
             valueType: 'absolute',
+            exclude: List(),
         }),
         conversationDurations: Map({
             visible: true,
@@ -34,6 +35,7 @@ const initialState = Map({
             endDate,
             chartType: 'line',
             valueType: 'absolute',
+            responses: List(),
         }),
         visitCounts: Map({
             visible: true,

@@ -103,7 +103,7 @@ function AnalyticsDashboard(props) {
     return (
         <Container className='analytics-container'>
             <div className='analytics-dashboard'>
-                {cardSettings.entrySeq().map(([cardName, settings], index) => {console.log(cardSettings.keySeq().get(index + 1)); return (
+                {cardSettings.entrySeq().map(([cardName, settings], index) => (
                     <AnalyticsCard
                         key={cardName}
                         {...cards[cardName]}
@@ -111,7 +111,7 @@ function AnalyticsDashboard(props) {
                         onChangeSettings={(setting, value) => changeCardSettings(cardName, setting, value)}
                         onReorder={n => swapCards(cardName, cardSettings.keySeq().get(index + n))}
                     />
-                )})}
+                ))}
             </div>
         </Container>
     );
