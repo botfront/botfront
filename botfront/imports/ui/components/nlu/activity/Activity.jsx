@@ -65,7 +65,7 @@ class Activity extends React.Component {
             { menuItem: this.createMenuItem('New Utterances', 0), render: this.renderIncomingTab },
             {
                 menuItem: this.createMenuItem('Conversations', 1),
-                render: () => <ConversationBrowser projectId={project._id} params={params} modelId={model._id} replaceUrl={replaceUrl} />,
+                render: () => <ConversationBrowser projectId={project._id} params={params} replaceUrl={replaceUrl} />,
             },
             { menuItem: this.createMenuItem('Populate', 2), render: () => <ActivityInsertions model={model} instance={instance} /> },
         ];
