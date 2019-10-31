@@ -101,6 +101,7 @@
     "@vuepress/plugin-google-analytics": "^1.2.0",
     "@vuepress/plugin-medium-zoom": "^1.2.0",
     "@vuepress/plugin-pwa": "^1.2.0",
+    "vuepress-plugin-element-tabs": "~0.1.8",
     "autoprefixer": "^6.3.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
@@ -127,7 +128,7 @@
     "license-checker": "^25.0.1",
     "selenium-webdriver": "3.6.0",
     "start-server-and-test": "^1.9.1",
-    "vuepress": "^1.1.0",
+    "vuepress": "^1.2.0",
     "webpack": "^4.28.4"
   },
   "husky": {

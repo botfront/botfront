@@ -7,6 +7,8 @@ meta:
 permalink: /rasa/:slug
 ---
 
+
+
 # Develop conversations
 
 Botfront is based on Rasa and provides interfaces to build and edit Rasa stories more efficiently.
@@ -56,8 +58,16 @@ Conversations are often designed as tree-like flow charts. Stories are *real* co
 
 ### Branching with intents
 
-The simplest way to branch a conversation is to use different intents at some point. Consider the following stories.
+:::: tabs
 
+::: tab "Botfront Markdown"
+![Branch 1: happy](../../../images/branching_2.png)
+
+![Branch 2: sad](../../../images/branching_3.png)
+:::
+
+
+::: tab Standard Rasa
 ```{3}
 * chitchat.greet
   - utter_hi_how_are_you
@@ -71,12 +81,17 @@ The simplest way to branch a conversation is to use different intents at some po
 * chitchat.i_am_sad
   - utter_i_have_a_bad_day_myself
 ```
+:::
+
+::::
+
+The simplest way to branch a conversation is to use different intents at some point. Consider the following stories.
+
+
 
 Those stories implement two different paths, one where the user is happy and one where the user is not. Observe that half of the story is duplicated. It may not be a problem here, but when your tree branches on several levels this may become difficult to maintain. That is where the **branch story** option becomes useful:
 
-![Branch 1: happy](../../../images/branching_2.png)
 
-![Branch 2: sad](../../../images/branching_3.png)
 
 ### Branching with entity values
 

@@ -10,7 +10,8 @@ module.exports = {
             // '@vuepress/plugin-pwa',
             '@vuepress/active-header-links',
             '@vuepress/plugin-medium-zoom',
-            '@vuepress/back-to-top'
+            '@vuepress/back-to-top',
+            'vuepress-plugin-element-tabs',
         ],
     title: 'Documentation',
     themeConfig: {
