@@ -7,12 +7,49 @@ import PieChart from '../../charts/PieChart';
 
 
 export default class Statistics extends React.Component {
+    entityDistribution = {
+        query: gql`
+            query EntityDistribution($modelId: String!) {
+                entityDistribution(modelId: $modelId) {
+                    entity
+                    count
+                }
+            }
+        `,
+        queryName: 'entityDistribution',
+        graphParams: { x: 'entity', y: [{ abs: 'count' }] },
+    };
+
+    intentDistribution = {
+        query: gql`
+            query IntentDistribution($modelId: String!) {
+                intentDistribution(modelId: $modelId) {
+                    intent
+                    count
+                }
+            }
+        `,
+        queryName: 'intentDistribution',
+        graphParams: { x: 'intent', y: [{ abs: 'count' }] },
+    };
+
     renderStatistics() {
+        const {
+            model: { training_data: trainingData },
+            intents,
+            entities,
+        } = this.props;
         const data = [
-            { label: 'Examples', value: this.props.model.training_data.common_examples.length },
-            { label: 'Intents', value: this.props.intents.length },
-            { label: 'Entities', value: this.props.entities.length },
-            { label: 'Synonyms', value: this.props.model.training_data.entity_synonyms.length },
+            {
+                label: 'Examples',
+                value: trainingData.common_examples.length,
+            },
+            { label: 'Intents', value: intents.length },
+            { label: 'Entities', value: entities.length },
+            {
+                label: 'Synonyms',
+                value: trainingData.entity_synonyms.length,
+            },
         ];
 
         return data.map((d, index) => (
@@ -23,64 +60,18 @@ export default class Statistics extends React.Component {
         ));
     }
 
-    renderEntityDistribution = () => {
-        const { model } = this.props;
-        const GET_ENTITY_DISTRIBUTION = gql`
-            query EntityDistribution($modelId: String!) {
-                entityDistribution(modelId: $modelId) {
-                    entity
-                    count
-                }
-            }
-        `;
-        const params = {
-            x: 'entity', y: [['count']],
-        };
-
+    renderDistribution = ({ query, queryName, graphParams }) => {
+        const { model: { _id: modelId } } = this.props;
         return (
-            <Query query={GET_ENTITY_DISTRIBUTION} variables={{ modelId: model._id }}>
-                {({ loading, error, data: { entityDistribution } }) => {
+            <Query query={query} variables={{ modelId }}>
+                {({ loading, error, data }) => {
                     if (loading) return 'Loading...';
                     if (error) return `Error! ${error.message}`;
                     return (
                         <PieChart
-                            data={entityDistribution}
-                            {...params}
-                            sliceLabel={null}
-                            radialLabel={null}
-                        />
-                    );
-                }}
-            </Query>
-        );
-    };
-
-    renderIntentDistribution = () => {
-        const { model } = this.props;
-        const GET_INTENT_DISTRIBUTION = gql`
-            query IntentDistribution($modelId: String!) {
-                intentDistribution(modelId: $modelId) {
-                    intent
-                    count
-                }
-            }
-        `;
-
-        const params = {
-            x: 'intent', y: [['count']],
-        };
-
-        return (
-            <Query query={GET_INTENT_DISTRIBUTION} variables={{ modelId: model._id }}>
-                {({ loading, error, data: { intentDistribution } }) => {
-                    if (loading) return 'Loading...';
-                    if (error) return `Error! ${error.message}`;
-                    return (
-                        <PieChart
-                            data={intentDistribution}
-                            {...params}
-                            sliceLabel={null}
-                            radialLabel={null}
+                            data={data[queryName]}
+                            {...graphParams}
+                            enableRadialLabels={false}
                         />
                     );
                 }}
@@ -93,10 +84,10 @@ export default class Statistics extends React.Component {
             <Tab.Pane>
                 <Statistic.Group widths='four'>{this.renderStatistics()}</Statistic.Group>
                 <Grid>
-                    {/* <Grid.Row style={{ height: 500 }}>
-                        <Grid.Column width={8} style={{ height: 500 }}>{this.renderIntentDistribution()}</Grid.Column>
-                        <Grid.Column width={8} style={{ height: 500 }}>{this.renderEntityDistribution()}</Grid.Column>
-                    </Grid.Row> */}
+                    <Grid.Row style={{ height: 500 }}>
+                        <Grid.Column width={8} style={{ height: 500 }}>{this.renderDistribution(this.intentDistribution)}</Grid.Column>
+                        <Grid.Column width={8} style={{ height: 500 }}>{this.renderDistribution(this.entityDistribution)}</Grid.Column>
+                    </Grid.Row>
                 </Grid>
                 
                 
