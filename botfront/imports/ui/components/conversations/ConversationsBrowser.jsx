@@ -11,7 +11,7 @@ import 'react-select/dist/react-select.css';
 
 import ConversationViewer from './ConversationViewer';
 import { Conversations } from '../../../api/conversations';
-import { Loading, PageMenu } from '../utils/Utils';
+import { Loading } from '../utils/Utils';
 import { wrapMeteorCallback } from '../utils/Errors';
 
 const PAGE_SIZE = 20;
@@ -188,9 +188,9 @@ function ConversationBrowserSegment({
 }) {
     return (
         <div>
-            <PageMenu title='Conversations History' icon='comments' />
             <Loading loading={loading}>
                 <Container>
+                    <Message info>Conversations for all languages are displayed.</Message>
                     <Segment>
                         <ConversationsBrowser
                             projectId={projectId}
