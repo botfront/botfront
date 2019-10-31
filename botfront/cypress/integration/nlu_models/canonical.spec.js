@@ -1,11 +1,9 @@
 /* eslint-disable no-undef */
 
 describe('NLU canonical examples', function () {
-    before(function () {
-        cy.createProject('bf', 'My Project', 'fr');
-    });
-
     beforeEach(function () {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'fr');
         cy.visit('/login');
         cy.login();
     });
@@ -13,7 +11,7 @@ describe('NLU canonical examples', function () {
     after(function () {
         cy.deleteProject('bf');
     });
-
+    
     it('should be possible to mark an example as canonical', function () {
         cy.visit('/project/bf/nlu/models');
         cy.get('.nlu-menu-training-data').click();
@@ -51,8 +49,7 @@ describe('NLU canonical examples', function () {
         cy.dataCy('icon-gem')
             .trigger('mouseover');
         cy.get('.popup').should('exist');
-        // have.text concat inner text, that is why intentintenttest does not have space
-        cy.get('.popup .content').should('have.text', 'This example is canonical for the intentintenttest');
+        cy.get('.popup .content').should('have.text', 'This example is canonical for the intent intenttest');
     });
 
     it('should not be possible to delete or edit a canonical example', function () {
@@ -144,7 +141,10 @@ describe('NLU canonical examples', function () {
         cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
         // we should be able to mark all those as canonical
-        cy.dataCy('gem').children().click({ force: true, multiple: true });
-        cy.dataCy('gem').children().should('have.class', 'black');
+        cy.dataCy('icon-gem').each((el, _, __) => {
+            cy.wrap(el).click({ force: true });
+            cy.wait(100);
+        });
+        cy.get('.black[data-cy=icon-gem]').should('have.length', 6);
     });
 });
