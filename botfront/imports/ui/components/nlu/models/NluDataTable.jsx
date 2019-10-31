@@ -175,7 +175,7 @@ export default class NluDataTable extends React.Component {
                     toolTip = (<><Popup.Header>Canonical Example</Popup.Header>
                         <Popup.Content className='popup-canonical'>
                             This example is canonical for the intent
-                            <span className='intent-name'> {props.row.example.intent} </span>
+                            <span className='intent-name'> {props.row.example.intent}</span>
 
                             {props.row.example.entities && props.row.example.entities.length > 0
                                 ? (<>and for the following entity - entity value combinations: <br />
@@ -275,12 +275,22 @@ export default class NluDataTable extends React.Component {
                                         });
                                     }
                                     }
+                                    hidden={false}
                                     slider
-                                    label='Only show canonical'
                                     data-cy='only-canonical'
                                     readOnly={false}
-
+                                    className='only-canonical'
                                 />
+                                <Popup
+                                    trigger={
+                                        <Icon name='gem' color={this.state.onlyCanonical ? 'black' : 'grey'} />
+                                    }
+                                    content='Only show canonicals examples'
+                                    pinned
+                                    position='top center'
+                                    inverted
+                                />
+                                
                             </Grid.Column>
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 {entities.length > 0
