@@ -43,39 +43,41 @@ describe('Training', function() {
     it('Should train and serve a model containing only stories (no NLU) and adding a language should work', function() {
         createStories();
         cy.train();
-        cy.get('[data-cy=open-chat]').click({ force: true });
+        cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('en');
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.importNluData('bf', 'nlu_sample_en.json', 'English');
         cy.train();
-        cy.get('[data-cy=open-chat]').click({ force: true });
+        cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('en');
         cy.testChatInput('hi', 'utter_hi');
     });
 
     it('Should train and serve a model containing stories + NLU in one language and adding a second language should work too', function() {
+        cy.visit('/project/bf/stories');
         cy.importNluData('bf', 'nlu_sample_en.json', 'English');
         createStories();
         cy.train();
-        cy.get('[data-cy=open-chat]').click({ force: true });
+        cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('en');
         cy.testChatInput('hi', 'utter_hi');
         cy.createNLUModelProgramatically('bf', '', 'fr'); // first don't import NLU data
         cy.train();
         cy.importNluData('bf', 'nlu_sample_fr.json', 'French'); // now import the data
         cy.train();
-        cy.get('[data-cy=open-chat]').click({ force: true });
+        cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('fr');
         cy.testChatInput('salut', 'utter_hi');
     });
 
     it('Should train and serve a model containing stories and NLU in 2 languages', function() {
+        cy.visit('/project/bf/stories');
         cy.importNluData('bf', 'nlu_sample_en.json', 'English');
         cy.createNLUModelProgramatically('bf', '', 'fr');
         cy.importNluData('bf', 'nlu_sample_fr.json', 'French');
         createStories();
-        cy.get('[data-cy=open-chat]').click();
         cy.train();
+        cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('en');
         cy.testChatInput('hi', 'utter_hi');
         cy.newChatSesh('fr');
