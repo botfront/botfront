@@ -25,7 +25,7 @@ describe('Exporting a Project', function() {
     });
 
     describe('Export UI', function() {
-        it('should navigate the UI for exporting to Botfront', function() {
+        it('should be able to export a project with conversations', function() {
             cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('port-project-menu')
@@ -46,7 +46,7 @@ describe('Exporting a Project', function() {
                 .should('have.attr', 'href')
                 .and('equal', `${Cypress.env('API_URL')}/project/test_project/export?output=json&conversations=true`);
         });
-        it('should link to the right url when exporting without conversations', function() {
+        it('should be able to export a project without conversations', function() {
             cy.visit('/project/test_project/settings');
             cy.contains('Import/Export').click();
             cy.dataCy('port-project-menu')
