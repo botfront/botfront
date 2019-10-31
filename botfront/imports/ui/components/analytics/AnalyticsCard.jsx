@@ -1,7 +1,7 @@
 import {
     Button, Popup, Loader, Message, Icon,
 } from 'semantic-ui-react';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@apollo/react-hooks';
 import { calculateTemporalBuckets, getDataToDisplayAndParamsToUse } from '../../../lib/graphs';
@@ -9,6 +9,7 @@ import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
 import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
+import SettingsPortal from './SettingsPortal';
 
 function AnalyticsCard(props) {
     const {
@@ -34,6 +35,7 @@ function AnalyticsCard(props) {
     const displayAbsoluteRelative = 'rel' in graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const { tickValues, nBuckets } = calculateTemporalBuckets(startDate, endDate);
 
     const variables = {
@@ -59,6 +61,24 @@ function AnalyticsCard(props) {
         if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} />;
         if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} />;
         return null;
+    };
+    
+    const renderExtraOptionsLink = () => {
+        if (!exclude) return null;
+        return (
+            <>
+                <SettingsPortal
+                    text='Exclude intents'
+                    onClose={() => setSettingsOpen(false)}
+                    open={settingsOpen}
+                    values={exclude}
+                    onChange={newVal => onChangeSettings('exclude', newVal)}
+                />
+                <a className='extra-options-linklike' onClick={() => setSettingsOpen(!settingsOpen)}>
+                    {`Excluded intents (${exclude.length})`}
+                </a>
+            </>
+        );
     };
 
     return (
@@ -111,9 +131,7 @@ function AnalyticsCard(props) {
             ) : (
                 <span className='title'>{title}</span>
             )}
-            {(exclude || responses) && (
-                <span className='extra-options-linklike'>wacko</span>
-            )}
+            {renderExtraOptionsLink()}
             <div className='graph-render-zone'>
                 {(!error && !loading && data) ? (
                     renderChart()

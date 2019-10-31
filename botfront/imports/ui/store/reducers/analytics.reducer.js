@@ -48,6 +48,8 @@ const initialState = Map({
 });
 
 export default function reducer(state = initialState, action) {
+    let { value: newValue } = action;
+    if (Array.isArray(newValue)) newValue = List(newValue);
     switch (action.type) {
     case types.SWAP_ANALYTICS_CARDS:
         return state.update('cardSettings', (value) => {
@@ -61,7 +63,7 @@ export default function reducer(state = initialState, action) {
             });
         });
     case types.SET_ANALYTICS_CARD_SETTINGS:
-        return state.setIn(['cardSettings', action.cardId, action.setting], action.value);
+        return state.setIn(['cardSettings', action.cardId, action.setting], newValue);
     default:
         return state;
     }
