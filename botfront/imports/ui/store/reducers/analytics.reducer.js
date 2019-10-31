@@ -49,12 +49,14 @@ export default function reducer(state = initialState, action) {
     switch (action.type) {
     case types.SWAP_ANALYTICS_CARDS:
         return state.update('cardSettings', (value) => {
-            const [i, j] = [action.i, action.j].sort(); // i <= j
-            if (i === j) return value; // i < j
-            const [iVal, jVal] = [value.get(i), value.get(j)];
-            return value
-                .splice(i, 1, jVal)
-                .splice(j, 1, iVal);
+            const { k1, k2 } = action;
+            if (k1 === k2) return value;
+            if (!value.get(k1) || !value.get(k2)) return value;
+            return value.mapEntries(([k, v]) => {
+                if (k === k1) return [k2, value.get(k2)];
+                if (k === k2) return [k1, value.get(k1)];
+                return [k, v];
+            });
         });
     case types.SET_ANALYTICS_CARD_SETTINGS:
         return state.setIn(['cardSettings', action.cardId, action.setting], action.value);

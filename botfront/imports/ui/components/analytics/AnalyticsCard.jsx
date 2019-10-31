@@ -25,6 +25,7 @@ function AnalyticsCard(props) {
             valueType,
         },
         onChangeSettings,
+        onReorder,
     } = props;
     
     const displayAbsoluteRelative = 'rel' in graphParams;
@@ -140,6 +141,12 @@ function AnalyticsCard(props) {
                     <Loader active size='large'>Loading</Loader>
                 )}
             </div>
+            {onReorder && (
+                <div className='bottom-right-buttons'>
+                    <Icon link name='caret left' onClick={() => onReorder(-1)} />
+                    <Icon link name='caret right' onClick={() => onReorder(1)} />
+                </div>
+            )}
         </div>
     );
 }
@@ -154,6 +161,7 @@ AnalyticsCard.propTypes = {
     graphParams: PropTypes.object,
     settings: PropTypes.object.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
+    onReorder: PropTypes.func,
 };
 
 AnalyticsCard.defaultProps = {
@@ -161,6 +169,7 @@ AnalyticsCard.defaultProps = {
     chartTypeOptions: ['line', 'bar'],
     titleDescription: null,
     graphParams: {},
+    onReorder: null,
 };
 
 export default AnalyticsCard;

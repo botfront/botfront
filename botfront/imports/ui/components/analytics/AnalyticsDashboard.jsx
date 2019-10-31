@@ -3,7 +3,7 @@ import { Container } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { OrderedMap } from 'immutable';
-import { setAnalyticsCardSettings } from '../../store/actions/actions';
+import { setAnalyticsCardSettings, swapAnalyticsCards } from '../../store/actions/actions';
 import AnalyticsCard from './AnalyticsCard';
 import conversationLengths from '../../../api/graphql/conversations/queries/conversationLengths.graphql';
 import conversationDurations from '../../../api/graphql/conversations/queries/conversationDurations.graphql';
@@ -13,7 +13,7 @@ import fallbackCounts from '../../../api/graphql/conversations/queries/fallbackC
 
 function AnalyticsDashboard(props) {
     const {
-        projectId, environment, cardSettings, changeCardSettings,
+        projectId, environment, cardSettings, changeCardSettings, swapCards,
     } = props;
 
     const envs = [environment];
@@ -103,14 +103,15 @@ function AnalyticsDashboard(props) {
     return (
         <Container className='analytics-container'>
             <div className='analytics-dashboard'>
-                {cardSettings.entrySeq().map(([cardName, settings]) => (
+                {cardSettings.entrySeq().map(([cardName, settings], index) => {console.log(cardSettings.keySeq().get(index + 1)); return (
                     <AnalyticsCard
                         key={cardName}
                         {...cards[cardName]}
                         settings={settings.toJS()}
                         onChangeSettings={(setting, value) => changeCardSettings(cardName, setting, value)}
+                        onReorder={n => swapCards(cardName, cardSettings.keySeq().get(index + n))}
                     />
-                ))}
+                )})}
             </div>
         </Container>
     );
@@ -121,6 +122,7 @@ AnalyticsDashboard.propTypes = {
     environment: PropTypes.string.isRequired,
     cardSettings: PropTypes.instanceOf(OrderedMap).isRequired,
     changeCardSettings: PropTypes.func.isRequired,
+    swapCards: PropTypes.func.isRequired,
 };
 
 AnalyticsDashboard.defaultProps = {};
@@ -133,6 +135,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     changeCardSettings: setAnalyticsCardSettings,
+    swapCards: swapAnalyticsCards,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AnalyticsDashboard);

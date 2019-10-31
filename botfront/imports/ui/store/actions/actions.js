@@ -71,11 +71,11 @@ export function setWorkingDeploymentEnvironment(env) {
     };
 }
 
-export function swapAnalyticsCards(i, j) {
+export function swapAnalyticsCards(k1, k2) {
     return {
         type: types.SWAP_ANALYTICS_CARDS,
-        i,
-        j,
+        k1,
+        k2,
     };
 }
 
