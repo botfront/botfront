@@ -48,6 +48,7 @@
     "graphql": "^14.4.2",
     "immutable": "^4.0.0-rc.12",
     "js-yaml": "^3.13.1",
+    "jszip": "^3.2.2",
     "lodash": "^4.17.15",
     "match-sorter": "^4.0.0",
     "merge-graphql-schemas": "^1.7.0",

@@ -4,9 +4,8 @@ import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import { saveAs } from 'file-saver';
-
 import {
-    Dropdown, Button, Message, Icon, Checkbox,
+    Dropdown, Button, Message, Icon, Checkbox, List,
 } from 'semantic-ui-react';
 
 import { Projects } from '../../../api/project/project.collection';
@@ -36,12 +35,12 @@ const ExportProject = ({
                     to retry.
                 </p>),
         },
-        // {
-        //     key: 'rasa',
-        //     text: 'Export for Rasa/Rasa X',
-        //     value: 'rasa',
-        //     successText: 'Your project has been successfully exported for Rasa/Rasa X!',
-        // },
+        {
+            key: 'rasa',
+            text: 'Export for Rasa/Rasa X',
+            value: 'rasa',
+            successText: 'Your project has been successfully exported for Rasa/Rasa X!',
+        },
     ];
 
     const getLanguageOptions = () => (
@@ -88,11 +87,34 @@ const ExportProject = ({
 
     const exportForRasa = () => {
         setLoading(true);
-        console.log('----RASA EXPORT----');
-        console.log(projectId);
-        console.log(exportLanguage);
-        setExportSuccessful(true);
-        setLoading(false);
+        Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaData) => {
+            if (err) {
+                setErrorMessage({ header: 'Rasa Export Failed!', text: err.message });
+                setExportSuccessful(false);
+                setLoading(false);
+                return;
+            }
+            import('../utils/ZipFolder').then(({ ZipFolder }) => {
+                const rasaZip = new ZipFolder();
+                rasaZip.addFile(rasaData.config, 'config.yml');
+                rasaZip.addFile(rasaData.nlu, 'data/nlu.md');
+                rasaZip.addFile(rasaData.stories, 'data/stories.md');
+                rasaZip.addFile(rasaData.endpoints, 'endpoints.yml');
+                rasaZip.addFile(rasaData.credentials, 'credentials.yml');
+                rasaZip.addFile(rasaData.domain, 'domain.yml');
+                
+                // prevents the file from being downloaded durring cypress tests
+                if (window.Cypress) {
+                    setExportSuccessful(true);
+                    setLoading(false);
+                    return;
+                }
+                rasaZip.downloadAs(`${projectId}_RasaExport`, () => {
+                    setExportSuccessful(true);
+                    setLoading(false);
+                });
+            });
+        });
     };
 
     const exportProject = () => {
@@ -154,12 +176,41 @@ const ExportProject = ({
             )}
             {exportType.value === 'rasa' && (
                 <>
+                    <Message
+                        info
+                        header='A few things to keep in mind when exporting for Rasa'
+                        content={(
+                            <>
+                                <h5>NLU pipeline</h5>
+                                <p>
+                                    Consider removing Botfront specific NLU components, such as:
+                                    <List as='ul'>
+                                        <List.Item as='li'>rasa_addons.nlu.components.gazette.Gazette</List.Item>
+                                        <List.Item as='li'>rasa_addons.nlu.components.language_setter.LanguageSetter</List.Item>
+                                    </List>
+                                </p>
+                                <h5>Responses</h5>
+                                <p>
+                                Responses (templates) are lists. Rasa treats them as <strong>variants</strong> that should be randomly displayed,{' '}
+                                Botfront treats them as sequence (each item is uttered). If you used the sequence feature in Botfront,{' '}
+                                you will need to rework your stories accordingly.
+                                </p>
+                                <h5>Credentials and endpoints</h5>
+                                <p>
+                                In most cases, you do not need to change credentials or endpoints.{' '}
+                                If you need to keep credentials from Botfront,{' '}
+                                be sure to keep the <b>rasa</b> and <b>rest</b> fields from the <b>credentials.yml</b> provided by Rasa X.
+                                </p>
+
+                            </>
+                        )}
+                    />
                     <Dropdown
                         data-cy='export-language-dropdown'
                         key='language'
                         className='export-option'
                         options={getLanguageOptions()}
-                        placeholder='select a language'
+                        placeholder='Select a language'
                         selection
                         onChange={(x, { value }) => { setExportLanguage(value); }}
                     />

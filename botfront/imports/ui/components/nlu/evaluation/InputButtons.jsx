@@ -6,19 +6,19 @@ import { Button } from 'semantic-ui-react';
 export class InputButtons extends React.Component {
     constructor(props) {
         super(props);
-
+        const { selectedIndex, onDefaultLoad, operations } = props;
+        operations[selectedIndex](onDefaultLoad);
         this.state = {
-            toggle: 0,
+            toggle: selectedIndex,
         };
     }
 
-    componentWillMount() {
-        const { operations, defaultSelection, onDefaultLoad } = this.props;
-
-        this.setState({ toggle: defaultSelection });
-        operations[defaultSelection](onDefaultLoad);
-    }
-
+    // componentWillMount() {
+    //     const { operations, defaultSelection, onDefaultLoad } = this.props;
+    //     this.setState({ toggle: defaultSelection });
+    //     operations[defaultSelection](onDefaultLoad);
+    // }
+    
     handleClick(operation, index) {
         return () => {
             this.setState({ toggle: index });
@@ -57,9 +57,11 @@ InputButtons.propTypes = {
     operations: PropTypes.arrayOf(PropTypes.func).isRequired,
     defaultSelection: PropTypes.number,
     onDefaultLoad: PropTypes.func,
+    selectedIndex: PropTypes.number,
 };
 
 InputButtons.defaultProps = {
     defaultSelection: 0,
+    selectedIndex: 0,
     onDefaultLoad: () => {},
 };

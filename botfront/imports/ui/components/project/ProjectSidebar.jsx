@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import DocumentTitle from 'react-document-title';
-import { Menu, Divider, Icon } from 'semantic-ui-react';
+import { Menu, Divider } from 'semantic-ui-react';
 import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 
@@ -42,14 +42,14 @@ class ProjectSidebar extends React.Component {
                             )}
                         </>
                     </Can>
+                    <Can I='nlu-data:r' projectId={projectId}>
+                        <Link to={`/project/${projectId}/incoming`}>
+                            <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-page' />
+                        </Link>
+                    </Can>
                     <Can I='responses:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/dialogue/templates`}>
                             <Menu.Item name='Responses' icon='comment' />
-                        </Link>
-                    </Can>
-                    <Can I='conversations:r' projectId={projectId}>
-                        <Link to={`/project/${projectId}/dialogue/conversations/`}>
-                            <Menu.Item name='Conversations' icon='comments' />
                         </Link>
                     </Can>
                     <Can I='conversations:r' projectId={projectId}>

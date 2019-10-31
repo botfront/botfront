@@ -74,3 +74,51 @@
         border-top: none !important;
     }
 }
+
+.ui.horizontal.segments.new-utterances-topbar {
+    border-style: none;
+    box-shadow: none;
+    margin-bottom: 0px;
+    .ui.segment.new-utterances-topbar-section{
+        border-style: none;
+        padding: 0px;
+        .angle.double.icon{
+            background:rgba(0,0,0,0);
+        }
+        .ui.buttons.sort-dropdown{
+            &:hover{
+                border-color: rgba(0,0,0,0.25);
+            }
+            .ui.dropdown.button.icon{
+                padding:0px;
+                &.active{
+                    background:rgba(0,0,0,0) !important; //required to overide semantic ui
+                }
+                .ui.segment.button.sort-dropdown-trigger{
+                    //alignment
+                    text-align: left;
+                    // border decoration
+                    border-style: none;
+                    // color and background
+                    color: rgba(0,0,0,.87) !important; // required to overide semantic ui
+                    // overflow
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    //padding
+                    padding-top: 0.8em;
+                    padding-bottom: 0px;
+                    padding-right: 0em;
+                    // size
+                    height: 2.4em;
+                    width: 160px;
+                }
+                .dropdown.icon{
+                    padding-top: 0.9em;
+                    padding-left: 0em;
+                    padding-right: 1em;
+                }
+            }
+        }
+    }
+}
