@@ -23,15 +23,12 @@ describe('NLU canonical examples', function () {
         cy.get('.purple > .ui > .search').type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
-        cy.dataCy('gem')
-            .children()
+        cy.dataCy('icon-gem')
             .should('have.class', 'grey');
-        cy.dataCy('gem')
-            .children()
+        cy.dataCy('icon-gem')
             .click({ force: true });
         cy.wait(100);
-        cy.dataCy('gem')
-            .children()
+        cy.dataCy('icon-gem')
             .should('have.class', 'black');
     });
 
@@ -44,18 +41,14 @@ describe('NLU canonical examples', function () {
         cy.get('.purple > .ui > .search').type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
-        cy.dataCy('gem')
-            .children()
+        cy.dataCy('icon-gem')
             .should('have.class', 'grey');
-        cy.dataCy('gem')
-            .children()
+        cy.dataCy('icon-gem')
             .click({ force: true });
         cy.wait(100);
-        cy.dataCy('gem')
-            .children()
+        cy.dataCy('icon-gem')
             .should('have.class', 'black');
-        cy.dataCy('gem')
-            .children()
+        cy.dataCy('icon-gem')
             .trigger('mouseover');
         cy.get('.popup').should('exist');
         // have.text concat inner text, that is why intentintenttest does not have space
@@ -71,12 +64,10 @@ describe('NLU canonical examples', function () {
         cy.get('.purple > .ui > .search').type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
-        cy.dataCy('gem')
-            .children()
+        cy.dataCy('icon-gem')
             .click({ force: true });
         cy.wait(100);
-        cy.dataCy('trash')
-            .children()
+        cy.dataCy('icon-trash')
             .should('have.class', 'disabled-delete');
         cy.dataCy('nlu-table-intent').trigger('mouseover');
         cy.get('.popup').should('exist');
@@ -111,15 +102,11 @@ describe('NLU canonical examples', function () {
         // just match the first part of the message as linebreaks may happen and are difficult to match
         cy.get('.s-alert-box-inner').should('contain.text',
             'The previous canonical example with');
-        cy.contains('hello')
-            .closest('.rt-tr')
-            .find('[data-cy=gem]')
-            .children()
+        cy.dataCy('icon-gem')
+            .first()
             .should('have.class', 'grey');
-        cy.contains('welcome')
-            .closest('.rt-tr')
-            .find('[data-cy=gem]')
-            .children()
+        cy.dataCy('icon-gem')
+            .eq(1)
             .should('have.class', 'black');
     });
 
@@ -133,10 +120,8 @@ describe('NLU canonical examples', function () {
         cy.get('.purple > .ui > .search').type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
-        cy.contains('hello')
-            .closest('.rt-tr')
-            .find('[data-cy=gem]')
-            .children()
+        cy.dataCy('icon-gem')
+            .first()
             .click({ force: true });
         cy.wait(100);
         cy.contains('welcome').should('exist');
