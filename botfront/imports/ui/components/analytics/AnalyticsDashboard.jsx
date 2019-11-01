@@ -3,6 +3,7 @@ import { Container } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { OrderedMap } from 'immutable';
+import { useDrop } from 'react-dnd-cjs';
 import { setAnalyticsCardSettings, swapAnalyticsCards } from '../../store/actions/actions';
 import AnalyticsCard from './AnalyticsCard';
 import conversationLengths from '../../../api/graphql/conversations/queries/conversationLengths.graphql';
@@ -99,17 +100,20 @@ function AnalyticsDashboard(props) {
             },
         },
     };
+    
+    const [, drop] = useDrop({ accept: 'card' });
 
     return (
         <Container className='analytics-container'>
-            <div className='analytics-dashboard'>
-                {cardSettings.entrySeq().map(([cardName, settings], index) => (
+            <div className='analytics-dashboard' ref={drop}>
+                {cardSettings.entrySeq().map(([cardName, settings]) => (
                     <AnalyticsCard
                         key={cardName}
+                        cardName={cardName}
                         {...cards[cardName]}
                         settings={settings.toJS()}
                         onChangeSettings={(setting, value) => changeCardSettings(cardName, setting, value)}
-                        onReorder={n => swapCards(cardName, cardSettings.keySeq().get(index + n))}
+                        onReorder={swapCards}
                     />
                 ))}
             </div>

@@ -4,6 +4,7 @@ import {
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@apollo/react-hooks';
+import { useDrag, useDrop } from 'react-dnd-cjs';
 import { calculateTemporalBuckets, getDataToDisplayAndParamsToUse } from '../../../lib/graphs';
 import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
@@ -13,6 +14,7 @@ import SettingsPortal from './SettingsPortal';
 
 function AnalyticsCard(props) {
     const {
+        cardName,
         displayDateRange,
         chartTypeOptions,
         title,
@@ -37,6 +39,22 @@ function AnalyticsCard(props) {
 
     const [settingsOpen, setSettingsOpen] = useState(false);
     const { tickValues, nBuckets } = calculateTemporalBuckets(startDate, endDate);
+
+    const [, drag] = useDrag({
+        item: { type: 'card', cardName },
+        collect: monitor => ({
+            isDragging: monitor.isDragging(),
+        }),
+    });
+    const [, drop] = useDrop({
+        accept: 'card',
+        canDrop: () => false,
+        hover({ cardName: draggedCard }) {
+            if (draggedCard !== cardName) {
+                onReorder(draggedCard, cardName);
+            }
+        },
+    });
 
     const variables = {
         projectId: queryParams.projectId,
@@ -82,7 +100,7 @@ function AnalyticsCard(props) {
     };
 
     return (
-        <div className='analytics-card'>
+        <div className='analytics-card' ref={node => drag(drop(node))}>
             {displayDateRange && (
                 <div className='date-picker'>
                     <DatePicker
@@ -139,19 +157,12 @@ function AnalyticsCard(props) {
                     <Loader active size='large'>Loading</Loader>
                 )}
             </div>
-            {onReorder
-                && (
-                    <div className='bottom-right-buttons'>
-                        <Icon link name='caret left' onClick={() => onReorder(-1)} />
-                        <Icon link name='caret right' onClick={() => onReorder(1)} />
-                    </div>
-                )
-            }
         </div>
     );
 }
 
 AnalyticsCard.propTypes = {
+    cardName: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     titleDescription: PropTypes.string,
     displayDateRange: PropTypes.bool,
