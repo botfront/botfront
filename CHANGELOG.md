@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2-ee.4](https://github.com/botfront/botfront/compare/v0.17.2-ee.3...v0.17.2-ee.4) (2019-11-01)
+
+
+### Bug Fixes
+
+* eslint issues ([bfb8b15](https://github.com/botfront/botfront/commit/bfb8b15))
+
+
+### Features
+
+*  loader does not show up if request fast (css anim) ([b68ea07](https://github.com/botfront/botfront/commit/b68ea07))
+* add loading when switching ([e73302f](https://github.com/botfront/botfront/commit/e73302f))
+* add popup for canonical examples ([af9f2e1](https://github.com/botfront/botfront/commit/af9f2e1))
+* add possibility to toggle canonical on examples ([6d5f4fd](https://github.com/botfront/botfront/commit/6d5f4fd))
+* disable editing for canonical examples ([458888d](https://github.com/botfront/botfront/commit/458888d))
+* disable trash when example is canonical ([b792284](https://github.com/botfront/botfront/commit/b792284))
+* filtering switch for canonical examples ([0303444](https://github.com/botfront/botfront/commit/0303444))
+* hide intents text if none, improve css ([7752e6c](https://github.com/botfront/botfront/commit/7752e6c))
+* hide subComponent on canonicals ([60c22fd](https://github.com/botfront/botfront/commit/60c22fd))
+* message when switching a canonical example ([b5d66e6](https://github.com/botfront/botfront/commit/b5d66e6))
+* popups blocking editing when canonical ([ba272db](https://github.com/botfront/botfront/commit/ba272db))
+* **canonical examples:** sort by canonical status on train ([48cf643](https://github.com/botfront/botfront/commit/48cf643))
+* **canonical examples:** sort by canonical status on train ([1efcd84](https://github.com/botfront/botfront/commit/1efcd84))
+
+
+### Tests
+
+* add cypress tests ([78bf1a3](https://github.com/botfront/botfront/commit/78bf1a3))
+* changes/improvement for previous modifications ([f21f67a](https://github.com/botfront/botfront/commit/f21f67a))
+* fix Examples test with canonical ([232fd72](https://github.com/botfront/botfront/commit/232fd72))
+* improve way to access icons, might fix tests on the ci ([fe3bacb](https://github.com/botfront/botfront/commit/fe3bacb))
+* may fix failling test ([ecb2df2](https://github.com/botfront/botfront/commit/ecb2df2))
+* might fix canonical switching test ([74745ce](https://github.com/botfront/botfront/commit/74745ce))
+* rename canonical tests ([85f2d85](https://github.com/botfront/botfront/commit/85f2d85))
+* uniqueness of canonical intent, value, entity ([1f90923](https://github.com/botfront/botfront/commit/1f90923))
+* update to test non-edition on canonical ([91ff862](https://github.com/botfront/botfront/commit/91ff862))
+
+
+
 ### [0.17.2-ee.3](https://github.com/botfront/botfront/compare/v0.17.2-ee.2...v0.17.2-ee.3) (2019-11-01)
 
 
