@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2-ee.3](https://github.com/botfront/botfront/compare/v0.17.2-ee.2...v0.17.2-ee.3) (2019-11-01)
+
+
+### Bug Fixes
+
+* **canonical examples:** typo ([ca641f3](https://github.com/botfront/botfront/commit/ca641f3))
+* capitalize select a language ([54ad0d6](https://github.com/botfront/botfront/commit/54ad0d6))
+* change to satisfy eslint prefer destructuring ([395c620](https://github.com/botfront/botfront/commit/395c620))
+* crach in incoming after import ([6247ca3](https://github.com/botfront/botfront/commit/6247ca3))
+* enviroments in incoming tab ([2afce1a](https://github.com/botfront/botfront/commit/2afce1a))
+* eslint and browser warnings ([f44bd4e](https://github.com/botfront/botfront/commit/f44bd4e))
+* eslint warning, add a space ([5cbc42e](https://github.com/botfront/botfront/commit/5cbc42e))
+* evaluation data when linking from incoming ([294d905](https://github.com/botfront/botfront/commit/294d905))
+* export for rasa info message text ([21c03d0](https://github.com/botfront/botfront/commit/21c03d0))
+* file download causes timeout in cypress tests ([e024ccb](https://github.com/botfront/botfront/commit/e024ccb))
+* incoming tabs allow non letter chars ([118a22f](https://github.com/botfront/botfront/commit/118a22f))
+* incomming tests ([20148d8](https://github.com/botfront/botfront/commit/20148d8))
+* link from activity evaluates wrong data ([ff67fb3](https://github.com/botfront/botfront/commit/ff67fb3))
+* missing period in info message ([a35adb1](https://github.com/botfront/botfront/commit/a35adb1))
+* rasa X export explanation ([ef19cbd](https://github.com/botfront/botfront/commit/ef19cbd))
+* reloading after evn change ([13b4328](https://github.com/botfront/botfront/commit/13b4328))
+* style sort utterances dropdown ([4fc0f4d](https://github.com/botfront/botfront/commit/4fc0f4d))
+* training spec train button click failing ([2884b12](https://github.com/botfront/botfront/commit/2884b12))
+* yaml extension must be yml ([f750728](https://github.com/botfront/botfront/commit/f750728))
+
+
+### Features
+
+* add export for rasa ([ae11aee](https://github.com/botfront/botfront/commit/ae11aee))
+* add export for rasa ([14ca3fe](https://github.com/botfront/botfront/commit/14ca3fe))
+* add infor messages to rasa/rasaX export ([52ae84f](https://github.com/botfront/botfront/commit/52ae84f))
+* add tabs for the sections of incoming ([1487534](https://github.com/botfront/botfront/commit/1487534))
+* add test for cannonical example in conversation builder ([71c9bd0](https://github.com/botfront/botfront/commit/71c9bd0))
+* allow the cannonical field in example utils ([5df5342](https://github.com/botfront/botfront/commit/5df5342))
+* connect required data to incoming tab ([984a764](https://github.com/botfront/botfront/commit/984a764))
+* link to evaluation from incoming ([9ff1568](https://github.com/botfront/botfront/commit/9ff1568))
+* move activity to new page with conversations ([854893f](https://github.com/botfront/botfront/commit/854893f))
+* prefer cannonical examples in conversation builder ([22adca9](https://github.com/botfront/botfront/commit/22adca9))
+* sort new utterances by date, new or old ([cf0269c](https://github.com/botfront/botfront/commit/cf0269c))
+
+
+### Tests
+
+* add tests for incoming tab ([16a0345](https://github.com/botfront/botfront/commit/16a0345))
+* beforeEach deletes previous models ([fbe1bc6](https://github.com/botfront/botfront/commit/fbe1bc6))
+* install chai for cypress ([1da716f](https://github.com/botfront/botfront/commit/1da716f))
+* re-enable test for rasa export ([4e40a85](https://github.com/botfront/botfront/commit/4e40a85))
+* test language dropdown in rasa export ([1a1db59](https://github.com/botfront/botfront/commit/1a1db59))
+
+
+
 ### [0.17.2-ee.2](https://github.com/botfront/botfront/compare/v0.17.2-ee.1...v0.17.2-ee.2) (2019-10-30)
 
 
