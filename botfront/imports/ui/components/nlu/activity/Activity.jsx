@@ -46,7 +46,7 @@ class Activity extends React.Component {
         const urlId = name.toLowerCase().replace(regexp, '');
         const url = `/project/${projectId}/incoming/${model._id}/${urlId}`;
         return {
-            name,
+            content: name,
             key: `incoming-tab-${index}`,
             'data-cy': `incoming-${urlId}-tab`,
             onClick: () => {
