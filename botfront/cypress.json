@@ -12,7 +12,7 @@
     "numTestsKeptInMemory": 2 ,
     "viewportHeight": 900,
     "viewportWidth": 1800,
-    "ignoreTestFiles":["**/training.spec.js", "**/roles_nlu_settings/*.js", "**/docker-compose/*.js", "**/story_exceptions.spec.js/*.js", "**/export-project.spec.js", "**/import-project.spec.js"],
+    "ignoreTestFiles":["**/training.spec.js", "**/roles_nlu_settings/*.js", "**/docker-compose/*.js", "**/story_exceptions.spec.js/*.js", "**/export-project.spec.js", "**/import-project.spec.js", "**/environment_change.spec.js"],
     "env": {
         "RASA_URL": "http://localhost:5005"
     }

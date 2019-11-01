@@ -74,12 +74,12 @@ describe('Bot responses', function() {
         cy.contains('German').click();
         cy.get('input')
             .first()
-            .type(`{selectall}{del}${responseName}aaa`);
+            .type(`{selectall}{del}${responseName}aab`);
         cy.get('.response-save-button').click();
-        cy.openResponse('bf', `${responseName}aaa`);
+        cy.openResponse('bf', `${responseName}aab`);
         cy.get('input')
             .first()
-            .should('have.attr', 'value', `${responseName}aaa`);
+            .should('have.attr', 'value', `${responseName}aab`);
         cy.get('input')
             .first()
             .type(`{selectall}{del}${responseName}`);
