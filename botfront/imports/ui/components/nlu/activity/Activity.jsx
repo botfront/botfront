@@ -68,12 +68,13 @@ class Activity extends React.Component {
             oosUtterances,
             projectId,
             intents,
+            utterances,
             entities,
             environment,
         } = this.props;
         const oosPaneTitle = oosUtterances.length ? `Out of Scope (${oosUtterances.length})` : 'Out of Scope';
         return [
-            { menuItem: this.createMenuItem('New Utterances', 0), render: this.renderIncomingTab },
+            { menuItem: this.createMenuItem(`New Utterances (${utterances.length})`, 0), render: this.renderIncomingTab },
             {
                 menuItem: this.createMenuItem('Conversations', 1),
                 render: () => <ConversationBrowser projectId={project._id} params={params} replaceUrl={replaceUrl} environment={environment} />,
