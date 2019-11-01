@@ -1,0 +1,39 @@
+{
+  "rasa_nlu_data": {
+    "common_examples": [
+      
+      {
+        "text": "I want to open my account",
+        "intent": "access_account",
+        "entities": [{ "start": 0, "end": 6, "value": "open", "entity": "action" }]
+      },
+      {
+        "text": "I want to close my account",
+        "intent": "access_account",
+        "entities": [{ "start": 0, "end": 6, "value": "close", "entity": "action" }]
+      },
+      {
+        "text": "Flight to paris",
+        "intent": "book_flight",
+        "entities": [{ "start": 10, "end": 14, "value": "paris", "entity": "city" }]
+      },
+      {
+        "text": "what to do in paris",
+        "intent": "visit_city",
+        "entities": [{ "start": 14, "end": 18, "value": "paris", "entity": "city" }]
+      },
+      {
+        "text": "random stuff",
+        "intent": "checkout",
+        "entities": [{ "start": 0, "end": 5, "value": "access", "entity": "start" }]
+      },
+      {
+        "text": "random stuff the second",
+        "intent": "checkout",
+        "entities": [{ "start": 0, "end": 5, "value": "access", "entity": "end" }]
+      }
+    ],
+    "entity_synonyms": [],
+    "fuzzy_gazette": []
+  }
+}

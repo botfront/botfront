@@ -15,6 +15,7 @@ const example = {
         start: 0,
         end: 4,
     }],
+    canonical: false,
     intent: 'intent',
     confidence: 0.4,
 };
@@ -68,6 +69,7 @@ describe('prepare example for database insertion', function() {
                 extra: [],
             }],
             extra: [],
+            canonical: false,
         };
 
         const prepared = ExampleUtils.prepareExample(ex);
@@ -81,6 +83,7 @@ describe('prepare example for database insertion', function() {
                 start: 0,
                 end: 4,
             }],
+            canonical: false,
         });
     });
 
@@ -91,9 +94,17 @@ describe('prepare example for database insertion', function() {
             entities: [{
                 extractor: 'ner_duckling_http',
             }],
+            canonical: false,
         };
 
         const prepared = ExampleUtils.prepareExample(ex);
-        expect(prepared).to.be.deep.equal({ _id: prepared._id, text: 'test', intent: 'test', entities: [] });
+            
+        expect(prepared).to.be.deep.equal({
+            _id: prepared._id,
+            text: 'test',
+            intent: 'test',
+            entities: [],
+            canonical: false,
+        });
     });
 });
