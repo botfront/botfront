@@ -5,9 +5,11 @@ export const formatNewlines = (sequence) => {
     const regexNewline = /\n/g;
     const updatedSequence = sequence.map(({ content: contentYaml }) => {
         const content = yamlLoad(contentYaml);
-        content.text = content.text
-            .replace(regexSpacedNewline, '\n')
-            .replace(regexNewline, '  \n');
+        if (content.text) {
+            content.text = content.text
+                .replace(regexSpacedNewline, '\n')
+                .replace(regexNewline, '  \n');
+        }
         return { content: yamlDump({ ...content }) };
     });
     return updatedSequence;
