@@ -6,6 +6,8 @@ type ConversationContainer {
   tracker: Conversation,
   projectId: String,
   status: String,
+    _id: String,
+  updatedAt: String ,
 }
 
 type Conversation {

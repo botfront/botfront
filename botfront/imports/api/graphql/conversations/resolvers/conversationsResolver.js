@@ -10,6 +10,8 @@ export default {
         projectId: (parent, args, context, info) => parent.projectId,
         tracker: (parent, args, context, info) => parent.tracker,
         status: (parent, args, context, info) => parent.status,
+        _id: (parent, args, context, info) => parent._id,
+        updatedAt: (parent, args, context, info) => parent.updatedAt,
     },
     Conversation: {
         latest_message: (parent, args, context, info) => parent.latest_message,
