@@ -1,13 +1,24 @@
 type Query {
-    conversations(projectId: String!, page: Int!, limit: Int ): [ConversationContainer!]!
+    conversations(
+      projectId: String!, 
+      page: Int!,
+      limit: Int, 
+      status: [String] 
+      sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
+      ): [ConversationContainer!]!
+}
+
+enum order {
+  updatedAt_ASC
+  updatedAt_DESC
 }
 
 type ConversationContainer {
   tracker: Conversation,
   projectId: String,
   status: String,
-    _id: String,
-  updatedAt: String ,
+  _id: String,
+  updatedAt: String,
 }
 
 type Conversation {
