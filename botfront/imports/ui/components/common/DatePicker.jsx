@@ -1,7 +1,4 @@
 import 'react-dates/initialize';
-if (!Meteor.isTest) {
-    import 'react-dates/lib/css/_datepicker.css';
-}
 import moment from 'moment';
 import { DayPickerRangeController } from 'react-dates';
 import React, { useState } from 'react';
@@ -10,6 +7,10 @@ import {
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
+
+if (!Meteor.isTest) {
+    import 'react-dates/lib/css/_datepicker.css';
+}
 
 function DatePicker({ startDate, endDate, onConfirm }) {
     const [focusedInput, setFocusedInput] = useState('startDate');
@@ -83,6 +84,9 @@ function DatePicker({ startDate, endDate, onConfirm }) {
             flowing
             className='date-picker'
             open={popupOpen}
+            onClose={handlePopupState}
+            on='click'
+            style={{ height: '450px' }}
             trigger={(
                 <Button icon labelPosition='left' onClick={() => handlePopupState()}>
                     {startDate ? getDateString(startDate, endDate) : 'Pick a range'}
