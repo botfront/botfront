@@ -45,7 +45,7 @@ class Activity extends React.Component {
         const urlId = name.toLowerCase().replace(regexp, '');
         const url = `/project/${projectId}/incoming/${model._id}/${urlId}`;
         return {
-            name,
+            content: name,
             key: `incoming-tab-${index}`,
             'data-cy': `incoming-${urlId}-tab`,
             onClick: () => {
@@ -59,10 +59,10 @@ class Activity extends React.Component {
 
     getPanes = () => {
         const {
-            model, instance, project, params, replaceUrl,
+            model, instance, project, params, replaceUrl, utterances,
         } = this.props;
         return [
-            { menuItem: this.createMenuItem('New Utterances', 0), render: this.renderIncomingTab },
+            { menuItem: this.createMenuItem(`New Utterances (${utterances.length})`, 0), render: this.renderIncomingTab },
             {
                 menuItem: this.createMenuItem('Conversations', 1),
                 render: () => <ConversationBrowser projectId={project._id} params={params} replaceUrl={replaceUrl} />,
