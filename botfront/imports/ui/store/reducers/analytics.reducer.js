@@ -20,7 +20,7 @@ const initialState = Map({
             endDate,
             chartType: 'bar',
             valueType: 'absolute',
-            exclude: List(),
+            exclude: List(['get_started']),
         }),
         conversationDurations: Map({
             visible: true,
@@ -35,7 +35,7 @@ const initialState = Map({
             endDate,
             chartType: 'line',
             valueType: 'absolute',
-            responses: List(),
+            responses: List(['utter_fallback']),
         }),
         visitCounts: Map({
             visible: true,

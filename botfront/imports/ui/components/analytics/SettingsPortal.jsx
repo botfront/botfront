@@ -19,7 +19,8 @@ function SettingsPortal(props) {
         <Modal
             onClose={onClose}
             open={open}
-            size='small'
+            size='tiny'
+            style={{ top: '15vh', left: '15vh' }}
         >
             <Modal.Header>{text}</Modal.Header>
             <Modal.Content>

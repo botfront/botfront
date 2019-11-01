@@ -82,19 +82,29 @@ function AnalyticsCard(props) {
     };
     
     const renderExtraOptionsLink = () => {
-        if (!exclude) return null;
+        if (!exclude && !responses) return null;
+        let text; let values; let setting;
+        if (exclude) {
+            text = 'Excluded intents';
+            values = exclude;
+            setting = 'exclude';
+        } else if (responses) {
+            text = 'Fallback templates';
+            values = responses;
+            setting = 'responses';
+        }
         return (
             <>
                 <SettingsPortal
-                    text='Exclude intents'
+                    text={text}
                     onClose={() => setSettingsOpen(false)}
                     open={settingsOpen}
-                    values={exclude}
-                    onChange={newVal => onChangeSettings('exclude', newVal)}
+                    values={values}
+                    onChange={newVal => onChangeSettings(setting, newVal)}
                 />
-                <a className='extra-options-linklike' onClick={() => setSettingsOpen(!settingsOpen)}>
-                    {`Excluded intents (${exclude.length})`}
-                </a>
+                <button type='button' className='extra-options-linklike' onClick={() => setSettingsOpen(!settingsOpen)}>
+                    {`${text} (${values.length})`}
+                </button>
             </>
         );
     };
