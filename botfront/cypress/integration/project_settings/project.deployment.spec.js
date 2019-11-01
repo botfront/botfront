@@ -62,12 +62,10 @@ describe('enable an environment', function() {
             cy.contains('Credentials').click();
             cy.dataCy('credentials-environment-menu')
                 .children()
-                .contains('Staging')
                 .should('not.exist');
             cy.contains('Endpoints').click();
             cy.dataCy('endpoints-environment-menu')
                 .children()
-                .contains('Staging')
                 .should('not.exist');
         });
         it('can enable, edit, and disable production', function() {
@@ -118,12 +116,10 @@ describe('enable an environment', function() {
             cy.contains('Credentials').click();
             cy.dataCy('credentials-environment-menu')
                 .children()
-                .contains('Production')
                 .should('not.exist');
             cy.contains('Endpoints').click();
             cy.dataCy('endpoints-environment-menu')
                 .children()
-                .contains('Production')
                 .should('not.exist');
         });
     });
