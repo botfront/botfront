@@ -12,10 +12,8 @@ import { connect } from 'react-redux';
 import { setWorkingDeploymentEnvironment } from '../../store/actions/actions';
 import ConversationViewer from './ConversationViewer';
 import { Conversations } from '../../../api/conversations';
-// import { Projects } from '../../../api/project/project.collection';
 import { Loading } from '../utils/Utils';
 import { wrapMeteorCallback } from '../utils/Errors';
-// import EnvSelector from '../common/EnvSelector';
 
 const PAGE_SIZE = 20;
 class ConversationsBrowser extends React.Component {
@@ -174,7 +172,6 @@ ConversationsBrowser.propTypes = {
     activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
     projectId: PropTypes.string.isRequired,
-    // env: PropTypes.string.isRequired,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
     modelId: PropTypes.string,
@@ -190,14 +187,6 @@ ConversationsBrowser.defaultProps = {
 function ConversationBrowserSegment({
     loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, modelId,
 }) {
-    // function changeEnv(newEnv) {
-    //     browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${newEnv}/p/1` });
-    // }
-    // const availableEnvs = ['development'];
-    // if (!loading && projectEnvs && projectEnvs.length > 0) {
-    //     availableEnvs.push(...projectEnvs);
-    // }
-
     return (
         <div>
             <Loading loading={loading}>
@@ -226,8 +215,6 @@ ConversationBrowserSegment.propTypes = {
     loading: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
     page: PropTypes.number.isRequired,
-    // environment: PropTypes.string.isRequired,
-    // projectEnvs: PropTypes.array,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
     modelId: PropTypes.string,
@@ -236,32 +223,24 @@ ConversationBrowserSegment.propTypes = {
 ConversationBrowserSegment.defaultProps = {
     trackers: [],
     activeConversationId: null,
-    // projectEnvs: null,
     prevConvoId: null,
     nextConvoId: null,
     modelId: '',
 };
 
 const ConversationsBrowserContainer = withTracker((props) => {
-    // console.log(props.params);
     const projectId = props.params.project_id;
     let activeConversationId = props.params.selected_id;
-    // const { projectId } = props;
-    // let activeConversationId = '';
     let page = parseInt(props.params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
-    // let page = 1;
-
+    
     // We take the previous element as well to have the id of the previous convo in the pagination
     const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
     const options = { sort: { updatedAt: -1 } };
-
-    // const env = props.router.params.env || props.workingEnvironment;
-    // if (props.router.params.env) props.changeWorkingEnv(env);
 
     let envSelector = props.environment;
     if (props.environment === 'development') {
