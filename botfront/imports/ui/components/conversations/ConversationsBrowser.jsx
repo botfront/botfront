@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import requiredIf from 'react-required-if';
+import gql from 'graphql-tag';
+import { Query } from 'react-apollo';
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
 import { browserHistory } from 'react-router';
 import {
     Container, Grid, Icon, Menu, Message, Segment,
@@ -10,7 +11,6 @@ import {
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import ConversationViewer from './ConversationViewer';
-import { Conversations } from '../../../api/conversations';
 import { Loading } from '../utils/Utils';
 import { wrapMeteorCallback } from '../utils/Errors';
 
@@ -227,10 +227,13 @@ ConversationBrowserSegment.defaultProps = {
     modelId: '',
 };
 
-const ConversationsBrowserContainer = withTracker((props) => {
-    const projectId = props.params.project_id;
-    let activeConversationId = props.params.selected_id;
-    let page = parseInt(props.params.page, 10) || 1;
+const ConversationsBrowserContainer = (props) => {
+    const { params } = props;
+    const projectId = params.project_id;
+    let activeConversationId = params.selected_id;
+    // const { projectId } = props;
+    // let activeConversationId = '';
+    let page = parseInt(params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
@@ -239,77 +242,87 @@ const ConversationsBrowserContainer = withTracker((props) => {
     const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
-    const options = { sort: { updatedAt: -1 } };
 
-    const selector = {
-        projectId,
-        status: { $in: ['new', 'read', 'flagged'] },
-    };
-    Meteor.subscribe('projects', projectId);
 
-    const componentProps = {
-        page, projectId, loading: true, modelId: props.params.model_id,
-    };
-    const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit);
-    if (conversationsHandler.ready()) {
-        const conversations = Conversations.find(selector, options).fetch();
-        // If for some reason the conversation is not in the current page, discard it.
+    const GET_CONVERSATIONS = gql`
+      query retreiveConv($projectId: String!,$skip: Int, $limit: Int)
+      {
+        conversations(projectId: $projectId, skip: $skip, limit: $limit, status: ["new", "read", "flagged"], sort: updatedAt_DESC) {
+        _id
+        updatedAt
+        status
+        projectId
+      }
+    }`;
 
-        if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
-        let nextConvoId; let prevConvoId; let from; let to;
 
-        // first page but there are more
-        if (page === 1 && conversations.length > PAGE_SIZE) {
-            nextConvoId = conversations[conversations.length - 1]._id;
-            from = 0;
-            to = PAGE_SIZE;
-            // first page with less than PAGE_SIZE conversations but not empty
-        } else if (page === 1 && conversations.length && conversations.length <= PAGE_SIZE) {
-            from = 0;
-            to = PAGE_SIZE - 1;
-            // not first page but there are more
-        } else if (page > 1 && conversations.length === PAGE_SIZE + 2) {
-            nextConvoId = conversations[conversations.length - 1]._id;
-            prevConvoId = conversations[0]._id;
-            from = 1;
-            to = PAGE_SIZE + 1;
-            // not first page but last one
-        } else if (page > 1 && conversations.length <= PAGE_SIZE + 1) {
-            prevConvoId = conversations[0]._id;
-            from = 1;
-            to = conversations.length;
-        } else {
-            /* we get here when either conversations is empty so we can mark loading to false */
-            if (conversations.length === 0) Object.assign(componentProps, { loading: false });
-            /* or when we change pages and not all the data from the previous subscription has been removed
-            * conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
-            return componentProps;
-        }
-        if (!activeConversationId) {
-            let url = `/project/${projectId}/incoming/${props.params.model_id}/conversations/${page || 1}`;
-            if (conversations.length > 0) url += `/${conversations[from]._id}`;
-            props.replaceUrl({ pathname: url });
-            return componentProps;
-            // activeConversationId = conversations[from]._id;
-        }
-        Object.assign(componentProps, {
-            loading: false,
-            trackers: conversations.slice(from, to),
-            activeConversationId,
-            prevConvoId,
-            nextConvoId,
-        });
+    return (
+        <Query query={GET_CONVERSATIONS} variables={{ projectId, skip, limit }} pollInterval={1000}>
+            {({ loading, error, data }) => {
+                const componentProps = {
+                    page, projectId, loading, modelId: params.model_id,
+                };
 
-        return componentProps;
-    }
+                if (!loading && !error) {
+                    const { conversations } = data;
+                    // If for some reason the conversation is not in the current page, discard it.
+                    if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
+                    let nextConvoId; let prevConvoId; let from; let to;
 
-    return {
-        loading: true,
-        projectId,
-        page,
-        modelId: props.params.model_id,
-    };
-})(ConversationBrowserSegment);
+                    // first page but there are more
+                    if (page === 1 && conversations.length > PAGE_SIZE) {
+                        nextConvoId = conversations[conversations.length - 1]._id;
+                        from = 0;
+                        to = PAGE_SIZE;
+                    // first page with less than PAGE_SIZE conversations but not empty
+                    } else if (page === 1 && conversations.length && conversations.length <= PAGE_SIZE) {
+                        from = 0;
+                        to = PAGE_SIZE - 1;
+                    // not first page but there are more
+                    } else if (page > 1 && conversations.length === PAGE_SIZE + 2) {
+                        nextConvoId = conversations[conversations.length - 1]._id;
+                        prevConvoId = conversations[0]._id;
+                        from = 1;
+                        to = PAGE_SIZE + 1;
+                    // not first page but last one
+                    } else if (page > 1 && conversations.length <= PAGE_SIZE + 1) {
+                        prevConvoId = conversations[0]._id;
+                        from = 1;
+                        to = conversations.length;
+                    } else if (conversations.length === 0) {
+                    /* we get here when either conversations is empty so we can mark loading to false */
+                        Object.assign(componentProps, { loading: false });
+                    /* or when we change pages and not all the data from the previous subscription has been removed
+         * conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
+                    } if (!activeConversationId) {
+                        let url = `/project/${projectId}/incoming/${props.params.model_id}/conversations/${page || 1}`;
+                        if (conversations.length > 0) {
+                            url += `/${conversations[from]._id}`;
+                            props.replaceUrl({ pathname: url });
+                        }
+                    // activeConversationId = conversations[from]._id;
+                    } else {
+                        Object.assign(componentProps, {
+                            loading: false,
+                            trackers: conversations.slice(from, to),
+                            activeConversationId,
+                            prevConvoId,
+                            nextConvoId,
+                        });
+                    }
+                } else {
+                    Object.assign(componentProps, {
+                        loading: true,
+                        projectId,
+                        page,
+                        modelId: props.params.model_id,
+                    });
+                }
+                return (<ConversationBrowserSegment {...componentProps} />);
+            }}
+        </Query>
+    );
+};
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

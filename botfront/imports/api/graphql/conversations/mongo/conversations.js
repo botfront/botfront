@@ -27,7 +27,7 @@ const createFilterObject = (projectId, status) => {
     return filters;
 };
 
-export const getConversations = async (projectId, page, limit = 20, status = [], sort = null) => {
+export const getConversations = async (projectId, skip = 0, limit = 20, status = [], sort = null) => {
     const filtersObject = createFilterObject(projectId, status);
     const sortObject = createSortObject(sort);
 
@@ -37,7 +37,7 @@ export const getConversations = async (projectId, page, limit = 20, status = [],
             ...filtersObject,
         }, null,
         {
-            skip: page * limit,
+            skip,
             limit,
             sort: sortObject,
         },

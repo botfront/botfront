@@ -3,7 +3,7 @@ import { getConversations } from '../mongo/conversations';
 export default {
     Query: {
         async conversations(parent, args, context, info) {
-            return getConversations(args.projectId, args.page, args.limit, args.status, args.sort);
+            return getConversations(args.projectId, args.skip, args.limit, args.status, args.sort);
         },
     },
     ConversationContainer: {
