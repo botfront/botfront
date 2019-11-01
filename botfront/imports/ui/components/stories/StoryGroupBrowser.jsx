@@ -1,18 +1,15 @@
 import {
-    Menu, Icon, Input, Button,
+    Menu, Icon, Input, Button, Popup,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ExceptionAlerts from '../stories/ExceptionAlerts';
 import StoryGroupItem from './StoryGroupItem';
 import { ConversationOptionsContext } from '../utils/Context';
 
-
-class Browser extends React.Component {
+class StoryGroupBrowser extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            page: 0,
             addMode: false,
             newItemName: '',
             editing: -1,
@@ -82,15 +79,22 @@ class Browser extends React.Component {
         event.stopPropagation();
         const { toggleSelect } = this.props;
         toggleSelect(element);
-    };    
-  
+    };
+
+    tooltipWrapper = (trigger, tooltip) => (
+        <Popup
+            size='mini'
+            inverted
+            content={tooltip}
+            trigger={trigger}
+        />
+    )
 
     render() {
         const {
             children,
             data,
             index: indexProp,
-            pageSize,
             allowAddition,
             nameAccessor,
             saving,
@@ -101,7 +105,7 @@ class Browser extends React.Component {
             placeholderAddItem,
         } = this.props;
         const {
-            addMode, newItemName, page,
+            addMode, newItemName,
         } = this.state;
 
         const items = data.map((item, index) => (
@@ -125,18 +129,33 @@ class Browser extends React.Component {
             <>
                 {allowAddition
                     && (!addMode ? (
-                        <Button
-                            icon
-                            labelPosition='left'
-                            key='newItem'
-                            onClick={() => this.setState({ addMode: true })}
-                            // link
-                            data-cy='add-item'
-                            fluid
-                        >
-                            <Icon name='add' />
-                            Add a story group
-                        </Button>
+                        <Button.Group fluid>
+                            {this.tooltipWrapper(
+                                <Button
+                                    key='newItem'
+                                    onClick={() => this.setState({ addMode: true })}
+                                    data-cy='add-item'
+                                    icon
+                                    content={<Icon name='add' />}
+                                    style={{ width: 0 }}
+                                />,
+                                'New story group',
+                            )}
+                            {this.tooltipWrapper(
+                                <Button
+                                    onClick={()=>{}}
+                                    content='Slots'
+                                />,
+                                'Manage slots',
+                            )}
+                            {this.tooltipWrapper(
+                                <Button
+                                    onClick={()=>{}}
+                                    content='Policies'
+                                />,
+                                'Edit Policies',
+                            )}
+                        </Button.Group>
                     ) : (
                         <Input
                             placeholder={placeholderAddItem}
@@ -160,11 +179,10 @@ class Browser extends React.Component {
     }
 }
 
-Browser.propTypes = {
+StoryGroupBrowser.propTypes = {
     data: PropTypes.array.isRequired,
     onChange: PropTypes.func,
     index: PropTypes.number,
-    pageSize: PropTypes.number,
     allowAddition: PropTypes.bool,
     onAdd: PropTypes.func,
     nameAccessor: PropTypes.string,
@@ -178,10 +196,9 @@ Browser.propTypes = {
     stories: PropTypes.array.isRequired,
 };
 
-Browser.defaultProps = {
+StoryGroupBrowser.defaultProps = {
     onChange: () => {},
     index: 0,
-    pageSize: 20,
     allowAddition: false,
     onAdd: () => {},
     toggleSelect: () => {},
@@ -198,7 +215,7 @@ Browser.defaultProps = {
 export default props => (
     <ConversationOptionsContext.Consumer>
         {value => (
-            <Browser
+            <StoryGroupBrowser
                 {...props}
                 stories={value.stories}
             />
