@@ -69,7 +69,7 @@ class NLUModel extends React.Component {
         } = props;
         return {
             examples: ready ? NLUModel.getExamplesWithExtraSynonyms(props) : [],
-            instance: find(instances, i => i._id === instance),
+            instance: find(instances, i => i._id === instance._id),
             intents,
             entities,
             ready,
@@ -396,6 +396,9 @@ NLUModel.propTypes = {
     project: PropTypes.object,
     // eslint-disable-next-line react/no-unused-prop-types
     instance: PropTypes.object,
+    // instances is used in the get derived state from props function
+    // eslint-disable-next-line react/no-unused-prop-types
+    instances: PropTypes.array,
     location: PropTypes.object.isRequired,
 };
 
@@ -410,6 +413,7 @@ NLUModel.defaultProps = {
     model: {},
     project: {},
     instance: null,
+    instances: [],
 };
 
 const handleDefaultRoute = (projectId) => {
@@ -477,6 +481,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         nluThreshold,
     };
     return {
+        instances,
         ready,
         models,
         model,
