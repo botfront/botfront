@@ -1,5 +1,5 @@
 import Conversations from '../conversations.model';
-import { generateBuckets } from '../../utils';
+import { generateBuckets, fillInEmptyBuckets } from '../../utils';
 
 export const getResponseCounts = async ({
     projectId,
@@ -8,7 +8,7 @@ export const getResponseCounts = async ({
     to = new Date().getTime(),
     nBuckets,
     responses,
-}) => Conversations.aggregate([
+}) => fillInEmptyBuckets(await Conversations.aggregate([
     {
         $match: {
             projectId,
@@ -95,4 +95,4 @@ export const getResponseCounts = async ({
         },
     },
     { $sort: { bucket: 1 } },
-]);
+]), from, to, nBuckets);
