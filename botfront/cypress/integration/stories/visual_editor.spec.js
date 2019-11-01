@@ -144,4 +144,49 @@ describe('story visual editor', function() {
             .contains('myTestIntent')
             .should('exist'); // there nlu example is there too
     });
+
+    it('should use the canonical example if one is available', function () {
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
+            {
+                text: 'bonjour canonical',
+                intent: 'chitchat.greet',
+                canonical: true,
+            },
+        ]]);
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
+            {
+                text: 'bonjour not canonical',
+                intent: 'chitchat.greet',
+                canonical: false,
+
+            },
+        ]]);
+        cy.visit('/project/bf/stories');
+        cy.dataCy('browser-item')
+            .contains('Default stories')
+            .click({ force: true });
+        cy.dataCy('toggle-visual').click({ force: true });
+        cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
+    });
+
+    it('should use the most recent example if no canonical is available', function () {
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
+            {
+                text: 'bonjour not canonical',
+                intent: 'chitchat.greet',
+            },
+        ]]);
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
+            {
+                text: 'bonjour not canonical recent',
+                intent: 'chitchat.greet',
+            },
+        ]]);
+        cy.visit('/project/bf/stories');
+        cy.dataCy('browser-item')
+            .contains('Default stories')
+            .click({ force: true });
+        cy.dataCy('toggle-visual').click({ force: true });
+        cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
+    });
 });
