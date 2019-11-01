@@ -37,7 +37,7 @@ class Activity extends React.Component {
         if (activeTabIndex === undefined && !params.tab) this.setState({ activeTabIndex: 0 });
     }
 
-    createMenuItem = (name, index) => {
+    createMenuItem = (name, index, dataCy = null) => {
         const {
             model, projectId, params, replaceUrl,
         } = this.props;
@@ -47,7 +47,7 @@ class Activity extends React.Component {
         return {
             content: name,
             key: `incoming-tab-${index}`,
-            'data-cy': `incoming-${urlId}-tab`,
+            'data-cy': `incoming-${dataCy || urlId}-tab`,
             onClick: () => {
                 // const url = `/project/${projectId}/model/${model._id}/${urlId}`;
                 if (params.tab === urlId) return;
@@ -62,7 +62,7 @@ class Activity extends React.Component {
             model, instance, project, params, replaceUrl, utterances,
         } = this.props;
         return [
-            { menuItem: this.createMenuItem(`New Utterances (${utterances.length})`, 0), render: this.renderIncomingTab },
+            { menuItem: this.createMenuItem(`New Utterances (${utterances.length})`, 0, 'newutterances'), render: this.renderIncomingTab },
             {
                 menuItem: this.createMenuItem('Conversations', 1),
                 render: () => <ConversationBrowser projectId={project._id} params={params} replaceUrl={replaceUrl} />,
