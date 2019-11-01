@@ -12,10 +12,8 @@ import { connect } from 'react-redux';
 import { setWorkingDeploymentEnvironment } from '../../store/actions/actions';
 import ConversationViewer from './ConversationViewer';
 import { Conversations } from '../../../api/conversations';
-import { Projects } from '../../../api/project/project.collection';
-import { Loading, PageMenu } from '../utils/Utils';
+import { Loading } from '../utils/Utils';
 import { wrapMeteorCallback } from '../utils/Errors';
-import EnvSelector from '../common/EnvSelector';
 
 const PAGE_SIZE = 20;
 class ConversationsBrowser extends React.Component {
@@ -33,17 +31,17 @@ class ConversationsBrowser extends React.Component {
 
     goToNextPage = () => {
         const {
-            projectId, page, nextConvoId, env,
+            projectId, page, nextConvoId, modelId,
         } = this.props;
-        browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${env}/p/${page + 1}/c/${nextConvoId}` });
+        browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}/conversations/${page + 1}/${nextConvoId}` });
     };
 
     goToPreviousPage = () => {
         const {
-            projectId, page, prevConvoId, env,
+            projectId, page, prevConvoId, modelId,
         } = this.props;
         if (page > 1) {
-            browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${env}/p/${page - 1}` });
+            browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}/conversations/${page - 1}/${prevConvoId}` });
         }
     };
 
@@ -126,10 +124,9 @@ class ConversationsBrowser extends React.Component {
     }
 
     goToConversation(page, conversationId, replace = false) {
-        const { projectId, env } = this.props;
-        let url = `/project/${projectId}/dialogue/conversations/env/${env}/p/${page}`;
-
-        if (conversationId) url += `/c/${conversationId}`;
+        const { projectId, modelId } = this.props;
+        let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
+        if (conversationId) url += `/${conversationId}`;
         if (replace) return browserHistory.replace({ pathname: url });
         return browserHistory.push({ pathname: url });
     }
@@ -146,7 +143,6 @@ class ConversationsBrowser extends React.Component {
 
     render() {
         const { trackers, activeConversationId } = this.props;
-
         return (
             <div data-cy='conversations-browser'>
                 {trackers.length > 0 ? (
@@ -176,38 +172,26 @@ ConversationsBrowser.propTypes = {
     activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
     projectId: PropTypes.string.isRequired,
-    env: PropTypes.string.isRequired,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
+    modelId: PropTypes.string,
 };
 
 ConversationsBrowser.defaultProps = {
-    prevConvoId: null,
-    nextConvoId: null,
-    activeConversationId: null,
+    prevConvoId: {},
+    nextConvoId: {},
+    activeConversationId: {},
+    modelId: '',
 };
 
 function ConversationBrowserSegment({
-    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, projectEnvs, env,
+    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, modelId,
 }) {
-    function changeEnv(newEnv) {
-        browserHistory.push({ pathname: `/project/${projectId}/dialogue/conversations/env/${newEnv}/p/1` });
-    }
-    const availableEnvs = ['development'];
-    if (!loading && projectEnvs && projectEnvs.length > 0) {
-        availableEnvs.push(...projectEnvs);
-    }
-
     return (
         <div>
-            <PageMenu title='Conversations History' icon='comments'>
-                <Menu.Item className='env-select'>
-                    <EnvSelector availableEnvs={availableEnvs} value={env} envChange={newEnv => changeEnv(newEnv)} />
-                </Menu.Item>
-
-            </PageMenu>
             <Loading loading={loading}>
                 <Container>
+                    <Message info>Conversations for all languages are displayed.</Message>
                     <Segment>
                         <ConversationsBrowser
                             projectId={projectId}
@@ -216,7 +200,7 @@ function ConversationBrowserSegment({
                             page={page}
                             prevConvoId={prevConvoId}
                             nextConvoId={nextConvoId}
-                            env={env}
+                            modelId={modelId}
                         />
                     </Segment>
                 </Container>
@@ -231,39 +215,35 @@ ConversationBrowserSegment.propTypes = {
     loading: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
     page: PropTypes.number.isRequired,
-    env: PropTypes.string.isRequired,
-    projectEnvs: PropTypes.array,
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
+    modelId: PropTypes.string,
 };
 
 ConversationBrowserSegment.defaultProps = {
     trackers: [],
     activeConversationId: null,
-    projectEnvs: null,
     prevConvoId: null,
     nextConvoId: null,
+    modelId: '',
 };
 
 const ConversationsBrowserContainer = withTracker((props) => {
-    const { project_id: projectId } = props.router.params;
-    let activeConversationId = props.router.params.conversation_id;
-    let page = parseInt(props.router.params.page, 10);
+    const projectId = props.params.project_id;
+    let activeConversationId = props.params.selected_id;
+    let page = parseInt(props.params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
-
+    
     // We take the previous element as well to have the id of the previous convo in the pagination
     const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
     const options = { sort: { updatedAt: -1 } };
 
-    const env = props.router.params.env || props.workingEnvironment;
-    if (props.router.params.env) props.changeWorkingEnv(env);
-
-    let envSelector = env;
-    if (env === 'development') {
+    let envSelector = props.environment;
+    if (props.environment === 'development') {
         envSelector = { $in: ['development', null] };
     }
     const selector = {
@@ -272,21 +252,17 @@ const ConversationsBrowserContainer = withTracker((props) => {
         env: envSelector,
     };
     Meteor.subscribe('projects', projectId);
-    const { deploymentEnvironments: projectEnvs } = Projects
-        .find({ _id: projectId }, { fields: { deploymentEnvironments: 1 } })
-        .fetch()[0];
-    const componentProps = {
-        page, projectId, loading: true, env, projectEnvs,
-    };
-    const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit, env);
 
+    const componentProps = {
+        page, projectId, loading: true, modelId: props.params.model_id,
+    };
+    const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit, props.environment || 'development');
     if (conversationsHandler.ready()) {
         const conversations = Conversations.find(selector, options).fetch();
         // If for some reason the conversation is not in the current page, discard it.
 
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
         let nextConvoId; let prevConvoId; let from; let to;
-
 
         // first page but there are more
         if (page === 1 && conversations.length > PAGE_SIZE) {
@@ -315,13 +291,12 @@ const ConversationsBrowserContainer = withTracker((props) => {
             * conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
             return componentProps;
         }
-
         if (!activeConversationId) {
-            if (conversations.length > 0) {
-                const url = `/project/${projectId}/dialogue/conversations/env/${env}/p/${page}/c/${conversations[from]._id}`;
-                props.router.replace({ pathname: url });
-                return componentProps;
-            }
+            let url = `/project/${projectId}/incoming/${props.params.model_id}/conversations/${page || 1}`;
+            if (conversations.length > 0) url += `/${conversations[from]._id}`;
+            props.replaceUrl({ pathname: url });
+            return componentProps;
+            // activeConversationId = conversations[from]._id;
         }
         Object.assign(componentProps, {
             loading: false,
@@ -338,7 +313,7 @@ const ConversationsBrowserContainer = withTracker((props) => {
         loading: true,
         projectId,
         page,
-        env,
+        modelId: props.params.model_id,
     };
 })(ConversationBrowserSegment);
 

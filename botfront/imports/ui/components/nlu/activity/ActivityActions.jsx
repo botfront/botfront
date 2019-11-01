@@ -124,7 +124,7 @@ export default class ActivityActions extends React.Component {
                 &nbsp;
                 &nbsp;
                 {dataFilter && (
-                    <Button.Group size='small' color='yellow' basic style={noBorder}>
+                    <Button.Group size='small' color='yellow' basic style={noBorder} data-cy='choose-utterance-action'>
                         <Dropdown
                             button
                             className='icon'
@@ -135,6 +135,7 @@ export default class ActivityActions extends React.Component {
                             value={action}
                             options={actionOptions}
                             onChange={this.handleActionChanged}
+                            data-cy='choose-action-dropdown'
                         />
                     </Button.Group>
                 )
@@ -144,7 +145,15 @@ export default class ActivityActions extends React.Component {
                 &nbsp;
                 {dataFilter && (
                     <Button.Group size='small'>
-                        {action && <Button icon='check' content='confirm' color='green' onClick={() => this.setState({ confirmOpen: true })} />}
+                        {action && (
+                            <Button
+                                icon='check'
+                                content='confirm'
+                                color='green'
+                                onClick={() => this.setState({ confirmOpen: true })}
+                                data-cy='confirm-action'
+                            />
+                        )}
                         <Button icon='remove' basic content='Cancel' onClick={() => this.finish()} />
                     </Button.Group>
                 )

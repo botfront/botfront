@@ -78,7 +78,7 @@ describe('Training', function() {
         importData('en', 'English');
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click({ force: true });
-        cy.get('[data-cy=train-button]').click();
+        cy.get('[data-cy=train-button]').click({ force: true });
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
         testChat('en', 'hi', 'utter_hi');
     });

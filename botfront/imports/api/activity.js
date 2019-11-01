@@ -79,6 +79,17 @@ Meteor.methods({
             { $set: { ooS: true, validated: false } },
         );
     },
+    
+    'activity.getValidatedExamples'(modelId) {
+        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        check(modelId, String);
+        try {
+            const data = ActivityCollection.find({ modelId }).fetch() || [];
+            return data;
+        } catch (err) {
+            throw new Meteor.Error('500', err.message);
+        }
+    },
 
     'activity.deleteExamples'(modelId, itemIds) {
         checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
