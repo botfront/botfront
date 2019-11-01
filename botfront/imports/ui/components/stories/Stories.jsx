@@ -9,7 +9,7 @@ import { setStoryGroup } from '../../store/actions/actions';
 import { wrapMeteorCallback } from '../utils/Errors';
 
 import IntroStorySubMenu from './IntroStorySubMenu';
-import ItemsBrowser from '../common/Browser';
+import StoryGroupBrowser from './StoryGroupBrowser';
 import StoriesEditor from './StoriesEditor';
 
 class Stories extends React.Component {
@@ -260,7 +260,7 @@ class Stories extends React.Component {
                         )}
                         {this.renderMessages()}
                         {storyGroupFiltered && (
-                            <ItemsBrowser
+                            <StoryGroupBrowser
                                 data={storyGroupFiltered}
                                 allowAddition
                                 allowEdit
@@ -280,7 +280,7 @@ class Stories extends React.Component {
                                     introStoryClick={this.handleIntroStoryClick}
                                     isSelected={storySelected === -1}
                                 />
-                            </ItemsBrowser>
+                            </StoryGroupBrowser>
                         )}
                     </Grid.Column>
 
