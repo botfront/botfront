@@ -43,7 +43,7 @@ Meteor.methods({
             throw formatError(e);
         }
     },
-    
+
     'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
         check(items, Array);
@@ -77,6 +77,50 @@ Meteor.methods({
         } catch (e) {
             throw formatError(e);
         }
+    },
+
+    async 'nlu.switchCanonical'(modelId, item) {
+        check(modelId, String);
+        check(item, Object);
+        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
+        if (!item.canonical) {
+            /* try to match a canonical item with the same characteristics (intent, entity, entity value)
+            to check if the selected item can be used as canonical
+            */
+            const entities = item.entities ? item.entities : [];
+            let elemMatch = {
+                canonical: true, intent: item.intent, entities: { $size: entities.length },
+            };
+
+            if (entities.length > 0) {
+                const entityElemMatchs = entities.map(entity => (
+                    {
+                        $elemMatch: { entity: entity.entity, value: entity.value },
+                    }));
+                elemMatch = {
+                    ...elemMatch,
+                    $and: [{ entities: { $size: entities.length } }, { entities: { $all: entityElemMatchs } }],
+                };
+                delete elemMatch.entities; // remove the entities field as the size condition is now in the $and
+            }
+
+            const query = {
+                _id: modelId,
+                'training_data.common_examples': {
+                    $elemMatch: elemMatch,
+                },
+            };
+
+            const results = NLUModels.findOne(query, { fields: { 'training_data.common_examples.$': 1 } });
+
+            if (results !== undefined) {
+                await Meteor.callWithPromise('nlu.updateExample', modelId, { ...results.training_data.common_examples[0], canonical: false });
+            }
+            await Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: true });
+            return { change: results !== undefined };
+        }
+        await Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: false });
+        return { change: false };
     },
 
     'nlu.deleteExample'(modelId, itemId) {
@@ -129,7 +173,7 @@ Meteor.methods({
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
 
-    
+
 });
 
 if (Meteor.isServer) {
@@ -225,7 +269,7 @@ if (Meteor.isServer) {
 
             return model ? sortBy(uniq(model.training_data.common_examples.map(e => e.intent))) : [];
         },
-        
+
         'nlu.addChitChatToTrainingData'(modelId, language, intents) {
             check(modelId, String);
             check(language, String);
@@ -320,9 +364,9 @@ if (Meteor.isServer) {
 
                 if (renameBotResponses) {
                     const project = Projects.find({ nlu_models: modelId }).fetch();
-    
+
                     const newTemplates = renameIntentsInTemplates(project[0].templates, oldIntent, newIntent);
-    
+
                     Projects.update({ nlu_models: modelId }, { $set: { templates: newTemplates } });
                 }
 
@@ -405,7 +449,7 @@ if (Meteor.isServer) {
                     namespace: 'chitchat',
                     defaultLanguage: 'en',
                 });
-                
+
                 // eslint-disable-next-line no-restricted-syntax
                 for (const lang of Object.keys(data)) {
                     // eslint-disable-next-line no-await-in-loop

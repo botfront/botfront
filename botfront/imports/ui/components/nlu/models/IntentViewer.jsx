@@ -145,7 +145,7 @@ class IntentNameEditor extends React.Component {
     }
 
     renderViewer() {
-        const { intents, intent } = this.props;
+        const { intents, intent, canonical } = this.props;
         const { hovering, confirmOpen } = this.state;
         const style = {
             borderRadius: '4px',
@@ -162,7 +162,7 @@ class IntentNameEditor extends React.Component {
         );
         return (
             <Popup
-                content={(
+                content={canonical ? (<>Cannot edit a canonical example</>) : (
                     <div ref={this.popup} data-cy='intent-popup'>
                         <Grid>
                             <Grid.Row
@@ -182,6 +182,7 @@ class IntentNameEditor extends React.Component {
                 )}
                 trigger={trigger}
                 hoverable
+                inverted={canonical}
                 position='top center'
                 // if we don't check confirmOpen then the popup appears on top of the confirm modal
                 open={(hovering && !confirmOpen)}
@@ -290,6 +291,7 @@ IntentNameEditor.propTypes = {
     enableRenaming: PropTypes.bool,
     enableReset: PropTypes.bool,
     projectId: PropTypes.string.isRequired,
+    canonical: PropTypes.bool,
 };
 
 IntentNameEditor.defaultProps = {
@@ -297,6 +299,7 @@ IntentNameEditor.defaultProps = {
     enableRenaming: false,
     enableReset: false,
     examples: [],
+    canonical: false,
 };
 
 export default IntentNameEditor;

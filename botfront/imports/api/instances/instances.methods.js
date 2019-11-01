@@ -78,6 +78,8 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
         // filter by intent if specified
         common_examples = common_examples.filter(e => intents.indexOf(e.intent) >= 0);
     }
+    common_examples = common_examples
+        .sort((a, b) => b.canonical || false - a.canonical || false);
 
     const entity_synonyms = withSynonyms && model.training_data.entity_synonyms ? model.training_data.entity_synonyms.map(copyAndFilter) : [];
     const gazette = withGazette && model.training_data.fuzzy_gazette ? model.training_data.fuzzy_gazette.map(copyAndFilter) : [];
