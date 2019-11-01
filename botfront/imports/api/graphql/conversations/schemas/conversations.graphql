@@ -1,26 +1,26 @@
 type Query {
-    getConversations(projectId: String!, page: Int!, limit: Int ): [ConversationContainer!]!
+    conversations(projectId: String!, page: Int!, limit: Int ): [ConversationContainer!]!
 }
 
 type ConversationContainer {
   tracker: Conversation,
   projectId: String,
+  status: String,
 }
 
 type Conversation {
-  latest_message: LatestMessage,
-  # events: Array,
+  latest_message: Message,
+  events: [Event]!,
   sender_id: String,
 }
 
-type LatestMessage {
-  model: String,
-  intent_ranking: [IntentRanking!],
-  intent: IntentRanking,
+type Message {
+  intent_ranking: [Intent!],
+  intent: Intent!,
   text: String,
   language: String,
   project: String,
-  entities: [Entity!] 
+  entities: [Entity] ,
 }
 
 type Entity {
@@ -30,7 +30,17 @@ type Entity {
   end: Int,
 }
 
-type IntentRanking {
+type Intent {
   confidence: Float,
   name: String,
+}
+
+type Event {
+  event: String,
+  timestamp: Float,
+  name: String,
+  policy: String,
+  confidence: Float,
+  parse_data: Message,
+  
 }
