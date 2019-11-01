@@ -44,7 +44,7 @@ function AnalyticsDashboard(props) {
             graphParams: {
                 x: 'name',
                 y: [{ abs: 'count', rel: 'frequency' }],
-                axisBottom: { tickRotation: -25 },
+                axisBottom: { tickRotation: -25, format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}` },
             },
         },
         conversationDurations: {
