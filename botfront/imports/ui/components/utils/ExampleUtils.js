@@ -33,13 +33,13 @@ export default class ExampleUtils {
 
     static stripBare(example, withId = true, withSubstringAsEntityValue = false) {
         const {
-            _id, text, intent, entities = [], cannonical,
+            _id, text, intent, entities = [], canonical,
         } = example;
         const obj = {
             _id,
             text,
             intent,
-            cannonical,
+            canonical,
             entities: entities.map(entity => EntityUtils.stripBare(entity, withId, withSubstringAsEntityValue ? text.substring(entity.start, entity.end) : undefined)),
         };
 
