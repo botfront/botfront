@@ -44,8 +44,9 @@ class Incoming extends React.Component {
     }
 
     handleEnvChange = (value) => {
-        const { changeWorkingEnv } = this.props;
-        this.setState({ selectedEnvironment: value });
+        const { changeWorkingEnv, projectId, modelId } = this.props;
+        // browserHistory.push is required to clear the old page and id from the url
+        this.setState({ selectedEnvironment: value }, browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}` }));
         changeWorkingEnv(value);
     }
 
@@ -140,7 +141,6 @@ Incoming.defaultProps = {
 const handleDefaultRoute = (projectId) => {
     const { nlu_models: modelIds = [], defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, defaultLanguage: 1, deploymentEnvironments: 1 } }) || {};
     const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
-
     try {
         const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
         browserHistory.push({ pathname: `/project/${projectId}/incoming/${defaultModelId}` });
@@ -201,7 +201,6 @@ const IncomingContainer = withTracker((props) => {
     // get this from a param if it exists
     const environment = 'development';
     const { deploymentEnvironments } = project;
-    console.log(deploymentEnvironments);
     // End
     return {
         projectLanguages,
