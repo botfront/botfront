@@ -2,24 +2,17 @@ import {
     Container,
     Placeholder,
     Menu,
-    Icon,
-    Popup,
-    Label,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Instances } from '../../../api/instances/instances.collection';
 import { Stories as StoriesData } from '../../../api/story/stories.collection';
-import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
-import TrainButton from '../utils/TrainButton';
-import { PageMenu } from '../utils/Utils';
+import StoriesPageMenu from './StoriesPageMenu';
 import { ConversationOptionsContext } from '../utils/Context';
 
 const Stories = React.lazy(() => import('./Stories'));
@@ -32,7 +25,6 @@ function StoriesContainer(props) {
         storyGroups,
         slots,
         instance,
-        project: { training: { endTime, status } = {} },
         project,
         stories,
     } = props;
@@ -66,70 +58,7 @@ function StoriesContainer(props) {
                 storyGroups,
             }}
         >
-            <PageMenu title='Stories' icon='book'>
-                <Menu.Menu position='right'>
-                    <Menu.Item>
-                        {!isTraining(project) && status === 'success' && (
-                            <Popup
-                                trigger={(
-                                    <Icon
-                                        size='small'
-                                        name='check'
-                                        fitted
-                                        circular
-                                        style={{ color: '#2c662d' }}
-                                    />
-                                )}
-                                content={(
-                                    <Label
-                                        basic
-                                        content={(
-                                            <div>
-                                                {`Trained ${moment(
-                                                    endTime,
-                                                ).fromNow()}`}
-                                            </div>
-                                        )}
-                                        style={{
-                                            borderColor: '#2c662d',
-                                            color: '#2c662d',
-                                        }}
-                                    />
-                                )}
-                            />
-                        )}
-                        {!isTraining(project) && status === 'failure' && (
-                            <Popup
-                                trigger={(
-                                    <Icon
-                                        size='small'
-                                        name='warning'
-                                        color='red'
-                                        fitted
-                                        circular
-                                    />
-                                )}
-                                content={(
-                                    <Label
-                                        basic
-                                        color='red'
-                                        content={(
-                                            <div>
-                                                {`Training failed ${moment(
-                                                    endTime,
-                                                ).fromNow()}`}
-                                            </div>
-                                        )}
-                                    />
-                                )}
-                            />
-                        )}
-                    </Menu.Item>
-                    <Menu.Item>
-                        <TrainButton project={project} instance={instance} projectId={projectId} />
-                    </Menu.Item>
-                </Menu.Menu>
-            </PageMenu>
+            <StoriesPageMenu project={project} instance={instance} />
             <Container>
                 <Menu pointing secondary className='hoverable'>
                     <Menu.Item
