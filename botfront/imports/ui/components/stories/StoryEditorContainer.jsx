@@ -44,7 +44,7 @@ const StoryEditorContainer = ({
     onMove,
     groupNames,
     onRename: onRenameStory,
-    editor: editorType,
+    storyMode,
     onSaving,
     onSaved,
     branchPath,
@@ -388,7 +388,7 @@ const StoryEditorContainer = ({
                 className='single-story-container'
                 data-cy='single-story-editor'
             >
-                {editorType !== 'visual'
+                {storyMode !== 'visual'
                     ? renderAceEditor(pathToRender)
                     : renderVisualEditor(pathToRender)}
                 {branches.length > 0 && (
@@ -483,7 +483,7 @@ StoryEditorContainer.propTypes = {
     onMove: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
     onRename: PropTypes.func.isRequired,
-    editor: PropTypes.string,
+    storyMode: PropTypes.string,
     onSaving: PropTypes.func.isRequired,
     onSaved: PropTypes.func.isRequired,
     branchPath: PropTypes.array,
@@ -494,7 +494,7 @@ StoryEditorContainer.propTypes = {
 StoryEditorContainer.defaultProps = {
     disabled: false,
     story: '',
-    editor: 'markdown',
+    storyMode: 'markdown',
     branchPath: null,
 };
 
@@ -506,6 +506,7 @@ const mapStateToProps = (state, ownProps) => ({
         )
         .toJS(),
     collapsed: state.stories.getIn(['storiesCollapsed', ownProps.story._id], false),
+    storyMode: state.stories.get('storyMode'),
 });
 
 const mapDispatchToProps = {

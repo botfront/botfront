@@ -101,6 +101,8 @@ class StoryGroupBrowser extends React.Component {
             stories,
             placeholderAddItem,
             modals,
+            storyMode,
+            onSwitchStoryMode,
         } = this.props;
         const { addMode, newItemName } = this.state;
 
@@ -158,6 +160,18 @@ class StoryGroupBrowser extends React.Component {
                                     'Edit Policies',
                                 )}
                             </Button.Group>
+                            {this.tooltipWrapper(
+                                <Button
+                                    data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
+                                    icon
+                                    basic
+                                    floated='right'
+                                    onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'markdown' : 'visual')}
+                                >
+                                    <Icon name={storyMode === 'visual' ? 'code' : 'commenting'} />
+                                </Button>,
+                                storyMode === 'visual' ? 'Switch to Markdown edit mode' : 'Switch to visual edit mode',
+                            )}
                         </div>
                     ) : (
                         <Input
@@ -201,6 +215,8 @@ StoryGroupBrowser.propTypes = {
     placeholderAddItem: PropTypes.string,
     stories: PropTypes.array.isRequired,
     modals: PropTypes.object.isRequired,
+    onSwitchStoryMode: PropTypes.func.isRequired,
+    storyMode: PropTypes.string.isRequired,
 };
 
 StoryGroupBrowser.defaultProps = {

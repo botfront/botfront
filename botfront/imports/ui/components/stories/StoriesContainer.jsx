@@ -5,7 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { setStoryGroup } from '../../store/actions/actions';
+import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Instances } from '../../../api/instances/instances.collection';
 import { Stories } from '../../../api/story/stories.collection';
@@ -30,7 +30,9 @@ function StoriesContainer(props) {
         project,
         stories,
         storyGroupCurrent,
+        storyMode,
         changeStoryGroup,
+        changeStoryMode,
         ready,
     } = props;
 
@@ -263,6 +265,8 @@ function StoriesContainer(props) {
                                 index={storyGroupCurrent}
                                 onAdd={handleAddStoryGroup}
                                 onChange={changeStoryGroup}
+                                onSwitchStoryMode={changeStoryMode}
+                                storyMode={storyMode}
                                 nameAccessor='name'
                                 selectAccessor='selected'
                                 toggleSelect={handleStoryGroupSelect}
@@ -301,20 +305,25 @@ StoriesContainer.propTypes = {
     storyGroups: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
     changeStoryGroup: PropTypes.func.isRequired,
+    changeStoryMode: PropTypes.func.isRequired,
     storyGroupCurrent: PropTypes.number,
+    storyMode: PropTypes.string,
 };
 
 StoriesContainer.defaultProps = {
     storyGroupCurrent: 0,
+    storyMode: 'visual',
 };
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
     storyGroupCurrent: state.stories.get('storyGroupCurrent'),
+    storyMode: state.stories.get('storyMode'),
 });
 
 const mapDispatchToProps = {
     changeStoryGroup: setStoryGroup,
+    changeStoryMode: setStoryMode,
 };
 
 const StoriesWithState = connect(

@@ -12,7 +12,6 @@ function StoryEditors(props) {
     const {
         stories,
         onDeleteGroup,
-        editor,
         projectId,
         storyGroups,
         storyGroup,
@@ -103,7 +102,6 @@ function StoryEditors(props) {
             groupNames={groupNames}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
             onClone={() => handleDuplicateStory(index)}
-            editor={editor}
             onSaving={() => {}}
             onSaved={() => {}}
         />
@@ -136,12 +134,10 @@ StoryEditors.propTypes = {
     stories: PropTypes.array,
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
-    editor: PropTypes.string,
 };
 
 StoryEditors.defaultProps = {
     stories: [],
-    editor: 'markdown',
 };
 
 export default withTracker((props) => {
