@@ -6,7 +6,7 @@ describe('slots', function() {
     before(function() {
         cy.deleteProject('bf');
     });
-    before(function() {
+    beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
     });
 
