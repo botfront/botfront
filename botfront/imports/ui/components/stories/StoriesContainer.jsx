@@ -19,6 +19,7 @@ import { can } from '../../../lib/scopes';
 import StoryEditors from './StoryEditors';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
+const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
 
 function StoriesContainer(props) {
     const {
@@ -42,10 +43,10 @@ function StoriesContainer(props) {
     const [policiesModal, setPoliciesModal] = useState(false);
     const closeModals = () => { setSlotsModal(false); setPoliciesModal(false); };
 
-    const modalWrapper = (open, title, content) => (
+    const modalWrapper = (open, title, content, scrolling = true) => (
         <Modal open={open} onClose={closeModals}>
             <Modal.Header>{title}</Modal.Header>
-            <Modal.Content scrolling>
+            <Modal.Content scrolling={scrolling}>
                 <React.Suspense fallback={null}>
                     {content}
                 </React.Suspense>
@@ -240,8 +241,8 @@ function StoriesContainer(props) {
             }}
         >
             <StoriesPageMenu project={project} instance={instance} />
-            {modalWrapper(slotsModal, 'Hey HA', <SlotsEditor slots={slots} projectId={projectId} />)}
-            {modalWrapper(policiesModal, 'Hey HU', <>HU</>)}
+            {modalWrapper(slotsModal, 'Slots', <SlotsEditor slots={slots} projectId={projectId} />)}
+            {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
             <Container>
                 <Grid className='stories-container'>
                     <Grid.Row columns={2}>

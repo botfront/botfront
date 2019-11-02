@@ -58,7 +58,7 @@ class CorePolicy extends React.Component {
                     return newModel;
                 }}
             >
-                <AceField name='policies' label='Core policies' fontSize={12} mode='yaml' />
+                <AceField name='policies' fontSize={12} mode='yaml' label={null} />
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved
