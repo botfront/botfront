@@ -44,7 +44,7 @@ class StoryGroupBrowser extends React.Component {
     resetTitleInput = () => {
         this.resetAddItem();
         this.resetRenameItem();
-    }
+    };
 
     submitTitleInput = (element) => {
         const { editing, newItemName, itemName } = this.state;
@@ -61,7 +61,7 @@ class StoryGroupBrowser extends React.Component {
         }
         this.resetRenameItem();
         this.resetAddItem();
-    }
+    };
 
     handleClickMenuItem = (index) => {
         const { index: indexProp, onChange } = this.props;
@@ -85,12 +85,7 @@ class StoryGroupBrowser extends React.Component {
     };
 
     tooltipWrapper = (trigger, tooltip) => (
-        <Popup
-            size='mini'
-            inverted
-            content={tooltip}
-            trigger={trigger}
-        />
+        <Popup size='mini' inverted content={tooltip} trigger={trigger} />
     );
 
     render() {
@@ -109,22 +104,25 @@ class StoryGroupBrowser extends React.Component {
         } = this.props;
         const { addMode, newItemName } = this.state;
 
-        const items = slice => data.slice(...slice).map((item, index) => (
-            <StoryGroupItem
-                key={index + slice[0]}
-                index={index + slice[0]}
-                item={item}
-                indexProp={indexProp}
-                nameAccessor={nameAccessor}
-                handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
-                selectAccessor={selectAccessor}
-                allowEdit={allowEdit}
-                handleToggle={e => this.handleToggle(e, item)}
-                saving={saving}
-                changeName={changeName}
-                stories={stories}
-            />
-        ));
+        const items = slice => data
+            .slice(...slice)
+            .map((item, index) => (
+                <StoryGroupItem
+                    key={index + slice[0]}
+                    index={index + slice[0]}
+                    item={item}
+                    indexProp={indexProp}
+                    nameAccessor={nameAccessor}
+                    handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])
+                    }
+                    selectAccessor={selectAccessor}
+                    allowEdit={allowEdit}
+                    handleToggle={e => this.handleToggle(e, item)}
+                    saving={saving}
+                    changeName={changeName}
+                    stories={stories}
+                />
+            ));
 
         return (
             <>
@@ -143,11 +141,19 @@ class StoryGroupBrowser extends React.Component {
                                 'New story group',
                             )}
                             {this.tooltipWrapper(
-                                <Button content='Slots' onClick={() => modals.setSlotsModal(true)} data-cy='slots-modal' />,
+                                <Button
+                                    content='Slots'
+                                    onClick={() => modals.setSlotsModal(true)}
+                                    data-cy='slots-modal'
+                                />,
                                 'Manage slots',
                             )}
                             {this.tooltipWrapper(
-                                <Button content='Policies' onClick={() => modals.setPoliciesModal(true)} data-cy='policies-modal' />,
+                                <Button
+                                    content='Policies'
+                                    onClick={() => modals.setPoliciesModal(true)}
+                                    data-cy='policies-modal'
+                                />,
                                 'Edit Policies',
                             )}
                         </Button.Group>
@@ -218,15 +224,8 @@ const BrowserWithState = connect(mapStateToProps)(StoryGroupBrowser);
 export default withTracker(props => ({
     ...props,
     slots: Slots.find({}).fetch(),
-}))(
-    props => (
-        <ConversationOptionsContext.Consumer>
-            {value => (
-                <BrowserWithState
-                    {...props}
-                    stories={value.stories}
-                />
-            )}
-        </ConversationOptionsContext.Consumer>
-    ),
-);
+}))(props => (
+    <ConversationOptionsContext.Consumer>
+        {value => <BrowserWithState {...props} stories={value.stories} />}
+    </ConversationOptionsContext.Consumer>
+));

@@ -18,10 +18,11 @@ function StoryEditors(props) {
         storyGroup,
     } = props;
 
-    const groupNames = storyGroups.map(group => ({
-        text: group.name,
-        value: group._id,
-    }))
+    const groupNames = storyGroups
+        .map(group => ({
+            text: group.name,
+            value: group._id,
+        }))
         .filter(name => name.text !== storyGroup.name);
 
     const handleNewStory = (indexOfNewStory) => {
@@ -113,7 +114,16 @@ function StoryEditors(props) {
             {editors}
             <Container textAlign='center'>
                 {can('stories:w', projectId) && (
-                    <Button icon='add' basic name='add' onClick={() => handleNewStory(stories.length + 1)} size='medium' data-cy='add-story' color='black' content='Add a story' />
+                    <Button
+                        icon='add'
+                        basic
+                        name='add'
+                        onClick={() => handleNewStory(stories.length + 1)}
+                        size='medium'
+                        data-cy='add-story'
+                        color='black'
+                        content='Add a story'
+                    />
                 )}
             </Container>
         </>
