@@ -125,38 +125,40 @@ class StoryGroupBrowser extends React.Component {
             ));
 
         return (
-            <>
+            <div className='storygroup-browser'>
                 {allowAddition
                     && (!addMode ? (
-                        <Button.Group fluid>
-                            {this.tooltipWrapper(
-                                <Button
-                                    key='newItem'
-                                    onClick={() => this.setState({ addMode: true })}
-                                    data-cy='add-item'
-                                    icon
-                                    content={<Icon name='add' />}
-                                    style={{ width: 0 }}
-                                />,
-                                'New story group',
-                            )}
-                            {this.tooltipWrapper(
-                                <Button
-                                    content='Slots'
-                                    onClick={() => modals.setSlotsModal(true)}
-                                    data-cy='slots-modal'
-                                />,
-                                'Manage slots',
-                            )}
-                            {this.tooltipWrapper(
-                                <Button
-                                    content='Policies'
-                                    onClick={() => modals.setPoliciesModal(true)}
-                                    data-cy='policies-modal'
-                                />,
-                                'Edit Policies',
-                            )}
-                        </Button.Group>
+                        <div className='navigation'>
+                            <Button.Group fluid>
+                                {this.tooltipWrapper(
+                                    <Button
+                                        key='newItem'
+                                        onClick={() => this.setState({ addMode: true })}
+                                        data-cy='add-item'
+                                        icon
+                                        content={<Icon name='add' />}
+                                        style={{ width: 0 }}
+                                    />,
+                                    'New story group',
+                                )}
+                                {this.tooltipWrapper(
+                                    <Button
+                                        content='Slots'
+                                        onClick={() => modals.setSlotsModal(true)}
+                                        data-cy='slots-modal'
+                                    />,
+                                    'Manage slots',
+                                )}
+                                {this.tooltipWrapper(
+                                    <Button
+                                        content='Policies'
+                                        onClick={() => modals.setPoliciesModal(true)}
+                                        data-cy='policies-modal'
+                                    />,
+                                    'Edit Policies',
+                                )}
+                            </Button.Group>
+                        </div>
                     ) : (
                         <Input
                             placeholder={placeholderAddItem}
@@ -179,7 +181,7 @@ class StoryGroupBrowser extends React.Component {
                         {items([1])}
                     </Menu>
                 )}
-            </>
+            </div>
         );
     }
 }
