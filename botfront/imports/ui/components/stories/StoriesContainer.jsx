@@ -36,23 +36,22 @@ function StoriesContainer(props) {
     const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
-    const closeModals = () => { setSlotsModal(false); setPoliciesModal(false); };
+    const closeModals = () => {
+        setSlotsModal(false);
+        setPoliciesModal(false);
+    };
 
     const modalWrapper = (open, title, content, scrolling = true) => (
         <Modal open={open} onClose={closeModals}>
             <Modal.Header>{title}</Modal.Header>
             <Modal.Content scrolling={scrolling}>
-                <React.Suspense fallback={null}>
-                    {content}
-                </React.Suspense>
+                <React.Suspense fallback={null}>{content}</React.Suspense>
             </Modal.Content>
         </Modal>
     );
 
-    const switchToGroupById = groupId => changeStoryGroup(
-        storyGroups.findIndex(sg => sg._id === groupId),
-    );
-    
+    const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
+
     useEffect(() => {
         if (switchToGroupByIdNext) switchToGroupById(switchToGroupByIdNext);
         setSwitchToGroupByIdNext('');
@@ -60,7 +59,7 @@ function StoriesContainer(props) {
 
     useEffect(() => {
         if (!storyGroups[storyGroupCurrent]) {
-            if ((storyGroups[storyGroupCurrent + 1])) changeStoryGroup(storyGroupCurrent + 1);
+            if (storyGroups[storyGroupCurrent + 1]) changeStoryGroup(storyGroupCurrent + 1);
             changeStoryGroup(storyGroupCurrent - 1);
         }
     }, [storyGroups.length]);
@@ -88,8 +87,13 @@ function StoriesContainer(props) {
         );
     };
 
-    const handleDeleteGroup = (storyGroup) => { if (!storyGroup.introStory) Meteor.call('storyGroups.delete', storyGroup); }
-    const handleStoryGroupSelect = storyGroup => Meteor.call('storyGroups.update', { ...storyGroup, selected: !storyGroup.selected });
+    const handleDeleteGroup = (storyGroup) => {
+        if (!storyGroup.introStory) Meteor.call('storyGroups.delete', storyGroup);
+    };
+    const handleStoryGroupSelect = storyGroup => Meteor.call('storyGroups.update', {
+        ...storyGroup,
+        selected: !storyGroup.selected,
+    });
     const removeAllSelection = () => Meteor.call('storyGroups.removeFocus', projectId);
 
     const handleNameChange = (storyGroup) => {
@@ -138,7 +142,11 @@ function StoriesContainer(props) {
             }}
         >
             <StoriesPageMenu project={project} instance={instance} />
-            {modalWrapper(slotsModal, 'Slots', <SlotsEditor slots={slots} projectId={projectId} />)}
+            {modalWrapper(
+                slotsModal,
+                'Slots',
+                <SlotsEditor slots={slots} projectId={projectId} />,
+            )}
             {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
             <Container>
                 <Grid className='stories-container'>
@@ -178,7 +186,7 @@ function StoriesContainer(props) {
             </Container>
         </ConversationOptionsContext.Provider>
     );
-    
+
     if (ready) return renderStoriesContainer();
     return null;
 }
@@ -205,7 +213,10 @@ const mapDispatchToProps = {
     changeStoryGroup: setStoryGroup,
 };
 
-const StoriesWithState = connect(mapStateToProps, mapDispatchToProps)(StoriesContainer);
+const StoriesWithState = connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(StoriesContainer);
 
 export default withTracker((props) => {
     const { project_id: projectId } = props.params;
