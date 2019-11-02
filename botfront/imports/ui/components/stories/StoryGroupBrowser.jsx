@@ -147,7 +147,7 @@ class StoryGroupBrowser extends React.Component {
                                 'Manage slots',
                             )}
                             {this.tooltipWrapper(
-                                <Button content='Policies' onClick={() => modals.setPoliciesModal(true)} />,
+                                <Button content='Policies' onClick={() => modals.setPoliciesModal(true)} data-cy='policies-modal' />,
                                 'Edit Policies',
                             )}
                         </Button.Group>

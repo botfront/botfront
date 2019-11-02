@@ -2,15 +2,15 @@
 
 describe('Project Core Policy', function() {
     before(function() {
-        cy.createProject('bf', 'My Project', 'fr');
+        cy.deleteProject('bf');
     });
 
-    after(function() {
+    afterEach(function() {
         cy.deleteProject('bf');
     });
 
     beforeEach(function() {
-        cy.login();
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
 
     afterEach(function() {
@@ -19,8 +19,8 @@ describe('Project Core Policy', function() {
 
     describe('Core Policy', function() {
         it('Can be saved', function() {
-            cy.visit('/project/bf/settings');
-            cy.contains('Core Policies').click();
+            cy.visit('/project/bf/stories');
+            cy.dataCy('policies-modal').click();
             cy.get('[data-cy=save-button]').click();
             cy.get('[data-cy=changes-saved]').should('be.visible');
         });

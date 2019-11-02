@@ -30,6 +30,8 @@ const AceField = ({
     errorMessage,
     id,
     inputRef,
+    mode,
+    fontSize,
     label,
     name,
     onChange,
@@ -42,18 +44,17 @@ const AceField = ({
 }) => (
     <div className={classnames(className, { disabled, error, required }, 'field')} {...filterDOMProps(props)}>
         {label && (
-            // eslint-disable-next-line jsx-a11y/label-has-associated-control
-            <label>
-                {label}
-            </label>
+            <label>{label}</label>
         )}
         <AceEditor
             width='100%'
-            mode={props.mode || 'yaml'}
+            minLines={25}
+            maxLines={25}
+            mode={mode || 'yaml'}
             theme='xcode'
             name={name}
             onChange={v => onChange(v)}
-            fontSize={props.fontSize || 14}
+            fontSize={fontSize || 14}
             showPrintMargin={false}
             showGutter
             highlightActiveLine
