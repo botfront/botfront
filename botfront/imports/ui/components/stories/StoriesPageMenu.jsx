@@ -88,5 +88,5 @@ export default function StoriesPageMenu(props) {
 
 StoriesPageMenu.propTypes = {
     project: PropTypes.any.isRequired,
-    instance: PropTypes.string.isRequired,
+    instance: PropTypes.object.isRequired,
 };

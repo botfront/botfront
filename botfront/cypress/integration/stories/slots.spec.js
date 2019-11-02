@@ -3,6 +3,9 @@
 const slotName = 'slotOne';
 
 describe('slots', function() {
+    before(function() {
+        cy.deleteProject('bf');
+    });
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
         cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
@@ -18,7 +21,7 @@ describe('slots', function() {
         cy.dataCy('add-slot').click();
         cy.contains('float').click();
         cy.dataCy('new-slot-editor')
-            .get('input')
+            .find('input')
             .first()
             .type(slotName);
         cy.dataCy('save-button').click();
@@ -32,7 +35,7 @@ describe('slots', function() {
 
     it('should be able to add and delete a slot', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('slots-tab').click();
+        cy.dataCy('slots-modal').click();
         createSlot();
         cy.dataCy('slot-editor');
         deleteSlot();
@@ -41,22 +44,22 @@ describe('slots', function() {
 
     it('should be able to add a min and max value to a float slot', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('slots-tab').click();
+        cy.dataCy('slots-modal').click();
         createSlot();
         cy.contains('Min value');
         cy.dataCy('slot-editor')
-            .get('input')
+            .find('input')
             .eq(2)
             .type('100');
         cy.contains('Max value');
         cy.dataCy('slot-editor')
-            .get('input')
+            .find('input')
             .eq(3)
             .type('0');
         cy.dataCy('save-button').click();
         cy.dataCy('errors-field');
         cy.dataCy('slot-editor')
-            .get('input')
+            .find('input')
             .eq(3)
             .type('200');
         cy.dataCy('save-button').click();
@@ -68,20 +71,20 @@ describe('slots', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-editor')
-            .get('textarea')
+            .find('textarea')
             .focus()
             .type('\n- slot{{}"name": "Ali"}', { force: true });
 
         cy.dataCy('top-menu-error-alert');
-        cy.dataCy('slots-tab').click();
+        cy.dataCy('slots-modal').click();
         cy.dataCy('add-slot').click();
         cy.contains('text').click();
         cy.dataCy('new-slot-editor')
-            .get('input')
+            .find('input')
             .first()
             .type('name');
         cy.dataCy('save-button').click();
-        cy.dataCy('stories-tab').click();
+        cy.visit('/project/bf/stories');
         cy.dataCy('top-menu-error-alert').should('not.exist');
     });
 });

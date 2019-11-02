@@ -11,6 +11,10 @@ const newBranchNameOne = 'newBranchNameOne';
 const newBranchNameTwo = 'newBranchNameTwo';
 
 describe('story title editing', function() {
+    before(function() {
+        cy.deleteProject('bf');
+    });
+
     afterEach(function() {
         cy.logout();
         cy.deleteProject('bf');
@@ -70,8 +74,7 @@ describe('story title editing', function() {
 
     it('should have consistant behaviour', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('ellipsis-menu').click({ force: true });
-        cy.dataCy('edit-menu').click({ force: true });
+        cy.dataCy('edit-menu').last().click({ force: true });
         cy.dataCy('edit-name')
             .find('input')
             .clear()
@@ -81,8 +84,7 @@ describe('story title editing', function() {
             .contains(editedGroupOne)
             .should('exist');
 
-        cy.dataCy('ellipsis-menu').click({ force: true });
-        cy.dataCy('edit-menu').click({ force: true });
+        cy.dataCy('edit-menu').last().click({ force: true });
         cy.dataCy('edit-name')
             .find('input')
             .clear()
@@ -93,8 +95,7 @@ describe('story title editing', function() {
             .contains(editedGroupTwo)
             .should('exist');
 
-        cy.dataCy('ellipsis-menu').click({ force: true });
-        cy.dataCy('edit-menu').click({ force: true });
+        cy.dataCy('edit-menu').last().click({ force: true });
         cy.dataCy('edit-name')
             .find('input')
             .clear()

@@ -9,6 +9,10 @@ describe('stories', function() {
         cy.deleteProject('bf');
     });
 
+    afterEach(function() {
+        cy.deleteProject('bf');
+    });
+
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
         cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
@@ -84,8 +88,8 @@ describe('stories', function() {
             .first()
             .click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
-        // verifies that the second story was not removed along with the first
-        cy.dataCy('browser-item').eq(1).should('have.class', 'active');
+        // verifies that the third story was not removed along with the first
+        cy.dataCy('browser-item').eq(2).should('have.class', 'active');
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('story-title').should('have.value', 'ID AKLEJDKSGLJENSKEPFM');
         // deletes the second story
@@ -200,11 +204,6 @@ describe('stories', function() {
         cy.get('#not-selected').click({ force: true });
         // Text in the train button should change after all the stories are selected
         cy.contains('Partial training');
-
-        cy.contains('storyGroup').click({ force: true });
-        cy.dataCy('delete-story').click({ force: true });
-        cy.dataCy('confirm-yes').click({ force: true });
-        cy.get('.active > #selected').click({ force: true });
     });
 
     it('should not be able to add empty story or story group names', function() {
@@ -214,7 +213,7 @@ describe('stories', function() {
         cy.dataCy('add-item-input')
             .find('input')
             .type('{enter}');
-        cy.dataCy('browser-item').should('have.lengthOf', 1);
+        cy.dataCy('browser-item').should('have.lengthOf', 2);
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -237,7 +236,7 @@ describe('stories', function() {
     it('should be able to delete and add stories in intro stories', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
-        cy.dataCy('intro-story-group').click({ force: true });
+        cy.dataCy('browser-item').eq(0).click({ force: true });
         cy.dataCy('story-editor').get('textarea');
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 2);
@@ -248,7 +247,7 @@ describe('stories', function() {
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('delete-story').click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
-        cy.dataCy('intro-story-group').should('exist');
+        cy.dataCy('browser-item').should('have.lengthOf', 2);
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 1);
     });
