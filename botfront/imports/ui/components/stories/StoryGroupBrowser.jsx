@@ -3,6 +3,9 @@ import {
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import { connect } from 'react-redux';
+import { Slots } from '../../../api/slots/slots.collection';
 import StoryGroupItem from './StoryGroupItem';
 import { ConversationOptionsContext } from '../utils/Context';
 
@@ -88,11 +91,10 @@ class StoryGroupBrowser extends React.Component {
             content={tooltip}
             trigger={trigger}
         />
-    )
+    );
 
     render() {
         const {
-            children,
             data,
             index: indexProp,
             allowAddition,
@@ -103,20 +105,18 @@ class StoryGroupBrowser extends React.Component {
             changeName,
             stories,
             placeholderAddItem,
+            modals,
         } = this.props;
-        const {
-            addMode, newItemName,
-        } = this.state;
+        const { addMode, newItemName } = this.state;
 
-        const items = data.map((item, index) => (
-
+        const items = slice => data.slice(...slice).map((item, index) => (
             <StoryGroupItem
-                key={index.toString()}
-                index={index}
+                key={index + slice[0]}
+                index={index + slice[0]}
                 item={item}
                 indexProp={indexProp}
                 nameAccessor={nameAccessor}
-                handleClickMenuItem={() => this.handleClickMenuItem(index)}
+                handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
                 selectAccessor={selectAccessor}
                 allowEdit={allowEdit}
                 handleToggle={e => this.handleToggle(e, item)}
@@ -125,6 +125,7 @@ class StoryGroupBrowser extends React.Component {
                 stories={stories}
             />
         ));
+
         return (
             <>
                 {allowAddition
@@ -142,17 +143,11 @@ class StoryGroupBrowser extends React.Component {
                                 'New story group',
                             )}
                             {this.tooltipWrapper(
-                                <Button
-                                    onClick={()=>{}}
-                                    content='Slots'
-                                />,
+                                <Button content='Slots' onClick={() => modals.setSlotsModal(true)} data-cy='slots-modal' />,
                                 'Manage slots',
                             )}
                             {this.tooltipWrapper(
-                                <Button
-                                    onClick={()=>{}}
-                                    content='Policies'
-                                />,
+                                <Button content='Policies' onClick={() => modals.setPoliciesModal(true)} />,
                                 'Edit Policies',
                             )}
                         </Button.Group>
@@ -168,10 +163,14 @@ class StoryGroupBrowser extends React.Component {
                             data-cy='add-item-input'
                         />
                     ))}
-                {children}
-                {data.length > 0 && (
+                {data.length && (
                     <Menu vertical fluid>
-                        {items}
+                        {items([0, 1])}
+                    </Menu>
+                )}
+                {data.length > 1 && (
+                    <Menu vertical fluid>
+                        {items([1])}
                     </Menu>
                 )}
             </>
@@ -192,8 +191,8 @@ StoryGroupBrowser.propTypes = {
     changeName: PropTypes.func,
     allowEdit: PropTypes.bool,
     placeholderAddItem: PropTypes.string,
-    children: PropTypes.element,
     stories: PropTypes.array.isRequired,
+    modals: PropTypes.object.isRequired,
 };
 
 StoryGroupBrowser.defaultProps = {
@@ -208,17 +207,26 @@ StoryGroupBrowser.defaultProps = {
     selectAccessor: '',
     allowEdit: false,
     placeholderAddItem: '',
-    children: <></>,
 };
 
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
 
-export default props => (
-    <ConversationOptionsContext.Consumer>
-        {value => (
-            <StoryGroupBrowser
-                {...props}
-                stories={value.stories}
-            />
-        )}
-    </ConversationOptionsContext.Consumer>
+const BrowserWithState = connect(mapStateToProps)(StoryGroupBrowser);
+
+export default withTracker(props => ({
+    ...props,
+    slots: Slots.find({}).fetch(),
+}))(
+    props => (
+        <ConversationOptionsContext.Consumer>
+            {value => (
+                <BrowserWithState
+                    {...props}
+                    stories={value.stories}
+                />
+            )}
+        </ConversationOptionsContext.Consumer>
+    ),
 );
