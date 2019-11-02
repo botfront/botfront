@@ -10,7 +10,6 @@ import StoryEditorContainer from './StoryEditorContainer';
 function StoryEditors(props) {
     const {
         stories,
-        disabled,
         onDeleteGroup,
         editor,
         projectId,
@@ -95,7 +94,7 @@ function StoryEditors(props) {
     const editors = stories.map((story, index) => (
         <StoryEditorContainer
             story={story}
-            disabled={disabled}
+            disabled={false}
             onRename={newTitle => handleStoryRenaming(newTitle, index)}
             onDelete={() => handleStoryDeletion(index)}
             key={story._id}
@@ -130,15 +129,14 @@ function StoryEditors(props) {
 
 StoryEditors.propTypes = {
     storyGroup: PropTypes.object.isRequired,
+    storyGroups: PropTypes.array.isRequired,
     stories: PropTypes.array,
-    disabled: PropTypes.bool,
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
     editor: PropTypes.string,
 };
 
 StoryEditors.defaultProps = {
-    disabled: false,
     stories: [],
     editor: 'markdown',
 };

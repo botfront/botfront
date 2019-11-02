@@ -193,6 +193,7 @@ function StoriesContainer(props) {
 
 StoriesContainer.propTypes = {
     projectId: PropTypes.string.isRequired,
+    project: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
     storyGroups: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
