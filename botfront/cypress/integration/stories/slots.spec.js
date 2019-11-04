@@ -6,16 +6,13 @@ describe('slots', function() {
     before(function() {
         cy.deleteProject('bf');
     });
-    beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-    });
 
-    after(function() {
+    afterEach(function() {
         cy.deleteProject('bf');
     });
 
     beforeEach(function() {
-        cy.login();
+        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
 
     function createSlot() {
