@@ -82,7 +82,6 @@ Meteor.methods({
     async 'nlu.switchCanonical'(modelId, item) {
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
         if (!item.canonical) {
             /* try to match a canonical item with the same characteristics (intent, entity, entity value)
             to check if the selected item can be used as canonical
@@ -291,7 +290,6 @@ if (Meteor.isServer) {
         'nlu.updateChitChatIntents'(modelId, intents) {
             check(modelId, String);
             check(intents, Array);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
             return NLUModels.update({ _id: modelId }, { $set: { chitchat_intents: intents } });
         },
