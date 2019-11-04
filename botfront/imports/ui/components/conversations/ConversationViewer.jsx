@@ -4,15 +4,19 @@ import { browserHistory } from 'react-router';
 import {
     Icon, Menu, Segment, Placeholder,
 } from 'semantic-ui-react';
-import { useQuery } from '@apollo/react-hooks';
+import Alert from 'react-s-alert';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
 import { GET_CONVERSATION } from './queries';
+import { MARK_READ } from './mutations';
 import ConversationJsonViewer from './ConversationJsonViewer';
 import ConversationDialogueViewer from './ConversationDialogueViewer';
 
 function ConversationViewer (props) {
     const [active, setActive] = useState('Text');
     const { tracker, ready, onDelete } = props;
+
+    const [markRead, { data }] = useMutation(MARK_READ);
 
     function handleItemClick(event, item) {
         setActive(item.name);
@@ -73,13 +77,20 @@ function ConversationViewer (props) {
         );
     }
 
-    function markAsRead() {
-        Meteor.call('conversations.markAsRead', tracker._id);
-    }
+    useEffect(() => {
+        if (tracker) {
+            markRead({ variables: { id: tracker._id } });
+        }
+    }, [props]);
 
     useEffect(() => {
-        if (tracker) markAsRead(tracker);
-    }, [props]);
+        if (data && !data.markAsRead.success) {
+            Alert.warning('The conversation was not marked as read', {
+                position: 'top-right',
+                timeout: 5000,
+            });
+        }
+    }, [data]);
 
     
     return (
@@ -106,7 +117,6 @@ function ConversationViewer (props) {
                     </Menu.Item>
                 </Menu.Menu>
             </Menu>
-
             {renderSegment(ready, active, tracker)}
         </div>
     );
