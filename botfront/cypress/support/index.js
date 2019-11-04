@@ -182,21 +182,23 @@ Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
     ));
 });
 
+Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
+    .then(() => cy.window())
+    .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, { failSilently: true })));
+
+
 Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', defaultLanguage = 'en') => {
     const project = {
         _id: projectId,
         name,
         defaultLanguage,
     };
+    cy.deleteProject(projectId);
     return cy.visit('/')
         .then(() => cy.window())
         .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project))
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
 });
-
-Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
-    .then(() => cy.window())
-    .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, { failSilently: true })));
 
 Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
 
