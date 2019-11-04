@@ -1,16 +1,12 @@
 import path from 'path';
 import { fileLoader, mergeTypes } from 'merge-graphql-schemas';
 
-import entityDistributionResolver from './nlu/resolvers/entityDistributionResolver';
-import intentDistributionResolver from './nlu/resolvers/intentDistributionResolver';
 import conversationsResolver from './conversations/resolvers/conversationsResolver';
 /*
 * mergeResolvers doesnt work (https://github.com/Urigo/merge-graphql-schemas/issues?utf8=%E2%9C%93&q=unexpected+token) 
 * so we need to import resolvers one by one
 */
 export const resolvers = [
-    entityDistributionResolver,
-    intentDistributionResolver,
     conversationsResolver,
 ];
 const basePath = path.join(/(.+)\.meteor/.exec(process.cwd())[1], __dirname);
