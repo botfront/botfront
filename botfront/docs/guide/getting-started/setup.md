@@ -32,7 +32,7 @@ At any time, you can access the Botfront menu to create or run a project by runn
 <video autoplay muted loop width="740" controls>
   <source src="../../videos/setup.mp4" type="video/mp4">
   Your browser does not support the video tag.
-</video> 
+</video>
 
 Congrats, you can skip the rest of this page and go directly to the next tutorial.
 
