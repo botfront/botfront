@@ -196,6 +196,12 @@ Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
     cy.window().then(({ Meteor }) => Meteor.call('project.deleteTemplate', projectId, key));
 });
 
+Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
+    .then(() => cy.login())
+    .then(() => cy.window())
+    .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, { failSilently: true, bypassWithCI: true })));
+
+
 Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', defaultLanguage = 'en') => {
     const project = {
         _id: projectId,
@@ -203,17 +209,13 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         defaultLanguage,
         namespace: `bf-${projectId}`,
     };
+    cy.deleteProject(projectId);
     return cy.visit('/')
         .then(() => cy.login())
         .then(() => cy.window())
         .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project, true)) // true is used to bypass role check. CI env must be set when running Botfront
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
 });
-
-Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
-    .then(() => cy.login())
-    .then(() => cy.window())
-    .then(({ Meteor }) => Meteor.callWithPromise('project.delete', projectId, { failSilently: true, bypassWithCI: true })));
 
 Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
 Cypress.Commands.add(
@@ -302,6 +304,7 @@ Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = '
     cy.window()
         .then(
             ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                // eslint-disable-next-line consistent-return
                 Meteor.logout((err) => {
                     if (err) {
                         return reject(err);
@@ -322,6 +325,7 @@ Cypress.Commands.add('loginAdmin', (email = 'admin@test.com', password = 'Aaaaaa
     cy.window()
         .then(
             ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
+                // eslint-disable-next-line consistent-return
                 Meteor.logout((err) => {
                     if (err) {
                         return reject(err);
