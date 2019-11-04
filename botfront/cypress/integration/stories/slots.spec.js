@@ -6,15 +6,13 @@ describe('slots', function() {
     before(function() {
         cy.deleteProject('bf');
     });
-    beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-        cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
-        cy.loginTestUser('admin@bf.com');
-    });
 
     afterEach(function() {
-        cy.deleteUser('admin@bf.com');
         cy.deleteProject('bf');
+    });
+
+    beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
 
     function createSlot() {
