@@ -78,6 +78,6 @@ images:
 - "gcr.io/${PROJECT_ID}/botfront-api:latest"
 - "gcr.io/${PROJECT_ID}/botfront-api:$TAG_NAME"
 
-timeout: 60m
+timeout: 3600s
 options:
     machineType: 'N1_HIGHCPU_8'
