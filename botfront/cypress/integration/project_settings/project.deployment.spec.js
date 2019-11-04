@@ -1,7 +1,6 @@
 /* eslint-disable no-undef */
 
 describe('enable an environment', function() {
-    
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
         cy.login();
@@ -25,7 +24,7 @@ describe('enable an environment', function() {
             cy.get('[data-cy=ace-field]')
                 .click();
             cy.wait(100);
-            cy.get('textarea').clear().type('verify saved credentials staging');
+            cy.get('textarea').type('# verify saved credentials staging');
             cy.get('[data-cy=save-button]').click();
 
 
@@ -44,8 +43,7 @@ describe('enable an environment', function() {
                 .click();
             cy.wait(100);
             cy.get('textarea')
-                .clear()
-                .type('verify saved endpoints staging');
+                .type('# verify saved endpoints staging');
             cy.get('[data-cy=save-button]').click();
 
             cy.visit('/project/bf/settings');
@@ -80,7 +78,7 @@ describe('enable an environment', function() {
             cy.get('[data-cy=ace-field]')
                 .click();
             cy.wait(100);
-            cy.get('textarea').clear().type('verify saved credentials production');
+            cy.get('textarea').type('# verify saved credentials production');
             cy.get('[data-cy=save-button]').click();
 
             // verify edit saved
@@ -98,8 +96,7 @@ describe('enable an environment', function() {
                 .click();
             cy.wait(100);
             cy.get('textarea')
-                .clear()
-                .type('verify saved endpoints production');
+                .type('# verify saved endpoints production');
             cy.get('[data-cy=save-button]').click();
 
             cy.visit('/project/bf/settings');
