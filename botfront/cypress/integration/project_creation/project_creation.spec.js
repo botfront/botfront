@@ -6,6 +6,7 @@ describe('Project Creation', function() {
 
     afterEach(function() {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     it('When creating a new project, a default model should be added to the project', function() {
