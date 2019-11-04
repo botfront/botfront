@@ -12,6 +12,7 @@ const newBranchNameTwo = 'newBranchNameTwo';
 
 describe('story title editing', function() {
     afterEach(function() {
+        cy.logout();
         cy.deleteProject('bf');
     });
 
