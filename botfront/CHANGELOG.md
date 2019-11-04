@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2-ee.6](https://github.com/botfront/botfront/compare/v0.17.2-ee.5...v0.17.2-ee.6) (2019-11-04)
+
+
+### Bug Fixes
+
+* canonical dataCy change and click gem loop ([5f523d8](https://github.com/botfront/botfront/commit/5f523d8))
+* prevent missed clicks in add canonical ([05b10be](https://github.com/botfront/botfront/commit/05b10be))
+* standardize beforeeach and aftereach ([95adf77](https://github.com/botfront/botfront/commit/95adf77))
+* test edits should be comments ([34e346d](https://github.com/botfront/botfront/commit/34e346d))
+
+
+### Tests
+
+* improved cypress tests stability ([4da626c](https://github.com/botfront/botfront/commit/4da626c))
+* various fixes ([b1b382c](https://github.com/botfront/botfront/commit/b1b382c))
+
+
+
 ### [0.17.2-ee.5](https://github.com/botfront/botfront/compare/v0.17.2-ee.4...v0.17.2-ee.5) (2019-11-04)
 
 
