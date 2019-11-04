@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import requiredIf from 'react-required-if';
-import { useQuery } from '@apollo/react-hooks';
-import { Meteor } from 'meteor/meteor';
+import { useQuery, useMutation } from '@apollo/react-hooks';
+import Alert from 'react-s-alert';
 import { browserHistory } from 'react-router';
 import {
     Container, Grid, Icon, Menu, Message, Segment,
 } from 'semantic-ui-react';
-import { GET_CONVERSATIONS } from './queries';
-import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
+import { GET_CONVERSATIONS } from './queries';
+import { DELETE_CONV } from './mutations';
+import 'react-select/dist/react-select.css';
 import ConversationViewer from './ConversationViewer';
 import { Loading } from '../utils/Utils';
-import { wrapMeteorCallback } from '../utils/Errors';
+
 
 const PAGE_SIZE = 20;
 function ConversationsBrowser (props) {
@@ -25,6 +26,17 @@ function ConversationsBrowser (props) {
         trackers,
         activeConversationId,
     } = props;
+    const [deleteConv, { data }] = useMutation(DELETE_CONV);
+
+    useEffect(() => {
+        if (data && !data.delete.success) {
+            Alert.warning('Something went wrong, the conversation was not deleted', {
+                position: 'top-right',
+                timeout: 5000,
+            });
+        }
+    }, [data]);
+
 
     function hasNextPage() {
         return !!nextConvoId;
@@ -131,7 +143,7 @@ function ConversationsBrowser (props) {
         } else {
             goToConversation(Math.min(page - 1, 1), true);
         }
-        Meteor.call('conversations.delete', conversationId, wrapMeteorCallback());
+        deleteConv({ variables: { id: conversationId } });
     }
 
    

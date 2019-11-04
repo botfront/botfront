@@ -9,7 +9,7 @@ mutation markRead($id: String!) {
 
 export const DELETE_CONV = gql`
 mutation deleteConv($id: String!) {
-    updateStatus(id: $id){
+    delete(id: $id){
       success
     }
 }`;
