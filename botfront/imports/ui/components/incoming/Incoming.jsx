@@ -17,6 +17,7 @@ import TopMenu from './TopMenu';
 import { extractEntities } from '../nlu/models/nluModel.utils';
 import Activity from '../nlu/activity/Activity';
 import { setWorkingLanguage } from '../../store/actions/actions';
+import { updateIncomingPath } from './incoming.utils';
 
 class Incoming extends React.Component {
     linkToEvaluation = () => {
@@ -25,18 +26,20 @@ class Incoming extends React.Component {
     };
 
     handleLanguageChange = (value) => {
-        const { models, projectId, changeWorkingLanguage } = this.props;
+        const { models, params, changeWorkingLanguage } = this.props;
 
         const modelMatch = models.find(({ language }) => language === value);
+
         if (modelMatch) {
             changeWorkingLanguage(value);
-            browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` });
+            const pathname = updateIncomingPath({ ...params, model_id: modelMatch._id });
+            browserHistory.push({ pathname });
         }
     }
 
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router, workingLanguage,
+            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, workingLanguage,
         } = this.props;
         return (
             <>
@@ -55,8 +58,6 @@ class Incoming extends React.Component {
                             intents={intents}
                             linkRender={this.linkToEvaluation}
                             instance={instance}
-                            params={params}
-                            replaceUrl={router.replace}
                         />
                     </Loading>
                 </Container>
@@ -104,9 +105,13 @@ const handleDefaultRoute = (projectId) => {
 
     try {
         const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${defaultModelId}` });
+        browserHistory.push({
+            pathname: updateIncomingPath({ project_id: projectId, model_id: defaultModelId }),
+        });
     } catch (e) {
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelIds[0]}` });
+        browserHistory.push({
+            pathname: updateIncomingPath({ project_id: projectId, model_id: modelIds[0] }),
+        });
     }
 };
 
