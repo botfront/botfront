@@ -51,3 +51,11 @@ export const getConversation = async (projectId, id) => (Conversations.findOne(
         _id: id,
     },
 ).lean());
+
+export const updateConversationStatus = async (id, status) => (
+    Conversations.updateOne({ _id: id }, { $set: { status } }).exec()
+);
+
+export const deleteConversation = async id => (
+    Conversations.deleteOne({ _id: id }).exec()
+);

@@ -1,5 +1,10 @@
 /* eslint-disable no-unused-vars */
-import { getConversations, getConversation } from '../mongo/conversations';
+import {
+    getConversations,
+    getConversation,
+    updateConversationStatus,
+    deleteConversation,
+} from '../mongo/conversations';
 
 export default {
     Query: {
@@ -8,6 +13,20 @@ export default {
         },
         async conversation(_, args, __) {
             return getConversation(args.projectId, args.id);
+        },
+    },
+    Mutation: {
+        async markAsRead(_, args, __) {
+            const response = await updateConversationStatus(args.id, 'read');
+            return { success: response.ok === 1 };
+        },
+        async updateStatus(_, args, __) {
+            const response = await updateConversationStatus(args.id, args.status);
+            return { success: response.ok === 1 };
+        },
+        async delete(_, args, __) {
+            const response = await deleteConversation(args.id);
+            return { success: response.ok === 1 };
         },
     },
     ConversationContainer: {

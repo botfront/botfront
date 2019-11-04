@@ -14,6 +14,16 @@ enum order {
   updatedAt_DESC
 }
 
+type Mutation {
+  markAsRead(id: String!): updateResponse!
+  updateStatus(id: String!, status: String): updateResponse!
+  delete(id: String!): updateResponse!
+}
+
+type updateResponse {
+  success: Boolean!
+}
+
 type ConversationContainer {
   tracker: Conversation,
   projectId: String,
