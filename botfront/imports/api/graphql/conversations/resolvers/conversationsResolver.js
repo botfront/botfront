@@ -1,59 +1,60 @@
+/* eslint-disable no-unused-vars */
 import { getConversations, getConversation } from '../mongo/conversations';
 
 export default {
     Query: {
-        async conversations(parent, args, context, info) {
+        async conversations(_, args, __) {
             return getConversations(args.projectId, args.skip, args.limit, args.status, args.sort);
         },
-        async conversation(parent, args, context, info) {
+        async conversation(_, args, __) {
             return getConversation(args.projectId, args.id);
         },
     },
     ConversationContainer: {
-        projectId: (parent, args, context, info) => parent.projectId,
-        tracker: (parent, args, context, info) => parent.tracker,
-        status: (parent, args, context, info) => parent.status,
-        _id: (parent, args, context, info) => parent._id,
-        updatedAt: (parent, args, context, info) => parent.updatedAt,
+        projectId: (parent, _, __) => parent.projectId,
+        tracker: (parent, _, __) => parent.tracker,
+        status: (parent, _, __) => parent.status,
+        _id: (parent, _, __) => parent._id,
+        updatedAt: (parent, _, __) => parent.updatedAt,
     },
     Conversation: {
-        latest_message: (parent, args, context, info) => parent.latest_message,
-        events: (parent, args, context, info) => parent.events,
-        sender_id: (parent, args, context, info) => parent.sender_id,
+        latest_message: (parent, _, __) => parent.latest_message,
+        events: (parent, _, __) => parent.events,
+        sender_id: (parent, _, __) => parent.sender_id,
     },
     Message: {
-        intent_ranking: (parent, args, context, info) => parent.intent_ranking,
-        intent: (parent, args, context, info) => parent.intent,
-        text: (parent, args, context, info) => parent.text,
-        language: (parent, args, context, info) => parent.language,
-        entities: (parent, args, context, info) => parent.entities,
+        intent_ranking: (parent, _, __) => parent.intent_ranking,
+        intent: (parent, _, __) => parent.intent,
+        text: (parent, _, __) => parent.text,
+        language: (parent, _, __) => parent.language,
+        entities: (parent, _, __) => parent.entities,
     },
     Entity: {
-        entity: (parent, args, context, info) => parent.entity,
-        value: (parent, args, context, info) => parent.value,
-        start: (parent, args, context, info) => parent.start,
-        end: (parent, args, context, info) => parent.end,
+        entity: (parent, _, __) => parent.entity,
+        value: (parent, _, __) => parent.value,
+        start: (parent, _, __) => parent.start,
+        end: (parent, _, __) => parent.end,
     },
     Intent: {
-        confidence: (parent, args, context, info) => parent.confidence,
-        name: (parent, args, context, info) => parent.name,
+        confidence: (parent, _, __) => parent.confidence,
+        name: (parent, _, __) => parent.name,
     },
     Event: {
-        event: (parent, args, context, info) => parent.event,
-        text: (parent, args, context, info) => parent.text,
-        timestamp: (parent, args, context, info) => parent.timestamp,
-        name: (parent, args, context, info) => parent.name,
-        policy: (parent, args, context, info) => parent.policy,
-        confidence: (parent, args, context, info) => parent.confidence,
-        parse_data: (parent, args, context, info) => parent.parse_data,
-        data: (parent, args, context, info) => parent.event,
+        event: (parent, _, __) => parent.event,
+        text: (parent, _, __) => parent.text,
+        timestamp: (parent, _, __) => parent.timestamp,
+        name: (parent, _, __) => parent.name,
+        policy: (parent, _, __) => parent.policy,
+        confidence: (parent, _, __) => parent.confidence,
+        parse_data: (parent, _, __) => parent.parse_data,
+        data: (parent, _, __) => parent.event,
     },
     Data: {
-        elements: (parent, args, context, info) => parent.elements, 
-        quick_replies: (parent, args, context, info) => parent.quick_replies, 
-        buttons: (parent, args, context, info) => parent.buttons, 
-        attachment: (parent, args, context, info) => parent.attachment, 
-        image: (parent, args, context, info) => parent.image, 
-        custom: (parent, args, context, info) => parent.custom, 
-    }
+        elements: (parent, _, __) => parent.elements,
+        quick_replies: (parent, _, __) => parent.quick_replies,
+        buttons: (parent, _, __) => parent.buttons,
+        attachment: (parent, _, __) => parent.attachment,
+        image: (parent, _, __) => parent.image,
+        custom: (parent, _, __) => parent.custom,
+    },
 };
