@@ -41,17 +41,19 @@ class TrainButton extends React.Component {
         ) : (
             <Popup
                 content={popupContent}
-                trigger={(
-                    <Button
-                        color='yellow'
-                        icon='eye'
-                        content='Partial training'
-                        labelPosition='left'
-                        disabled={isTraining(project) || !instance}
-                        loading={isTraining(project)}
-                        onClick={this.train}
-                        data-cy='train-button'
-                    />)
+                trigger={
+                    (
+                        <Button
+                            color='yellow'
+                            icon='eye'
+                            content='Partial training'
+                            labelPosition='left'
+                            disabled={isTraining(project) || !instance}
+                            loading={isTraining(project)}
+                            onClick={this.train}
+                            data-cy='train-button'
+                        />
+                    )
                 }
                 // Popup is disabled while training
                 disabled={project.training && project.training.status === 'training'}

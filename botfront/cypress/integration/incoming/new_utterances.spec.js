@@ -34,6 +34,11 @@ describe('incoming page', function() {
         cy.get('.ui.grey.basic.label')
             .first()
             .trigger('mousover');
+        // does the same thing twice for improved stability
+        cy.wait(100);
+        cy.get('.ui.grey.basic.label')
+            .first()
+            .trigger('mousover');
         cy.dataCy('intent-dropdown')
             .find('input')
             .click({ force: true })

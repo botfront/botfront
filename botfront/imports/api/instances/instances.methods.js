@@ -255,12 +255,16 @@ if (Meteor.isServer) {
                     
                     await client.put('/model', { model_file: trainedModelPath });
                     if (process.env.ORCHESTRATOR === 'gke') {
-                        const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } });
-                        const { deployment: { config: { gcp_models_bucket = null } = {} } = {} } = deployment;
-
-                        if (gcp_models_bucket) {
-                            await uploadFileToGcs(trainedModelPath, gcp_models_bucket);
-                            // await client.put('/model', { remote_storage: 'gcs' });
+                        try {
+                            const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } });
+                            const { deployment: { config: { gcp_models_bucket = null } = {} } = {} } = deployment;
+    
+                            if (gcp_models_bucket) {
+                                await uploadFileToGcs(trainedModelPath, gcp_models_bucket);
+                                // await client.put('/model', { remote_storage: 'gcs' });
+                            }
+                        } catch (e) {
+                            // do something maybe ?
                         }
                     }
                     const modelIds = getModelIdsFromProjectId(projectId);
