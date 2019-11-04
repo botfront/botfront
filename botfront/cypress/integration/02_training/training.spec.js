@@ -35,6 +35,7 @@ describe('Training', function() {
 
     function createStories() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -77,6 +78,7 @@ describe('Training', function() {
         testChat('en', '/chitchat.greet', 'utter_hi');
         importData('en', 'English');
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.get('[data-cy=open-chat]').click({ force: true });
         cy.get('[data-cy=train-button]').click({ force: true });
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');

@@ -21,7 +21,7 @@ export const getDefaultInstance = ({ _id, apiKey }) => {
 
     return {
         name: 'Default',
-        host: 'https://replaceThatUrl/nlu',
+        host: 'http://localhost:5005',
         token: apiKey,
         adminOnly: true,
         projectId: _id,
