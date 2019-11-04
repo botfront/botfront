@@ -88,26 +88,18 @@ class StoryGroupBrowser extends React.Component {
         <Popup size='mini' inverted content={tooltip} trigger={trigger} />
     );
 
-    render() {
+    getItems = (slice) => {
         const {
             data,
             index: indexProp,
-            allowAddition,
             nameAccessor,
-            saving,
             selectAccessor,
             allowEdit,
+            saving,
             changeName,
             stories,
-            placeholderAddItem,
-            modals,
-            storyMode,
-            onSwitchStoryMode,
         } = this.props;
-        const { addMode, newItemName } = this.state;
-
-        const items = slice => data
-            .slice(...slice)
+        return data
             .map((item, index) => (
                 <StoryGroupItem
                     key={index + slice[0]}
@@ -115,8 +107,7 @@ class StoryGroupBrowser extends React.Component {
                     item={item}
                     indexProp={indexProp}
                     nameAccessor={nameAccessor}
-                    handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])
-                    }
+                    handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
                     selectAccessor={selectAccessor}
                     allowEdit={allowEdit}
                     handleToggle={e => this.handleToggle(e, item)}
@@ -125,74 +116,90 @@ class StoryGroupBrowser extends React.Component {
                     stories={stories}
                 />
             ));
+    };
+
+    renderNavigation = () => {
+        const { modals, storyMode, onSwitchStoryMode } = this.props;
+        return (
+            <div className='navigation'>
+                <Button.Group fluid>
+                    {this.tooltipWrapper(
+                        <Button
+                            key='newItem'
+                            onClick={() => this.setState({ addMode: true })}
+                            data-cy='add-item'
+                            icon
+                            content={<Icon name='add' />}
+                            style={{ width: 0 }}
+                        />,
+                        'New story group',
+                    )}
+                    {this.tooltipWrapper(
+                        <Button
+                            content='Slots'
+                            onClick={() => modals.setSlotsModal(true)}
+                            data-cy='slots-modal'
+                        />,
+                        'Manage slots',
+                    )}
+                    {this.tooltipWrapper(
+                        <Button
+                            content='Policies'
+                            onClick={() => modals.setPoliciesModal(true)}
+                            data-cy='policies-modal'
+                        />,
+                        'Edit Policies',
+                    )}
+                </Button.Group>
+                {this.tooltipWrapper(
+                    <Button
+                        data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
+                        icon
+                        basic
+                        floated='right'
+                        onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'markdown' : 'visual')}
+                    >
+                        <Icon name={storyMode === 'visual' ? 'code' : 'commenting'} />
+                    </Button>,
+                    storyMode === 'visual' ? 'Switch to Markdown edit mode' : 'Switch to visual edit mode',
+                )}
+            </div>
+        );
+    };
+
+    render() {
+        const {
+            data,
+            allowAddition,
+            placeholderAddItem,
+        } = this.props;
+        const { addMode, newItemName } = this.state;
 
         return (
             <div className='storygroup-browser'>
                 {allowAddition
-                    && (!addMode ? (
-                        <div className='navigation'>
-                            <Button.Group fluid>
-                                {this.tooltipWrapper(
-                                    <Button
-                                        key='newItem'
-                                        onClick={() => this.setState({ addMode: true })}
-                                        data-cy='add-item'
-                                        icon
-                                        content={<Icon name='add' />}
-                                        style={{ width: 0 }}
-                                    />,
-                                    'New story group',
-                                )}
-                                {this.tooltipWrapper(
-                                    <Button
-                                        content='Slots'
-                                        onClick={() => modals.setSlotsModal(true)}
-                                        data-cy='slots-modal'
-                                    />,
-                                    'Manage slots',
-                                )}
-                                {this.tooltipWrapper(
-                                    <Button
-                                        content='Policies'
-                                        onClick={() => modals.setPoliciesModal(true)}
-                                        data-cy='policies-modal'
-                                    />,
-                                    'Edit Policies',
-                                )}
-                            </Button.Group>
-                            {this.tooltipWrapper(
-                                <Button
-                                    data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
-                                    icon
-                                    basic
-                                    floated='right'
-                                    onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'markdown' : 'visual')}
-                                >
-                                    <Icon name={storyMode === 'visual' ? 'code' : 'commenting'} />
-                                </Button>,
-                                storyMode === 'visual' ? 'Switch to Markdown edit mode' : 'Switch to visual edit mode',
-                            )}
-                        </div>
-                    ) : (
-                        <Input
-                            placeholder={placeholderAddItem}
-                            onChange={this.handleChangeNewItemName}
-                            value={newItemName}
-                            onKeyDown={this.handleKeyDownInput}
-                            autoFocus
-                            onBlur={() => this.submitTitleInput()}
-                            fluid
-                            data-cy='add-item-input'
-                        />
-                    ))}
+                    && (!addMode
+                        ? this.renderNavigation()
+                        : (
+                            <Input
+                                placeholder={placeholderAddItem}
+                                onChange={this.handleChangeNewItemName}
+                                value={newItemName}
+                                onKeyDown={this.handleKeyDownInput}
+                                autoFocus
+                                onBlur={() => this.submitTitleInput()}
+                                fluid
+                                data-cy='add-item-input'
+                            />
+                        ))}
                 {data.length && (
                     <Menu vertical fluid>
-                        {items([0, 1])}
+                        {this.getItems([0, 1])}
                     </Menu>
                 )}
                 {data.length > 1 && (
                     <Menu vertical fluid>
-                        {items([1])}
+                        {this.getItems([1])}
                     </Menu>
                 )}
             </div>
