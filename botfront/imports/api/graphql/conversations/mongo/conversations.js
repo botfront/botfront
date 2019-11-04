@@ -43,3 +43,11 @@ export const getConversations = async (projectId, skip = 0, limit = 20, status =
         },
     ).lean());
 };
+
+
+export const getConversation = async (projectId, id) => (Conversations.findOne(
+    {
+        projectId,
+        _id: id,
+    },
+).lean());

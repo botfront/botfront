@@ -1,9 +1,12 @@
-import { getConversations } from '../mongo/conversations';
+import { getConversations, getConversation } from '../mongo/conversations';
 
 export default {
     Query: {
         async conversations(parent, args, context, info) {
             return getConversations(args.projectId, args.skip, args.limit, args.status, args.sort);
+        },
+        async conversation(parent, args, context, info) {
+            return getConversation(args.projectId, args.id);
         },
     },
     ConversationContainer: {
@@ -37,10 +40,20 @@ export default {
     },
     Event: {
         event: (parent, args, context, info) => parent.event,
+        text: (parent, args, context, info) => parent.text,
         timestamp: (parent, args, context, info) => parent.timestamp,
         name: (parent, args, context, info) => parent.name,
         policy: (parent, args, context, info) => parent.policy,
         confidence: (parent, args, context, info) => parent.confidence,
         parse_data: (parent, args, context, info) => parent.parse_data,
+        data: (parent, args, context, info) => parent.event,
     },
+    Data: {
+        elements: (parent, args, context, info) => parent.elements, 
+        quick_replies: (parent, args, context, info) => parent.quick_replies, 
+        buttons: (parent, args, context, info) => parent.buttons, 
+        attachment: (parent, args, context, info) => parent.attachment, 
+        image: (parent, args, context, info) => parent.image, 
+        custom: (parent, args, context, info) => parent.custom, 
+    }
 };

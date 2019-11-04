@@ -4,11 +4,11 @@ import { browserHistory } from 'react-router';
 import {
     Icon, Menu, Segment, Placeholder,
 } from 'semantic-ui-react';
-import { withTracker } from 'meteor/react-meteor-data';
+import gql from 'graphql-tag';
+import { Query } from 'react-apollo';
 import { connect } from 'react-redux';
 import ConversationJsonViewer from './ConversationJsonViewer';
 import ConversationDialogueViewer from './ConversationDialogueViewer';
-import { Conversations } from '../../../api/conversations';
 
 class ConversationViewer extends React.Component {
     constructor(props) {
@@ -131,23 +131,86 @@ ConversationViewer.propTypes = {
     ready: PropTypes.bool.isRequired,
 };
 
-const ConversationViewerContainer = withTracker((props) => {
+const ConversationViewerContainer = (props) => {
     const { conversationId, projectId, onDelete } = props;
-    const conversationDetailsHandler = Meteor.subscribe('conversation-detail', conversationId, projectId);
-    let conversation = null;
-    if (conversationDetailsHandler.ready()) {
-        conversation = Conversations.findOne(conversationId);
-        if (!conversation) {
-            browserHistory.replace({ pathname: `/project/${projectId}/dialogue/conversations/p/1` });
-        }
-    }
 
-    return {
-        ready: conversationDetailsHandler.ready() && !!conversation,
-        onDelete,
-        tracker: conversation,
-    };
-})(ConversationViewer);
+
+    const GET_CONVERSATION = gql`
+      query retreiveConv($projectId: String!, $conversationId: String!)
+      {
+        conversation(projectId: $projectId, id: $conversationId ) {
+            tracker {
+                sender_id
+                latest_message{
+                    text
+                    intent{
+                        confidence
+                        name
+                    }
+                    intent_ranking{
+                        confidence
+                        name
+                    }
+                    entities {
+                            entity
+                            value
+                            start
+                            end
+                        }
+                }
+                events {
+                    event
+                    text
+                    timestamp
+                    name
+                    policy
+                    confidence
+                    parse_data {
+                        intent_ranking{
+                            confidence
+                            name
+                        }
+                        intent {
+                            confidence
+                            name
+                        }
+                        text 
+                        language 
+                        project 
+                        entities {
+                            entity
+                            value
+                            start
+                            end
+                        }
+                    }
+                }
+            }
+            status
+            _id
+      }
+    }`;
+    return (
+        <Query query={GET_CONVERSATION} variables={{ projectId, conversationId }} pollInterval={1000}>
+            {({ loading, error, data }) => {
+                const { conversation } = data;
+                if (!loading && !error) {
+                    if (!conversation) {
+                        browserHistory.replace({ pathname: `/project/${projectId}/dialogue/conversations/p/1` });
+                    }
+                }
+    
+                const componentProps = {
+                    ready: !loading && !!conversation,
+                    onDelete,
+                    tracker: conversation,
+                };
+                
+                return (<ConversationViewer {...componentProps} />);
+            }}
+        </Query>
+    );
+};
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

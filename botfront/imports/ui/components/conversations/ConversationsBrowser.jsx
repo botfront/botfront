@@ -245,7 +245,7 @@ const ConversationsBrowserContainer = (props) => {
 
 
     const GET_CONVERSATIONS = gql`
-      query retreiveConv($projectId: String!,$skip: Int, $limit: Int)
+      query retreiveConversations($projectId: String!,$skip: Int, $limit: Int)
       {
         conversations(projectId: $projectId, skip: $skip, limit: $limit, status: ["new", "read", "flagged"], sort: updatedAt_DESC) {
         _id
