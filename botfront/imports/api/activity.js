@@ -82,6 +82,7 @@ Meteor.methods({
     
     'activity.getValidatedExamples'(modelId) {
         check(modelId, String);
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         try {
             const data = ActivityCollection.find({ modelId }).fetch() || [];
             return data;
