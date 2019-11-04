@@ -142,6 +142,7 @@ describe('NLU canonical examples', function () {
         cy.dataCy('icon-gem').each((el, index) => {
             cy.dataCy('icon-gem').eq(index)
                 .click({ force: true });
+            cy.wait(100);
         });
         cy.get('.black[data-cy=icon-gem]').should('have.length', 6);
     });
