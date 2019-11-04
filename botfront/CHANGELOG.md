@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2-ee.5](https://github.com/botfront/botfront/compare/v0.17.2-ee.4...v0.17.2-ee.5) (2019-11-04)
+
+
+### Bug Fixes
+
+* bot_response.spec ([9e11e89](https://github.com/botfront/botfront/commit/9e11e89))
+* expected to find one child instead of none ([8ae0b2f](https://github.com/botfront/botfront/commit/8ae0b2f))
+* mlu model playground never rendering ([d3edb6e](https://github.com/botfront/botfront/commit/d3edb6e))
+
+
+### Tests
+
+* fixed new utterances test ([a92d89f](https://github.com/botfront/botfront/commit/a92d89f))
+* training fix ([368231b](https://github.com/botfront/botfront/commit/368231b))
+
+
+
 ### [0.17.2-ee.4](https://github.com/botfront/botfront/compare/v0.17.2-ee.3...v0.17.2-ee.4) (2019-11-01)
 
 
