@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import requiredIf from 'react-required-if';
-import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Meteor } from 'meteor/meteor';
 import { browserHistory } from 'react-router';
 import {
     Container, Grid, Icon, Menu, Message, Segment,
 } from 'semantic-ui-react';
+import { GET_CONVERSATIONS } from './queries';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import ConversationViewer from './ConversationViewer';
@@ -242,18 +242,6 @@ const ConversationsBrowserContainer = (props) => {
     const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
-
-
-    const GET_CONVERSATIONS = gql`
-      query retreiveConversations($projectId: String!,$skip: Int, $limit: Int)
-      {
-        conversations(projectId: $projectId, skip: $skip, limit: $limit, status: ["new", "read", "flagged"], sort: updatedAt_DESC) {
-        _id
-        updatedAt
-        status
-        projectId
-      }
-    }`;
 
 
     return (

@@ -4,9 +4,9 @@ import { browserHistory } from 'react-router';
 import {
     Icon, Menu, Segment, Placeholder,
 } from 'semantic-ui-react';
-import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
+import { GET_CONVERSATION } from './queries';
 import ConversationJsonViewer from './ConversationJsonViewer';
 import ConversationDialogueViewer from './ConversationDialogueViewer';
 
@@ -125,64 +125,7 @@ ConversationViewer.propTypes = {
 
 const ConversationViewerContainer = (props) => {
     const { conversationId, projectId, onDelete } = props;
-
-    const GET_CONVERSATION = gql`
-      query retreiveConv($projectId: String!, $conversationId: String!)
-      {
-        conversation(projectId: $projectId, id: $conversationId ) {
-            tracker {
-                sender_id
-                latest_message{
-                    text
-                    intent{
-                        confidence
-                        name
-                    }
-                    intent_ranking{
-                        confidence
-                        name
-                    }
-                    entities {
-                            entity
-                            value
-                            start
-                            end
-                        }
-                }
-                events {
-                    event
-                    text
-                    timestamp
-                    name
-                    policy
-                    confidence
-                    parse_data {
-                        intent_ranking{
-                            confidence
-                            name
-                        }
-                        intent {
-                            confidence
-                            name
-                        }
-                        text 
-                        language 
-                        project 
-                        entities {
-                            entity
-                            value
-                            start
-                            end
-                        }
-                    }
-                }
-            }
-            status
-            _id
-      }
-    }`;
-
-
+    
     const { loading, error, data } = useQuery(GET_CONVERSATION, {
         variables: { projectId, conversationId },
         pollInterval: 1000,
