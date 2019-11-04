@@ -1,44 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { browserHistory } from 'react-router';
 import {
     Icon, Menu, Segment, Placeholder,
 } from 'semantic-ui-react';
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
+import { useQuery } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
 import ConversationJsonViewer from './ConversationJsonViewer';
 import ConversationDialogueViewer from './ConversationDialogueViewer';
 
-class ConversationViewer extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            active: 'Text',
-        };
+function ConversationViewer (props) {
+    const [active, setActive] = useState('Text');
+    const { tracker, ready, onDelete } = props;
+
+    function handleItemClick(event, item) {
+        setActive(item.name);
     }
-
-    componentWillReceiveProps(props) {
-        this.props = props;
-        const { tracker } = this.props;
-        if (tracker) this.markAsRead(tracker);
-    }
-
-    handleItemClick = (event, item) => {
-        this.setState({ active: item.name });
-    };
-
-    handleItemStatus = (event, { name: status }) => {
-        const { tracker } = this.props;
+    /*
+    function handleItemStatus(event, { name: status }) {
         Meteor.call('conversations.updateStatus', tracker._id, status);
-    };
+    }
+    */
 
-    handleItemDelete = () => {
-        const { tracker, onDelete } = this.props;
+    function handleItemDelete() {
         onDelete(tracker._id);
-    };
+    }
 
-    renderSegment = (ready, active, tracker) => {
+    function renderSegment() {
         const style = {
             maxHeight: '82vh',
             overflowY: 'scroll',
@@ -84,42 +73,45 @@ class ConversationViewer extends React.Component {
         );
     }
 
-    markAsRead = tracker => Meteor.call('conversations.markAsRead', tracker._id);
+    function markAsRead() {
+        Meteor.call('conversations.markAsRead', tracker._id);
+    }
 
-    render() {
-        const { tracker, ready } = this.props;
-        const { active } = this.state;
+    useEffect(() => {
+        if (tracker) markAsRead(tracker);
+    }, [props]);
 
-        return (
-            <div>
-                <Menu compact attached='top'>
-                    {/* <Menu.Item name='new' disabled={!ready} active={ready && tracker.status === 'new'} onClick={this.handleItemStatus}>
+    
+    return (
+        <div>
+            <Menu compact attached='top'>
+                {/* <Menu.Item name='new' disabled={!ready} active={ready && tracker.status === 'new'} onClick={this.handleItemStatus}>
                         <Icon name='mail' />
                     </Menu.Item>
                     <Menu.Item name='flagged' disabled={!ready} active={ready && tracker.status === 'flagged'} onClick={this.handleItemStatus}>
                         <Icon name='flag' />
                     </Menu.Item> */}
-                    <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={this.handleItemDelete}>
-                        <Icon name='trash' />
+                <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={handleItemDelete}>
+                    <Icon name='trash' />
+                </Menu.Item>
+                <Menu.Menu position='right'>
+                    <Menu.Item name='Text' disabled={!ready} active={ready && active === 'Text'} onClick={handleItemClick}>
+                        <Icon name='comments' />
                     </Menu.Item>
-                    <Menu.Menu position='right'>
-                        <Menu.Item name='Text' disabled={!ready} active={ready && active === 'Text'} onClick={this.handleItemClick}>
-                            <Icon name='comments' />
-                        </Menu.Item>
-                        <Menu.Item name='Debug' disabled={!ready} active={ready && active === 'Debug'} onClick={this.handleItemClick}>
-                            <Icon name='bug' />
-                        </Menu.Item>
-                        <Menu.Item name='JSON' disabled={!ready} active={ready && active === 'JSON'} onClick={this.handleItemClick}>
-                            <Icon name='code' />
-                        </Menu.Item>
-                    </Menu.Menu>
-                </Menu>
+                    <Menu.Item name='Debug' disabled={!ready} active={ready && active === 'Debug'} onClick={handleItemClick}>
+                        <Icon name='bug' />
+                    </Menu.Item>
+                    <Menu.Item name='JSON' disabled={!ready} active={ready && active === 'JSON'} onClick={handleItemClick}>
+                        <Icon name='code' />
+                    </Menu.Item>
+                </Menu.Menu>
+            </Menu>
 
-                {this.renderSegment(ready, active, tracker)}
-            </div>
-        );
-    }
+            {renderSegment(ready, active, tracker)}
+        </div>
+    );
 }
+
 
 ConversationViewer.defaultProps = {
     tracker: null,
@@ -133,7 +125,6 @@ ConversationViewer.propTypes = {
 
 const ConversationViewerContainer = (props) => {
     const { conversationId, projectId, onDelete } = props;
-
 
     const GET_CONVERSATION = gql`
       query retreiveConv($projectId: String!, $conversationId: String!)
@@ -190,26 +181,28 @@ const ConversationViewerContainer = (props) => {
             _id
       }
     }`;
-    return (
-        <Query query={GET_CONVERSATION} variables={{ projectId, conversationId }} pollInterval={1000}>
-            {({ loading, error, data }) => {
-                const { conversation } = data;
-                if (!loading && !error) {
-                    if (!conversation) {
-                        browserHistory.replace({ pathname: `/project/${projectId}/dialogue/conversations/p/1` });
-                    }
-                }
+
+
+    const { loading, error, data } = useQuery(GET_CONVERSATION, {
+        variables: { projectId, conversationId },
+        pollInterval: 1000,
+    });
+
+    let conversation = null;
+    if (!loading && !error) {
+        ({ conversation } = data);
+        if (!conversation) {
+            browserHistory.replace({ pathname: `/project/${projectId}/dialogue/conversations/p/1` });
+        }
+    }
     
-                const componentProps = {
-                    ready: !loading && !!conversation,
-                    onDelete,
-                    tracker: conversation,
-                };
-                
-                return (<ConversationViewer {...componentProps} />);
-            }}
-        </Query>
-    );
+    const componentProps = {
+        ready: !loading && !!conversation,
+        onDelete,
+        tracker: conversation,
+    };
+      
+    return (<ConversationViewer {...componentProps} />);
 };
 
 const mapStateToProps = state => ({
