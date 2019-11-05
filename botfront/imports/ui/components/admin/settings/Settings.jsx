@@ -1,8 +1,9 @@
 import '../../../../lib/dynamic_import';
 import {
-    Container, Tab, Message, Grid,
+    Container, Tab, Message, Grid, Menu,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
@@ -31,6 +32,11 @@ class Settings extends React.Component {
         }
 
         this.setState({ schema, orchestratorSettingsComponent, orchestrator });
+    }
+
+    handleReturnToProjectSettings = () => {
+        const { router, projectId } = this.props;
+        router.push(`/project/${projectId}/settings`);
     }
 
     onSave = (settings) => {
@@ -81,6 +87,7 @@ class Settings extends React.Component {
     );
 
     getSettingsPanes = () => {
+        const { projectId } = this.props;
         const { orchestratorSettingsComponent: OrchestratorSettingsComponent, orchestrator } = this.state;
         let panes = [
             { menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
@@ -91,6 +98,22 @@ class Settings extends React.Component {
 
         if (OrchestratorSettingsComponent) {
             panes = panes.concat(OrchestratorSettingsComponent);
+        }
+
+        if (projectId) {
+            panes = [
+                ...panes,
+                {
+                    menuItem: (
+                        <Menu.Item
+                            icon='backward'
+                            content='Project Settings'
+                            key='Project Settings'
+                            onClick={this.handleReturnToProjectSettings}
+                        />
+                    ),
+                },
+            ];
         }
         return panes;
     };
@@ -128,6 +151,8 @@ class Settings extends React.Component {
 
 Settings.propTypes = {
     settings: PropTypes.object,
+    projectId: PropTypes.string.isRequired,
+    router: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
 };
 
@@ -135,13 +160,18 @@ Settings.defaultProps = {
     settings: {},
 };
 
-const SettingsContainer = withTracker(() => {
+const SettingsContainer = withTracker((props) => {
     const handler = Meteor.subscribe('settings');
     const settings = GlobalSettings.findOne({ _id: 'SETTINGS' });
     return {
         ready: handler.ready(),
         settings,
+        ...props,
     };
 })(Settings);
 
-export default SettingsContainer;
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(SettingsContainer);
