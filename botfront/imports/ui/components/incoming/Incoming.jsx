@@ -214,7 +214,7 @@ const IncomingContainer = withTracker((props) => {
         intents,
         entities,
         environment,
-        projectEnvironments: ['development', ...deploymentEnvironments],
+        projectEnvironments: ['development', ...(deploymentEnvironments || [])],
     };
 })(Incoming);
 
