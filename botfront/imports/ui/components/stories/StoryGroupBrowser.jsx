@@ -136,6 +136,7 @@ class StoryGroupBrowser extends React.Component {
                     )}
                     {this.tooltipWrapper(
                         <Button
+                            className='border-left'
                             content='Slots'
                             onClick={() => modals.setSlotsModal(true)}
                             data-cy='slots-modal'
@@ -144,6 +145,7 @@ class StoryGroupBrowser extends React.Component {
                     )}
                     {this.tooltipWrapper(
                         <Button
+                            className='border-left'
                             content='Policies'
                             onClick={() => modals.setPoliciesModal(true)}
                             data-cy='policies-modal'
@@ -155,7 +157,7 @@ class StoryGroupBrowser extends React.Component {
                     <Button
                         data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
                         icon
-                        basic
+                        style={{ width: '36px' }}
                         floated='right'
                         onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'markdown' : 'visual')}
                     >
