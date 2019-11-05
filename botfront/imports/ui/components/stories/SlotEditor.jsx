@@ -48,7 +48,7 @@ function SlotEditor(props) {
                 })
                 }
             >
-                <AutoField name='name' />
+                <AutoField name='name' data-cy='slot-name' />
                 {type !== 'unfeaturized' && (
                     <AutoField
                         name='initialValue'

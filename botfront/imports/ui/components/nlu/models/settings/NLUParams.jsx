@@ -24,7 +24,7 @@ class NLUParams extends React.Component {
         const { model } = this.props;
         clearTimeout(this.successTimeout);
         Meteor.call(
-            'nlu.update',
+            'nlu.update.general',
             model._id,
             newModel,
             wrapMeteorCallback((err) => {

@@ -13,9 +13,8 @@ import { GlobalSettings } from '../../../api/globalSettings/globalSettings.colle
 class ProjectSidebar extends React.Component {
     render() {
         const {
-            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom, renderLegacyModels,
+            projectName, projectId, handleChangeProject, settingsReady, settings, renderLegacyModels,
         } = this.props;
-        const intercomId = settingsReady ? settings.settings.public.intercomAppId : null;
 
         return (
             <DocumentTitle title={projectName}>
@@ -47,9 +46,6 @@ class ProjectSidebar extends React.Component {
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
                         <Menu.Item name='documentation' icon='question' />
                     </a>
-                    <a href={settingsReady ? 'https://spectrum.chat/botfront' : ''} target='_blank' rel='noopener noreferrer'>
-                        <Menu.Item name='help' icon='bell' content='Get help' />
-                    </a>
                     <Divider inverted />
                     <Link to='/login'>
                         <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
@@ -67,7 +63,6 @@ ProjectSidebar.propTypes = {
     handleChangeProject: PropTypes.func.isRequired,
     settingsReady: PropTypes.bool.isRequired,
     settings: PropTypes.object,
-    triggerIntercom: PropTypes.func.isRequired,
     renderLegacyModels: PropTypes.bool.isRequired,
 };
 

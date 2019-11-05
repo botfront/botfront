@@ -19,7 +19,7 @@ import { Slots } from '../slots/slots.collection';
 import { flattenStory, extractDomain } from '../../lib/story.utils';
 
 if (Meteor.isServer) {
-    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots));
+    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
 
     export const extractData = (models) => {
         const trainingExamples = models.map(model => model.training_data.common_examples);
@@ -94,10 +94,9 @@ if (Meteor.isServer) {
                 throw formatError(e);
             }
         },
-
-        'project.delete'(projectId, options) {
+        'project.delete'(projectId, options = { failSilently: false }) {
             check(projectId, String);
-            check(options, Match.Optional(Object));
+            check(options, Object);
             const { failSilently } = options;
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
 
@@ -171,6 +170,16 @@ if (Meteor.isServer) {
                     intents,
                     entities,
                 };
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async 'project.getDefaultLanguage'(projectId) {
+            check(projectId, String);
+            try {
+                const { defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { defaultLanguage: 1 } });
+                return defaultLanguage;
             } catch (error) {
                 throw error;
             }

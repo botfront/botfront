@@ -3,9 +3,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
-import { browserHistory, Link } from 'react-router';
+import { browserHistory } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
-import { uniq, sortBy, find } from 'lodash';
+import { uniq, sortBy } from 'lodash';
 import {
     Label,
     Container,
@@ -161,11 +161,11 @@ class NLUModel extends React.Component {
                     />
                 ),
             },
-            { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} /> },
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
             { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
             { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
+            { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
         ];
         if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
         return tabs;
@@ -279,15 +279,15 @@ class NLUModel extends React.Component {
                     <Menu.Item header>{this.getHeader()}</Menu.Item>
                     <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
                         <Icon size='small' name='database' />
-                        {'Training Data'}
+                        Training Data
                     </Menu.Item>
-                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick}>
+                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
                         <Icon size='small' name='percent' />
-                        {'Evaluation'}
+                        Evaluation
                     </Menu.Item>
                     <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
                         <Icon size='small' name='setting' />
-                        {'Settings'}
+                        Settings
                     </Menu.Item>
                     <Menu.Menu position='right'>
                         <Menu.Item>

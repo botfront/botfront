@@ -51,6 +51,7 @@ export default class LookupTableValueEditor extends React.Component {
                 onBlur={this.handleDone}
                 onChange={this.handleTextChange}
                 fluid
+                data-cy='add-entity'
             />);
     }
 }

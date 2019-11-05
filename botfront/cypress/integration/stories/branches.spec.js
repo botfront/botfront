@@ -11,6 +11,7 @@ describe('branches', function() {
 
     it('should be able to add a branch, edit the content and it should be saved', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
@@ -24,6 +25,7 @@ describe('branches', function() {
             .type('xxx', { force: true });
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label')
             .first()
@@ -103,6 +105,7 @@ describe('branches', function() {
 
     it('should be able to merge deleted story branches', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('open-chat').click();
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label')

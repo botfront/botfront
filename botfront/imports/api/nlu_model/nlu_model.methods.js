@@ -14,7 +14,6 @@ import {
     getNluModelLanguages,
 } from './nlu_model.utils';
 import { Projects } from '../project/project.collection';
-import { checkIfCan } from '../../lib/scopes';
 
 const getModelWithTrainingData = (chitChatProjectId, language) => {
     const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
@@ -31,7 +30,6 @@ Meteor.methods({
         check(projectId, String);
         check(language, String);
         check(items, Array);
-        checkIfCan('nlu-admin', projectId);
         try {
             const modelIds = getModelIdsFromProjectId(projectId);
             const modelId = NLUModels.findOne(
@@ -47,7 +45,6 @@ Meteor.methods({
     'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
         check(items, Array);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
         if (items.length === 0) {
             return 0;
@@ -69,7 +66,6 @@ Meteor.methods({
     'nlu.updateExample'(modelId, item) {
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
         const cleanItem = ExampleUtils.stripBare(item);
         try {
@@ -125,7 +121,6 @@ Meteor.methods({
     'nlu.deleteExample'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: itemId } } });
     },
@@ -133,7 +128,6 @@ Meteor.methods({
     'nlu.upsertEntitySynonym'(modelId, item) {
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
         if (item._id) {
             return NLUModels.update({ _id: modelId, 'training_data.entity_synonyms._id': item._id }, { $set: { 'training_data.entity_synonyms.$': item } });
@@ -145,7 +139,6 @@ Meteor.methods({
     'nlu.deleteEntitySynonym'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.entity_synonyms': { _id: itemId } } });
     },
@@ -153,7 +146,6 @@ Meteor.methods({
     'nlu.upsertEntityGazette'(modelId, item) {
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
         if (item._id) {
             return NLUModels.update({ _id: modelId, 'training_data.fuzzy_gazette._id': item._id }, { $set: { 'training_data.fuzzy_gazette.$': item } });
@@ -167,7 +159,6 @@ Meteor.methods({
     'nlu.deleteEntityGazette'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
@@ -220,16 +211,30 @@ if (Meteor.isServer) {
         'nlu.update'(modelId, item) {
             check(item, Object);
             check(modelId, String);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
             NLUModels.update({ _id: modelId }, { $set: item });
+            return modelId;
+        },
+
+        'nlu.update.general'(modelId, item) {
+            check(item, Object);
+            check(modelId, String);
+
+            const newItem = {};
+            newItem.config = item.config;
+            newItem.name = item.name;
+            newItem.language = item.language;
+            newItem.logActivity = item.logActivity;
+            newItem.instance = item.instance;
+            newItem.description = item.description;
+
+            NLUModels.update({ _id: modelId }, { $set: newItem });
             return modelId;
         },
 
         'nlu.remove'(modelId, projectId) {
             check(modelId, String);
             check(projectId, String);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
             // check the default language of project and the language of model
             const modelLanguage = NLUModels.findOne({ _id: modelId });
             const projectDefaultLanguage = Projects.findOne({ _id: projectId });
@@ -247,7 +252,6 @@ if (Meteor.isServer) {
         'nlu.removelanguage'(projectId, language) {
             check(projectId, String);
             check(language, String);
-            checkIfCan('nlu-admin', projectId);
             const modelIds = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
             const { _id: modelId } = NLUModels.findOne({ _id: { $in: modelIds }, language });
             try {
@@ -273,7 +277,6 @@ if (Meteor.isServer) {
             check(modelId, String);
             check(language, String);
             check(intents, [String]);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
             const chitChatProjectId = getChitChatProjectid();
             if (!chitChatProjectId) {
@@ -298,7 +301,6 @@ if (Meteor.isServer) {
             check(nluData, Object);
             check(modelId, String);
             check(overwrite, Boolean);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
             /*
                 Right now, overwriting replaces training_data array, and non-overwrite
                 adds items whose filterExistent<identifier> doesn't already exist. Behavior to update existing
@@ -351,7 +353,6 @@ if (Meteor.isServer) {
             check(oldIntent, String);
             check(newIntent, String);
             check(renameBotResponses, Boolean);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
 
             try {
                 const rawCollection = NLUModels.rawCollection();
@@ -389,7 +390,6 @@ if (Meteor.isServer) {
         'nlu.publish'(modelId, projectId) {
             check(modelId, String);
             check(projectId, String);
-            checkIfCan('nlu-admin', getProjectIdFromModelId(modelId));
             try {
                 const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
                 const models = NLUModels.find({ _id: { $in: project.nlu_models } }, { fields: { published: 1, language: 1, name: 1 } }).fetch();
@@ -410,7 +410,6 @@ if (Meteor.isServer) {
 
         'nlu.getPublishedModelsLanguages'(projectId) {
             check(projectId, String);
-            checkIfCan('nlu-admin', projectId);
             try {
                 const project = Projects.findOne(
                     { _id: projectId },

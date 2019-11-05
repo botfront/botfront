@@ -5,11 +5,12 @@ import { Label, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import IntentDropdown from '../nlu/common/IntentDropdown';
 import { ConversationOptionsContext } from './Context';
+import { OOS_LABEL } from '../constants.json';
 
 function Intent({
     value, size, allowEditing, allowAdditions, onChange,
 }) {
-    const { intents } = useContext(ConversationOptionsContext);
+    const { intents, addIntent } = useContext(ConversationOptionsContext);
     const popupTrigger = useRef(null);
     const popupContent = useRef(null);
     const [hover, setHover] = useState(false);
@@ -35,7 +36,8 @@ function Intent({
     }
 
     let options = intents.map(intent => ({ key: intent, text: intent, value: intent }));
-    options = options.concat([{ text: value, value }]);
+    options = value !== OOS_LABEL ? options.concat([{ text: value, value }]) : options;
+
     return (
         <span
             ref={popupTrigger}
@@ -44,7 +46,13 @@ function Intent({
         >
             <Popup
                 trigger={(
-                    <Label id='intent' color='purple' data-cy='intent-label' size={size}>
+                    <Label
+                        id='intent'
+                        color={value !== OOS_LABEL ? 'purple' : 'grey'}
+                        basic={value === OOS_LABEL}
+                        data-cy='intent-label'
+                        size={size}
+                    >
                         {value}
                     </Label>
                 )}
@@ -57,7 +65,13 @@ function Intent({
                         <IntentDropdown
                             intent={value}
                             options={options}
-                            onChange={(e, data) => onChange(data.value)}
+                            onChange={(_e, data) => {
+                                onChange(data.value.replace(/ /g, ''));
+                            }}
+                            onAddItem={(_e, data) => {
+                                addIntent(data.value.replace(/ /g, ''));
+                                onChange(data.value.replace(/ /g, ''));
+                            }}
                             allowAdditions={allowAdditions}
                         />
                     </div>

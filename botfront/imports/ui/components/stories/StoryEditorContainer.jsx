@@ -16,6 +16,8 @@ import {
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from '../utils/Context';
 import { setStoryPath } from '../../store/actions/actions';
+import StoryVisualEditor from './common/StoryVisualEditor';
+import StoryErrorBoundary from './StoryErrorBoundary';
 import { wrapMeteorCallback } from '../utils/Errors';
 import BranchTabLabel from './BranchTabLabel';
 import StoryTopMenu from './StoryTopMenu';
@@ -42,7 +44,7 @@ const StoryEditorContainer = ({
     onMove,
     groupNames,
     onRename: onRenameStory,
-    editor: editorType,
+    storyMode,
     onSaving,
     onSaved,
     branchPath,
@@ -71,9 +73,7 @@ const StoryEditorContainer = ({
                 ...content,
                 path: typeof path === 'string' ? [path] : path,
             },
-            wrapMeteorCallback(() => {
-                onSaved();
-            }),
+            wrapMeteorCallback(() => { onSaved(); }),
         );
     };
 
@@ -88,6 +88,13 @@ const StoryEditorContainer = ({
         ),
     });
 
+    // This effect is used to update errors when templates or slots are updated
+    useEffect(() => {
+        Object.keys(storyControllers).forEach((storyId) => {
+            storyControllers[storyId].setTemplates(templates);
+        });
+    }, [templates]);
+    
     useEffect(() => {
         if (storyControllers[story._id]) {
             const change = storyControllers[story._id].isABranch !== (story.checkpoints && story.checkpoints.length > 0);
@@ -245,6 +252,17 @@ const StoryEditorContainer = ({
         );
     };
 
+    const renderVisualEditor = (path) => {
+        if (!storyControllers[path.join()]) {
+            return null;
+        }
+        return (
+            <StoryErrorBoundary>
+                <StoryVisualEditor story={storyControllers[path.join()]} />
+            </StoryErrorBoundary>
+        );
+    };
+
     const getNewBranchName = (branches, offset = 0) => {
         const branchNums = branches.map((branch) => {
             if (branch.title.match(/New Branch (\d+)$/)) {
@@ -369,7 +387,9 @@ const StoryEditorContainer = ({
                 className='single-story-container'
                 data-cy='single-story-editor'
             >
-                {editorType !== 'visual' ? renderAceEditor(pathToRender) : null}
+                {storyMode !== 'visual'
+                    ? renderAceEditor(pathToRender)
+                    : renderVisualEditor(pathToRender)}
                 {branches.length > 0 && (
                     <Menu pointing secondary data-cy='branch-menu'>
                         {branches.map((branch, index) => {
@@ -462,7 +482,7 @@ StoryEditorContainer.propTypes = {
     onMove: PropTypes.func.isRequired,
     groupNames: PropTypes.array.isRequired,
     onRename: PropTypes.func.isRequired,
-    editor: PropTypes.string,
+    storyMode: PropTypes.string,
     onSaving: PropTypes.func.isRequired,
     onSaved: PropTypes.func.isRequired,
     branchPath: PropTypes.array,
@@ -473,7 +493,7 @@ StoryEditorContainer.propTypes = {
 StoryEditorContainer.defaultProps = {
     disabled: false,
     story: '',
-    editor: 'markdown',
+    storyMode: 'markdown',
     branchPath: null,
 };
 
@@ -485,6 +505,7 @@ const mapStateToProps = (state, ownProps) => ({
         )
         .toJS(),
     collapsed: state.stories.getIn(['storiesCollapsed', ownProps.story._id], false),
+    storyMode: state.stories.get('storyMode'),
 });
 
 const mapDispatchToProps = {

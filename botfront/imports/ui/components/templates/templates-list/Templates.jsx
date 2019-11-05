@@ -45,6 +45,7 @@ class Templates extends React.Component {
                         icon='add'
                         labelPosition='left'
                         onClick={() => browserHistory.push(`/project/${projectId}/dialogue/templates/add`)}
+                        data-cy='add-bot-response'
                     />
                 </Menu.Item>
             </Menu.Menu>
@@ -55,7 +56,7 @@ class Templates extends React.Component {
         const { activeItem } = this.state;
         const { templates, projectId, nluLanguages } = this.props;
         return (
-            <div>
+            <div data-cy='responses-screen'>
                 {this.renderMenu(projectId, activeItem, nluLanguages)}
                 <Container>
                     {activeItem === 'content' && <div><TemplatesTable templates={templates} nluLanguages={nluLanguages} /></div>}

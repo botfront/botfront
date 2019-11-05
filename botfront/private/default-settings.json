@@ -6,7 +6,8 @@
       "backgroundImages": ["https://source.unsplash.com/collection/315548/2400x1500"]
     },
     "private": {
-      "defaultCredentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true",
+      "defaultCredentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: /socket.io/",
+      "defaultEndpoints": "nlg:\n  url: 'http://botfront-api:8080/project/{BF_PROJECT_ID}/nlg'\naction_endpoint:\n  url: '{ACTIONS_URL}'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://botfront-api:8080'\n  project_id: '{BF_PROJECT_ID}'",
       "defaultPolicies": "policies:\n  - name: KerasPolicy\n    epochs: 200\n  - name: FallbackPolicy\n  - name: MemoizationPolicy",
       "defaultDefaultDomain": "slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping"
     }

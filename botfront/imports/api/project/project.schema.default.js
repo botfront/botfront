@@ -1,5 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { TemplateSchema } from './response.schema';
+import { languages } from '../../lib/languages';
 import { validateYaml } from '../../lib/utils';
 
 export const DefaultDomainSchema = new SimpleSchema({
@@ -21,7 +22,7 @@ export const ProjectsSchema = new SimpleSchema({
     // namespace: {
     //     type: String, regEx: /^[a-z0-9-_]+$/, unique: 1, sparse: 1,
     // },
-    defaultLanguage: { type: String, optional: true },
+    defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },
     nlu_models: { type: Array, defaultValue: [] },

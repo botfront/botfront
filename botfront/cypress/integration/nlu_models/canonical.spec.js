@@ -11,7 +11,6 @@ describe('NLU canonical examples', function () {
     after(function () {
         cy.deleteProject('bf');
     });
-    
     it('should be possible to mark an example as canonical', function () {
         cy.visit('/project/bf/nlu/models');
         cy.get('.nlu-menu-training-data').click();
@@ -66,10 +65,10 @@ describe('NLU canonical examples', function () {
         cy.wait(100);
         cy.dataCy('icon-trash')
             .should('have.class', 'disabled-delete');
-        cy.dataCy('nlu-table-intent').trigger('mouseover');
+        cy.dataCy('intent-label').trigger('mouseover');
         cy.get('.popup').should('exist');
         cy.get('.popup').should('have.text', 'Cannot edit a canonical example');
-        cy.dataCy('nlu-table-intent').trigger('mouseover');
+        cy.dataCy('intent-label').trigger('mouseover');
         cy.dataCy('nlu-table-text').trigger('mouseover');
         cy.get('.popup').should('exist');
         cy.get('.popup').should('have.text', 'Cannot edit a canonical example');
@@ -127,7 +126,6 @@ describe('NLU canonical examples', function () {
         cy.contains('hello').should('exist');
         cy.contains('welcome').should('not.exist');
     });
-
     it('canonical should be unique per intent, entity and entity value', function () {
         // firstly import all the testing data
         cy.visit('/project/bf/nlu/models');
@@ -141,8 +139,9 @@ describe('NLU canonical examples', function () {
         cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
         // we should be able to mark all those as canonical
-        cy.dataCy('icon-gem').each((el, _, __) => {
-            cy.wrap(el).click({ force: true });
+        cy.dataCy('icon-gem').each((el, index) => {
+            cy.dataCy('icon-gem').eq(index)
+                .click({ force: true });
             cy.wait(100);
         });
         cy.get('.black[data-cy=icon-gem]').should('have.length', 6);

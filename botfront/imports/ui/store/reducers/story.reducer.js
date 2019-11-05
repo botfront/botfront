@@ -2,8 +2,8 @@ import { Map, List } from 'immutable';
 import * as types from '../actions/types';
 
 const initialState = Map({
-    storyMode: 'markdown',
-    storyGroupCurrent: -1,
+    storyMode: 'visual',
+    storyGroupCurrent: 0,
     savedStoryPaths: Map(),
     storiesCollapsed: Map(),
 });

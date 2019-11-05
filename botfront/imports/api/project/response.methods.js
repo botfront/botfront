@@ -3,7 +3,7 @@ import { safeDump } from 'js-yaml';
 import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
 import { formatError } from '../../lib/utils';
-import { checkIfCan } from '../../lib/scopes';
+import { formatTextOnSave } from './response.utils';
 
 export const getTemplateLanguages = (templates) => {
     const langs = [];
@@ -19,10 +19,13 @@ Meteor.methods({
         check(key, String);
         check(item, Object);
 
+        const formattedItem = item;
+        formattedItem.values = formatTextOnSave(formattedItem.values);
+
         try {
             return Projects.update(
                 { _id: projectId, 'templates.key': key },
-                { $set: { 'templates.$': item, responsesUpdatedAt: Date.now() } },
+                { $set: { 'templates.$': formattedItem, responsesUpdatedAt: Date.now() } },
             );
         } catch (e) {
             throw new Meteor.Error(e);
@@ -30,8 +33,8 @@ Meteor.methods({
     },
 
     'project.deleteTemplate'(projectId, key, lang = 'en') {
-        check(lang, String);
         check(projectId, String);
+        check(lang, String);
         check(key, String);
         
         try {
@@ -118,7 +121,6 @@ if (Meteor.isServer) {
 
         'templates.download'(projectId) {
             check(projectId, String);
-            checkIfCan('responses:r', projectId);
 
             const project = Projects.findOne({ _id: projectId }, { fields: { templates: 1 } });
             if (!project) throw new Meteor.Error('404', 'Project not found');
@@ -128,7 +130,6 @@ if (Meteor.isServer) {
         'templates.import'(projectId, templates) {
             check(projectId, String);
             check(templates, Match.OneOf(String, [Object]));
-            checkIfCan('responses:w', projectId);
 
             const newTemplates = (typeof templates === 'string') ? JSON.parse(templates) : templates;
             const { templates: oldTemplates } = Projects.findOne({ _id: projectId }, { fields: { templates: 1 } });
@@ -148,7 +149,6 @@ if (Meteor.isServer) {
         'templates.removeByKey'(projectId, arg) {
             check(projectId, String);
             check(arg, Match.OneOf(String, [String]));
-            checkIfCan('responses:w', projectId);
 
             const templateKeys = (typeof arg === 'string') ? [arg] : arg;
 

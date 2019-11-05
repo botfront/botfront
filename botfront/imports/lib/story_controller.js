@@ -12,6 +12,7 @@ export class StoryController {
         this.domain = {
             slots: this.getSlots(slots),
         };
+        this.unsafeMd = story;
         this.md = story;
         this.isABranch = isABranch;
         this.templates = this.loadTemplates(templates || []) || [];
@@ -20,6 +21,18 @@ export class StoryController {
         this.validateStory();
     }
     
+    setTemplates = (templates) => {
+        this.templates = this.loadTemplates(templates) || [];
+        this.reset(false);
+        this.validateLines();
+    }
+
+    addTemplate = (template) => {
+        if (template && template.key) {
+            this.templates = [...this.templates, template.key];
+        }
+    }
+
     loadTemplates = (templates) => {
         if (templates instanceof Array) return templates.map(template => template.key);
         const templatesAsArray = [];
@@ -58,6 +71,7 @@ export class StoryController {
     };
 
     raiseStoryException = (code) => {
+        // disabled exceptions
         this.exceptions.push(new StoryException(...this.exceptionMessages[code], this.idx + 1, code));
     };
 
@@ -121,8 +135,9 @@ export class StoryController {
 
         const slot = this.domain.slots[slotName];
         if (slot.type === 'bool' && typeof slotValue !== 'boolean') this.raiseStoryException('bool_slot');
-        else if (slot.type === 'text' && typeof slotValue !== 'string') this.raiseStoryException('text_slot');
-        else if (slot.type === 'float' && typeof slotValue !== 'number') this.raiseStoryException('float_slot');
+        else if (slot.type === 'text' && !(slotValue === null || typeof slotValue === 'string')) this.raiseStoryException('text_slot');
+        else if (slot.type === 'float' && !(slotValue === null || typeof slotValue === 'number')) this.raiseStoryException('float_slot');
+        else if (slot.type === 'list' && !Array.isArray(slotValue)) this.raiseStoryException('list_slot');
         else if (slot.type === 'categorical' && !slot.values.includes(slotValue)) this.raiseStoryException('cat_slot');
         else this.lines[this.idx].gui = { type: 'slot', data: { name: slotName, type: slot.type, slotValue } };
     };
@@ -139,6 +154,7 @@ export class StoryController {
         bool_slot: ['error', 'Expected a boolean value for this slot.'],
         text_slot: ['error', 'Expected a text value for this slot.'],
         float_slot: ['error', 'Expected a numerical value for this slot.'],
+        list_slot: ['error', 'Expected a list value for this slot.'],
         cat_slot: ['error', 'Expected a valid categorical value for this slot.'],
         action_name: ['error', 'Bot actions should look like this: `- action_...`, `- utter_...`, `- slot{...}` or `- form{...}`.'],
         have_intent: ['warning', 'Bot actions should usually be found in a user utterance block.'],
@@ -201,6 +217,10 @@ export class StoryController {
     validateStory = () => {
         this.reset();
         // if (!this.md.replace(/\s/g, '').length) this.raiseStoryException('no_empty');
+        this.validateLines();
+    };
+
+    validateLines = () => {
         for (this.idx; this.idx < this.lines.length; this.idx += 1) {
             const line = this.lines[this.idx].md.replace(/ *<!--.*--> */g, ' ');
             if (line.trim().length !== 0) {
@@ -219,9 +239,9 @@ export class StoryController {
                 }
             }
         }
-    };
+    }
 
-    reset = () => {
+    reset = (resetLines = true) => {
         this.domain = {
             entities: new Set(),
             intents: new Set(),
@@ -237,7 +257,7 @@ export class StoryController {
         this.form = null;
         this.exceptions = [];
         this.idx = 0;
-        this.lines = this.splitLines();
+        this.lines = resetLines ? this.splitLines() : this.lines;
     }
 
     toMd = (line) => {
@@ -271,6 +291,7 @@ export class StoryController {
     deleteLine = (i) => {
         this.lines = [...this.lines.slice(0, i), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
+        this.unsafeMd = this.md;
         this.validateStory();
         if (this.saveUpdate) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
         else this.notifyUpdate();
@@ -290,13 +311,19 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
+        this.unsafeMd = this.md;
         this.validateStory();
         if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
         else this.notifyUpdate();
     };
 
+    setUnsafeMd = (content) => {
+        this.unsafeMd = content;
+    }
+
     setMd = (content) => {
         this.md = content;
+        this.unsafeMd = content;
         this.validateStory();
         if (this.saveUpdate) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
     }
@@ -327,3 +354,28 @@ export class StoryController {
         return this.domain;
     };
 }
+
+export const stringPayloadToObject = function(stringPayload) {
+    const payloadRegex = /([^{]*) *({.*}|)/;
+    const matches = payloadRegex.exec(stringPayload.substring(1));
+    const intent = matches[1];
+    let entities = matches[2];
+    const objectPayload = {
+        intent,
+        entities: [],
+    };
+    if (entities && entities !== '') {
+        const parsed = JSON.parse(entities);
+        entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
+    } else {
+        entities = [];
+    }
+    objectPayload.entities = entities;
+    return objectPayload;
+};
+
+export const objectPayloadToString = function({ intent, entities }) {
+    const entitiesMap = entities ? entities.reduce((map, obj) => (map[obj.entity] = obj.value, map), {}) : {};
+    const entitiesString = Object.keys(entitiesMap).length > 0 ? JSON.stringify(entitiesMap) : '';
+    return `/${intent}${entitiesString}`;
+};

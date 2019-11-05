@@ -1,0 +1,47 @@
+.quick-reply {
+  cursor: pointer;
+  display: inline-block;
+  border: solid 1.5px #2185d0;
+  vertical-align: baseline;
+  margin: 6px 0.5em 0 0;
+  padding: 0.75em 1em;
+  text-transform: none;
+  line-height: 0.5em;
+  font-style: normal;
+  text-align: center;
+  color: #2185d0;
+  text-decoration: none;
+  border-radius: 2rem;
+  font-weight: normal;
+  outline: none;
+  background: #ffffff;
+
+  &.invalid {
+    border: dotted  1.5px ;
+    color: rgba(0, 0, 0, 0.4);
+    background: transparent;
+  }
+}
+.bot-response {
+  .inner{
+    i.grey.icon.add-quick-reply {
+      cursor: pointer;
+      margin-top: 6px;
+      color: rgba(0, 0, 0, 0.25) !important;
+    }
+  }
+}
+
+.response-button-editor {
+  &.ui.grid>.row {
+    padding-bottom: 0.4em;
+  }
+
+  .ui.selection.dropdown{
+    min-width: 0;
+  }
+
+  .payload-title {
+    font-size: .97857143em !important;
+  }
+}

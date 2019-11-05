@@ -4,14 +4,14 @@ import { Icon, Popup } from 'semantic-ui-react';
 
 export default function FloatingIconButton(props) {
     const {
-        onClick, style, icon, size: sizeProp, color, iconClass, toolTip, toolTipInverted, disabled,
+        onClick, style, icon, size: sizeProp, color, iconClass, toolTip, toolTipInverted, disabled, visible,
     } = props;
     const size = sizeProp === 'medium' ? null : { size: sizeProp };
 
     return (
         <div
             style={style}
-            className='floating-icon-button'
+            className={`floating-icon-button${visible ? ' visible' : ''} ${icon}`}
             data-cy={icon}
         >
             <Popup
@@ -50,6 +50,7 @@ FloatingIconButton.propTypes = {
     icon: PropTypes.string.isRequired,
     size: PropTypes.string,
     color: PropTypes.string,
+    visible: PropTypes.bool,
     iconClass: PropTypes.string,
     disabled: PropTypes.bool,
 };
@@ -58,6 +59,7 @@ FloatingIconButton.defaultProps = {
     style: {},
     size: 'small',
     color: 'grey',
+    visible: false,
     iconClass: 'viewOnHover',
     toolTip: null,
     toolTipInverted: true,

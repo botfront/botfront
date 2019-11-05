@@ -114,7 +114,7 @@ export default class ActivityActions extends React.Component {
                     icon
                     labelPosition='left'
                     onClick={e => this.handleDataChanged(e, { value: 'VALIDATED' })}
-                    data-cy='process-valid-utterances'
+                    data-cy='process-in-bulk'
                 >
                     <Icon name='angle double right' /> {`Process ${numValidated > 0 ? numValidated : ''} validated utterance${numValidated === 1 ? '' : 's'}`}
                 </Button>

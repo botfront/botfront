@@ -21,40 +21,28 @@ describe('incoming page', function() {
             .click();
         cy.get('textarea')
             .click()
-            .type('test{enter}testing{enter}checking');
+            .type('apple{enter}kiwi{enter}orange');
         cy.get('button')
             .contains('Add Utterances')
             .click();
         // define intents of new utterances
         cy.dataCy('incoming-newutterances-tab')
             .click();
-        cy.dataCy('null-nlu-table-intent')
+        cy.get('.ui.grey.basic.label')
             .first()
-            .click();
-        cy.dataCy('intent-dropdown')
-            .trigger('mouseOver')
-            .click()
-            .find('input')
-            .trigger('mouseOver')
-            .type('test{enter}');
-        cy.dataCy('null-nlu-table-intent')
+            .click({ force: true });
+        cy.get('.ui.grey.basic.label')
             .first()
-            .click();
-        cy.dataCy('intent-dropdown')
-            .trigger('mouseOver')
-            .click()
-            .find('input')
-            .trigger('mouseOver')
-            .type('test2{enter}');
-        cy.dataCy('null-nlu-table-intent')
+            .trigger('mousover');
+        // does the same thing twice for improved stability
+        cy.wait(100);
+        cy.get('.ui.grey.basic.label')
             .first()
-            .click();
+            .trigger('mousover');
         cy.dataCy('intent-dropdown')
-            .trigger('mouseOver')
-            .click()
             .find('input')
-            .trigger('mouseOver')
-            .type('test{enter}');
+            .click({ force: true })
+            .type('fruit{enter}');
     };
 
     it('should show available languages in the language selector', function() {
@@ -105,23 +93,20 @@ describe('incoming page', function() {
         // validate utterances and run evaluation
         cy.dataCy('invalid-utterance-button')
             .first()
-            .click();
-        cy.dataCy('invalid-utterance-button')
-            .first()
-            .click();
-        cy.dataCy('process-valid-utterances')
-            .click();
+            .click({ force: true });
+        cy.dataCy('process-in-bulk')
+            .click({ force: true });
         cy.dataCy('choose-action-dropdown')
             .click()
             .find('.item')
             .contains('Run evaluation')
             .click({ force: true });
         cy.dataCy('confirm-action')
-            .click();
+            .click({ force: true });
         cy.get('.dimmer')
             .find('button')
             .contains('OK')
-            .click();
+            .click({ force: true });
         // check it linked to evalutaion > validated utterances
         cy.contains('Use validated examples')
             .should('exist');
@@ -142,19 +127,16 @@ describe('incoming page', function() {
             .find('.rt-tr-group')
             .first()
             .find('span')
-            .contains('checking')
+            .contains('orange')
             .should('exist');
         // validate utterances and run evaluation
         cy.dataCy('invalid-utterance-button')
             .first()
-            .click();
-        cy.dataCy('invalid-utterance-button')
-            .first()
-            .click();
-        cy.dataCy('process-valid-utterances')
-            .click();
+            .click({ force: true });
+        cy.dataCy('process-in-bulk')
+            .click({ force: true });
         cy.dataCy('choose-action-dropdown')
-            .click()
+            .click({ force: true })
             .find('.item')
             .contains('Add to training data')
             .click({ force: true });
@@ -168,7 +150,7 @@ describe('incoming page', function() {
             .find('.rt-tr-group')
             .first()
             .find('span')
-            .contains('checking')
+            .contains('orange')
             .should('not.exist');
         // check utterances were added to nlu data
         cy.get('.project-sidebar')
@@ -177,14 +159,10 @@ describe('incoming page', function() {
             .click({ force: true });
         cy.get('.rt-td')
             .find('span')
-            .contains('checking')
+            .contains('orange')
             .should('exist');
-        cy.get('.rt-td')
-            .find('span')
-            .contains('checking')
-            .should('exist');
-        cy.dataCy('nlu-table-intent')
-            .contains('test')
+        cy.dataCy('intent-label')
+            .contains('fruit')
             .should('exist');
     });
 
@@ -198,23 +176,20 @@ describe('incoming page', function() {
         addNewUtterances();
         cy.dataCy('invalid-utterance-button')
             .first()
-            .click();
-        cy.dataCy('invalid-utterance-button')
-            .first()
-            .click();
-        cy.dataCy('process-valid-utterances')
-            .click();
+            .click({ force: true });
+        cy.dataCy('process-in-bulk')
+            .click({ force: true });
         cy.dataCy('choose-action-dropdown')
             .click()
             .find('.item')
             .contains('Invalidate')
             .click({ force: true });
         cy.dataCy('confirm-action')
-            .click();
+            .click({ force: true });
         cy.get('.dimmer')
             .find('button')
             .contains('OK')
-            .click();
+            .click({ force: true });
         cy.dataCy('valid-utterance-button')
             .should('not.exist');
     });

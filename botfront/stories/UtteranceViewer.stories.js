@@ -61,6 +61,6 @@ storiesOf('UserUtteranceViewer', module)
     .add('with props', () => (
         <UserUtteranceViewerWrapped
             size={select('size', ['mini', 'tiny'], 'mini')}
-            allowEditing={boolean('allowEditing', true)}
+            disableEditing={boolean('disableEditing', false)}
         />
     ));
