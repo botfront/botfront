@@ -14,7 +14,9 @@ import ConversationDialogueViewer from './ConversationDialogueViewer';
 
 function ConversationViewer (props) {
     const [active, setActive] = useState('Text');
-    const { tracker, ready, onDelete } = props;
+    const {
+        tracker, ready, onDelete, removeReadMark, optimisticlyRemoved,
+    } = props;
 
     const [markRead, { data }] = useMutation(MARK_READ);
 
@@ -78,7 +80,8 @@ function ConversationViewer (props) {
     }
 
     useEffect(() => {
-        if (tracker) {
+        if (tracker && tracker.status !== 'read' && !optimisticlyRemoved.has(tracker._id)) {
+            removeReadMark(tracker._id);
             markRead({ variables: { id: tracker._id } });
         }
     }, [props]);
@@ -125,16 +128,21 @@ function ConversationViewer (props) {
 
 ConversationViewer.defaultProps = {
     tracker: null,
+    optimisticlyRemoved: new Set(),
 };
 
 ConversationViewer.propTypes = {
     tracker: PropTypes.object,
     onDelete: PropTypes.func.isRequired,
     ready: PropTypes.bool.isRequired,
+    removeReadMark: PropTypes.func.isRequired,
+    optimisticlyRemoved: PropTypes.instanceOf(Set),
 };
 
 const ConversationViewerContainer = (props) => {
-    const { conversationId, projectId, onDelete } = props;
+    const {
+        conversationId, projectId, onDelete, removeReadMark, optimisticlyRemoved,
+    } = props;
     
     const { loading, error, data } = useQuery(GET_CONVERSATION, {
         variables: { projectId, conversationId },
@@ -153,6 +161,8 @@ const ConversationViewerContainer = (props) => {
         ready: !loading && !!conversation,
         onDelete,
         tracker: conversation,
+        removeReadMark,
+        optimisticlyRemoved,
     };
       
     return (<ConversationViewer {...componentProps} />);

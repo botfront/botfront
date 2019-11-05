@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import requiredIf from 'react-required-if';
 import { useQuery, useMutation } from '@apollo/react-hooks';
@@ -26,7 +26,9 @@ function ConversationsBrowser (props) {
         trackers,
         activeConversationId,
     } = props;
+
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
+    const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(new Set());
 
     useEffect(() => {
         if (data && !data.delete.success) {
@@ -37,6 +39,13 @@ function ConversationsBrowser (props) {
         }
     }, [data]);
 
+    useEffect(() => { // empty the optimistic marking of read message when new data arrive
+        setOptimisticRemoveReadMarker(new Set());
+    }, [trackers]);
+
+    function optimisticRemoveMarker(id) {
+        setOptimisticRemoveReadMarker(new Set([...optimisticRemoveReadMarker, id]));
+    }
 
     function hasNextPage() {
         return !!nextConvoId;
@@ -88,7 +97,7 @@ function ConversationsBrowser (props) {
                 active={activeConversationId === t._id}
                 onClick={handleItemClick}
             >
-                {renderIcon(t)}
+                {optimisticRemoveReadMarker.has(t._id) ? renderIcon({ status: 'read' }) : renderIcon(t) }
                 <span style={{ fontSize: '10px' }}>
                     {t._id}
                 </span>
@@ -145,7 +154,6 @@ function ConversationsBrowser (props) {
         }
         deleteConv({ variables: { id: conversationId } });
     }
-
    
     return (
         <div>
@@ -160,6 +168,8 @@ function ConversationsBrowser (props) {
                         <ConversationViewer
                             conversationId={activeConversationId}
                             onDelete={deleteConversation}
+                            removeReadMark={optimisticRemoveMarker}
+                            optimisticlyRemoved={optimisticRemoveReadMarker}
                         />
                     </Grid.Column>
                 </Grid>
@@ -249,8 +259,9 @@ const ConversationsBrowserContainer = (props) => {
 
     const { loading, error, data } = useQuery(GET_CONVERSATIONS, {
         variables: { projectId, skip, limit },
-        pollInterval: 1000,
+        pollInterval: 5000,
     });
+    
 
     const componentProps = {
         page, projectId, loading, modelId: params.model_id,
@@ -311,7 +322,6 @@ const ConversationsBrowserContainer = (props) => {
             modelId: props.params.model_id,
         });
     }
-  
     return (<ConversationBrowserSegment {...componentProps} />);
 };
 
