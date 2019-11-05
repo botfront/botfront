@@ -66,7 +66,7 @@ class NLUModel extends React.Component {
         } = props;
         return {
             examples: ready ? NLUModel.getExamplesWithExtraSynonyms(props) : [],
-            instance: find(instances, i => i._id === instance),
+            instance: find(instances, i => i._id === instance) || (instances && instances[0]),
             intents,
             entities,
             ready,
