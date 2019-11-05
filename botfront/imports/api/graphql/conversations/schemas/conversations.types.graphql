@@ -1,11 +1,11 @@
 type Query {
-    conversations(
+    conversationsPage(
       projectId: String!, 
-      skip: Int,
-      limit: Int, 
+      page: Int!,
+      pageSize: Int,
       status: [String] 
       sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
-      ): [ConversationContainer!]!
+      ): Pagination
     conversation(projectId: String!, id: String!): ConversationContainer!
 }
 
@@ -22,6 +22,11 @@ type Mutation {
 
 type updateResponse {
   success: Boolean!
+}
+
+type Pagination {
+  conversations: [ConversationContainer!]!
+  pages: Int
 }
 
 type ConversationContainer {
