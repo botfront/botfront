@@ -25,6 +25,7 @@ function ConversationsBrowser (props) {
         modelId,
         trackers,
         activeConversationId,
+        refetch,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -153,6 +154,7 @@ function ConversationsBrowser (props) {
             goToConversation(Math.min(page - 1, 1), true);
         }
         deleteConv({ variables: { id: conversationId } });
+        refetch();
     }
    
     return (
@@ -188,6 +190,7 @@ ConversationsBrowser.propTypes = {
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
     modelId: PropTypes.string,
+    refetch: PropTypes.string.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
@@ -198,7 +201,7 @@ ConversationsBrowser.defaultProps = {
 };
 
 function ConversationBrowserSegment({
-    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, modelId,
+    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, modelId, refetch,
 }) {
     return (
         <div>
@@ -214,6 +217,7 @@ function ConversationBrowserSegment({
                             prevConvoId={prevConvoId}
                             nextConvoId={nextConvoId}
                             modelId={modelId}
+                            refetch={refetch}
                         />
                     </Segment>
                 </Container>
@@ -231,6 +235,7 @@ ConversationBrowserSegment.propTypes = {
     prevConvoId: PropTypes.string,
     nextConvoId: PropTypes.string,
     modelId: PropTypes.string,
+    refetch: PropTypes.func.isRequired,
 };
 
 ConversationBrowserSegment.defaultProps = {
@@ -257,14 +262,17 @@ const ConversationsBrowserContainer = (props) => {
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
 
-    const { loading, error, data } = useQuery(GET_CONVERSATIONS, {
+
+    const {
+        loading, error, data, refetch,
+    } = useQuery(GET_CONVERSATIONS, {
         variables: { projectId, skip, limit },
         pollInterval: 5000,
     });
     
 
     const componentProps = {
-        page, projectId, loading, modelId: params.model_id,
+        page, projectId, modelId: params.model_id, refetch,
     };
 
     if (!loading && !error) {
