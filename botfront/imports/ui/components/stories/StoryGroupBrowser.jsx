@@ -99,7 +99,7 @@ class StoryGroupBrowser extends React.Component {
             changeName,
             stories,
         } = this.props;
-        return data
+        return data.slice(...slice)
             .map((item, index) => (
                 <StoryGroupItem
                     key={index + slice[0]}
@@ -136,6 +136,7 @@ class StoryGroupBrowser extends React.Component {
                     )}
                     {this.tooltipWrapper(
                         <Button
+                            className='border-left'
                             content='Slots'
                             onClick={() => modals.setSlotsModal(true)}
                             data-cy='slots-modal'
@@ -144,6 +145,7 @@ class StoryGroupBrowser extends React.Component {
                     )}
                     {this.tooltipWrapper(
                         <Button
+                            className='border-left'
                             content='Policies'
                             onClick={() => modals.setPoliciesModal(true)}
                             data-cy='policies-modal'
