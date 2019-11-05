@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactJson from 'react-json-view';
-
 import moment from 'moment';
 import { Comment, Label, Message } from 'semantic-ui-react';
 
@@ -88,7 +87,6 @@ function ConversationDialogueViewer({ tracker, mode }) {
         userSays: null,
         botResponses: [],
     };
-    
     tracker.events.forEach((event) => {
         const type = event.event;
 
