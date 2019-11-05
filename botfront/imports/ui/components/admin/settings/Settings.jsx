@@ -87,6 +87,7 @@ class Settings extends React.Component {
     );
 
     getSettingsPanes = () => {
+        const { projectId } = this.props;
         const { orchestratorSettingsComponent: OrchestratorSettingsComponent, orchestrator } = this.state;
         let panes = [
             { menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
@@ -99,19 +100,21 @@ class Settings extends React.Component {
             panes = panes.concat(OrchestratorSettingsComponent);
         }
 
-        panes = [
-            ...panes,
-            {
-                menuItem: (
-                    <Menu.Item
-                        icon='backward'
-                        content='Project Settings'
-                        key='Project Settings'
-                        onClick={this.handleReturnToProjectSettings}
-                    />
-                ),
-            },
-        ]
+        if (projectId) {
+            panes = [
+                ...panes,
+                {
+                    menuItem: (
+                        <Menu.Item
+                            icon='backward'
+                            content='Project Settings'
+                            key='Project Settings'
+                            onClick={this.handleReturnToProjectSettings}
+                        />
+                    ),
+                },
+            ];
+        }
         return panes;
     };
 
