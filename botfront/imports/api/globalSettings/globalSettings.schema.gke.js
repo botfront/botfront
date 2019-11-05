@@ -7,6 +7,7 @@ export const privateSettingsSchema = basePrivateSettingsSchema.extend({
     bfApiHost: { type: String, optional: true },
     imagesTag: { type: String, optional: true },
     dockerRegistry: { type: String, optional: true },
+    rasaUrl: { type: String, optional: true },
     defaultDeployment: { type: String, optional: true },
 });
 

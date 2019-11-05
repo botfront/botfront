@@ -8,6 +8,7 @@
     "start": "meteor run",
     "start:gke": "ORCHESTRATOR=gke meteor run",
     "start:gke.dev": "NODE_ENV=development BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=gke meteor run",
+    "start:gke.ci": "NODE_ENV=test CI=true BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=gke meteor run",
     "debug-old": "meteor run --inspect",
     "start:docker-compose": "BF_PROJECT_ID=bf ORCHESTRATOR=docker-compose meteor run",
     "start:docker-compose.dev": "NODE_ENV=development BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",

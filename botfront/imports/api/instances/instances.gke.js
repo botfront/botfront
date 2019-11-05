@@ -1,4 +1,5 @@
 import { Deployments } from '../deployment/deployment.collection';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
 export const getDefaultInstance = ({ _id, apiKey }) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -7,6 +8,9 @@ export const getDefaultInstance = ({ _id, apiKey }) => {
         { fields: { 'deployment.domain': 1 } },
     );
 
+    const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.rasaUrl': 1 } });
+    const { settings: { private: { rasaUrl } } } = settings;
+    
     if (deployment) {
         const { domain } = deployment;
         return {
@@ -21,7 +25,7 @@ export const getDefaultInstance = ({ _id, apiKey }) => {
 
     return {
         name: 'Default',
-        host: 'http://localhost:5005',
+        host: rasaUrl || 'http://localhost:5005',
         token: apiKey,
         adminOnly: true,
         projectId: _id,
