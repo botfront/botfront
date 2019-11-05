@@ -7,7 +7,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { sortBy, uniq } from 'lodash';
 import moment from 'moment';
 import {
-    Tab, Message, Dropdown, Segment, Button,
+    Tab, Message, Segment,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
@@ -21,6 +21,7 @@ import { getPureIntents } from '../../../../api/nlu_model/nlu_model.utils';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import ConversationBrowser from '../../conversations/ConversationsBrowser';
 import { updateIncomingPath } from '../../incoming/incoming.utils';
+import PrefixDropdown from '../../common/PrefixDropdown';
 
 class Activity extends React.Component {
     // eslint-disable-next-line react/sort-comp
@@ -28,7 +29,6 @@ class Activity extends React.Component {
         filterFn: utterances => utterances,
         activeTabIndex: undefined,
         sortType: 'mostRecent',
-        isSortDropdownOpen: false,
     });
 
     state = this.getDefaultState();
@@ -90,11 +90,6 @@ class Activity extends React.Component {
         { value: 'leastRecent', text: 'Oldest' },
     ];
 
-    toggleSortDropdown = () => {
-        const { isSortDropdownOpen } = this.state;
-        this.setState({ isSortDropdownOpen: !isSortDropdownOpen });
-    }
-
     renderIncomingTab = () => {
         const {
             model: { _id: modelId },
@@ -106,7 +101,7 @@ class Activity extends React.Component {
             numValidated,
         } = this.props;
 
-        const { filterFn, sortType, isSortDropdownOpen } = this.state;
+        const { filterFn, sortType } = this.state;
         const filteredExamples = filterFn(utterances);
         return utterances && utterances.length > 0 ? (
             <>
@@ -125,24 +120,14 @@ class Activity extends React.Component {
                         />
                     </Segment>
                     <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
-                        <Button.Group className='sort-dropdown' basic onClick={() => { this.setState({ isSortDropdownOpen: !isSortDropdownOpen }); }}>
-                            <Dropdown
-                                onClick={() => { this.setState({ isSortDropdownOpen: !isSortDropdownOpen }); }}
-                                open={isSortDropdownOpen}
-                                floating
-                                className='button icon'
-                                value={sortType}
-                                trigger={(
-                                    <Segment className='button sort-dropdown-trigger' data-cy='sort-utterances-dropdown'>
-                                        Sort by: <b>{this.dropdownOptions.find(({ value }) => value === sortType).text}</b>
-                                    </Segment>
-                                )}
-                                options={this.dropdownOptions}
-                                onChange={(e, option) => {
-                                    this.setState({ sortType: option.value, isSortDropdownOpen: false });
-                                }}
-                            />
-                        </Button.Group>
+                        <PrefixDropdown
+                            selection={sortType}
+                            updateSelection={(option) => {
+                                this.setState({ sortType: option.value });
+                            }}
+                            options={this.dropdownOptions}
+                            prefix='Sort by'
+                        />
                     </Segment>
                 </Segment.Group>
                 
