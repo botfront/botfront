@@ -99,7 +99,7 @@ class StoryGroupBrowser extends React.Component {
             changeName,
             stories,
         } = this.props;
-        return data
+        return data.slice(...slice)
             .map((item, index) => (
                 <StoryGroupItem
                     key={index + slice[0]}
