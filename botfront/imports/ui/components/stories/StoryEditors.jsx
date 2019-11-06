@@ -8,19 +8,35 @@ import { Stories } from '../../../api/story/stories.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditorContainer from './StoryEditorContainer';
 
-function StoriesEditor(props) {
+function StoryEditors(props) {
     const {
         stories,
-        disabled,
-        onAddNewStory,
         onDeleteGroup,
-        storyGroup,
         projectId,
-        groupNames,
-        editor,
-        onSaving,
-        onSaved,
+        storyGroups,
+        storyGroup,
     } = props;
+
+    const groupNames = storyGroups
+        .map(group => ({
+            text: group.name,
+            value: group._id,
+        }))
+        .filter(name => name.text !== storyGroup.name);
+
+    const handleNewStory = (indexOfNewStory) => {
+        Meteor.call(
+            'stories.insert',
+            {
+                story: '',
+                title: `${storyGroup.name} ${indexOfNewStory}`,
+                projectId,
+                storyGroupId: storyGroup._id,
+                branches: [],
+            },
+            wrapMeteorCallback(),
+        );
+    };
 
     function handleStoryDeletion(index) {
         Meteor.call(
@@ -28,7 +44,7 @@ function StoriesEditor(props) {
             stories[index],
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    if (stories.length === 1) onDeleteGroup();
+                    if (stories.length === 1) onDeleteGroup(storyGroup);
                 }
             }),
         );
@@ -49,7 +65,7 @@ function StoriesEditor(props) {
                 if (!err) {
                     // deletes group if no stories left
                     if (stories.length === 1) {
-                        onDeleteGroup();
+                        onDeleteGroup(storyGroup);
                     }
                 }
             }),
@@ -78,17 +94,16 @@ function StoriesEditor(props) {
     const editors = stories.map((story, index) => (
         <StoryEditorContainer
             story={story}
-            disabled={disabled}
+            disabled={!can('stories:w', projectId)}
             onRename={newTitle => handleStoryRenaming(newTitle, index)}
             onDelete={() => handleStoryDeletion(index)}
             key={story._id}
             title={story.title}
-            groupNames={groupNames.filter(name => name.text !== storyGroup.name)}
+            groupNames={groupNames}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
             onClone={() => handleDuplicateStory(index)}
-            editor={editor}
-            onSaving={onSaving}
-            onSaved={onSaved}
+            onSaving={() => {}}
+            onSaved={() => {}}
         />
     ));
 
@@ -101,7 +116,7 @@ function StoriesEditor(props) {
                         icon='add'
                         basic
                         name='add'
-                        onClick={() => onAddNewStory(stories.length + 1)}
+                        onClick={() => handleNewStory(stories.length + 1)}
                         size='medium'
                         data-cy='add-story'
                         color='black'
@@ -113,27 +128,20 @@ function StoriesEditor(props) {
     );
 }
 
-StoriesEditor.propTypes = {
+StoryEditors.propTypes = {
     storyGroup: PropTypes.object.isRequired,
+    storyGroups: PropTypes.array.isRequired,
     stories: PropTypes.array,
-    onSaving: PropTypes.func.isRequired, // this method will be called when the component starts saving changes
-    onSaved: PropTypes.func.isRequired, // This one is called when changes are saved
-    disabled: PropTypes.bool,
-    onAddNewStory: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
-    groupNames: PropTypes.array.isRequired,
-    editor: PropTypes.string,
 };
 
-StoriesEditor.defaultProps = {
-    disabled: false,
+StoryEditors.defaultProps = {
     stories: [],
-    editor: 'markdown',
 };
 
 export default withTracker((props) => {
-    const { storyGroup, projectId } = props;
+    const { projectId, storyGroup } = props;
     // We're using a specific subscription so we don't fetch too much at once
     const storiesHandler = Meteor.subscribe('stories.inGroup', projectId, storyGroup._id);
 
@@ -144,4 +152,4 @@ export default withTracker((props) => {
             storyGroupId: storyGroup._id,
         }).fetch(),
     };
-})(StoriesEditor);
+})(StoryEditors);

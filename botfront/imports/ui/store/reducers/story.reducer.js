@@ -3,7 +3,7 @@ import * as types from '../actions/types';
 
 const initialState = Map({
     storyMode: 'visual',
-    storyGroupCurrent: -1,
+    storyGroupCurrent: 0,
     savedStoryPaths: Map(),
     storiesCollapsed: Map(),
 });

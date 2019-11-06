@@ -3,7 +3,7 @@ import {
     Menu, Icon, Input, Loader, Confirm,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import EllipsisMenu from './EllipsisMenu';
+import EllipsisMenu from '../common/EllipsisMenu';
 
 function StoryGroupItem(props) {
     const {

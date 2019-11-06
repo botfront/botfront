@@ -1,43 +1,75 @@
 import {
-    Container, Placeholder, Menu, Icon, Popup, Label,
+    Container, Grid, Message, Modal,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
-import { Meteor } from 'meteor/meteor';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-
+import { connect } from 'react-redux';
+import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Instances } from '../../../api/instances/instances.collection';
-import { Stories as StoriesData } from '../../../api/story/stories.collection';
-import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
+import { Stories } from '../../../api/story/stories.collection';
 import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
-import { wrapMeteorCallback } from '../utils/Errors';
-import TrainButton from '../utils/TrainButton';
-import { PageMenu } from '../utils/Utils';
+import StoriesPageMenu from './StoriesPageMenu';
 import { ConversationOptionsContext } from '../utils/Context';
+import StoryGroupBrowser from './StoryGroupBrowser';
+import { wrapMeteorCallback } from '../utils/Errors';
+import { can } from '../../../lib/scopes';
+import StoryEditors from './StoryEditors';
 
-const Stories = React.lazy(() => import('./Stories'));
 const SlotsEditor = React.lazy(() => import('./Slots'));
+const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
 
 function StoriesContainer(props) {
     const {
         projectId,
-        ready,
         storyGroups,
         slots,
         instance,
-        project: { training: { endTime, status } = {} },
         project,
         stories,
+        storyGroupCurrent,
+        storyMode,
+        changeStoryGroup,
+        changeStoryMode,
+        ready,
     } = props;
-    const [activeItem, setActiveItem] = useState('stories');
-    const [availableIntents, setAvailableIntents] = useState([]);
-    const [availableEntities, setAvailableEntities] = useState([]);
-    const [availableSlots, setAvailableSlots] = useState([]);
+
+    const [intents, setIntents] = useState([]);
+    const [entities, setEntities] = useState([]);
     const [language, setLanguage] = useState('en');
+
+    const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
+    const [slotsModal, setSlotsModal] = useState(false);
+    const [policiesModal, setPoliciesModal] = useState(false);
+    const closeModals = () => {
+        setSlotsModal(false);
+        setPoliciesModal(false);
+    };
+
+    const modalWrapper = (open, title, content, scrolling = true) => (
+        <Modal open={open} onClose={closeModals}>
+            <Modal.Header>{title}</Modal.Header>
+            <Modal.Content scrolling={scrolling}>
+                <React.Suspense fallback={null}>{content}</React.Suspense>
+            </Modal.Content>
+        </Modal>
+    );
+
+    const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
+
+    useEffect(() => {
+        if (switchToGroupByIdNext) switchToGroupById(switchToGroupByIdNext);
+        setSwitchToGroupByIdNext('');
+    }, [switchToGroupByIdNext]);
+
+    useEffect(() => {
+        if (!storyGroups[storyGroupCurrent]) {
+            if (storyGroups[storyGroupCurrent + 1]) changeStoryGroup(storyGroupCurrent + 1);
+            changeStoryGroup(storyGroupCurrent - 1);
+        }
+    }, [storyGroups.length]);
 
     // By passing an empty array as the second argument to this useEffect
     // We make it so UseEffect is only called once, onMount
@@ -47,8 +79,8 @@ function StoriesContainer(props) {
             projectId,
             wrapMeteorCallback((err, res) => {
                 if (!err) {
-                    setAvailableEntities(res.entities);
-                    setAvailableIntents(res.intents);
+                    setEntities(res.entities);
+                    setIntents(res.intents);
                 }
             }),
         );
@@ -58,11 +90,6 @@ function StoriesContainer(props) {
             wrapMeteorCallback((err, res) => setLanguage(res)),
         );
     }, []);
-
-    // This effect is triggered everytime the slot prop changes
-    useEffect(() => {
-        setAvailableSlots(slots);
-    }, [slots]);
 
     function getResponse(key, callback = () => {}) {
         Meteor.call(
@@ -123,38 +150,87 @@ function StoriesContainer(props) {
     }
 
     function addIntent(newIntent) {
-        setAvailableIntents([...new Set([...availableIntents, newIntent])]);
+        setIntents([...new Set([...intents, newIntent])]);
     }
 
     function addEntity(newEntity) {
-        setAvailableEntities([...new Set([...availableEntities, newEntity])]);
+        setEntities([...new Set([...entities, newEntity])]);
     }
 
-    function RenderPlaceHolder() {
-        return (
-            <Placeholder>
-                <Placeholder.Paragraph>
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                </Placeholder.Paragraph>
-                <Placeholder.Paragraph>
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                </Placeholder.Paragraph>
-            </Placeholder>
+    const handleAddStoryGroup = async (name) => {
+        Meteor.call(
+            'storyGroups.insert',
+            { name, projectId },
+            wrapMeteorCallback((err, groupId) => {
+                if (!err) {
+                    Meteor.call(
+                        'stories.insert',
+                        {
+                            story: '',
+                            title: name,
+                            storyGroupId: groupId,
+                            projectId,
+                        },
+                        wrapMeteorCallback((error) => {
+                            if (!error) setSwitchToGroupByIdNext(groupId);
+                        }),
+                    );
+                }
+            }),
         );
-    }
+    };
 
+    const handleDeleteGroup = (storyGroup) => {
+        if (!storyGroup.introStory) Meteor.call('storyGroups.delete', storyGroup);
+    };
+    const handleStoryGroupSelect = storyGroup => Meteor.call('storyGroups.update', {
+        ...storyGroup,
+        selected: !storyGroup.selected,
+    });
+    const removeAllSelection = () => Meteor.call('storyGroups.removeFocus', projectId);
+
+    const handleNameChange = (storyGroup) => {
+        Meteor.call(
+            'storyGroups.update',
+            storyGroup,
+            wrapMeteorCallback((err) => {
+                if (!err) setSwitchToGroupByIdNext(storyGroup._id);
+            }),
+        );
+    };
+
+    const renderMessages = () => {
+        const numberOfSelectedStoryGroups = storyGroups.filter(
+            storyGroup => storyGroup.selected,
+        ).length;
+        const link = (
+            <span
+                id='remove-focus'
+                tabIndex='0'
+                onClick={removeAllSelection}
+                onKeyDown={() => {}}
+                role='button'
+            >
+                Remove focus
+            </span>
+        );
+        const plural = numberOfSelectedStoryGroups > 1;
+        return (
+            numberOfSelectedStoryGroups >= 1 && (
+                <Message warning>
+                    You’re currently focusing on {numberOfSelectedStoryGroups} story group
+                    {plural && 's'} and only {plural ? 'those' : 'that'} story group
+                    {plural && 's'} will be trained. {link}
+                </Message>
+            )
+        );
+    };
     const renderStoriesContainer = () => (
         <ConversationOptionsContext.Provider
             value={{
-                intents: availableIntents,
-                entities: availableEntities,
-                slots: availableSlots,
+                intents,
+                entities,
+                slots,
                 language,
                 insertResponse,
                 updateResponse,
@@ -164,141 +240,96 @@ function StoriesContainer(props) {
                 getUtteranceFromPayload,
                 parseUtterance,
                 addUtteranceToTrainingData,
-                browseToSlots: () => setActiveItem('slots'),
+                browseToSlots: () => setSlotsModal(true),
                 templates: [...project.templates],
                 stories,
                 storyGroups,
             }}
         >
-            <PageMenu title='Stories' icon='book'>
-                <Menu.Menu position='right'>
-                    <Menu.Item>
-                        {!isTraining(project) && status === 'success' && (
-                            <Popup
-                                trigger={(
-                                    <Icon
-                                        size='small'
-                                        name='check'
-                                        fitted
-                                        circular
-                                        style={{ color: '#2c662d' }}
-                                    />
-                                )}
-                                content={(
-                                    <Label
-                                        basic
-                                        content={(
-                                            <div>
-                                                {`Trained ${moment(endTime).fromNow()}`}
-                                            </div>
-                                        )}
-                                        style={{
-                                            borderColor: '#2c662d',
-                                            color: '#2c662d',
-                                        }}
-                                    />
-                                )}
-                            />
-                        )}
-                        {!isTraining(project) && status === 'failure' && (
-                            <Popup
-                                trigger={(
-                                    <Icon
-                                        size='small'
-                                        name='warning'
-                                        color='red'
-                                        fitted
-                                        circular
-                                    />
-                                )}
-                                content={(
-                                    <Label
-                                        basic
-                                        color='red'
-                                        content={(
-                                            <div>
-                                                {`Training failed ${moment(
-                                                    endTime,
-                                                ).fromNow()}`}
-                                            </div>
-                                        )}
-                                    />
-                                )}
-                            />
-                        )}
-                    </Menu.Item>
-                    <Menu.Item>
-                        <TrainButton
-                            project={project}
-                            instance={instance}
-                            projectId={projectId}
-                        />
-                    </Menu.Item>
-                </Menu.Menu>
-            </PageMenu>
+            <StoriesPageMenu project={project} instance={instance} />
+            {modalWrapper(
+                slotsModal,
+                'Slots',
+                <SlotsEditor slots={slots} projectId={projectId} />,
+            )}
+            {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
             <Container>
-                <Menu pointing secondary className='hoverable'>
-                    <Menu.Item
-                        active={activeItem === 'stories'}
-                        name='stories'
-                        onClick={() => setActiveItem('stories')}
-                        data-cy='stories-tab'
-                    >
-                        Stories
-                    </Menu.Item>
-                    <Menu.Item
-                        active={activeItem === 'slots'}
-                        name='slots'
-                        onClick={() => setActiveItem('slots')}
-                        data-cy='slots-tab'
-                    >
-                        Slots
-                    </Menu.Item>
-                </Menu>
-                {activeItem === 'stories' && (
-                    <React.Suspense fallback={RenderPlaceHolder()}>
-                        {ready ? (
-                            <Stories projectId={projectId} storyGroups={storyGroups} />
-                        ) : (
-                            RenderPlaceHolder()
-                        )}
-                    </React.Suspense>
-                )}
-                {activeItem === 'slots' && (
-                    <React.Suspense fallback={RenderPlaceHolder()}>
-                        {ready ? (
-                            <SlotsEditor slots={slots} projectId={projectId} />
-                        ) : (
-                            RenderPlaceHolder()
-                        )}
-                    </React.Suspense>
-                )}
+                <Grid className='stories-container'>
+                    <Grid.Row columns={2}>
+                        <Grid.Column width={4}>
+                            {renderMessages()}
+                            <StoryGroupBrowser
+                                data={storyGroups}
+                                allowAddition={can('stories:w', projectId)}
+                                allowEdit={can('stories:w', projectId)}
+                                index={storyGroupCurrent}
+                                onAdd={handleAddStoryGroup}
+                                onChange={changeStoryGroup}
+                                onSwitchStoryMode={changeStoryMode}
+                                storyMode={storyMode}
+                                nameAccessor='name'
+                                selectAccessor='selected'
+                                toggleSelect={handleStoryGroupSelect}
+                                changeName={handleNameChange}
+                                placeholderAddItem='Choose a group name'
+                                modals={{ setSlotsModal, setPoliciesModal }}
+                            />
+                        </Grid.Column>
+
+                        <Grid.Column width={12}>
+                            <StoryEditors
+                                onDeleteGroup={handleDeleteGroup}
+                                projectId={projectId}
+                                storyGroups={storyGroups}
+                                storyGroup={
+                                    storyGroups[storyGroupCurrent]
+                                    || storyGroups[storyGroupCurrent + 1]
+                                    || storyGroups[storyGroupCurrent - 1]
+                                }
+                            />
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
             </Container>
         </ConversationOptionsContext.Provider>
     );
 
-    return (renderStoriesContainer());
+    if (ready) return renderStoriesContainer();
+    return null;
 }
 
 StoriesContainer.propTypes = {
     projectId: PropTypes.string.isRequired,
+    project: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
     storyGroups: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
-    instance: PropTypes.object,
-    project: PropTypes.object,
+    changeStoryGroup: PropTypes.func.isRequired,
+    changeStoryMode: PropTypes.func.isRequired,
+    storyGroupCurrent: PropTypes.number,
+    storyMode: PropTypes.string,
 };
 
 StoriesContainer.defaultProps = {
-    instance: {},
-    project: {},
+    storyGroupCurrent: 0,
+    storyMode: 'visual',
 };
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    storyGroupCurrent: state.stories.get('storyGroupCurrent'),
+    storyMode: state.stories.get('storyMode'),
 });
 
-const StoriesWithState = connect(mapStateToProps)(StoriesContainer);
+const mapDispatchToProps = {
+    changeStoryGroup: setStoryGroup,
+    changeStoryMode: setStoryMode,
+};
+
+const StoriesWithState = connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(StoriesContainer);
 
 export default withTracker((props) => {
     const { project_id: projectId } = props.params;
@@ -318,12 +349,6 @@ export default withTracker((props) => {
     );
     const instance = Instances.findOne({ projectId });
 
-    const project = {
-        _id: projectId,
-        training,
-        templates,
-    };
-
     return {
         ready:
             storyGroupsHandler.ready()
@@ -331,10 +356,10 @@ export default withTracker((props) => {
             && instancesHandler.ready()
             && slotsHandler.ready()
             && storiesHandler.ready(),
-        storyGroups: StoryGroups.find({}).fetch(),
+        storyGroups: StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch(),
         slots: Slots.find({}).fetch(),
         instance,
-        project,
-        stories: StoriesData.find({}).fetch(),
+        project: { _id: projectId, training, templates },
+        stories: Stories.find({}).fetch(),
     };
 })(StoriesWithState);
