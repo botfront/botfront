@@ -16,7 +16,7 @@ import { Loading } from '../utils/Utils';
 
 
 const PAGE_SIZE = 20;
-function ConversationsBrowser (props) {
+function ConversationsBrowser(props) {
     const {
         projectId,
         page,
@@ -55,7 +55,7 @@ function ConversationsBrowser (props) {
     function hasPreviousPage() {
         return page > 1;
     }
-    
+
     function renderIcon(tracker) {
         if (tracker.status === 'new') {
             return <Icon name='mail' />;
@@ -77,7 +77,7 @@ function ConversationsBrowser (props) {
             browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}/conversations/${page - 1}/${prevConvoId}` });
         }
     }
-   
+
 
     function goToConversation(newPage, conversationId, replace = false) {
         let url = `/project/${projectId}/incoming/${modelId}/conversations/${newPage || 1}`;
@@ -97,8 +97,9 @@ function ConversationsBrowser (props) {
                 name={t._id}
                 active={activeConversationId === t._id}
                 onClick={handleItemClick}
+                data-cy='conversation-item'
             >
-                {optimisticRemoveReadMarker.has(t._id) ? renderIcon({ status: 'read' }) : renderIcon(t) }
+                {optimisticRemoveReadMarker.has(t._id) ? renderIcon({ status: 'read' }) : renderIcon(t)}
                 <span style={{ fontSize: '10px' }}>
                     {t._id}
                 </span>
@@ -156,7 +157,7 @@ function ConversationsBrowser (props) {
         deleteConv({ variables: { id: conversationId } });
         refetch();
     }
-   
+
     return (
         <div>
             {trackers.length > 0 ? (
@@ -176,8 +177,8 @@ function ConversationsBrowser (props) {
                     </Grid.Column>
                 </Grid>
             ) : (
-                <Message info>No conversation to load</Message>
-            )}
+                    <Message data-cy='no-conv' info>No conversation to load</Message>
+                )}
         </div>
     );
 }
@@ -269,7 +270,7 @@ const ConversationsBrowserContainer = (props) => {
         variables: { projectId, skip, limit },
         pollInterval: 5000,
     });
-    
+
 
     const componentProps = {
         page, projectId, modelId: params.model_id, refetch,
@@ -286,33 +287,33 @@ const ConversationsBrowserContainer = (props) => {
             nextConvoId = conversations[conversations.length - 1]._id;
             from = 0;
             to = PAGE_SIZE;
-        // first page with less than PAGE_SIZE conversations but not empty
+            // first page with less than PAGE_SIZE conversations but not empty
         } else if (page === 1 && conversations.length && conversations.length <= PAGE_SIZE) {
             from = 0;
             to = PAGE_SIZE - 1;
-        // not first page but there are more
+            // not first page but there are more
         } else if (page > 1 && conversations.length === PAGE_SIZE + 2) {
             nextConvoId = conversations[conversations.length - 1]._id;
             prevConvoId = conversations[0]._id;
             from = 1;
             to = PAGE_SIZE + 1;
-        // not first page but last one
+            // not first page but last one
         } else if (page > 1 && conversations.length <= PAGE_SIZE + 1) {
             prevConvoId = conversations[0]._id;
             from = 1;
             to = conversations.length;
         } else if (conversations.length === 0) {
-        /* we get here when either conversations is empty so we can mark loading to false */
+            /* we get here when either conversations is empty so we can mark loading to false */
             Object.assign(componentProps, { loading: false });
-        /* or when we change pages and not all the data from the previous subscription has been removed
-* conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
+            /* or when we change pages and not all the data from the previous subscription has been removed
+    * conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
         } if (!activeConversationId) {
             let url = `/project/${projectId}/incoming/${props.params.model_id}/conversations/${page || 1}`;
             if (conversations.length > 0) {
                 url += `/${conversations[from]._id}`;
                 props.replaceUrl({ pathname: url });
             }
-        // activeConversationId = conversations[from]._id;
+            // activeConversationId = conversations[from]._id;
         } else {
             Object.assign(componentProps, {
                 loading: false,
