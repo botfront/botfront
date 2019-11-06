@@ -94,16 +94,15 @@ function ConversationsBrowser(props) {
 
     function deleteConversation(conversationId) {
         const index = trackers.map(t => t._id).indexOf(conversationId);
-
         // deleted convo is not the last of the current page
         if (index < trackers.length - 1) {
             goToConversation(page, trackers[index + 1]._id, true);
             // or deleted convo is the last but there is a next page
-        } else if (index === trackers.length - 1) {
+        } else if (index === trackers.length - 1 && trackers.length > 1) {
             goToConversation(page, trackers[index - 1]._id, true);
             // deleted convo is the last but not the only one and there is no next page
-        } else if (index === 0) {
-            goToConversation(page, trackers[index + 1]._id, true);
+        } else if (index === 0 && trackers.length === 1) {
+            goToConversation(Math.max(page - 1, 1), undefined, true);
         } else {
             goToConversation(Math.min(page - 1, 1), undefined, true);
         }
@@ -116,17 +115,19 @@ function ConversationsBrowser(props) {
             {trackers.length > 0 ? (
                 <Grid>
                     <Grid.Column width={4}>
+                        {pages > 1 ?
+                            <Pagination
+                                totalPages={pages}
+                                onPageChange={(e, { activePage }) => pageChange(activePage)}
+                                activePage={page}
+                                boundaryRange={0}
+                                siblingRange={0}
+                                size='mini'
+                                firstItem='1'
+                                lastItem={`${pages}`}
+                                data-cy='pagination'
+                            /> : <></>}
 
-                        <Pagination
-                            totalPages={pages}
-                            onPageChange={(e, { activePage }) => pageChange(activePage)}
-                            activePage={page}
-                            boundaryRange={0}
-                            siblingRange={0}
-                            size='mini'
-                            firstItem='1'
-                            lastItem={`${pages}`}
-                        />
                         <Menu pointing vertical fluid>
                             {renderMenuItems()}
 

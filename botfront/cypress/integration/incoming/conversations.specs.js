@@ -1,14 +1,3 @@
-/* eslint-disable no-undef */
-
-describe('incoming page conversation tab', function () {
-    beforeEach(function () {
-        cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'en').then(() => {
-            cy.login();
-        });
-        cy.waitForResolve(Cypress.env('RASA_URL'));
-        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
-    });
 
     afterEach(function () {
         cy.logout();
@@ -120,6 +109,30 @@ describe('incoming page conversation tab', function () {
             body,
         });
     }
+    cy.request({
+        method: 'POST',
+        url,
+        headers: { 'Content-Type': 'application/json' },
+        body,
+    });
+
+}
+/*
+describe('incoming page conversation tab', function () {
+    beforeEach(function () {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => {
+            cy.login();
+        });
+        cy.waitForResolve(Cypress.env('RASA_URL'));
+        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
+    });
+
+    afterEach(function () {
+        cy.logout();
+    });
+
+    
     it('should show a message if no converastions', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('incoming-conversations-tab')
@@ -147,4 +160,47 @@ describe('incoming page conversation tab', function () {
         cy.dataCy('conversation-item').eq(1).click({ force: true });
         cy.dataCy('nlu-table-text').should('contains.text', '/get_started_test1');
     });
+});
+
+*/
+describe('incoming page conversation tab pagination', function () {
+    beforeEach(function () {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => {
+            cy.login();
+        });
+        cy.waitForResolve(Cypress.env('RASA_URL'));
+        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
+    });
+
+    afterEach(function () {
+        cy.logout();
+    });
+
+    it('should have no pagination if 20 conversation or less', function () {
+        for (let i = 0; i < 20; i++) {
+            addConversation('test' + i);
+        }
+        cy.wait(1000);
+        cy.visit('/project/bf/incoming');
+        cy.dataCy('incoming-conversations-tab')
+            .click();
+        cy.dataCy('pagination').should('not.exist');
+        cy.dataCy('conversation-item').should('have.length', 20);
+    })
+
+    it('should have pagination if more than 20 conversations', function () {
+        for (let i = 0; i < 25; i++) {
+            addConversation('test' + i);
+        }
+        cy.wait(1000);
+        cy.visit('/project/bf/incoming');
+        cy.dataCy('incoming-conversations-tab')
+            .click();
+        cy.dataCy('conversation-item').should('have.length', 20);
+        cy.dataCy('pagination').should('exist');
+        cy.dataCy('pagination').children().last().click({ force: true })
+        cy.dataCy('conversation-item').should('have.length', 5);
+    })
+
 });
