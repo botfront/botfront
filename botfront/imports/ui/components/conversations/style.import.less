@@ -18,3 +18,93 @@ div.bot-response-message {
     border: none;
   }
 }
+
+.conversation-filter-container {
+  display: flex;
+  .conversation-filter {
+    padding: 0.75em;
+    .dropdown.filter-dropdown {
+      min-height: 30px;
+      border-style: none;
+      box-shadow: none;
+      margin: 0;
+      &.multi-select{
+        max-height: 38px;
+        padding-right: 0px;
+        overflow: auto;
+        white-space: nowrap;
+        overflow-y: hidden;
+        overflow-x: auto;
+        border-style: solid;
+        border-width: 1px;
+        .dropdown.icon{
+          position: relative;
+        }
+        &::-webkit-scrollbar {
+          -webkit-appearance: none;
+          height: 0px;
+        }
+        &:hover{
+          &::-webkit-scrollbar {
+            -webkit-appearance: none;
+            height: 6px;
+          }
+        }
+        &.active{
+          max-height: unset;
+          overflow: unset;
+          white-space: pre-wrap;
+          overflow-x: wrap;
+          overflow-y: unset;
+        }
+      }
+    }
+    .ui.segments{
+      box-shadow: none;
+    }
+    .ui.segment{
+      padding: 0;
+      text-align: center;
+      vertical-align: middle;
+      .input {
+        width: 100%;
+        &.text-input{
+          input{
+            text-align: left;
+          }
+        }
+        input{
+          margin: 0px;
+          border-style: none;
+          box-shadow: none;
+          text-align: center;
+          font-weight: 400;
+        }
+        margin: 0px;
+        border-style: none;
+        box-shadow: none;
+      }
+      &.number-filter{
+        width: 4.5em;
+      }
+      &.x-than-filter{
+        width: 9em;
+      }
+      &.static-symbol{
+        p {
+          line-height: 36px;
+          width: 2.5em;
+          background-color: rgb(241, 241, 241);
+          color: rgba(0,0,0,.6);
+          font-weight: 700;
+        }
+      }
+      &.action-filter {
+        width: 15em;
+        max-width: 20em;
+        position: absolute;
+        border-style: none;
+      }
+    }
+  }
+}
