@@ -32,18 +32,18 @@ describe('default story creation ', () => {
         cy.contains('Greetings').should('exist')
             .closest('[data-cy=story-editor]')
             .find('[data-cy=delete-story]')
-            .click();
+            .click({ force: true });
         cy.get('[data-cy=confirm-popup]')
             .get('[data-cy=confirm-yes]')
-            .click();
+            .click({ force: true });
         // deletes the farewells story
         cy.contains('Farewells').should('exist')
             .closest('[data-cy=story-editor]')
             .find('[data-cy=delete-story]')
-            .click();
+            .click({ force: true });
         cy.get('[data-cy=confirm-popup]')
             .get('[data-cy=confirm-yes]')
-            .click();
+            .click({ force: true });
 
         // there should be no additional stories in default stories
         cy.contains('Default stories')
