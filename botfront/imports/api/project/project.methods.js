@@ -12,6 +12,7 @@ import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
 import { createDeployment } from '../deployment/deployment.methods';
 import { Deployments } from '../deployment/deployment.collection';
+import { Conversations } from '../conversations';
 import { createIntroStoryGroup, createDefaultStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
@@ -109,6 +110,7 @@ if (Meteor.isServer) {
                 CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
                 Credentials.remove({ projectId: project._id }); // Delete credentials
                 Endpoints.remove({ projectId: project._id }); // Delete endpoints
+                Conversations.remove({ projectId: project._id }); //Delete Conversations
                 StoryGroups.remove({ projectId });
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });
