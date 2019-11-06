@@ -1,18 +1,9 @@
-# Import / Export
+# Usage with Rasa / X
 
-Botfront lets you export your project in 2 formats. For Botfront and Rasa / Rasa X.
+You can export the conversations created with Botfront to an existing Rasa / Rasa X project.
+Head to the Settings menu (left sidebard), select **Import/Export**, and choose Rasa / Rasa X.
 
-## Botfront
-Projects can be exported and imported in Botfront, everything will be retained. NLU, stories, branches, links, policies, config, etc. You can choose whether to export conversational data or not.
-
-If you activate the Export Conversations toggle in the Botfront export interface; the conversation logs will be added to the export file. When that export file is imported it will overwrite any existing conversations with the conversations in the export file.
-If you export a Botfront project with the default settings, conversations will not be included in the export file and any existing conversations in a project will stay after that file is imported.
-
-## Compatibility with Rasa / Rasa X
-
-### Export
-
-Botfront exports a zip file containing all the files required to inititate a Rasa X project:
+You will get a zip file containing all the files required files:
 
 ```
 awesome-project
@@ -25,7 +16,7 @@ awesome-project
 |- endpoints.yml
 ```
 
-There are a few things you need to pay attention to:
+A few things to keep in mind:
 
 #### NLU
 Consider removing Botfront specific NLU components, such as `rasa_addons.nlu.components.gazette.Gazette` and `rasa_addons.nlu.components.language_setter.LanguageSetter`

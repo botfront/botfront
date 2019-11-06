@@ -13,8 +13,6 @@ permalink: /rasa/:slug
 
 Botfront is based on Rasa and provides interfaces to visually and efficiently build and edit Rasa stories.
 
-## Stories
-
 Stories are the building blocks of conversation flows. It's a symbolic language used to describe conversations a user can have with a bot. In their simplest form, stories are made of annotated user messages and bot responses.
 
 :::: tabs
@@ -61,7 +59,7 @@ This has an important implication: **stories are language agnostic**. The storie
 If there is no response content defined for a certain language, the response name (like _utter_something_) will be displayed in your chat. Be sure to add response content for all of your languages.
 :::
 
-## Stories and context
+## Context aware conversations
 
 The context of a conversation is the knowledge of all the passed events of this conversation.
 
@@ -115,6 +113,11 @@ Conversations are often designed as tree-like flow charts. Stories are *real* co
 :::
 
 ::::
+
+
+Several events can be at the origin of branches:
+- user utterances (intents and entities)
+- slots (context)
 
 ### Branching with intents
 
