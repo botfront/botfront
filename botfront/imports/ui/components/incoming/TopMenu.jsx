@@ -6,13 +6,13 @@ import { Menu } from 'semantic-ui-react';
 
 import LanguageDropdown from '../common/LanguageDropdown';
 
-const TopMenu = ({ projectLanguages, selectedModel, handleLanguageChange, tab }) => (
+const TopMenu = ({ projectLanguages, selectedLanguage, handleLanguageChange, tab }) => (
     <Menu borderless className='top-menu'>
         <Menu.Item header>
             {tab === 'conversations' ?
                 <></> : <LanguageDropdown
                     languageOptions={projectLanguages}
-                    selectedLanguage={selectedModel.language}
+                    selectedLanguage={selectedLanguage}
                     handleLanguageChange={handleLanguageChange}
                 />}
 
@@ -22,7 +22,7 @@ const TopMenu = ({ projectLanguages, selectedModel, handleLanguageChange, tab })
 
 TopMenu.propTypes = {
     projectLanguages: PropTypes.array.isRequired,
-    selectedModel: PropTypes.object.isRequired,
+    selectedLanguage: PropTypes.object.isRequired,
     handleLanguageChange: PropTypes.func.isRequired,
     tab: PropTypes.string
 };
