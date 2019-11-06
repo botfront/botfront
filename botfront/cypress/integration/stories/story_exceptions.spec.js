@@ -147,7 +147,6 @@ describe('story exceptions', function() {
             .click({ force: true });
         cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story')
             .find('textarea')
-            .eq(1)
             .type('- action_test');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });

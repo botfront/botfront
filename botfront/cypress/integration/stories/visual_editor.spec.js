@@ -16,19 +16,12 @@ function clickStoryGroup(group) {
 }
 
 describe('story visual editor', function() {
-    before(function() {
+    afterEach(function() {
         cy.deleteProject('bf');
     });
 
     beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-        cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
-        cy.loginTestUser('admin@bf.com');
-    });
-
-    afterEach(function() {
-        cy.deleteUser('admin@bf.com');
-        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
 
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
@@ -38,7 +31,6 @@ describe('story visual editor', function() {
             .find('input')
             .type('myTest{enter}');
         clickStoryGroup('myTest');
-        cy.dataCy('toggle-visual').click({ force: true });
 
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').click({ force: true });
@@ -165,7 +157,6 @@ describe('story visual editor', function() {
         cy.dataCy('browser-item')
             .contains('Default stories')
             .click({ force: true });
-        cy.dataCy('toggle-visual').click({ force: true });
         cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
     });
 
@@ -186,7 +177,6 @@ describe('story visual editor', function() {
         cy.dataCy('browser-item')
             .contains('Default stories')
             .click({ force: true });
-        cy.dataCy('toggle-visual').click({ force: true });
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
     });
 });
