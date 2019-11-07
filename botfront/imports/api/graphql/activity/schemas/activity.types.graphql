@@ -19,7 +19,7 @@ type Activity {
   text: String,
   intent: String,
   entities: [Entity],
-  confidence: Number,
+  confidence: Float,
   validated: Boolean,
   warning: Warning,
   createdAt: String,
@@ -27,11 +27,11 @@ type Activity {
 }
 
 type Entity {
-  start: Number,
-  end: Number,
+  start: Int,
+  end: Int,
   value: String,
   entity: String,
-  confidence: Number,
+  confidence: Float,
   extractor: String,
   processors: [String],
 }
