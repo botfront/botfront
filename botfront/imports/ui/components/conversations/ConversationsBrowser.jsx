@@ -256,12 +256,7 @@ ConversationBrowserSegment.defaultProps = {
 };
 
 const ConversationsBrowserContainer = (props) => {
-    const { params, router } = props;
-
-    if (!router) {
-        return <></>;
-    }
-
+    const { router } = props;
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
     // const { projectId } = props;
