@@ -197,8 +197,6 @@ describe('incoming page conversation tab pagination', function () {
 
 describe('incoming page', function() {
     beforeEach(function() {
-        cy.deleteProject('bf');
-        // delete before
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
@@ -232,6 +230,10 @@ describe('incoming page', function() {
         cy.dataCy('import-button')
             .click();
         cy.dataCy('project-import-success').should('exist');
+    });
+    afterEach(function () {
+        cy.logout();
+        cy.deleteProject('bf');
     });
     it('should have be able to navigate conversations with the menu', function() {
         cy.visit('/project/bf/incoming');
