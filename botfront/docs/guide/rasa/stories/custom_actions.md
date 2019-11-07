@@ -167,7 +167,7 @@ class GuestsAction(Action):
 
     def run(self, dispatcher, tracker, domain):
         entities = tracker.latest_message.get('entities', [])
-        
+
         # Only keep 'number' entities
         numbers = list(filter(lambda e: e.get('entity') == 'number', entities))
 
@@ -175,16 +175,16 @@ class GuestsAction(Action):
         if not len(numbers):
             dispatcher.utter_message("How many are you?")
             return []
-        
+
         # Compute the sum of all 'number' entity values
         number_of_guests = reduce(lambda x, y: x + y, map(lambda e:e.get('value'), numbers))
 
-        is_even = number_of_guests % 2 == 0 
+        is_even = number_of_guests % 2 == 0
 
         message = 'You are {number_of_guests} in total and that is an {is_even} number'.format(
-            number_of_guests=number_of_guests, 
+            number_of_guests=number_of_guests,
             is_even='even' if is_even else 'odd')
-        
+
         dispatcher.utter_message(message)
         return []
 ```
@@ -218,7 +218,7 @@ Then you can see the result:
 <video autoplay muted loop width="740" controls>
   <source src="../../../videos/dev_custom_action_bot.mp4" type="video/mp4">
   Your browser does not support the video tag.
-</video> 
+</video>
 
 ### 9. Shutting down
 

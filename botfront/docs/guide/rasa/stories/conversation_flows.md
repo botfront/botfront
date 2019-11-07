@@ -7,88 +7,7 @@ meta:
 permalink: /rasa/:slug
 ---
 
-# Develop conversations
-
-Botfront is based on Rasa and provides interfaces to visually and efficiently build and edit Rasa stories. Stories are the building blocks of conversation flows. It's a symbolic language used to describe conversations a user can have with a bot. In their simplest form, stories are made of annotated user messages and bot responses.
-
-:::: tabs
-
-::: tab "Conversation builder"
-
-![Simple stories](../../../images/stories_cob_1.png)
-
-As you can see, this is partially natural language: a user message example is annotated with an **_intent_** and the bot response content is displayed alongside its **_response name_** (on hover/when clicked).
-
-:::
-
-::: tab "Botfront Markdown"
-
-![Simple stories](../../../images/stories_bf_1.png)
-
-In markdown, user messages start with a `*`, and bot responses start with a `-`. As you can see this is not real natural language: the user message is expressed in the form of an **_intent_**, and the bot response with a **_response name_**. The content of this intent (the many ways to say **_hi_**) can be any example in your model.
-
-:::
-
-::: tab "Standard Rasa"
-
-``` md
-* chitchat.greet
-  - utter_hi_there
-```
-
-``` md
-* chitchat.bye
-  - utter_bye
-```
-
-In markdown, user messages start with a `*`, and bot responses start with a `-`. As you can see this is not real natural language: the user message is expressed in the form of an **_intent_**, and the bot response with a **_response name_**. The content of this intent (the many ways to say **_hi_**) can be any example in your model corresponding to the denoted intent.
-
-:::
-
-::::
-
-::: tip
-This has an important implication: **stories are language agnostic**. The stories you write will work in any language.
-:::
-
-::: warning
-If there is no response content defined for a certain language, the response name (like _utter_something_) will be displayed in your chat. Be sure to add response content for all of your languages.
-:::
-
-## Context aware conversations
-
-The context of a conversation is the knowledge of all the passed events of this conversation.
-
-In the story above (previous section), if you say **_Hi_** three times to the bot, it will reply the same thing three times. To prevent that, consider this example:
-
-:::: tabs
-
-::: tab "Conversation builder"
-
-![Context story](../../../images/stories_cob_2.png)
-
-:::
-
-::: tab "Botfront Markdown"
-
-![Context story](../../../images/stories_bf_2.png)
-
-:::
-
-::: tab "Standard Rasa"
-
-``` md
-* chitchat.greet
-  - utter_hi_there
-* chitchat.greet
-  - utter_hi_again
-* chitchat.greet
-  - utter_hmm_really
-```
-
-:::
-
-::::
+# Conversation flows
 
 ## Branching conversations
 
@@ -368,6 +287,8 @@ Deleting either one of the last two branches would automatically delete the othe
 
 ::::
 
+
+
 ## Linking stories
 
 Linking stories is a powerful way to prevent repetition, and to easily connect stories with each other. You may simply select a story as a destination on the right side of the story footer. Any story can be linked to any story, or be used as a destination. This feature is especially useful where you would want to present a frequently repeated flow in the end of multiple stories, like a **feedback** flow.
@@ -506,70 +427,3 @@ A sample self-linked story:
 ### How linking is handled
 
 Similar to branching, Botfront uses [Rasa checkpoints](https://rasa.com/docs/rasa/core/stories/#checkpoints) to accommodate linking as well. When you click **Link to**, the originating and destination stories are linked seamlessly with checkpoints. Please note that `> checkpoints` are not allowed in stories.
-
-## Other story features
-
-### Warnings and errors
-
-The display of warnings and errors is a very useful part of the story editor. It guides you when you write your stories for them to work properly, and prevents training if there's an error that would affect the model and the chat experience.
-
-When there is a warning or an error, it is flagged on the corresponding line, and also indicated on the story header. When you hover over the icon, you get a suggestive explanation to resolve the issue.
-
-:::: tabs
-
-::: tab "Conversation builder"
-
-![Warning hover](../../../images/warnings_and_errors_cob_1.png)
-
-![Error hover](../../../images/warnings_and_errors_cob_2.png)
-
-![Warning and error](../../../images/warnings_and_errors_cob_3.png)
-
-:::
-
-::: tab "Botfront Markdown"
-
-![Warning hover](../../../images/warnings_and_errors_bf_1.png)
-
-![Error hover](../../../images/warnings_and_errors_bf_2.png)
-
-![Warning and error](../../../images/warnings_and_errors_bf_3.png)
-
-:::
-
-::::
-
-Warnings and errors cover a comprehensive list of possible situations, which are in line with Botfront updates.
-
-### Organizing your stories in groups
-
-Stories are grouped in story groups in order to keep them neat and tidy. You can create as many story groups as you want and rename them if necessary. When you delete the last story in a story group, the group is also deleted.
-
-By selecting the **Move** icon as seen below, you may move any story to any story group.
-
-![Move story](../../../images/move_story.png)
-
-<!---
-### Duplicating stories
-
-You may duplicate stories using the **Duplicate** icon next to the Move icon.
---->
-
-### Renaming stories
-
-Stories can be renamed on the story header.
-
-![Rename story](../../../images/rename_story.png)
-
-### Collapsing and expanding stories
-
-In order to easily focus on one or a few stories, you can collapse or expand stories using the caret on the left of the story header.
-
-### Special group: Intro stories
-
-The **Intro stories** group contains the initial messages that would be sent to users when they start chatting with your bot. The starting payloads of those stories
-will be available in the **bold** menu at the top of the chat widget.
-
-This allows to test different starting workflows, for example if you want the welcome message of your bot to be different on several pages of your website. Note that you will still have to implement that on your frontend. If you are using the Rasa Webchat widget you can do that by customizing the `initPayload` parameter.
-
-The **Intro stories** group is created by default in every new project.

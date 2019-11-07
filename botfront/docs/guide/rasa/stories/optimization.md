@@ -7,7 +7,7 @@ meta:
 permalink: /rasa/:slug
 ---
 
-# Optimization
+# Optimization and other features
 
 ## Optimize training for faster development
 
@@ -82,3 +82,68 @@ policies:
 The title for the 'Other' option is also defined here.
 
 :::
+
+## Warnings and errors
+
+The display of warnings and errors is a very useful part of the story editor. It guides you when you write your stories for them to work properly, and prevents training if there's an error that would affect the model and the chat experience.
+
+When there is a warning or an error, it is flagged on the corresponding line, and also indicated on the story header. When you hover over the icon, you get a suggestive explanation to resolve the issue.
+
+:::: tabs
+
+::: tab "Conversation builder"
+
+![Warning hover](../../../images/warnings_and_errors_cob_1.png)
+
+![Error hover](../../../images/warnings_and_errors_cob_2.png)
+
+![Warning and error](../../../images/warnings_and_errors_cob_3.png)
+
+:::
+
+::: tab "Botfront Markdown"
+
+![Warning hover](../../../images/warnings_and_errors_bf_1.png)
+
+![Error hover](../../../images/warnings_and_errors_bf_2.png)
+
+![Warning and error](../../../images/warnings_and_errors_bf_3.png)
+
+:::
+
+::::
+
+Warnings and errors cover a comprehensive list of possible situations, which are in line with Botfront updates.
+
+## Organizing your stories in groups
+
+Stories are grouped in story groups in order to keep them neat and tidy. You can create as many story groups as you want and rename them if necessary. When you delete the last story in a story group, the group is also deleted.
+
+By selecting the **Move** icon as seen below, you may move any story to any story group.
+
+![Move story](../../../images/move_story.png)
+
+<!---
+### Duplicating stories
+
+You may duplicate stories using the **Duplicate** icon next to the Move icon.
+--->
+
+## Renaming stories
+
+Stories can be renamed on the story header.
+
+![Rename story](../../../images/rename_story.png)
+
+## Collapsing and expanding stories
+
+In order to easily focus on one or a few stories, you can collapse or expand stories using the caret on the left of the story header.
+
+## Special group: Intro stories
+
+The **Intro stories** group contains the initial messages that would be sent to users when they start chatting with your bot. The starting payloads of those stories
+will be available in the **bold** menu at the top of the chat widget.
+
+This allows to test different starting workflows, for example if you want the welcome message of your bot to be different on several pages of your website. Note that you will still have to implement that on your frontend. If you are using the Rasa Webchat widget you can do that by customizing the `initPayload` parameter.
+
+The **Intro stories** group is created by default in every new project.
