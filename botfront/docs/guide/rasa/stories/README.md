@@ -7,13 +7,9 @@ meta:
 permalink: /rasa/:slug
 ---
 
-
-
 # Develop conversations
 
-Botfront is based on Rasa and provides interfaces to visually and efficiently build and edit Rasa stories.
-
-Stories are the building blocks of conversation flows. It's a symbolic language used to describe conversations a user can have with a bot. In their simplest form, stories are made of annotated user messages and bot responses.
+Botfront is based on Rasa and provides interfaces to visually and efficiently build and edit Rasa stories. Stories are the building blocks of conversation flows. It's a symbolic language used to describe conversations a user can have with a bot. In their simplest form, stories are made of annotated user messages and bot responses.
 
 :::: tabs
 
@@ -114,8 +110,8 @@ Conversations are often designed as tree-like flow charts. Stories are *real* co
 
 ::::
 
+Several events can be at the beginning of branches:
 
-Several events can be at the origin of branches:
 - user utterances (intents and entities)
 - slots (context)
 
@@ -163,21 +159,11 @@ _For Rasa, you need to create two separate stories, where half of the story is d
 
 ::::
 
-### Annotating with entities
-
-Here you can see an example of how you can use entities while annotating in the conversation builder, which would be required for advanced branching:
-
-![Entity annotation flow](../../../images/annotation_entity_flow_cob_1.png)
-
-::: tip
-
-Simply highlight the part (entity value) you want to annotate. From the popup, you may create a new entity, or select from an existing one in your model.
-
-:::
-
 ### Branching with entity values
 
-Another way is to use entity values. Here we want to implement the following use case: a user can ask to book in _eco_ or _business_. The third path covers the case where no class is specified. This can be done as follows with branches:
+Another way is to use entity values. You can check how you can annotate with entities in the [conversation builder guide](/rasa/conversation-builder/#annotating-with-entities).
+
+Here we want to implement the following use case: a user can ask to book in _eco_ or _business_. The third path covers the case where no class is specified. This can be done as follows with branches:
 
 :::: tabs
 
@@ -521,55 +507,9 @@ A sample self-linked story:
 
 Similar to branching, Botfront uses [Rasa checkpoints](https://rasa.com/docs/rasa/core/stories/#checkpoints) to accommodate linking as well. When you click **Link to**, the originating and destination stories are linked seamlessly with checkpoints. Please note that `> checkpoints` are not allowed in stories.
 
-## Organizing your stories in groups
+## Other story features
 
-Stories are grouped in story groups in order to keep them neat and tidy. You can create as many story groups as you want and rename them if necessary. When you delete the last story in a story group, the group is also deleted.
-
-By selecting the **Move** icon as seen below, you may move any story to any story group.
-
-![Move story](../../../images/move_story.png)
-
-<!---
-### Duplicating stories
-
-You may duplicate stories using the **Duplicate** icon next to the Move icon.
---->
-
-### Renaming stories
-
-Stories can be renamed on the story header.
-
-![Rename story](../../../images/rename_story.png)
-
-### Collapsing and expanding stories
-
-In order to easily focus on one or a few stories, you can collapse or expand stories using the caret on the left of the story header.
-
-### Special group: Intro stories
-
-The **Intro stories** group contains the initial messages that would be sent to users when they start chatting with your bot. The starting payloads of those stories
-will be available in the **bold** menu at the top of the chat widget.
-
-This allows to test different starting workflows, for example if you want the welcome message of your bot to be different on several pages of your website. Note that you will still have to implement that on your frontend. If you are using the Rasa Webchat widget you can do that by customizing the `initPayload` parameter.
-
-The **Intro stories** group is created by default in every new project.
-
-## Optimize training for faster development
-
-By default, the NLU and all stories are trained when you click on **Train everything** on the right side of the header in Botfront.
-Depending on the policies you are using and the number of stories, training can take a significant amount of time. To help you iterate faster on subsets of your dialogue, you may focus on one or multiple story group to train the NLU and just the stories they contain.
-
-You may click on the **focus (eye)** icon which appears when you hover besides story group names. Please note that the blue Train everything button will change to a yellow **Partial training** button, and it will have a tooltip stating the number of stories that are going to be trained.
-
-![Story group hover](../../../images/story_focus_1.png)
-
-![Story group focus](../../../images/story_focus_2.png)
-
-![Story group focus](../../../images/story_focus_3.png)
-
-![Partial training button](../../../images/story_focus_4.png)
-
-## Warnings and errors
+### Warnings and errors
 
 The display of warnings and errors is a very useful part of the story editor. It guides you when you write your stories for them to work properly, and prevents training if there's an error that would affect the model and the chat experience.
 
@@ -601,61 +541,35 @@ When there is a warning or an error, it is flagged on the corresponding line, an
 
 Warnings and errors cover a comprehensive list of possible situations, which are in line with Botfront updates.
 
-## Default Domain Management
+### Organizing your stories in groups
 
-An important part of developing and maintaining a Rasa virtual assistant is keeping [domain files](https://rasa.com/docs/rasa/core/domains/) up to date. Thankfully, Botfront makes this easier by automatically parsing the contents of your stories and extracting the different actions, entities, slots, etc. referenced within.
+Stories are grouped in story groups in order to keep them neat and tidy. You can create as many story groups as you want and rename them if necessary. When you delete the last story in a story group, the group is also deleted.
 
-However, it’s not always possible to infer everything that needs to go into the domain. For example, you might need to invoke a custom action, which in turn invokes another action, or makes use of a slot.
+By selecting the **Move** icon as seen below, you may move any story to any story group.
 
-![Default domain management](../../../images/default_domain_management_1.png)
+![Move story](../../../images/move_story.png)
 
-## Disambiguation user input
+<!---
+### Duplicating stories
 
-When your virtual assistant receives a user utterance, it calculates, for each intent in your domain, the confidence that the utterance is an instance of that intent. Sooner or later, your virtual assistant will be faced with utterances where none of the calculated confidences are particularly high.
+You may duplicate stories using the **Duplicate** icon next to the Move icon.
+--->
 
-It’s very often best to treat these cases separately, since it may mean that your virtual assistant does not understand, or is unsure. Within the Rasa framework, this is done using [policies](https://rasa.com/docs/rasa/core/policies/).
+### Renaming stories
 
-#### Example usage
+Stories can be renamed on the story header.
 
-```
-policies:
-...
-  - name: rasa_addons.core.policies.BotfrontDisambiguationPolicy
-    fallback_trigger: 0.30
-    disambiguation_trigger: '$0 < 2 * $1'
-    deny_suggestions: 'deny_suggestions'
-    n_suggestions: 3
-    excluded_intents:
-      - ^chitchat\..*
-    disambiguation_title:
-      en: "Sorry, I'm not sure I understood. Did you mean..."
-      fr: "J'ai mal compris. Voulez-vous dire..."
-    intent_mappings:
-      password_lost:
-        en: "Lost password"
-        fr: "Mot de passe perdu"
-      login_failed:
-        en: "Login failed"
-        fr: "Problème de connexion"
-    deny_suggestions:
-      en: "Something else"
-      fr: "Autre chose"
-...
-```
+![Rename story](../../../images/rename_story.png)
 
-#### Parameters
+### Collapsing and expanding stories
 
-| Parameter | What it does | type |
-| ------- | --------------- |--------------- |
-|`fallback_trigger`| if confidence of top-ranking intent is below this threshold, fallback is triggered. Fallback is an action that utters the template `utter_fallback` and returns to the previous conversation state. | `string` |
-|`disambiguation_trigger`| e.g.: `'$0 < 2 * $1'`): if this expression holds, disambiguation is triggered. (If it has already been triggered on the previous turn, fallback is triggered instead.) Here this expression resolves to "the score of the top-ranking intent is below twice the score of the second-ranking intent". Disambiguation is an action that lets the user to choose from the top-ranking intents using a button prompt.<br/><br/>In addition, an 'Other' option is shown with payload defined in `deny_suggestions` param is shown. It is up to the conversation designer to implement a story to handle the continuation of this interaction. | `string` |
-|`deny_suggestions`| The intent associated in the payload for the 'Other' option. | `string` |
-|`excluded_intents`| Any intent (exactly) matching one of these regular expressions will not be shown as a suggestion. | `string` |
-|`disambiguation_title`| Localized disambiguation message title. | `object` |
-|`intent_mappings`| localized representative button title for intents. If no title is defined for a given intent, the intent name is rendered instead. These titles support entity substitution: any entity name enclosed in curly brackets (`{entity}`) will be filled with entity information from the user utterance. | `object` |
+In order to easily focus on one or a few stories, you can collapse or expand stories using the caret on the left of the story header.
 
-::: tip Important
+### Special group: Intro stories
 
-The title for the 'Other' option is also defined here.
+The **Intro stories** group contains the initial messages that would be sent to users when they start chatting with your bot. The starting payloads of those stories
+will be available in the **bold** menu at the top of the chat widget.
 
-:::
+This allows to test different starting workflows, for example if you want the welcome message of your bot to be different on several pages of your website. Note that you will still have to implement that on your frontend. If you are using the Rasa Webchat widget you can do that by customizing the `initPayload` parameter.
+
+The **Intro stories** group is created by default in every new project.

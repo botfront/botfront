@@ -64,7 +64,9 @@ module.exports = {
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
+                    '/guide/rasa/stories/conversation_builder',
                     '/guide/rasa/stories/',
+                    '/guide/rasa/stories/optimization',
                     '/guide/rasa/stories/custom_actions',
                 ],
             },

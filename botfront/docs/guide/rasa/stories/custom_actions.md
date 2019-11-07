@@ -26,16 +26,15 @@ awesome-project
 | `botfront-db`      |  MongoDB persisted files |
 | `models`  |  Persisted models |
 
-
 You probably figured it out: `actions` is our folder of interest.
-
 
 ::: tip TLDR;
 If you already know about Rasa and custom actions:
+
 - Add your actions in the `actions/my_actions.py` file.
 - Run `botfront watch` from the root of your project folder to automatically rebuild your action server on file changes.
-:::
 
+:::
 
 ## Tutorial
 
@@ -94,7 +93,7 @@ You need at least two different intents to train an NLU model. You can add more 
 <video autoplay muted loop width="740" controls>
   <source src="../../../videos/nlu_insert_many.mp4" type="video/mp4">
   Your browser does not support the video tag.
-</video> 
+</video>
 
 ### 3. Add a bot response
 
@@ -103,7 +102,7 @@ Finally, let's create a bot response for the `utter_ok` template we just put in 
 <video autoplay muted loop width="740" controls>
   <source src="../../../videos/core_bot_response.mp4" type="video/mp4">
   Your browser does not support the video tag.
-</video> 
+</video>
 
 ::: tip
 You just created a sequence of messages. The bot will utter 2 messages even if your story only had one action following `* inform_guests`
@@ -142,7 +141,7 @@ _Adding Duckling to the NLU pipeline_ means that we are going to use Duckling to
 <video autoplay muted loop width="740" controls>
   <source src="../../../videos/add_duckling.mp4" type="video/mp4">
   Your browser does not support the video tag.
-</video> 
+</video>
 
 ### 5. Start the watcher
 
@@ -230,6 +229,3 @@ You can safely shut down your project with `botfront down` to free all resources
 Congratulations, you've learned how to use Rasa with Botfront! Everything you see on official [Rasa documentation](https://rasa.com/docs]) should apply with a few exceptions such as voice and messaging platforms.
 
 Feel free to give your feedback and ask questions on the [Spectrum community](https://spectrum.chat/botfront)
-
-
-
