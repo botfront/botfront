@@ -266,7 +266,7 @@ const ConversationsBrowserContainer = (props) => {
     let activeConversationId = router.params.selected_id;
     // const { projectId } = props;
     // let activeConversationId = '';
-    let page = parseInt(params.page, 10) || 1;
+    let page = parseInt(router.params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
@@ -345,7 +345,7 @@ const ConversationsBrowserContainer = (props) => {
             loading: true,
             projectId,
             page,
-            modelId: props.params.model_id,
+            modelId: router.params.model_id,
         });
     }
     return (<ConversationBrowserSegment {...componentProps} />);
