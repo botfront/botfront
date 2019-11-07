@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2-ee.7](https://github.com/botfront/botfront/compare/v0.17.2-ee.6...v0.17.2-ee.7) (2019-11-07)
+
+
+### Bug Fixes
+
+* delete conversation when deleting a project ([f4ea674](https://github.com/botfront/botfront/commit/f4ea674))
+* double story group browser ([c907fbb](https://github.com/botfront/botfront/commit/c907fbb))
+* fixed intercom and roles in project subs ([1a7b247](https://github.com/botfront/botfront/commit/1a7b247))
+* loose ends and tests ([c99570c](https://github.com/botfront/botfront/commit/c99570c))
+
+
+### Features
+
+* **back to project settings:** ensure projectId set ([ffbccf7](https://github.com/botfront/botfront/commit/ffbccf7))
+* **visual story editor:** initial commit ([511fe9a](https://github.com/botfront/botfront/commit/511fe9a))
+* keep route when switching project ([308c1a8](https://github.com/botfront/botfront/commit/308c1a8))
+
+
+### Tests
+
+* add cypress testing routines ([b1fd3e1](https://github.com/botfront/botfront/commit/b1fd3e1))
+* fix before and after hooks ([742e133](https://github.com/botfront/botfront/commit/742e133))
+* fix order in test ([1529475](https://github.com/botfront/botfront/commit/1529475))
+* force click ([a5dccc9](https://github.com/botfront/botfront/commit/a5dccc9))
+* update ci vars ([e6b25df](https://github.com/botfront/botfront/commit/e6b25df))
+
+
+
 ### [0.17.2-ee.6](https://github.com/botfront/botfront/compare/v0.17.2-ee.5...v0.17.2-ee.6) (2019-11-04)
 
 
