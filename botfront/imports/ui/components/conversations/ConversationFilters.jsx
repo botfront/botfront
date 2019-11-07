@@ -57,7 +57,7 @@ const ConversationFilters = ({
     };
     return (
         <div className='conversation-filter-container'>
-            <div className='conversation-filter'>
+            <div className='conversation-filter' data-cy='length-filter'>
                 <b>Filter by conversation length</b>
                 <Segment.Group horizontal>
                     <Segment className='x-than-filter'>
@@ -80,7 +80,7 @@ const ConversationFilters = ({
                     </Segment>
                 </Segment.Group>
             </div>
-            <div className='conversation-filter'>
+            <div className='conversation-filter' data-cy='confidence-filter'>
                 <b>Filter by confidence level</b>
                 <Segment.Group horizontal>
                     <Segment className='x-than-filter'>
@@ -108,7 +108,7 @@ const ConversationFilters = ({
                     </Segment>
                 </Segment.Group>
             </div>
-            <div className='conversation-filter'>
+            <div className='conversation-filter' data-cy='action-filter'>
                 <b>Filter by actions</b>
                 <Segment className='action-filter'>
                     <Dropdown
