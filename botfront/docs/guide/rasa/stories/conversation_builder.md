@@ -1,7 +1,7 @@
 ---
 meta:
   - name: description
-    content: 'Conversation builder'
+    content: 'Botfront: A visual editor for Rasa stories'
   - name: keywords
     content: botfront stories nlu rasa slots
 permalink: /rasa/:slug

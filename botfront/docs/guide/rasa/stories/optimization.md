@@ -1,7 +1,7 @@
 ---
 meta:
   - name: description
-    content: 'Optimization'
+    content: 'Botfront: useful features to optimize the edition and the training of Rasa stories'
   - name: keywords
     content: botfront stories nlu rasa slots
 permalink: /rasa/:slug
