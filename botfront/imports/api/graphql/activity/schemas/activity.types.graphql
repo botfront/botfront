@@ -1,0 +1,43 @@
+type Query {
+    activities(
+      modelId: String!
+      ): [Activity!]!
+}
+type Mutation {
+  markAsRead(id: String!): updateResponse!
+  updateStatus(id: String!, status: String): updateResponse!
+  delete(id: String!): updateResponse!
+}
+
+type updateResponse {
+  success: Boolean!
+}
+
+type Activity {
+  _id: String,
+  modelId: String,
+  text: String,
+  intent: String,
+  entities: [Entity],
+  confidence: Number,
+  validated: Boolean,
+  warning: Warning,
+  createdAt: String,
+  updatedAt: String,
+}
+
+type Entity {
+  start: Number,
+  end: Number,
+  value: String,
+  entity: String,
+  confidence: Number,
+  extractor: String,
+  processors: [String],
+}
+
+type Warning {
+  title: String, 
+  description: String
+}
+
