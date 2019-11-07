@@ -182,7 +182,7 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
         try {
             // The ternary condition makes it work if we have an array of story object
             // Rather than an array of straight up strings.
-            if (story.story ? story.story.trim() : story.trim()) {
+            if (typeof story.story === 'string' ? story.story.trim() : story.trim()) {
                 const val = new StoryController(
                     story.story ? story.story : story,
                     slots,
