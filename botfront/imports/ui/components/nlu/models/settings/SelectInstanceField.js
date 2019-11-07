@@ -20,7 +20,7 @@ handleChange = (event, selectedOption, onChange) => {
 
 const renderSelect = ({
     allowedValues,
-    disabled,
+    disable,
     id,
     inputRef,
     label,
@@ -40,7 +40,8 @@ const renderSelect = ({
               selection
               value={value}
               onChange={(e, {value}) => onChange(value)}
-              options={props.instances.map( instance => { return {text: instance.name, key:instance._id, value:instance._id, description: instance.host}})} />
+              options={props.instances.map( instance => { return {text: instance.name, key:instance._id, value:instance._id, description: instance.host}})}
+              disabled={disable} />
 ;
 
 const Select = ({
@@ -61,6 +62,7 @@ const Select = ({
     showInlineError,
     transform,
     value,
+    disable,
     ...props
 }) =>
     <div className={classnames({disabled, error, required}, className, 'field')} {...filterDOMProps(props)}>
@@ -72,7 +74,7 @@ const Select = ({
 
         {/* TODO: Better handling of these props. */}
         {/* eslint-disable max-len */}
-        {renderSelect({allowedValues, disabled, id, name, onChange, transform, value, inputRef, label, placeholder, required, props})}
+        {renderSelect({allowedValues, disabled, id, name, onChange, transform, value, inputRef, label, placeholder, required, disable, props})}
         {/* eslint-enable */}
 
         {!!(error && showInlineError) && (

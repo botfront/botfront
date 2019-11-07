@@ -152,11 +152,11 @@ class IntentNameEditor extends React.Component {
             cursor: 'default',
         };
         const trigger = intent ? (
-            <Label color='purple' style={style} data-cy='nlu-table-intent'>
+            <Label color='purple' style={style} data-cy='intent-label'>
                 {intent}
             </Label>
         ) : (
-            <Label color='grey' style={style} basic data-cy='null-nlu-table-intent'>
+            <Label color='grey' style={style} basic data-cy='intent-label'>
                 -
             </Label>
         );

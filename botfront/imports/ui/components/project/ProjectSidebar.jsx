@@ -13,9 +13,8 @@ import { GlobalSettings } from '../../../api/globalSettings/globalSettings.colle
 class ProjectSidebar extends React.Component {
     render() {
         const {
-            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom, renderLegacyModels,
+            projectName, projectId, handleChangeProject, settingsReady, settings, renderLegacyModels,
         } = this.props;
-        const intercomId = settingsReady ? settings.settings.public.intercomAppId : null;
 
         return (
             <DocumentTitle title={projectName}>
@@ -67,7 +66,6 @@ ProjectSidebar.propTypes = {
     handleChangeProject: PropTypes.func.isRequired,
     settingsReady: PropTypes.bool.isRequired,
     settings: PropTypes.object,
-    triggerIntercom: PropTypes.func.isRequired,
     renderLegacyModels: PropTypes.bool.isRequired,
 };
 
@@ -78,7 +76,7 @@ ProjectSidebar.defaultProps = {
 const ProjectSidebarContainer = withTracker((props) => {
     const { projectId } = props;
     const settingsHandler = Meteor.subscribe('settings');
-    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.docUrl': 1, 'settings.public.intercomAppId': 1 } });
+    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.docUrl': 1 } });
     const currentProject = Projects.find({ _id: projectId }).fetch();
     const projectName = currentProject.length > 0 ? `${currentProject[0].name}` : 'Botfront by Mr. Bot';
 

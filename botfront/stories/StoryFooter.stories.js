@@ -5,8 +5,6 @@ import { Segment } from 'semantic-ui-react';
 
 import StoryFooter from '../imports/ui/components/stories/StoryFooter';
 
-import '../imports/ui/components/stories/style.import.less';
-
 const myPath = (`thisIsAReallyLongNameBranchForLogic
 __thisIsAReallyLongNameBranchForLogic
 __thisIsAReallyLongNameBranchForLogic

@@ -20,6 +20,16 @@ export const TrainingExampleSchema = new SimpleSchema({
     'entities.$.end': SimpleSchema.Integer,
     'entities.$.entity': String,
     'entities.$.value': String,
+    updatedAt: {
+        type: Date,
+        optional: true,
+        // eslint-disable-next-line consistent-return
+        autoValue() {
+            if (!this.isSet && this.operator !== '$pull') { // this check here is necessary!
+                return new Date();
+            }
+        },
+    },
 });
 
 export const TrainingDataSchema = new SimpleSchema({

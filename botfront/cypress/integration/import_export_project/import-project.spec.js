@@ -219,7 +219,7 @@ describe('Importing a project', function() {
                 .contains(intent)
                 .should('exist');
             for (let iDeleteNLU = 0; iDeleteNLU < nExamplesOfIntent; iDeleteNLU += 1) {
-                cy.dataCy('nlu-table-intent')
+                cy.dataCy('intent-label')
                     .contains(intent)
                     .closest('.rt-tr')
                     .find('.trash')
@@ -229,7 +229,7 @@ describe('Importing a project', function() {
             }
             cy.contains('Insert many').click();
             cy.contains('Examples').click();
-            cy.dataCy('nlu-table-intent')
+            cy.dataCy('intent-label')
                 .contains(intent)
                 .should('not.exist');
         });

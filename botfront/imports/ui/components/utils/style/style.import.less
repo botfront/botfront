@@ -33,10 +33,6 @@
   }
 }
 
-#intent {
-  margin: 0px 3px 0px 3px;
-}
-
 .entity-container {
   display: inline-block;
   border-style: solid;
@@ -44,17 +40,18 @@
   border-width: 1px;
   border-radius: 4px;
   position: relative;
-  margin: 0px 3px 0px 3px; 
+  line-height: 1;
+  margin: 2px; 
   .entity {
     display: inline-block;
   }
 
   .mini-entity-text {
     background-color: @entity-teal;
-    padding: 4px 3px 3px 6px;
+    padding: 2px 5px 2px 6px;
     font-weight: normal;
     color: white;
-    font-size: @micro;
+    font-size: inherit;
   }
 
   .tiny-entity-text {
@@ -62,16 +59,16 @@
     padding: 5px 5px 3px 10px;
     font-weight: bold;
     color: white;
-    font-size: @tiny;
+    font-size: inherit;
   }
   
   .mini-entity-value {
     background-color: white;
-    padding: 4px 6px 3px 3px;
+    padding: 2px 6px 2px 3px;
     border-radius: 0px 4px 4px 0px;
     font-weight: normal;
-    color: black;
-    font-size: @micro;
+    color: @black;
+    font-size: inherit;
   }
   
   .tiny-entity-value {
@@ -79,8 +76,8 @@
     padding: 5px 10px 3px 5px;
     border-radius: 0px 4px 4px 0px;
     font-weight: bold;
-    color: black;
-    font-size: @tiny;
+    color: @black;
+    font-size: inherit;
   }
 }
 
@@ -97,7 +94,16 @@
   .selected-text {
     background-color: #c4d8f5;
   }
-  #intent {
-    display: inline;
-  }
+}
+
+#intent {
+  font-size: inherit;
+  font-weight: normal;
+  padding: 3px 5px;
+  margin: 2px;
+}
+
+#intent.tiny{
+  padding: 5px 10px;
+  font-weight: bold;
 }

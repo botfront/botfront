@@ -3,7 +3,7 @@ import { Input } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
 function UtteranceInput({
-    placeholder, size, value, onValidate, fluid, onChange, excludedTargets,
+    placeholder, size, value, onValidate, fluid, onChange, excludedTargets, onDelete,
 }) {
     function testWhiteText() {
         const trimmedText = value.trim();
@@ -27,6 +27,8 @@ function UtteranceInput({
     const handleOnBlur = (event) => {
         if (!excludedTarget(event) && testWhiteText()) {
             onValidate();
+        } else {
+            onDelete();
         }
     };
     return (
@@ -38,6 +40,8 @@ function UtteranceInput({
             onChange={(_e, data) => onChange(data.value)}
             onKeyDown={e => handleKeyDown(e)}
             onBlur={e => handleOnBlur(e)}
+            autoFocus
+            data-cy='utterance-input'
         />
     );
 }
@@ -49,6 +53,7 @@ UtteranceInput.propTypes = {
     onValidate: PropTypes.func,
     fluid: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
     excludedTargets: PropTypes.arrayOf(PropTypes.string),
 };
 

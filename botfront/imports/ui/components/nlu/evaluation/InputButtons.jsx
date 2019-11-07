@@ -37,7 +37,7 @@ export class InputButtons extends React.Component {
         const number = _.min([labels.length, operations.length]);
 
         const buttons = _.zip(labels, operations, _.range(number)).map(([label, op, i]) => (
-            <Button basic color={this.checkToggled(i) ? 'grey' : null} key={i.toString(10)} active={this.checkToggled(i)} onClick={this.handleClick(op, i)}>
+            <Button basic color={this.checkToggled(i) ? 'grey' : null} key={i.toString(10)} active={this.checkToggled(i)} onClick={this.handleClick(op, i)} data-cy='select-training-button'>
                 {label}
             </Button>
         ));

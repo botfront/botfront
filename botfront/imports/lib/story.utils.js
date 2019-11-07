@@ -169,7 +169,7 @@ export const addlinkCheckpoints = (stories) => {
     return storiesCheckpointed;
 };
 
-export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}) => {
+export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}, crashOnStoryWithErrors = true) => {
     const initialDomain = {
         actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
         intents: new Set(defaultDomain.intents || []),
@@ -201,11 +201,22 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
                 templates: [],
             };
         } catch (e) {
-            // Same thing than previous comment
-            if (story.story) {
-                throw new Error(`an error in the story ${story.title} has caused training to fail`);
+            if (crashOnStoryWithErrors) {
+                // Same thing than previous comment
+                if (story.story) {
+                    throw new Error(`an error in the story ${story.title} has caused training to fail`);
+                } else {
+                    throw new Error('an error in a story has caused training to fail');
+                }
             } else {
-                throw new Error('an error in a story has caused training to fail');
+                return {
+                    entities: [],
+                    intents: [],
+                    actions: [],
+                    forms: [],
+                    templates: {},
+                    slots: {},
+                };
             }
         }
     });

@@ -8,7 +8,7 @@ import {
     Container, Grid, Icon, Menu, Message, Segment,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
-
+import { connect } from 'react-redux';
 import ConversationViewer from './ConversationViewer';
 import { Conversations } from '../../../api/conversations';
 import { Loading } from '../utils/Utils';
@@ -102,20 +102,20 @@ class ConversationsBrowser extends React.Component {
             page, trackers, prevConvoId, nextConvoId,
         } = this.props;
         const index = trackers.map(t => t._id).indexOf(conversationId);
-        
+
         // deleted convo is not the last of the current page
         if (index < trackers.length - 1) {
             this.goToConversation(page, trackers[index + 1]._id, true);
-        // or deleted convo is the last but there is a next page
+            // or deleted convo is the last but there is a next page
         } else if (index === trackers.length - 1 && this.hasNextPage()) {
             this.goToConversation(page, nextConvoId, true);
             // deleted convo is the last but not the only one and there is no next page
         } else if (index === trackers.length - 1 && trackers.length > 1 && !this.hasNextPage()) {
             this.goToConversation(page, trackers[index - 1]._id, true);
-        // deleted convo is the last and only but there's a previous page
+            // deleted convo is the last and only but there's a previous page
         } else if (index === trackers.length - 1 && trackers.length === 1 && this.hasPreviousPage()) {
             this.goToConversation(page - 1, prevConvoId, true);
-        // Anything else
+            // Anything else
         } else {
             this.goToConversation(Math.min(page - 1, 1), true);
         }
@@ -143,7 +143,7 @@ class ConversationsBrowser extends React.Component {
     render() {
         const { trackers, activeConversationId } = this.props;
         return (
-            <div>
+            <div data-cy='conversations-browser'>
                 {trackers.length > 0 ? (
                     <Grid>
                         <Grid.Column width={4}>
@@ -228,54 +228,52 @@ ConversationBrowserSegment.defaultProps = {
 };
 
 const ConversationsBrowserContainer = withTracker((props) => {
-    // console.log(props.params);
     const projectId = props.params.project_id;
     let activeConversationId = props.params.selected_id;
-    // const { projectId } = props;
-    // let activeConversationId = '';
     let page = parseInt(props.params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
-    // let page = 1;
-
+    
     // We take the previous element as well to have the id of the previous convo in the pagination
     const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
     const options = { sort: { updatedAt: -1 } };
+
     const selector = {
         projectId,
         status: { $in: ['new', 'read', 'flagged'] },
     };
+    Meteor.subscribe('projects', projectId);
 
     const componentProps = {
         page, projectId, loading: true, modelId: props.params.model_id,
     };
     const conversationsHandler = Meteor.subscribe('conversations', projectId, skip, limit);
-    
     if (conversationsHandler.ready()) {
         const conversations = Conversations.find(selector, options).fetch();
         // If for some reason the conversation is not in the current page, discard it.
+
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
         let nextConvoId; let prevConvoId; let from; let to;
-        
+
         // first page but there are more
         if (page === 1 && conversations.length > PAGE_SIZE) {
             nextConvoId = conversations[conversations.length - 1]._id;
             from = 0;
             to = PAGE_SIZE;
-        // first page with less than PAGE_SIZE conversations but not empty
+            // first page with less than PAGE_SIZE conversations but not empty
         } else if (page === 1 && conversations.length && conversations.length <= PAGE_SIZE) {
             from = 0;
             to = PAGE_SIZE - 1;
-        // not first page but there are more
+            // not first page but there are more
         } else if (page > 1 && conversations.length === PAGE_SIZE + 2) {
             nextConvoId = conversations[conversations.length - 1]._id;
             prevConvoId = conversations[0]._id;
             from = 1;
             to = PAGE_SIZE + 1;
-        // not first page but last one
+            // not first page but last one
         } else if (page > 1 && conversations.length <= PAGE_SIZE + 1) {
             prevConvoId = conversations[0]._id;
             from = 1;
@@ -294,7 +292,6 @@ const ConversationsBrowserContainer = withTracker((props) => {
             return componentProps;
             // activeConversationId = conversations[from]._id;
         }
-
         Object.assign(componentProps, {
             loading: false,
             trackers: conversations.slice(from, to),
@@ -314,4 +311,8 @@ const ConversationsBrowserContainer = withTracker((props) => {
     };
 })(ConversationBrowserSegment);
 
-export default ConversationsBrowserContainer;
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(ConversationsBrowserContainer);

@@ -13,6 +13,7 @@ describe('stories', function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
 
+
     function clickStoryGroup(group) {
         const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
         positions.map(p => cy.contains(group).click(p, { force: true }));
@@ -20,6 +21,7 @@ describe('stories', function() {
 
     it('should be able to move a story', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -55,6 +57,7 @@ describe('stories', function() {
     it('should be able to add and delete stories', function() {
         // add story group
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -75,8 +78,8 @@ describe('stories', function() {
             .first()
             .click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
-        // verifies that the second story was not removed along with the first
-        cy.dataCy('browser-item').eq(1).should('have.class', 'active');
+        // verifies that the third story was not removed along with the first
+        cy.dataCy('browser-item').eq(2).should('have.class', 'active');
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('story-title').should('have.value', 'ID AKLEJDKSGLJENSKEPFM');
         // deletes the second story
@@ -87,6 +90,7 @@ describe('stories', function() {
 
     it('should autosave stories as you edit them', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         // Create a first story group
         cy.dataCy('add-item-input')
@@ -103,18 +107,19 @@ describe('stories', function() {
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
-            .type('xxx', { force: true });
+            .type('* intent', { force: true });
         // Go to group 2
         clickStoryGroup('Group 2');
         // Go back to group 1
         clickStoryGroup('Group 1');
         // We should find the story content we saved...
-        cy.contains('xxx').should('exist');
+        cy.contains('* intent').should('exist');
     });
 
     /* the story duplication is deactivated for now, it may cause issues with response edition
     it('should be able to duplicate a story', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -137,6 +142,7 @@ describe('stories', function() {
 
     it('should be able to rename a story', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -164,6 +170,7 @@ describe('stories', function() {
 
     it('should be able to rename storyGroups and select storyGroups, train button should be in sync with the seleted story groups', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -187,20 +194,16 @@ describe('stories', function() {
         cy.get('#not-selected').click({ force: true });
         // Text in the train button should change after all the stories are selected
         cy.contains('Partial training');
-
-        cy.contains('storyGroup').click({ force: true });
-        cy.dataCy('delete-story').click({ force: true });
-        cy.dataCy('confirm-yes').click({ force: true });
-        cy.get('.active > #selected').click({ force: true });
     });
 
     it('should not be able to add empty story or story group names', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
             .type('{enter}');
-        cy.dataCy('browser-item').should('have.lengthOf', 1);
+        cy.dataCy('browser-item').should('have.lengthOf', 2);
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -222,7 +225,8 @@ describe('stories', function() {
 
     it('should be able to delete and add stories in intro stories', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('intro-story-group').click({ force: true });
+        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('browser-item').eq(0).click({ force: true });
         cy.dataCy('story-editor').get('textarea');
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 2);
@@ -233,13 +237,14 @@ describe('stories', function() {
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('delete-story').click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
-        cy.dataCy('intro-story-group').should('exist');
+        cy.dataCy('browser-item').should('have.lengthOf', 2);
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 1);
     });
 
     it('should be able to collapse stories and to persist that across application state', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('single-story-editor');
         cy.dataCy('collapse-story-button').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
@@ -261,6 +266,7 @@ describe('stories', function() {
 
     it('should be only possible to link of leaf stories', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.length', 2);
         cy.dataCy('create-branch').click({ force: true });
@@ -293,6 +299,7 @@ describe('stories', function() {
 
     it('should be possible to link and unlink stories', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-footer').should('not.have.class', 'linked');
         cy.dataCy('stories-linker')
             .find('div')
@@ -321,6 +328,7 @@ describe('stories', function() {
 
     it('should be possible to change the linked story', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-footer').should('not.have.class', 'linked');
         cy.dataCy('stories-linker')
             .find('div')
@@ -352,6 +360,7 @@ describe('stories', function() {
 
     it('should be possible to self link when a story has branches', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('stories-linker')
             .find('div.item')
             .should('have.lengthOf', 2);
@@ -373,6 +382,7 @@ describe('stories', function() {
 
     it('should disable the delete button in the branch tab for a linked branch and its parent branches', function () {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('stories-linker').click({ force: true });
@@ -419,6 +429,7 @@ describe('stories', function() {
     });
     it('should disable the delete button in the story top menu for linked destination stories', function () {
         cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('stories-linker').click({ force: true });
         cy.dataCy('stories-linker')
             .find('div')

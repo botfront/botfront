@@ -46,7 +46,7 @@ export default class ActivityDataTable extends React.Component {
                                     outDatedUtteranceIds.length > 1 && this.renderReinterpretButton(utterance),
                                 ]}
                                 button={(
-                                    <Button size={size} basic icon='redo' />
+                                    <Button size={size} basic icon='redo' data-cy='re-interpret-button' />
                                 )}
                             />
                         )
@@ -127,7 +127,7 @@ export default class ActivityDataTable extends React.Component {
                 
                 return isOutdated
                     ? (
-                        <Label color='grey' basic>
+                        <Label color='grey' basic data-cy='intent-label'>
                             {example.intent || '-'}
                         </Label>
                     )

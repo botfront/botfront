@@ -1,3 +1,21 @@
+.storygroup-browser {
+  .navigation {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+
+      .button {
+          padding: 0.8em 0;
+          &.floated {
+              padding: 0.8em 6px;
+          }
+          &.border-left {
+            border-left: solid #ccc 2px;
+          }
+      }
+  }
+}
+
 .stories-container {
   .container.aligned.center {
     padding-top: 0.3em;
@@ -107,7 +125,7 @@
         border-radius: 6px;
         padding: 4px 9px;
         border-width: 1px;
-        color: rgba(0,0,0,.87);
+        color: #212121;
         outline: none;
         &:hover {
           border-color: rgba(176, 176, 176, 0.4);
@@ -217,6 +235,16 @@
         background-color: rgba(0, 181, 173, 0.06);
       }
     }
+
+    .story-error-wrapper {
+      height: 100px;
+      .ui.message.negative {
+        height: 80px;
+        top: 10px;
+        width: 96%;
+        margin: 0 2%;
+      }
+    }
   }
 }
 
@@ -260,7 +288,7 @@
 }
 
 #add-slot-container {
-  margin-bottom: 100px;
+  margin-bottom: 350px;
 }
 
 @keyframes fadein {
@@ -283,6 +311,86 @@
   }
 }
 
+.label-container {
+  cursor: pointer;
+  display: block;
+  width: max-content;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 4px;
+  position: relative;
+  line-height: 1;
+  top: 0.09rem;
+  line-height: 1;
+  margin: 0px 3px 0px 1px;
+  
+  div {
+    display: inline-block;
+    background-color: white;
+    padding: 3px 6px 3px 3px;
+    font-size: inherit;
+    font-weight: normal;
+    &:not(:first-of-type) {
+      border-radius: 0px 4px 4px 0px;
+      color: @black;
+    }
+    &:first-of-type {
+      padding: 3px 3px 3px 6px;
+      color: white;
+    }
+  }
+
+  .slot-content {
+    color: #2185d0;
+  }
+}
+
+.createlabelcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
+  @name: extract(extract(@basic-colors, @i), 1);
+  @color: extract(extract(@basic-colors, @i), 2);
+
+  .label-container.@{name} {
+    border-color: @color;
+    div:first-of-type {
+      background-color: @color;
+    }
+    &:hover {
+      div:first-of-type {
+        background-color: darken(@color, 3%);
+      }
+    }
+  }
+  .createlabelcolorclasses(@i + 1);
+}
+
+.createlabelcolorclasses();
+
+.stories-toggles {
+  display: flex;
+  justify-content: space-between;
+  .message {
+    min-height: 40px;
+  }
+  .buttons {
+    height: 40px;
+  }
+
+  button.ui.basic.icon.button {
+    border-style: solid;
+    border-width: 1px;
+    border-color: @black;
+    
+  }
+  
+  button.ui.basic.icon.button.not-selected-editor {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #eeeeee;
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
 .story-path-popup{
   color: rgba(0,0,0,0.5);
   padding: 0px;

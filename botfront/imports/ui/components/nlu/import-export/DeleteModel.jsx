@@ -83,7 +83,7 @@ export default class DeleteModel extends React.Component {
                     <div>
                         {this.renderCannotDeleteMessage(cannotDelete)}
                         <br />
-                        <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button'>
+                        <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button' data-cy='download-backup'>
                             <Icon name='download' />
                             Backup {language} data of your model
                         </Button>

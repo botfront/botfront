@@ -1,7 +1,6 @@
 import { check, Match } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { can, getScopesForUser } from '../../lib/scopes';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
 export const Projects = new Mongo.Collection('projects');
@@ -66,17 +65,12 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('projects.names', function () {
-        const selector = can('global-admin') ? {}
-            : { _id: { $in: getScopesForUser(this.userId, 'owner') } };
-        return Projects.find(selector, { name: 1 });
+        return Projects.find({}, { name: 1 });
     });
 
     Meteor.publish('template-keys', function (projectId) {
         check(projectId, String);
-        if (can('responses:r', projectId)) {
-            return Projects.find({ _id: projectId },
-                { fields: { 'templates.key': 1 } });
-        }
-        return this.ready();
+        return Projects.find({ _id: projectId },
+            { fields: { 'templates.key': 1 } });
     });
 }

@@ -1,41 +1,163 @@
 import {
-    Grid, Message,
+    Container, Grid, Message, Modal,
 } from 'semantic-ui-react';
-import { connect } from 'react-redux';
+import { withTracker } from 'meteor/react-meteor-data';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import React from 'react';
-
-import { setStoryGroup } from '../../store/actions/actions';
+import { connect } from 'react-redux';
+import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
+import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
+import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
+import { Projects } from '../../../api/project/project.collection';
+import { Slots } from '../../../api/slots/slots.collection';
+import { ConversationOptionsContext } from '../utils/Context';
+import StoryGroupBrowser from './StoryGroupBrowser';
 import { wrapMeteorCallback } from '../utils/Errors';
+import StoryEditors from './StoryEditors';
 
-import IntroStorySubMenu from './IntroStorySubMenu';
-import ItemsBrowser from '../common/Browser';
-import StoriesEditor from './StoriesEditor';
+const SlotsEditor = React.lazy(() => import('./Slots'));
+const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
 
-class Stories extends React.Component {
-    constructor(props) {
-        super(props);
-        const { storyGroupCurrent } = this.props;
-        this.state = {
-            // storyIndex is used to track the index of element in the browser component
-            // storyGroupNameSelected used to track the storygroup to be displayed by the storyEditor
-            storyIndex: storyGroupCurrent,
-            saving: false,
-            validationErrors: false,
-            storyGroupNameSelected: '',
-        };
+function Stories(props) {
+    const {
+        projectId,
+        storyGroups,
+        slots,
+        instance,
+        project,
+        stories,
+        storyGroupCurrent,
+        storyMode,
+        changeStoryGroup,
+        changeStoryMode,
+        ready,
+    } = props;
+
+    const [intents, setIntents] = useState([]);
+    const [entities, setEntities] = useState([]);
+    const [language, setLanguage] = useState('en');
+
+    const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
+    const [slotsModal, setSlotsModal] = useState(false);
+    const [policiesModal, setPoliciesModal] = useState(false);
+    const closeModals = () => {
+        setSlotsModal(false);
+        setPoliciesModal(false);
+    };
+
+    const modalWrapper = (open, title, content, scrolling = true) => (
+        <Modal open={open} onClose={closeModals}>
+            <Modal.Header>{title}</Modal.Header>
+            <Modal.Content scrolling={scrolling}>
+                <React.Suspense fallback={null}>{content}</React.Suspense>
+            </Modal.Content>
+        </Modal>
+    );
+
+    const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
+
+    useEffect(() => {
+        if (switchToGroupByIdNext) switchToGroupById(switchToGroupByIdNext);
+        setSwitchToGroupByIdNext('');
+    }, [switchToGroupByIdNext]);
+
+    useEffect(() => {
+        if (!storyGroups[storyGroupCurrent]) {
+            if (storyGroups[storyGroupCurrent + 1]) changeStoryGroup(storyGroupCurrent + 1);
+            changeStoryGroup(storyGroupCurrent - 1);
+        }
+    }, [storyGroups.length]);
+
+    // By passing an empty array as the second argument to this useEffect
+    // We make it so UseEffect is only called once, onMount
+    useEffect(() => {
+        Meteor.call(
+            'project.getEntitiesAndIntents',
+            projectId,
+            wrapMeteorCallback((err, res) => {
+                if (!err) {
+                    setEntities(res.entities);
+                    setIntents(res.intents);
+                }
+            }),
+        );
+        Meteor.call(
+            'project.getDefaultLanguage',
+            projectId,
+            wrapMeteorCallback((err, res) => setLanguage(res)),
+        );
+    }, []);
+
+    function getResponse(key, callback = () => {}) {
+        Meteor.call(
+            'project.findTemplate',
+            projectId,
+            key,
+            language,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
     }
 
-    handleAddStoryGroup = async (name) => {
-        const { projectId } = this.props;
+    function addUtteranceToTrainingData(utterance, callback = () => {}) {
+        Meteor.call(
+            'nlu.insertExamplesWithLanguage',
+            projectId,
+            language,
+            [utterance],
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
+    function updateResponse(response, callback = () => {}) {
+        Meteor.call(
+            'project.updateTemplate',
+            projectId,
+            response.key,
+            response,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
+    function insertResponse(response, callback = () => {}) {
+        Meteor.call(
+            'project.insertTemplate',
+            projectId,
+            response,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
+    function getUtteranceFromPayload(payload, callback = () => {}) {
+        Meteor.call(
+            'nlu.getUtteranceFromPayload',
+            projectId,
+            payload,
+            language,
+            (err, res) => callback(err, res),
+        );
+    }
+
+    function parseUtterance(utterance) {
+        return Meteor.callWithPromise(
+            'rasa.parse',
+            instance,
+            [{ text: utterance, lang: language }],
+            true,
+        );
+    }
+
+    function addIntent(newIntent) {
+        setIntents([...new Set([...intents, newIntent])]);
+    }
+
+    function addEntity(newEntity) {
+        setEntities([...new Set([...entities, newEntity])]);
+    }
+
+    const handleAddStoryGroup = async (name) => {
         Meteor.call(
             'storyGroups.insert',
-            {
-                name,
-                projectId,
-                hasErrors: [],
-                hasWarnings: [],
-            },
+            { name, projectId },
             wrapMeteorCallback((err, groupId) => {
                 if (!err) {
                     Meteor.call(
@@ -47,12 +169,7 @@ class Stories extends React.Component {
                             projectId,
                         },
                         wrapMeteorCallback((error) => {
-                            if (!error) {
-                                this.setState({
-                                    validationErrors: false,
-                                    storyGroupNameSelected: name,
-                                });
-                            }
+                            if (!error) setSwitchToGroupByIdNext(groupId);
                         }),
                     );
                 }
@@ -60,160 +177,35 @@ class Stories extends React.Component {
         );
     };
 
-    handleMenuChange = (index) => {
-        const { changeStoryGroup } = this.props;
-        this.setState({
-            storyIndex: index,
-            validationErrors: false,
-            storyGroupNameSelected: '',
-        });
-        changeStoryGroup(index);
+    const handleDeleteGroup = (storyGroup) => {
+        if (!storyGroup.introStory) Meteor.call('storyGroups.delete', storyGroup);
     };
+    const handleStoryGroupSelect = storyGroup => Meteor.call('storyGroups.update', {
+        ...storyGroup,
+        selected: !storyGroup.selected,
+    });
+    const removeAllSelection = () => Meteor.call('storyGroups.removeFocus', projectId);
 
-    handleSavingStories = () => {
-        this.setState({ saving: true });
-    };
-
-    handleSavedStories = () => {
-        this.setState({ saving: false });
-    };
-
-    handleError = () => {
-        this.setState({ validationErrors: true });
-    };
-
-    handleErrorResolved = () => {
-        this.setState({ validationErrors: false });
-    };
-
-    handleNewStory = (introStoryGroup, indexOfNewStory) => {
-        const { projectId, storyGroups } = this.props;
-        const { storyIndex } = this.state;
-        Meteor.call(
-            'stories.insert',
-            {
-                story: '',
-                title: `${
-                    !!introStoryGroup
-                        ? introStoryGroup.name
-                        : storyGroups[storyIndex].name
-                } ${indexOfNewStory}`,
-                projectId,
-                storyGroupId: `${
-                    !!introStoryGroup ? introStoryGroup._id : storyGroups[storyIndex]._id
-                }`,
-                branches: [],
-            },
-            wrapMeteorCallback(),
-        );
-    };
-
-    handleDeleteGroup = (index, filterdStoryGroup) => {
-        if (index !== -1) {
-            Meteor.call(
-                'storyGroups.delete',
-                filterdStoryGroup[index],
-                wrapMeteorCallback((err) => {
-                    if (!err) {
-                        this.setState({
-                            storyIndex: -1,
-                            storyGroupNameSelected: '',
-                        });
-                    }
-                }),
-            );
-        }
-    };
-
-    handleStoryGroupSelect = (storyGroup) => {
-        // eslint-disable-next-line no-param-reassign
-        storyGroup.selected = !storyGroup.selected;
-        Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback());
-    };
-
-    handleNameChange = (storyGroup) => {
+    const handleNameChange = (storyGroup) => {
         Meteor.call(
             'storyGroups.update',
             storyGroup,
             wrapMeteorCallback((err) => {
-                if (!err) {
-                    this.setState({ storyGroupNameSelected: storyGroup.name });
-                }
+                if (!err) setSwitchToGroupByIdNext(storyGroup._id);
             }),
         );
     };
 
-    handleIntroStoryClick = (event) => {
-        event.preventDefault();
-        const { changeStoryGroup } = this.props;
-        this.setState({ storyIndex: -1, storyGroupNameSelected: '' });
-        changeStoryGroup(-1);
-    };
-
-    sortAlphabetically = (a, b) => a.name.localeCompare(b.name);
-
-    handleIntroClick = (e, introStory) => {
-        e.stopPropagation();
-        this.handleStoryGroupSelect(introStory);
-    };
-
-    storyGroupSelected = (storyIndex, storyGroupNameSelected, storyGroupFiltered) => {
-        const { changeStoryGroup } = this.props;
-        if (
-            storyGroupNameSelected === ''
-            || (storyGroupFiltered[storyIndex] && storyGroupFiltered[storyIndex].name)
-                === storyGroupNameSelected
-        ) {
-            return storyIndex;
-        }
-        const newIndex = storyGroupFiltered.findIndex(
-            storyGroup => storyGroup.name === storyGroupNameSelected,
-        );
-        changeStoryGroup(newIndex);
-        return newIndex;
-    };
-
-    renderStoryEditor = (storyGroupFiltered, introStory, storySelected) => {
-        const { projectId, storyGroups } = this.props;
-        const storyGroupSelected = storyGroupFiltered[storySelected];
-        return (
-            (storyGroupSelected || introStory) && (
-                <StoriesEditor
-                    storyGroup={storyGroupSelected || introStory}
-                    onSaving={this.handleSavingStories}
-                    onSaved={this.handleSavedStories}
-                    onError={this.handleError}
-                    onErrorResolved={this.handleErrorResolved}
-                    onAddNewStory={index => this.handleNewStory(storyGroupSelected || introStory, index)
-                    }
-                    projectId={projectId}
-                    onDeleteGroup={() => this.handleDeleteGroup(storySelected, storyGroupFiltered)
-                    }
-                    groupNames={storyGroups.map(group => ({
-                        text: group.name,
-                        value: group._id,
-                    }))}
-                />
-            )
-        );
-    };
-
-    removeAllSelection = () => {
-        const { projectId } = this.props;
-        Meteor.call('storyGroups.removeFocus', projectId);
-    };
-
-    renderMessages = () => {
-        const { storyGroups } = this.props;
+    const renderMessages = () => {
         const numberOfSelectedStoryGroups = storyGroups.filter(
             storyGroup => storyGroup.selected,
         ).length;
-        /* eslint-disable jsx-a11y/click-events-have-key-events */
         const link = (
             <span
                 id='remove-focus'
                 tabIndex='0'
-                onClick={this.removeAllSelection}
+                onClick={removeAllSelection}
+                onKeyDown={() => {}}
                 role='button'
             >
                 Remove focus
@@ -230,94 +222,136 @@ class Stories extends React.Component {
             )
         );
     };
-    
-    render() {
-        const { storyGroups } = this.props;
-        const {
-            storyIndex,
-            saving,
-            validationErrors,
-            storyGroupNameSelected,
-        } = this.state;
-        const introStory = storyGroups.find(storyGroup => storyGroup.introStory);
-        const storyGroupFiltered = storyGroups
-            .filter(storyGroup => !storyGroup.introStory)
-            .sort(this.sortAlphabetically);
-        const storySelected = this.storyGroupSelected(
-            storyIndex,
-            storyGroupNameSelected,
-            storyGroupFiltered,
-        );
-        return (
-            <Grid className='stories-container'>
-                <Grid.Row columns={2}>
-                    <Grid.Column width={4}>
-                        {validationErrors && (
-                            <Message
-                                negative
-                                content="Your changes haven't been saved. Please correct errors first."
-                            />
-                        )}
-                        {this.renderMessages()}
-                        {storyGroupFiltered && (
-                            <ItemsBrowser
-                                data={storyGroupFiltered}
+    const renderStoriesContainer = () => (
+        <ConversationOptionsContext.Provider
+            value={{
+                intents,
+                entities,
+                slots,
+                language,
+                insertResponse,
+                updateResponse,
+                getResponse,
+                addEntity,
+                addIntent,
+                getUtteranceFromPayload,
+                parseUtterance,
+                addUtteranceToTrainingData,
+                browseToSlots: () => setSlotsModal(true),
+                templates: [...project.templates],
+                stories,
+                storyGroups,
+            }}
+        >
+            {modalWrapper(
+                slotsModal,
+                'Slots',
+                <SlotsEditor slots={slots} projectId={projectId} />,
+            )}
+            {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
+            <Container>
+                <Grid className='stories-container'>
+                    <Grid.Row columns={2}>
+                        <Grid.Column width={4}>
+                            {renderMessages()}
+                            <StoryGroupBrowser
+                                data={storyGroups}
                                 allowAddition
                                 allowEdit
-                                index={storySelected}
-                                onAdd={this.handleAddStoryGroup}
-                                onChange={this.handleMenuChange}
+                                index={storyGroupCurrent}
+                                onAdd={handleAddStoryGroup}
+                                onChange={changeStoryGroup}
+                                onSwitchStoryMode={changeStoryMode}
+                                storyMode={storyMode}
                                 nameAccessor='name'
-                                saving={saving}
                                 selectAccessor='selected'
-                                toggleSelect={this.handleStoryGroupSelect}
-                                changeName={this.handleNameChange}
+                                toggleSelect={handleStoryGroupSelect}
+                                changeName={handleNameChange}
                                 placeholderAddItem='Choose a group name'
-                            >
-                                <IntroStorySubMenu
-                                    introStory={introStory}
-                                    introClick={this.handleIntroClick}
-                                    introStoryClick={this.handleIntroStoryClick}
-                                    isSelected={storySelected === -1}
-                                />
-                            </ItemsBrowser>
-                        )}
-                    </Grid.Column>
+                                modals={{ setSlotsModal, setPoliciesModal }}
+                            />
+                        </Grid.Column>
 
-                    <Grid.Column width={12}>
-                        {this.renderStoryEditor(
-                            storyGroupFiltered,
-                            introStory,
-                            storySelected,
-                        )}
-                    </Grid.Column>
-                </Grid.Row>
-            </Grid>
-        );
-    }
+                        <Grid.Column width={12}>
+                            <StoryEditors
+                                onDeleteGroup={handleDeleteGroup}
+                                projectId={projectId}
+                                storyGroups={storyGroups}
+                                storyGroup={
+                                    storyGroups[storyGroupCurrent]
+                                    || storyGroups[storyGroupCurrent + 1]
+                                    || storyGroups[storyGroupCurrent - 1]
+                                }
+                            />
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+            </Container>
+        </ConversationOptionsContext.Provider>
+    );
+
+    if (ready) return renderStoriesContainer();
+    return null;
 }
 
 Stories.propTypes = {
     projectId: PropTypes.string.isRequired,
+    project: PropTypes.object.isRequired,
+    ready: PropTypes.bool.isRequired,
     storyGroups: PropTypes.array.isRequired,
-    storyGroupCurrent: PropTypes.number,
+    slots: PropTypes.array.isRequired,
     changeStoryGroup: PropTypes.func.isRequired,
+    changeStoryMode: PropTypes.func.isRequired,
+    storyGroupCurrent: PropTypes.number,
+    storyMode: PropTypes.string,
 };
 
 Stories.defaultProps = {
-    storyGroupCurrent: -1,
+    storyGroupCurrent: 0,
+    storyMode: 'visual',
 };
 
 const mapStateToProps = state => ({
-    storyMode: state.stories.get('storyMode'),
     storyGroupCurrent: state.stories.get('storyGroupCurrent'),
+    storyMode: state.stories.get('storyMode'),
 });
 
 const mapDispatchToProps = {
     changeStoryGroup: setStoryGroup,
+    changeStoryMode: setStoryMode,
 };
 
-export default connect(
+const StoriesWithState = connect(
     mapStateToProps,
     mapDispatchToProps,
 )(Stories);
+
+export default withTracker((props) => {
+    const { projectId } = props;
+    const storiesHandler = Meteor.subscribe('stories.light', projectId);
+    const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
+    const projectsHandler = Meteor.subscribe('projects', projectId);
+    const slotsHandler = Meteor.subscribe('slots', projectId);
+    const { instance } = props;
+    const { templates } = Projects.findOne(
+        { _id: projectId },
+        {
+            fields: {
+                'templates.key': 1,
+            },
+        },
+    );
+
+    return {
+        ready:
+            storyGroupsHandler.ready()
+            && projectsHandler.ready()
+            && slotsHandler.ready()
+            && storiesHandler.ready(),
+        storyGroups: StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch(),
+        slots: Slots.find({}).fetch(),
+        instance,
+        project: { _id: projectId, templates },
+        stories: StoriesCollection.find({}).fetch(),
+    };
+})(StoriesWithState);

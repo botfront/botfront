@@ -149,9 +149,11 @@ ContainerLoader.propTypes = {
 };
 
 export function PageMenu(props) {
-    const { title, icon, children } = props;
+    const {
+        title, icon, children, className,
+    } = props;
     return (
-        <Menu pointing secondary style={{ background: '#fff' }}>
+        <Menu pointing secondary style={{ background: '#fff' }} className={className}>
             <Menu.Item>
                 <Menu.Header as='h3'>
                     <Icon name={icon} />
@@ -165,10 +167,12 @@ export function PageMenu(props) {
 
 PageMenu.defaultProps = {
     children: null,
+    className: '',
 };
 
 PageMenu.propTypes = {
     title: PropTypes.string.isRequired,
     icon: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+    className: PropTypes.string,
 };

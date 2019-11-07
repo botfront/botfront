@@ -13,6 +13,8 @@ public/fonts/outline*
 /botfront/client/fonts/
 botfront/cypress/videos
 botfront/cypress/screenshots
+bf_project_id.txt
+bf_model_id.txt
 .DS_Store
 .pytest_cache
 botfront/cypress/mounted/models
