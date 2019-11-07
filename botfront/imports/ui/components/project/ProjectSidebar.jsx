@@ -46,6 +46,9 @@ class ProjectSidebar extends React.Component {
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
                         <Menu.Item name='documentation' icon='question' />
                     </a>
+                    {/* <a href={settingsReady ? 'https://spectrum.chat/botfront' : ''} target='_blank' rel='noopener noreferrer'>
+                        <Menu.Item name='help' icon='bell' content='Get help' />
+                    </a> */}
                     <Divider inverted />
                     <Link to='/login'>
                         <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
