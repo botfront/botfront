@@ -16,8 +16,8 @@ describe('incoming page conversation tab', function () {
 
     function addConversation(id) {
         let url = `http://localhost:8080/project/bf/conversations/${id}/insert?api-key=`;
-        if (Cypress.env('CYPRESS_API_URL')) {
-            url = `${CYPRESS_API_URL}/project/bf/conversations/${id}/insert?api-key=`;
+        if (Cypress.env('API_URL') !== '') {
+            url = `${Cypress.env('API_URL')}/project/bf/conversations/${id}/insert?api-key=`;
         }
 
         const body = {

@@ -139,11 +139,21 @@ describe('NLU canonical examples', function () {
         cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
         // we should be able to mark all those as canonical
-        cy.dataCy('icon-gem').each((el, index) => {
-            cy.dataCy('icon-gem').eq(index)
-                .click({ force: true });
-            cy.wait(100);
-        });
+       
+        /* .each may cause the test to not pass as its detach the
+        element from the DOM */
+        cy.dataCy('icon-gem').eq(0).click({ force: true });
+        cy.wait(100);
+        cy.dataCy('icon-gem').eq(1).click({ force: true });
+        cy.wait(100);
+        cy.dataCy('icon-gem').eq(2).click({ force: true });
+        cy.wait(100);
+        cy.dataCy('icon-gem').eq(3).click({ force: true });
+        cy.wait(100);
+        cy.dataCy('icon-gem').eq(4).click({ force: true });
+        cy.wait(100);
+        cy.dataCy('icon-gem').eq(5).click({ force: true });
+        cy.wait(100);
         cy.get('.black[data-cy=icon-gem]').should('have.length', 6);
     });
 });
