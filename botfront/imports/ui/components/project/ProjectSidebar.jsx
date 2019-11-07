@@ -14,8 +14,9 @@ import { GlobalSettings } from '../../../api/globalSettings/globalSettings.colle
 class ProjectSidebar extends React.Component {
     render() {
         const {
-            projectName, projectId, handleChangeProject, settingsReady, settings, renderLegacyModels,
+            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom, renderLegacyModels,
         } = this.props;
+        const intercomId = settingsReady ? settings.settings.public.intercomAppId : null;
 
         return (
             <DocumentTitle title={projectName}>
@@ -91,6 +92,7 @@ ProjectSidebar.propTypes = {
     handleChangeProject: PropTypes.func.isRequired,
     settingsReady: PropTypes.bool.isRequired,
     settings: PropTypes.object,
+    triggerIntercom: PropTypes.func.isRequired,
     renderLegacyModels: PropTypes.bool.isRequired,
 };
 
