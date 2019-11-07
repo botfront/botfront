@@ -28,7 +28,7 @@ class Activity extends React.Component {
     getDefaultState = () => ({
         filterFn: utterances => utterances,
         activeTabIndex: undefined,
-        sortType: 'mostRecent',
+        sortType: 'newest',
     });
 
     state = this.getDefaultState();
@@ -85,11 +85,6 @@ class Activity extends React.Component {
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
     };
 
-    dropdownOptions = [
-        { value: 'mostRecent', text: 'Newest' },
-        { value: 'leastRecent', text: 'Oldest' },
-    ];
-
     renderIncomingTab = () => {
         const {
             model: { _id: modelId },
@@ -125,7 +120,10 @@ class Activity extends React.Component {
                             updateSelection={(option) => {
                                 this.setState({ sortType: option.value });
                             }}
-                            options={this.dropdownOptions}
+                            options={[
+                                { value: 'newest', text: 'Newest' },
+                                { value: 'oldest', text: 'Oldest' },
+                            ]}
                             prefix='Sort by'
                         />
                     </Segment>
