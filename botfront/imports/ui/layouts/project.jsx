@@ -48,8 +48,8 @@ class Project extends React.Component {
     }
 
     handleChangeProject = (projectId) => {
-        const { router: { replace } = {} } = this.props;
-        replace(`/project/${projectId}/nlu/models`);
+        const { router: { replace, location: { pathname } } = {} } = this.props;
+        replace(pathname.replace(/\/project\/.*?\//, `/project/${projectId}/`));
     };
 
     getIntercomUser = () => {

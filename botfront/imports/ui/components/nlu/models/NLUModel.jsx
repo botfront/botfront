@@ -5,7 +5,7 @@ import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import { browserHistory, Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
-import { uniq, sortBy, find } from 'lodash';
+import { uniq, sortBy } from 'lodash';
 import {
     Label,
     Container,
@@ -63,13 +63,12 @@ class NLUModel extends React.Component {
         const {
             intents,
             entities,
-            instances,
             ready,
             instance,
         } = props;
         return {
             examples: ready ? NLUModel.getExamplesWithExtraSynonyms(props) : [],
-            instance: find(instances, i => i._id === instance._id),
+            instance,
             intents,
             entities,
             ready,
@@ -169,6 +168,8 @@ class NLUModel extends React.Component {
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} projectId={projectId} /> },
             { menuItem: 'Gazette', render: () => <Gazette model={model} projectId={projectId} /> },
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
+            { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
+            { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
         ];
 
         if (can('nlu-data:w', projectId)) {
@@ -176,12 +177,6 @@ class NLUModel extends React.Component {
                 { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
             );
             if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
-        }
-        if (instance) {
-            tabs.push({
-                menuItem: 'API',
-                render: () => (<API model={model} instance={instance} />),
-            });
         }
         return tabs;
     };
@@ -449,7 +444,6 @@ const NLUDataLoaderContainer = withTracker((props) => {
         },
     });
     const instances = Instances.find({ projectId }).fetch();
-    const instance = instances && instances.length ? instances[0] : null;
     // For handling '/project/:project_id/nlu/models'
     if (!modelId || !nlu_models.includes(modelId)) {
         handleDefaultRoute(projectId);
@@ -472,6 +466,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         return {};
     }
     const { training_data: { common_examples = [] } = {} } = model;
+    const instance = Instances.findOne({ projectId });
     const intents = sortBy(uniq(common_examples.map(e => e.intent)));
     const entities = extractEntities(common_examples);
     const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
@@ -491,13 +486,13 @@ const NLUDataLoaderContainer = withTracker((props) => {
         ready,
         models,
         model,
-        instance,
         intents,
         entities,
         projectId,
         settings,
         nluModelLanguages,
         projectDefaultLanguage,
+        instance,
         project,
     };
 })(NLUModel);

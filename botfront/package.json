@@ -117,7 +117,7 @@
     "commitizen": "^3.0.7",
     "commitlint": "8.1.0",
     "core-js": "^2.5.3",
-    "cypress": "^3.4.1",
+    "cypress": "^3.6.0",
     "cypress-plugin-retries": "^1.2.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.1",

@@ -24,6 +24,7 @@ describe('stories', function() {
         cy.deleteProject('bf');
     });
 
+
     function clickStoryGroup(group) {
         const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
         positions.map(p => cy.contains(group).click(p, { force: true }));

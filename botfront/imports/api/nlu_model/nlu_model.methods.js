@@ -319,6 +319,11 @@ if (Meteor.isServer) {
             check(modelId, String);
             check(overwrite, Boolean);
             checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+            /*
+                Right now, overwriting replaces training_data array, and non-overwrite
+                adds items whose filterExistent<identifier> doesn't already exist. Behavior to update existing
+                data is not implemented.
+            */
 
             try {
                 const currentModel = NLUModels.findOne({ _id: modelId }, { training_data: 1 });

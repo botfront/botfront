@@ -4,7 +4,7 @@ import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
 import { formatError } from '../../lib/utils';
 import { checkIfCan } from '../../lib/scopes';
-import { formatNewlines, formatTextOnSave } from './response.utils';
+import { formatTextOnSave } from './response.utils';
 
 export const getTemplateLanguages = (templates) => {
     const langs = [];
@@ -126,7 +126,6 @@ if (Meteor.isServer) {
 
         'templates.download'(projectId) {
             check(projectId, String);
-            checkIfCan('responses:r', projectId);
 
             const project = Projects.findOne({ _id: projectId }, { fields: { templates: 1 } });
             if (!project) throw new Meteor.Error('404', 'Project not found');

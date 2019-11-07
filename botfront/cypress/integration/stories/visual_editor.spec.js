@@ -16,7 +16,7 @@ function clickStoryGroup(group) {
 }
 
 describe('story visual editor', function() {
-    before(function() {
+    afterEach(function() {
         cy.deleteProject('bf');
     });
 
@@ -38,7 +38,6 @@ describe('story visual editor', function() {
             .find('input')
             .type('myTest{enter}');
         clickStoryGroup('myTest');
-        cy.dataCy('toggle-visual').click({ force: true });
 
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').click({ force: true });
@@ -165,7 +164,6 @@ describe('story visual editor', function() {
         cy.dataCy('browser-item')
             .contains('Default stories')
             .click({ force: true });
-        cy.dataCy('toggle-visual').click({ force: true });
         cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
     });
 
@@ -186,7 +184,6 @@ describe('story visual editor', function() {
         cy.dataCy('browser-item')
             .contains('Default stories')
             .click({ force: true });
-        cy.dataCy('toggle-visual').click({ force: true });
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
     });
 });
