@@ -46,9 +46,9 @@ class ProjectSidebar extends React.Component {
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
                         <Menu.Item name='documentation' icon='question' />
                     </a>
-                    {/* <a href={settingsReady ? 'https://spectrum.chat/botfront' : ''} target='_blank' rel='noopener noreferrer'>
+                    <a href={settingsReady ? 'https://spectrum.chat/botfront' : ''} target='_blank' rel='noopener noreferrer'>
                         <Menu.Item name='help' icon='bell' content='Get help' />
-                    </a> */}
+                    </a>
                     <Divider inverted />
                     <Link to='/login'>
                         <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
@@ -76,7 +76,7 @@ ProjectSidebar.defaultProps = {
 const ProjectSidebarContainer = withTracker((props) => {
     const { projectId } = props;
     const settingsHandler = Meteor.subscribe('settings');
-    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.docUrl': 1, 'settings.public.intercomAppId': 1 } });
+    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.docUrl': 1 } });
     const currentProject = Projects.find({ _id: projectId }).fetch();
     const projectName = currentProject.length > 0 ? `${currentProject[0].name}` : 'Botfront by Mr. Bot';
 
