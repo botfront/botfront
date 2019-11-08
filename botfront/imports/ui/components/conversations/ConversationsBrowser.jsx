@@ -205,6 +205,8 @@ ConversationsBrowser.defaultProps = {
     prevConvoId: {},
     nextConvoId: {},
     activeConversationId: {},
+    // projectId: '',
+    // modelId: '',
 };
 
 function ConversationBrowserSegment({
@@ -266,10 +268,11 @@ const ConversationsBrowserContainer = (props) => {
     let activeConversationId = router.params.selected_id;
     // const { projectId } = props;
     // let activeConversationId = '';
-    let page = parseInt(router.params.page, 10) || 1;
+    let page = parseInt(params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
+    
     // We take the previous element as well to have the id of the previous convo in the pagination
     const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
     // We take the next element as well to have the id of the next convo in the pagination
@@ -345,7 +348,7 @@ const ConversationsBrowserContainer = (props) => {
             loading: true,
             projectId,
             page,
-            modelId: router.params.model_id,
+            modelId: props.params.model_id,
         });
     }
     return (<ConversationBrowserSegment {...componentProps} />);
@@ -360,6 +363,6 @@ const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
 });
 
-const ConversationsContainerRouter = withRouter(ConversationsBrowserContainer);
+const ConversationsRouter = withRouter(ConversationsBrowserContainer);
 
-export default connect(mapStateToProps)(ConversationsContainerRouter);
+export default connect(mapStateToProps)(ConversationsRouter);
