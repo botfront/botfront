@@ -133,25 +133,20 @@ describe('story exceptions', function() {
         cy.dataCy('top-menu-error-alert').should('not.exist');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
-
+    
     it('should not display errors if no intents in branches', function() {
         createTestStoryGroup();
-        cy.dataCy('create-branch').should('have.length.of', 1);
         cy.dataCy('create-branch').click();
-        cy.dataCy('branch-label').should('have.length', 2);
-        cy.get('.ace_line')
-            .eq(1)
-            .should('have.length.of', 1);
-        cy.get('.ace_line')
-            .eq(1)
+        cy.dataCy('single-story-editor')
+            .find('[data-cy=single-story-editor]')
+            .find('.ace_line')
             .click({ force: true });
-        cy.get(':nth-child(2) > [data-cy=single-story-editor] > #story')
+        cy.dataCy('single-story-editor')
+            .find('[data-cy=single-story-editor]')
             .find('textarea')
-            .eq(1)
             .type('- action_test');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
-
     it('should not display errors if no intents in destinationStory', function() {
         createTestStoryGroup();
         cy.dataCy('create-branch').should('have.length.of', 1);
