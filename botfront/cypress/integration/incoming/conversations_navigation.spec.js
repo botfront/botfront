@@ -215,17 +215,17 @@ describe('incoming page', function() {
     it('should go to the same page and conversation when refreshed', function() {
         cy.dataCy('incoming-conversations-tab')
             .click();
-        cy.dataCy('conversation-menu-item')
+        cy.dataCy('conversation-item')
             .first()
             .should('have.class', 'active');
-        cy.dataCy('conversation-menu-item')
+        cy.dataCy('conversation-item')
             .eq(5)
             .click();
-        cy.dataCy('conversation-menu-item')
+        cy.dataCy('conversation-item')
             .first()
             .should('not.have.class', 'active');
         cy.reload();
-        cy.dataCy('conversation-menu-item')
+        cy.dataCy('conversation-item')
             .eq(5)
             .should('have.class', 'active');
 
