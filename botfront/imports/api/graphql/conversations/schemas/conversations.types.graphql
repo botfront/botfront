@@ -6,6 +6,11 @@ type Query {
       status: [String] 
       env: String
       sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
+      lengthFilter: Int
+      xThanLength: compare
+      confidenceFilter: Int
+      xThanConfidence: compare
+      actionFilter: [String]
       ): Pagination
     conversation(projectId: String!, id: String!): ConversationContainer!
 }
@@ -13,6 +18,12 @@ type Query {
 enum order {
   updatedAt_ASC
   updatedAt_DESC
+}
+
+enum compare {
+  greaterThan
+  lesserThan
+  equals
 }
 
 type Mutation {

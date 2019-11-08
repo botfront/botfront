@@ -8,8 +8,20 @@ import {
 
 export default {
     Query: {
-        async conversationsPage(_, args, __) {
-            return getConversations(args.projectId, args.page, args.pageSize, args.status, args.sort, args.env);
+        async conversations(_, args, __) {
+            return getConversations(
+                args.projectId,
+                args.page,
+                args.pageSize,
+                args.status,
+                args.sort,
+                args.env,
+                args.lengthFilter,
+                args.xThanLength,
+                args.confidenceFilter,
+                args.xThanConfidence,
+                args.actionFilter,
+            );
         },
         async conversation(_, args, __) {
             return getConversation(args.projectId, args.id);
