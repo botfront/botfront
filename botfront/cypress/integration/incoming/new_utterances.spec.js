@@ -18,7 +18,7 @@ describe('incoming page', function() {
     // add utterances with populate
         cy.visit('/project/bf/incoming');
         cy.dataCy('incoming-populate-tab')
-            .click();
+            .click({ force: true });
         cy.get('textarea')
             .click()
             .type('apple{enter}kiwi{enter}orange');
@@ -26,6 +26,8 @@ describe('incoming page', function() {
             .contains('Add Utterances')
             .click();
         // define intents of new utterances
+        cy.wait(100); // wait for the response from the server
+        cy.get('[data-cy=incoming-newutterances-tab]', { timeout: 10000 }).should('have.text', 'New Utterances (3)');
         cy.dataCy('incoming-newutterances-tab')
             .click();
         cy.get('.ui.grey.basic.label')

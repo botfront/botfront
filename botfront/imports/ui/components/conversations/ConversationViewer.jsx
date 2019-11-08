@@ -1,44 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { browserHistory } from 'react-router';
 import {
     Icon, Menu, Segment, Placeholder,
 } from 'semantic-ui-react';
-import { withTracker } from 'meteor/react-meteor-data';
+import Alert from 'react-s-alert';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
+import { GET_CONVERSATION } from './queries';
+import { MARK_READ } from './mutations';
 import ConversationJsonViewer from './ConversationJsonViewer';
 import ConversationDialogueViewer from './ConversationDialogueViewer';
-import { Conversations } from '../../../api/conversations';
 
-class ConversationViewer extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            active: 'Text',
-        };
+function ConversationViewer (props) {
+    const [active, setActive] = useState('Text');
+    const {
+        tracker, ready, onDelete, removeReadMark, optimisticlyRemoved,
+    } = props;
+
+    const [markRead, { data }] = useMutation(MARK_READ);
+
+    function handleItemClick(event, item) {
+        setActive(item.name);
     }
-
-    componentWillReceiveProps(props) {
-        this.props = props;
-        const { tracker } = this.props;
-        if (tracker) this.markAsRead(tracker);
-    }
-
-    handleItemClick = (event, item) => {
-        this.setState({ active: item.name });
-    };
-
-    handleItemStatus = (event, { name: status }) => {
-        const { tracker } = this.props;
+    /*
+    function handleItemStatus(event, { name: status }) {
         Meteor.call('conversations.updateStatus', tracker._id, status);
-    };
+    }
+    */
 
-    handleItemDelete = () => {
-        const { tracker, onDelete } = this.props;
+    function handleItemDelete() {
         onDelete(tracker._id);
-    };
+    }
 
-    renderSegment = (ready, active, tracker) => {
+    function renderSegment() {
         const style = {
             maxHeight: '82vh',
             overflowY: 'scroll',
@@ -84,70 +79,94 @@ class ConversationViewer extends React.Component {
         );
     }
 
-    markAsRead = tracker => Meteor.call('conversations.markAsRead', tracker._id);
+    useEffect(() => {
+        if (tracker && tracker.status !== 'read' && !optimisticlyRemoved.has(tracker._id)) {
+            removeReadMark(tracker._id);
+            markRead({ variables: { id: tracker._id } });
+        }
+    }, [props]);
 
-    render() {
-        const { tracker, ready } = this.props;
-        const { active } = this.state;
+    useEffect(() => {
+        if (data && !data.markAsRead.success) {
+            Alert.warning('Something went wrong, the conversation was not marked as read', {
+                position: 'top-right',
+                timeout: 5000,
+            });
+        }
+    }, [data]);
 
-        return (
-            <div>
-                <Menu compact attached='top'>
-                    {/* <Menu.Item name='new' disabled={!ready} active={ready && tracker.status === 'new'} onClick={this.handleItemStatus}>
+    
+    return (
+        <div>
+            <Menu compact attached='top'>
+                {/* <Menu.Item name='new' disabled={!ready} active={ready && tracker.status === 'new'} onClick={this.handleItemStatus}>
                         <Icon name='mail' />
                     </Menu.Item>
                     <Menu.Item name='flagged' disabled={!ready} active={ready && tracker.status === 'flagged'} onClick={this.handleItemStatus}>
                         <Icon name='flag' />
                     </Menu.Item> */}
-                    <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={this.handleItemDelete}>
-                        <Icon name='trash' />
+                <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={handleItemDelete}>
+                    <Icon name='trash' />
+                </Menu.Item>
+                <Menu.Menu position='right'>
+                    <Menu.Item name='Text' disabled={!ready} active={ready && active === 'Text'} onClick={handleItemClick}>
+                        <Icon name='comments' />
                     </Menu.Item>
-                    <Menu.Menu position='right'>
-                        <Menu.Item name='Text' disabled={!ready} active={ready && active === 'Text'} onClick={this.handleItemClick}>
-                            <Icon name='comments' />
-                        </Menu.Item>
-                        <Menu.Item name='Debug' disabled={!ready} active={ready && active === 'Debug'} onClick={this.handleItemClick}>
-                            <Icon name='bug' />
-                        </Menu.Item>
-                        <Menu.Item name='JSON' disabled={!ready} active={ready && active === 'JSON'} onClick={this.handleItemClick}>
-                            <Icon name='code' />
-                        </Menu.Item>
-                    </Menu.Menu>
-                </Menu>
-
-                {this.renderSegment(ready, active, tracker)}
-            </div>
-        );
-    }
+                    <Menu.Item name='Debug' disabled={!ready} active={ready && active === 'Debug'} onClick={handleItemClick}>
+                        <Icon name='bug' />
+                    </Menu.Item>
+                    <Menu.Item name='JSON' disabled={!ready} active={ready && active === 'JSON'} onClick={handleItemClick}>
+                        <Icon name='code' />
+                    </Menu.Item>
+                </Menu.Menu>
+            </Menu>
+            {renderSegment(ready, active, tracker)}
+        </div>
+    );
 }
+
 
 ConversationViewer.defaultProps = {
     tracker: null,
+    optimisticlyRemoved: new Set(),
 };
 
 ConversationViewer.propTypes = {
     tracker: PropTypes.object,
     onDelete: PropTypes.func.isRequired,
     ready: PropTypes.bool.isRequired,
+    removeReadMark: PropTypes.func.isRequired,
+    optimisticlyRemoved: PropTypes.instanceOf(Set),
 };
 
-const ConversationViewerContainer = withTracker((props) => {
-    const { conversationId, projectId, onDelete } = props;
-    const conversationDetailsHandler = Meteor.subscribe('conversation-detail', conversationId, projectId);
+const ConversationViewerContainer = (props) => {
+    const {
+        conversationId, projectId, onDelete, removeReadMark, optimisticlyRemoved,
+    } = props;
+    
+    const { loading, error, data } = useQuery(GET_CONVERSATION, {
+        variables: { projectId, conversationId },
+        pollInterval: 1000,
+    });
+
     let conversation = null;
-    if (conversationDetailsHandler.ready()) {
-        conversation = Conversations.findOne(conversationId);
+    if (!loading && !error) {
+        ({ conversation } = data);
         if (!conversation) {
             browserHistory.replace({ pathname: `/project/${projectId}/dialogue/conversations/p/1` });
         }
     }
-
-    return {
-        ready: conversationDetailsHandler.ready() && !!conversation,
+    
+    const componentProps = {
+        ready: !loading && !!conversation,
         onDelete,
         tracker: conversation,
+        removeReadMark,
+        optimisticlyRemoved,
     };
-})(ConversationViewer);
+      
+    return (<ConversationViewer {...componentProps} />);
+};
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

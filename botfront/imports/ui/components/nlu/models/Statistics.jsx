@@ -2,19 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Statistic, Tab } from 'semantic-ui-react';
 
+
 export default class Statistics extends React.Component {
     renderStatistics() {
         const data = [
-            {
-                label: 'Examples',
-                value: this.props.model.training_data.common_examples.length,
-            },
+            { label: 'Examples', value: this.props.model.training_data.common_examples.length },
             { label: 'Intents', value: this.props.intents.length },
             { label: 'Entities', value: this.props.entities.length },
-            {
-                label: 'Synonyms',
-                value: this.props.model.training_data.entity_synonyms.length,
-            },
+            { label: 'Synonyms', value: this.props.model.training_data.entity_synonyms.length },
         ];
 
         return data.map((d, index) => (
@@ -34,7 +29,6 @@ export default class Statistics extends React.Component {
         );
     }
 }
-
 Statistics.propTypes = {
     model: PropTypes.object.isRequired,
     intents: PropTypes.array.isRequired,

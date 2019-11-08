@@ -87,7 +87,6 @@ function ConversationDialogueViewer({ tracker, mode }) {
         userSays: null,
         botResponses: [],
     };
-
     tracker.events.forEach((event) => {
         const type = event.event;
 

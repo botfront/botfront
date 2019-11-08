@@ -71,6 +71,7 @@ class Incoming extends React.Component {
                     projectLanguages={projectLanguages}
                     selectedModel={selectedModel}
                     handleLanguageChange={this.handleLanguageChange}
+                    tab={params.tab}
                 />
                 <Container>
                     <Loading loading={!ready || !model}>
