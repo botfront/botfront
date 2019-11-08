@@ -5,6 +5,7 @@ describe('intial setup', function() {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
             cy.exec('mongo bf --host localhost:27017 --eval "db.dropDatabase();"');
         }
+        cy.waitForResolve(Cypress.env('baseUrl'));
     });
 
     after(function() {

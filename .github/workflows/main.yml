@@ -1,23 +1,205 @@
-name: CI
+name: Botfront
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches:
+      - master # when ref is master
+  push:
+    branches:
+      - master # when base_ref is master
+    tags:
+      - '**'
 
 jobs:
-  test:
+  # debug:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Dump github context
+  #       env:
+  #         GH_CONTEXT: ${{ toJson(github) }}
+  #       run: echo "$GH_CONTEXT"
 
+  unit-api:
     runs-on: ubuntu-latest
+    # if: contains(github.event.head_commit.modified, 'api/')
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+      - uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-api-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-api-
+      - working-directory: ./api
+        run: npm ci
+      - name: tests
+        working-directory: ./api
+        run: npm run test
 
+  unit-bf:
+    runs-on: ubuntu-latest
+    # if: contains(github.event.head_commit.modified, 'botfront/')
     steps:
     - uses: actions/checkout@v1
-    - name: Setup Node
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
-    - name: Install Meteor
+    - name: install meteor
       run: curl https://install.meteor.com/ | sh
-    - name: Run meteor test-watch
-      run: |
-        cd botfront
-        npm ci
-        npm run test-once
-        
+    - uses: actions/cache@v1
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-bf-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-bf-
+    - working-directory: ./botfront
+      run: npm ci # to do: remove cypress from installation
+    - name: mocha tests
+      working-directory: ./botfront
+      run: npm run test-once
+
+  build-api:
+    runs-on: ubuntu-latest
+    # if: contains(github.event.head_commit.modified, 'api/') || contains(github.event.head_commit.modified, 'botfront/')
+    steps:
+      - uses: actions/checkout@v1
+      - name: build api image
+        run: |
+          docker build \
+          -t botfront-api-local \
+          ./api
+      - run: docker save botfront-api-local $(docker history -q botfront-api-local | awk '!/<missing>/{print}') > botfront-api-local.tar
+      - uses: actions/upload-artifact@v1
+        with:
+          name: botfront-api-local
+          path: botfront-api-local.tar
+
+  build-bf: # to do: run meteor build in previous step and build from simplified dockerfile
+    runs-on: ubuntu-latest
+    # if: contains(github.event.head_commit.modified, 'botfront/')
+    steps:
+      - uses: actions/checkout@v1
+      - name: build bf image
+        run: |
+          docker build \
+          -t botfront-local \
+          .
+      - run: docker save botfront-local $(docker history -q botfront-local | awk '!/<missing>/{print}') > botfront-local.tar
+      - uses: actions/upload-artifact@v1
+        with:
+          name: botfront-local
+          path: botfront-local.tar
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: [build-api, build-bf]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/download-artifact@v1
+        with:
+          name: botfront-api-local
+          path: .
+      - uses: actions/download-artifact@v1
+        with:
+          name: botfront-local
+          path: .
+      - run: docker load < botfront-api-local.tar
+      - run: docker load < botfront-local.tar
+      - name: cypress tests
+        working-directory: ./botfront/cypress
+        run: |
+          docker-compose up \
+          --abort-on-container-exit \
+          --exit-code-from e2e
+      # - continue-on-error: true
+      #   working-directory: ./botfront/cypress
+      #   run: tar -czvf screenshots.tar.gz ./screenshots
+      - name: persist screenshots as artifact
+        continue-on-error: true
+        uses: actions/upload-artifact@v1
+        with:
+          name: screenshots
+          path: ./botfront/cypress/screenshots
+
+  push-api:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
+    needs: [unit-api, build-api]
+    steps:
+      - name: log in
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: download image
+        uses: actions/download-artifact@v1
+        with:
+          name: botfront-api-local
+          path: .
+      - run: docker load < botfront-api-local.tar
+      - name: push image
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Add branch- prefix for branch pushes
+          [[ "${{ github.ref }}" == "refs/heads/"* ]] && VERSION=branch-$VERSION
+          echo VERSION=$VERSION
+          docker tag botfront-api-local botfront/botfront-api:$VERSION
+          docker push botfront/botfront-api:$VERSION
+
+  push-bf:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
+    needs: [unit-bf, build-bf, integration]
+    steps:
+      - name: log in
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: download image
+        uses: actions/download-artifact@v1
+        with:
+          name: botfront-local
+          path: .
+      - run: docker load < botfront-local.tar
+      - name: push image
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Add branch- prefix for branch pushes
+          [[ "${{ github.ref }}" == "refs/heads/"* ]] && VERSION=branch-$VERSION
+          echo VERSION=$VERSION
+          docker tag botfront-local botfront/botfront:$VERSION
+          docker push botfront/botfront:$VERSION
+  
+  create-github-release:
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'tags')
+    needs: [push-bf]
+    steps:
+      - uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+      - uses: actions/checkout@v1
+      - name: npm publish
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+          npm run trypublish
+        env:
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+  create-npm-release:
+    runs-on: ubuntu-latest
+    needs: [create-github-release]
+    steps:
+      - uses: actions/checkout@v1
+      - name: npm publish
+        working-directory: ./cli
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          npm run trypublish
+        env:
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
