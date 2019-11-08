@@ -58,8 +58,10 @@ function Stories(props) {
     const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
 
     useEffect(() => {
-        if (switchToGroupByIdNext) switchToGroupById(switchToGroupByIdNext);
-        setSwitchToGroupByIdNext('');
+        if (switchToGroupByIdNext) {
+            switchToGroupById(switchToGroupByIdNext);
+            setSwitchToGroupByIdNext('');
+        }
     }, [switchToGroupByIdNext]);
 
     useEffect(() => {
