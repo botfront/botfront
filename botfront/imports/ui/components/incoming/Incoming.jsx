@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { Container } from 'semantic-ui-react';
-import { browserHistory } from 'react-router';
+import { browserHistory, withRouter } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
 import { Loading } from '../utils/Utils';
@@ -26,20 +26,20 @@ class Incoming extends React.Component {
     };
 
     handleLanguageChange = (value) => {
-        const { models, params, changeWorkingLanguage } = this.props;
+        const { models, router, changeWorkingLanguage } = this.props;
 
         const modelMatch = models.find(({ language }) => language === value);
 
         if (modelMatch) {
             changeWorkingLanguage(value);
-            const pathname = updateIncomingPath({ ...params, model_id: modelMatch._id });
+            const pathname = updateIncomingPath({ ...router.params, model_id: modelMatch._id });
             browserHistory.push({ pathname });
         }
     }
 
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, workingLanguage,
+            projectLanguages, ready, entities, intents, modelId, project, model, instance, router, workingLanguage,
         } = this.props;
         return (
             <>
@@ -47,7 +47,7 @@ class Incoming extends React.Component {
                     projectLanguages={projectLanguages}
                     selectedLanguage={workingLanguage}
                     handleLanguageChange={this.handleLanguageChange}
-                    tab={params.tab}
+                    tab={router.params.tab}
                 />
                 <Container>
                     <Loading loading={!ready || !model}>
@@ -116,7 +116,15 @@ const handleDefaultRoute = (projectId) => {
 };
 
 const IncomingContainer = withTracker((props) => {
-    const { params: { model_id: modelId, project_id: projectId } = {}, workingLanguage, changeWorkingLanguage } = props;
+    const {
+        router: {
+            params: {
+                model_id: modelId, project_id: projectId,
+            } = {},
+        },
+        workingLanguage,
+        changeWorkingLanguage,
+    } = props;
 
     // setup model subscription
     let modelHandler = {
@@ -180,6 +188,8 @@ const IncomingContainer = withTracker((props) => {
     };
 })(Incoming);
 
+const IncomingContainerRouter = withRouter(IncomingContainer);
+
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
     workingLanguage: state.settings.get('workingLanguage'),
@@ -189,4 +199,4 @@ const mapDispatchToProps = {
     changeWorkingLanguage: setWorkingLanguage,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(IncomingContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(IncomingContainerRouter);

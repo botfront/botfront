@@ -205,6 +205,8 @@ ConversationsBrowser.defaultProps = {
     prevConvoId: {},
     nextConvoId: {},
     activeConversationId: {},
+    // projectId: '',
+    // modelId: '',
 };
 
 function ConversationBrowserSegment({
@@ -256,15 +258,21 @@ ConversationBrowserSegment.defaultProps = {
 };
 
 const ConversationsBrowserContainer = (props) => {
-    const { router } = props;
-    const projectId = router.params.project_id;
-    let activeConversationId = router.params.selected_id;
+    const { params, router } = props;
+
+    if (!router) {
+        return <></>;
+    }
+
+    const projectId = params.project_id;
+    let activeConversationId = params.selected_id;
     // const { projectId } = props;
     // let activeConversationId = '';
-    let page = parseInt(router.params.page, 10) || 1;
+    let page = parseInt(params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
+    
     // We take the previous element as well to have the id of the previous convo in the pagination
     const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
     // We take the next element as well to have the id of the next convo in the pagination
@@ -313,17 +321,19 @@ const ConversationsBrowserContainer = (props) => {
             /* we get here when either conversations is empty so we can mark loading to false */
             Object.assign(componentProps, { loading: false });
             /* or when we change pages and not all the data from the previous subscription has been removed
-            /* conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
-            return componentProps;
-        }
-        if (!activeConversationId) {
-            let url = `/project/${projectId}/incoming/${props.router.params.model_id}/conversations/${page || 1}`;
-            const initialSelection = conversations.length > 0 ? conversations[from]._id : undefined;
-            url = updateIncomingPath({ ...props.router.params, page: page || 1, selected_id: initialSelection });
-            browserHistory.push({ pathname: url });
-            activeConversationId = initialSelection;
-            return componentProps;
-            /* conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
+    * conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
+        } if (!activeConversationId) {
+            if (conversations.length > 0) {
+                const initialSelection = conversations[from]._id;
+                const url = updateIncomingPath({ ...params, page: page || 1, selected_id: initialSelection });
+                browserHistory.push({ pathname: url });
+            }
+            // let url = `/project/${projectId}/incoming/${props.params.model_id}/conversations/${page || 1}`;
+            // if (conversations.length > 0) {
+            //     url += `/${conversations[from]._id}`;
+            //     props.replaceUrl({ pathname: url });
+            // }
+            // activeConversationId = conversations[from]._id;
         } else {
             Object.assign(componentProps, {
                 loading: false,
@@ -338,7 +348,7 @@ const ConversationsBrowserContainer = (props) => {
             loading: true,
             projectId,
             page,
-            modelId: router.params.model_id,
+            modelId: props.params.model_id,
         });
     }
     return (<ConversationBrowserSegment {...componentProps} />);
@@ -353,6 +363,6 @@ const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
 });
 
-const ConversationsContainerRouter = withRouter(ConversationsBrowserContainer);
+const ConversationsRouter = withRouter(ConversationsBrowserContainer);
 
-export default connect(mapStateToProps)(ConversationsContainerRouter);
+export default connect(mapStateToProps)(ConversationsRouter);
