@@ -7,18 +7,14 @@
 </div>
 
 # Botfront
-
-Botfront is an open source chatbot platform built on top of **Rasa**.
+Creating a virtual assistant has become as easy and natural as chatting. Botfront is fully integrated with **Rasa** and lets you create the brightest chatbots in town.
 
 ![Botfront screenshot](/botfront/docs/images/botfront-screenshot.jpg)
 
-With Botfront you can:
-
-- Build advanced **multilingual** conversational agents 🌎
-- Write and train **stories** 📖
-- Create, train, and evaluate **NLU** models 🤓
-- Create and edit your bot responses 👩‍🎨
-- Monitor conversations, review and annotate incoming NLU utterances 👌
+**Key features:**
+- The most natural and intuitive conversation building interface 👩‍🎨
+- Powerful features to build, evaluate and manage your NLU models 🤓
+- Build multilingual chatbots 🌎
 
 
 ### Install
@@ -26,6 +22,8 @@ With Botfront you can:
 ```bash
 npm install -g botfront
 ```
+
+Then just run  `botfront` to get started
 
 ### Getting help
 - [Read the documentation](https://docs.botfront.io)
