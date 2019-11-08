@@ -3,10 +3,12 @@ name: Botfront
 on:
   pull_request:
     branches:
-      - ghci # when ref is master
+      - master # when ref is master
   push:
     branches:
-      - ghci # when base_ref is master
+      - master # when base_ref is master
+    tags:
+      - '**'
 
 jobs:
   # debug:
@@ -112,19 +114,19 @@ jobs:
           docker-compose up \
           --abort-on-container-exit \
           --exit-code-from e2e
-      - continue-on-error: true
-        working-directory: ./botfront/cypress
-        run: tar -czvf screenshots.tar.gz ./screenshots
-      - name: persist screenshots tarbar as artifact
+      # - continue-on-error: true
+      #   working-directory: ./botfront/cypress
+      #   run: tar -czvf screenshots.tar.gz ./screenshots
+      - name: persist screenshots as artifact
         continue-on-error: true
         uses: actions/upload-artifact@v1
         with:
           name: screenshots
-          path: ./botfront/cypress/screenshots.tar.gz
+          path: ./botfront/cypress/screenshots
 
   push-api:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (contains(github.ref, 'ghci') || contains(github.ref, 'tags'))
+    if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
     needs: [unit-api, build-api]
     steps:
       - name: log in
@@ -147,7 +149,7 @@ jobs:
 
   push-bf:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (contains(github.ref, 'ghci') || contains(github.ref, 'tags'))
+    if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
     needs: [unit-bf, build-bf, integration]
     steps:
       - name: log in
