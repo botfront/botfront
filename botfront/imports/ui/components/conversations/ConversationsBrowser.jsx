@@ -177,8 +177,8 @@ function ConversationsBrowser(props) {
                     </Grid.Column>
                 </Grid>
             ) : (
-                    <Message data-cy='no-conv' info>No conversation to load</Message>
-                )}
+                <Message data-cy='no-conv' info>No conversation to load</Message>
+            )}
         </div>
     );
 }
@@ -332,6 +332,11 @@ const ConversationsBrowserContainer = (props) => {
         });
     }
     return (<ConversationBrowserSegment {...componentProps} />);
+};
+
+ConversationsBrowserContainer.propTypes = {
+    params: PropTypes.object.isRequired,
+    replaceUrl: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
