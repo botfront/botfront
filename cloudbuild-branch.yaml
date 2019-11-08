@@ -59,3 +59,5 @@ steps:
   args: [ "push", "botfront/botfront-docs:branch-$BRANCH_NAME"]
 
 timeout: 120m
+options:
+    machineType: 'N1_HIGHCPU_8'
