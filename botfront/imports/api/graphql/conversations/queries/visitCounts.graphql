@@ -8,12 +8,13 @@ query VisitCounts(
 ) {
     conversationCounts(
         projectId: $projectId,
+        subtype: "engagement",
         envs: $envs,
         from: $from,
         to: $to,
         exclude: $exclude,
         nBuckets: $nBuckets,
     ) {
-        bucket, count, engagements, proportion,
+        bucket, hits, count, proportion,
     }
 }

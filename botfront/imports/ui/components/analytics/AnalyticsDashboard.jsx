@@ -64,14 +64,14 @@ function AnalyticsDashboard(props) {
         fallbackCounts: {
             chartTypeOptions: ['line'],
             title: 'Fallback',
-            titleDescription: 'The number of times the bot uttered fallback (out of all bot utterances).',
+            titleDescription: 'The number of conversations in which a fallback action was triggered.',
             queryParams: {
-                temporal: true, envs, projectId, queryName: 'responseCounts',
+                temporal: true, envs, projectId, queryName: 'conversationCounts',
             },
             query: fallbackCounts,
             graphParams: {
                 x: 'bucket',
-                y: [{ abs: 'count', rel: 'proportion' }],
+                y: [{ abs: 'hits', rel: 'proportion' }],
                 formats: {
                     bucket: v => v.toLocaleDateString(),
                     proportion: v => `${v}%`,
@@ -89,7 +89,7 @@ function AnalyticsDashboard(props) {
             query: visitCounts,
             graphParams: {
                 x: 'bucket',
-                y: [{ abs: 'count' }, { abs: 'engagements', rel: 'proportion' }],
+                y: [{ abs: 'count' }, { abs: 'hits', rel: 'proportion' }],
                 formats: {
                     bucket: v => v.toLocaleDateString(),
                     count: v => `${v} visit${v !== 1 ? 's' : ''}`,

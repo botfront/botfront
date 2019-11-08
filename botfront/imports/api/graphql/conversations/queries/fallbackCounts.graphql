@@ -3,17 +3,18 @@ query FallbackCounts(
     $envs: [String] = ["development", null],
     $from: Float,
     $to: Float,
-    $fallbacks: [String] = ["utter_fallback"],
+    $fallbacks: [String] = ["action_botfront_fallback"],
     $nBuckets: Int = 7,
 ) {
-    responseCounts(
+    conversationCounts(
         projectId: $projectId,
+        subtype: "fallback",
         envs: $envs,
         from: $from,
         to: $to,
-        responses: $fallbacks,
+        include: $fallbacks,
         nBuckets: $nBuckets,
     ) {
-        bucket, count, total, proportion
+        bucket, hits, count, proportion
     }
 }

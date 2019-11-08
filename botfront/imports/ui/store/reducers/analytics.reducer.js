@@ -35,7 +35,7 @@ const initialState = Map({
             endDate,
             chartType: 'line',
             valueType: 'absolute',
-            responses: List(['utter_fallback']),
+            responses: List(['action_botfront_fallback']),
         }),
         visitCounts: Map({
             visible: true,
