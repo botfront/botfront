@@ -44,9 +44,11 @@ describe('default story creation ', () => {
         cy.get('[data-cy=confirm-popup]')
             .get('[data-cy=confirm-yes]')
             .click({ force: true });
+        cy.wait(100); // wait for the story group to be removed because it is empty
 
         // there should be no additional stories in default stories
-        cy.contains('Default stories')
+        cy.dataCy('browser-item')
+            .contains('Default stories')
             .should('not.exist');
     });
 });
