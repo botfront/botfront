@@ -202,8 +202,8 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
             };
         } catch (e) {
             if (crashOnStoryWithErrors) {
-                // Same thing than previous comment
-                if (story.story) {
+                // Same thing than previous comment 20 lines up
+                if (typeof story.title === 'string') {
                     throw new Error(`an error in the story ${story.title} has caused training to fail`);
                 } else {
                     throw new Error('an error in a story has caused training to fail');
