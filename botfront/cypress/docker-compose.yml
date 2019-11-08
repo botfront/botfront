@@ -59,6 +59,7 @@ services:
     environment:
       # NODE_ENV must not be set to test because it would use the mongo mem server which we don't want here
       - MONGO_URL=mongodb://mongo:27017/bf
+      - CORS=*
 
   rasa:
     image: botfront/rasa-for-botfront:v1.3.9-bf.3
