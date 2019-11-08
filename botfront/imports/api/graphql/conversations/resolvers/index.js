@@ -3,6 +3,8 @@ import conversationDurationsResolver from './conversationDurationsResolver';
 import intentFrequenciesResolver from './intentFrequenciesResolver';
 import conversationCountsResolver from './conversationCountsResolver';
 import responseCountsResolver from './responseCountsResolver';
+import conversationsResolver from './conversationsResolver';
+
 
 export default [
     conversationLengthsResolver,
@@ -10,4 +12,5 @@ export default [
     intentFrequenciesResolver,
     conversationCountsResolver,
     responseCountsResolver,
+    conversationsResolver,
 ];

@@ -9,7 +9,7 @@ import {
 export default {
     Query: {
         async conversations(_, args, __) {
-            return getConversations(args.projectId, args.skip, args.limit, args.status, args.sort);
+            return getConversations(args.projectId, args.skip, args.limit, args.status, args.sort, args.env);
         },
         async conversation(_, args, __) {
             return getConversation(args.projectId, args.id);
