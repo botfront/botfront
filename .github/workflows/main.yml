@@ -114,15 +114,23 @@ jobs:
           docker-compose up \
           --abort-on-container-exit \
           --exit-code-from e2e
-      # - continue-on-error: true
-      #   working-directory: ./botfront/cypress
-      #   run: tar -czvf screenshots.tar.gz ./screenshots
-      - name: persist screenshots as artifact
+      - continue-on-error: true
+        working-directory: ./botfront/cypress
+        run: |
+          tar -czvf screenshots.tar.gz ./screenshots
+          tar -czvf videos.tar.gz ./videos
+      - name: persist screenshots tarball as artifact
         continue-on-error: true
         uses: actions/upload-artifact@v1
         with:
           name: screenshots
-          path: ./botfront/cypress/screenshots
+          path: ./botfront/cypress/screenshots.tar.gz
+      - name: persist videos tarball as artifact
+        continue-on-error: true
+        uses: actions/upload-artifact@v1
+        with:
+          name: videos
+          path: ./botfront/cypress/videos.tar.gz
 
   push-api:
     runs-on: ubuntu-latest
