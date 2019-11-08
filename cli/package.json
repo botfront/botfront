@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "trypublish": "npm publish || true",
     "postinstall": "echo Botfront EE is succesfully installed. Run 'botfront-ee' to get started"
   },
   "bin": {

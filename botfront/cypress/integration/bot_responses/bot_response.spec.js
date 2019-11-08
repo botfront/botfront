@@ -134,7 +134,6 @@ describe('Bot responses', function() {
         cy.get('.ace_text-input').type('tes: wrong');
         cy.get('.warning').should('exist');
     });
-   
 
     it('should be possible to create a quickreply without the type field', function() {
         cy.visit('/project/bf/dialogue/templates/add');
@@ -147,7 +146,7 @@ describe('Bot responses', function() {
         cy.get('.ace_editor').click();
         cy.get('.ace_text-input').clear();
         // eslint-disable-next-line max-len
-        cy.get('.ace_text-input').type('text: text above the buttons{enter}buttons:{enter}  - title: Button title 1{enter}    payload: /payload1{enter}  - title: Button title 2{enter}    payload: /payload2');
+        cy.get('.ace_text-input').type('text: text above the buttons{enter}buttons:{enter}  - title: Button title 1{enter}  payload: /payload1{enter}{backspace}- title: Button title 2{enter}  payload: /payload2');
         cy.get('.warning').should('not.exist');
     });
 
@@ -162,7 +161,7 @@ describe('Bot responses', function() {
         cy.get('.ace_editor').click();
         cy.get('.ace_text-input').clear();
         // eslint-disable-next-line max-len
-        cy.get('.ace_text-input').type('text: text above the buttons{enter}buttons:{enter}  - title: Button1{enter}    type: postback{enter}    payload: /payload1{enter}  - title: Button2{enter}    payload: /payload2');
+        cy.get('.ace_text-input').type('text: text above the buttons{enter}buttons:{enter}  - title: Button1{enter}  type: postback{enter}payload: /payload1{enter}{backspace}- title: Button2{enter}  payload: /payload2');
         cy.get('.warning').should('not.exist');
     });
 });

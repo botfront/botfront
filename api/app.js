@@ -12,15 +12,20 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.raw({ limit: '100mb' }));
-app.use(cors({
-    origin: function(origin, callback) {
-        if (!origin) return callback(null, true);
-        if (!['http://localhost:3000'].includes(origin)) {
-            return callback(new Error('Disallowed by CORS'), false);
-        }
-        return callback(null, true);
-    },
-}));
+
+if (process.env.CORS === '*') app.use(cors());
+if (process.env.CORS) {
+    const allowedOrigins = process.env.CORS.split(',');
+    app.use(cors({
+        origin: function(origin, callback) {
+            if (!origin) return callback(null, true);
+            if (!allowedOrigins.includes(origin)) {
+                return callback(new Error('Disallowed by CORS'), false);
+            }
+            return callback(null, true);
+        },
+    }));
+}
 
 config().then(async config => {
 

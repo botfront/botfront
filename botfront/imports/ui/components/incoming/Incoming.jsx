@@ -83,6 +83,7 @@ class Incoming extends React.Component {
                     projectEnvironments={projectEnvironments}
                     handleEnvChange={this.handleEnvChange}
                     selectedEnvironment={selectedEnvironment}
+                    tab={params.tab}
                 />
                 <Container>
                     <Loading loading={!ready || !model}>

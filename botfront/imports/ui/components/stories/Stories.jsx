@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
+import { Instances } from '../../../api/instances/instances.collection';
 import { Projects } from '../../../api/project/project.collection';
 import { Slots } from '../../../api/slots/slots.collection';
 import { ConversationOptionsContext } from '../utils/Context';
@@ -331,8 +332,8 @@ export default withTracker((props) => {
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
     const projectsHandler = Meteor.subscribe('projects', projectId);
+    const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
-    const { instance } = props;
     const { templates } = Projects.findOne(
         { _id: projectId },
         {
@@ -341,17 +342,24 @@ export default withTracker((props) => {
             },
         },
     );
+    const instance = Instances.findOne({ projectId });
+
+    const project = {
+        _id: projectId,
+        templates,
+    };
 
     return {
         ready:
             storyGroupsHandler.ready()
             && projectsHandler.ready()
+            && instancesHandler.ready()
             && slotsHandler.ready()
             && storiesHandler.ready(),
         storyGroups: StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch(),
         slots: Slots.find({}).fetch(),
         instance,
-        project: { _id: projectId, templates },
+        project,
         stories: StoriesCollection.find({}).fetch(),
     };
 })(StoriesWithState);

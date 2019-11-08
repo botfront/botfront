@@ -8,9 +8,15 @@ import { Meteor } from 'meteor/meteor';
 import { Provider } from 'react-redux';
 
 import { Accounts } from 'meteor/accounts-base';
-import ApolloClient from 'apollo-boost';
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
+import { onError } from 'apollo-link-error';
+import { ApolloLink, Observable } from 'apollo-link';
 import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider as ApolloHooksProvider } from '@apollo/react-hooks';
 
+import ConversationsBrowser from '../../ui/components/conversations/ConversationsBrowser.jsx';
 import TemplatesContainer from '../../ui/components/templates/templates-list/Templates';
 import TemplateContainer from '../../ui/components/templates/template-upsert/Template';
 import SettingsContainer from '../../ui/components/admin/settings/Settings';
@@ -40,15 +46,53 @@ import UserContainer from '../../ui/components/admin/User';
 import AdminLayout from '../../ui/layouts/admin';
 import AnalyticsContainer from '../../ui/components/analytics/AnalyticsContainer';
 
-const client = new ApolloClient({
-    uri: '/graphql',
-    request: operation => operation.setContext(() => ({
+const request = async (operation) => {
+    operation.setContext({
         headers: {
             // eslint-disable-next-line no-underscore-dangle
             authorization: Accounts._storedLoginToken(),
         },
-    })),
+    });
+};
+
+const requestLink = new ApolloLink((operation, forward) => new Observable((observer) => {
+    let handle;
+    Promise.resolve(operation)
+        .then(oper => request(oper))
+        .then(() => {
+            handle = forward(operation).subscribe({
+                next: observer.next.bind(observer),
+                error: observer.error.bind(observer),
+                complete: observer.complete.bind(observer),
+            });
+        })
+        .catch(observer.error.bind(observer));
+
+    return () => {
+        if (handle) handle.unsubscribe();
+    };
+}));
+
+
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+    if (graphQLErrors) {
+        graphQLErrors.forEach(({ message, locations, path }) => console.log(
+            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+        ));
+    }
+    if (networkError) console.log(`[Network error]: ${networkError}`);
 });
+
+const httpLink = new HttpLink({
+    uri: '/graphql',
+    credentials: 'same-origin',
+});
+
+const client = new ApolloClient({
+    link: ApolloLink.from([errorLink, requestLink, httpLink]),
+    cache: new InMemoryCache(),
+});
+
 
 const authenticate = role => (nextState, replace, callback) => {
     Tracker.autorun(() => {
@@ -90,71 +134,73 @@ Meteor.startup(() => {
     render(
         <DocumentTitle title='Botfront by Mr. Bot'>
             <ApolloProvider client={client}>
-                <Provider store={store}>
-                    <Router history={browserHistory}>
-                        <Route exact path='/setup' component={SetupLayout}>
-                            <Route path='/setup/welcome' component={Welcome} name='Welcome' />
-                            <Route path='/setup/account' component={SetupSteps} name='Account' />
-                        </Route>
-                        <Route exact path='/' component={AccountLayout}>
-                            <IndexRoute component={Index} />
-                            <Route path='/login' component={Login} name='Login' />
-                            {/* <Route path="/signup" component={ Signup } onEnter={ logout } name='Signup' /> */}
-                            {/* <Route path="/create-project" component={ CreateProjectComponent } onEnter={ authenticate } name='Create Project' /> */}
-                            <Route path='/forgot-password' component={ForgotPassword} name='Forgot Password' />
-                            <Route path='/reset-password/:token' component={ResetPassword} name='Reset Password' />
-                            <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
-                        </Route>
-                        <Route exact path='/project' component={Project}>
-                            <Route path='/project/:project_id/nlu/legacy-models' component={NLUModels} name='NLU Models' onEnter={authenticate} />
-                            <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
-                            <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
-                            <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticate} />
-                            <Route
-                                path='/project/:project_id/incoming/:model_id'
-                                component={Incoming}
-                                name='Incoming'
-                                onEnter={authenticate}
-                            />
-                            <Route
-                                path='/project/:project_id/incoming/:model_id/:tab'
-                                component={Incoming}
-                                name='Incoming'
-                                onEnter={authenticate}
-                            />
-                            <Route
-                                path='/project/:project_id/incoming/:model_id/:tab/:page'
-                                component={Incoming}
-                                name='Incoming'
-                                onEnter={authenticate}
-                            />
-                            <Route
-                                path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
-                                component={Incoming}
-                                name='Incoming'
-                                onEnter={authenticate}
-                            />
-                            <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate} />
-                            <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
-                            <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
-                            <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
-                            <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
-                            <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('project-settings:r')} />
-                            <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-admin')} />
-                            <Route path='*' component={NotFound} />
-                        </Route>
-                        <Route exact path='/admin' component={AdminLayout}>
-                            <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticateAdmin} />
-                            <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
-                            <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
-                            <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticateAdmin} />
-                            <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticateAdmin} />
-                            <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticateAdmin} />
-                            <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticateAdmin} />
-                        </Route>
-                        <Route path='*' exact component={NotFound} />
-                    </Router>
-                </Provider>
+                <ApolloHooksProvider client={client}>
+                    <Provider store={store}>
+                        <Router history={browserHistory}>
+                            <Route exact path='/setup' component={SetupLayout}>
+                                <Route path='/setup/welcome' component={Welcome} name='Welcome' />
+                                <Route path='/setup/account' component={SetupSteps} name='Account' />
+                            </Route>
+                            <Route exact path='/' component={AccountLayout}>
+                                <IndexRoute component={Index} />
+                                <Route path='/login' component={Login} name='Login' />
+                                {/* <Route path="/signup" component={ Signup } onEnter={ logout } name='Signup' /> */}
+                                {/* <Route path="/create-project" component={ CreateProjectComponent } onEnter={ authenticate } name='Create Project' /> */}
+                                <Route path='/forgot-password' component={ForgotPassword} name='Forgot Password' />
+                                <Route path='/reset-password/:token' component={ResetPassword} name='Reset Password' />
+                                <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
+                            </Route>
+                            <Route exact path='/project' component={Project}>
+                                <Route path='/project/:project_id/nlu/legacy-models' component={NLUModels} name='NLU Models' onEnter={authenticate} />
+                                <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
+                                <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
+                                <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticate} />
+                                <Route
+                                    path='/project/:project_id/incoming/:model_id'
+                                    component={Incoming}
+                                    name='Incoming'
+                                    onEnter={authenticate}
+                                />
+                                <Route
+                                    path='/project/:project_id/incoming/:model_id/:tab'
+                                    component={Incoming}
+                                    name='Incoming'
+                                    onEnter={authenticate}
+                                />
+                                <Route
+                                    path='/project/:project_id/incoming/:model_id/:tab/:page'
+                                    component={Incoming}
+                                    name='Incoming'
+                                    onEnter={authenticate}
+                                />
+                                <Route
+                                    path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
+                                    component={Incoming}
+                                    name='Incoming'
+                                    onEnter={authenticate}
+                                />
+                                <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate} />
+                                <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
+                                <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
+                                <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
+                                <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
+                                <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('project-settings:r')} />
+                                <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-admin')} />
+                                <Route path='*' component={NotFound} />
+                            </Route>
+                            <Route exact path='/admin' component={AdminLayout}>
+                                <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticateAdmin} />
+                                <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
+                                <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
+                                <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticateAdmin} />
+                                <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticateAdmin} />
+                                <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticateAdmin} />
+                                <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticateAdmin} />
+                            </Route>
+                            <Route path='*' exact component={NotFound} />
+                        </Router>
+                    </Provider>
+                </ApolloHooksProvider>
             </ApolloProvider>
         </DocumentTitle>,
         document.getElementById('render-target'),
