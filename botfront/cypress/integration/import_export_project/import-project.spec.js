@@ -6,7 +6,7 @@ const slotType = 'bool';
 const intentExampleText = 'what\'s the date';
 
 const intent = 'date';
-const nExamplesOfIntent = 3;
+const nExamples = 8;
 
 const responseIntent = 'utter_g2FiL5tLA';
 const responseText = 'which account would you like to access';
@@ -147,6 +147,7 @@ describe('Importing a project', function() {
                 .click();
             cy.contains('Backup Failed').should('exist');
         });
+
         it('should import the right number and names of story groups', function() {
             cy.visit('/project/test_project/stories');
             cy.dataCy('browser-item')
@@ -171,13 +172,15 @@ describe('Importing a project', function() {
             cy.dataCy('browser-item')
                 .contains(storyGroupName)
                 .should('exist');
-            cy.dataCy('browser-item').should('have.lengthOf', 3);
+            cy.dataCy('browser-item').should('have.lengthOf', 4);
         });
-        
+
         it('should import story contents', function() {
             importProject();
 
             cy.visit('/project/test_project/stories');
+            cy.dataCy('toggle-md')
+                .click();
             cy.dataCy('browser-item')
                 .contains(storyGroupName)
                 .click();
@@ -195,7 +198,7 @@ describe('Importing a project', function() {
             importProject();
 
             cy.visit('/project/test_project/stories');
-            cy.dataCy('slots-tab')
+            cy.dataCy('slots-modal')
                 .click();
             cy.dataCy('slot-editor').should('have.lengthOf', 1);
             cy.dataCy('slot-editor')
@@ -208,28 +211,16 @@ describe('Importing a project', function() {
         });
         it('should import the right number of examples for an intent', function() {
             importProject();
-
             cy.visit('/project/test_project/nlu/models');
             cy.contains(intentExampleText)
                 .closest('.rt-tr')
                 .contains(intent)
                 .should('exist');
-            for (let iDeleteNLU = 0; iDeleteNLU < nExamplesOfIntent; iDeleteNLU += 1) {
-                cy.dataCy('intent-label')
-                    .contains(intent)
-                    .closest('.rt-tr')
-                    .find('.trash')
-                    .click({ force: true });
-                cy.contains('Insert many').click();
-                cy.contains('Examples').click();
-            }
+            cy.dataCy('intent-label')
+                .should('have.lengthOf', nExamples);
             cy.contains('Insert many').click();
             cy.contains('Examples').click();
-            cy.dataCy('intent-label')
-                .contains(intent)
-                .should('not.exist');
         });
-        
         it('should import all responses', function() {
             importProject();
 
