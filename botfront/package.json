@@ -91,8 +91,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",
-    "@commitlint/cli": "8.1.0",
-    "@commitlint/config-conventional": "8.1.0",
+    "@commitlint/cli": "8.2.0",
+    "@commitlint/config-conventional": "8.2.0",
     "@meteorjs/eslint-config-meteor": "^1.0.5",
     "@storybook/addon-knobs": "^5.1.9",
     "@storybook/react": "^5.1.9",
