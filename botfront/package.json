@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "0.17.2-ee.7",
+  "version": "0.17.2-ee.8",
   "private": true,
   "repository": "https://github.com/botfront/botfront",
   "license": "AGPL-3.0-only",
@@ -133,7 +133,7 @@
     "eslint-plugin-meteor": "^5.1.0",
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
-    "husky": "2.7.0",
+    "husky": "3.0.9",
     "less": "2.5.0",
     "less-loader": "^5.0.0",
     "license-checker": "^25.0.1",

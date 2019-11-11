@@ -2,6 +2,186 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.2-ee.8](https://github.com/botfront/botfront/compare/v0.17.2-ee.7...v0.17.2-ee.8) (2019-11-11)
+
+
+### Features
+
+* add fields to conversation schema/resolver ([98f65eb](https://github.com/botfront/botfront/commit/98f65eb9e92bffd6749076728c0b0a235e189ce3))
+* add missing fields to conversation resolvers/schema ([9d300b6](https://github.com/botfront/botfront/commit/9d300b6b06f62da0d9e1c826ed17c283e8064245))
+* add mutations for conversations ([875e99a](https://github.com/botfront/botfront/commit/875e99abdc073af7f66e9bb5dc7d755f54d05427))
+* add sort and filter to graphlql query ([a5bfb62](https://github.com/botfront/botfront/commit/a5bfb62312619a0a017c6a3100cea091e656d71a))
+* conversation analytics ([9850b4e](https://github.com/botfront/botfront/commit/9850b4e55b7e231a45a34fe2d29c3b6652d60863))
+* conversation details fetching with graphQL ([2d3a0bf](https://github.com/botfront/botfront/commit/2d3a0bfcab8bf580eb48dc0b97563e250961e411))
+* delete use grahpQL mutation ([2369097](https://github.com/botfront/botfront/commit/23690979c06879aa66944ae712aed16cfe134ac5))
+* enable import and export tests ([2e84a81](https://github.com/botfront/botfront/commit/2e84a8139cf63a2c7016548d20a48f4f880a28d7))
+* hide language selector on the conversation tab ([a0d6b9a](https://github.com/botfront/botfront/commit/a0d6b9aa36b87501fdc8e78a1836001fd7cdcf20))
+* nlu analytics with graphql ([3ba51ae](https://github.com/botfront/botfront/commit/3ba51ae6b74dabb7d6e07bfc0d3c61e8d37ed248))
+* optimistic removes read markers ([c0b7e46](https://github.com/botfront/botfront/commit/c0b7e460cb984d320a7e2c21c9dc59d6d544f426))
+* update conversation data on delete ([3091354](https://github.com/botfront/botfront/commit/3091354a31c8b27a7b298557e2fdcf736402c681))
+* use graphQL in conversation browser ([867a472](https://github.com/botfront/botfront/commit/867a4725350c607413f064f6e166590ba88fc843))
+* use mutation for marking as read ([14609ad](https://github.com/botfront/botfront/commit/14609ad64cbcc8bf8af1e6e809c62fa7266555a0))
+
+
+### Bug Fixes
+
+* deep links for conversation ([57c801a](https://github.com/botfront/botfront/commit/57c801ab8a676d587414bcb67d3dd66555cce795))
+* dimensions in NLU statistics ([86d6e9c](https://github.com/botfront/botfront/commit/86d6e9cdc965ea913a230f23da0617e35939aa06))
+* enable rasa export ([c396375](https://github.com/botfront/botfront/commit/c3963756a0231413b1abdb17f8e3e48dce001279))
+* fixed rasa parsing in visual story editor ([#314](https://github.com/botfront/botfront/issues/314)) ([be97fe9](https://github.com/botfront/botfront/commit/be97fe9464d7bde4f32374ef099a9de13e373c1a))
+* import tests failing after visual story merge ([df0c43e](https://github.com/botfront/botfront/commit/df0c43e8e482412b1f8fda1e9e1e49a76e38a264))
+* names of export project test ([71f073c](https://github.com/botfront/botfront/commit/71f073c90f633b5e700e121646415f2fc99add2e))
+* nlu training button permanatly disabled ([77829cf](https://github.com/botfront/botfront/commit/77829cfe4182a82e87a3de75e7cf8edacfb618fa))
+* persist state test clicks too fast ([9541c36](https://github.com/botfront/botfront/commit/9541c36dc3b259ad327d51aecaf40ea2334f46f0))
+* story exception test could not find .eq(2) ([d960610](https://github.com/botfront/botfront/commit/d960610a401183f064e3dbbaa77cebc42cb69e78))
+* test finds an element before it is removed ([c84e0ff](https://github.com/botfront/botfront/commit/c84e0ff36d7b16644508f9c3adcf552fd7f17aaf))
+* testing link in export success message ([a1918c3](https://github.com/botfront/botfront/commit/a1918c3cd81e9f83d0079b829314cf411328ef91))
+* train empty stories ([e2be980](https://github.com/botfront/botfront/commit/e2be9805678469905018ffaa2daf390fa1b721a1))
+
+### [0.17.2-ee.8](https://github.com/botfront/botfront/compare/v0.17.2-ee.7...v0.17.2-ee.8) (2019-11-11)
+
+
+### Features
+
+* add fields to conversation schema/resolver ([98f65eb](https://github.com/botfront/botfront/commit/98f65eb9e92bffd6749076728c0b0a235e189ce3))
+* add missing fields to conversation resolvers/schema ([9d300b6](https://github.com/botfront/botfront/commit/9d300b6b06f62da0d9e1c826ed17c283e8064245))
+* add mutations for conversations ([875e99a](https://github.com/botfront/botfront/commit/875e99abdc073af7f66e9bb5dc7d755f54d05427))
+* add sort and filter to graphlql query ([a5bfb62](https://github.com/botfront/botfront/commit/a5bfb62312619a0a017c6a3100cea091e656d71a))
+* conversation analytics ([9850b4e](https://github.com/botfront/botfront/commit/9850b4e55b7e231a45a34fe2d29c3b6652d60863))
+* conversation details fetching with graphQL ([2d3a0bf](https://github.com/botfront/botfront/commit/2d3a0bfcab8bf580eb48dc0b97563e250961e411))
+* delete use grahpQL mutation ([2369097](https://github.com/botfront/botfront/commit/23690979c06879aa66944ae712aed16cfe134ac5))
+* enable import and export tests ([2e84a81](https://github.com/botfront/botfront/commit/2e84a8139cf63a2c7016548d20a48f4f880a28d7))
+* hide language selector on the conversation tab ([a0d6b9a](https://github.com/botfront/botfront/commit/a0d6b9aa36b87501fdc8e78a1836001fd7cdcf20))
+* nlu analytics with graphql ([3ba51ae](https://github.com/botfront/botfront/commit/3ba51ae6b74dabb7d6e07bfc0d3c61e8d37ed248))
+* optimistic removes read markers ([c0b7e46](https://github.com/botfront/botfront/commit/c0b7e460cb984d320a7e2c21c9dc59d6d544f426))
+* update conversation data on delete ([3091354](https://github.com/botfront/botfront/commit/3091354a31c8b27a7b298557e2fdcf736402c681))
+* use graphQL in conversation browser ([867a472](https://github.com/botfront/botfront/commit/867a4725350c607413f064f6e166590ba88fc843))
+* use mutation for marking as read ([14609ad](https://github.com/botfront/botfront/commit/14609ad64cbcc8bf8af1e6e809c62fa7266555a0))
+
+
+### Bug Fixes
+
+* deep links for conversation ([57c801a](https://github.com/botfront/botfront/commit/57c801ab8a676d587414bcb67d3dd66555cce795))
+* dimensions in NLU statistics ([86d6e9c](https://github.com/botfront/botfront/commit/86d6e9cdc965ea913a230f23da0617e35939aa06))
+* enable rasa export ([c396375](https://github.com/botfront/botfront/commit/c3963756a0231413b1abdb17f8e3e48dce001279))
+* fixed rasa parsing in visual story editor ([#314](https://github.com/botfront/botfront/issues/314)) ([be97fe9](https://github.com/botfront/botfront/commit/be97fe9464d7bde4f32374ef099a9de13e373c1a))
+* import tests failing after visual story merge ([df0c43e](https://github.com/botfront/botfront/commit/df0c43e8e482412b1f8fda1e9e1e49a76e38a264))
+* names of export project test ([71f073c](https://github.com/botfront/botfront/commit/71f073c90f633b5e700e121646415f2fc99add2e))
+* nlu training button permanatly disabled ([77829cf](https://github.com/botfront/botfront/commit/77829cfe4182a82e87a3de75e7cf8edacfb618fa))
+* persist state test clicks too fast ([9541c36](https://github.com/botfront/botfront/commit/9541c36dc3b259ad327d51aecaf40ea2334f46f0))
+* story exception test could not find .eq(2) ([d960610](https://github.com/botfront/botfront/commit/d960610a401183f064e3dbbaa77cebc42cb69e78))
+* test finds an element before it is removed ([c84e0ff](https://github.com/botfront/botfront/commit/c84e0ff36d7b16644508f9c3adcf552fd7f17aaf))
+* testing link in export success message ([a1918c3](https://github.com/botfront/botfront/commit/a1918c3cd81e9f83d0079b829314cf411328ef91))
+* train empty stories ([e2be980](https://github.com/botfront/botfront/commit/e2be9805678469905018ffaa2daf390fa1b721a1))
+
+### [0.17.2-ee.8](https://github.com/botfront/botfront/compare/v0.17.2-ee.7...v0.17.2-ee.8) (2019-11-11)
+
+
+### Features
+
+* add fields to conversation schema/resolver ([98f65eb](https://github.com/botfront/botfront/commit/98f65eb9e92bffd6749076728c0b0a235e189ce3))
+* add missing fields to conversation resolvers/schema ([9d300b6](https://github.com/botfront/botfront/commit/9d300b6b06f62da0d9e1c826ed17c283e8064245))
+* add mutations for conversations ([875e99a](https://github.com/botfront/botfront/commit/875e99abdc073af7f66e9bb5dc7d755f54d05427))
+* add sort and filter to graphlql query ([a5bfb62](https://github.com/botfront/botfront/commit/a5bfb62312619a0a017c6a3100cea091e656d71a))
+* conversation analytics ([9850b4e](https://github.com/botfront/botfront/commit/9850b4e55b7e231a45a34fe2d29c3b6652d60863))
+* conversation details fetching with graphQL ([2d3a0bf](https://github.com/botfront/botfront/commit/2d3a0bfcab8bf580eb48dc0b97563e250961e411))
+* delete use grahpQL mutation ([2369097](https://github.com/botfront/botfront/commit/23690979c06879aa66944ae712aed16cfe134ac5))
+* enable import and export tests ([2e84a81](https://github.com/botfront/botfront/commit/2e84a8139cf63a2c7016548d20a48f4f880a28d7))
+* hide language selector on the conversation tab ([a0d6b9a](https://github.com/botfront/botfront/commit/a0d6b9aa36b87501fdc8e78a1836001fd7cdcf20))
+* nlu analytics with graphql ([3ba51ae](https://github.com/botfront/botfront/commit/3ba51ae6b74dabb7d6e07bfc0d3c61e8d37ed248))
+* optimistic removes read markers ([c0b7e46](https://github.com/botfront/botfront/commit/c0b7e460cb984d320a7e2c21c9dc59d6d544f426))
+* update conversation data on delete ([3091354](https://github.com/botfront/botfront/commit/3091354a31c8b27a7b298557e2fdcf736402c681))
+* use graphQL in conversation browser ([867a472](https://github.com/botfront/botfront/commit/867a4725350c607413f064f6e166590ba88fc843))
+* use mutation for marking as read ([14609ad](https://github.com/botfront/botfront/commit/14609ad64cbcc8bf8af1e6e809c62fa7266555a0))
+
+
+### Bug Fixes
+
+* deep links for conversation ([57c801a](https://github.com/botfront/botfront/commit/57c801ab8a676d587414bcb67d3dd66555cce795))
+* dimensions in NLU statistics ([86d6e9c](https://github.com/botfront/botfront/commit/86d6e9cdc965ea913a230f23da0617e35939aa06))
+* enable rasa export ([c396375](https://github.com/botfront/botfront/commit/c3963756a0231413b1abdb17f8e3e48dce001279))
+* fixed rasa parsing in visual story editor ([#314](https://github.com/botfront/botfront/issues/314)) ([be97fe9](https://github.com/botfront/botfront/commit/be97fe9464d7bde4f32374ef099a9de13e373c1a))
+* import tests failing after visual story merge ([df0c43e](https://github.com/botfront/botfront/commit/df0c43e8e482412b1f8fda1e9e1e49a76e38a264))
+* names of export project test ([71f073c](https://github.com/botfront/botfront/commit/71f073c90f633b5e700e121646415f2fc99add2e))
+* nlu training button permanatly disabled ([77829cf](https://github.com/botfront/botfront/commit/77829cfe4182a82e87a3de75e7cf8edacfb618fa))
+* persist state test clicks too fast ([9541c36](https://github.com/botfront/botfront/commit/9541c36dc3b259ad327d51aecaf40ea2334f46f0))
+* story exception test could not find .eq(2) ([d960610](https://github.com/botfront/botfront/commit/d960610a401183f064e3dbbaa77cebc42cb69e78))
+* test finds an element before it is removed ([c84e0ff](https://github.com/botfront/botfront/commit/c84e0ff36d7b16644508f9c3adcf552fd7f17aaf))
+* testing link in export success message ([a1918c3](https://github.com/botfront/botfront/commit/a1918c3cd81e9f83d0079b829314cf411328ef91))
+* train empty stories ([e2be980](https://github.com/botfront/botfront/commit/e2be9805678469905018ffaa2daf390fa1b721a1))
+
+### [0.17.2-ee.8](https://github.com/botfront/botfront/compare/v0.17.2-ee.7...v0.17.2-ee.8) (2019-11-11)
+
+
+### Features
+
+* add fields to conversation schema/resolver ([98f65eb](https://github.com/botfront/botfront/commit/98f65eb9e92bffd6749076728c0b0a235e189ce3))
+* add missing fields to conversation resolvers/schema ([9d300b6](https://github.com/botfront/botfront/commit/9d300b6b06f62da0d9e1c826ed17c283e8064245))
+* add mutations for conversations ([875e99a](https://github.com/botfront/botfront/commit/875e99abdc073af7f66e9bb5dc7d755f54d05427))
+* add sort and filter to graphlql query ([a5bfb62](https://github.com/botfront/botfront/commit/a5bfb62312619a0a017c6a3100cea091e656d71a))
+* conversation analytics ([9850b4e](https://github.com/botfront/botfront/commit/9850b4e55b7e231a45a34fe2d29c3b6652d60863))
+* conversation details fetching with graphQL ([2d3a0bf](https://github.com/botfront/botfront/commit/2d3a0bfcab8bf580eb48dc0b97563e250961e411))
+* delete use grahpQL mutation ([2369097](https://github.com/botfront/botfront/commit/23690979c06879aa66944ae712aed16cfe134ac5))
+* enable import and export tests ([2e84a81](https://github.com/botfront/botfront/commit/2e84a8139cf63a2c7016548d20a48f4f880a28d7))
+* hide language selector on the conversation tab ([a0d6b9a](https://github.com/botfront/botfront/commit/a0d6b9aa36b87501fdc8e78a1836001fd7cdcf20))
+* nlu analytics with graphql ([3ba51ae](https://github.com/botfront/botfront/commit/3ba51ae6b74dabb7d6e07bfc0d3c61e8d37ed248))
+* optimistic removes read markers ([c0b7e46](https://github.com/botfront/botfront/commit/c0b7e460cb984d320a7e2c21c9dc59d6d544f426))
+* update conversation data on delete ([3091354](https://github.com/botfront/botfront/commit/3091354a31c8b27a7b298557e2fdcf736402c681))
+* use graphQL in conversation browser ([867a472](https://github.com/botfront/botfront/commit/867a4725350c607413f064f6e166590ba88fc843))
+* use mutation for marking as read ([14609ad](https://github.com/botfront/botfront/commit/14609ad64cbcc8bf8af1e6e809c62fa7266555a0))
+
+
+### Bug Fixes
+
+* deep links for conversation ([57c801a](https://github.com/botfront/botfront/commit/57c801ab8a676d587414bcb67d3dd66555cce795))
+* dimensions in NLU statistics ([86d6e9c](https://github.com/botfront/botfront/commit/86d6e9cdc965ea913a230f23da0617e35939aa06))
+* enable rasa export ([c396375](https://github.com/botfront/botfront/commit/c3963756a0231413b1abdb17f8e3e48dce001279))
+* fixed rasa parsing in visual story editor ([#314](https://github.com/botfront/botfront/issues/314)) ([be97fe9](https://github.com/botfront/botfront/commit/be97fe9464d7bde4f32374ef099a9de13e373c1a))
+* import tests failing after visual story merge ([df0c43e](https://github.com/botfront/botfront/commit/df0c43e8e482412b1f8fda1e9e1e49a76e38a264))
+* names of export project test ([71f073c](https://github.com/botfront/botfront/commit/71f073c90f633b5e700e121646415f2fc99add2e))
+* nlu training button permanatly disabled ([77829cf](https://github.com/botfront/botfront/commit/77829cfe4182a82e87a3de75e7cf8edacfb618fa))
+* persist state test clicks too fast ([9541c36](https://github.com/botfront/botfront/commit/9541c36dc3b259ad327d51aecaf40ea2334f46f0))
+* story exception test could not find .eq(2) ([d960610](https://github.com/botfront/botfront/commit/d960610a401183f064e3dbbaa77cebc42cb69e78))
+* test finds an element before it is removed ([c84e0ff](https://github.com/botfront/botfront/commit/c84e0ff36d7b16644508f9c3adcf552fd7f17aaf))
+* testing link in export success message ([a1918c3](https://github.com/botfront/botfront/commit/a1918c3cd81e9f83d0079b829314cf411328ef91))
+* train empty stories ([e2be980](https://github.com/botfront/botfront/commit/e2be9805678469905018ffaa2daf390fa1b721a1))
+
+### [0.17.2-ee.8](https://github.com/botfront/botfront/compare/v0.17.2-ee.7...v0.17.2-ee.8) (2019-11-11)
+
+
+### Features
+
+* add fields to conversation schema/resolver ([98f65eb](https://github.com/botfront/botfront/commit/98f65eb9e92bffd6749076728c0b0a235e189ce3))
+* add missing fields to conversation resolvers/schema ([9d300b6](https://github.com/botfront/botfront/commit/9d300b6b06f62da0d9e1c826ed17c283e8064245))
+* add mutations for conversations ([875e99a](https://github.com/botfront/botfront/commit/875e99abdc073af7f66e9bb5dc7d755f54d05427))
+* add sort and filter to graphlql query ([a5bfb62](https://github.com/botfront/botfront/commit/a5bfb62312619a0a017c6a3100cea091e656d71a))
+* conversation analytics ([9850b4e](https://github.com/botfront/botfront/commit/9850b4e55b7e231a45a34fe2d29c3b6652d60863))
+* conversation details fetching with graphQL ([2d3a0bf](https://github.com/botfront/botfront/commit/2d3a0bfcab8bf580eb48dc0b97563e250961e411))
+* delete use grahpQL mutation ([2369097](https://github.com/botfront/botfront/commit/23690979c06879aa66944ae712aed16cfe134ac5))
+* enable import and export tests ([2e84a81](https://github.com/botfront/botfront/commit/2e84a8139cf63a2c7016548d20a48f4f880a28d7))
+* hide language selector on the conversation tab ([a0d6b9a](https://github.com/botfront/botfront/commit/a0d6b9aa36b87501fdc8e78a1836001fd7cdcf20))
+* nlu analytics with graphql ([3ba51ae](https://github.com/botfront/botfront/commit/3ba51ae6b74dabb7d6e07bfc0d3c61e8d37ed248))
+* optimistic removes read markers ([c0b7e46](https://github.com/botfront/botfront/commit/c0b7e460cb984d320a7e2c21c9dc59d6d544f426))
+* update conversation data on delete ([3091354](https://github.com/botfront/botfront/commit/3091354a31c8b27a7b298557e2fdcf736402c681))
+* use graphQL in conversation browser ([867a472](https://github.com/botfront/botfront/commit/867a4725350c607413f064f6e166590ba88fc843))
+* use mutation for marking as read ([14609ad](https://github.com/botfront/botfront/commit/14609ad64cbcc8bf8af1e6e809c62fa7266555a0))
+
+
+### Bug Fixes
+
+* deep links for conversation ([57c801a](https://github.com/botfront/botfront/commit/57c801ab8a676d587414bcb67d3dd66555cce795))
+* dimensions in NLU statistics ([86d6e9c](https://github.com/botfront/botfront/commit/86d6e9cdc965ea913a230f23da0617e35939aa06))
+* enable rasa export ([c396375](https://github.com/botfront/botfront/commit/c3963756a0231413b1abdb17f8e3e48dce001279))
+* fixed rasa parsing in visual story editor ([#314](https://github.com/botfront/botfront/issues/314)) ([be97fe9](https://github.com/botfront/botfront/commit/be97fe9464d7bde4f32374ef099a9de13e373c1a))
+* import tests failing after visual story merge ([df0c43e](https://github.com/botfront/botfront/commit/df0c43e8e482412b1f8fda1e9e1e49a76e38a264))
+* names of export project test ([71f073c](https://github.com/botfront/botfront/commit/71f073c90f633b5e700e121646415f2fc99add2e))
+* nlu training button permanatly disabled ([77829cf](https://github.com/botfront/botfront/commit/77829cfe4182a82e87a3de75e7cf8edacfb618fa))
+* persist state test clicks too fast ([9541c36](https://github.com/botfront/botfront/commit/9541c36dc3b259ad327d51aecaf40ea2334f46f0))
+* story exception test could not find .eq(2) ([d960610](https://github.com/botfront/botfront/commit/d960610a401183f064e3dbbaa77cebc42cb69e78))
+* test finds an element before it is removed ([c84e0ff](https://github.com/botfront/botfront/commit/c84e0ff36d7b16644508f9c3adcf552fd7f17aaf))
+* testing link in export success message ([a1918c3](https://github.com/botfront/botfront/commit/a1918c3cd81e9f83d0079b829314cf411328ef91))
+* train empty stories ([e2be980](https://github.com/botfront/botfront/commit/e2be9805678469905018ffaa2daf390fa1b721a1))
+
 ### [0.17.2-ee.7](https://github.com/botfront/botfront/compare/v0.17.2-ee.6...v0.17.2-ee.7) (2019-11-07)
 
 
