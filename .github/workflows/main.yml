@@ -50,9 +50,14 @@ jobs:
     - name: install meteor
       run: curl https://install.meteor.com/ | sh
     - uses: actions/cache@v1
+      id: cache
       with:
         path: ./botfront/node_modules
         key: bf-${{ hashFiles('**/package-lock.json') }}
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cache/Cypress
+        key: cypress-${{ hashFiles('**/package.json') }}
     - working-directory: ./botfront
       if: steps.cache.outputs.cache-hit != 'true'
       run: npm ci # to do: remove cypress from installation
