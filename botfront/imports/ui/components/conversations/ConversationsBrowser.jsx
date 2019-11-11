@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
 import { browserHistory } from 'react-router';
 import {
-    Container, Grid, Icon, Menu, Message, Segment,
+    Container, Grid, Icon, Menu, Message, Segment, Pagination,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { GET_CONVERSATIONS } from './queries';
@@ -15,13 +15,11 @@ import ConversationViewer from './ConversationViewer';
 import { Loading } from '../utils/Utils';
 
 
-const PAGE_SIZE = 20;
 function ConversationsBrowser(props) {
     const {
         projectId,
         page,
-        nextConvoId,
-        prevConvoId,
+        pages,
         modelId,
         trackers,
         activeConversationId,
@@ -48,34 +46,14 @@ function ConversationsBrowser(props) {
         setOptimisticRemoveReadMarker(new Set([...optimisticRemoveReadMarker, id]));
     }
 
-    function hasNextPage() {
-        return !!nextConvoId;
-    }
-
-    function hasPreviousPage() {
-        return page > 1;
-    }
-
     function renderIcon(tracker) {
         if (tracker.status === 'new') {
             return <Icon name='mail' />;
         }
-
         if (tracker.status === 'flagged') {
             return <Icon name='flag' color='red' />;
         }
-
         return '';
-    }
-
-    function goToNextPage() {
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}/conversations/${page + 1}/${nextConvoId}` });
-    }
-
-    function goToPreviousPage() {
-        if (page > 1) {
-            browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}/conversations/${page - 1}/${prevConvoId}` });
-        }
     }
 
 
@@ -88,6 +66,11 @@ function ConversationsBrowser(props) {
 
     function handleItemClick(event, { name }) {
         goToConversation(page, name);
+    }
+
+    function pageChange(newPage) {
+        const url = `/project/${projectId}/incoming/${modelId}/conversations/${newPage || 1}`;
+        return browserHistory.push({ pathname: url });
     }
 
     function renderMenuItems() {
@@ -106,53 +89,22 @@ function ConversationsBrowser(props) {
             </Menu.Item>
         ));
 
-        if (hasPreviousPage()) {
-            items.unshift((
-                <Menu.Item
-                    key={(trackers.length + 1).toString(10)}
-                    onClick={goToPreviousPage}
-                >
-                    <span style={{ fontSize: '10px' }}>
-                        <strong>{`Previous ${PAGE_SIZE} conversations`}</strong>
-                    </span>
-                </Menu.Item>
-            ));
-        }
-
-        if (hasNextPage()) {
-            items.push((
-                <Menu.Item
-                    key={trackers.length.toString(10)}
-                    onClick={goToNextPage}
-                >
-                    <span style={{ fontSize: '10px' }}>
-                        <strong>{`Next ${PAGE_SIZE} conversations`}</strong>
-                    </span>
-                </Menu.Item>
-            ));
-        }
-
         return items;
     }
 
     function deleteConversation(conversationId) {
         const index = trackers.map(t => t._id).indexOf(conversationId);
-
         // deleted convo is not the last of the current page
         if (index < trackers.length - 1) {
             goToConversation(page, trackers[index + 1]._id, true);
             // or deleted convo is the last but there is a next page
-        } else if (index === trackers.length - 1 && hasNextPage()) {
-            goToConversation(page, nextConvoId, true);
-            // deleted convo is the last but not the only one and there is no next page
-        } else if (index === trackers.length - 1 && trackers.length > 1 && !hasNextPage()) {
+        } else if (index === trackers.length - 1 && trackers.length > 1) {
             goToConversation(page, trackers[index - 1]._id, true);
-            // deleted convo is the last and only but there's a previous page
-        } else if (index === trackers.length - 1 && trackers.length === 1 && hasPreviousPage()) {
-            goToConversation(page - 1, prevConvoId, true);
-            // Anything else
+            // deleted convo is the last but not the only one and there is no next page
+        } else if (index === 0 && trackers.length === 1) {
+            goToConversation(Math.max(page - 1, 1), undefined, true);
         } else {
-            goToConversation(Math.min(page - 1, 1), true);
+            goToConversation(Math.min(page - 1, 1), undefined, true);
         }
         deleteConv({ variables: { id: conversationId } });
         refetch();
@@ -163,8 +115,23 @@ function ConversationsBrowser(props) {
             {trackers.length > 0 ? (
                 <Grid>
                     <Grid.Column width={4}>
-                        <Menu pointing vertical fluid style={{ marginTop: '41px' }}>
+                        {pages > 1 ? (
+                            <Pagination
+                                totalPages={pages}
+                                onPageChange={(e, { activePage }) => pageChange(activePage)}
+                                activePage={page}
+                                boundaryRange={0}
+                                siblingRange={0}
+                                size='mini'
+                                firstItem='1'
+                                lastItem={`${pages}`}
+                                data-cy='pagination'
+                            />
+                        ) : <></>}
+
+                        <Menu pointing vertical fluid>
                             {renderMenuItems()}
+
                         </Menu>
                     </Grid.Column>
                     <Grid.Column width={12}>
@@ -184,68 +151,22 @@ function ConversationsBrowser(props) {
 }
 
 ConversationsBrowser.propTypes = {
-    trackers: PropTypes.array.isRequired,
-    activeConversationId: PropTypes.string,
-    page: PropTypes.number.isRequired,
-    projectId: PropTypes.string.isRequired,
-    prevConvoId: PropTypes.string,
-    nextConvoId: PropTypes.string,
-    modelId: PropTypes.string,
-    refetch: PropTypes.string.isRequired,
-};
-
-ConversationsBrowser.defaultProps = {
-    prevConvoId: {},
-    nextConvoId: {},
-    activeConversationId: {},
-    modelId: '',
-};
-
-function ConversationBrowserSegment({
-    loading, projectId, trackers, page, activeConversationId, prevConvoId, nextConvoId, modelId, refetch,
-}) {
-    return (
-        <div>
-            <Loading loading={loading}>
-                <Container>
-                    <Message info>Conversations for all languages are displayed.</Message>
-                    <Segment>
-                        <ConversationsBrowser
-                            projectId={projectId}
-                            activeConversationId={activeConversationId}
-                            trackers={trackers}
-                            page={page}
-                            prevConvoId={prevConvoId}
-                            nextConvoId={nextConvoId}
-                            modelId={modelId}
-                            refetch={refetch}
-                        />
-                    </Segment>
-                </Container>
-            </Loading>
-        </div>
-    );
-}
-
-ConversationBrowserSegment.propTypes = {
     trackers: requiredIf(PropTypes.array, ({ loading }) => !loading),
     activeConversationId: PropTypes.string,
-    loading: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
     page: PropTypes.number.isRequired,
-    prevConvoId: PropTypes.string,
-    nextConvoId: PropTypes.string,
+    pages: PropTypes.number,
     modelId: PropTypes.string,
     refetch: PropTypes.func.isRequired,
 };
 
-ConversationBrowserSegment.defaultProps = {
+ConversationsBrowser.defaultProps = {
     trackers: [],
     activeConversationId: null,
-    prevConvoId: null,
-    nextConvoId: null,
     modelId: '',
+    pages: 1,
 };
+
 
 const ConversationsBrowserContainer = (props) => {
     const { params } = props;
@@ -257,81 +178,59 @@ const ConversationsBrowserContainer = (props) => {
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
-    
-    // We take the previous element as well to have the id of the previous convo in the pagination
-    const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
-    // We take the next element as well to have the id of the next convo in the pagination
-    const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
-
 
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
-        variables: { projectId, skip, limit },
+        variables: { projectId, page, pageSize: 20 },
         pollInterval: 5000,
     });
-
 
     const componentProps = {
         page, projectId, modelId: params.model_id, refetch,
     };
-
     if (!loading && !error) {
-        const { conversations } = data;
+        const { conversations, pages } = data.conversationsPage;
+
         // If for some reason the conversation is not in the current page, discard it.
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
-        let nextConvoId; let prevConvoId; let from; let to;
 
-        // first page but there are more
-        if (page === 1 && conversations.length > PAGE_SIZE) {
-            nextConvoId = conversations[conversations.length - 1]._id;
-            from = 0;
-            to = PAGE_SIZE;
-            // first page with less than PAGE_SIZE conversations but not empty
-        } else if (page === 1 && conversations.length && conversations.length <= PAGE_SIZE) {
-            from = 0;
-            to = PAGE_SIZE - 1;
-            // not first page but there are more
-        } else if (page > 1 && conversations.length === PAGE_SIZE + 2) {
-            nextConvoId = conversations[conversations.length - 1]._id;
-            prevConvoId = conversations[0]._id;
-            from = 1;
-            to = PAGE_SIZE + 1;
-            // not first page but last one
-        } else if (page > 1 && conversations.length <= PAGE_SIZE + 1) {
-            prevConvoId = conversations[0]._id;
-            from = 1;
-            to = conversations.length;
-        } else if (conversations.length === 0) {
-            /* we get here when either conversations is empty so we can mark loading to false */
-            Object.assign(componentProps, { loading: false });
-            /* or when we change pages and not all the data from the previous subscription has been removed
-    * conversations length could be over pagesize so we just wait front the next Tracker update with the right data */
-        } if (!activeConversationId) {
+        if (!activeConversationId) {
             let url = `/project/${projectId}/incoming/${props.params.model_id}/conversations/${page || 1}`;
             if (conversations.length > 0) {
-                url += `/${conversations[from]._id}`;
+                url += `/${conversations[0]._id}`;
                 props.replaceUrl({ pathname: url });
             }
             // activeConversationId = conversations[from]._id;
         } else {
             Object.assign(componentProps, {
-                loading: false,
-                trackers: conversations.slice(from, to),
+                trackers: conversations,
                 activeConversationId,
-                prevConvoId,
-                nextConvoId,
+                pages,
             });
         }
     } else {
         Object.assign(componentProps, {
-            loading: true,
             projectId,
             page,
             modelId: props.params.model_id,
         });
     }
-    return (<ConversationBrowserSegment {...componentProps} />);
+    return (
+        <div>
+            <Loading loading={loading}>
+                <Container>
+                    <Message info>Conversations for all languages are displayed.</Message>
+                    <Segment>
+                        <ConversationsBrowser
+                            {...componentProps}
+                        />
+                    </Segment>
+
+                </Container>
+            </Loading>
+        </div>
+    );
 };
 
 ConversationsBrowserContainer.propTypes = {
