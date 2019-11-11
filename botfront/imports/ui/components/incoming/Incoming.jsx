@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { Menu, Container } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import { browserHistory } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
@@ -16,16 +16,9 @@ import { Instances } from '../../../api/instances/instances.collection';
 import TopMenu from './TopMenu';
 import { extractEntities } from '../nlu/models/nluModel.utils';
 import Activity from '../nlu/activity/Activity';
-import LanguageDropdown from '../common/LanguageDropdown';
 import { setWorkingLanguage } from '../../store/actions/actions';
 
 class Incoming extends React.Component {
-    constructor (props) {
-        super(props);
-        const { model } = props;
-        this.state = { selectedModel: model || {} };
-    }
-
     linkToEvaluation = () => {
         const { router, projectId, model } = this.props;
         router.push({ pathname: `/project/${projectId}/nlu/model/${model._id}`, state: { isActivityLinkRender: true } });
@@ -37,26 +30,8 @@ class Incoming extends React.Component {
         const modelMatch = models.find(({ language }) => language === value);
         if (modelMatch) {
             changeWorkingLanguage(value);
-            this.setState({ selectedModel: modelMatch }, browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` }));
+            browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` });
         }
-    }
-
-    renderTopMenu = () => {
-        const {
-            projectLanguages,
-        } = this.props;
-        const { selectedModel } = this.state;
-        return (
-            <Menu borderless className='top-menu'>
-                <Menu.Item header>
-                    <LanguageDropdown
-                        languageOptions={projectLanguages}
-                        selectedLanguage={selectedModel.language}
-                        handleLanguageChange={this.handleLanguageChange}
-                    />
-                </Menu.Item>
-            </Menu>
-        );
     }
 
     render () {
