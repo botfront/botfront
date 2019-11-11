@@ -28,10 +28,11 @@ const BotResponsesContainer = (props) => {
     const getSequence = () => {
         if (!template) return [];
         const response = template.values
-            .find(({ lang }) => lang === language)
-            .sequence;
+            .find(({ lang }) => lang === language);
         if (!response) return [];
-        return response;
+        const { sequence } = response;
+        if (!sequence) return [];
+        return sequence;
     };
 
     const setSequence = (newSequence) => {
@@ -61,7 +62,7 @@ const BotResponsesContainer = (props) => {
                 setTemplate(res);
             }
         });
-    }, []);
+    }, [language]);
 
     const handleCreateReponse = (index, responseType) => {
         const newSequence = [...getSequence()];
