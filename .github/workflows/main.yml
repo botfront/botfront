@@ -114,7 +114,7 @@ jobs:
           --abort-on-container-exit \
           --exit-code-from e2e
       - name: persist screenshots tarball as artifact
-        continue-on-error: true
+        if: failure()
         uses: actions/upload-artifact@v1
         with:
           name: screenshots
