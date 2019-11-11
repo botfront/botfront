@@ -182,7 +182,7 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
         try {
             // The ternary condition makes it work if we have an array of story object
             // Rather than an array of straight up strings.
-            if (story.story ? story.story.trim() : story.trim()) {
+            if (typeof story.story === 'string' ? story.story.trim() : story.trim()) {
                 const val = new StoryController(
                     story.story ? story.story : story,
                     slots,
@@ -202,8 +202,8 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
             };
         } catch (e) {
             if (crashOnStoryWithErrors) {
-                // Same thing than previous comment
-                if (story.story) {
+                // Same thing than previous comment 20 lines up
+                if (typeof story.title === 'string') {
                     throw new Error(`an error in the story ${story.title} has caused training to fail`);
                 } else {
                     throw new Error('an error in a story has caused training to fail');
