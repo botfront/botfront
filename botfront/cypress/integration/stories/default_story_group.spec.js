@@ -37,8 +37,9 @@ describe('default story creation ', () => {
             .get('[data-cy=confirm-yes]')
             .click({ force: true });
         // deletes the farewells story
-        cy.contains('Farewells').should('exist')
-            .closest('[data-cy=story-editor]')
+        cy.dataCy('story-editor').should('have.length', 1);
+        cy.contains('Farewells').should('exist');
+        cy.get('[data-cy=story-editor]')
             .find('[data-cy=delete-story]')
             .click({ force: true });
         cy.get('[data-cy=confirm-popup]')
