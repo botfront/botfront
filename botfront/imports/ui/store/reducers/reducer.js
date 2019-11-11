@@ -11,8 +11,8 @@ const initialState = Map({
     templatesTablePage: 0,
     templatesTableFilter: '',
     templatesTableShowMatching: false,
-    workingLanguage: 'en',
     workingDeploymentEnvironment: 'development',
+    workingLanguage: null,
 });
 
 function settings(state = initialState, action) {

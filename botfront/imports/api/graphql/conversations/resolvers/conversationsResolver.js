@@ -8,8 +8,8 @@ import {
 
 export default {
     Query: {
-        async conversations(_, args, __) {
-            return getConversations(args.projectId, args.skip, args.limit, args.status, args.sort, args.env);
+        async conversationsPage(_, args, __) {
+            return getConversations(args.projectId, args.page, args.pageSize, args.status, args.sort, args.env);
         },
         async conversation(_, args, __) {
             return getConversation(args.projectId, args.id);
@@ -28,6 +28,11 @@ export default {
             const response = await deleteConversation(args.id);
             return { success: response.ok === 1 };
         },
+    },
+
+    Pagination: {
+        conversations: (parent, _, __) => parent.conversations,
+        pages: (parent, _, __) => parent.pages,
     },
     ConversationContainer: {
         projectId: (parent, _, __) => parent.projectId,

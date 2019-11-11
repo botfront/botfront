@@ -4,29 +4,25 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { Menu, Container } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import { browserHistory } from 'react-router';
 import { uniq, sortBy } from 'lodash';
-import { setWorkingDeploymentEnvironment } from '../../store/actions/actions';
 
+import { setWorkingDeploymentEnvironment, setWorkingLanguage } from '../../store/actions/actions';
 import { Loading } from '../utils/Utils';
 import { Projects } from '../../../api/project/project.collection';
 import { NLUModels } from '../../../api/nlu_model/nlu_model.collection';
 import { getPublishedNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../api/instances/instances.collection';
 import TopMenu from './TopMenu';
-
 import { extractEntities } from '../nlu/models/nluModel.utils';
-
 import Activity from '../nlu/activity/Activity';
-
-import LanguageDropdown from '../common/LanguageDropdown';
 
 class Incoming extends React.Component {
     constructor (props) {
         super(props);
-        const { model, workingEnvironment } = props;
-        this.state = { selectedModel: model || {}, selectedEnvironment: workingEnvironment };
+        const { workingEnvironment } = props;
+        this.state = { selectedEnvironment: workingEnvironment };
     }
 
     linkToEvaluation = () => {
@@ -35,11 +31,12 @@ class Incoming extends React.Component {
     };
 
     handleLanguageChange = (value) => {
-        const { models, projectId } = this.props;
+        const { models, projectId, changeWorkingLanguage } = this.props;
 
         const modelMatch = models.find(({ language }) => language === value);
         if (modelMatch) {
-            this.setState({ selectedModel: modelMatch }, browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` }));
+            changeWorkingLanguage(value);
+            browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` });
         }
     }
 
@@ -50,35 +47,16 @@ class Incoming extends React.Component {
         changeWorkingEnv(value);
     }
 
-    renderTopMenu = () => {
-        const {
-            projectLanguages,
-        } = this.props;
-        const { selectedModel } = this.state;
-        return (
-            <Menu borderless className='top-menu'>
-                <Menu.Item header>
-                    <LanguageDropdown
-                        languageOptions={projectLanguages}
-                        selectedLanguage={selectedModel.language}
-                        handleLanguageChange={this.handleLanguageChange}
-                    />
-                </Menu.Item>
-            </Menu>
-        );
-    }
-
-
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router, projectEnvironments,
+            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router, projectEnvironments, workingLanguage,
         } = this.props;
-        const { selectedModel, selectedEnvironment } = this.state;
+        const { selectedEnvironment } = this.state;
         return (
             <>
                 <TopMenu
                     projectLanguages={projectLanguages}
-                    selectedModel={selectedModel}
+                    selectedLanguage={workingLanguage}
                     handleLanguageChange={this.handleLanguageChange}
                     projectEnvironments={projectEnvironments}
                     handleEnvChange={this.handleEnvChange}
@@ -121,6 +99,8 @@ Incoming.propTypes = {
     projectEnvironments: PropTypes.array,
     workingEnvironment: PropTypes.string.isRequired,
     changeWorkingEnv: PropTypes.func.isRequired,
+    workingLanguage: PropTypes.string,
+    changeWorkingLanguage: PropTypes.func.isRequired,
 };
 
 Incoming.defaultProps = {
@@ -137,6 +117,7 @@ Incoming.defaultProps = {
     modelId: '',
     router: {},
     projectEnvironments: ['development'],
+    workingLanguage: null,
 };
 
 const handleDefaultRoute = (projectId) => {
@@ -151,7 +132,7 @@ const handleDefaultRoute = (projectId) => {
 };
 
 const IncomingContainer = withTracker((props) => {
-    const { params: { model_id: modelId, project_id: projectId } = {} } = props;
+    const { params: { model_id: modelId, project_id: projectId } = {}, workingLanguage, changeWorkingLanguage } = props;
 
     // setup model subscription
     let modelHandler = {
@@ -202,6 +183,7 @@ const IncomingContainer = withTracker((props) => {
     // get this from a param if it exists
     const environment = 'development';
     const { deploymentEnvironments } = project;
+    if (!workingLanguage && model && model.language) changeWorkingLanguage(model.language);
     // End
     return {
         projectLanguages,
@@ -222,10 +204,12 @@ const IncomingContainer = withTracker((props) => {
 const mapStateToProps = state => ({
     workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
     projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 const mapDispatchToProps = {
     changeWorkingEnv: setWorkingDeploymentEnvironment,
+    changeWorkingLanguage: setWorkingLanguage,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(IncomingContainer);

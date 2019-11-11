@@ -7,12 +7,16 @@ import {
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { connect } from 'react-redux';
+
 import { withTracker } from 'meteor/react-meteor-data';
 import { Instances } from '../../../api/instances/instances.collection';
 import { Projects } from '../../../api/project/project.collection';
-import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
+import { isTraining, getPublishedNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
+import LanguageDropdown from '../common/LanguageDropdown';
+import { setWorkingLanguage } from '../../store/actions/actions';
 
 function StoriesPageMenu(props) {
     const {
@@ -20,11 +24,21 @@ function StoriesPageMenu(props) {
         project: { _id: projectId, training: { endTime, status } = {} },
         instance,
         ready,
+        workingLanguage,
+        changeWorkingLanguage,
+        projectLanguages,
     } = props;
 
     if (!ready) return null;
     return (
         <PageMenu title='Stories' icon='book'>
+            <Menu.Item id='stories-language-dropdown'>
+                <LanguageDropdown
+                    languageOptions={projectLanguages}
+                    selectedLanguage={workingLanguage}
+                    handleLanguageChange={changeWorkingLanguage}
+                />
+            </Menu.Item>
             <Menu.Menu position='right'>
                 <Menu.Item>
                     {!isTraining(project) && status === 'success' && (
@@ -95,25 +109,46 @@ StoriesPageMenu.propTypes = {
     ready: PropTypes.bool.isRequired,
     project: PropTypes.any.isRequired,
     instance: PropTypes.object,
+    workingLanguage: PropTypes.string,
+    changeWorkingLanguage: PropTypes.func.isRequired,
+    projectLanguages: PropTypes.array,
 };
 
 StoriesPageMenu.defaultProps = {
     instance: null,
+    workingLanguage: null,
+    projectLanguages: [],
 };
+
+const mapStateToProps = state => ({
+    workingLanguage: state.settings.get('workingLanguage'),
+});
+
+const mapDispatchToProps = {
+    changeWorkingLanguage: setWorkingLanguage,
+};
+
+const StoriesPageMenuWithState = connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(StoriesPageMenu);
 
 export default withTracker((props) => {
     const { projectId } = props;
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
-    const { training } = Projects.findOne(
+    const { training, nlu_models: nluModels } = Projects.findOne(
         { _id: projectId },
         {
             fields: {
                 training: 1,
+                nlu_models: 1,
             },
         },
     );
     const instance = Instances.findOne({ projectId });
+
+    const projectLanguages = getPublishedNluModelLanguages(nluModels, true);
 
     return {
         ready:
@@ -121,5 +156,6 @@ export default withTracker((props) => {
             && instancesHandler.ready(),
         instance,
         project: { _id: projectId, training },
+        projectLanguages,
     };
-})(StoriesPageMenu);
+})(StoriesPageMenuWithState);

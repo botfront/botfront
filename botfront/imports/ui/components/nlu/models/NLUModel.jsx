@@ -18,6 +18,8 @@ import {
     Dropdown,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
+import { connect } from 'react-redux';
+
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { isTraining, getPublishedNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
@@ -43,8 +45,8 @@ import { can } from '../../../../lib/scopes';
 
 // const API = React.lazy(() => import('./API'));
 import { Projects } from '../../../../api/project/project.collection';
-
 import { extractEntities } from './nluModel.utils';
+import { setWorkingLanguage } from '../../../store/actions/actions';
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -54,7 +56,6 @@ class NLUModel extends React.Component {
         this.state = {
             activeItem: incomingState && incomingState.isActivityLinkRender === true ? 'evaluation' : 'data',
             ...NLUModel.getDerivedStateFromProps(props),
-            modelId: '',
             activityLinkRender: (incomingState && incomingState.isActivityLinkRender) || false,
         };
     }
@@ -80,6 +81,11 @@ class NLUModel extends React.Component {
         if (!common_examples) return [];
         return common_examples.map(e => _appendSynonymsToText(e, entity_synonyms));
     };
+
+    componentDidUpdate() {
+        const { workingLanguage, changeWorkingLanguage, projectDefaultLanguage } = this.props;
+        if (!workingLanguage && projectDefaultLanguage) changeWorkingLanguage(projectDefaultLanguage);
+    }
 
     validationRender = () => {
         const { activityLinkRender } = this.state;
@@ -206,22 +212,21 @@ class NLUModel extends React.Component {
     };
 
     handleLanguageChange = (e, data) => {
-        const { models, projectId } = this.props;
+        const { models, projectId, changeWorkingLanguage } = this.props;
         // Fetch the model Id for data.value
         const modelToRender = models.find(model => (model.language === data.value));
-        this.setState({ modelId: modelToRender.language }, browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelToRender._id}` }));
+        changeWorkingLanguage(data.value);
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelToRender._id}` });
     }
 
     getHeader = () => {
-        const { nluModelLanguages, model } = this.props;
-        let { modelId } = this.state;
-        modelId = model.language;
+        const { nluModelLanguages, workingLanguage } = this.props;
         return (
             <Dropdown
                 placeholder='Select Model'
                 search
                 selection
-                value={modelId}
+                value={workingLanguage}
                 options={nluModelLanguages}
                 onChange={this.handleLanguageChange}
                 data-cy='model-selector'
@@ -401,6 +406,8 @@ NLUModel.propTypes = {
     // eslint-disable-next-line react/no-unused-prop-types
     instances: PropTypes.array,
     location: PropTypes.object.isRequired,
+    workingLanguage: PropTypes.string,
+    changeWorkingLanguage: PropTypes.func.isRequired,
 };
 
 NLUModel.defaultProps = {
@@ -415,6 +422,7 @@ NLUModel.defaultProps = {
     project: {},
     instance: null,
     instances: [],
+    workingLanguage: null,
 };
 
 const handleDefaultRoute = (projectId) => {
@@ -475,7 +483,6 @@ const NLUDataLoaderContainer = withTracker((props) => {
     const nluModelLanguages = getPublishedNluModelLanguages(nlu_models, true);
     const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     const projectDefaultLanguage = defaultLanguage;
-
     const project = {
         _id: projectId,
         training,
@@ -497,4 +504,12 @@ const NLUDataLoaderContainer = withTracker((props) => {
     };
 })(NLUModel);
 
-export default NLUDataLoaderContainer;
+const mapStateToProps = state => ({
+    workingLanguage: state.settings.get('workingLanguage'),
+});
+
+const mapDispatchToProps = {
+    changeWorkingLanguage: setWorkingLanguage,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(NLUDataLoaderContainer);

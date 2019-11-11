@@ -23,13 +23,14 @@ describe('stories state persisting', function() {
         cy.dataCy('add-item-input')
             .find('input')
             .type(`${storyGroupOne}{enter}`);
+        cy.dataCy('browser-item').contains(storyGroupOne).parents().should('have.class', 'selected-blue');
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
             .type(`${storyGroupTwo}{enter}`);
-        cy.wait(500);
+        cy.dataCy('browser-item').contains(storyGroupTwo).parents().should('have.class', 'selected-blue');
         cy.contains('NLU').click({ force: true });
         cy.contains('Stories').click({ force: true });
-        cy.get('[data-cy=browser-item].active.item').contains(storyGroupTwo);
+        cy.dataCy('browser-item').contains(storyGroupTwo).parents().should('have.class', 'selected-blue');
     });
 });

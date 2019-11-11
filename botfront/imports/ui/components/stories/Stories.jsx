@@ -5,7 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
+import { setStoryGroup, setStoryMode, setWorkingLanguage } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
 import { Instances } from '../../../api/instances/instances.collection';
@@ -32,11 +32,11 @@ function Stories(props) {
         changeStoryGroup,
         changeStoryMode,
         ready,
+        workingLanguage,
     } = props;
 
     const [intents, setIntents] = useState([]);
     const [entities, setEntities] = useState([]);
-    const [language, setLanguage] = useState('en');
 
     const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
@@ -58,12 +58,14 @@ function Stories(props) {
     const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
 
     useEffect(() => {
-        if (switchToGroupByIdNext) switchToGroupById(switchToGroupByIdNext);
-        setSwitchToGroupByIdNext('');
+        if (switchToGroupByIdNext) {
+            switchToGroupById(switchToGroupByIdNext);
+            setSwitchToGroupByIdNext('');
+        }
     }, [switchToGroupByIdNext]);
 
     useEffect(() => {
-        if (!storyGroups[storyGroupCurrent]) {
+        if (!storyGroups[storyGroupCurrent] && switchToGroupByIdNext === '') {
             if (storyGroups[storyGroupCurrent + 1]) changeStoryGroup(storyGroupCurrent + 1);
             changeStoryGroup(storyGroupCurrent - 1);
         }
@@ -82,11 +84,6 @@ function Stories(props) {
                 }
             }),
         );
-        Meteor.call(
-            'project.getDefaultLanguage',
-            projectId,
-            wrapMeteorCallback((err, res) => setLanguage(res)),
-        );
     }, []);
 
     function getResponse(key, callback = () => {}) {
@@ -94,7 +91,7 @@ function Stories(props) {
             'project.findTemplate',
             projectId,
             key,
-            language,
+            workingLanguage || 'en',
             wrapMeteorCallback((err, res) => callback(err, res)),
         );
     }
@@ -103,7 +100,7 @@ function Stories(props) {
         Meteor.call(
             'nlu.insertExamplesWithLanguage',
             projectId,
-            language,
+            workingLanguage,
             [utterance],
             wrapMeteorCallback((err, res) => callback(err, res)),
         );
@@ -133,7 +130,7 @@ function Stories(props) {
             'nlu.getUtteranceFromPayload',
             projectId,
             payload,
-            language,
+            workingLanguage,
             (err, res) => callback(err, res),
         );
     }
@@ -142,7 +139,7 @@ function Stories(props) {
         return Meteor.callWithPromise(
             'rasa.parse',
             instance,
-            [{ text: utterance, lang: language }],
+            [{ text: utterance, lang: workingLanguage }],
             true,
         );
     }
@@ -229,7 +226,7 @@ function Stories(props) {
                 intents,
                 entities,
                 slots,
-                language,
+                language: workingLanguage,
                 insertResponse,
                 updateResponse,
                 getResponse,
@@ -305,40 +302,31 @@ Stories.propTypes = {
     changeStoryMode: PropTypes.func.isRequired,
     storyGroupCurrent: PropTypes.number,
     storyMode: PropTypes.string,
+    workingLanguage: PropTypes.string,
+    changeWorkingLanguage: PropTypes.func.isRequired,
+    defaultLanguage: PropTypes.string,
 };
 
 Stories.defaultProps = {
     storyGroupCurrent: 0,
     storyMode: 'visual',
+    workingLanguage: null,
+    defaultLanguage: '',
 };
 
-const mapStateToProps = state => ({
-    storyGroupCurrent: state.stories.get('storyGroupCurrent'),
-    storyMode: state.stories.get('storyMode'),
-});
-
-const mapDispatchToProps = {
-    changeStoryGroup: setStoryGroup,
-    changeStoryMode: setStoryMode,
-};
-
-const StoriesWithState = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(Stories);
-
-export default withTracker((props) => {
-    const { projectId } = props;
+const StoriesWithTracker = withTracker((props) => {
+    const { projectId, workingLanguage, changeWorkingLanguage } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
-    const { templates } = Projects.findOne(
+    const { templates, defaultLanguage } = Projects.findOne(
         { _id: projectId },
         {
             fields: {
                 'templates.key': 1,
+                defaultLanguage: 1,
             },
         },
     );
@@ -348,6 +336,8 @@ export default withTracker((props) => {
         _id: projectId,
         templates,
     };
+
+    if (!workingLanguage && defaultLanguage) changeWorkingLanguage(defaultLanguage);
 
     return {
         ready:
@@ -361,5 +351,23 @@ export default withTracker((props) => {
         instance,
         project,
         stories: StoriesCollection.find({}).fetch(),
+        defaultLanguage,
     };
-})(StoriesWithState);
+})(Stories);
+
+const mapStateToProps = state => ({
+    storyGroupCurrent: state.stories.get('storyGroupCurrent'),
+    storyMode: state.stories.get('storyMode'),
+    workingLanguage: state.settings.get('workingLanguage'),
+});
+
+const mapDispatchToProps = {
+    changeStoryGroup: setStoryGroup,
+    changeStoryMode: setStoryMode,
+    changeWorkingLanguage: setWorkingLanguage,
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(StoriesWithTracker);

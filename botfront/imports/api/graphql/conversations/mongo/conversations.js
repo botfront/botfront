@@ -1,6 +1,5 @@
 import Conversations from '../conversations.model.js';
 
-
 const createSortObject = (sort) => {
     let fieldName;
     let order;
@@ -32,20 +31,32 @@ const createFilterObject = (projectId, status = [], env = 'development') => {
     return filters;
 };
 
-export const getConversations = async (projectId, skip = 0, limit = 20, status = [], sort = null, env = 'development') => {
+export const getConversations = async (projectId, page = 1, pageSize = 20, status = [], sort = null, env = 'development') => {
     const filtersObject = createFilterObject(projectId, status, env);
     const sortObject = createSortObject(sort);
-    
-    return (Conversations.find(
+
+    const numberOfDocuments = await Conversations.countDocuments({
+        ...filtersObject,
+    }).lean().exec();
+
+    const pages = Math.ceil(numberOfDocuments / pageSize);
+    const boundedPageNb = Math.min(pages, page);
+
+    const conversations = await Conversations.find(
         {
             ...filtersObject,
         }, null,
         {
-            skip,
-            limit,
+            skip: (boundedPageNb - 1) * pageSize,
+            limit: pageSize,
             sort: sortObject,
         },
-    ).lean());
+    ).lean();
+
+    return {
+        conversations,
+        pages,
+    };
 };
 
 
