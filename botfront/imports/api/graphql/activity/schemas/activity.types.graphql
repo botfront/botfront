@@ -4,9 +4,11 @@ type Query {
       ): [Activity!]!
 }
 type Mutation {
-  markAsRead(id: String!): updateResponse!
-  updateStatus(id: String!, status: String): updateResponse!
-  delete(id: String!): updateResponse!
+  deleteExamples(modelId: String!, itemIds: [String!]!): updateResponse!
+  changeIntent(examplesIds: [String!]!, intent: String, modelId: String!) : updateResponse!
+  log(parseData: Activity!): updateResponse!
+  updateExamples(examples:[Activity!]!): updateResponse!
+  addValidatedToTraining(modelId: String!): updateResponse!
 }
 
 type updateResponse {
