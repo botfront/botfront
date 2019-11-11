@@ -10,7 +10,8 @@ module.exports = {
             // '@vuepress/plugin-pwa',
             '@vuepress/active-header-links',
             '@vuepress/plugin-medium-zoom',
-            '@vuepress/back-to-top'
+            '@vuepress/back-to-top',
+            'vuepress-plugin-element-tabs',
         ],
     title: 'Documentation',
     themeConfig: {
@@ -55,6 +56,18 @@ module.exports = {
                 ],
             },
             {
+                title: 'Dialogue', // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/rasa/stories/conversation_builder',
+                    '/guide/rasa/stories/conversation_flows',
+                    '/guide/rasa/stories/optimization',
+                    '/guide/rasa/stories/custom_actions',
+                ],
+            },
+            {
                 title: 'NLU', // required
                 // path: '/guide',
                 collapsable: false,
@@ -64,16 +77,6 @@ module.exports = {
                     '/guide/rasa/nlu/training_adding_data',
                     '/guide/rasa/nlu/training',
                     '/guide/rasa/nlu/evaluation',
-                ],
-            },
-            {
-                title: 'Dialogue', // required
-                // path: '/guide',
-                collapsable: false,
-                sidebarDepth: 5,
-                children: [
-                    '/guide/rasa/stories/',
-                    '/guide/rasa/stories/custom_actions',
                 ],
             },
             {

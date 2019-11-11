@@ -333,6 +333,11 @@ const ConversationsBrowserContainer = (props) => {
     return (<ConversationBrowserSegment {...componentProps} />);
 };
 
+ConversationsBrowserContainer.propTypes = {
+    params: PropTypes.object.isRequired,
+    replaceUrl: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = state => ({
     workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
     projectId: state.settings.get('projectId'),

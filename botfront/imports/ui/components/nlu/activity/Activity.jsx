@@ -35,7 +35,8 @@ class Activity extends React.Component {
     componentDidMount = () => {
         const { params } = this.props;
         const { activeTabIndex } = this.state;
-        if (activeTabIndex === undefined && !params.tab) this.setState({ activeTabIndex: 0 });
+        if (params.tab === 'conversations') this.setState({ activeTabIndex: 1 });
+        else if (activeTabIndex === undefined && !params.tab) this.setState({ activeTabIndex: 0 });
     }
 
     createMenuItem = (name, index, dataCy = null) => {

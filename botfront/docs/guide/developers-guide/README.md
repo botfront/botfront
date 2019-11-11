@@ -39,7 +39,7 @@ The test suite starts by testing the setup process **and will wipe the database*
 
 Follow these instructions to develop Botfront while interacting with all the services exposed by `docker-compose`:
 
-1. Create a Botfront projet with `botfront init`
+1. Create a Botfront project with `botfront init`
 2. Start your project with `botfront up -e botfront`. This will run all services except the Botfront app, since you are going to run it with Meteor locallyé
 3. Reset meteor from Botfront root folder with `meteor reset` (**this will wipe the database**).
 4. Run Botfront with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
