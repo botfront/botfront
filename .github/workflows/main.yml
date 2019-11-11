@@ -182,14 +182,14 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
-      - uses: actions/checkout@v1
-      - name: npm publish
-        run: |
-          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-          npm run trypublish
-        env:
-          CI: true
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      # - uses: actions/checkout@v1
+      # - name: npm publish
+      #   run: |
+      #     npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+      #     npm run trypublish
+      #   env:
+      #     CI: true
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
   create-npm-release:
     runs-on: ubuntu-latest
