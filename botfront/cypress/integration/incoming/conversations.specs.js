@@ -168,7 +168,7 @@ describe('incoming page conversation tab pagination', function () {
     });
 
     it('should have no pagination if 20 conversation or less', function () {
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 20; i += 1) {
             addConversation(`test${i}`);
         }
         cy.wait(1000);
@@ -180,7 +180,7 @@ describe('incoming page conversation tab pagination', function () {
     });
 
     it('should have pagination if more than 20 conversations', function () {
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 25; i += 1) {
             addConversation(`test${i}`);
         }
         cy.wait(1000);
