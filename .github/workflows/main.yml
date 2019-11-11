@@ -209,4 +209,4 @@ jobs:
     runs-on: ubuntu-latest
     needs: [create-github-release]
     steps:
-        run: echo "https://api.netlify.com/build_hooks/${{ secrets.NETLIFY_HOOK }}" | xargs curl -X POST -d {}
+      - run: echo "https://api.netlify.com/build_hooks/${{ secrets.NETLIFY_HOOK }}" | xargs curl -X POST -d {}
