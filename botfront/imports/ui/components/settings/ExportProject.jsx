@@ -22,26 +22,36 @@ const ExportProject = ({
     const [errorMessage, setErrorMessage] = useState({ header: 'Export Failed', text: 'There was an unexpected error in the api request.' });
     const [includeConversations, setIncludeConversations] = useState(true);
 
-    const exportTypeOptions = [
-        {
-            key: 'botfront',
-            text: 'Export for Botfront',
-            value: 'botfront',
-            successText: 'Your project has been successfully exported for Botfront!',
-            content: (
+    const getExportTypeOptions = () => (
+        [
+            {
+                key: 'botfront',
+                text: 'Export for Botfront',
+                value: 'botfront',
+                successText: 'Your project has been successfully exported for Botfront!',
+            },
+            {
+                key: 'rasa',
+                text: 'Export for Rasa/Rasa X',
+                value: 'rasa',
+                successText: 'Your project has been successfully exported for Rasa/Rasa X!',
+            },
+        ]
+    );
+
+    const getSuccessMessageContent = () => {
+        if (exportType.value === 'botfront') {
+            return (
                 <p>
                     If your download does not start within 5 seconds click{' '}
-                    <a href={`${apiHost}/project/${projectId}/export`} data-cy='export-link'>here </a>
+                    <a href={`${apiHost}/project/${projectId}/export?output=json&conversations=${includeConversations}`} data-cy='export-link'>here </a>
                     to retry.
-                </p>),
-        },
-        {
-            key: 'rasa',
-            text: 'Export for Rasa/Rasa X',
-            value: 'rasa',
-            successText: 'Your project has been successfully exported for Rasa/Rasa X!',
-        },
-    ];
+                </p>
+            );
+        }
+        return <></>;
+    };
+
 
     const getLanguageOptions = () => (
         projectLanguages.map(({ value, text }) => ({
@@ -69,6 +79,11 @@ const ExportProject = ({
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
                 const filename = `BotfrontProject_${projectId}.json`;
+                if (window.Cypress) {
+                    setExportSuccessful(true);
+                    setLoading(false);
+                    return;
+                }
                 saveAs(blob, filename);
                 setExportSuccessful(true);
                 setLoading(false);
@@ -123,7 +138,7 @@ const ExportProject = ({
     };
 
     const handleDropdownOnChange = (x, { value }) => {
-        setExportType(exportTypeOptions.find(option => option.value === value) || {});
+        setExportType(getExportTypeOptions().find(option => option.value === value) || {});
     };
 
     if (ExportSuccessful === true) {
@@ -133,7 +148,7 @@ const ExportProject = ({
                 positive
                 icon='check circle'
                 header={exportType.successText}
-                content={<>{exportType.content}</>}
+                content={getSuccessMessageContent()}
             />
         );
     }
@@ -155,7 +170,7 @@ const ExportProject = ({
                 key='format'
                 className='export-option'
                 options={
-                    exportTypeOptions.map(({ value, text, key }) => ({ value, text, key }))
+                    getExportTypeOptions().map(({ value, text, key }) => ({ value, text, key }))
                 }
                 placeholder='Select a format'
                 selection
@@ -170,6 +185,7 @@ const ExportProject = ({
                         onChange={() => { setIncludeConversations(!includeConversations); }}
                         label='Export Conversations'
                         className='export-option'
+                        data-cy='conversation-toggle'
                     />
                     <br />
                 </>
