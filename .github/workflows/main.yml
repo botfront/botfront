@@ -28,12 +28,12 @@ jobs:
         with:
           node-version: '10.x'
       - uses: actions/cache@v1
+        id: cache
         with:
-          path: node_modules
-          key: ${{ runner.os }}-api-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-api-
+          path: ./api/node_modules
+          key: api-${{ hashFiles('**/package-lock.json') }}
       - working-directory: ./api
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: tests
         working-directory: ./api
@@ -51,11 +51,10 @@ jobs:
       run: curl https://install.meteor.com/ | sh
     - uses: actions/cache@v1
       with:
-        path: node_modules
-        key: ${{ runner.os }}-bf-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-bf-
+        path: ./botfront/node_modules
+        key: bf-${{ hashFiles('**/package-lock.json') }}
     - working-directory: ./botfront
+      if: steps.cache.outputs.cache-hit != 'true'
       run: npm ci # to do: remove cypress from installation
     - name: mocha tests
       working-directory: ./botfront
@@ -120,12 +119,12 @@ jobs:
         with:
           name: screenshots
           path: ./botfront/cypress/screenshots
-      - name: persist videos tarball as artifact
-        continue-on-error: true
-        uses: actions/upload-artifact@v1
-        with:
-          name: videos
-          path: ./botfront/cypress/videos
+      # - name: persist videos tarball as artifact
+      #   continue-on-error: true
+      #   uses: actions/upload-artifact@v1
+      #   with:
+      #     name: videos
+      #     path: ./botfront/cypress/videos
 
   push-api:
     runs-on: ubuntu-latest
