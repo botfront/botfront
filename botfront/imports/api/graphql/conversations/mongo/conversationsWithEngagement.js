@@ -1,13 +1,13 @@
 import Conversations from '../conversations.model';
 import { generateBuckets, fillInEmptyBuckets } from '../../utils';
 
-export const getResponseCounts = async ({
+export const getConversationsWithEngagement = async ({
     projectId,
     envs,
     from = new Date().getTime() - (86400 * 7),
     to = new Date().getTime(),
     nBuckets,
-    responses,
+    exclude,
 }) => fillInEmptyBuckets(await Conversations.aggregate([
     {
         $match: {
@@ -28,23 +28,10 @@ export const getResponseCounts = async ({
         },
     },
     {
-        $unwind: {
-            path: '$tracker.events',
-        },
-    },
-    {
-        $match: {
-            $and: [
-                { 'tracker.events.event': 'action' },
-                { 'tracker.events.name': { $regex: /^utter_/ } },
-            ],
-        },
-    },
-    {
         $addFields: {
             bucket: {
                 $switch: {
-                    branches: generateBuckets(from, to, '$tracker.events.timestamp', nBuckets),
+                    branches: generateBuckets(from, to, '$tracker.latest_event_time', nBuckets),
                     default: 'bad_timestamp',
                 },
             },
@@ -54,19 +41,36 @@ export const getResponseCounts = async ({
         $match: { bucket: { $ne: 'bad_timestamp' } },
     },
     {
+        $addFields: {
+            hits: {
+                $min: [
+                    1,
+                    {
+                        $size: {
+                            $filter: {
+                                input: '$tracker.events',
+                                as: 'event',
+                                cond: {
+                                    $and: [
+                                        { $eq: ['$$event.event', 'user'] },
+                                        { $not: { $in: ['$$event.parse_data.intent.name', exclude] } },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+        },
+    },
+    {
         $group: {
             _id: '$bucket',
-            total: {
+            count: {
                 $sum: 1,
             },
-            count: {
-                $sum: {
-                    $cond: {
-                        if: { $in: ['$tracker.events.name', responses] },
-                        then: 1,
-                        else: 0,
-                    },
-                },
+            hits: {
+                $sum: '$hits',
             },
         },
     },
@@ -76,8 +80,8 @@ export const getResponseCounts = async ({
                 $divide: [
                     {
                         $subtract: [
-                            { $multiply: [{ $divide: ['$count', '$total'] }, 10000] },
-                            { $mod: [{ $multiply: [{ $divide: ['$count', '$total'] }, 10000] }, 1] },
+                            { $multiply: [{ $divide: ['$hits', '$count'] }, 10000] },
+                            { $mod: [{ $multiply: [{ $divide: ['$hits', '$count'] }, 10000] }, 1] },
                         ],
                     },
                     100,
@@ -90,7 +94,7 @@ export const getResponseCounts = async ({
             _id: null,
             bucket: '$_id',
             count: '$count',
-            total: '$total',
+            hits: '$hits',
             proportion: '$proportion',
         },
     },

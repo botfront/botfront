@@ -19,3 +19,18 @@ export const generateBuckets = (from, to, pathToTimestamp, nBuckets) => (
             then: bounds[1].toFixed(0).toString(),
         }))
 );
+
+export const fillInEmptyBuckets = async (collection, from, to, nBuckets) => {
+    // This function inserts buckets with no data in them, so that the full graph can be seen.
+    if (!collection.length) return collection;
+    const zeroObject = {};
+    Object.keys(collection[0]).forEach((key) => {
+        if (key !== 'bucket') zeroObject[key] = 0;
+    });
+    const zeroBuckets = generateBuckets(from, to, 'ha', nBuckets).map(b => ({ ...zeroObject, bucket: b.then }));
+    return zeroBuckets.reduce((acc, curr) => {
+        const bucketInCollection = collection.find(b => b.bucket === curr.bucket);
+        if (bucketInCollection) return [...acc, bucketInCollection];
+        return [...acc, curr];
+    }, []);
+};

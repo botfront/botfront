@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { Menu } from 'semantic-ui-react';
 import { connect } from 'react-redux';
+import { DndProvider } from 'react-dnd-cjs';
+import HTML5Backend from 'react-dnd-html5-backend-cjs';
 import { setWorkingDeploymentEnvironment } from '../../store/actions/actions';
 import EnvSelector from '../common/EnvSelector';
 import { PageMenu } from '../utils/Utils';
@@ -35,7 +37,9 @@ function AnalyticsContainer(props) {
                 </Menu.Item>
             </PageMenu>
             <React.Suspense fallback={<div className='analytics-dashboard' />}>
-                <Dashboard />
+                <DndProvider backend={HTML5Backend}>
+                    <Dashboard />
+                </DndProvider>
             </React.Suspense>
         </>
     );

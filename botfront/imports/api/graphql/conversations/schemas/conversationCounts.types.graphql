@@ -1,17 +1,19 @@
 type Query {
     conversationCounts(
         projectId: String!,
+        subtype: String!,
         envs: [String],
         from: Float,
         to: Float,
         nBuckets: Int = 7,
         exclude: [String] = ["get_started"],
+        include: [String] = ["action_botfront_fallback"]
     ): [ConversationCount!]!
 }
 
 type ConversationCount {
     bucket: String,
     count: Int,
-    engagements: Int,
+    hits: Int,
     proportion: Float,
 }

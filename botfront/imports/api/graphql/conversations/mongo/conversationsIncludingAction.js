@@ -1,14 +1,14 @@
 import Conversations from '../conversations.model';
-import { generateBuckets } from '../../utils';
+import { generateBuckets, fillInEmptyBuckets } from '../../utils';
 
-export const getConversationCounts = async ({
+export const getConversationsIncludingAction = async ({
     projectId,
     envs,
     from = new Date().getTime() - (86400 * 7),
     to = new Date().getTime(),
     nBuckets,
-    exclude,
-}) => Conversations.aggregate([
+    include,
+}) => fillInEmptyBuckets(await Conversations.aggregate([
     {
         $match: {
             projectId,
@@ -42,7 +42,7 @@ export const getConversationCounts = async ({
     },
     {
         $addFields: {
-            engagements: {
+            hits: {
                 $min: [
                     1,
                     {
@@ -52,8 +52,8 @@ export const getConversationCounts = async ({
                                 as: 'event',
                                 cond: {
                                     $and: [
-                                        { $eq: ['$$event.event', 'user'] },
-                                        { $not: { $in: ['$$event.parse_data.intent.name', exclude] } },
+                                        { $eq: ['$$event.event', 'action'] },
+                                        { $in: ['$$event.name', include] },
                                     ],
                                 },
                             },
@@ -69,8 +69,8 @@ export const getConversationCounts = async ({
             count: {
                 $sum: 1,
             },
-            engagements: {
-                $sum: '$engagements',
+            hits: {
+                $sum: '$hits',
             },
         },
     },
@@ -80,8 +80,8 @@ export const getConversationCounts = async ({
                 $divide: [
                     {
                         $subtract: [
-                            { $multiply: [{ $divide: ['$engagements', '$count'] }, 10000] },
-                            { $mod: [{ $multiply: [{ $divide: ['$engagements', '$count'] }, 10000] }, 1] },
+                            { $multiply: [{ $divide: ['$hits', '$count'] }, 10000] },
+                            { $mod: [{ $multiply: [{ $divide: ['$hits', '$count'] }, 10000] }, 1] },
                         ],
                     },
                     100,
@@ -94,9 +94,9 @@ export const getConversationCounts = async ({
             _id: null,
             bucket: '$_id',
             count: '$count',
-            engagements: '$engagements',
+            hits: '$hits',
             proportion: '$proportion',
         },
     },
     { $sort: { bucket: 1 } },
-]);
+]), from, to, nBuckets);

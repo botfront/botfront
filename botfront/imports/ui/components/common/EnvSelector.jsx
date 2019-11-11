@@ -6,7 +6,7 @@ import React from 'react';
 
 function EnvSelector(props) {
     const { availableEnvs, envChange, value } = props;
-
+    if (availableEnvs.length < 2) return null;
     return (
         <span>
             Data source:{'\u00A0'}
