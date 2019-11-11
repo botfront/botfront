@@ -1,7 +1,6 @@
 
 /* eslint-disable no-undef */
 
-
 function addConversation(id) {
     let url = `http://localhost:8080/project/bf/conversations/${id}/insert?api-key=`;
     if (Cypress.env('API_URL') !== '') {
@@ -111,7 +110,6 @@ function addConversation(id) {
 
 describe('incoming page conversation tab', function () {
     beforeEach(function () {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
@@ -121,6 +119,7 @@ describe('incoming page conversation tab', function () {
 
     afterEach(function () {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     
@@ -156,7 +155,6 @@ describe('incoming page conversation tab', function () {
 
 describe('incoming page conversation tab pagination', function () {
     beforeEach(function () {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
@@ -166,6 +164,7 @@ describe('incoming page conversation tab pagination', function () {
 
     afterEach(function () {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     it('should have no pagination if 20 conversation or less', function () {
@@ -194,7 +193,6 @@ describe('incoming page conversation tab pagination', function () {
         cy.dataCy('conversation-item').should('have.length', 5);
     });
 });
-
 describe('incoming page', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
@@ -206,13 +204,10 @@ describe('incoming page', function() {
         cy.logout();
         cy.deleteProject('bf');
     });
-
-    it('should have be able to navigate conversations with the menu', function() {
-        cy.visit('/project/bf/incoming');
-    });
-    it('should have be able to change pages', function() {
-    });
     it('should go to the same page and conversation when refreshed', function() {
+        cy.visit('/project/bf/incoming');
+        cy.dataCy('intent-label')
+            .should('exist'); // this ensures the import has loaded before continuing
         cy.dataCy('incoming-conversations-tab')
             .click();
         cy.dataCy('conversation-item')
@@ -229,20 +224,32 @@ describe('incoming page', function() {
             .eq(5)
             .should('have.class', 'active');
 
-        cy.dataCy('conversations-next-page')
+        cy.dataCy('pagination')
+            .find('.item')
+            .contains('⟩')
             .click();
-        cy.dataCy('conversations-next-page')
-            .should('not.exist');
+        cy.dataCy('pagination')
+            .find('.item')
+            .contains('2')
+            .should('have.class', 'active');
         cy.reload();
-        cy.dataCy('conversations-next-page')
-            .should('not.exist');
-
-        cy.dataCy('conversations-previous-page')
+        cy.dataCy('pagination')
+            .find('.item')
+            .contains('2')
+            .should('have.class', 'active');
+            
+        cy.dataCy('pagination')
+            .find('.item')
+            .contains('⟨')
             .click();
-        cy.dataCy('conversations-previous-page')
-            .should('not.exist');
+        cy.dataCy('pagination')
+            .find('.item')
+            .eq(2)
+            .should('have.class', 'active');
         cy.reload();
-        cy.dataCy('conversations-previous-page')
-            .should('not.exist');
+        cy.dataCy('pagination')
+            .find('.item')
+            .eq(2)
+            .should('have.class', 'active');
     });
 });
