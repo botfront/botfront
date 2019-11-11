@@ -65,7 +65,7 @@ function Stories(props) {
     }, [switchToGroupByIdNext]);
 
     useEffect(() => {
-        if (!storyGroups[storyGroupCurrent]) {
+        if (!storyGroups[storyGroupCurrent] && switchToGroupByIdNext === '') {
             if (storyGroups[storyGroupCurrent + 1]) changeStoryGroup(storyGroupCurrent + 1);
             changeStoryGroup(storyGroupCurrent - 1);
         }
