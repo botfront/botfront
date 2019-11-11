@@ -16,7 +16,6 @@ import { ApolloLink, Observable } from 'apollo-link';
 import { ApolloProvider } from 'react-apollo';
 import { ApolloProvider as ApolloHooksProvider } from '@apollo/react-hooks';
 
-import ConversationsBrowser from '../../ui/components/conversations/ConversationsBrowser.jsx';
 import TemplatesContainer from '../../ui/components/templates/templates-list/Templates';
 import TemplateContainer from '../../ui/components/templates/template-upsert/Template';
 import SettingsContainer from '../../ui/components/admin/settings/Settings';
