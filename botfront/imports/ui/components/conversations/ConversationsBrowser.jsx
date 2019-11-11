@@ -115,7 +115,7 @@ function ConversationsBrowser(props) {
             {trackers.length > 0 ? (
                 <Grid>
                     <Grid.Column width={4}>
-                        {pages > 1 ?
+                        {pages > 1 ? (
                             <Pagination
                                 totalPages={pages}
                                 onPageChange={(e, { activePage }) => pageChange(activePage)}
@@ -126,7 +126,8 @@ function ConversationsBrowser(props) {
                                 firstItem='1'
                                 lastItem={`${pages}`}
                                 data-cy='pagination'
-                            /> : <></>}
+                            />
+                        ) : <></>}
 
                         <Menu pointing vertical fluid>
                             {renderMenuItems()}
@@ -178,7 +179,9 @@ const ConversationsBrowserContainer = (props) => {
         page = 1;
     }
 
-    const { loading, error, data, refetch } = useQuery(GET_CONVERSATIONS, {
+    const {
+        loading, error, data, refetch,
+    } = useQuery(GET_CONVERSATIONS, {
         variables: { projectId, page, pageSize: 20 },
         pollInterval: 5000,
     });
