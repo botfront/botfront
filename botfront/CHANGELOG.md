@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.18.0-rc.0-ee.1](https://github.com/botfront/botfront/compare/v0.17.2-ee.8...v0.18.0-rc.0-ee.1) (2019-11-11)
+
+
+### Features
+
+* incoming language now from redux ([1a49953](https://github.com/botfront/botfront/commit/1a4995336503ce45384fb369c331f807d8a5e280))
+* language in training data saved in redux ([42947cf](https://github.com/botfront/botfront/commit/42947cf2743b8c9c6a02ba727af713dc6fa7637d))
+* language selector in stories ! ([9fb8ef9](https://github.com/botfront/botfront/commit/9fb8ef9eac0370a5078294bf5bb26f957f030345))
+* pagination for conversation ([5058643](https://github.com/botfront/botfront/commit/50586439c3bad29b7fb4933fa99f99c94cdeeb81))
+
+
+### Bug Fixes
+
+* change conversations.specs to "...".spec ([d77747c](https://github.com/botfront/botfront/commit/d77747c047c41b2f3ab7416b8e98e6902ee69353))
+* conditions for updating redux story group ([ba11397](https://github.com/botfront/botfront/commit/ba1139700abc44d5dfcb0e08580a8a6aec3f36b7))
+* es lint warning for ++ operator ([ca8415f](https://github.com/botfront/botfront/commit/ca8415f1783196e77aaa2925b7e458b0d8109697))
+* eslint warnings in conversationsBrowser ([6919671](https://github.com/botfront/botfront/commit/6919671c3c85ed0a679e474a41db8f63f2ac1d62))
+* story group redux selection random behaviour ([b7e40cd](https://github.com/botfront/botfront/commit/b7e40cd1537992c9e85cbc43eeb9526bee034037))
+
+## [0.18.0-rc.0-ee.1](https://github.com/botfront/botfront/compare/v0.17.2-ee.8...v0.18.0-rc.0-ee.1) (2019-11-11)
+
+
+### Features
+
+* incoming language now from redux ([1a49953](https://github.com/botfront/botfront/commit/1a4995336503ce45384fb369c331f807d8a5e280))
+* language in training data saved in redux ([42947cf](https://github.com/botfront/botfront/commit/42947cf2743b8c9c6a02ba727af713dc6fa7637d))
+* language selector in stories ! ([9fb8ef9](https://github.com/botfront/botfront/commit/9fb8ef9eac0370a5078294bf5bb26f957f030345))
+* pagination for conversation ([5058643](https://github.com/botfront/botfront/commit/50586439c3bad29b7fb4933fa99f99c94cdeeb81))
+
+
+### Bug Fixes
+
+* change conversations.specs to "...".spec ([d77747c](https://github.com/botfront/botfront/commit/d77747c047c41b2f3ab7416b8e98e6902ee69353))
+* conditions for updating redux story group ([ba11397](https://github.com/botfront/botfront/commit/ba1139700abc44d5dfcb0e08580a8a6aec3f36b7))
+* es lint warning for ++ operator ([ca8415f](https://github.com/botfront/botfront/commit/ca8415f1783196e77aaa2925b7e458b0d8109697))
+* eslint warnings in conversationsBrowser ([6919671](https://github.com/botfront/botfront/commit/6919671c3c85ed0a679e474a41db8f63f2ac1d62))
+* story group redux selection random behaviour ([b7e40cd](https://github.com/botfront/botfront/commit/b7e40cd1537992c9e85cbc43eeb9526bee034037))
+
 ### [0.17.2-ee.8](https://github.com/botfront/botfront/compare/v0.17.2-ee.7...v0.17.2-ee.8) (2019-11-11)
 
 
