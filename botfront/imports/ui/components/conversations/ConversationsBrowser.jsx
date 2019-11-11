@@ -177,8 +177,8 @@ function ConversationsBrowser(props) {
                     </Grid.Column>
                 </Grid>
             ) : (
-                    <Message data-cy='no-conv' info>No conversation to load</Message>
-                )}
+                <Message data-cy='no-conv' info>No conversation to load</Message>
+            )}
         </div>
     );
 }
@@ -248,26 +248,25 @@ ConversationBrowserSegment.defaultProps = {
 };
 
 const ConversationsBrowserContainer = (props) => {
-    const { params } = props;
+    const { params, workingEnvironment: env } = props;
     const projectId = params.project_id;
     let activeConversationId = params.selected_id;
-    // const { projectId } = props;
-    // let activeConversationId = '';
     let page = parseInt(params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
-    
+
     // We take the previous element as well to have the id of the previous convo in the pagination
     const skip = Math.max(0, (page - 1) * PAGE_SIZE - 1);
     // We take the next element as well to have the id of the next convo in the pagination
     const limit = PAGE_SIZE + (page > 1 ? 2 : 1);
 
-
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
-        variables: { projectId, skip, limit },
+        variables: {
+            projectId, skip, limit, env,
+        },
         pollInterval: 5000,
     });
 

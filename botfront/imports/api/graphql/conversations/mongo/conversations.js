@@ -21,17 +21,21 @@ const createSortObject = (sort) => {
     return sortObject;
 };
 
-const createFilterObject = (projectId, status) => {
+
+const createFilterObject = (projectId, status = [], env = 'development') => {
     const filters = { projectId };
     if (status.length > 0) filters.status = { $in: status };
+    if (env) filters.env = env;
+    if (env === 'development') {
+        filters.env = { $in: ['development', null] };
+    }
     return filters;
 };
 
-export const getConversations = async (projectId, skip = 0, limit = 20, status = [], sort = null) => {
-    const filtersObject = createFilterObject(projectId, status);
+export const getConversations = async (projectId, skip = 0, limit = 20, status = [], sort = null, env = 'development') => {
+    const filtersObject = createFilterObject(projectId, status, env);
     const sortObject = createSortObject(sort);
-
-
+    
     return (Conversations.find(
         {
             ...filtersObject,
