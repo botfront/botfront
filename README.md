@@ -5,19 +5,14 @@ A visual and intuitive platform to build chatbots with Rasa
 ![Botfront screenshot](botfront/docs/images/botfront-screenshot-shadow.png)
 </div>
 
-# Botfront
+Botfront has a best in class **Rasa** integration and gives you the most advanced conversational AI out of the box.
 
-Botfront is an open source chatbot platform built on top of **Rasa**.
 
-![Botfront screenshot](/botfront/docs/images/botfront-screenshot.jpg)
+<div align="center">
 
-With Botfront you can:
+<img src="/botfront/docs/images/botfront_animation.gif" width="85%"></width>
 
-- Build advanced **multilingual** conversational agents 🌎
-- Write and train **stories** 📖
-- Create, train, and evaluate **NLU** models 🤓
-- Create and edit your bot responses 👩‍🎨
-- Monitor conversations, review and annotate incoming NLU utterances 👌
+</div>
 
 ## Version Control
 

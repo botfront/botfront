@@ -199,8 +199,8 @@ jobs:
       - name: npm publish
         working-directory: ./cli
         run: |
-          npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          npm run trypublish
+          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+          npm publish
         env:
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
