@@ -1,45 +1,33 @@
 type Query {
-    activities(
-      modelId: String!
-      ): [Activity!]!
+  getActivities(modelId: String!): [Activity!]!
 }
+
 type Mutation {
-  deleteExamples(modelId: String!, itemIds: [String!]!): updateResponse!
-  changeIntent(examplesIds: [String!]!, intent: String, modelId: String!) : updateResponse!
-  log(parseData: Activity!): updateResponse!
-  updateExamples(examples:[Activity!]!): updateResponse!
-  addValidatedToTraining(modelId: String!): updateResponse!
+  upsertActivities(modelId: String!, data: [ActivityInput!]!): [Activity!]
+  deleteActivities(modelId: String!, ids: [String!]!): [String!]
+  addActivitiesToTraining(modelId: String!, ids: [String!]!): [Activity!]
 }
 
-type updateResponse {
-  success: Boolean!
-}
-
-type Activity {
+input ActivityInput {
   _id: String,
   modelId: String,
   text: String,
   intent: String,
-  entities: [Entity],
+  entities: [EntityInput],
   confidence: Float,
   validated: Boolean,
-  warning: Warning,
   createdAt: String,
   updatedAt: String,
 }
 
-type Entity {
-  start: Int,
-  end: Int,
-  value: String,
-  entity: String,
+type Activity {
+  _id: String!,
+  modelId: String!,
+  text: String!,
+  intent: String,
+  entities: [Entity],
   confidence: Float,
-  extractor: String,
-  processors: [String],
+  validated: Boolean,
+  createdAt: String,
+  updatedAt: String,
 }
-
-type Warning {
-  title: String, 
-  description: String
-}
-

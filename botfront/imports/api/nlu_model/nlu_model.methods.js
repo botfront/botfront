@@ -36,7 +36,7 @@ Meteor.methods({
                 { _id: { $in: modelIds }, language },
                 { fields: { _id: 1 } },
             )._id;
-            return await Meteor.callWithPromise('nlu.insertExamples', modelId, items.map(ExampleUtils.prepareExample));
+            return await Meteor.callWithPromise('nlu.insertExamples', modelId, items);
         } catch (e) {
             throw formatError(e);
         }
@@ -52,7 +52,7 @@ Meteor.methods({
         checkNoEmojisInExamples(JSON.stringify(items));
 
         try {
-            const normalizedItems = uniqBy(items, 'text');
+            const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample), 'text');
             const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
             const pullItemsText = intersectionBy(examples, normalizedItems, 'text').map(({ text }) => text);
