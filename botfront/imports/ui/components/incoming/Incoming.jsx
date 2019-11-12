@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { Container } from 'semantic-ui-react';
+import { Container, Tab } from 'semantic-ui-react';
 import { browserHistory, withRouter } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
@@ -16,10 +16,16 @@ import { Instances } from '../../../api/instances/instances.collection';
 import TopMenu from './TopMenu';
 import { extractEntities } from '../nlu/models/nluModel.utils';
 import Activity from '../nlu/activity/Activity';
+import ActivityInsertions from '../nlu/activity/ActivityInsertions';
+import ConversationBrowser from '../conversations/ConversationsBrowser';
 import { setWorkingLanguage } from '../../store/actions/actions';
 import { updateIncomingPath } from './incoming.utils';
 
 class Incoming extends React.Component {
+    state = {
+        activeTabIndex: undefined,
+    };
+
     linkToEvaluation = () => {
         const { router, projectId, model } = this.props;
         router.push({ pathname: `/project/${projectId}/nlu/model/${model._id}`, state: { isActivityLinkRender: true } });
@@ -37,10 +43,55 @@ class Incoming extends React.Component {
         }
     }
 
+    createMenuItem = (name, index, tag = '', dataCy = null) => {
+        const { router } = this.props;
+        const regexp = / /g;
+        const urlId = name.toLowerCase().replace(regexp, '');
+        const url = updateIncomingPath({ ...router.params, tab: urlId });
+        return {
+            name,
+            content: `${name} ${tag || ''}`,
+            key: urlId,
+            'data-cy': `incoming-${dataCy || urlId}-tab`,
+            onClick: () => {
+                if (router.params.tab === urlId) return;
+                browserHistory.push({ pathname: url });
+                this.setState({ activeTabIndex: index });
+            },
+        };
+    }
+
+    getPanes = () => {
+        const {
+            model, instance, project, entities, intents, modelId,
+        } = this.props;
+        return [
+            {
+                menuItem: this.createMenuItem('New Utterances', 0, '', 'newutterances'),
+                render: () => <Activity project={project} modelId={modelId} entities={entities} intents={intents} linkRender={this.linkToEvaluation} />,
+            },
+            {
+                menuItem: this.createMenuItem('Conversations', 1),
+                render: () => <ConversationBrowser projectId={project._id} />,
+            },
+            { menuItem: this.createMenuItem('Populate', 2), render: () => <ActivityInsertions model={model} instance={instance} /> },
+        ];
+    }
+
+    componentDidMount = () => {
+        const { router } = this.props;
+        const { activeTabIndex } = this.state;
+        const panes = this.getPanes();
+        const paneIndex = panes.findIndex(({ menuItem }) => menuItem.key === router.params.tab);
+        if (activeTabIndex === undefined) this.setState({ activeTabIndex: paneIndex >= 0 ? paneIndex : 0 });
+    }
+
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, router, workingLanguage,
+            projectLanguages, ready, model, router, workingLanguage,
         } = this.props;
+        const { activeTabIndex } = this.state;
+
         return (
             <>
                 <TopMenu
@@ -51,13 +102,10 @@ class Incoming extends React.Component {
                 />
                 <Container>
                     <Loading loading={!ready || !model}>
-                        <Activity
-                            project={project}
-                            modelId={modelId}
-                            entities={entities}
-                            intents={intents}
-                            linkRender={this.linkToEvaluation}
-                            instance={instance}
+                        <Tab
+                            activeIndex={activeTabIndex}
+                            menu={{ pointing: true, secondary: true }}
+                            panes={this.getPanes()}
                         />
                     </Loading>
                 </Container>
