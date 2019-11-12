@@ -56,7 +56,10 @@ class User extends React.Component {
         }
     };
 
-    removeUser = userId => Meteor.call('user.remove', userId, this.methodCallback());
+    removeUser = (userId) => {
+        const options = {};
+        Meteor.call('user.remove', userId, options, this.methodCallback());
+    }
 
     renderRoles = () => {
         const { projectOptions } = this.props;
