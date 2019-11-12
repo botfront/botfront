@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.18.0-rc.1](https://github.com/botfront/botfront/compare/v0.18.0-rc.0...v0.18.0-rc.1) (2019-11-12)
+
+
+### Tests
+
+* improved reliability ([99dc70b](https://github.com/botfront/botfront/commit/99dc70b))
+
+
+
 ## [0.18.0-rc.0](https://github.com/botfront/botfront/compare/v0.17.2...v0.18.0-rc.0) (2019-11-11)
 
 
