@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-import { isEqual } from 'lodash';
 import {
     project as project1, model as model1, training1, training2, training3, outdatedUt, lowIntent, lowEnt, lowEnts, high1, high2, high3,
 } from '../../fixtures/smart_tips.json';
@@ -37,25 +36,25 @@ describe('get the expected smart tips given TD and activity', function() {
         model1.training_data.common_examples.push(training2);
         const { code, extraEntities } = getSmartTips(model1, project1, high1, 0.50);
         expect(code).to.be.equal('entitiesInTD');
-        expect(isEqual(extraEntities, ['food'])).to.be.equal(true);
+        expect(extraEntities).to.be.deep.equal(['food']);
     });
 
     it('should detect entities and intents above threshold (bis)', function() {
         const { code, extraEntities } = getSmartTips(model1, project1, high2, 0.50);
         expect(code).to.be.equal('aboveTh');
-        expect(isEqual(extraEntities, [])).to.be.equal(true);
+        expect(extraEntities).to.be.deep.equal([]);
     });
 
     it('should detect entities and intents above threshold with extra entity in TD (bis)', function() {
         model1.training_data.common_examples.push(training3);
         const { code, extraEntities } = getSmartTips(model1, project1, high2, 0.50);
         expect(code).to.be.equal('entitiesInTD');
-        expect(isEqual(extraEntities, ['condiment'])).to.be.equal(true);
+        expect(extraEntities).to.be.deep.equal(['condiment']);
     });
 
     it('should detect entities and intents above threshold (bis2)', function() {
         const { code, extraEntities } = getSmartTips(model1, project1, high3, 0.50);
         expect(code).to.be.equal('aboveTh');
-        expect(isEqual(extraEntities, [])).to.be.equal(true);
+        expect(extraEntities).to.be.deep.equal([]);
     });
 });
