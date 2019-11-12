@@ -224,6 +224,17 @@ Then you can see the result:
 
 You can safely shut down your project with `botfront down` to free all resources. Your data is kept in the `botfront-db` folder and will be accessible from Botfront the next time you turn it on.
 
+
+### Default Domain
+
+An important part of developing and maintaining a Rasa virtual assistant is keeping [domain files](https://rasa.com/docs/rasa/core/domains/) up to date. Thankfully, Botfront makes this easier by automatically parsing the contents of your stories and extracting the different actions, entities, slots, etc. referenced within.
+
+However, it’s not always possible to infer everything that needs to go into the domain. For example, you might need to invoke a custom action, which in turn invokes another action, or makes use of a slot.
+
+![Default domain management](../../../images/default_domain_management_1.png)
+
+
+
 ## Next steps
 
 Congratulations, you've learned how to use Rasa with Botfront! Everything you see on official [Rasa documentation](https://rasa.com/docs]) should apply with a few exceptions such as voice and messaging platforms.
