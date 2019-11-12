@@ -198,6 +198,7 @@ describe('incoming page', function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
+        cy.waitForResolve(Cypress.env('RASA_URL'));
         cy.importProject('bf', 'botfront_project_import.json');
     });
     afterEach(function () {
