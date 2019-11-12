@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
 import { browserHistory, withRouter } from 'react-router';
 import {
-    Container, Grid, Icon, Menu, Message, Segment, Pagination,
+    Container, Grid, Icon, Menu, Message, Pagination,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { GET_CONVERSATIONS } from './queries';
@@ -24,17 +24,12 @@ function ConversationsBrowser(props) {
         activeConversationId,
         refetch,
         router,
+        activeFilters,
+        setActiveFilters,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
     const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(new Set());
-    const [activeFilters, setActiveFilters] = useState({
-        lengthFilter: -1,
-        xThanLength: 'greaterThan',
-        confidenceFilter: -1,
-        xThanConfidence: 'greaterThan',
-        actionFilter: [],
-    });
 
     useEffect(() => {
         if (data && !data.delete.success) {
@@ -99,21 +94,18 @@ function ConversationsBrowser(props) {
         return items;
     }
     
-    const handleFilterChange = (updatedFilters) => {
-        setActiveFilters({ ...activeFilters, ...updatedFilters });
-    };
-
-    const handleActionFilterChange = (updatedValue) => {
-        setActiveFilters({ ...activeFilters, actionFilter: updatedValue });
-    };
-
-    const handleConfidenceFilterChange = (updatedValue, xThan) => {
-        setActiveFilters({ ...activeFilters, confidenceFilter: updatedValue, xThanConfidence: xThan });
-    };
-    
-    const handleLengthFilterChange = (updatedValue, xThan) => {
-        setActiveFilters({ ...activeFilters, lengthFilter: updatedValue, xThanLength: xThan });
-    };
+    function changeFilters(lengthFilter, confidenceFilter, actionFilter, startDate, endDate) {
+        setActiveFilters({
+            lengthFilter: parseInt(lengthFilter.compare, 10),
+            xThanLength: lengthFilter.xThan,
+            confidenceFilter: parseFloat(confidenceFilter.compare, 10) / 100,
+            xThanConfidence: confidenceFilter.xThan,
+            actionFilter,
+            startDate,
+            endDate,
+        });
+        refetch();
+    }
 
     function deleteConversation(conversationId) {
         const index = trackers.map(t => t._id).indexOf(conversationId);
@@ -135,52 +127,56 @@ function ConversationsBrowser(props) {
 
     return (
         <div>
-            {trackers.length > 0 ? (
-                <Grid>
-                    <Grid.Row>
-                        <ConversationFilters
-                            lengthFilter={activeFilters.lengthFilter}
-                            xThanLength={activeFilters.xThanLength}
-                            confidenceFilter={activeFilters.confidenceFilter}
-                            xThanConfidence={activeFilters.xThanConfidence}
-                            updateFilter={handleFilterChange}
-                            updateLengthFilter={handleLengthFilterChange}
-                            updateConfidenceFilter={handleConfidenceFilterChange}
-                            updateActionFilter={handleActionFilterChange}
-                        />
-                    </Grid.Row>
-                    <Grid.Column width={4}>
-                        {pages > 1 ? (
-                            <Pagination
-                                totalPages={pages}
-                                onPageChange={(e, { activePage }) => pageChange(activePage)}
-                                activePage={page}
-                                boundaryRange={0}
-                                siblingRange={0}
-                                size='mini'
-                                firstItem='1'
-                                lastItem={`${pages}`}
-                                data-cy='pagination'
+            <Grid>
+                <Grid.Row>
+                    <ConversationFilters
+                        lengthFilter={activeFilters.lengthFilter}
+                        xThanLength={activeFilters.xThanLength}
+                        confidenceFilter={activeFilters.confidenceFilter}
+                        xThanConfidence={activeFilters.xThanConfidence}
+                        actionFilter={activeFilters.actionFilter}
+                        startDate={activeFilters.startDate}
+                        endDate={activeFilters.endDate}
+                        changeFilters={changeFilters}
+                    />
+                </Grid.Row>
+                {trackers.length > 0 ? (
+                    <>
+                        <Grid.Column width={4}>
+                            {pages > 1 ? (
+                                <Pagination
+                                    totalPages={pages}
+                                    onPageChange={(e, { activePage }) => pageChange(activePage)}
+                                    activePage={page}
+                                    boundaryRange={0}
+                                    siblingRange={0}
+                                    size='mini'
+                                    firstItem='1'
+                                    lastItem={`${pages}`}
+                                    data-cy='pagination'
+                                />
+                            ) : <></>}
+
+                            <Menu pointing vertical fluid>
+                                {renderMenuItems()}
+
+                            </Menu>
+                        </Grid.Column>
+                        <Grid.Column width={12}>
+                            <ConversationViewer
+                                conversationId={activeConversationId}
+                                onDelete={deleteConversation}
+                                removeReadMark={optimisticRemoveMarker}
+                                optimisticlyRemoved={optimisticRemoveReadMarker}
                             />
-                        ) : <></>}
-
-                        <Menu pointing vertical fluid>
-                            {renderMenuItems()}
-
-                        </Menu>
+                        </Grid.Column>
+                    </>
+                ) : (
+                    <Grid.Column width={16}>
+                        <Message data-cy='no-conv' info>No conversation to load</Message>
                     </Grid.Column>
-                    <Grid.Column width={12}>
-                        <ConversationViewer
-                            conversationId={activeConversationId}
-                            onDelete={deleteConversation}
-                            removeReadMark={optimisticRemoveMarker}
-                            optimisticlyRemoved={optimisticRemoveReadMarker}
-                        />
-                    </Grid.Column>
-                </Grid>
-            ) : (
-                <Message data-cy='no-conv' info>No conversation to load</Message>
-            )}
+                )}
+            </Grid>
         </div>
     );
 }
@@ -192,12 +188,15 @@ ConversationsBrowser.propTypes = {
     pages: PropTypes.number,
     refetch: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
+    activeFilters: PropTypes.object,
+    setActiveFilters: PropTypes.func.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
     trackers: [],
     activeConversationId: null,
     pages: 1,
+    activeFilters: {},
 };
 
 
@@ -210,6 +209,17 @@ const ConversationsBrowserContainer = (props) => {
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
     let page = parseInt(router.params.page, 10) || 1;
+    
+    const [activeFilters, setActiveFilters] = useState({
+        lengthFilter: -1,
+        xThanLength: 'greaterThan',
+        confidenceFilter: -1,
+        xThanConfidence: 'greaterThan',
+        actionFilter: [],
+        startDate: null,
+        endDate: null,
+    });
+
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
@@ -219,14 +229,31 @@ const ConversationsBrowserContainer = (props) => {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
         variables: {
-            projectId, page, pageSize: 20, env,
+            projectId,
+            page,
+            pageSize: 20,
+            env,
+            ...activeFilters,
+            /* the moment dates are not set on midnight by the date picker,
+            and uses client timezone we force UTC as were using a set timezone
+            */
+            startDate: activeFilters.startDate ? activeFilters.startDate
+                .hours(0)
+                .utcOffset(0)
+                .toISOString() : null,
+            endDate: activeFilters.endDate ? activeFilters.endDate
+                .hours(0)
+                .utcOffset(0)
+                .add(1, 'd') // include this whole day (next day midnight)
+                .toISOString() : null,
+            timeZoneHoursOffset: -4,
         },
         pollInterval: 5000,
     });
 
 
     const componentProps = {
-        page, projectId, refetch, router,
+        page, projectId, router, modelId: router.params.model_id, refetch, activeFilters, setActiveFilters,
     };
 
     if (!loading && !error) {
@@ -255,9 +282,9 @@ const ConversationsBrowserContainer = (props) => {
         <div>
             <Loading loading={loading}>
                 <Container>
-                        <ConversationsBrowser
-                            {...componentProps}
-                        />
+                    <ConversationsBrowser
+                        {...componentProps}
+                    />
 
                 </Container>
             </Loading>

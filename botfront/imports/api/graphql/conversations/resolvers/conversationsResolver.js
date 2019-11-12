@@ -21,6 +21,9 @@ export default {
                 args.confidenceFilter,
                 args.xThanConfidence,
                 args.actionFilter,
+                args.startDate,
+                args.endDate,
+                args.timeZoneHoursOffset,
             );
         },
         async conversation(_, args, __) {

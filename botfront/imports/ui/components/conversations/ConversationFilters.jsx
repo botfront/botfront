@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Segment, Input, Dropdown,
+    Segment, Input, Dropdown, Button,
 } from 'semantic-ui-react';
+import momentPropTypes from 'react-moment-proptypes';
+import DatePicker from '../common/DatePicker';
+
 
 const ConversationFilters = ({
     lengthFilter,
     xThanLength,
     confidenceFilter,
     xThanConfidence,
-    updateLengthFilter,
-    updateConfidenceFilter,
-    updateActionFilter,
+    actionFilters,
+    changeFilters,
+    startDate,
+    endDate,
 }) => {
     const [actionOptions, setActionOptions] = useState([]);
+    const [newLengthFilter, setNewLengthFilter] = useState({ compare: lengthFilter, xThan: xThanLength });
+    const [newConfidenceFilter, setNewConfidenceFilter] = useState({ compare: confidenceFilter * 100, xThan: xThanConfidence });
+    const [newActionFilters, setNewActionFilters] = useState(actionFilters);
+    const [newStartDate, setNewStartDate] = useState(startDate);
+    const [newEndDate, setNewEndDate] = useState(endDate);
+
+
     const filterLengthOptions = [
         { value: 'greaterThan', text: 'Greater than' },
         { value: 'lessThan', text: 'Less than' },
@@ -24,37 +35,15 @@ const ConversationFilters = ({
         { value: 'lessThan', text: 'Less than' },
     ];
 
-    const handleLengthValueChange = (e) => {
-        const regex = /[1234567890]/;
-        if (e.key.length === 1 && e.key.match(regex) === null) {
-            e.preventDefault();
-        }
+    const setNewDates = (incomingStartDate, incomingEndDate) => {
+        setNewStartDate(incomingStartDate);
+        setNewEndDate(incomingEndDate);
     };
 
-    const handleConfidenceValueChange = (e) => {
-        const regex = /[1234567890.]/;
-        if (e.key.length === 1 && e.key.match(regex) === null) {
-            e.preventDefault();
-        }
+    const applyFilters = () => {
+        changeFilters(newLengthFilter, newConfidenceFilter, newActionFilters, newStartDate, newEndDate);
     };
 
-    const handleOnChangeConfidenceValue = (e) => {
-        const updateValue = e.target.value;
-        if (parseFloat(updateValue) > 100 || parseFloat(updateValue) < 0) {
-            return;
-        }
-        if (parseFloat(updateValue) < 0) {
-            return;
-        }
-        updateConfidenceFilter(updateValue, xThanConfidence);
-    };
-    const addActionOption = (e) => {
-        const newOption = { value: e.target.value, text: e.target.value };
-        setActionOptions([...actionOptions, newOption]);
-    };
-    const handleActionChange = (event, element) => {
-        updateActionFilter(element.value);
-    };
     return (
         <div className='conversation-filter-container'>
             <div className='conversation-filter' data-cy='length-filter'>
@@ -66,16 +55,14 @@ const ConversationFilters = ({
                             options={filterLengthOptions}
                             selection
                             fluid
-                            value={xThanLength}
-                            onChange={(e, { value }) => updateLengthFilter(lengthFilter, value)}
+                            value={newLengthFilter.xThan}
+                            onChange={(e, { value }) => setNewLengthFilter({ ...newLengthFilter, xThan: value })}
                         />
                     </Segment>
                     <Segment className='number-filter'>
                         <Input
-                            value={lengthFilter > -1 ? lengthFilter : ''}
-                            onKeyDown={handleLengthValueChange}
-                            onChange={e => updateLengthFilter(e.target.value, xThanLength)}
-                            onFocus={e => e.target.select()}
+                            value={newLengthFilter.compare > 0 ? newLengthFilter.compare : ''}
+                            onChange={(e, { value }) => setNewLengthFilter({ ...newLengthFilter, compare: value })}
                         />
                     </Segment>
                 </Segment.Group>
@@ -89,16 +76,14 @@ const ConversationFilters = ({
                             options={filterConfidenceOptions}
                             selection
                             fluid
-                            value={xThanConfidence}
-                            onChange={(e, { value }) => updateConfidenceFilter(confidenceFilter, value)}
+                            value={newConfidenceFilter.xThan}
+                            onChange={(e, { value }) => setNewConfidenceFilter({ ...newConfidenceFilter, xThan: value })}
                         />
                     </Segment>
                     <Segment className='number-filter'>
                         <Input
-                            value={confidenceFilter > -1 ? confidenceFilter : ''}
-                            onKeyDown={handleConfidenceValueChange}
-                            onChange={handleOnChangeConfidenceValue}
-                            onFocus={e => e.target.select()}
+                            value={newConfidenceFilter.compare > 0 ? newConfidenceFilter.compare : ''}
+                            onChange={(e, { value }) => setNewConfidenceFilter({ ...newConfidenceFilter, compare: value })}
                         />
                     </Segment>
                     <Segment className='static-symbol'>
@@ -118,15 +103,34 @@ const ConversationFilters = ({
                         multiple
                         search
                         selection
+                        clearable
                         allowAdditions
-                        onChange={handleActionChange}
-                        onAddItem={addActionOption}
+                        onChange={(e, { value }) => setNewActionFilters(value)}
                         options={actionOptions}
+                        value={newActionFilters}
                         additionLabel=''
                         noResultsMessage='Type to add action filters'
                     />
                 </Segment>
             </div>
+            <div className='conversation-filter' data-cy='date-filter'>
+                <b>Filter by date</b>
+                <Segment className='date-filter'>
+                    <DatePicker
+                        position='bottom left'
+                        startDate={newStartDate}
+                        endDate={newEndDate}
+                        onConfirm={setNewDates}
+                    />
+                </Segment>
+            </div>
+
+            <div className='conversation-filter apply'>
+                <Segment className='apply-filter'>
+                    <Button primary onClick={() => applyFilters()}> Apply filters</Button>
+                </Segment>
+            </div>
+           
         </div>
     );
 };
@@ -136,9 +140,15 @@ ConversationFilters.propTypes = {
     xThanLength: PropTypes.string.isRequired,
     confidenceFilter: PropTypes.number.isRequired,
     xThanConfidence: PropTypes.string.isRequired,
-    updateLengthFilter: PropTypes.func.isRequired,
-    updateConfidenceFilter: PropTypes.func.isRequired,
-    updateActionFilter: PropTypes.func.isRequired,
+    changeFilters: PropTypes.func.isRequired,
+    actionFilters: PropTypes.array.isRequired,
+    startDate: momentPropTypes.momentObj,
+    endDate: momentPropTypes.momentObj,
+};
+
+ConversationFilters.defaultProps = {
+    startDate: null,
+    endDate: null,
 };
 
 export default ConversationFilters;

@@ -21,8 +21,14 @@ div.bot-response-message {
 
 .conversation-filter-container {
   display: flex;
+  width: 100%;
   .conversation-filter {
     padding: 0.75em;
+    &.apply{
+      margin-left: auto;
+      align-self: flex-end;
+      margin-bottom: 1.1rem;
+    }
     .dropdown.filter-dropdown {
       min-height: 30px;
       border-style: none;
@@ -108,7 +114,14 @@ div.bot-response-message {
       &.action-filter {
         width: 15em;
         max-width: 20em;
-        position: absolute;
+        border-style: none;
+      }
+      &.date-filter {
+        max-width: 20em;
+        border-style: none;
+      }
+      &.apply-filter {
+        max-width: 20em;
         border-style: none;
       }
     }

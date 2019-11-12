@@ -1,16 +1,44 @@
 import gql from 'graphql-tag';
 
 export const GET_CONVERSATIONS = gql`
-query retreiveConversations($projectId: String!,$page: Int!, $pageSize: Int, $env: String) {
-    conversationsPage(projectId: $projectId, page: $page, pageSize: $pageSize, status: ["new", "read", "flagged"], sort: updatedAt_DESC, env: $env) {
-        conversations{
-            _id
-            updatedAt
-            status
-            projectId
-        }
-        pages
+query retreiveConversations(
+    $projectId: String!,
+    $page: Int!, 
+    $pageSize: Int
+    $env: String
+    $lengthFilter: Int
+    $xThanLength: compare
+    $confidenceFilter: Float
+    $xThanConfidence: compare
+    $actionFilter: [String]
+    $startDate: String
+    $endDate: String
+    $timeZoneHoursOffset: Float
+    ) {
+    conversations(
+        projectId: $projectId,
+        skip: $skip,
+        limit: $limit,
+        status: ["new", "read", "flagged"],
+        sort: updatedAt_DESC,
+        env: $env,
+        lengthFilter: $lengthFilter,
+        xThanLength: $xThanLength,
+        confidenceFilter: $confidenceFilter,
+        xThanConfidence: $xThanConfidence,
+        actionFilter: $actionFilter,
+        startDate: $startDate,
+        endDate: $endDate,
+        timeZoneHoursOffset: $timeZoneHoursOffset
+    ) 
+    conversations {
+        _id
+        updatedAt
+        status
+        projectId
     }
+    pages
+    
 }`;
 
 export const GET_CONVERSATION = gql`
