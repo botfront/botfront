@@ -1,8 +1,7 @@
 # Botfront.
 
 
-A visual and intuitive platform to build chatbots with Rasa
-![Botfront screenshot](botfront/docs/images/botfront-screenshot-shadow.png)
+Botfront is an intuitive and powerful chatbot platform. With Botfront, you can design conversation flows, kickstart NLU models and create bot responses in a single step, and test the result on the fly.
 </div>
 
 Botfront has a best in class **Rasa** integration and gives you the most advanced conversational AI out of the box.
