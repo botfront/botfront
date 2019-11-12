@@ -187,7 +187,8 @@ describe('incoming page conversation tab pagination', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('incoming-conversations-tab')
             .click();
-        cy.dataCy('conversation-item').should('have.length', 20);
+        cy.dataCy('conversation-item')
+            .should('have.length', 20);
         cy.dataCy('pagination').should('exist');
         cy.dataCy('pagination').children().last().click({ force: true });
         cy.dataCy('conversation-item').should('have.length', 5);
