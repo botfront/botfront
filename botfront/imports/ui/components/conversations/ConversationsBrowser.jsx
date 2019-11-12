@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import requiredIf from 'react-required-if';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
-import { browserHistory } from 'react-router';
+import { browserHistory, withRouter } from 'react-router';
 import {
     Container, Grid, Icon, Menu, Message, Segment, Pagination,
 } from 'semantic-ui-react';
@@ -13,17 +13,17 @@ import { DELETE_CONV } from './mutations';
 import 'react-select/dist/react-select.css';
 import ConversationViewer from './ConversationViewer';
 import { Loading } from '../utils/Utils';
+import { updateIncomingPath } from '../incoming/incoming.utils';
 
 
 function ConversationsBrowser(props) {
     const {
-        projectId,
         page,
         pages,
-        modelId,
         trackers,
         activeConversationId,
         refetch,
+        router,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -50,26 +50,27 @@ function ConversationsBrowser(props) {
         if (tracker.status === 'new') {
             return <Icon name='mail' />;
         }
+
         if (tracker.status === 'flagged') {
             return <Icon name='flag' color='red' />;
         }
+
         return '';
     }
-
-
-    function goToConversation(newPage, conversationId, replace = false) {
-        let url = `/project/${projectId}/incoming/${modelId}/conversations/${newPage || 1}`;
-        if (conversationId) url += `/${conversationId}`;
+    
+    const goToConversation = (newPage, conversationId, replace = false) => {
+        // let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
+        const url = updateIncomingPath({ ...router.params, page: newPage || 1, selected_id: conversationId });
         if (replace) return browserHistory.replace({ pathname: url });
         return browserHistory.push({ pathname: url });
-    }
+    };
 
     function handleItemClick(event, { name }) {
         goToConversation(page, name);
     }
 
     function pageChange(newPage) {
-        const url = `/project/${projectId}/incoming/${modelId}/conversations/${newPage || 1}`;
+        const url = updateIncomingPath({ ...router.params, page: newPage || 1 }, 'selected_id');
         return browserHistory.push({ pathname: url });
     }
 
@@ -88,7 +89,6 @@ function ConversationsBrowser(props) {
                 </span>
             </Menu.Item>
         ));
-
         return items;
     }
 
@@ -153,31 +153,32 @@ function ConversationsBrowser(props) {
 ConversationsBrowser.propTypes = {
     trackers: requiredIf(PropTypes.array, ({ loading }) => !loading),
     activeConversationId: PropTypes.string,
-    projectId: PropTypes.string.isRequired,
     page: PropTypes.number.isRequired,
     pages: PropTypes.number,
-    modelId: PropTypes.string,
     refetch: PropTypes.func.isRequired,
+    router: PropTypes.object.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
     trackers: [],
     activeConversationId: null,
-    modelId: '',
     pages: 1,
 };
 
 
 const ConversationsBrowserContainer = (props) => {
-    const { params } = props;
-    const projectId = params.project_id;
-    let activeConversationId = params.selected_id;
-    // const { projectId } = props;
-    // let activeConversationId = '';
-    let page = parseInt(params.page, 10) || 1;
+    const { router } = props;
+    if (!router) {
+        return <></>;
+    }
+
+    const projectId = router.params.project_id;
+    let activeConversationId = router.params.selected_id;
+    let page = parseInt(router.params.page, 10) || 1;
     if (!Number.isInteger(page) || page < 1) {
         page = 1;
     }
+
 
     const {
         loading, error, data, refetch,
@@ -186,22 +187,19 @@ const ConversationsBrowserContainer = (props) => {
         pollInterval: 5000,
     });
 
+
     const componentProps = {
-        page, projectId, modelId: params.model_id, refetch,
+        page, projectId, refetch, router,
     };
+
     if (!loading && !error) {
         const { conversations, pages } = data.conversationsPage;
 
         // If for some reason the conversation is not in the current page, discard it.
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
-
         if (!activeConversationId) {
-            let url = `/project/${projectId}/incoming/${props.params.model_id}/conversations/${page || 1}`;
-            if (conversations.length > 0) {
-                url += `/${conversations[0]._id}`;
-                props.replaceUrl({ pathname: url });
-            }
-            // activeConversationId = conversations[from]._id;
+            const url = updateIncomingPath({ ...router.params, page: page || 1, selected_id: conversations[0]._id });
+            browserHistory.replace({ pathname: url });
         } else {
             Object.assign(componentProps, {
                 trackers: conversations,
@@ -213,7 +211,7 @@ const ConversationsBrowserContainer = (props) => {
         Object.assign(componentProps, {
             projectId,
             page,
-            modelId: props.params.model_id,
+            modelId: router.params.model_id,
         });
     }
     return (
@@ -234,12 +232,13 @@ const ConversationsBrowserContainer = (props) => {
 };
 
 ConversationsBrowserContainer.propTypes = {
-    params: PropTypes.object.isRequired,
-    replaceUrl: PropTypes.func.isRequired,
+    router: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
 });
 
-export default connect(mapStateToProps)(ConversationsBrowserContainer);
+const ConversationsRouter = withRouter(ConversationsBrowserContainer);
+
+export default connect(mapStateToProps)(ConversationsRouter);

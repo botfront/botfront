@@ -110,7 +110,6 @@ function addConversation(id) {
 
 describe('incoming page conversation tab', function () {
     beforeEach(function () {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
@@ -120,6 +119,7 @@ describe('incoming page conversation tab', function () {
 
     afterEach(function () {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     
@@ -149,13 +149,14 @@ describe('incoming page conversation tab', function () {
         cy.dataCy('conversation-item').eq(1).should('have.text', 'test1');
         cy.dataCy('conversation-item').eq(1).click({ force: true });
         cy.dataCy('nlu-table-text').should('contains.text', '/get_started_test1');
+        cy.reload();
+        cy.dataCy('nlu-table-text').should('contains.text', '/get_started_test1');
     });
 });
 
 
 describe('incoming page conversation tab pagination', function () {
     beforeEach(function () {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
@@ -165,6 +166,7 @@ describe('incoming page conversation tab pagination', function () {
 
     afterEach(function () {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     it('should have no pagination if 20 conversation or less', function () {
@@ -190,6 +192,8 @@ describe('incoming page conversation tab pagination', function () {
         cy.dataCy('conversation-item').should('have.length', 20);
         cy.dataCy('pagination').should('exist');
         cy.dataCy('pagination').children().last().click({ force: true });
+        cy.dataCy('conversation-item').should('have.length', 5);
+        cy.reload(); // deep linking should bring the user to the same location after a refresh
         cy.dataCy('conversation-item').should('have.length', 5);
     });
 });

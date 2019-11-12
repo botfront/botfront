@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { Container } from 'semantic-ui-react';
-import { browserHistory } from 'react-router';
+import { browserHistory, withRouter } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
 import { Loading } from '../utils/Utils';
@@ -17,6 +17,7 @@ import TopMenu from './TopMenu';
 import { extractEntities } from '../nlu/models/nluModel.utils';
 import Activity from '../nlu/activity/Activity';
 import { setWorkingLanguage } from '../../store/actions/actions';
+import { updateIncomingPath } from './incoming.utils';
 
 class Incoming extends React.Component {
     linkToEvaluation = () => {
@@ -25,18 +26,20 @@ class Incoming extends React.Component {
     };
 
     handleLanguageChange = (value) => {
-        const { models, projectId, changeWorkingLanguage } = this.props;
+        const { models, router, changeWorkingLanguage } = this.props;
 
         const modelMatch = models.find(({ language }) => language === value);
+
         if (modelMatch) {
             changeWorkingLanguage(value);
-            browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` });
+            const pathname = updateIncomingPath({ ...router.params, model_id: modelMatch._id });
+            browserHistory.push({ pathname });
         }
     }
 
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router, workingLanguage,
+            projectLanguages, ready, entities, intents, modelId, project, model, instance, router, workingLanguage,
         } = this.props;
         return (
             <>
@@ -44,7 +47,7 @@ class Incoming extends React.Component {
                     projectLanguages={projectLanguages}
                     selectedLanguage={workingLanguage}
                     handleLanguageChange={this.handleLanguageChange}
-                    tab={params.tab}
+                    tab={router.params.tab}
                 />
                 <Container>
                     <Loading loading={!ready || !model}>
@@ -55,8 +58,6 @@ class Incoming extends React.Component {
                             intents={intents}
                             linkRender={this.linkToEvaluation}
                             instance={instance}
-                            params={params}
-                            replaceUrl={router.replace}
                         />
                     </Loading>
                 </Container>
@@ -104,14 +105,26 @@ const handleDefaultRoute = (projectId) => {
 
     try {
         const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${defaultModelId}` });
+        browserHistory.push({
+            pathname: updateIncomingPath({ project_id: projectId, model_id: defaultModelId }),
+        });
     } catch (e) {
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelIds[0]}` });
+        browserHistory.push({
+            pathname: updateIncomingPath({ project_id: projectId, model_id: modelIds[0] }),
+        });
     }
 };
 
 const IncomingContainer = withTracker((props) => {
-    const { params: { model_id: modelId, project_id: projectId } = {}, workingLanguage, changeWorkingLanguage } = props;
+    const {
+        router: {
+            params: {
+                model_id: modelId, project_id: projectId,
+            } = {},
+        },
+        workingLanguage,
+        changeWorkingLanguage,
+    } = props;
 
     // setup model subscription
     let modelHandler = {
@@ -175,6 +188,8 @@ const IncomingContainer = withTracker((props) => {
     };
 })(Incoming);
 
+const IncomingContainerRouter = withRouter(IncomingContainer);
+
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
     workingLanguage: state.settings.get('workingLanguage'),
@@ -184,4 +199,4 @@ const mapDispatchToProps = {
     changeWorkingLanguage: setWorkingLanguage,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(IncomingContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(IncomingContainerRouter);
