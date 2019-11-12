@@ -15,6 +15,8 @@
     "chai": "^4.2.0",
     "cypress": "3.6.0",
     "cypress-plugin-retries": "1.2.2",
-    "js-yaml": "^3.13.1"
+    "js-yaml": "^3.13.1",
+    "moment": "^2.24.0",
+    "lodash": "4.17.15"
   }
 }
