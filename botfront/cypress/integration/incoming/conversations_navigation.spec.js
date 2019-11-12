@@ -149,6 +149,8 @@ describe('incoming page conversation tab', function () {
         cy.dataCy('conversation-item').eq(1).should('have.text', 'test1');
         cy.dataCy('conversation-item').eq(1).click({ force: true });
         cy.dataCy('nlu-table-text').should('contains.text', '/get_started_test1');
+        cy.reload();
+        cy.dataCy('nlu-table-text').should('contains.text', '/get_started_test1');
     });
 });
 
@@ -191,66 +193,7 @@ describe('incoming page conversation tab pagination', function () {
         cy.dataCy('pagination').should('exist');
         cy.dataCy('pagination').children().last().click({ force: true });
         cy.dataCy('conversation-item').should('have.length', 5);
-    });
-});
-describe('incoming page', function() {
-    beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'en').then(() => {
-            cy.login();
-        });
-        cy.waitForResolve(Cypress.env('RASA_URL'));
-        cy.importProject('bf', 'botfront_project_import.json');
-    });
-    afterEach(function () {
-        cy.logout();
-        cy.deleteProject('bf');
-    });
-    it('should go to the same page and conversation when refreshed', function() {
-        cy.visit('/project/bf/incoming');
-        cy.dataCy('intent-label')
-            .should('exist'); // this ensures the import has loaded before continuing
-        cy.dataCy('incoming-conversations-tab')
-            .click();
-        cy.dataCy('conversation-item')
-            .first()
-            .should('have.class', 'active');
-        cy.dataCy('conversation-item')
-            .eq(5)
-            .click();
-        cy.dataCy('conversation-item')
-            .first()
-            .should('not.have.class', 'active');
-        cy.reload();
-        cy.dataCy('conversation-item')
-            .eq(5)
-            .should('have.class', 'active');
-
-        cy.dataCy('pagination')
-            .find('.item')
-            .contains('⟩')
-            .click();
-        cy.dataCy('pagination')
-            .find('.item')
-            .contains('2')
-            .should('have.class', 'active');
-        cy.reload();
-        cy.dataCy('pagination')
-            .find('.item')
-            .contains('2')
-            .should('have.class', 'active');
-            
-        cy.dataCy('pagination')
-            .find('.item')
-            .contains('⟨')
-            .click();
-        cy.dataCy('pagination')
-            .find('.item')
-            .eq(2)
-            .should('have.class', 'active');
-        cy.reload();
-        cy.dataCy('pagination')
-            .find('.item')
-            .eq(2)
-            .should('have.class', 'active');
+        cy.reload(); // deep linking should bring the user to the same location after a refresh
+        cy.dataCy('conversation-item').should('have.length', 5);
     });
 });
