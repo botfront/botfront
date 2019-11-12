@@ -1,42 +1,42 @@
 /* eslint-disable no-unused-vars */
 import {
     getActivities,
+    upsertActivities,
+    deleteActivities,
+    addActivitiesToTraining,
 } from '../mongo/activity';
 
 export default {
     Query: {
-        async  activities(_, args, __) {
-            return getActivities(args.modelId);
-        },
+        getActivities: async (_root, args) => getActivities(args),
     },
+
     Mutation: {
-       
+        upsertActivities: async (_root, args) => upsertActivities(args),
+        deleteActivities: async (_root, args) => deleteActivities(args),
+        addActivitiesToTraining: async (_root, args) => addActivitiesToTraining(args),
     },
+
     Activity: {
-        _id: (parent, _, __) => parent._id,
-        modelId: (parent, _, __) => parent.modelId,
-        text: (parent, _, __) => parent.text,
-        intent: (parent, _, __) => parent.intent,
-        entities: (parent, _, __) => parent.entities,
-        confidence: (parent, _, __) => parent.confidence,
-        validated: (parent, _, __) => parent.validated,
-        warning: (parent, _, __) => parent.warning,
-        createdAt: (parent, _, __) => parent.createdAt,
-        updatedAt: (parent, _, __) => parent.updatedAt,
+        _id: ({ _id }) => _id,
+        modelId: ({ modelId }) => modelId,
+        text: ({ text }) => text,
+        intent: ({ intent }) => intent,
+        entities: ({ entities }) => entities,
+        confidence: ({ confidence }) => confidence,
+        validated: ({ validated }) => validated,
+        createdAt: ({ createdAt }) => createdAt,
+        updatedAt: ({ updatedAt }) => updatedAt,
     },
-  
+
     Entity: {
-        start: (parent, _, __) => parent.start,
-        end: (parent, _, __) => parent.end,
-        value: (parent, _, __) => parent.value,
-        entity: (parent, _, __) => parent.entity,
-        confidence: (parent, _, __) => parent.confidence,
-        extractor: (parent, _, __) => parent.extractor,
-        processors: (parent, _, __) => parent.processors,
+        start: ({ start }) => start,
+        end: ({ end }) => end,
+        value: ({ value }) => value,
+        entity: ({ entity }) => entity,
+        confidence: ({ confidence }) => confidence,
+        extractor: ({ extractor }) => extractor,
+        processors: ({ processors }) => processors,
     },
-  
-    Warning: {
-        title: (parent, _, __) => parent.title,
-        description: (parent, _, __) => parent.description,
-    },
+    
 };
