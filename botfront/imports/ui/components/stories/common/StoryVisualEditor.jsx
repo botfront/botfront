@@ -272,7 +272,7 @@ class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
                 return (
-                    <React.Fragment key={`bot${line.gui.data.name}`}>
+                    <React.Fragment key={`bot${line.gui.data.name}-${index}`}>
                         <ExceptionWrapper exceptions={exceptions}>
                             <BotResponsesContainer
                                 language={language}
@@ -295,11 +295,7 @@ class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'user') {
                 return (
                     <React.Fragment
-                        key={`user${
-                            line.md
-                                ? line.md
-                                : index
-                        }`}
+                        key={`user${line.md || ''}-${index}`}
                     >
                         <UserUtteranceContainer
                             exceptions={exceptions}
