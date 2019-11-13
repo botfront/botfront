@@ -10,7 +10,7 @@ type Query {
       xThanLength: compare
       confidenceFilter: Float
       xThanConfidence: compare
-      actionFilter: [String]
+      actionFilters: [String]
       startDate: String
       endDate: String
       timeZoneHoursOffset: Float

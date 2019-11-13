@@ -20,7 +20,7 @@ export default {
                 args.xThanLength,
                 args.confidenceFilter,
                 args.xThanConfidence,
-                args.actionFilter,
+                args.actionFilters,
                 args.startDate,
                 args.endDate,
                 args.timeZoneHoursOffset,

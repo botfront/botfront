@@ -43,7 +43,7 @@ const createFilterObject = (
     env = 'development',
     confidenceFilter,
     xThanConfidence,
-    actionFilter,
+    actionFilters,
     startDate,
     endDate,
     timeZoneHoursOffset,
@@ -67,27 +67,27 @@ const createFilterObject = (
                 { 'tracker.events.confidence': { [mongo]: confidenceFilter } }],
         }];
     }
-    if (actionFilter && actionFilter.length > 0) {
+    if (actionFilters && actionFilters.length > 0) {
         filters['tracker.events.event'] = 'action';
-        filters['tracker.events.name'] = { $in: actionFilter };
+        filters['tracker.events.name'] = { $in: actionFilters };
     }
     if (startDate && endDate && timeZoneHoursOffset) {
         const offsetedStart = new Date(startDate);
         offsetedStart.setTime(offsetedStart.getTime() + (timeZoneHoursOffset * 60 * 60 * 1000));
         const offsetedEnd = new Date(endDate);
         offsetedEnd.setTime(offsetedEnd.getTime() + (timeZoneHoursOffset * 60 * 60 * 1000));
-
+        offsetedEnd.setDate(offsetedEnd.getDate() + 1); // add day as we want to include the whole day of end date
         filters.$and = [
             {
                 $or: [
-                    { createdAt: { $lte: new Date(offsetedStart) } },
-                    { createdAt: { $lte: new Date(offsetedEnd) } },
+                    { createdAt: { $lte: offsetedStart } },
+                    { createdAt: { $lte: offsetedEnd } },
                 ],
             },
             {
                 $or: [
-                    { updatedAt: { $gte: new Date(offsetedStart) } },
-                    { updatedAt: { $gte: new Date(offsetedEnd) } },
+                    { updatedAt: { $gte: offsetedStart } },
+                    { updatedAt: { $gte: offsetedEnd } },
                 ],
             },
         ];
@@ -107,7 +107,7 @@ export const getConversations = async (
     xThanLength = null,
     confidenceFilter = null,
     xThanConfidence = null,
-    actionFilter = null,
+    actionFilters = null,
     startDate = null,
     endDate = null,
     timeZoneHoursOffset = null) => {
@@ -117,7 +117,7 @@ export const getConversations = async (
         env,
         confidenceFilter,
         xThanConfidence,
-        actionFilter,
+        actionFilters,
         startDate,
         endDate,
         timeZoneHoursOffset,

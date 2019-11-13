@@ -10,7 +10,7 @@ query retreiveConversations(
     $xThanLength: compare
     $confidenceFilter: Float
     $xThanConfidence: compare
-    $actionFilter: [String]
+    $actionFilters: [String]
     $startDate: String
     $endDate: String
     $timeZoneHoursOffset: Float
@@ -26,7 +26,7 @@ query retreiveConversations(
         xThanLength: $xThanLength,
         confidenceFilter: $confidenceFilter,
         xThanConfidence: $xThanConfidence,
-        actionFilter: $actionFilter,
+        actionFilters: $actionFilters,
         startDate: $startDate,
         endDate: $endDate,
         timeZoneHoursOffset: $timeZoneHoursOffset

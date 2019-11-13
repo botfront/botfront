@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import requiredIf from 'react-required-if';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
 import { browserHistory, withRouter } from 'react-router';
@@ -8,12 +7,14 @@ import {
     Container, Grid, Icon, Menu, Message, Pagination,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
+import { Meteor } from 'meteor/meteor';
 import { GET_CONVERSATIONS } from './queries';
 import { DELETE_CONV } from './mutations';
 import ConversationViewer from './ConversationViewer';
 import ConversationFilters from './ConversationFilters';
 import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
+import { wrapMeteorCallback } from '../utils/Errors';
 
 
 function ConversationsBrowser(props) {
@@ -26,6 +27,7 @@ function ConversationsBrowser(props) {
         router,
         activeFilters,
         setActiveFilters,
+        actionsOptions,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -93,14 +95,14 @@ function ConversationsBrowser(props) {
         ));
         return items;
     }
-    
-    function changeFilters(lengthFilter, confidenceFilter, actionFilter, startDate, endDate) {
+
+    function changeFilters(lengthFilter, confidenceFilter, actionFilters, startDate, endDate) {
         setActiveFilters({
             lengthFilter: parseInt(lengthFilter.compare, 10),
             xThanLength: lengthFilter.xThan,
             confidenceFilter: parseFloat(confidenceFilter.compare, 10) / 100,
             xThanConfidence: confidenceFilter.xThan,
-            actionFilter,
+            actionFilters,
             startDate,
             endDate,
         });
@@ -134,10 +136,11 @@ function ConversationsBrowser(props) {
                         xThanLength={activeFilters.xThanLength}
                         confidenceFilter={activeFilters.confidenceFilter}
                         xThanConfidence={activeFilters.xThanConfidence}
-                        actionFilter={activeFilters.actionFilter}
+                        actionFilters={activeFilters.actionFilters}
                         startDate={activeFilters.startDate}
                         endDate={activeFilters.endDate}
                         changeFilters={changeFilters}
+                        actionsOptions={actionsOptions}
                     />
                 </Grid.Row>
                 {trackers.length > 0 ? (
@@ -182,23 +185,22 @@ function ConversationsBrowser(props) {
 }
 
 ConversationsBrowser.propTypes = {
-    trackers: requiredIf(PropTypes.array, ({ loading }) => !loading),
+    trackers: PropTypes.array.isRequired,
     activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
-    pages: PropTypes.number,
+    pages: PropTypes.number.isRequired,
     refetch: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
     activeFilters: PropTypes.object,
     setActiveFilters: PropTypes.func.isRequired,
+    actionsOptions: PropTypes.array,
 };
 
 ConversationsBrowser.defaultProps = {
-    trackers: [],
     activeConversationId: null,
-    pages: 1,
     activeFilters: {},
+    actionsOptions: [],
 };
-
 
 const ConversationsBrowserContainer = (props) => {
     const { environment: env, router } = props;
@@ -208,22 +210,31 @@ const ConversationsBrowserContainer = (props) => {
 
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
-    let page = parseInt(router.params.page, 10) || 1;
+    const page = parseInt(router.params.page, 10) || 1;
     
     const [activeFilters, setActiveFilters] = useState({
         lengthFilter: -1,
         xThanLength: 'greaterThan',
         confidenceFilter: -1,
         xThanConfidence: 'greaterThan',
-        actionFilter: [],
+        actionFilters: [],
         startDate: null,
         endDate: null,
+        timeZoneHoursOffset: null,
     });
+    const [actionsOptions, setActionOptions] = useState([]);
 
-    if (!Number.isInteger(page) || page < 1) {
-        page = 1;
-    }
-
+    useEffect(() => {
+        Meteor.call(
+            'project.getActions',
+            projectId,
+            wrapMeteorCallback((err, res) => {
+                if (!err) {
+                    setActionOptions(res.map(action => ({ text: action, value: action, key: action })));
+                }
+            }),
+        );
+    }, []);
 
     const {
         loading, error, data, refetch,
@@ -244,16 +255,15 @@ const ConversationsBrowserContainer = (props) => {
             endDate: activeFilters.endDate ? activeFilters.endDate
                 .hours(0)
                 .utcOffset(0)
-                .add(1, 'd') // include this whole day (next day midnight)
                 .toISOString() : null,
-            timeZoneHoursOffset: -4,
+            timeZoneHoursOffset: -4, // force the offset to canada (gmt-4) for now
         },
         pollInterval: 5000,
     });
 
 
     const componentProps = {
-        page, projectId, router, modelId: router.params.model_id, refetch, activeFilters, setActiveFilters,
+        page, projectId, router, modelId: router.params.model_id, refetch, activeFilters, setActiveFilters, actionsOptions,
     };
 
     if (!loading && !error) {
@@ -295,12 +305,14 @@ const ConversationsBrowserContainer = (props) => {
 ConversationsBrowserContainer.propTypes = {
     router: PropTypes.object.isRequired,
     environment: PropTypes.string,
+    actionsOptions: PropTypes.array,
+
 };
 
 ConversationsBrowserContainer.defaultProps = {
     environment: 'developement',
+    actionsOptions: [],
 };
-
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

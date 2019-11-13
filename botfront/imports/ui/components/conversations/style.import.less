@@ -21,10 +21,16 @@ div.bot-response-message {
 
 .conversation-filter-container {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
   .conversation-filter {
+   
     padding: 0.75em;
     &.apply{
+      align-self: flex-end;
+      margin-bottom: 1.1rem;
+    }
+    &.reset{
       margin-left: auto;
       align-self: flex-end;
       margin-bottom: 1.1rem;
@@ -35,10 +41,8 @@ div.bot-response-message {
       box-shadow: none;
       margin: 0;
       &.multi-select{
-        max-height: 38px;
         padding-right: 0px;
         overflow: auto;
-        white-space: nowrap;
         overflow-y: hidden;
         overflow-x: auto;
         border-style: solid;
@@ -47,7 +51,10 @@ div.bot-response-message {
           max-width: 14em;
         }
         .ui.label{
-          max-width: 14em;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          
         }
         .dropdown.icon{
           position: relative;
@@ -112,8 +119,7 @@ div.bot-response-message {
         }
       }
       &.action-filter {
-        width: 15em;
-        max-width: 20em;
+        min-width: 15em;
         border-style: none;
       }
       &.date-filter {
