@@ -3,9 +3,9 @@ type Query {
 }
 
 type Mutation {
-  upsertActivity(modelId: String!, data: [ActivityInput!]!): [Activity!]
-  deleteActivity(modelId: String!, ids: [String!]!): [String!]
-  addActivityToTraining(modelId: String!, ids: [String!]!): [Activity!]
+  upsertActivity(modelId: String!, data: [ActivityInput!]!): updateResponse!
+  deleteActivity(modelId: String!, ids: [String!]!): updateResponse!
+  addActivityToTraining(modelId: String!, ids: [String!]!): updateResponse!
 }
 
 input ActivityInput {

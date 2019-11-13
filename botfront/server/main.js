@@ -1,5 +1,4 @@
 import '../imports/api/setup';
-import '../imports/api/activity';
 import '../imports/lib/aggregate';
 import '../imports/api/globalSettings/globalSettings.collection';
 import '../imports/api/globalSettings/globalSettings.methods';

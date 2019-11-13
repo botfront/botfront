@@ -12,7 +12,7 @@ import { Instances } from '../../../../api/instances/instances.collection';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import FloatingIconButton from '../common/FloatingIconButton';
 import SmartTip from './SmartTip';
-import { ActivityCollection } from '../../../../api/activity';
+// import { ActivityCollection } from '../../../../api/activity';
 
 export default class ActivityDataTable extends React.Component {
     state = {
@@ -20,7 +20,7 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getValidationColumn() {
-        const { outDatedUtteranceIds } = this.props;
+        const { outDatedUtteranceIds, onDelete, onUpdate } = this.props;
         const { reInterpreting } = this.state;
         const newReInterpreting = reInterpreting.filter(id => outDatedUtteranceIds.includes(id));
         if (reInterpreting.some(id => !newReInterpreting.includes(id))) this.setState({ reInterpreting: newReInterpreting });
@@ -52,7 +52,7 @@ export default class ActivityDataTable extends React.Component {
                         )
                         : <Button size={size} disabled basic icon='redo' loading />;
                 } else if (!!validated) {
-                    action = <Button size={size} onClick={() => this.onValidate(utterance)} color='green' icon='check' data-cy='valid-utterance-button' />;
+                    action = <Button size={size} onClick={() => onUpdate([{ _id: utterance._id, validated: !utterance.validated }])} color='green' icon='check' data-cy='valid-utterance-button' />;
                 } else {
                     action = (
                         <Popup
@@ -64,7 +64,7 @@ export default class ActivityDataTable extends React.Component {
                                     basic
                                     size={size}
                                     disabled={ooS}
-                                    onClick={() => this.onValidate(utterance)}
+                                    onClick={() => onUpdate([{ _id: utterance._id, validated: !utterance.validated }])}
                                     color='green'
                                     icon='check'
                                     data-cy='invalid-utterance-button'
@@ -76,7 +76,7 @@ export default class ActivityDataTable extends React.Component {
                 return (
                     <div>
                         {action}
-                        {!isReInterpreting && <FloatingIconButton icon='trash' onClick={() => this.onDelete(utterance)} />}
+                        {!isReInterpreting && <FloatingIconButton icon='trash' onClick={() => onDelete([utterance._id])} />}
                     </div>
                 );
             },
@@ -112,7 +112,7 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getIntentColumn() {
-        const { modelId, projectId } = this.props;
+        const { projectId, onUpdate } = this.props;
         return {
             accessor: e => e,
             Header: 'Intent',
@@ -122,7 +122,6 @@ export default class ActivityDataTable extends React.Component {
             Cell: (props) => {
                 const example = props.value;
                 const { intents, outDatedUtteranceIds } = this.props;
-                const onUpdateText = newExample => this.onChangeIntent([newExample._id], newExample.intent, modelId);
                 const isOutdated = outDatedUtteranceIds.includes(example._id);
                 
                 return isOutdated
@@ -138,7 +137,7 @@ export default class ActivityDataTable extends React.Component {
                             intent={example.intent ? example.intent : ''}
                             projectId={projectId}
                             enableReset
-                            onSave={onUpdateText}
+                            onSave={({ _id, intent }) => onUpdate([{ _id, intent, confidence: null }])}
                         />
                     );
             },
@@ -146,7 +145,9 @@ export default class ActivityDataTable extends React.Component {
     }
 
     getExampleColumn() {
-        const { entities, outDatedUtteranceIds, projectId } = this.props;
+        const {
+            entities, outDatedUtteranceIds, projectId, onUpdate,
+        } = this.props;
         return {
             id: 'example',
             accessor: e => e,
@@ -159,7 +160,7 @@ export default class ActivityDataTable extends React.Component {
                         example={props.value}
                         entities={entities}
                         showLabels
-                        onSave={this.onEntityEdit}
+                        onSave={u => onUpdate([{ _id: u._id, entities: u.entities.map((e) => { delete e.__typename; e.confidence = null; return e; }) }])}
                         editable={!isOutdated}
                         disablePopup={isOutdated}
                         projectId={projectId}
@@ -174,35 +175,18 @@ export default class ActivityDataTable extends React.Component {
         return [this.getConfidenceColumn(), this.getIntentColumn(), this.getExampleColumn(), this.getValidationColumn()];
     }
 
-    onValidate = u => this.onExamplesEdit([{ ...u, validated: !u.validated }]);
-
-    onChangeIntent = (examplesIds, intent, modelId) => Meteor.call('activity.onChangeIntent', examplesIds, intent, modelId, wrapMeteorCallback());
-
-    onExamplesEdit = (utterances, callback) => {
-        Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
-    };
-
-    onEntityEdit = (u, callback) => {
-        this.onExamplesEdit([{ ...u, entities: u.entities.map(entity => ({ ...entity, confidence: 0 })) }], callback);
-    }
-
-    onReinterpret = async (utterances) => {
-        const { projectId, modelId } = this.props;
-        const { reInterpreting } = this.state;
-        const instance = Instances.findOne({ projectId });
-        const { language } = NLUModels.findOne({ _id: modelId });
-        let fullUtterances = utterances;
-        if (fullUtterances.length && typeof fullUtterances[0] === 'string') {
-            fullUtterances = await ActivityCollection.find({ modelId, _id: { $in: utterances } }).fetch();
-        }
-        const newReInterpreting = reInterpreting.concat(fullUtterances.map(u => u._id));
-        this.setState({ reInterpreting: newReInterpreting });
-        Meteor.call('rasa.parse', instance, fullUtterances.map(u => ({ text: u.text, lang: language })), false, wrapMeteorCallback());
-    };
-
-    onDelete = (u) => {
-        const { modelId } = this.props;
-        Meteor.call('activity.deleteExamples', modelId, [u._id], wrapMeteorCallback());
+    handleReinterpret = async (utterances) => {
+        // const { projectId, modelId } = this.props;
+        // const { reInterpreting } = this.state;
+        // const instance = Instances.findOne({ projectId });
+        // const { language } = NLUModels.findOne({ _id: modelId });
+        // let fullUtterances = utterances;
+        // if (fullUtterances.length && typeof fullUtterances[0] === 'string') {
+        //     fullUtterances = await ActivityCollection.find({ modelId, _id: { $in: utterances } }).fetch();
+        // }
+        // const newReInterpreting = reInterpreting.concat(fullUtterances.map(u => u._id));
+        // this.setState({ reInterpreting: newReInterpreting });
+        // Meteor.call('rasa.parse', instance, fullUtterances.map(u => ({ text: u.text, lang: language })), wrapMeteorCallback());
     };
 
     renderReinterpretAllButton = utterances => mainAction => (
@@ -213,7 +197,7 @@ export default class ActivityDataTable extends React.Component {
             icon
             fluid={mainAction}
             labelPosition='left'
-            onClick={() => this.onReinterpret(utterances.slice(0, 20))}
+            onClick={() => this.handleReinterpret(utterances.slice(0, 20))}
         >
             <Icon name='redo' />
             {utterances.length === 1
@@ -232,7 +216,7 @@ export default class ActivityDataTable extends React.Component {
             icon
             fluid={mainAction}
             labelPosition='left'
-            onClick={() => this.onReinterpret([utterance])}
+            onClick={() => this.handleReinterpret([utterance])}
             key={`${utterance._id}-reinterpret`}
         >
             <Icon name='redo' />
@@ -314,6 +298,8 @@ ActivityDataTable.propTypes = {
     entities: PropTypes.array.isRequired,
     projectId: PropTypes.string.isRequired,
     outDatedUtteranceIds: PropTypes.array.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
     modelId: PropTypes.string.isRequired,
     sortBy: PropTypes.string,
 };

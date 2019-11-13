@@ -78,7 +78,7 @@ class API extends React.Component {
         if (tz) Object.assign(queryParams, { timezone: tz });
         if (reftime > 0) Object.assign(queryParams, { reference_time: reftime });
 
-        return Meteor.call('rasa.parse', instance, [{ text: query, lang: language }], true, (err, output) => this.setState({ output }));
+        return Meteor.call('rasa.parse', instance, [{ text: query, lang: language }], (err, output) => this.setState({ output }));
     };
 
     render() {
