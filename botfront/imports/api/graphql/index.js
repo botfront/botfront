@@ -3,13 +3,13 @@ import conversationsResolver from './conversations/resolvers/conversationsResolv
 import conversationTypes from './conversations/schemas';
 import activityResolver from './activity/resolvers/activityResolver';
 import activityTypes from './activity/schemas';
-/*
-* mergeResolvers doesnt work (https://github.com/Urigo/merge-graphql-schemas/issues?utf8=%E2%9C%93&q=unexpected+token)
-* so we need to import resolvers one by one
-*/
+import commonResolver from './common/commonResolver';
+import commonTypes from './common/common.types.graphql';
+
 export const resolvers = [
     conversationsResolver,
     activityResolver,
+    commonResolver,
 ];
 
-export const typeDefs = mergeTypes([...conversationTypes, ...activityTypes], { all: true });
+export const typeDefs = mergeTypes([...conversationTypes, ...activityTypes, commonTypes], { all: true });

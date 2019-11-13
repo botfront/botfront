@@ -1,11 +1,11 @@
 type Query {
-  getActivities(modelId: String!): [Activity!]!
+  getActivity(modelId: String!): [Activity!]!
 }
 
 type Mutation {
-  upsertActivities(modelId: String!, data: [ActivityInput!]!): [Activity!]
-  deleteActivities(modelId: String!, ids: [String!]!): [String!]
-  addActivitiesToTraining(modelId: String!, ids: [String!]!): [Activity!]
+  upsertActivity(modelId: String!, data: [ActivityInput!]!): [Activity!]
+  deleteActivity(modelId: String!, ids: [String!]!): [String!]
+  addActivityToTraining(modelId: String!, ids: [String!]!): [Activity!]
 }
 
 input ActivityInput {
@@ -16,8 +16,8 @@ input ActivityInput {
   entities: [EntityInput],
   confidence: Float,
   validated: Boolean,
-  createdAt: String,
-  updatedAt: String,
+  createdAt: Date,
+  updatedAt: Date,
 }
 
 type Activity {
@@ -28,6 +28,6 @@ type Activity {
   entities: [Entity],
   confidence: Float,
   validated: Boolean,
-  createdAt: String,
-  updatedAt: String,
+  createdAt: Date,
+  updatedAt: Date,
 }
