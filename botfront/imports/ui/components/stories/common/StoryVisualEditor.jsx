@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { safeDump } from 'js-yaml';
+
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
@@ -57,6 +58,8 @@ class StoryVisualEditor extends React.Component {
     handleDeleteLine = (index) => {
         const { story } = this.props;
         story.deleteLine(index);
+        // This is needed as the lines are not evaluated when checking for rerenders.
+        this.forceUpdate();
     };
 
     handleSaveUserUtterance = (index, value) => {
