@@ -151,5 +151,16 @@ if (Meteor.isClient) {
                 .format('DD MMM YYYY')} - ${moment()
                 .format('DD MMM YYYY')}`);
         });
+        
+        it('should be able to select a single day', () => {
+            const incomingRange = { startDate: moment(), endDate: null };
+            const expectedRange = { startDate: moment().startOf('day'), endDate: moment().endOf('day') };
+            DatePickerComponent.find('DayPickerRangeController').prop('onDatesChange')(incomingRange);
+            DatePickerComponent.find('Button')
+                .find({ content: 'Confirm' })
+                .simulate('click');
+            expect(startDate.toISOString()).to.have.string(expectedRange.startDate.toISOString());
+            expect(endDate.toISOString()).to.have.string(expectedRange.endDate.toISOString());
+        });
     });
 }
