@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useSubscription, useMutation } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { Message, Segment } from 'semantic-ui-react';
@@ -31,8 +31,8 @@ function Activity(props) {
     } = props;
 
     const {
-        loading, error, data, refetch,
-    } = useQuery(
+        loading, error, data,
+    } = useSubscription(
         getActivity, { variables: { modelId } },
     );
     const [upsertActivity] = useMutation(upsertActivityMutation);
@@ -45,17 +45,14 @@ function Activity(props) {
 
     const handleAddToTraining = (ids) => {
         addActivityToTraining({ variables: { modelId, ids } });
-        refetch();
     };
 
     const handleUpdate = (d) => {
         upsertActivity({ variables: { modelId, data: d } });
-        refetch();
     };
 
     const handleDelete = (ids) => {
         deleteActivity({ variables: { modelId, ids } });
-        refetch();
     };
 
     const render = () => (

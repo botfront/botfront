@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
     getActivity,
     upsertActivity,
@@ -7,7 +6,7 @@ import {
 } from '../mongo/activity';
 
 export default {
-    Query: {
+    Subscription: {
         getActivity: async (_root, args) => getActivity(args),
     },
 

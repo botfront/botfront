@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const getActivity = gql`
-query getActivity(
+subscription getActivity(
     $modelId: String!,
 ) {
     getActivity(
