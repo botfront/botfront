@@ -1,20 +1,20 @@
 /* eslint-disable no-unused-vars */
 import {
-    getActivities,
-    upsertActivities,
-    deleteActivities,
-    addActivitiesToTraining,
+    getActivity,
+    upsertActivity,
+    deleteActivity,
+    addActivityToTraining,
 } from '../mongo/activity';
 
 export default {
     Query: {
-        getActivities: async (_root, args) => getActivities(args),
+        getActivity: async (_root, args) => getActivity(args),
     },
 
     Mutation: {
-        upsertActivities: async (_root, args) => upsertActivities(args),
-        deleteActivities: async (_root, args) => deleteActivities(args),
-        addActivitiesToTraining: async (_root, args) => addActivitiesToTraining(args),
+        upsertActivity: async (_root, args) => upsertActivity(args),
+        deleteActivity: async (_root, args) => deleteActivity(args),
+        addActivityToTraining: async (_root, args) => addActivityToTraining(args),
     },
 
     Activity: {

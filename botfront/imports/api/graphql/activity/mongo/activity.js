@@ -1,11 +1,11 @@
 import shortid from 'shortid';
 import Activity from '../activity.model.js';
 
-export const getActivities = async ({ modelId }) => Activity.find(
+export const getActivity = async ({ modelId }) => Activity.find(
     { modelId }, null,
 ).lean();
 
-export const upsertActivities = async ({ modelId, data }) => {
+export const upsertActivity = async ({ modelId, data }) => {
     const updates = data.map((datum) => { // no better way to do this than multiple queries
         const { text, _id } = datum;
         const query = _id ? { _id } : {}; // is id provided?
@@ -22,9 +22,9 @@ export const upsertActivities = async ({ modelId, data }) => {
     return Promise.all(updates);
 };
 
-export const deleteActivities = async ({ modelId, ids }) => Activity.remove({ modelId, _id: { $in: ids } });
+export const deleteActivity = async ({ modelId, ids }) => Activity.remove({ modelId, _id: { $in: ids } });
 
-export const addActivitiesToTraining = async ({ modelId, ids }) => {
+export const addActivityToTraining = async ({ modelId, ids }) => {
     const examples = await Activity.find({ modelId, _id: { $in: ids } });
     await Meteor.call('nlu.insertExamples', modelId, examples);
     return Activity.remove({ modelId, _id: { $in: ids } });
