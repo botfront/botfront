@@ -20,6 +20,7 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     const [newEndDate, setNewEndDate] = useState(endDate);
     const [popupOpen, setPopupOpen] = useState(false);
     const [selectedRangeType, setSelectedRangeType] = useState(0);
+    const [customRange, setCustomRange] = useState({ startDate: null, endDate: null });
 
     function setNewDates(start, end) {
         setNewStartDate(start);
@@ -40,9 +41,9 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     const DateOptions = [
         {
             key: 'custom',
-            text: `Custom: ${getDateString(newStartDate, newEndDate)}`,
+            text: `Custom: ${getDateString(customRange.startDate || startDate, customRange.endDate || endDate)}`,
             value: 0,
-            data: { startDate: null, endDate: null },
+            data: { startDate: customRange.startDate || startDate, endDate: customRange.endDate || endDate },
         },
         {
             key: 'seven',
@@ -71,6 +72,7 @@ function DatePicker({ startDate, endDate, onConfirm }) {
             newRange.startDate = moment(newRange.startDate.startOf('day')._d);
         }
         setSelectedRangeType(0); // if there is date change, the range type is always custom (index 0)
+        setCustomRange({ startDate: newRange.startDate, endDate: newRange.endDate });
         setNewDates(newRange.startDate, newRange.endDate);
     }
 
