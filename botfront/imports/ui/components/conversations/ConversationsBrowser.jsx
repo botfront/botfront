@@ -28,6 +28,7 @@ function ConversationsBrowser(props) {
         activeFilters,
         setActiveFilters,
         actionsOptions,
+        setActionOptions,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -141,6 +142,7 @@ function ConversationsBrowser(props) {
                         endDate={activeFilters.endDate}
                         changeFilters={changeFilters}
                         actionsOptions={actionsOptions}
+                        setActionOptions={setActionOptions}
                     />
                 </Grid.Row>
                 {trackers.length > 0 ? (
@@ -185,7 +187,7 @@ function ConversationsBrowser(props) {
 }
 
 ConversationsBrowser.propTypes = {
-    trackers: PropTypes.array.isRequired,
+    trackers: PropTypes.array,
     activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
     pages: PropTypes.number.isRequired,
@@ -194,12 +196,14 @@ ConversationsBrowser.propTypes = {
     activeFilters: PropTypes.object,
     setActiveFilters: PropTypes.func.isRequired,
     actionsOptions: PropTypes.array,
+    setActionOptions: PropTypes.func.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
     activeConversationId: null,
     activeFilters: {},
     actionsOptions: [],
+    trackers: [],
 };
 
 const ConversationsBrowserContainer = (props) => {
@@ -216,7 +220,7 @@ const ConversationsBrowserContainer = (props) => {
         lengthFilter: -1,
         xThanLength: 'greaterThan',
         confidenceFilter: -1,
-        xThanConfidence: 'greaterThan',
+        xThanConfidence: 'lessThan',
         actionFilters: [],
         startDate: null,
         endDate: null,
@@ -263,7 +267,7 @@ const ConversationsBrowserContainer = (props) => {
 
 
     const componentProps = {
-        page, projectId, router, modelId: router.params.model_id, refetch, activeFilters, setActiveFilters, actionsOptions,
+        page, projectId, router, modelId: router.params.model_id, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions,
     };
 
     if (!loading && !error) {
@@ -306,6 +310,7 @@ ConversationsBrowserContainer.propTypes = {
     router: PropTypes.object.isRequired,
     environment: PropTypes.string,
     actionsOptions: PropTypes.array,
+    setActionOptions: PropTypes.func.isRequired,
 
 };
 
