@@ -1,4 +1,4 @@
-type Query {
+type Subscription {
   getActivity(modelId: String!): [Activity!]!
 }
 
