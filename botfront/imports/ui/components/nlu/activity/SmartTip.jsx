@@ -40,29 +40,31 @@ export default class SmartTip extends React.Component {
                     style={{ textAlign: 'center' }}
                     wide
                     header={tip}
-                    content={(<>
-                        <div style={{ padding: '5px' }}>
-                            {formatMessage(message)}
-                        </div>
-                        { mainAction && (
+                    content={(
+                        <>
                             <div style={{ padding: '5px' }}>
-                                {mainAction(true)}
+                                {formatMessage(message)}
                             </div>
-                        )}
-                        { otherActions && otherActions.length && (
-                            <Accordion>
-                                <Accordion.Title active={accordionOpen} onClick={this.handleAccordionClick}>
-                                    <Icon name='dropdown' />
-                                        Other actions
-                                </Accordion.Title>
-                                <Accordion.Content active={accordionOpen}>
-                                    <p>
-                                        {otherActions && otherActions.length && otherActions.map(a => !a || a(false))}
-                                    </p>
-                                </Accordion.Content>
-                            </Accordion>
-                        )}
-                    </>)}
+                            { mainAction && (
+                                <div style={{ padding: '5px' }}>
+                                    {mainAction(true)}
+                                </div>
+                            )}
+                            { otherActions && otherActions.filter(a => a).length > 0 && (
+                                <Accordion>
+                                    <Accordion.Title active={accordionOpen} onClick={this.handleAccordionClick}>
+                                        <Icon name='dropdown' />
+                                            Other actions
+                                    </Accordion.Title>
+                                    <Accordion.Content active={accordionOpen}>
+                                        <p>
+                                            {otherActions && otherActions.length && otherActions.map(a => !a || a(false))}
+                                        </p>
+                                    </Accordion.Content>
+                                </Accordion>
+                            )}
+                        </>
+                    )}
                     trigger={button}
                     hoverable
                     position='left center'
