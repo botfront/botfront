@@ -153,14 +153,65 @@ if (Meteor.isClient) {
         });
         
         it('should be able to select a single day', () => {
-            const incomingRange = { startDate: moment(), endDate: null };
-            const expectedRange = { startDate: moment().startOf('day'), endDate: moment().endOf('day') };
-            DatePickerComponent.find('DayPickerRangeController').prop('onDatesChange')(incomingRange);
+            const incomingRange = {
+                startDate: moment(),
+                endDate: null,
+            };
+            const expectedRange = {
+                startDate: moment().startOf('day'),
+                endDate: moment().endOf('day'),
+            };
+            // trigger date change
+            DatePickerComponent
+                .find('DayPickerRangeController')
+                .prop('onDatesChange')(incomingRange);
             DatePickerComponent.find('Button')
                 .find({ content: 'Confirm' })
                 .simulate('click');
-            expect(startDate.toISOString()).to.have.string(expectedRange.startDate.toISOString());
-            expect(endDate.toISOString()).to.have.string(expectedRange.endDate.toISOString());
+            // check state start and end dates match expectations
+            expect(startDate.toISOString()).to.have.string(
+                expectedRange.startDate.toISOString(),
+            );
+            expect(endDate.toISOString()).to.have.string(
+                expectedRange.endDate.toISOString(),
+            );
+        });
+
+        it('should persist custom range', () => {
+            const customRange = { startDate: moment().subtract(25, 'days'), endDate: moment() };
+            // set a custom range
+            DatePickerComponent
+                .find('DayPickerRangeController')
+                .prop('onDatesChange')(customRange);
+            DatePickerComponent.find('Button')
+                .find({ content: 'Confirm' })
+                .simulate('click');
+            // switch to a preset range
+            DatePickerComponent.find('FormDropdown')
+                .dive() // the component form field
+                .dive() // the component label and dropdown
+                .find('Dropdown')
+                .prop('onChange')(null, { value: 2 });
+            DatePickerComponent.find('Button')
+                .find({ content: 'Confirm' })
+                .simulate('click');
+            // switch back to the custom range
+            DatePickerComponent.find('FormDropdown')
+                .dive() // the component form field
+                .dive() // the component label and dropdown
+                .find('Dropdown')
+                .prop('onChange')(null, { value: 0 });
+            DatePickerComponent.find('Button')
+                .find({ content: 'Confirm' })
+                .simulate('click');
+            expect(startDate.format('DD MM YY'))
+                .to.have.string(
+                    customRange.startDate.format('DD MM YY'),
+                );
+            expect(endDate.format('DD MM YY'))
+                .to.have.string(
+                    customRange.endDate.format('DD MM YY'),
+                );
         });
     });
 }
