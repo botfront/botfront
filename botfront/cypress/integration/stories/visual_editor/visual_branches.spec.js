@@ -88,11 +88,8 @@ describe('story visual editor', function() {
             .findCy('branch-label')
             .last()
             .trigger('mouseover');
-        getBranchContainer(1)
-            .findCy('branch-label')
+        cy.dataCy('delete-branch')
             .last()
-            .trigger('mouseover')
-            .findCy('delete-branch')
             .click({ force: true });
         cy.dataCy('confirm-yes')
             .click({ force: true });
