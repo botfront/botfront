@@ -2,6 +2,10 @@ type Subscription {
   getActivity(modelId: String!): [Activity!]!
 }
 
+type Query {
+  getActivity(modelId: String!, validated: Boolean): [Activity!]!
+}
+
 type Mutation {
   upsertActivity(modelId: String!, data: [ActivityInput!]!): updateResponse!
   deleteActivity(modelId: String!, ids: [String!]!): updateResponse!

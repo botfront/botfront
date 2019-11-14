@@ -30,9 +30,7 @@ function Activity(props) {
         linkRender,
     } = props;
 
-    const {
-        loading, error, data,
-    } = useSubscription(
+    const { loading, error, data } = useSubscription(
         getActivity, { variables: { modelId } },
     );
     const [upsertActivity] = useMutation(upsertActivityMutation);
@@ -43,17 +41,11 @@ function Activity(props) {
     
     const isUtteranceOutdated = ({ updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
 
-    const handleAddToTraining = (ids) => {
-        addActivityToTraining({ variables: { modelId, ids } });
-    };
+    const handleAddToTraining = ids => addActivityToTraining({ variables: { modelId, ids } });
 
-    const handleUpdate = (d) => {
-        upsertActivity({ variables: { modelId, data: d } });
-    };
+    const handleUpdate = d => upsertActivity({ variables: { modelId, data: d } });
 
-    const handleDelete = (ids) => {
-        deleteActivity({ variables: { modelId, ids } });
-    };
+    const handleDelete = ids => deleteActivity({ variables: { modelId, ids } });
 
     const render = () => (
         <>

@@ -1,9 +1,10 @@
 import shortid from 'shortid';
 import Activity from '../activity.model.js';
 
-export const getActivity = async ({ modelId }) => Activity.find(
-    { modelId }, null,
-).lean();
+export const getActivity = async ({ modelId, validated = false }) => {
+    const onlyValidated = validated ? { validated: true } : {};
+    return Activity.find({ modelId, ...onlyValidated }).lean();
+};
 
 export const upsertActivity = async ({ modelId, data }) => {
     const updates = data.map((datum) => { // no better way to do this than multiple queries
