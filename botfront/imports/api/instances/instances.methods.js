@@ -256,7 +256,7 @@ if (Meteor.isServer) {
                     await client.put('/model', { model_file: trainedModelPath });
                     if (process.env.ORCHESTRATOR === 'gke') {
                         try {
-                            const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } });
+                            const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } }) || {};
                             const { deployment: { config: { gcp_models_bucket = null } = {} } = {} } = deployment;
 
                             if (gcp_models_bucket) {
