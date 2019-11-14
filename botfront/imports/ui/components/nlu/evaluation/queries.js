@@ -8,20 +8,7 @@ query getValidatedActivity(
         modelId: $modelId,
         validated: true,
     ) {
-        _id,
-        text,
-        intent,
-        entities {
-            value,
-            entity,
-            start,
-            end,
-            confidence
-        },
-        confidence,
-        validated,
-        createdAt,
-        updatedAt
+        ...ActivityFields
     }
 }
 `;
