@@ -299,7 +299,6 @@ const ConversationsBrowserContainer = (props) => {
                     <ConversationsBrowser
                         {...componentProps}
                     />
-
                 </Container>
             </Loading>
         </div>

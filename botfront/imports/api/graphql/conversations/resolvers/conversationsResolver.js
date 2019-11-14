@@ -8,7 +8,7 @@ import {
 
 export default {
     Query: {
-        async conversations(_, args, __) {
+        async conversationsPage(_, args, __) {
             return getConversations(
                 args.projectId,
                 args.page,

@@ -15,10 +15,10 @@ query retreiveConversations(
     $endDate: String
     $timeZoneHoursOffset: Float
     ) {
-    conversations(
+    conversationsPage(
         projectId: $projectId,
-        skip: $skip,
-        limit: $limit,
+        page: $page, 
+        pageSize: $pageSize,
         status: ["new", "read", "flagged"],
         sort: updatedAt_DESC,
         env: $env,
@@ -30,15 +30,15 @@ query retreiveConversations(
         startDate: $startDate,
         endDate: $endDate,
         timeZoneHoursOffset: $timeZoneHoursOffset
-    ) 
-    conversations {
-        _id
-        updatedAt
-        status
-        projectId
+    ) {
+        conversations {
+            _id
+            updatedAt
+            status
+            projectId
+        }
+        pages
     }
-    pages
-    
 }`;
 
 export const GET_CONVERSATION = gql`

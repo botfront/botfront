@@ -51,6 +51,16 @@ const ConversationFilters = ({
         changeFilters({ compare: -1, xThan: 'greaterThan' }, { compare: -1, xThan: 'greaterThan' }, [], null, null);
     };
 
+    const numberOfActiveFilter = () => {
+        let count = 0;
+        // We check that the filter does not have their empty value and that they match the props ( meaning that they have been applied)
+        if (newLengthFilter.compare !== -1 && newLengthFilter.compare === lengthFilter) count += 1;
+        if (newConfidenceFilter.compare !== -1 && newConfidenceFilter.compare === confidenceFilter * 100) count += 1;
+        if (newActionFilters.length > 0 && newActionFilters.every(e => actionFilters.includes(e))) count += 1;
+        if (newStartDate !== null && newEndDate !== null && newEndDate === endDate && newStartDate === startDate) count += 1;
+        return count;
+    };
+
     const handleAccordionClick = () => {
         setActiveAccordion(!activeAccordion);
     };
@@ -64,13 +74,10 @@ const ConversationFilters = ({
         <Accordion>
             <Accordion.Title
                 active={activeAccordion}
-
+                onClick={() => handleAccordionClick()}
+                data-cy='toggle-filters'
             >
-                <Button
-                    content={activeAccordion ? 'Hide Filters' : 'Reveal Filters'}
-                    onClick={() => handleAccordionClick()}
-                    data-cy='toggle-filters'
-                />
+                <a> {activeAccordion ? 'Hide Filters' : `Reveal Filters (${numberOfActiveFilter()} active)`}</a>
             </Accordion.Title>
             <Accordion.Content active={activeAccordion}>
                 <div className='conversation-filter-container'>

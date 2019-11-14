@@ -176,11 +176,10 @@ export const getConversations = async (
         },
     ];
     
-    const paginatedResults = Conversations.aggregate(aggregation);
-
+    const paginatedResults = await Conversations.aggregate(aggregation);
     return ({
-        conversation: paginatedResults.conversations,
-        pages: paginatedResults.pages.numberOfDocument / pageSize,
+        conversations: paginatedResults[0].conversations,
+        pages: Math.ceil(paginatedResults[0].pages[0].numberOfDocuments / pageSize),
     });
 };
 
