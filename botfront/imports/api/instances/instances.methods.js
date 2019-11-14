@@ -253,14 +253,14 @@ if (Meteor.isServer) {
                         console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
                     }
 
-                    // await client.put('/model', { model_file: trainedModelPath });
+                    await client.put('/model', { model_file: trainedModelPath });
                     if (process.env.ORCHESTRATOR === 'gke') {
                         try {
                             const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } });
                             const { deployment: { config: { gcp_models_bucket = null } = {} } = {} } = deployment;
 
                             if (gcp_models_bucket) {
-                                const result = await uploadFileToGcs(trainedModelPath, gcp_models_bucket);
+                                await uploadFileToGcs(trainedModelPath, gcp_models_bucket);
                             }
                         } catch (e) {
                             console.log(e)
