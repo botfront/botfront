@@ -36,6 +36,7 @@ function AnalyticsCard(props) {
             exclude,
             responses,
         },
+        size,
         onChangeSettings,
         onReorder,
     } = props;
@@ -44,7 +45,7 @@ function AnalyticsCard(props) {
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType);
+    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType, size);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
     const [activateDownload, setActivateDownload] = useState(false);
 
@@ -157,7 +158,12 @@ function AnalyticsCard(props) {
     };
 
     return (
-        <div className='analytics-card' ref={node => drag(drop(node))} data-cy='analytics-card'>
+        <div
+            className='analytics-card'
+            style={size === 'wide' ? { width: '95%' } : {}}
+            ref={node => drag(drop(node))}
+            data-cy='analytics-card'
+        >
             {displayDateRange && (
                 <div className='date-picker' data-cy='date-picker-container'>
                     <DatePicker
@@ -241,6 +247,7 @@ AnalyticsCard.propTypes = {
     settings: PropTypes.object.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
+    size: PropTypes.string,
 };
 
 AnalyticsCard.defaultProps = {
@@ -250,6 +257,7 @@ AnalyticsCard.defaultProps = {
     graphParams: {},
     exportQueryParams: {},
     onReorder: null,
+    size: 'standard',
 };
 
 export default AnalyticsCard;

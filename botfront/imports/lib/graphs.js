@@ -55,8 +55,8 @@ const formatAxisTitles = (
     const unitTextX = unitX && matchOption(unitX, options);
     const unitTextY = unitY && matchOption(unitY, options);
     return {
-        x: { legend: `${titleTextX}${unitTextX ? ` (${unitTextX})` : ''}` },
-        y: { legend: `${titleTextY}${unitTextY ? ` (${unitTextY})` : ''}` },
+        x: { legend: `${titleTextX}${unitTextX || ''}` },
+        y: { legend: `${titleTextY}${unitTextY || ''}` },
     };
 };
 
@@ -84,14 +84,15 @@ const formatDateBuckets = (data, bucketSize, projectTimezoneOffset) => data
         };
     });
 
-export const calculateTemporalBuckets = (startDate, endDate, chartType) => {
+export const calculateTemporalBuckets = (startDate, endDate, chartType, size) => {
     // calculate if a time period is broken into hours, days or weeks
     const nDays = Math.round(((endDate.valueOf() - startDate.valueOf()) / 86400000));
-    if (nDays <= 1) return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
-    if (nDays <= 7) return { nTicks: +nDays.toFixed(0), nBuckets: +nDays.toFixed(0), bucketSize: 'day' };
-    if (nDays <= 90) return { nTicks: 7, nBuckets: +nDays.toFixed(0), bucketSize: 'day' };
-    if (chartType === 'table') return { nTicks: 7, nBuckets: +nDays.toFixed(0), bucketSize: 'day' };
-    return { nTicks: 7, nBuckets: Math.floor(+nDays.toFixed(0) / 7), bucketSize: 'week' };
+    if (nDays <= 1 && size !== 'wide') return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
+    if (nDays <= 3 && size === 'wide') return { tickValues: (nDays * 7), nBuckets: (nDays * 24), bucketSize: 'hour' };
+    if (nDays <= 7) return { nTicks: nDays, nBuckets: nDays, bucketSize: 'day' };
+    if (nDays <= 90) return { nTicks: 7, nBuckets: nDays, bucketSize: 'day' };
+    if (chartType === 'table') return { nTicks: 7, nBuckets: nDays, bucketSize: 'day' };
+    return { nTicks: 7, nBuckets: Math.floor(nDays / 7), bucketSize: 'week' };
 };
 
 const findDurationEnd = (num, cutoffs) => (
@@ -133,16 +134,19 @@ export const getDataToDisplayAndParamsToUse = ({
 }) => {
     const dataToDisplay = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
     const axisTitles = formatAxisTitles(graphParams, [bucketSize, valueType]);
-    let paramsToUse = valueType === 'relative'
-        ? {
+    let paramsToUse = graphParams;
+    
+    if (valueType === 'relative') {
+        paramsToUse = {
             ...graphParams,
             yScale: { type: 'linear', min: 0, max: 100 },
             axisLeft: { ...graphParams.axisLeft },
             ...graphParams.rel,
-        }
-        : graphParams;
-    paramsToUse = queryParams.temporal
-        ? {
+        };
+    }
+
+    if (queryParams.temporal) {
+        paramsToUse = {
             ...paramsToUse,
             axisBottom: {
                 ...(paramsToUse.axisBottom || {}),
@@ -150,8 +154,9 @@ export const getDataToDisplayAndParamsToUse = ({
                 format: dateFormatDictionary[bucketSize],
             },
             xScale: { type: 'time', format: 'native' },
-        }
-        : paramsToUse;
+        };
+    }
+
     paramsToUse = {
         ...paramsToUse,
         axisBottom: { ...paramsToUse.axisBottom, ...axisTitles.x },
