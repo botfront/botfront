@@ -10,6 +10,10 @@ export default {
         getActivity: async (_root, args) => getActivity(args),
     },
 
+    Query: {
+        getActivity: async (_root, args) => getActivity(args),
+    },
+
     Mutation: {
         upsertActivity: async (_root, args) => upsertActivity(args),
         deleteActivity: async (_root, args) => deleteActivity(args),
