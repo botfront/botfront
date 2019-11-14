@@ -61,6 +61,7 @@ export default function ActivityActions(props) {
                 )}
                 disabled={!numValidated}
                 onChange={(e, { value }) => setSelectedAction(value)}
+                className='dropdown-button-trigger'
                 data-cy='choose-action-dropdown'
             >
                 <Dropdown.Menu>
