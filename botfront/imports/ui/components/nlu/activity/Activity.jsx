@@ -43,7 +43,15 @@ function Activity(props) {
 
     const handleAddToTraining = ids => addActivityToTraining({ variables: { modelId, ids } });
 
-    const handleUpdate = d => upsertActivity({ variables: { modelId, data: d } });
+    const handleUpdate = async d => upsertActivity({
+        variables: { modelId, data: d },
+        // optimisticResponse: {
+        //     __typename: 'Mutation',
+        //     upsertActivity: {
+        //         __typename: 'Activity', ...d[0],
+        //     },
+        // },
+    });
 
     const handleDelete = ids => deleteActivity({ variables: { modelId, ids } });
 

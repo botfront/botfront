@@ -9,7 +9,9 @@ mutation upsertActivity(
         modelId: $modelId,
         data: $data,
     ) {
-        success
+        _id,
+        __typename,
+        validated,
     }
 }
 `;
@@ -23,7 +25,8 @@ mutation deleteActivity(
         modelId: $modelId,
         ids: $ids,
     ) {
-        success
+        _id,
+        __typename
     }
 }
 `;
@@ -37,7 +40,8 @@ mutation addActivityToTraining(
         modelId: $modelId,
         ids: $ids,
     ) {
-        success
+        _id,
+        __typename
     }
 }
 `;

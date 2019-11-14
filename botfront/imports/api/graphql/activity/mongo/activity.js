@@ -14,19 +14,19 @@ export const upsertActivity = async ({ modelId, data }) => {
         const ID = _id ? { _id } : {}; // is id provided?
         const TEXT = text ? { text } : {}; // is text provided?
 
-        return Activity.updateOne(
+        return Activity.findOneAndUpdate(
             { modelId, ...TEXT, ...ID },
             { $set: { ...utterance, ...TEXT, updatedAt: new Date() }, $setOnInsert: { _id: shortid.generate(), createdAt: new Date() } },
-            { upsert: true },
+            { upsert: true, new: true },
         ).exec();
     });
-    const response = await Promise.all(updates);
-    return { success: response.every(r => r.ok) };
+    return Promise.all(updates);
 };
 
 export const deleteActivity = async ({ modelId, ids }) => {
     const response = await Activity.remove({ modelId, _id: { $in: ids } }).exec();
-    return { success: response.ok };
+    if (response.ok) return ids.map(_id => ({ _id }));
+    return [];
 };
 
 export const addActivityToTraining = async ({ modelId, ids }) => {
@@ -39,8 +39,8 @@ export const addActivityToTraining = async ({ modelId, ids }) => {
         ).lean();
         await Meteor.call('nlu.insertExamples', modelId, examples);
         await Activity.remove({ modelId, _id: { $in: ids } }).exec();
-        return { success: true };
+        return ids.map(_id => ({ _id }));
     } catch (e) {
-        return { success: false };
+        return [];
     }
 };
