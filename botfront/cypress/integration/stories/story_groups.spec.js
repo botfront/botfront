@@ -11,7 +11,7 @@ describe('stories', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
-    
+
     it('should be possible to delete a story group', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
@@ -26,6 +26,17 @@ describe('stories', function() {
         cy.dataCy('browser-item')
             .find('span')
             .contains(storyGroupOne)
+            .should('not.exist');
+    });
+
+    it('should not be possible to edit the Intro stories group', function() {
+        cy.visit('/project/bf/stories');
+        // hover the intro story group
+        cy.contains('Intro stories')
+            .trigger('mouseover');
+        // it should not have an edit menu
+        cy.contains('Intro stories')
+            .find('[data-cy=ellipsis-menu]')
             .should('not.exist');
     });
 
