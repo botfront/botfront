@@ -62,7 +62,7 @@ function AnalyticsCard(props) {
         from: startDate.valueOf() / 1000,
         to: endDate.valueOf() / 1000,
         ...(exclude ? { exclude } : {}),
-        ...(responses ? { responses } : {}),
+        fallbacks: responses || [],
         nBuckets,
     };
 
