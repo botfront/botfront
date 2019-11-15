@@ -110,6 +110,7 @@ function addConversation(id) {
 
 describe('incoming page conversation tab', function () {
     beforeEach(function () {
+        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
@@ -119,7 +120,6 @@ describe('incoming page conversation tab', function () {
 
     afterEach(function () {
         cy.logout();
-        cy.deleteProject('bf');
     });
 
     
