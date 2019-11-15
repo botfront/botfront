@@ -6,17 +6,20 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@apollo/react-hooks';
 import { useDrag, useDrop } from 'react-dnd-cjs';
 import moment from 'moment';
-import { calculateTemporalBuckets, getDataToDisplayAndParamsToUse } from '../../../lib/graphs';
+import { saveAs } from 'file-saver';
+import {
+    calculateTemporalBuckets, getDataToDisplayAndParamsToUse, generateCSV,
+} from '../../../lib/graphs';
 import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
 import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
 import SettingsPortal from './SettingsPortal';
 import { Projects } from '../../../api/project/project.collection';
-
+import Table from '../charts/Table';
+import { client } from '../../../startup/client/routes';
 
 export const applyTimezoneOffset = (date, offset) => moment(date).utcOffset(offset, true);
-
 
 function AnalyticsCard(props) {
     const {
@@ -27,6 +30,7 @@ function AnalyticsCard(props) {
         titleDescription,
         query,
         queryParams,
+        exportQueryParams,
         graphParams,
         settings: {
             endDate,
@@ -44,7 +48,7 @@ function AnalyticsCard(props) {
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate);
+    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
 
     useEffect(() => {
@@ -93,6 +97,7 @@ function AnalyticsCard(props) {
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
         if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} />;
         if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} />;
+        if (chartType === 'table') return <Table {...paramsToUse} data={dataToDisplay} bucketSize={bucketSize} />;
         return null;
     };
     
@@ -124,6 +129,26 @@ function AnalyticsCard(props) {
         );
     };
 
+    const getIconName = (chartOption) => {
+        if (chartOption === 'table') {
+            return chartOption;
+        }
+        return `chart ${chartOption}`;
+    };
+
+    const handleExportClick = async () => {
+        const { nBuckets: nBucketsForExport } = calculateTemporalBuckets(startDate, endDate, 'table');
+        const { data: completeDataset } = await client.query({
+            query,
+            variables: {
+                ...variables, ...exportQueryParams, nBuckets: nBucketsForExport,
+            },
+        });
+        const csvData = generateCSV(completeDataset, { ...queryParams, ...exportQueryParams }, bucketSize);
+        const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+        saveAs(csvBlob, `${cardName}.csv`);
+    };
+
     return (
         <div className='analytics-card' ref={node => drag(drop(node))}>
             {displayDateRange && (
@@ -139,14 +164,24 @@ function AnalyticsCard(props) {
                 </div>
             )}
             <span className='top-right-buttons'>
+                {
+                    <Button
+                        className='export-card-button'
+                        basic
+                        size='medium'
+                        icon='download'
+                        onClick={handleExportClick}
+                    />
+                }
                 {uniqueChartOptions.length > 1 && (
                     <Button.Group basic size='medium' className='chart-type-selector'>
                         {uniqueChartOptions.map(chartOption => (
                             <Button
-                                icon={`chart ${chartOption}`}
+                                icon={getIconName(chartOption)}
                                 key={chartOption}
                                 className={chartType === chartOption ? 'selected' : ''}
                                 onClick={() => onChangeSettings('chartType', chartOption)}
+                                data-cy='chart-type-button'
                             />
                         ))}
                     </Button.Group>
@@ -191,9 +226,10 @@ AnalyticsCard.propTypes = {
     title: PropTypes.string.isRequired,
     titleDescription: PropTypes.string,
     displayDateRange: PropTypes.bool,
-    chartTypeOptions: PropTypes.arrayOf(PropTypes.oneOf(['line', 'bar', 'pie'])),
+    chartTypeOptions: PropTypes.arrayOf(PropTypes.oneOf(['line', 'bar', 'pie', 'table'])),
     query: PropTypes.any.isRequired,
     queryParams: PropTypes.object.isRequired,
+    exportQueryParams: PropTypes.object,
     graphParams: PropTypes.object,
     settings: PropTypes.object.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
@@ -205,6 +241,7 @@ AnalyticsCard.defaultProps = {
     chartTypeOptions: ['line', 'bar'],
     titleDescription: null,
     graphParams: {},
+    exportQueryParams: {},
     onReorder: null,
 };
 

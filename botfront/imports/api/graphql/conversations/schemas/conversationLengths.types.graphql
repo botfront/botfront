@@ -3,7 +3,8 @@ type Query {
         projectId: String!,
         envs: [String],
         from: Float = 0,
-        to: Float
+        to: Float,
+        limit: Int = 10
     ): [ConversationLength!]!
 }
 

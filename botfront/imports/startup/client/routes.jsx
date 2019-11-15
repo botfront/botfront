@@ -88,7 +88,7 @@ const httpLink = new HttpLink({
     credentials: 'same-origin',
 });
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
     link: ApolloLink.from([errorLink, requestLink, httpLink]),
     cache: new InMemoryCache(),
 });

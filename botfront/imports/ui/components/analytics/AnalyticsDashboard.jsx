@@ -22,10 +22,13 @@ function AnalyticsDashboard(props) {
 
     const cards = {
         conversationLengths: {
-            chartTypeOptions: ['bar', 'pie'],
+            chartTypeOptions: ['bar', 'pie', 'table'],
             title: 'Conversation Length',
             titleDescription: 'The number of user utterances contained in a conversation.',
-            queryParams: { projectId, envs, queryName: 'conversationLengths' },
+            queryParams: {
+                projectId, envs, queryName: 'conversationLengths',
+            },
+            exportQueryParams: { limit: 100000 },
             query: conversationLengths,
             graphParams: {
                 x: 'length',
@@ -33,22 +36,35 @@ function AnalyticsDashboard(props) {
                 formats: {
                     length: v => `${v} utterance${v !== 1 ? 's' : ''}`,
                 },
+                columns: [
+                    { header: 'Length in Utterances', accessor: 'length' },
+                    { header: 'Count', accessor: 'count' },
+                    { header: 'Frequency', accessor: 'frequency' },
+                ],
             },
         },
         intentFrequencies: {
-            chartTypeOptions: ['bar', 'pie'],
+            chartTypeOptions: ['bar', 'pie', 'table'],
             title: 'Top 10 Intents',
             titleDescription: 'The number of user utterances classified as having a given intent.',
-            queryParams: { projectId, envs, queryName: 'intentFrequencies' },
+            queryParams: {
+                projectId, envs, queryName: 'intentFrequencies',
+            },
+            exportQueryParams: { limit: 100000 },
             query: intentFrequencies,
             graphParams: {
                 x: 'name',
                 y: [{ abs: 'count', rel: 'frequency' }],
                 axisBottom: { tickRotation: -25, format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}` },
+                columns: [
+                    { header: 'Name', accessor: 'name' },
+                    { header: 'Count', accessor: 'count' },
+                    { header: 'Frequency', accessor: 'frequency' },
+                ],
             },
         },
         conversationDurations: {
-            chartTypeOptions: ['bar', 'pie'],
+            chartTypeOptions: ['bar', 'pie', 'table'],
             title: 'Conversation Duration',
             titleDescription: 'The number of seconds elapsed between the first and the last message of a conversation.',
             queryParams: { projectId, envs, queryName: 'conversationDurations' },
@@ -59,10 +75,15 @@ function AnalyticsDashboard(props) {
                 formats: {
                     duration: v => `${v} s`,
                 },
+                columns: [
+                    { header: 'Duration', accessor: 'duration' },
+                    { header: 'Count', accessor: 'count' },
+                    { header: 'Frequency', accessor: 'frequency' },
+                ],
             },
         },
         fallbackCounts: {
-            chartTypeOptions: ['line'],
+            chartTypeOptions: ['line', 'table'],
             title: 'Fallback',
             titleDescription: 'The number of conversations in which a fallback action was triggered.',
             queryParams: {
@@ -76,11 +97,16 @@ function AnalyticsDashboard(props) {
                     bucket: v => v.toLocaleDateString(),
                     proportion: v => `${v}%`,
                 },
+                columns: [
+                    { header: 'Date', accessor: 'bucket', temporal: true },
+                    { header: 'Hits', accessor: 'hits' },
+                    { header: 'Proportion', accessor: 'proportion' },
+                ],
                 rel: { y: [{ abs: 'proportion' }] },
             },
         },
         visitCounts: {
-            chartTypeOptions: ['line'],
+            chartTypeOptions: ['line', 'table'],
             title: 'Visits & Engagement',
             titleDescription: 'Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.',
             queryParams: {
@@ -97,6 +123,12 @@ function AnalyticsDashboard(props) {
                     proportion: v => `${v}%`,
                 },
                 rel: { y: [{ abs: 'proportion' }] },
+                columns: [
+                    { header: 'Date', accessor: 'bucket', temporal: true },
+                    { header: 'Visits', accessor: 'count' },
+                    { header: 'Hits', accessor: 'hits' },
+                    { header: 'Engagement', accessor: 'proportion' },
+                ],
             },
         },
     };
