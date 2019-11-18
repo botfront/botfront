@@ -79,7 +79,7 @@ if (Meteor.isClient) {
 
         it('should change dropdown text when changing date', () => {
             DatePickerComponent.find('DayPickerRangeController').prop('onDatesChange')({
-                startDate: moment().subtract(7, 'days'),
+                startDate: moment().subtract(6, 'days'),
                 endDate: moment(),
             });
             expect(
@@ -91,7 +91,7 @@ if (Meteor.isClient) {
                     .find('.text')
                     .text(),
             ).to.equal(`Custom: ${moment()
-                .subtract(7, 'days')
+                .subtract(6, 'days')
                 .format('DD MMM YYYY')} - ${moment()
                 .format('DD MMM YYYY')}`);
         });
@@ -123,7 +123,7 @@ if (Meteor.isClient) {
             // use moment().format to fuzzy match the date
             expect(startDate.format('DD MMM YYYY')).to.equal(
                 moment()
-                    .subtract(30, 'days')
+                    .subtract(29, 'days')
                     .format('DD MMM YYYY'),
             );
             expect(endDate.format('DD MMM YYYY')).to.equal(
@@ -147,7 +147,7 @@ if (Meteor.isClient) {
 
             expect(DatePickerComponent.find('Popup')
                 .prop('trigger').props.children[0]).to.equal(`${moment()
-                .subtract(30, 'days')
+                .subtract(29, 'days')
                 .format('DD MMM YYYY')} - ${moment()
                 .format('DD MMM YYYY')}`);
         });
