@@ -27,6 +27,9 @@ export const ProjectsSchema = new SimpleSchema({
     nluThreshold: {
         type: Number, defaultValue: 0.75, min: 0.5, max: 0.95,
     },
+    timezoneOffset: {
+        type: Number, defaultValue: 0, min: -12, max: 14,
+    },
     defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },
@@ -55,7 +58,7 @@ export const ProjectsSchema = new SimpleSchema({
         type: String,
         allowedValues: ENVIRONMENT_OPTIONS.slice(1),
     },
-    
+
     defaultDomain: { type: DefaultDomainSchema, optional: true },
 }, { tracker: Tracker });
 
