@@ -42,9 +42,11 @@ describe('## Export', async () => {
                 .get('/project/one/export?output=json')
                 .expect(httpStatus.OK)
                 .then(res => {
+                    const expectedProject = { ...exportPayloads[0]}
+                    delete expectedProject.project.training;
                     const { timestamp, ...body } = res.body;
                     expect(timestamp).to.exist;
-                    expect(body).to.deep.equal(exportPayloads[0]);
+                    expect(body).to.deep.equal(expectedProject);
                     done();
                 })
                 .catch(done);
@@ -54,8 +56,10 @@ describe('## Export', async () => {
                 .get('/project/one/export?output=json&conversations=false&evaluations=0')
                 .expect(httpStatus.OK)
                 .then(res => {
-                    const { evaluations, conversations, ...rest } = exportPayloads[0];
                     const { timestamp, ...body } = res.body;
+                    const expectedProject = { ...exportPayloads[0]}
+                    delete expectedProject.project.training;
+                    const { evaluations, conversations, ...rest } = expectedProject;
                     expect(timestamp).to.exist;
                     expect(body).to.deep.equal(rest);
                     done();
@@ -101,6 +105,7 @@ describe('## Import', () => {
                         nlu_models: exportFileNluModels,
                         ...exportFileProject
                     } = { ...exportPayloads[1].project };
+                    delete exportFileProject.training
                     const storyGroup = await allCollections.storyGroups
                         .findOne({ _id: { $nin: [storyGroupId] } }, { _id: 1 })
                         .lean();

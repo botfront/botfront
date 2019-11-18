@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { Container } from 'semantic-ui-react';
-import { browserHistory } from 'react-router';
+import { browserHistory, withRouter } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
 import { setWorkingDeploymentEnvironment, setWorkingLanguage } from '../../store/actions/actions';
@@ -17,6 +17,7 @@ import { Instances } from '../../../api/instances/instances.collection';
 import TopMenu from './TopMenu';
 import { extractEntities } from '../nlu/models/nluModel.utils';
 import Activity from '../nlu/activity/Activity';
+import { updateIncomingPath } from './incoming.utils';
 
 class Incoming extends React.Component {
     constructor (props) {
@@ -31,12 +32,14 @@ class Incoming extends React.Component {
     };
 
     handleLanguageChange = (value) => {
-        const { models, projectId, changeWorkingLanguage } = this.props;
+        const { models, router, changeWorkingLanguage } = this.props;
 
         const modelMatch = models.find(({ language }) => language === value);
+
         if (modelMatch) {
             changeWorkingLanguage(value);
-            browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelMatch._id}` });
+            const pathname = updateIncomingPath({ ...router.params, model_id: modelMatch._id });
+            browserHistory.push({ pathname });
         }
     }
 
@@ -49,7 +52,7 @@ class Incoming extends React.Component {
 
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, params, router, projectEnvironments, workingLanguage,
+            projectLanguages, ready, entities, intents, modelId, project, model, instance, router, projectEnvironments, workingLanguage,
         } = this.props;
         const { selectedEnvironment } = this.state;
         return (
@@ -61,7 +64,7 @@ class Incoming extends React.Component {
                     projectEnvironments={projectEnvironments}
                     handleEnvChange={this.handleEnvChange}
                     selectedEnvironment={selectedEnvironment}
-                    tab={params.tab}
+                    tab={router.params.tab}
                 />
                 <Container>
                     <Loading loading={!ready || !model}>
@@ -72,7 +75,6 @@ class Incoming extends React.Component {
                             intents={intents}
                             linkRender={this.linkToEvaluation}
                             instance={instance}
-                            params={params}
                             replaceUrl={router.replace}
                             environment={selectedEnvironment}
                         />
@@ -125,14 +127,26 @@ const handleDefaultRoute = (projectId) => {
     const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
     try {
         const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${defaultModelId}` });
+        browserHistory.push({
+            pathname: updateIncomingPath({ project_id: projectId, model_id: defaultModelId }),
+        });
     } catch (e) {
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelIds[0]}` });
+        browserHistory.push({
+            pathname: updateIncomingPath({ project_id: projectId, model_id: modelIds[0] }),
+        });
     }
 };
 
 const IncomingContainer = withTracker((props) => {
-    const { params: { model_id: modelId, project_id: projectId } = {}, workingLanguage, changeWorkingLanguage } = props;
+    const {
+        router: {
+            params: {
+                model_id: modelId, project_id: projectId,
+            } = {},
+        },
+        workingLanguage,
+        changeWorkingLanguage,
+    } = props;
 
     // setup model subscription
     let modelHandler = {
@@ -201,6 +215,8 @@ const IncomingContainer = withTracker((props) => {
     };
 })(Incoming);
 
+const IncomingContainerRouter = withRouter(IncomingContainer);
+
 const mapStateToProps = state => ({
     workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
     projectId: state.settings.get('projectId'),
@@ -212,4 +228,4 @@ const mapDispatchToProps = {
     changeWorkingLanguage: setWorkingLanguage,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(IncomingContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(IncomingContainerRouter);

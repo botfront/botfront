@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { safeDump } from 'js-yaml';
+
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
@@ -57,6 +58,8 @@ class StoryVisualEditor extends React.Component {
     handleDeleteLine = (index) => {
         const { story } = this.props;
         story.deleteLine(index);
+        // This is needed as the lines are not evaluated when checking for rerenders.
+        this.forceUpdate();
     };
 
     handleSaveUserUtterance = (index, value) => {
@@ -272,7 +275,7 @@ class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
                 return (
-                    <React.Fragment key={`bot${line.gui.data.name}`}>
+                    <React.Fragment key={`bot${line.gui.data.name}-${index}`}>
                         <ExceptionWrapper exceptions={exceptions}>
                             <BotResponsesContainer
                                 language={language}
@@ -295,11 +298,7 @@ class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'user') {
                 return (
                     <React.Fragment
-                        key={`user${
-                            line.md
-                                ? line.md
-                                : index
-                        }`}
+                        key={`user${line.md || ''}-${index}`}
                     >
                         <UserUtteranceContainer
                             exceptions={exceptions}

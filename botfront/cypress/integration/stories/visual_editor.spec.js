@@ -32,6 +32,8 @@ describe('story visual editor', function() {
     });
 
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
+        cy.importNluData('bf', 'nlu_sample_en.json', 'English');
+        cy.train();
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
@@ -43,20 +45,21 @@ describe('story visual editor', function() {
         cy.dataCy('user-line-from-input').click({ force: true });
         cy.dataCy('utterance-input')
             .find('input')
-            .type('I love typing into boxes.{enter}');
+            .type('Hello{enter}');
+        cy.dataCy('intent-label').contains('chitchat.greet');
         cy.dataCy('intent-label').trigger('mouseover');
         cy.dataCy('intent-dropdown').click({ force: true })
             .find('input')
             .type('myTestIntent{enter}');
         cy.dataCy('save-new-user-input').click({ force: true });
 
-        cy.contains('I love typing into boxes.'); // checks that text has been saved
+        cy.contains('Hello'); // checks that text has been saved
 
         cy.dataCy('add-user-line').should('not.exist'); // cannot have adjacent user utterances
 
         cy.dataCy('add-bot-line').click({ force: true });
 
-        cy.contains('I love typing into boxes.'); // checks that text has been saved
+        cy.contains('Hello'); // checks that text has been saved
 
         cy.dataCy('from-text-template').click({ force: true });
         cy.dataCy('bot-response-input')
@@ -139,7 +142,7 @@ describe('story visual editor', function() {
 
         cy.visit('/project/bf/nlu/models');
         cy.get('[role=row]')
-            .contains('[role=row]', 'I love typing into boxes.')
+            .contains('[role=row]', 'Hello')
             .contains('myTestIntent')
             .should('exist'); // there nlu example is there too
     });

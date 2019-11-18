@@ -358,12 +358,12 @@ export default class ActivityDataTable extends React.Component {
     sortUtterances = () => {
         const { sortBy } = this.props;
         const { utterances } = this.props;
-        if (sortBy === 'mostRecent') {
+        if (sortBy === 'newest') {
             return utterances.sort(({ createdAt: dateA }, { createdAt: dateB }) => (
                 new Date(dateB) - new Date(dateA)
             ));
         }
-        if (sortBy === 'leastRecent') {
+        if (sortBy === 'oldest') {
             return utterances.sort(({ createdAt: dateA }, { createdAt: dateB }) => (
                 new Date(dateA) - new Date(dateB)
             ));
@@ -431,5 +431,5 @@ ActivityDataTable.propTypes = {
     sortBy: PropTypes.string,
 };
 ActivityDataTable.defaultProps = {
-    sortBy: 'mostRecent',
+    sortBy: 'newest',
 };

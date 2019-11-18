@@ -250,6 +250,9 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
 });
 
 Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
+
+Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
+
 Cypress.Commands.add(
     'upload',
     {

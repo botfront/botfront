@@ -2,10 +2,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
+import { browserHistory, withRouter } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 import { sortBy, uniq } from 'lodash';
 import {
-    Tab, Message, Dropdown, Segment, Button,
+    Tab, Message, Segment,
 } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
@@ -17,43 +18,34 @@ import { Loading } from '../../utils/Utils';
 import { ActivityCollection } from '../../../../api/activity';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { getAllSmartTips } from '../../../../lib/smart_tips';
-import { can } from '../../../../api/roles/roles';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import ConversationBrowser from '../../conversations/ConversationsBrowser';
+import { updateIncomingPath } from '../../incoming/incoming.utils';
+import PrefixDropdown from '../../common/PrefixDropdown';
 
 class Activity extends React.Component {
     // eslint-disable-next-line react/sort-comp
     getDefaultState = () => ({
         filterFn: utterances => utterances,
         activeTabIndex: undefined,
-        sortType: 'mostRecent',
-        isSortDropdownOpen: false,
+        sortType: 'newest',
     });
 
     state = this.getDefaultState();
 
-    componentDidMount = () => {
-        const { params } = this.props;
-        const { activeTabIndex } = this.state;
-        if (params.tab === 'conversations') this.setState({ activeTabIndex: 1 });
-        else if (activeTabIndex === undefined && !params.tab) this.setState({ activeTabIndex: 0 });
-    }
-
-    createMenuItem = (name, index, dataCy = null) => {
-        const {
-            model, projectId, params, replaceUrl,
-        } = this.props;
+    createMenuItem = (name, index, tag = '', dataCy = null) => {
+        const { router } = this.props;
         const regexp = / /g;
         const urlId = name.toLowerCase().replace(regexp, '');
-        const url = `/project/${projectId}/incoming/${model._id}/${urlId}`;
+        const url = updateIncomingPath({ ...router.params, tab: urlId });
         return {
-            content: name,
-            key: `incoming-tab-${index}`,
+            name,
+            content: `${name} ${tag || ''}`,
+            key: urlId,
             'data-cy': `incoming-${dataCy || urlId}-tab`,
             onClick: () => {
-                // const url = `/project/${projectId}/model/${model._id}/${urlId}`;
-                if (params.tab === urlId) return;
-                replaceUrl({ pathname: url });
+                if (router.params.tab === urlId) return;
+                browserHistory.push({ pathname: url });
                 this.setState({ activeTabIndex: index });
             },
         };
@@ -64,7 +56,6 @@ class Activity extends React.Component {
             model,
             instance,
             project,
-            params,
             replaceUrl,
             oosUtterances,
             projectId,
@@ -75,10 +66,10 @@ class Activity extends React.Component {
         } = this.props;
         const oosPaneTitle = oosUtterances.length ? `Out of Scope (${oosUtterances.length})` : 'Out of Scope';
         return [
-            { menuItem: this.createMenuItem(`New Utterances (${utterances.length})`, 0, 'newutterances'), render: this.renderIncomingTab },
+            { menuItem: this.createMenuItem('New Utterances', 0, `(${utterances.length})`, 'newutterances'), render: this.renderIncomingTab },
             {
                 menuItem: this.createMenuItem('Conversations', 1),
-                render: () => <ConversationBrowser projectId={project._id} params={params} replaceUrl={replaceUrl} environment={environment} />,
+                render: () => <ConversationBrowser projectId={project._id} replaceUrl={replaceUrl} environment={environment} />,
             },
             { menuItem: this.createMenuItem('Populate', 2), render: () => <ActivityInsertions model={model} instance={instance} /> },
             {
@@ -95,7 +86,6 @@ class Activity extends React.Component {
             },
         ];
     }
-    
 
     batchAdd = () => {
         const { modelId } = this.props;
@@ -119,16 +109,6 @@ class Activity extends React.Component {
         Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
     };
 
-    dropdownOptions = [
-        { value: 'mostRecent', text: 'Newest' },
-        { value: 'leastRecent', text: 'Oldest' },
-    ];
-
-    toggleSortDropdown = () => {
-        const { isSortDropdownOpen } = this.state;
-        this.setState({ isSortDropdownOpen: !isSortDropdownOpen });
-    }
-
     renderIncomingTab = () => {
         const {
             model: { _id: modelId },
@@ -141,7 +121,7 @@ class Activity extends React.Component {
             numValidated,
         } = this.props;
 
-        const { filterFn, sortType, isSortDropdownOpen } = this.state;
+        const { filterFn, sortType } = this.state;
         const filteredExamples = filterFn(utterances);
         return utterances && utterances.length > 0 ? (
             <>
@@ -160,24 +140,17 @@ class Activity extends React.Component {
                         />
                     </Segment>
                     <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
-                        <Button.Group className='sort-dropdown' basic onClick={() => { this.setState({ isSortDropdownOpen: !isSortDropdownOpen }); }}>
-                            <Dropdown
-                                onClick={() => { this.setState({ isSortDropdownOpen: !isSortDropdownOpen }); }}
-                                open={isSortDropdownOpen}
-                                floating
-                                className='button icon'
-                                value={sortType}
-                                trigger={(
-                                    <Segment className='button sort-dropdown-trigger' data-cy='sort-utterances-dropdown'>
-                                        Sort by: <b>{this.dropdownOptions.find(({ value }) => value === sortType).text}</b>
-                                    </Segment>
-                                )}
-                                options={this.dropdownOptions}
-                                onChange={(e, option) => {
-                                    this.setState({ sortType: option.value, isSortDropdownOpen: false });
-                                }}
-                            />
-                        </Button.Group>
+                        <PrefixDropdown
+                            selection={sortType}
+                            updateSelection={(option) => {
+                                this.setState({ sortType: option.value });
+                            }}
+                            options={[
+                                { value: 'newest', text: 'Newest' },
+                                { value: 'oldest', text: 'Oldest' },
+                            ]}
+                            prefix='Sort by'
+                        />
                     </Segment>
                 </Segment.Group>
                 
@@ -198,32 +171,14 @@ class Activity extends React.Component {
         );
     };
 
-    getActivityPanes = () => {
-        const {
-            model, instance, projectId, intents, oosUtterances, entities, utterances,
-        } = this.props;
-        const panes = [];
-        const incomingPaneTitle = utterances.length ? `Incoming (${utterances.length})` : 'Incoming';
-        const oosPaneTitle = oosUtterances.length ? `Out of Scope (${oosUtterances.length})` : 'Out of Scope';
-        panes.push({ menuItem: incomingPaneTitle, render: this.renderIncomingTab });
-        panes.push({
-            menuItem: oosPaneTitle,
-            render: () => (
-                <OutOfScope
-                    model={model}
-                    utterances={oosUtterances}
-                    projectId={projectId}
-                    intents={intents}
-                    entities={entities}
-                />
-            ),
-        });
-        if (can('nlu-data:w', projectId)) {
-            panes.push({ menuItem: 'Populate', render: () => <ActivityInsertions model={model} instance={instance} /> });
-        }
-        return panes;
+    componentDidMount = () => {
+        const { router } = this.props;
+        const { activeTabIndex } = this.state;
+        const panes = this.getPanes();
+        const paneIndex = panes.findIndex(({ menuItem }) => menuItem.key === router.params.tab);
+        if (activeTabIndex === undefined) this.setState({ activeTabIndex: paneIndex >= 0 ? paneIndex : 0 });
     }
-    
+
     render() {
         const { ready } = this.props;
         const { activeTabIndex } = this.state;
@@ -316,4 +271,6 @@ const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
 });
 
-export default connect(mapStateToProps)(ActivityContainer);
+const ActivityContainerRouter = withRouter(ActivityContainer);
+
+export default connect(mapStateToProps)(ActivityContainerRouter);

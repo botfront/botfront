@@ -132,13 +132,18 @@ export const addlinkCheckpoints = (stories) => {
         if (story.checkpoints && story.checkpoints.length > 0) {
             let checkpoints = '';
             story.checkpoints.forEach((checkpoint) => {
-                const checkpointTitle = `checkpoint_${checkpointsCounter}`;
-                checkpoints = `> ${checkpointTitle}\n`.concat(checkpoints);
-                checkpointsToAdd.push({
-                    checkpointTitle,
-                    path: checkpoint,
-                });
-                checkpointsCounter += 1;
+                const existInStories = stories.findIndex(
+                    aStory => aStory._id === checkpoint[0],
+                );
+                if (existInStories !== -1) {
+                    const checkpointTitle = `checkpoint_${checkpointsCounter}`;
+                    checkpoints = `> ${checkpointTitle}\n`.concat(checkpoints);
+                    checkpointsToAdd.push({
+                        checkpointTitle,
+                        path: checkpoint,
+                    });
+                    checkpointsCounter += 1;
+                }
             });
             return { ...story, story: checkpoints.concat(story.story) };
         }
