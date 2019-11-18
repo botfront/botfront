@@ -57,6 +57,7 @@ describe('story visual editor', function () {
         cy.dataCy('from-text-template').click({ force: true });
         cy.dataCy('bot-response-input')
             .find('textarea').should('be.empty');
+
         cy.dataCy('bot-response-input')
             .find('textarea')
             .clear()
@@ -64,12 +65,17 @@ describe('story visual editor', function () {
 
         cy.get('[agent=bot]').should('have.length', 1); // ensure that enter do not create a new response
 
-
         cy.dataCy('add-user-line').should('exist'); // would not lead to adjacent user utterances
 
         cy.dataCy('add-bot-line').click({ force: true });
-        cy.contains('I love typing into boxes.'); // checks that text has been saved
+        cy.contains('I do too.'); // checks that text has been saved
         cy.dataCy('from-qr-template').click({ force: true });
+        cy.dataCy('bot-response-input').should('have.length', 2);
+        cy.dataCy('bot-response-input')
+            .eq(1)
+            .find('textarea')
+            .clear()
+            .type('I do too qr');
 
         cy.dataCy('button_title').click({ force: true });
 
@@ -104,18 +110,18 @@ describe('story visual editor', function () {
             .find('.ace_line').eq(0)
             .should('have.text', '* myTestIntent');
         cy.dataCy('story-editor').find('.ace_line')
-            .eq(1).invoke('text')
+            .eq(2).invoke('text')
             .as('response');
 
         cy.visit('/project/bf/dialogue/templates/');
         cy.get('@response').then((response) => {
             cy.get('[role=row]')
-                .contains('[role=row]', 'I do too.')
+                .contains('[role=row]', 'I do too qr')
                 .contains('[role=row]', response.replace('-', '').trim())
                 .should('exist') // there's a row with our text and response hash
-                .find('[data-cy=edit-response-1]')
+                .find('[data-cy=edit-response-2]')
                 .click();
-            cy.get('.response-message-1:not(.button)')
+            cy.get('.response-message-0:not(.button)')
                 .invoke('text')
                 .as('qr');
         });
