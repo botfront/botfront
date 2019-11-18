@@ -2,8 +2,8 @@ import { Map, OrderedMap, List } from 'immutable';
 import moment from 'moment';
 import * as types from '../actions/types';
 
-const startDate = moment().subtract(7, 'days');
-const endDate = moment();
+const startDate = moment().subtract(6, 'days').startOf('day');
+const endDate = moment().endOf('day');
 
 const initialState = Map({
     cardSettings: OrderedMap({

@@ -49,19 +49,19 @@ function DatePicker({ startDate, endDate, onConfirm }) {
             key: 'seven',
             text: 'Last 7 days',
             value: 1,
-            data: { startDate: moment().subtract(7, 'days'), endDate: moment() },
+            data: { startDate: moment().subtract(6, 'days').startOf('day'), endDate: moment().endOf('day') },
         },
         {
             key: 'thirty',
             text: 'Last 30 days',
             value: 2,
-            data: { startDate: moment().subtract(30, 'days'), endDate: moment() },
+            data: { startDate: moment().subtract(29, 'days').startOf('day'), endDate: moment().endOf('day') },
         },
         {
             key: 'ninety',
             text: 'Last 90 days',
             value: 3,
-            data: { startDate: moment().subtract(90, 'days'), endDate: moment() },
+            data: { startDate: moment().subtract(89, 'days').startOf('day'), endDate: moment().endOf('day') },
         },
     ];
 
@@ -69,6 +69,9 @@ function DatePicker({ startDate, endDate, onConfirm }) {
         const newRange = incomingRange;
         if (!newRange.endDate) { // selection has a range of one day
             newRange.endDate = moment(newRange.startDate.endOf('day')._d);
+            newRange.startDate = moment(newRange.startDate.startOf('day')._d);
+        } else {
+            newRange.endDate = moment(newRange.endDate.endOf('day')._d);
             newRange.startDate = moment(newRange.startDate.startOf('day')._d);
         }
         setSelectedRangeType(0); // if there is date change, the range type is always custom (index 0)
@@ -79,12 +82,12 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     function rangeChange(data) {
         setSelectedRangeType(data.value);
         const range = DateOptions[data.value].data;
-        setNewDates(range.startDate, range.endDate);
+        setNewDates(moment(range.startDate.startOf('day')._d), moment(range.endDate.endOf('day')._d));
         setFocusedInput('startDate');
     }
 
     function handlePopupState() {
-        if (popupOpen) setNewDates(startDate, endDate); // removes dates changes before closing (in case of a cancel)
+        if (popupOpen) setNewDates(moment(startDate).startOf('day'), moment(endDate).endOf('day')); // removes dates changes before closing (in case of a cancel)
         setPopupOpen(!popupOpen);
     }
 
