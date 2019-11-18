@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.2](https://github.com/botfront/botfront/compare/v0.18.1...v0.18.2) (2019-11-18)
+
+
+### Bug Fixes
+
+* before/after each in convo tests ([e6f7fad](https://github.com/botfront/botfront/commit/e6f7fad))
+* before/after each in convo tests ([94b2dde](https://github.com/botfront/botfront/commit/94b2dde))
+* branch deletion in visual_branches test ([9d1bb6c](https://github.com/botfront/botfront/commit/9d1bb6c))
+* clean up state before tests instead of after ([2ece10f](https://github.com/botfront/botfront/commit/2ece10f))
+* conversation test needs to wait for rasa ([38985f1](https://github.com/botfront/botfront/commit/38985f1))
+* duplicate keys after deleting branch ([ecbbea7](https://github.com/botfront/botfront/commit/ecbbea7))
+* import delayed refresh causes test to fail ([1a1ebf1](https://github.com/botfront/botfront/commit/1a1ebf1))
+* merge conversation changes from master ([bc4d091](https://github.com/botfront/botfront/commit/bc4d091))
+* merge conversation changes from master ([1a740f6](https://github.com/botfront/botfront/commit/1a740f6))
+* merge conversation pagination ([09c7d57](https://github.com/botfront/botfront/commit/09c7d57))
+* nlu training button permanatly disabled ([03d85cd](https://github.com/botfront/botfront/commit/03d85cd))
+* standeradize test steps to delete branches ([2852dbc](https://github.com/botfront/botfront/commit/2852dbc))
+* training on linked stories ([4ade3a6](https://github.com/botfront/botfront/commit/4ade3a6))
+* training state stuck in training after import ([46ab050](https://github.com/botfront/botfront/commit/46ab050))
+* use importProject cypress command in tests ([568e212](https://github.com/botfront/botfront/commit/568e212))
+* use importProject cypress command in tests ([63fb46a](https://github.com/botfront/botfront/commit/63fb46a))
+* use withRouter for routing, func for get url ([a49cd47](https://github.com/botfront/botfront/commit/a49cd47))
+* use withRouter for routing, func for get url ([e593a27](https://github.com/botfront/botfront/commit/e593a27))
+
+
+### Features
+
+* add cy.findCy command ([fe99ed5](https://github.com/botfront/botfront/commit/fe99ed5))
+* remove reload in conversation tests ([0b3e55a](https://github.com/botfront/botfront/commit/0b3e55a))
+* test deleting a branch in the visual editor ([4f1abdd](https://github.com/botfront/botfront/commit/4f1abdd))
+
+
+### Tests
+
+* nlu inference ([debec73](https://github.com/botfront/botfront/commit/debec73))
+
+
+
 ### [0.18.1](https://github.com/botfront/botfront/compare/v0.18.0...v0.18.1) (2019-11-12)
 
 
