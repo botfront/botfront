@@ -38,7 +38,7 @@ function AnalyticsCard(props) {
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const { tickValues, nBuckets } = calculateTemporalBuckets(startDate, endDate);
+    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate);
 
     const [, drag] = useDrag({
         item: { type: 'card', cardName },
@@ -72,7 +72,7 @@ function AnalyticsCard(props) {
 
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, tickValues, valueType,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize,
         });
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
