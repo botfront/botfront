@@ -5,7 +5,6 @@ import { Placeholder } from 'semantic-ui-react';
 
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import { ConversationOptionsContext } from '../../utils/Context';
-import BotResponsePopupContent from './BotResponsePopupContent';
 import BotResponseContainer from './BotResponseContainer';
 import { defaultTemplate } from './StoryVisualEditor';
 
@@ -105,41 +104,6 @@ const BotResponsesContainer = (props) => {
         }
     }, [toBeCreated]);
 
-    const [popupOpen, setPopupOpen] = useState(null);
-
-    const renderAddLine = (index) => {
-        if (popupOpen !== index) {
-            return (
-                <FloatingIconButton
-                    icon='ellipsis horizontal'
-                    size='medium'
-                    onClick={() => setPopupOpen(index)}
-                />
-            );
-        }
-        return (
-            <BotResponsePopupContent
-                onSelect={() => { }} // not needed for now
-                onCreate={(responseType) => {
-                    setPopupOpen(null);
-                    handleCreateReponse(index, responseType);
-                }}
-                onClose={() => setPopupOpen(null)}
-                limitedSelection
-                disableExisting
-                noButtonResponse={index !== getSequence().length - 1}
-                defaultOpen
-                trigger={(
-                    <FloatingIconButton
-                        icon='ellipsis horizontal'
-                        visible
-                        size='medium'
-                        onClick={() => setPopupOpen(index)}
-                    />
-                )}
-            />
-        );
-    };
 
     const renderResponse = (response, index, sequenceArray) => {
         const content = yamlLoad(response.content);
@@ -156,6 +120,8 @@ const BotResponsesContainer = (props) => {
                         focus={focus === index}
                         onFocus={() => setFocus(index)}
                     />
+                    {index === sequenceArray.length - 1 && (
+                        <div className='response-name'>{name}</div>)}
                 </div>
 
             </React.Fragment>
@@ -179,7 +145,6 @@ const BotResponsesContainer = (props) => {
             {deletable && isSequence() && (
                 <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
             )}
-            <div className='response-name'>{name}</div>
         </div>
     );
 };

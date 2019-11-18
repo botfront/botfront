@@ -22,7 +22,8 @@
 
             &.multiple {
             border: 1px solid rgba(0, 0, 0, 0.1);
-                padding-top: 1rem
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
             }
             
             .viewOnHover {
@@ -150,6 +151,7 @@
 }
 
 .responses-container {
+    width: 40rem;
     display: inline-flex;
     position: relative;
     flex-direction: column;
@@ -222,8 +224,8 @@
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.1s ease-in-out;
-        direction: rtl;
-        padding-right: 5rem;
+        padding-left: 1rem;
+        align-self: flex-end;
     }
 
     .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border
