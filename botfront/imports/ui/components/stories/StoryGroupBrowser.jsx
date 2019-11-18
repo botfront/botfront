@@ -88,7 +88,7 @@ class StoryGroupBrowser extends React.Component {
         <Popup size='mini' inverted content={tooltip} trigger={trigger} />
     );
 
-    getItems = (slice) => {
+    getItems = (slice, options = {}) => {
         const {
             data,
             index: indexProp,
@@ -99,6 +99,9 @@ class StoryGroupBrowser extends React.Component {
             changeName,
             stories,
         } = this.props;
+        const {
+            isIntroStory,
+        } = options;
         return data.slice(...slice)
             .map((item, index) => (
                 <StoryGroupItem
@@ -109,7 +112,7 @@ class StoryGroupBrowser extends React.Component {
                     nameAccessor={nameAccessor}
                     handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
                     selectAccessor={selectAccessor}
-                    allowEdit={allowEdit}
+                    allowEdit={allowEdit && !isIntroStory}
                     handleToggle={e => this.handleToggle(e, item)}
                     saving={saving}
                     changeName={changeName}
@@ -196,7 +199,7 @@ class StoryGroupBrowser extends React.Component {
                         ))}
                 {data.length && (
                     <Menu vertical fluid>
-                        {this.getItems([0, 1])}
+                        {this.getItems([0, 1], { isIntroStory: true })}
                     </Menu>
                 )}
                 {data.length > 1 && (
