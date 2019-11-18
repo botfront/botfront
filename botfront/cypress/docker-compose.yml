@@ -13,6 +13,7 @@ services:
       - ../imports/lib:/app/imports/lib
       - ../imports/api:/app/imports/api
       - ./mounted/models/:/app/models
+      - ../package.json:/app/package.json
     entrypoint: /bin/bash
     command:
       - -c
