@@ -18,9 +18,9 @@ const BotResponsesContainer = (props) => {
         isNew,
         removeNewState,
         language,
+        addNewResponse,
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
-
     const [template, setTemplate] = useState(null);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
@@ -94,7 +94,7 @@ const BotResponsesContainer = (props) => {
         ) return handleDeleteResponse(index);
         sequence[index].content = yamlDump({ ...oldContent, ...newContent });
         setSequence(sequence);
-        if (enter) setToBeCreated(index);
+        if (enter) addNewResponse();
         return true;
     };
 
@@ -119,7 +119,7 @@ const BotResponsesContainer = (props) => {
         }
         return (
             <BotResponsePopupContent
-                onSelect={() => {}} // not needed for now
+                onSelect={() => { }} // not needed for now
                 onCreate={(responseType) => {
                     setPopupOpen(null);
                     handleCreateReponse(index, responseType);
@@ -150,23 +150,25 @@ const BotResponsesContainer = (props) => {
                         deletable={deletable || sequenceArray.length > 1}
                         value={content}
                         onDelete={() => handleDeleteResponse(index)}
-                        onAbort={() => {}}
+                        onAbort={() => { }}
                         onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)
                         }
                         focus={focus === index}
                         onFocus={() => setFocus(index)}
                     />
                 </div>
-                {!content.buttons
-                    && renderAddLine(index) /* add line button if no buttons */}
+
             </React.Fragment>
         );
     };
 
+    const isSequence = () => {
+        if (template) return template.values[0].sequence.length > 1;
+        return false;
+    };
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
-        <div className='responses-container exception-wrapper' exception={exceptions.severity}>
-            {renderAddLine(-1)}
+        <div className={`responses-container exception-wrapper ${isSequence() ? 'multiple' : ''}`} exception={exceptions.severity}>
             {!template && (
                 <Placeholder>
                     <Placeholder.Line />
@@ -174,7 +176,7 @@ const BotResponsesContainer = (props) => {
                 </Placeholder>
             )}
             {getSequence().map(renderResponse)}
-            {deletable && (
+            {deletable && isSequence() && (
                 <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
             )}
             <div className='response-name'>{name}</div>
@@ -190,6 +192,7 @@ BotResponsesContainer.propTypes = {
     isNew: PropTypes.bool.isRequired,
     removeNewState: PropTypes.func.isRequired,
     language: PropTypes.string.isRequired,
+    addNewResponse: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {

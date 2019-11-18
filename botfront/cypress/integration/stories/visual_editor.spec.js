@@ -15,12 +15,12 @@ function clickStoryGroup(group) {
     positions.map(p => cy.contains(group).click(p, { force: true }));
 }
 
-describe('story visual editor', function() {
-    afterEach(function() {
+describe('story visual editor', function () {
+    afterEach(function () {
         cy.deleteProject('bf');
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
 
@@ -60,28 +60,16 @@ describe('story visual editor', function() {
         cy.dataCy('bot-response-input')
             .find('textarea')
             .clear()
-            .type('I do too.{enter}');
+            .type('I do too.');
 
-        cy.get('[agent=bot]').should('have.length', 2); // new text response was appended
-        cy.get('[agent=bot]').eq(0).click({ force: true });
-        cy.get('[agent=bot]').should('have.length', 1); // empty text response was removed
+        cy.get('[agent=bot]').should('have.length', 1); // ensure that enter do not create a new response
+
 
         cy.dataCy('add-user-line').should('exist'); // would not lead to adjacent user utterances
 
-        cy.get('.responses-container')
-            .find('[data-cy="ellipsis horizontal"]').eq(0)
-            .find('i')
-            .click({ force: true });
-        cy.dataCy('from-qr-template')
-            .should('have.class', 'disabled');
-
-        cy.get('body').click({ position: 'bottom' }); // leave menu
-
-        cy.get('.responses-container')
-            .find('[data-cy="ellipsis horizontal"]').eq(1)
-            .find('i')
-            .click({ force: true });
-        cy.dataCy('from-qr-template').eq(0).click({ force: true });
+        cy.dataCy('add-bot-line').click({ force: true });
+        cy.contains('I love typing into boxes.'); // checks that text has been saved
+        cy.dataCy('from-qr-template').click({ force: true });
 
         cy.dataCy('button_title').click({ force: true });
 

@@ -19,7 +19,12 @@
         }
 
         .responses-container {
+
+            &.multiple {
             border: 1px solid rgba(0, 0, 0, 0.1);
+                padding-top: 1rem
+            }
+            
             .viewOnHover {
                 opacity: 0.8;
                 visibility: visible;
@@ -153,7 +158,6 @@
     margin: 0 30px 0 0;
     color: #212121;
     min-height: 40px;
-    width: 50%;
 
     &>.floating-icon-button.trash {
         position: absolute;
@@ -201,9 +205,10 @@
     .flex-right {
         display: inline-flex;
         justify-content: space-between;
+        padding-right: 3rem;
 
         .viewOnHover {
-            opacity: 0;
+            opacity: 1;
             transition: opacity 0.1s ease-in-out;
             position: relative;
             top: -2px;
@@ -217,9 +222,8 @@
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.1s ease-in-out;
-        position: absolute;
-        bottom: 1px;
-        right: 8px;
+        direction: rtl;
+        padding-right: 5rem;
     }
 
     .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border

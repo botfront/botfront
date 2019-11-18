@@ -82,7 +82,7 @@ const BotResponseContainer = (props) => {
             }}
         />
     );
-    
+
     return (
         <div
             className='utterance-container bot-response'
