@@ -30,7 +30,6 @@ services:
       - CYPRESS_VIDEO=false
       - CYPRESS_SCREENSHOTS=true
       - CYPRESS_abort_strategy=spec
-      - CYPRESS_API_URL=http://botfront-api:8080
 
   botfront:
     image: botfront-local
