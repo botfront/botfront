@@ -1,11 +1,11 @@
 /* eslint-disable no-undef */
 
-describe('environments-change', function() {
-    before(function() {
+describe('environments-change', function () {
+    before(function () {
         cy.deleteProject('bf');
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
         cy.removeTestConversationEnv('dev1');
         cy.removeTestConversationEnv('dev2');
         cy.removeTestConversationEnv('prod');
@@ -15,7 +15,7 @@ describe('environments-change', function() {
         cy.loginTestUser('admin@bf.com');
     });
 
-    afterEach(function() {
+    afterEach(function () {
         cy.deleteUser('admin@bf.com');
         cy.deleteProject('bf');
     });
@@ -29,26 +29,13 @@ describe('environments-change', function() {
     }
 
     function checkConversationEmpty() {
-        cy.dataCy('conversations-browser').should(
-            'contain.text',
-            'No conversation to load',
-        );
+        cy.dataCy('no-conv').should('exist');
     }
 
-    it('dropdown menu should only list selected environments', function() {
+    it('dropdown menu should only list selected environments', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('incoming-conversations-tab').click();
-        cy.dataCy('env-selector')
-            .find('div.menu')
-            .children()
-            .first()
-            .should('have.text', 'development');
-        cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab').click();
-        cy.dataCy('env-selector')
-            .find('div.menu')
-            .children()
-            .should('have.lengthOf', 1);
+        cy.dataCy('env-selector').should('not.exist');
         cy.visit('/project/bf/settings');
         cy.contains('Project Info').click();
         cy.dataCy('deployment-environments')
@@ -66,7 +53,7 @@ describe('environments-change', function() {
             .should('not.contain.text', 'production');
     });
 
-    it('should be possible to switch between environments even if they are empty', function() {
+    it('should be possible to switch between environments even if they are empty', function () {
         cy.visit('/project/bf/settings');
         cy.contains('Project Info').click();
         cy.dataCy('deployment-environments')
@@ -88,7 +75,7 @@ describe('environments-change', function() {
         checkConversationEmpty();
     });
 
-    it('should display the right conversations by environment', function() {
+    it('should display the right conversations by environment', function () {
         cy.addTestConversationToEnv('bf', 'dev1', 'development');
         cy.addTestConversationToEnv('bf', 'dev2', 'development');
         cy.addTestConversationToEnv('bf', 'prod', 'production');

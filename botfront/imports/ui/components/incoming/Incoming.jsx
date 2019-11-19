@@ -20,12 +20,6 @@ import Activity from '../nlu/activity/Activity';
 import { updateIncomingPath } from './incoming.utils';
 
 class Incoming extends React.Component {
-    constructor (props) {
-        super(props);
-        const { workingEnvironment } = props;
-        this.state = { selectedEnvironment: workingEnvironment };
-    }
-
     linkToEvaluation = () => {
         const { router, projectId, model } = this.props;
         router.push({ pathname: `/project/${projectId}/nlu/model/${model._id}`, state: { isActivityLinkRender: true } });
@@ -44,17 +38,14 @@ class Incoming extends React.Component {
     }
 
     handleEnvChange = (value) => {
-        const { changeWorkingEnv, projectId, modelId } = this.props;
-        // browserHistory.push is required to clear the old page and id from the url
-        this.setState({ selectedEnvironment: value }, browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}` }));
+        const { changeWorkingEnv } = this.props;
         changeWorkingEnv(value);
     }
 
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, router, projectEnvironments, workingLanguage,
+            projectLanguages, ready, entities, intents, modelId, project, model, instance, router, projectEnvironments, workingLanguage, workingEnvironment,
         } = this.props;
-        const { selectedEnvironment } = this.state;
         return (
             <>
                 <TopMenu
@@ -63,7 +54,7 @@ class Incoming extends React.Component {
                     handleLanguageChange={this.handleLanguageChange}
                     projectEnvironments={projectEnvironments}
                     handleEnvChange={this.handleEnvChange}
-                    selectedEnvironment={selectedEnvironment}
+                    selectedEnvironment={workingEnvironment}
                     tab={router.params.tab}
                 />
                 <Container>
@@ -76,7 +67,7 @@ class Incoming extends React.Component {
                             linkRender={this.linkToEvaluation}
                             instance={instance}
                             replaceUrl={router.replace}
-                            environment={selectedEnvironment}
+                            environment={workingEnvironment}
                         />
                     </Loading>
                 </Container>

@@ -8,7 +8,6 @@ import {
     Container, Grid, Icon, Menu, Message, Segment, Pagination,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import { setWorkingDeploymentEnvironment } from '../../store/actions/actions';
 import { GET_CONVERSATIONS } from './queries';
 import { DELETE_CONV } from './mutations';
 import ConversationViewer from './ConversationViewer';
@@ -167,10 +166,11 @@ ConversationsBrowser.defaultProps = {
 
 
 const ConversationsBrowserContainer = (props) => {
-    const { workingEnvironment: env, router } = props;
+    const { environment: env, router } = props;
     if (!router) {
         return <></>;
     }
+
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
     let page = parseInt(router.params.page, 10) || 1;
@@ -231,17 +231,18 @@ const ConversationsBrowserContainer = (props) => {
 
 ConversationsBrowserContainer.propTypes = {
     router: PropTypes.object.isRequired,
+    environment: PropTypes.string,
 };
 
+ConversationsBrowserContainer.defaultProps = {
+    environment: 'developement',
+};
+
+
 const mapStateToProps = state => ({
-    workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
     projectId: state.settings.get('projectId'),
 });
 
 const ConversationsRouter = withRouter(ConversationsBrowserContainer);
 
-const mapDispatchToProps = {
-    changeWorkingEnv: setWorkingDeploymentEnvironment,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ConversationsRouter);
+export default connect(mapStateToProps)(ConversationsRouter);
