@@ -166,8 +166,9 @@ if (Meteor.isServer) {
             
             return data;
         },
-        async 'rasa.getTrainingPayload'(projectId, instance) {
+        async 'rasa.getTrainingPayload'(projectId, instance, language = '') {
             check(projectId, String);
+            check(language, String);
             check(instance, Object);
             const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
             const nluModels = NLUModels.find(
@@ -205,7 +206,7 @@ if (Meteor.isServer) {
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
 
-                const { stories, domain } = getStoriesAndDomain(projectId);
+                const { stories, domain } = getStoriesAndDomain(projectId, language);
                 const payload = {
                     domain,
                     stories,
