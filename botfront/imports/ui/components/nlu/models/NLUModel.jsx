@@ -175,7 +175,6 @@ class NLUModel extends React.Component {
             { menuItem: 'Gazette', render: () => <Gazette model={model} projectId={projectId} /> },
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
             { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
-            { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
         ];
 
         if (can('nlu-data:w', projectId)) {
@@ -201,7 +200,7 @@ class NLUModel extends React.Component {
             { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} projectId={projectId} /> },
             { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
         ];
-        
+
         if (can('nlu-data:w', projectId)) {
             tabs.push({ menuItem: 'Import', render: () => <DataImport model={model} /> });
         }
