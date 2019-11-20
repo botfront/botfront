@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 const storyGroupOne = 'storyGroupOne';
 const defaultStories = 'Default stories';
 const editedName = 'zstory';

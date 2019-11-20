@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 describe('story exceptions', function() {
     afterEach(function() {

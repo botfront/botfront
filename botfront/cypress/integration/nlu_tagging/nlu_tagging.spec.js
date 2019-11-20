@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 // function createSelection(textNode, start, end) {
 //     const selection = window.getSelection();

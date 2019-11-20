@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 describe('Project Core Policy', function() {
     before(function() {

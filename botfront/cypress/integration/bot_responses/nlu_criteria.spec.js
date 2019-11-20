@@ -1,4 +1,4 @@
-// /* eslint-disable no-undef */
+// /* global cy Cypress:true */
 
 // const intentNames = ['KPI', 'ROI', 'NEW_INTENT'];
 // const entityNames = ['ENT1', 'ENT2'];

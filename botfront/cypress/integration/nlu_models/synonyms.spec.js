@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 const synonymName = 'growth';
 const synonymValues = 'raise, increase, augmentation';
 const sortedSynonymsValues = 'augmentation, increase, raise';

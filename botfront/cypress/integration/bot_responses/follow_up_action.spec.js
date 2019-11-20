@@ -1,4 +1,4 @@
-// /* eslint-disable no-undef */
+// /* global cy Cypress:true */
 
 // const intentName = 'QQQQ';
 // const dummyResponseName = 'utter_dummy_response';

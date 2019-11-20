@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 describe('NLU Batch Insert', function() {
     before(function() {

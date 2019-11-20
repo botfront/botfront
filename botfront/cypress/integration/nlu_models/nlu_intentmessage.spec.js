@@ -1,5 +1,5 @@
 
-/* eslint-disable no-undef */
+/* global cy:true */
 
 describe('NLU Intent warning message displays', function() {
     before(function() {

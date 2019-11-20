@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 describe('Project Credentials', function() {
     before(function() {
