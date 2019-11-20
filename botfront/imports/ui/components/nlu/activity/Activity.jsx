@@ -35,6 +35,7 @@ function Activity(props) {
 
     const {
         model: { _id: modelId, language: lang },
+        workingEnvironment,
         instance,
         entities,
         intents,
@@ -45,11 +46,11 @@ function Activity(props) {
 
     const {
         data, hasNextPage, loading, loadMore, refetch,
-    } = useActivity({ modelId, ...getSortFunction() });
+    } = useActivity({ modelId, environment: workingEnvironment, ...getSortFunction() });
     const [reinterpreting, setReinterpreting] = useState([]);
 
     // always refetch on first page load; change this to subscription
-    useEffect(() => { if (typeof refetch === 'function') refetch(); }, [refetch]);
+    useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, workingEnvironment]);
 
     const [upsertActivity] = useMutation(upsertActivityMutation);
     const [deleteActivity] = useMutation(deleteActivityMutation);
@@ -222,6 +223,7 @@ function Activity(props) {
 
 Activity.propTypes = {
     projectId: PropTypes.string.isRequired,
+    workingEnvironment: PropTypes.string.isRequired,
     model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
     project: PropTypes.object.isRequired,
@@ -235,6 +237,7 @@ Activity.defaultProps = {
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
 });
 
 export default connect(mapStateToProps)(Activity);

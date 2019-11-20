@@ -3,6 +3,7 @@ import Activity from '../activity.model.js';
 
 export const getActivity = async ({
     modelId,
+    environment,
     validated = false,
     ooS = false,
     sortKey,
@@ -10,8 +11,15 @@ export const getActivity = async ({
 }) => {
     const onlyValidated = validated ? { validated: true } : {};
     const ooSOption = ooS ? { ooS } : { $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] };
+    const environmentOption = environment
+        ? environment === 'development'
+            ? { environment: { $in: ['development', null] } }
+            : { environment }
+        : {};
     const sort = `${sortDesc ? '-' : ''}${sortKey || ''}`;
-    const query = Activity.find({ modelId, ...onlyValidated, ...ooSOption });
+    const query = Activity.find({
+        modelId, ...onlyValidated, ...ooSOption, ...environmentOption,
+    });
     if (!sort) return query.lean();
     return query.sort(sort).lean();
 };

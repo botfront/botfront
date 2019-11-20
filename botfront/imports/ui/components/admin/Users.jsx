@@ -6,7 +6,7 @@ import {
     Container, Table, Menu, Button, Icon,
 } from 'semantic-ui-react';
 import React from 'react';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-v6';
 import { Link, browserHistory } from 'react-router';
 import { PageMenu } from '../utils/Utils';
 

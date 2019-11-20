@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {
     Tab, Button, Popup, Label, Icon,
 } from 'semantic-ui-react';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-v6';
 import NLUExampleText from '../../example_editor/NLUExampleText';
 import IntentViewer from '../models/IntentViewer';
 import 'react-select/dist/react-select.css';

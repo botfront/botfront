@@ -1,6 +1,7 @@
 type Query {
   getActivity(
     modelId: String!,
+    environment: String!,
     pageSize: Int,
     sortKey: String,
     sortDesc: Boolean,

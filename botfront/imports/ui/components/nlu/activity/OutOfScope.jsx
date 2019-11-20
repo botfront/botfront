@@ -6,8 +6,8 @@ import {
     Tab, Popup, Button, Icon,
 } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
-import ReactTable from 'react-table';
-import 'react-table/react-table.css';
+import ReactTable from 'react-table-v6';
+// import 'react-table/react-table.css';
 import { can } from '../../../../lib/scopes';
 import FloatingIconButton from '../common/FloatingIconButton';
 import IntentViewer from '../models/IntentViewer';
