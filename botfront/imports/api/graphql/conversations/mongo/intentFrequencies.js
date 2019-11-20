@@ -81,7 +81,7 @@ export const getIntentFrequencies = async ({
     },
     {
         $project: {
-            intents: '$events.parse_data.intent.name',
+            intents: { $ifNull: ['$events.parse_data.intent.name', 'No intent'] },
         },
     },
     {
