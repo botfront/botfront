@@ -11,7 +11,7 @@ import { upsertActivity as upsertActivityMutation } from './mutations';
 import apolloClient from '../../../../startup/client/apollo';
 import { wrapMeteorCallback } from '../../utils/Errors';
 
-export async function populateActivity(instance, examples, modelId) {
+export async function populateActivity(instance, examples, modelId, callback) {
     return Meteor.call('rasa.parse', instance, examples, wrapMeteorCallback(async (err, activity) => {
         if (err) throw new Error(err);
         const data = Array.isArray(activity) ? activity : [activity];
@@ -25,8 +25,8 @@ export async function populateActivity(instance, examples, modelId) {
             if (a.entities) a.entities = a.entities.filter(e => e.extractor !== 'ner_duckling_http');
         });
 
-        const resp = await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { modelId, data } });
-        return resp;
+        await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { modelId, data } });
+        if (callback) callback();
     }));
 }
 
@@ -47,11 +47,8 @@ export default function ActivityInsertions(props) {
             .filter(t => !t.match(/^\s*$/))
             .map(t => ({ text: t, lang }));
         try {
-            populateActivity(instance, examples, modelId);
-            setText('');
-        } finally {
-            setLoading(false);
-        }
+            populateActivity(instance, examples, modelId, () => { setText(''); setLoading(false); });
+        } catch (e) { setLoading(false); }
     };
 
     return (

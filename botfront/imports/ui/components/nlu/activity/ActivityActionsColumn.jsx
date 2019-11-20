@@ -15,8 +15,8 @@ export default function ActivityActionsColumn(props) {
         onToggleValidation,
         onReinterpret,
         onDelete,
+        isUtteranceReinterpreting,
     } = props;
-    const reinterpreting = false;
 
     const renderReinterpretAllButton = utterances => mainAction => (
         <Button
@@ -59,7 +59,7 @@ export default function ActivityActionsColumn(props) {
     const size = 'mini';
     const outdated = data.filter(isUtteranceOutdated).slice(0, 20);
     let action;
-    if (reinterpreting) {
+    if (isUtteranceReinterpreting(datum)) {
         action = <Button size={size} disabled basic icon='redo' loading />;
     } else if (isUtteranceOutdated(datum)) {
         action = (
@@ -99,7 +99,7 @@ export default function ActivityActionsColumn(props) {
     return (
         <div key={`${datum._id}-actions`}>
             {action}
-            {!reinterpreting && <FloatingIconButton icon='trash' onClick={() => onDelete(datum)} />}
+            {!isUtteranceReinterpreting(datum) && <FloatingIconButton icon='trash' onClick={() => onDelete(datum)} />}
         </div>
     );
 }

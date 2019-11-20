@@ -13,7 +13,7 @@ import {
     addActivityToTraining as addActivityToTrainingMutation,
 } from './mutations';
 
-// import { populateActivity } from './ActivityInsertions';
+import { populateActivity } from './ActivityInsertions';
 import DataTable from '../../common/DataTable';
 import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
@@ -46,6 +46,7 @@ function Activity(props) {
     const {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({ modelId, ...getSortFunction() });
+    const [reinterpreting, setReinterpreting] = useState([]);
 
     // always refetch on first page load; change this to subscription
     useEffect(() => { if (typeof refetch === 'function') refetch(); }, [refetch]);
@@ -55,6 +56,7 @@ function Activity(props) {
     const [addActivityToTraining] = useMutation(addActivityToTrainingMutation);
 
     const isUtteranceOutdated = ({ updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+    const isUtteranceReinterpreting = ({ _id }) => reinterpreting.includes(_id);
 
     const validated = data.filter(a => a.validated);
 
@@ -78,12 +80,11 @@ function Activity(props) {
     };
 
     const handleReinterpret = async (utterances) => {
-        // await handleUpdate(utterances.map(u => ({ _id: u._id, reinterpreting: true })));
-        // try {
-        //     await populateActivity(instance, utterances.map(u => ({ text: u.text, lang })), modelId);
-        // } finally {
-        //     await handleUpdate(utterances.map(u => ({ _id: u._id, reinterpreting: false })));
-        // }
+        setReinterpreting(Array.from(new Set([...reinterpreting, ...utterances.map(u => u._id)])));
+        const reset = () => setReinterpreting(reinterpreting.filter(uid => !utterances.map(u => u._id).includes(uid)));
+        try {
+            populateActivity(instance, utterances.map(u => ({ text: u.text, lang })), modelId, reset);
+        } catch (e) { reset(); }
     };
 
     const renderConfidence = (row) => {
@@ -147,6 +148,7 @@ function Activity(props) {
             instance={instance}
             modelId={modelId}
             lang={lang}
+            isUtteranceReinterpreting={isUtteranceReinterpreting}
             isUtteranceOutdated={isUtteranceOutdated}
             onToggleValidation={u => handleUpdate([{ _id: u._id, validated: !u.validated }])}
             onReinterpret={handleReinterpret}
