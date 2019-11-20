@@ -1,0 +1,1978 @@
+{
+  "project": {
+    "_id": "bf",
+    "name": "trial",
+    "defaultLanguage": "en",
+    "defaultDomain": {
+      "content": "slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping"
+    },
+    "nluThreshold": 0.75,
+    "disabled": false,
+    "nlu_models": ["6c7756de-748c-4f10-b8b4-58129b3ab4f1"],
+    "templates": [
+      {
+        "key": "utter_get_started",
+        "values": [
+          { "sequence": [{ "content": "text: utter_get_started" }], "lang": "en" }
+        ]
+      },
+      {
+        "key": "utter_hi",
+        "values": [{ "sequence": [{ "content": "text: utter_hi" }], "lang": "en" }]
+      },
+      {
+        "key": "utter_bye",
+        "values": [{ "sequence": [{ "content": "text: utter_bye" }], "lang": "en" }]
+      },
+      {
+        "key": "utter_g2FiL5tLA",
+        "values": [
+          {
+            "sequence": [
+              {
+                "content": "text: which account would you like to access\nbuttons:\n  - title: checking account\n    type: postback\n    payload: /access_account_checking\n  - title: saving account\n    type: postback\n    payload: /access_account_saving"
+              }
+            ],
+            "lang": "en"
+          }
+        ]
+      },
+      {
+        "key": "utter_9F70lub99",
+        "values": [{ "sequence": [{ "content": "text: ''" }], "lang": "en" }]
+      },
+      {
+        "key": "utter_DKsIE1c4O",
+        "values": [
+          {
+            "sequence": [
+              { "content": "text: your checking account has a balance of  XXXX.XX$" }
+            ],
+            "lang": "en"
+          }
+        ]
+      },
+      {
+        "key": "utter_kgLzUkBmR",
+        "values": [
+          {
+            "sequence": [{ "content": "text: your savings account has XXXX.XX$" }],
+            "lang": "en"
+          }
+        ]
+      },
+      {
+        "key": "utter_sI3hO5H7I",
+        "values": [
+          {
+            "sequence": [
+              { "content": "text: 'right now it is 8:00pm on Thursday January 8th 2013'" }
+            ],
+            "lang": "en"
+          }
+        ]
+      }
+    ],
+    "updatedAt": "2019-10-09T15:21:22.903Z",
+    "deploymentEnvironments": [],
+    "instance": "dCKuCRCZLcpRAQAbe",
+    "responsesUpdatedAt": 1570634383514,
+    "training": { "status": "success", "endTime": "2019-10-09T15:21:22.902Z" }
+  },
+  "models": [
+    {
+      "_id": "6c7756de-748c-4f10-b8b4-58129b3ab4f1",
+      "name": "My First Model",
+      "language": "en",
+      "published": true,
+      "config": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
+      "evaluations": [],
+      "intents": [],
+      "chitchat_intents": [],
+      "training_data": {
+        "common_examples": [
+          {
+            "_id": "3a48b06e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "what is today",
+            "intent": "date",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b01e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test1",
+            "intent": "test1",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b01e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test9",
+            "intent": "test9",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b01e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test8",
+            "intent": "test8",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b01e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test7",
+            "intent": "test7",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b01e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test6",
+            "intent": "test6",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b01e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test5",
+            "intent": "test5",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b01e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test4",
+            "intent": "test4",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b01e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test3",
+            "intent": "test3",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "3a48b00e-9f1d-476f-b8df-43ef9b36fac8",
+            "text": "test2",
+            "intent": "test2",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "fc3c2dc1-8ca5-4437-87fb-7f8465230a7d",
+            "text": "what's the date",
+            "intent": "date",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "a1d84867-e32a-46c2-a4d6-25e209c2f355",
+            "text": "is today the",
+            "intent": "date",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:17:20.155Z"
+          },
+          {
+            "_id": "5e95338c-80d7-42db-8e70-85a58ea83c8a",
+            "text": "I want to check my account",
+            "intent": "access_account",
+            "entities": [{ "start": 10, "end": 15, "value": "check", "entity": "open" }],
+            "updatedAt": "2019-10-09T15:15:29.639Z"
+          },
+          {
+            "_id": "fe29121e-60a9-4344-91f9-1251c12b22fe",
+            "text": "open account",
+            "intent": "access_account",
+            "entities": [{ "start": 0, "end": 4, "value": "open", "entity": "open" }],
+            "updatedAt": "2019-10-09T15:15:25.902Z"
+          },
+          {
+            "_id": "c19dfc62-ea42-43a5-b991-32cb6da4dedd",
+            "text": "access bank account",
+            "intent": "access_account",
+            "entities": [{ "start": 0, "end": 6, "value": "access", "entity": "open" }],
+            "updatedAt": "2019-10-09T15:15:19.147Z"
+          },
+          {
+            "_id": "a78235f8-4cc4-48f4-8f32-09557e4a2507",
+            "text": "how much money do i have",
+            "intent": "access_account",
+            "entities": [],
+            "updatedAt": "2019-10-09T15:14:13.097Z"
+          },
+          {
+            "_id": "e4e710ad-a73b-44c9-90c1-71a42797c737",
+            "text": "I would like to access my account",
+            "intent": "access_account",
+            "entities": [{ "start": 16, "end": 22, "value": "access", "entity": "open" }],
+            "updatedAt": "2019-10-09T15:15:47.107Z"
+          }
+        ],
+        "entity_synonyms": [
+          {
+            "_id": "088eabf0-69d2-4263-9f64-2f842b2c02ab",
+            "value": "open",
+            "synonyms": ["check", "open", "see", "look"]
+          }
+        ],
+        "regex_features": [],
+        "fuzzy_gazette": []
+      },
+      "updatedAt": "2019-10-09T15:17:20.154Z"
+    }
+  ],
+  "activity": [
+    {
+      "_id": "9nkh33nN",
+      "modelId": "6c7756de-748c-4f10-b8b4-58129b3ab4f1",
+      "text": "testing",
+      "confidence": 0,
+      "createdAt": "2019-11-11T22:39:01.527Z",
+      "entities": [],
+      "intent": null,
+      "updatedAt": "2019-11-11T22:39:01.527Z"
+    }
+  ],
+  "evaluations": [],
+  "storyGroups": [
+    {
+      "_id": "a480f3a3-e7a0-4bbc-af22-a1c9a2506a62",
+      "name": "Account",
+      "projectId": "bf",
+      "hasErrors": [],
+      "hasWarnings": [],
+      "updatedAt": "2019-10-09T15:07:12.126Z",
+      "selected": false
+    },
+    {
+      "_id": "29f9ad52-c2d2-4063-928f-e8eaf50e2b1b",
+      "name": "Date and time",
+      "projectId": "bf",
+      "hasErrors": [],
+      "hasWarnings": [],
+      "updatedAt": "2019-10-09T15:17:40.502Z",
+      "selected": false
+    },
+    {
+      "_id": "6f63f733-898e-4090-8268-e81bdb9e5888",
+      "name": "Default stories",
+      "projectId": "bf",
+      "updatedAt": "2019-10-09T15:06:34.709Z",
+      "selected": false,
+      "hasErrors": [],
+      "hasWarnings": []
+    },
+    {
+      "_id": "ded885d4-2e33-4f43-8d83-6ba3d7e6feca",
+      "name": "Intro stories",
+      "projectId": "bf",
+      "introStory": true,
+      "updatedAt": "2019-10-09T15:06:34.680Z",
+      "selected": false,
+      "hasErrors": [],
+      "hasWarnings": []
+    }
+  ],
+  "stories": [
+    {
+      "_id": "d2bec808-957a-440f-9c74-e692a0f2331c",
+      "story": "* get_started\n  - utter_get_started",
+      "title": "Get started",
+      "storyGroupId": "ded885d4-2e33-4f43-8d83-6ba3d7e6feca",
+      "projectId": "bf",
+      "branches": []
+    },
+    {
+      "_id": "e6ceafcf-0a43-4a4e-b472-10ed4aed2c2b",
+      "story": "* chitchat.greet\n  - utter_hi",
+      "title": "Greetings",
+      "storyGroupId": "6f63f733-898e-4090-8268-e81bdb9e5888",
+      "projectId": "bf",
+      "branches": []
+    },
+    {
+      "_id": "b1b821b5-b68f-4ea0-960e-b73b0e0f181f",
+      "story": "* chitchat.bye\n  - utter_bye",
+      "title": "Farewells",
+      "storyGroupId": "6f63f733-898e-4090-8268-e81bdb9e5888",
+      "projectId": "bf",
+      "branches": []
+    },
+    {
+      "_id": "1989395d-3342-4c71-b6fa-dfaeb78295e3",
+      "title": "Account",
+      "storyGroupId": "a480f3a3-e7a0-4bbc-af22-a1c9a2506a62",
+      "projectId": "bf",
+      "branches": [
+        {
+          "title": "New Branch 1",
+          "branches": [],
+          "_id": "8pC12FtnK",
+          "story": "* access_account_checking\n  - utter_DKsIE1c4O"
+        },
+        {
+          "title": "New Branch 2",
+          "branches": [],
+          "_id": "PgVXIwGDfa",
+          "story": "* access_account_saving\n  - utter_kgLzUkBmR"
+        }
+      ],
+      "story": "* access_account\n  - utter_g2FiL5tLA"
+    },
+    {
+      "_id": "6f743b4c-12b7-418d-b112-2d27c200f4b3",
+      "title": "Date and time",
+      "storyGroupId": "29f9ad52-c2d2-4063-928f-e8eaf50e2b1b",
+      "projectId": "bf",
+      "branches": [],
+      "story": "* date\n  - utter_sI3hO5H7I\n  - slot{\"test_slot\":true}\n  - action_date"
+    }
+  ],
+  "slots": [
+    {
+      "_id": "b248d15a-aa38-4bc0-a90b-a9bf792a8721",
+      "type": "bool",
+      "initialValue": false,
+      "projectId": "bf",
+      "name": "test_slot"
+    }
+  ],
+  "instances": [
+    {
+      "_id": "f746955b-23b3-448a-8c2e-3dde975dfd30",
+      "name": "Default Instance",
+      "host": "http://localhost:5005",
+      "projectId": "bf"
+    }
+  ],
+  "endpoints": [
+    {
+      "_id": "e1ee0281-d4d3-4fac-b544-c9de2ea0704f",
+      "endpoints": "nlg:\n  url: 'http://botfront-api:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://actions:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://botfront-api:8080'\n  project_id: 'bf'",
+      "projectId": "bf",
+      "environment": "development",
+      "updatedAt": "2019-10-09T15:23:02.233Z"
+    },
+    {
+      "_id": "2dd8de6c-de83-4844-99f8-988ef379cac6",
+      "endpoints": "nlg:\n  url: 'http://localhost:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://localhost:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://localhost:8080'\n  project_id: 'bf'",
+      "projectId": "bf",
+      "environment": "production",
+      "updatedAt": "2019-10-09T15:06:34.650Z"
+    },
+    {
+      "_id": "a0f8cfc2-dab7-425a-a83c-3db1ce1ba66d",
+      "endpoints": "nlg:\n  url: 'http://localhost:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://localhost:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://localhost:8080'\n  project_id: 'bf'",
+      "projectId": "bf",
+      "environment": "staging",
+      "updatedAt": "2019-10-09T15:06:34.642Z"
+    }
+  ],
+  "credentials": [
+    {
+      "_id": "f2540c7c-5196-496d-b5f7-51273edb392e",
+      "projectId": "bf",
+      "environment": "production",
+      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
+      "updatedAt": "2019-10-09T15:06:34.631Z"
+    },
+    {
+      "_id": "e0ffcc2e-63dd-44c6-b4ea-4d786be129d3",
+      "projectId": "bf",
+      "environment": "staging",
+      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
+      "updatedAt": "2019-10-09T15:06:34.620Z"
+    },
+    {
+      "_id": "73818205-5003-45d0-a6bb-5c906e00dd02",
+      "projectId": "bf",
+      "environment": "development",
+      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
+      "updatedAt": "2019-10-09T15:06:34.581Z"
+    }
+  ],
+  "corePolicies": [
+    {
+      "_id": "be6f8f74-37b1-4576-9d5c-6a1cb62de95f",
+      "projectId": "bf",
+      "policies": "policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy",
+      "createdAt": "2019-10-09T15:06:03.984Z",
+      "updatedAt": "2019-10-09T15:06:34.656Z"
+    }
+  ],
+  "conversations": [
+      {
+        "_id": "convo1",
+        "tracker": {
+          "sender_id": "7c88d577de3748a3ad3b89a590ee9abe",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "entities": [],
+            "text": null,
+            "message_id": null,
+            "metadata": null
+          },
+          "latest_event_time": 1572900728.5403943,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900728.3758297,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900728.4739177,
+              "text": "ok]",
+              "parse_data": {
+                "intent": { "name": "test1", "confidence": 0 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [],
+                "text": "ok]"
+              },
+              "input_channel": "webchat",
+              "message_id": "b4ef95ce2c2f48f1a416d1a3a78ac3e4",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900728.5359304,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900728.5359473,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900728.5359619 },
+            {
+              "event": "action",
+              "timestamp": 1572900728.5403943,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "read",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:08.383Z",
+        "updatedAt": "2019-11-04T20:52:08.548Z"
+      },
+      {
+        "_id": "convoB",
+        "tracker": {
+          "sender_id": "8ec0270321eb4a5a8e1a0dccfec70b57",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900742.7900164,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900736.538919,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900736.5495071,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "31ca076448734af2bd6851d49e491603",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900736.578115,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900736.578133,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900736.585964,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900742.762805,
+              "text": "testtrh",
+              "parse_data": {
+                "intent": { "name": null, "confidence": 0 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [],
+                "text": "testtrh"
+              },
+              "input_channel": "webchat",
+              "message_id": "867979a6456544eba910d4c8089483d9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900742.7840571,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900742.784075,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900742.7840858 },
+            {
+              "event": "action",
+              "timestamp": 1572900742.7900164,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:51:16.544Z",
+        "updatedAt": "2019-11-04T20:55:17.794Z"
+      },
+      {
+        "_id": "convoC",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "date",
+              "parse_data": {
+                "intent": { "name": "testA", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "testA", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "date"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "convoD",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "test1",
+              "parse_data": {
+                "intent": { "name": "test1", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test1", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "test1"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "convoE",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "date",
+              "parse_data": {
+                "intent": { "name": "test2", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test2", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "date"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "convoF",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "date",
+              "parse_data": {
+                "intent": { "name": "test3", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test3", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "date"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "convoF",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "test4",
+              "parse_data": {
+                "intent": { "name": "test4", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test4", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "test4"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "convoG",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "test5",
+              "parse_data": {
+                "intent": { "name": "test5", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test5", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "test5"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "testD",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "test6",
+              "parse_data": {
+                "intent": { "name": "test6", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test6", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "test6"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "testC",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "test7",
+              "parse_data": {
+                "intent": { "name": "test7", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test7", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "test7"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "testB",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "test8",
+              "parse_data": {
+                "intent": { "name": "test8", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test8", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "test8"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      },
+      {
+        "_id": "testA",
+        "tracker": {
+          "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
+          "slots": { "disambiguation_message": null, "test_slot": null },
+          "latest_message": {
+            "text": "/get_started",
+            "intent": { "name": "get_started", "confidence": 1 },
+            "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+            "entities": []
+          },
+          "latest_event_time": 1572900747.453484,
+          "followup_action": null,
+          "paused": false,
+          "events": [
+            {
+              "event": "action",
+              "timestamp": 1572900743.6796978,
+              "name": "action_listen",
+              "policy": null,
+              "confidence": null
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900743.6988153,
+              "text": "/get_started",
+              "parse_data": {
+                "text": "/get_started",
+                "intent": { "name": "get_started", "confidence": 1 },
+                "intent_ranking": [{ "name": "get_started", "confidence": 1 }],
+                "entities": []
+              },
+              "input_channel": "webchat",
+              "message_id": "1254eae2fd2d4d2abdbfd0d6aa8f43c9",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7310464,
+              "name": "utter_get_started",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900743.7310634,
+              "text": "utter_get_started",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900743.7366724,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "user",
+              "timestamp": 1572900747.3998685,
+              "text": "test9",
+              "parse_data": {
+                "intent": { "name": "test9", "confidence": 0.7139533758163452 },
+                "entities": [],
+                "language": "en",
+                "intent_ranking": [
+                  { "name": "test9", "confidence": 0.7139533758163452 },
+                  { "name": "access_account", "confidence": 0.28604668378829956 }
+                ],
+                "text": "test9"
+              },
+              "input_channel": "webchat",
+              "message_id": "010c1f0741d64ac5a5c1355f1233c489",
+              "metadata": null
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4205704,
+              "name": "utter_sI3hO5H7I",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4205875,
+              "text": "right now it is 8:00pm on Thursday January 8th 2013",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            {
+              "event": "action",
+              "timestamp": 1572900747.4452126,
+              "name": "action_default_fallback",
+              "policy": "policy_0_FallbackPolicy",
+              "confidence": 0.3
+            },
+            {
+              "event": "bot",
+              "timestamp": 1572900747.4452348,
+              "text": "utter_default",
+              "data": {
+                "elements": null,
+                "quick_replies": null,
+                "buttons": null,
+                "attachment": null,
+                "image": null,
+                "custom": null
+              }
+            },
+            { "event": "rewind", "timestamp": 1572900747.4453876 },
+            {
+              "event": "action",
+              "timestamp": 1572900747.453484,
+              "name": "action_listen",
+              "policy": "policy_1_AugmentedMemoizationPolicy",
+              "confidence": 1
+            }
+          ],
+          "latest_input_channel": "webchat",
+          "latest_action_name": "action_listen"
+        },
+        "status": "new",
+        "projectId": "bf",
+        "createdAt": "2019-11-04T20:52:23.685Z",
+        "updatedAt": "2019-11-04T20:52:27.462Z"
+      }
+  ],
+  "timestamp": 1573511952069
+}

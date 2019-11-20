@@ -150,9 +150,9 @@ function AnalyticsCard(props) {
     };
 
     return (
-        <div className='analytics-card' ref={node => drag(drop(node))}>
+        <div className='analytics-card' ref={node => drag(drop(node))} data-cy='analytics-card'>
             {displayDateRange && (
-                <div className='date-picker'>
+                <div className='date-picker' data-cy='date-picker-container'>
                     <DatePicker
                         startDate={startDate}
                         endDate={endDate}

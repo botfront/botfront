@@ -29,7 +29,7 @@ const Table = (props) => {
             {
                 id: accessor,
                 accessor,
-                Header: bucketSize === 'hour' && accessor === 'date',
+                Header: bucketSize === 'hour' && accessor === 'date' ? 'Time' : header,
                 Cell: cellProps => renderCell(cellProps, accessor, options),
             }
         ))
