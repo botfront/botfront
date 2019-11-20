@@ -33,7 +33,7 @@ const TopMenu = ({
 
 TopMenu.propTypes = {
     projectLanguages: PropTypes.array.isRequired,
-    selectedLanguage: PropTypes.object.isRequired,
+    selectedLanguage: PropTypes.string,
     handleLanguageChange: PropTypes.func.isRequired,
     projectEnvironments: PropTypes.array.isRequired,
     handleEnvChange: PropTypes.func.isRequired,
@@ -43,6 +43,7 @@ TopMenu.propTypes = {
 
 TopMenu.defaultProps = {
     tab: '',
+    selectedLanguage: '',
 };
 
 export default TopMenu;

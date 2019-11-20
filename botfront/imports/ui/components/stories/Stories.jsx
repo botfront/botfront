@@ -140,7 +140,6 @@ function Stories(props) {
             'rasa.parse',
             instance,
             [{ text: utterance, lang: workingLanguage }],
-            true,
         );
     }
 

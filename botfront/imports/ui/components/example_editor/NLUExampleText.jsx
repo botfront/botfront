@@ -365,7 +365,7 @@ class NLUExampleText extends React.Component {
         } = this.props;
         const { stateEntity, selectedEntity } = this.state;
         return (
-            <div style={{ position: 'relative' }}>
+            <div data-cy='nlu-example-text'>
                
                 <Popup
                     disabled={!canonical}

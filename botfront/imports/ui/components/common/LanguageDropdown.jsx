@@ -21,8 +21,12 @@ const LanguageDropdown = ({
 
 LanguageDropdown.propTypes = {
     languageOptions: PropTypes.array.isRequired,
-    selectedLanguage: PropTypes.string.isRequired,
+    selectedLanguage: PropTypes.string,
     handleLanguageChange: PropTypes.func.isRequired,
+};
+
+LanguageDropdown.defaultProps = {
+    selectedLanguage: '',
 };
 
 export default LanguageDropdown;

@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 describe('NLU canonical examples', function () {
     beforeEach(function () {

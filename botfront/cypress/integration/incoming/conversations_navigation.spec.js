@@ -1,5 +1,5 @@
 
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 function addConversation(id) {
     let url = `http://localhost:8080/project/bf/conversations/${id}/insert?api-key=`;
@@ -110,7 +110,6 @@ function addConversation(id) {
 
 describe('incoming page conversation tab', function () {
     beforeEach(function () {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
@@ -120,6 +119,7 @@ describe('incoming page conversation tab', function () {
 
     afterEach(function () {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     
@@ -194,7 +194,7 @@ describe('incoming page conversation tab pagination', function () {
         cy.dataCy('pagination').should('exist');
         cy.dataCy('pagination').children().last().click({ force: true });
         cy.dataCy('conversation-item').should('have.length', 5);
-        cy.reload();
+        cy.reload(); // deep linking should bring the user to the same location after a refresh
         cy.dataCy('conversation-item').should('have.length', 5);
     });
 });

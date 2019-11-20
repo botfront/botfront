@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 describe('incoming page', function() {
     beforeEach(function() {
@@ -26,21 +26,13 @@ describe('incoming page', function() {
             .contains('Add Utterances')
             .click();
         // define intents of new utterances
-        cy.wait(100); // wait for the response from the server
-        cy.get('[data-cy=incoming-newutterances-tab]', { timeout: 10000 }).should('have.text', 'New Utterances (3)');
+        cy.get('button').should('not.have.class', 'loading');
         cy.dataCy('incoming-newutterances-tab')
             .click();
-        cy.get('.ui.grey.basic.label')
-            .first()
-            .click({ force: true });
-        cy.get('.ui.grey.basic.label')
-            .first()
-            .trigger('mousover');
-        // does the same thing twice for improved stability
         cy.wait(100);
         cy.get('.ui.grey.basic.label')
             .first()
-            .trigger('mousover');
+            .trigger('mouseover');
         cy.dataCy('intent-dropdown')
             .find('input')
             .click({ force: true })
@@ -103,8 +95,6 @@ describe('incoming page', function() {
             .find('.item')
             .contains('Run evaluation')
             .click({ force: true });
-        cy.dataCy('confirm-action')
-            .click({ force: true });
         cy.get('.dimmer')
             .find('button')
             .contains('OK')
@@ -125,13 +115,9 @@ describe('incoming page', function() {
         cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
         // add utterances with populate
         addNewUtterances();
-        cy.get('.rt-tbody')
-            .find('.rt-tr-group')
-            .first()
-            .find('span')
-            .contains('orange')
-            .should('exist');
         // validate utterances and run evaluation
+        cy.dataCy('nlu-example-text')
+            .should('have.length', 3);
         cy.dataCy('invalid-utterance-button')
             .first()
             .click({ force: true });
@@ -142,27 +128,19 @@ describe('incoming page', function() {
             .find('.item')
             .contains('Add to training data')
             .click({ force: true });
-        cy.dataCy('confirm-action')
-            .click();
         cy.get('.dimmer')
             .find('button')
             .contains('OK')
             .click();
-        cy.get('.rt-tbody')
-            .find('.rt-tr-group')
-            .first()
-            .find('span')
-            .contains('orange')
-            .should('not.exist');
+        cy.dataCy('nlu-example-text')
+            .should('have.length', 3);
         // check utterances were added to nlu data
         cy.get('.project-sidebar')
             .find('.item')
             .contains('NLU')
             .click({ force: true });
-        cy.get('.rt-td')
-            .find('span')
-            .contains('orange')
-            .should('exist');
+        cy.dataCy('nlu-example-text')
+            .should('have.length', 1);
         cy.dataCy('intent-label')
             .contains('fruit')
             .should('exist');
@@ -185,9 +163,7 @@ describe('incoming page', function() {
             .click()
             .find('.item')
             .contains('Invalidate')
-            .click({ force: true });
-        cy.dataCy('confirm-action')
-            .click({ force: true });
+            .click({ force: true }); 
         cy.get('.dimmer')
             .find('button')
             .contains('OK')

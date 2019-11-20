@@ -7,16 +7,10 @@ import DocumentTitle from 'react-document-title';
 import { Meteor } from 'meteor/meteor';
 import { Provider } from 'react-redux';
 
-import { Accounts } from 'meteor/accounts-base';
-import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { HttpLink } from 'apollo-link-http';
-import { onError } from 'apollo-link-error';
-import { ApolloLink, Observable } from 'apollo-link';
 import { ApolloProvider } from 'react-apollo';
 import { ApolloProvider as ApolloHooksProvider } from '@apollo/react-hooks';
+import apolloClient from './apollo';
 
-import ConversationsBrowser from '../../ui/components/conversations/ConversationsBrowser.jsx';
 import TemplatesContainer from '../../ui/components/templates/templates-list/Templates';
 import TemplateContainer from '../../ui/components/templates/template-upsert/Template';
 import SettingsContainer from '../../ui/components/admin/settings/Settings';
@@ -45,54 +39,6 @@ import UsersListContainer from '../../ui/components/admin/Users';
 import UserContainer from '../../ui/components/admin/User';
 import AdminLayout from '../../ui/layouts/admin';
 import AnalyticsContainer from '../../ui/components/analytics/AnalyticsContainer';
-
-const request = async (operation) => {
-    operation.setContext({
-        headers: {
-            // eslint-disable-next-line no-underscore-dangle
-            authorization: Accounts._storedLoginToken(),
-        },
-    });
-};
-
-const requestLink = new ApolloLink((operation, forward) => new Observable((observer) => {
-    let handle;
-    Promise.resolve(operation)
-        .then(oper => request(oper))
-        .then(() => {
-            handle = forward(operation).subscribe({
-                next: observer.next.bind(observer),
-                error: observer.error.bind(observer),
-                complete: observer.complete.bind(observer),
-            });
-        })
-        .catch(observer.error.bind(observer));
-
-    return () => {
-        if (handle) handle.unsubscribe();
-    };
-}));
-
-
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors) {
-        graphQLErrors.forEach(({ message, locations, path }) => console.log(
-            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-        ));
-    }
-    if (networkError) console.log(`[Network error]: ${networkError}`);
-});
-
-const httpLink = new HttpLink({
-    uri: '/graphql',
-    credentials: 'same-origin',
-});
-
-const client = new ApolloClient({
-    link: ApolloLink.from([errorLink, requestLink, httpLink]),
-    cache: new InMemoryCache(),
-});
-
 
 const authenticate = role => (nextState, replace, callback) => {
     Tracker.autorun(() => {
@@ -133,8 +79,8 @@ const authenticateAdmin = (nextState, replace, callback) => {
 Meteor.startup(() => {
     render(
         <DocumentTitle title='Botfront by Mr. Bot'>
-            <ApolloProvider client={client}>
-                <ApolloHooksProvider client={client}>
+            <ApolloProvider client={apolloClient}>
+                <ApolloHooksProvider client={apolloClient}>
                     <Provider store={store}>
                         <Router history={browserHistory}>
                             <Route exact path='/setup' component={SetupLayout}>

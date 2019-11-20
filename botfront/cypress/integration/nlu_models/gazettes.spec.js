@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 const gazetteName = 'growth';
 const gazetteValues = 'raise, increase, augmentation';
 const sortedGazetteValues = 'augmentation, increase, raise';

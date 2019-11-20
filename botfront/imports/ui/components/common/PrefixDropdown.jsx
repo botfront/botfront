@@ -55,7 +55,7 @@ class PrefixDropdown extends React.Component {
 }
 
 PrefixDropdown.propTypes = {
-    selection: PropTypes.object.isRequired || PropTypes.string.isRequired,
+    selection: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     updateSelection: PropTypes.func.isRequired,
     options: PropTypes.array.isRequired,
     prefix: PropTypes.string,
