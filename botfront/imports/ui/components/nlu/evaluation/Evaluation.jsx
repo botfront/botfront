@@ -12,7 +12,7 @@ import {
     Message,
     Tab,
 } from 'semantic-ui-react';
-import { getValidatedActivity } from './queries';
+import { activityQuery } from '../activity/queries';
 import apolloClient from '../../../../startup/client/apollo';
 
 import IntentReport from './IntentReport';
@@ -127,7 +127,7 @@ class Evaluation extends React.Component {
         this.changeExampleSet('validation', true);
         const { model: { _id: modelId } = {} } = this.props;
         const { data: { getActivity: examples }, loading, error } = await apolloClient.query({
-            query: getValidatedActivity,
+            query: activityQuery,
             variables: { modelId },
         });
         const validExamples = examples.filter(({ validated }) => validated)

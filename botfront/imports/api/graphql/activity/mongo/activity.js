@@ -1,9 +1,17 @@
 import shortid from 'shortid';
 import Activity from '../activity.model.js';
 
-export const getActivity = async ({ modelId, validated = false }) => {
+export const getActivity = async ({
+    modelId,
+    validated = false,
+    sortKey,
+    sortDesc,
+}) => {
     const onlyValidated = validated ? { validated: true } : {};
-    return Activity.find({ modelId, ...onlyValidated }).lean();
+    const sort = `${sortDesc ? '-' : ''}${sortKey || ''}`;
+    const query = Activity.find({ modelId, ...onlyValidated })
+    if (!sort) return query.lean();
+    return query.sort(sort).lean();
 };
 
 export const upsertActivity = async ({ modelId, data }) => {
@@ -13,7 +21,6 @@ export const upsertActivity = async ({ modelId, data }) => {
         } = datum;
         const ID = _id ? { _id } : {}; // is id provided?
         const TEXT = text ? { text } : {}; // is text provided?
-
         return Activity.findOneAndUpdate(
             { modelId, ...TEXT, ...ID },
             { $set: { ...utterance, ...TEXT, updatedAt: new Date() }, $setOnInsert: { _id: shortid.generate(), createdAt: new Date() } },
