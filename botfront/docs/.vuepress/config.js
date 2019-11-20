@@ -2,6 +2,7 @@ const version = require('../../package.json').version;
 
 
 module.exports = {
+    base: '/',
     permalink: ':slug',
     plugins: [
             ['@vuepress/google-analytics', {
