@@ -23,7 +23,8 @@ mutation (
         confidence,
         validated,
         createdAt,
-        updatedAt
+        updatedAt,
+        ooS
     }
 }
 `;

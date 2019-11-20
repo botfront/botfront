@@ -103,11 +103,3 @@ export const getSmartTips = (model, project, utterance) => {
         },
     });
 };
-
-export const getAllSmartTips = (model, project, utterances) => {
-    const allTips = {};
-    utterances.forEach((utterance) => {
-        allTips[utterance._id] = getSmartTips(model, project, utterance);
-    });
-    return allTips;
-};

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import { Message, Segment, Label } from 'semantic-ui-react';
 import IntentViewer from '../models/IntentViewer';
 import NLUExampleText from '../../example_editor/NLUExampleText';
@@ -14,6 +13,7 @@ import {
 } from './mutations';
 
 import { populateActivity } from './ActivityInsertions';
+import { getSmartTips } from '../../../../lib/smart_tips';
 import DataTable from '../../common/DataTable';
 import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
@@ -34,12 +34,13 @@ function Activity(props) {
     };
 
     const {
+        model,
         model: { _id: modelId, language: lang },
         workingEnvironment,
         instance,
         entities,
         intents,
-        project: { training: { endTime } = {} },
+        project,
         projectId,
         linkRender,
     } = props;
@@ -56,7 +57,7 @@ function Activity(props) {
     const [deleteActivity] = useMutation(deleteActivityMutation);
     const [addActivityToTraining] = useMutation(addActivityToTrainingMutation);
 
-    const isUtteranceOutdated = ({ updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+    const isUtteranceOutdated = u => getSmartTips(model, project, u).code === 'outdated';
     const isUtteranceReinterpreting = ({ _id }) => reinterpreting.includes(_id);
 
     const validated = data.filter(a => a.validated);
@@ -153,10 +154,11 @@ function Activity(props) {
             modelId={modelId}
             lang={lang}
             isUtteranceReinterpreting={isUtteranceReinterpreting}
-            isUtteranceOutdated={isUtteranceOutdated}
+            getSmartTips={u => getSmartTips(model, project, u)}
             onToggleValidation={u => handleUpdate([{ _id: u._id, validated: !u.validated }])}
+            onMarkOoS={(u) => { handleUpdate([{ _id: u._id, ooS: !u.ooS }]).then(() => refetch()); }}
             onReinterpret={handleReinterpret}
-            onDelete={u => handleDelete([u._id])}
+            onDelete={utterances => handleDelete(utterances.map(u => u._id))}
         />
     );
 
