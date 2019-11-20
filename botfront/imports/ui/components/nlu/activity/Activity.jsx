@@ -49,7 +49,7 @@ function Activity(props) {
     const [reinterpreting, setReinterpreting] = useState([]);
 
     // always refetch on first page load; change this to subscription
-    useEffect(() => { if (typeof refetch === 'function') refetch(); }, [refetch]);
+    useEffect(() => { if (refetch) refetch(); }, [refetch, modelId]);
 
     const [upsertActivity] = useMutation(upsertActivityMutation);
     const [deleteActivity] = useMutation(deleteActivityMutation);
