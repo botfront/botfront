@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 describe('intial setup', function() {
     before(function() {

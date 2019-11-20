@@ -1,5 +1,5 @@
 
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 function addConversation(id) {
     let url = `http://localhost:8080/project/bf/conversations/${id}/insert?api-key=`;

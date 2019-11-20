@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 const responseName = 'utter_abcdef';
 const templateFormats = [
