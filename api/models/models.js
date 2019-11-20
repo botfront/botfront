@@ -38,6 +38,8 @@ const activity = new Schema({
     createdAt: { type: Date, required: false, default: Date.now },
     updatedAt: { type: Date, required: false, default: Date.now },
     env: { type: String, enum: ['development', 'staging', 'production'] },
+    message_id: { type: String, required: false },
+    conversation_id: { type: String, required: false },
 }, { versionKey: false });
 
 exports.Activity = mongoose.model('Activity', activity, 'activity');
