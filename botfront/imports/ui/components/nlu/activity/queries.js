@@ -19,35 +19,6 @@ const activityFields = gql`
     }
 `;
 
-export const activitySubscription = gql`
-    subscription (
-        $modelId: String!,
-        $sortKey: String = "updatedAt",
-        $sortDesc: Boolean = true,
-        $pageSize: Int
-        $cursor: String,
-        $validated: Boolean = false,
-    ) {
-        getActivity(
-            modelId: $modelId,
-            sortKey: $sortKey,
-            sortDesc: $sortDesc,
-            pageSize: $pageSize,
-            cursor: $cursor,
-            validated: $validated,
-        ) {
-            activity {
-                ...ActivityFields
-            },
-            pageInfo {
-                endCursor
-                hasNextPage
-            }
-        }
-    }
-    ${activityFields}
-`;
-
 export const activityQuery = gql`
     query (
         $modelId: String!,
