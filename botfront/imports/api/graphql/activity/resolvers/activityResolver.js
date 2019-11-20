@@ -13,7 +13,9 @@ export default {
             const cursorIndex = !cursor
                 ? 0
                 : data.findIndex(activity => activity._id === cursor) + 1;
-            const activity = data.slice(cursorIndex, cursorIndex + pageSize);
+            const activity = pageSize === 0
+                ? data
+                : data.slice(cursorIndex, cursorIndex + pageSize);
         
             return {
                 activity,

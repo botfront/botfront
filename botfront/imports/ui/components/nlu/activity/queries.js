@@ -24,7 +24,7 @@ export const activityQuery = gql`
         $modelId: String!,
         $sortKey: String = "updatedAt",
         $sortDesc: Boolean = true,
-        $pageSize: Int
+        $pageSize: Int = 10,
         $cursor: String,
         $validated: Boolean = false,
     ) {

@@ -12,10 +12,10 @@ export default function ActivityActionsColumn(props) {
         datum,
         data,
         isUtteranceOutdated,
+        isUtteranceReinterpreting,
         onToggleValidation,
         onReinterpret,
         onDelete,
-        isUtteranceReinterpreting,
     } = props;
 
     const renderReinterpretAllButton = utterances => mainAction => (
@@ -108,6 +108,7 @@ ActivityActionsColumn.propTypes = {
     data: PropTypes.array.isRequired,
     datum: PropTypes.object.isRequired,
     isUtteranceOutdated: PropTypes.func.isRequired,
+    isUtteranceReinterpreting: PropTypes.func.isRequired,
     onReinterpret: PropTypes.func.isRequired,
     onToggleValidation: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
