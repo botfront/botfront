@@ -1,10 +1,10 @@
-import { useQuery, useSubscription } from '@apollo/react-hooks';
-import { activityQuery, activitySubscription } from './queries';
+import { useQuery } from '@apollo/react-hooks';
+import { activityQuery } from './queries';
 
 export function useActivity(variables) {
     const pageSize = 10;
     const {
-        data, loading, error, fetchMore,
+        data, loading, error, fetchMore, refetch,
     } = useQuery(activityQuery, {
         notifyOnNetworkStatusChange: true, variables: { ...variables, pageSize },
     });
@@ -40,5 +40,6 @@ export function useActivity(variables) {
         loading,
         error,
         loadMore,
+        refetch,
     };
 }

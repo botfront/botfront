@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
@@ -43,12 +43,12 @@ function Activity(props) {
         linkRender,
     } = props;
 
-    // const { loading, error, data = {} } = useSubscription(
-    //     activitySubscription, { variables: { modelId } },
-    // );
     const {
-        data, hasNextPage, loading, loadMore,
+        data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({ modelId, ...getSortFunction() });
+
+    // always refetch on first page load; change this to subscription
+    useEffect(() => { if (typeof refetch === 'function') refetch(); }, [refetch]);
 
     const [upsertActivity] = useMutation(upsertActivityMutation);
     const [deleteActivity] = useMutation(deleteActivityMutation);
@@ -60,17 +60,22 @@ function Activity(props) {
 
     const handleAddToTraining = ids => addActivityToTraining({ variables: { modelId, ids } });
 
-    const handleUpdate = async d => upsertActivity({
-        variables: { modelId, data: d },
-        // optimisticResponse: {
-        //     __typename: 'Mutation',
-        //     upsertActivity: {
-        //         __typename: 'Activity', ...d[0],
-        //     },
-        // },
-    });
+    const handleUpdate = async (d) => {
+        upsertActivity({
+            variables: { modelId, data: d },
+            optimisticResponse: {
+                __typename: 'Mutation',
+                upsertActivity: {
+                    __typename: 'Activity', ...d[0],
+                },
+            },
+        });
+    };
 
-    const handleDelete = ids => deleteActivity({ variables: { modelId, ids } });
+    const handleDelete = (ids) => {
+        deleteActivity({ variables: { modelId, ids } });
+        refetch();
+    };
 
     const handleReinterpret = async (utterances) => {
         // await handleUpdate(utterances.map(u => ({ _id: u._id, reinterpreting: true })));
