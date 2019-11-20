@@ -164,13 +164,13 @@ function Activity(props) {
             header: '%', key: 'confidence', style: { width: '40px' }, render: renderConfidence,
         },
         {
-            header: 'Intent', key: 'intent', style: { width: '160px' }, render: renderIntent,
+            header: 'Intent', key: 'intent', style: { width: '200px' }, render: renderIntent,
         },
         {
             header: 'Example', key: 'text', style: { width: '100%' }, render: renderExample,
         },
         {
-            header: 'Actions', key: 'actions', style: { width: '160px' }, render: renderActions,
+            header: 'Actions', key: 'actions', style: { width: '110px' }, render: renderActions,
         },
     ];
 
