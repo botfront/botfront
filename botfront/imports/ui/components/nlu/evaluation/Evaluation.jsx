@@ -126,9 +126,9 @@ class Evaluation extends React.Component {
     async useValidatedSet() {
         this.changeExampleSet('validation', true);
         const { model: { _id: modelId } = {} } = this.props;
-        const { data: { getActivity: examples }, loading, error } = await apolloClient.query({
+        const { data: { getActivity: { activity: examples } } } = await apolloClient.query({
             query: activityQuery,
-            variables: { modelId },
+            variables: { modelId, validated: true, pageSize: 0 },
         });
         const validExamples = examples.filter(({ validated }) => validated)
             .map(example => ExampleUtils.stripBare(example, false));
