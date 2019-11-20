@@ -9,9 +9,21 @@ mutation (
         modelId: $modelId,
         data: $data,
     ) {
-        _id,
         __typename,
+        _id,
+        text,
+        intent,
+        entities {
+            value,
+            entity,
+            start,
+            end,
+            confidence
+        },
+        confidence,
         validated,
+        createdAt,
+        updatedAt
     }
 }
 `;

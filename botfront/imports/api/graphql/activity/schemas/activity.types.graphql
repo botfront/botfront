@@ -1,14 +1,3 @@
-type Subscription {
-  getActivity(
-    modelId: String!,
-    pageSize: Int,
-    sortKey: String,
-    sortDesc: Boolean,
-    cursor: String,
-    validated: Boolean
-  ): ActivityPage
-}
-
 type Query {
   getActivity(
     modelId: String!,
