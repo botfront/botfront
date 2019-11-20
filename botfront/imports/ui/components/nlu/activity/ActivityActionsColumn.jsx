@@ -99,7 +99,7 @@ export default function ActivityActionsColumn(props) {
     return (
         <div key={`${datum._id}-actions`}>
             {action}
-            {!isUtteranceReinterpreting(datum) && <FloatingIconButton icon='trash' onClick={() => onDelete(datum)} />}
+            {!isUtteranceReinterpreting(datum) && <FloatingIconButton icon='trash' onClick={() => onDelete([datum])} />}
         </div>
     );
 }

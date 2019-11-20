@@ -155,7 +155,7 @@ function Activity(props) {
             isUtteranceOutdated={isUtteranceOutdated}
             onToggleValidation={u => handleUpdate([{ _id: u._id, validated: !u.validated }])}
             onReinterpret={handleReinterpret}
-            onDelete={u => handleDelete([u._id])}
+            onDelete={utterances => handleDelete(utterances.map(u => u._id))}
         />
     );
 
