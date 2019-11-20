@@ -1,10 +1,12 @@
 const { Projects, NLUModels, Activity } = require('../../models/models');
 
-async function logUtterance(modelId, parseData, callback) {
+async function logUtterance(modelId, parseData, callback, message_id = null, conversation_id = null) {
     const { text } = parseData;
     const existingExample = await Activity.findOne({ modelId, text }, { _id: 1 });
     const newData = {
         ...parseData,
+        message_id,
+        conversation_id,
         intent: parseData.intent.name,
         confidence: parseData.intent.confidence,
     };
@@ -41,7 +43,8 @@ async function create(req, res) {
     }
 }
 
-const logUtterancesFromTracker = async function(projectId, req) {
+const logUtterancesFromTracker = async function(projectId, req, conversation_id) {
+    
     try {
         const userUtterances = req.body.events.filter(
             event => event.event === 'user' && event.text.indexOf('/') !== 0,
@@ -62,6 +65,8 @@ const logUtterancesFromTracker = async function(projectId, req) {
                     model._id,
                     u.parse_data,
                     (_u, e) => e && console.log('Logging failed: ', e),
+                    u.message_id,
+                    conversation_id,
                 ),
             );
         }

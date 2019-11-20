@@ -37,6 +37,8 @@ const activity = new Schema({
     ooS: { type: Boolean, required: false },
     createdAt: { type: Date, required: false, default: Date.now },
     updatedAt: { type: Date, required: false, default: Date.now },
+    message_id: { type: String, required: false },
+    conversation_id: { type: String, required: false },
 }, { versionKey: false });
 
 exports.Activity = mongoose.model('Activity', activity, 'activity');
