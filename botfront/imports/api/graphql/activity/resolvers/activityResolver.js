@@ -7,11 +7,41 @@ import {
 
 export default {
     Subscription: {
-        getActivity: async (_root, args) => getActivity(args),
+        getActivity: async (_root, args) => {
+            const { cursor, pageSize } = args;
+            const data = await getActivity(args);
+            const cursorIndex = !cursor
+                ? 0
+                : data.findIndex(activity => activity._id === cursor) + 1;
+            const activity = data.slice(cursorIndex, cursorIndex + pageSize);
+        
+            return {
+                activity,
+                pageInfo: {
+                    endCursor: activity[activity.length - 1]._id,
+                    hasNextPage: cursorIndex + pageSize < data.length,
+                },
+            };
+        },
     },
 
     Query: {
-        getActivity: async (_root, args) => getActivity(args),
+        getActivity: async (_root, args) => {
+            const { cursor, pageSize } = args;
+            const data = await getActivity(args);
+            const cursorIndex = !cursor
+                ? 0
+                : data.findIndex(activity => activity._id === cursor) + 1;
+            const activity = data.slice(cursorIndex, cursorIndex + pageSize);
+        
+            return {
+                activity,
+                pageInfo: {
+                    endCursor: activity[activity.length - 1]._id,
+                    hasNextPage: cursorIndex + pageSize < data.length,
+                },
+            };
+        },
     },
 
     Mutation: {

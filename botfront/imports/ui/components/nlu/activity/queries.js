@@ -1,31 +1,78 @@
 import gql from 'graphql-tag';
 
-export const getActivity = gql`
-
-fragment ActivityFields on Activity {
-    _id,
-    text,
-    intent,
-    entities {
-        value,
-        entity,
-        start,
-        end,
-        confidence
-    },
-    confidence,
-    validated,
-    createdAt,
-    updatedAt
-}
-
-subscription getActivity(
-    $modelId: String!,
-) {
-    getActivity(
-        modelId: $modelId,
-    ) {
-        ...ActivityFields
+const activityFields = gql`
+    fragment ActivityFields on Activity {
+        _id,
+        text,
+        intent,
+        entities {
+            value,
+            entity,
+            start,
+            end,
+            confidence
+        },
+        confidence,
+        validated,
+        createdAt,
+        updatedAt
     }
-}
+`;
+
+export const activitySubscription = gql`
+    subscription (
+        $modelId: String!,
+        $sortKey: String = "updatedAt",
+        $sortDesc: Boolean = true,
+        $pageSize: Int
+        $cursor: String,
+        $validated: Boolean = false,
+    ) {
+        getActivity(
+            modelId: $modelId,
+            sortKey: $sortKey,
+            sortDesc: $sortDesc,
+            pageSize: $pageSize,
+            cursor: $cursor,
+            validated: $validated,
+        ) {
+            activity {
+                ...ActivityFields
+            },
+            pageInfo {
+                endCursor
+                hasNextPage
+            }
+        }
+    }
+    ${activityFields}
+`;
+
+export const activityQuery = gql`
+    query (
+        $modelId: String!,
+        $sortKey: String = "updatedAt",
+        $sortDesc: Boolean = true,
+        $pageSize: Int
+        $cursor: String,
+        $validated: Boolean = false,
+    ) {
+        getActivity(
+            modelId: $modelId,
+            sortKey: $sortKey,
+            sortDesc: $sortDesc,
+            pageSize: $pageSize,
+            cursor: $cursor,
+            validated: $validated,
+        ) {
+            activity {
+                ...ActivityFields
+            },
+            pageInfo {
+                endCursor
+                hasNextPage
+            }
+        }
+    }
+    ${activityFields}
 `;

@@ -50,7 +50,7 @@ export default class SmartTip extends React.Component {
                                     {mainAction(true)}
                                 </div>
                             )}
-                            { otherActions && otherActions.filter(a => a).length > 0 && (
+                            {otherActions.length > 0 && (
                                 <Accordion>
                                     <Accordion.Title active={accordionOpen} onClick={this.handleAccordionClick}>
                                         <Icon name='dropdown' />
@@ -58,7 +58,7 @@ export default class SmartTip extends React.Component {
                                     </Accordion.Title>
                                     <Accordion.Content active={accordionOpen}>
                                         <p>
-                                            {otherActions && otherActions.length && otherActions.map(a => !a || a(false))}
+                                            {otherActions.map(a => a(false))}
                                         </p>
                                     </Accordion.Content>
                                 </Accordion>

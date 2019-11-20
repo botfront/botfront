@@ -7,9 +7,28 @@ import {
     TextArea,
     Tab,
 } from 'semantic-ui-react';
-import { useMutation } from '@apollo/react-hooks';
 import { upsertActivity as upsertActivityMutation } from './mutations';
+import apolloClient from '../../../../startup/client/apollo';
 import { wrapMeteorCallback } from '../../utils/Errors';
+
+export async function populateActivity(instance, examples, modelId) {
+    return Meteor.call('rasa.parse', instance, examples, wrapMeteorCallback(async (err, activity) => {
+        if (err) throw new Error(err);
+        const data = Array.isArray(activity) ? activity : [activity];
+        data.forEach((a) => {
+            if (a.intent_ranking) delete a.intent_ranking;
+            if (a.language) delete a.language;
+            if (a.intent && 'name' in a.intent) {
+                a.confidence = a.intent.confidence;
+                a.intent = a.intent.name;
+            }
+            if (a.entities) a.entities = a.entities.filter(e => e.extractor !== 'ner_duckling_http');
+        });
+
+        const resp = await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { modelId, data } });
+        return resp;
+    }));
+}
 
 export default function ActivityInsertions(props) {
     const {
@@ -19,8 +38,6 @@ export default function ActivityInsertions(props) {
     const [text, setText] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const [upsertActivity] = useMutation(upsertActivityMutation);
-
     const onTextChanged = (e, { value }) => setText(value.split('\n').slice(0, MAX_LINES).join('\n'));
 
     const saveExamples = () => {
@@ -29,26 +46,12 @@ export default function ActivityInsertions(props) {
         const examples = text.split('\n')
             .filter(t => !t.match(/^\s*$/))
             .map(t => ({ text: t, lang }));
-        
-        return Meteor.call('rasa.parse', instance, examples, wrapMeteorCallback((err, activity) => {
-            if (!err) {
-                const data = Array.isArray(activity) ? activity : [activity];
-                data.forEach((a) => {
-                    if (a.intent_ranking) delete a.intent_ranking;
-                    if (a.language) delete a.language;
-                    if (a.intent && 'name' in a.intent) {
-                        a.confidence = a.intent.confidence;
-                        a.intent = a.intent.name;
-                    }
-                    if (a.entities) a.entities = a.entities.filter(e => e.extractor !== 'ner_duckling_http');
-                });
-
-                upsertActivity({ variables: { modelId, data } });
-                setLoading(false);
-                return setText('');
-            }
-            return setLoading(false);
-        }));
+        try {
+            populateActivity(instance, examples, modelId);
+            setText('');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

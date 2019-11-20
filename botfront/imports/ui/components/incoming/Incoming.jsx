@@ -50,7 +50,7 @@ class Incoming extends React.Component {
         const url = updateIncomingPath({ ...router.params, tab: urlId });
         return {
             name,
-            content: `${name} ${tag || ''}`,
+            content: tag ? `${name} ${tag}` : name,
             key: urlId,
             'data-cy': `incoming-${dataCy || urlId}-tab`,
             onClick: () => {
@@ -63,12 +63,12 @@ class Incoming extends React.Component {
 
     getPanes = () => {
         const {
-            model, instance, project, entities, intents, modelId,
+            model, instance, project, entities, intents,
         } = this.props;
         return [
             {
                 menuItem: this.createMenuItem('New Utterances', 0, '', 'newutterances'),
-                render: () => <Activity project={project} modelId={modelId} entities={entities} intents={intents} linkRender={this.linkToEvaluation} />,
+                render: () => <Activity project={project} model={model} instance={instance} entities={entities} intents={intents} linkRender={this.linkToEvaluation} />,
             },
             {
                 menuItem: this.createMenuItem('Conversations', 1),

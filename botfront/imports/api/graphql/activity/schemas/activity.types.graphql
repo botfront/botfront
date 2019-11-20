@@ -1,9 +1,28 @@
 type Subscription {
-  getActivity(modelId: String!): [Activity!]!
+  getActivity(
+    modelId: String!,
+    pageSize: Int,
+    sortKey: String,
+    sortDesc: Boolean,
+    cursor: String,
+    validated: Boolean
+  ): ActivityPage
 }
 
 type Query {
-  getActivity(modelId: String!, validated: Boolean): [Activity!]!
+  getActivity(
+    modelId: String!,
+    pageSize: Int,
+    sortKey: String,
+    sortDesc: Boolean,
+    cursor: String,
+    validated: Boolean
+  ): ActivityPage
+}
+
+type ActivityPage {
+  activity: [Activity!],
+  pageInfo: PageInfo
 }
 
 type Mutation {
