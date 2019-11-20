@@ -60,7 +60,10 @@ function Activity(props) {
 
     const validated = data.filter(a => a.validated);
 
-    const handleAddToTraining = ids => addActivityToTraining({ variables: { modelId, ids } });
+    const handleAddToTraining = async (ids) => {
+        await addActivityToTraining({ variables: { modelId, ids } });
+        refetch();
+    };
 
     const handleUpdate = async (d) => {
         upsertActivity({
@@ -74,8 +77,8 @@ function Activity(props) {
         });
     };
 
-    const handleDelete = (ids) => {
-        deleteActivity({ variables: { modelId, ids } });
+    const handleDelete = async (ids) => {
+        await deleteActivity({ variables: { modelId, ids } });
         refetch();
     };
 
