@@ -174,6 +174,10 @@ function Activity(props) {
         <ActivityActionsColumn
             datum={row.datum}
             data={data}
+            instance={instance}
+            modelId={modelId}
+            lang={lang}
+            projectId={projectId}
             isUtteranceReinterpreting={isUtteranceReinterpreting}
             onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
             getSmartTips={u => getSmartTips(model, project, u)}

@@ -52,4 +52,6 @@ input ExampleFilterInput {
   query: String,
   intents: [String],
   entities: [String]
+  message_id: String,
+  conversation_id: String,
 }

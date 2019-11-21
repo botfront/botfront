@@ -29,6 +29,13 @@ const model = new Schema({
     ooS: {
         type: Boolean,
         defaultValue: false,
+    },
+    message_id: {
+        type: String,
+        required: false,
+    },
+    conversation_id: {
+        type: String,
         required: false,
     },
 });

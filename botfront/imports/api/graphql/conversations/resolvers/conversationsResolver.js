@@ -87,6 +87,7 @@ export default {
         confidence: (parent, _, __) => parent.confidence,
         parse_data: (parent, _, __) => parent.parse_data,
         data: (parent, _, __) => parent.event,
+        message_id: (parent, _, __) => parent.message_id,
     },
     Data: {
         elements: (parent, _, __) => parent.elements,
