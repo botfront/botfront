@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import {
     Button, Popup, Icon,
 } from 'semantic-ui-react';
-import { useQuery } from '@apollo/react-hooks';
 
+
+import { useLazyQuery } from '@apollo/react-hooks';
 import SmartTip from './SmartTip';
-import FloatingIconButton from '../common/FloatingIconButton';
 import { GET_CONVERSATION } from '../../conversations/queries';
 import ConversationDialogueViewer from '../../conversations/ConversationDialogueViewer';
 
@@ -139,22 +139,23 @@ export default function ActivityActionsColumn(props) {
         );
     }
 
-    const { loading, data: convData } = useQuery(GET_CONVERSATION, {
+    const [getConv, { loading, data: convData }] = useLazyQuery(GET_CONVERSATION, {
         variables: { projectId, conversationId: datum.conversation_id },
     });
     return (
         <div key={`${datum._id}-actions`}>
-            {!loading && (
+            { datum.conversation_id && (
                 <Popup
                     className='dialogue-popup'
                     on='click'
-                    trigger={<Button icon='arrow right' />}
+                    trigger={<Button color='blue' size={size} icon='comments' onClick={() => getConv()} />}
                 >
-                    <ConversationDialogueViewer tracker={convData.conversation.tracker} messageIdInView={datum.message_id} />
+        
+                    {!loading && convData && (<ConversationDialogueViewer tracker={convData.conversation.tracker} messageIdInView={datum.message_id} />)}
                 </Popup>
             )}
             {action}
-            {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && <FloatingIconButton icon='trash' onClick={() => onDelete([datum])} />}
+            {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && <Button icon='trash' size={size} onClick={() => onDelete([datum])} />}
         </div>
     );
 }
