@@ -24,7 +24,7 @@ describe('nlu tagging in training data', function() {
         cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
         cy.loginTestUser('admin@bf.com');
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-settings').click();
+        cy.dataCy('nlu-menu-settings').click();
         cy.contains('Import').click();
         cy.fixture('nlu_import.json', 'utf8').then((content) => {
             cy.get('.file-dropzone').upload(content, 'data.json');

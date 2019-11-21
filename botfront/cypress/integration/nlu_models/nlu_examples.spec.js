@@ -16,7 +16,7 @@ describe('NLU Batch Insert', function() {
 
     it('Should add and delete multiple examples', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-training-data').click();
+        cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\ncoucou\nsalut');
         cy.get('.purple > .ui').click();
@@ -61,7 +61,7 @@ describe('NLU Synonyms', function() {
 
     it('Should add, edit, delete synonyms', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-training-data').click();
+        cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Synonyms').click();
         // Add a synonym
         cy.get('.entity-synonym  > input').type('value');

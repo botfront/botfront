@@ -321,15 +321,15 @@ class NLUModel extends React.Component {
             <div id='nlu-model'>
                 <Menu pointing secondary>
                     <Menu.Item header>{this.getHeader()}</Menu.Item>
-                    <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
+                    <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-training-data'>
                         <Icon size='small' name='database' />
                         Training Data
                     </Menu.Item>
-                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
+                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-evaluation'>
                         <Icon size='small' name='percent' />
                         Evaluation
                     </Menu.Item>
-                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
+                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-settings'>
                         <Icon size='small' name='setting' />
                         Settings
                     </Menu.Item>
