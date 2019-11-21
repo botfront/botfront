@@ -104,18 +104,18 @@ export default function ActivityActionsColumn(props) {
     });
     return (
         <div key={`${datum._id}-actions`}>
-            { datum.conversation_id && (
+            { datum.conversation_id ? (
                 <Popup
                     className='dialogue-popup'
                     on='click'
-                    trigger={<Button color='blue' size={size} icon='comments' onClick={() => getConv()} />}
+                    trigger={<Icon className='action-icon' name='comments viewOnHover' onClick={() => getConv()} />}
                 >
         
                     {!loading && convData && (<ConversationDialogueViewer tracker={convData.conversation.tracker} messageIdInView={datum.message_id} />)}
                 </Popup>
-            )}
+            ) : <Icon />}
             {action}
-            {!isUtteranceReinterpreting(datum) && <Button icon='trash' size={size} onClick={() => onDelete([datum])} />}
+            {!isUtteranceReinterpreting(datum) && <Icon name='trash' className='action-icon viewOnHover' onClick={() => onDelete([datum])} />}
         </div>
     );
 }
