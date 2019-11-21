@@ -23,7 +23,7 @@ import { updateIncomingPath } from './incoming.utils';
 
 class Incoming extends React.Component {
     state = {
-        activeTabIndex: undefined,
+        activeTab: undefined,
     };
 
     linkToEvaluation = () => {
@@ -44,28 +44,19 @@ class Incoming extends React.Component {
     }
 
     handleEnvChange = (value) => {
-        const { changeWorkingEnv, projectId, modelId } = this.props;
+        const { changeWorkingEnv, projectId, model: { _id: modelId } } = this.props;
         // browserHistory.push is required to clear the old page and id from the url
         changeWorkingEnv(value);
         browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}` });
     }
 
-    createMenuItem = (name, index, tag = '', dataCy = null) => {
+    handleTabClick = (_, d) => {
         const { router } = this.props;
-        const regexp = / /g;
-        const urlId = name.toLowerCase().replace(regexp, '');
-        const url = updateIncomingPath({ ...router.params, tab: urlId });
-        return {
-            name,
-            content: tag ? `${name} ${tag}` : name,
-            key: urlId,
-            'data-cy': `incoming-${dataCy || urlId}-tab`,
-            onClick: () => {
-                if (router.params.tab === urlId) return;
-                browserHistory.push({ pathname: url });
-                this.setState({ activeTabIndex: index });
-            },
-        };
+        const tabName = d.panes[d.activeIndex].menuItem.key;
+        this.setState({ activeTab: tabName });
+        const url = updateIncomingPath({ ...router.params, tab: tabName });
+        if (router.params.tab === url) return;
+        browserHistory.push({ pathname: url });
     }
 
     getPanes = () => {
@@ -74,30 +65,37 @@ class Incoming extends React.Component {
         } = this.props;
         return [
             {
-                menuItem: this.createMenuItem('New Utterances', 0, '', 'newutterances'),
+                menuItem: { content: 'New Utterances', key: 'newutterances', 'data-cy': 'newutterances' },
                 render: () => <Activity project={project} model={model} instance={instance} entities={entities} intents={intents} linkRender={this.linkToEvaluation} />,
             },
             {
-                menuItem: this.createMenuItem('Conversations', 1),
+                menuItem: { content: 'Conversations', key: 'conversations', 'data-cy': 'conversations' },
                 render: () => <ConversationBrowser projectId={project._id} />,
             },
-            { menuItem: this.createMenuItem('Populate', 2), render: () => <ActivityInsertions model={model} instance={instance} /> },
+            {
+                menuItem: { content: 'Populate', key: 'populate', 'data-cy': 'populate' },
+                render: () => <ActivityInsertions model={model} instance={instance} />,
+            },
         ];
     }
 
     componentDidMount = () => {
         const { router } = this.props;
-        const { activeTabIndex } = this.state;
-        const panes = this.getPanes();
-        const paneIndex = panes.findIndex(({ menuItem }) => menuItem.key === router.params.tab);
-        if (activeTabIndex === undefined) this.setState({ activeTabIndex: paneIndex >= 0 ? paneIndex : 0 });
+        const { activeTab } = this.state;
+        if (activeTab === undefined) {
+            if (router.params.tab) {
+                this.setState({ activeTab: router.params.tab });
+            } else {
+                this.setState({ activeTab: 'newutterances' });
+            }
+        }
     }
 
     render () {
         const {
             projectLanguages, ready, model, router, workingLanguage, workingEnvironment, projectEnvironments,
         } = this.props;
-        const { activeTabIndex } = this.state;
+        const { activeTab } = this.state;
 
         return (
             <>
@@ -113,9 +111,10 @@ class Incoming extends React.Component {
                 <Container>
                     <Loading loading={!ready || !model}>
                         <Tab
-                            activeIndex={activeTabIndex}
+                            activeTab={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
                             menu={{ pointing: true, secondary: true }}
                             panes={this.getPanes()}
+                            onTabChange={this.handleTabClick}
                         />
                     </Loading>
                 </Container>
@@ -134,7 +133,6 @@ Incoming.propTypes = {
     entities: PropTypes.array,
     intents: PropTypes.array,
     instance: PropTypes.object,
-    modelId: PropTypes.string,
     params: PropTypes.object,
     router: PropTypes.object,
     projectEnvironments: PropTypes.array,
@@ -155,7 +153,6 @@ Incoming.defaultProps = {
     project: {},
     instance: {},
     entities: [],
-    modelId: '',
     router: {},
     projectEnvironments: ['development'],
     workingLanguage: null,
