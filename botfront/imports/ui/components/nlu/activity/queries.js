@@ -22,7 +22,7 @@ const activityFields = gql`
 export const activityQuery = gql`
     query (
         $modelId: String!,
-        $environment: String!,
+        $environment: String,
         $sortKey: String = "updatedAt",
         $sortDesc: Boolean = true,
         $pageSize: Int = 10,

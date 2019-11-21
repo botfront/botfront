@@ -3,24 +3,24 @@ import PropTypes from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
 import { Message, Segment, Label } from 'semantic-ui-react';
-import IntentViewer from '../models/IntentViewer';
+import IntentViewer from './IntentViewer';
 import NLUExampleText from '../../example_editor/NLUExampleText';
-import { useActivity } from './hooks';
+import { useActivity } from '../activity/hooks';
 import {
     upsertActivity as upsertActivityMutation,
     deleteActivity as deleteActivityMutation,
     addActivityToTraining as addActivityToTrainingMutation,
-} from './mutations';
+} from '../activity/mutations';
 
-import { populateActivity } from './ActivityInsertions';
+import { populateActivity } from '../activity/ActivityInsertions';
 import { getSmartTips } from '../../../../lib/smart_tips';
 import DataTable from '../../common/DataTable';
-import ActivityActions from './ActivityActions';
-import ActivityActionsColumn from './ActivityActionsColumn';
+import ActivityActions from '../activity/ActivityActions';
+import ActivityActionsColumn from '../activity/ActivityActionsColumn';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 
-function Activity(props) {
+function OutOfScope(props) {
     const [sortType, setSortType] = useState('Newest');
     const getSortFunction = () => {
         switch (sortType) {
@@ -167,13 +167,13 @@ function Activity(props) {
             header: '%', key: 'confidence', style: { width: '40px' }, render: renderConfidence,
         },
         {
-            header: 'Intent', key: 'intent', style: { width: '200px' }, render: renderIntent,
+            header: 'Intent', key: 'intent', style: { width: '160px' }, render: renderIntent,
         },
         {
             header: 'Example', key: 'text', style: { width: '100%' }, render: renderExample,
         },
         {
-            header: 'Actions', key: 'actions', style: { width: '110px' }, render: renderActions,
+            header: 'Actions', key: 'actions', style: { width: '160px' }, render: renderActions,
         },
     ];
 
@@ -223,7 +223,7 @@ function Activity(props) {
     );
 }
 
-Activity.propTypes = {
+OutOfScope.propTypes = {
     projectId: PropTypes.string.isRequired,
     workingEnvironment: PropTypes.string.isRequired,
     model: PropTypes.object.isRequired,
@@ -234,7 +234,7 @@ Activity.propTypes = {
     linkRender: PropTypes.func.isRequired,
 };
 
-Activity.defaultProps = {
+OutOfScope.defaultProps = {
 };
 
 const mapStateToProps = state => ({
@@ -242,4 +242,4 @@ const mapStateToProps = state => ({
     workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
 });
 
-export default connect(mapStateToProps)(Activity);
+export default connect(mapStateToProps)(OutOfScope);
