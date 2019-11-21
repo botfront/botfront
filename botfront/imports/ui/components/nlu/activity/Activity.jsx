@@ -150,6 +150,7 @@ function Activity(props) {
             instance={instance}
             modelId={modelId}
             lang={lang}
+            projectId={projectId}
             isUtteranceReinterpreting={isUtteranceReinterpreting}
             isUtteranceOutdated={isUtteranceOutdated}
             onToggleValidation={u => handleUpdate([{ _id: u._id, validated: !u.validated }])}

@@ -179,7 +179,6 @@ const ConversationsBrowserContainer = (props) => {
         page = 1;
     }
 
-
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {

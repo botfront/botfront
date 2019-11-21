@@ -41,4 +41,6 @@ type Activity {
   validated: Boolean,
   createdAt: Date,
   updatedAt: Date,
+  message_id: String,
+  conversation_id: String,
 }

@@ -4,8 +4,11 @@ import {
     Button, Popup, Icon,
 } from 'semantic-ui-react';
 
+import { useQuery } from '@apollo/react-hooks';
 import FloatingIconButton from '../common/FloatingIconButton';
 import SmartTip from './SmartTip';
+import { GET_CONVERSATION } from '../../conversations/queries';
+import ConversationDialogueViewer from '../../conversations/ConversationDialogueViewer';
 
 export default function ActivityActionsColumn(props) {
     const {
@@ -16,6 +19,7 @@ export default function ActivityActionsColumn(props) {
         onToggleValidation,
         onReinterpret,
         onDelete,
+        projectId,
     } = props;
 
     const renderReinterpretAllButton = utterances => mainAction => (
@@ -96,8 +100,20 @@ export default function ActivityActionsColumn(props) {
         );
     }
 
+    const { loading, data: convData } = useQuery(GET_CONVERSATION, {
+        variables: { projectId, conversationId: datum.conversation_id },
+    });
     return (
         <div key={`${datum._id}-actions`}>
+            {!loading && (
+                <Popup
+                    className='dialogue-popup'
+                    on='click'
+                    trigger={<Button icon='arrow right' />}
+                >
+                    <ConversationDialogueViewer tracker={convData.conversation.tracker} messageIdInView={datum.message_id} />
+                </Popup>
+            )}
             {action}
             {!isUtteranceReinterpreting(datum) && <FloatingIconButton icon='trash' onClick={() => onDelete([datum])} />}
         </div>
@@ -112,6 +128,7 @@ ActivityActionsColumn.propTypes = {
     onReinterpret: PropTypes.func.isRequired,
     onToggleValidation: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 ActivityActionsColumn.defaultProps = {

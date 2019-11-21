@@ -16,6 +16,8 @@ const activityFields = gql`
         validated,
         createdAt,
         updatedAt
+        message_id
+        conversation_id
     }
 `;
 

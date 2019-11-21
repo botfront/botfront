@@ -25,6 +25,14 @@ const model = new Schema({
         type: Date,
         default: Date.now,
     },
+    message_id: {
+        type: String,
+        required: false,
+    },
+    conversation_id: {
+        type: String,
+        required: false,
+    },
 });
 
 module.exports = mongoose.model('Activity', model, 'activity');
