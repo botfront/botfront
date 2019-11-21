@@ -20,6 +20,7 @@ import ActivityInsertions from '../nlu/activity/ActivityInsertions';
 import ConversationBrowser from '../conversations/ConversationsBrowser';
 import { setWorkingDeploymentEnvironment, setWorkingLanguage } from '../../store/actions/actions';
 import { updateIncomingPath } from './incoming.utils';
+import OutOfScope from '../nlu/activity/OutOfScope';
 
 class Incoming extends React.Component {
     state = {
@@ -75,6 +76,10 @@ class Incoming extends React.Component {
             {
                 menuItem: { content: 'Populate', key: 'populate', 'data-cy': 'populate' },
                 render: () => <ActivityInsertions model={model} instance={instance} />,
+            },
+            {
+                menuItem: { content: 'Out of Scope', key: 'oos', 'data-cy': 'oos' },
+                render: () => <OutOfScope project={project} model={model} instance={instance} entities={entities} intents={intents} linkRender={this.linkToEvaluation} />,
             },
         ];
     }

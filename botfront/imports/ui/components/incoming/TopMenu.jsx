@@ -22,11 +22,15 @@ const TopMenu = ({
             )}
         </Menu.Item>
         <Menu.Item header className='env-select'>
-            <EnvSelector
-                availableEnvs={projectEnvironments}
-                envChange={handleEnvChange}
-                value={selectedEnvironment}
-            />
+            {['oos', 'populate'].includes(tab) ? (
+                <></>
+            ) : (
+                <EnvSelector
+                    availableEnvs={projectEnvironments}
+                    envChange={handleEnvChange}
+                    value={selectedEnvironment}
+                />
+            )}
         </Menu.Item>
     </Menu>
 );
