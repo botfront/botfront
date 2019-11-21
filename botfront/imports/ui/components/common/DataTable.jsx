@@ -24,7 +24,7 @@ export default function DataTable(props) {
             );
         }
         return (
-            <div ref={ref} className='row' style={style}>
+            <div ref={ref} className='row' data-cy='utterance-row' style={style}>
                 {columns.map(c => (
                     <div key={`${c.key}-${index}`} className='item' style={c.style}>
                         {c.render

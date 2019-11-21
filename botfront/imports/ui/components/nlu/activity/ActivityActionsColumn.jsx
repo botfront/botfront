@@ -108,7 +108,7 @@ export default function ActivityActionsColumn(props) {
                 <Popup
                     className='dialogue-popup'
                     on='click'
-                    trigger={<Icon className='action-icon' name='comments viewOnHover' onClick={() => getConv()} />}
+                    trigger={<Icon data-cy='conversation-viewer' className='action-icon viewOnHover' name='comments' onClick={() => getConv()} />}
                 >
         
                     {!loading && convData && (<ConversationDialogueViewer tracker={convData.conversation.tracker} messageIdInView={datum.message_id} />)}

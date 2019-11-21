@@ -296,3 +296,32 @@ Cypress.Commands.add('train', () => {
     cy.wait(5000);
     cy.dataCy('train-button').should('not.have.class', 'disabled');
 });
+
+Cypress.Commands.add('addConversation', (projectId, id, conversation) => {
+    let url = `http://localhost:8080/project/${projectId}/conversations/${id}/insert?api-key=`;
+    if (Cypress.env('API_URL') !== '') {
+        url = `${Cypress.env('API_URL')}/project/${projectId}/conversations/${id}/insert?api-key=`;
+    }
+    
+    cy.request({
+        method: 'POST',
+        url,
+        headers: { 'Content-Type': 'application/json' },
+        body: conversation,
+    });
+});
+
+
+Cypress.Commands.add('updateConversation', (projectId, id, conversation) => {
+    let url = `http://localhost:8080/project/${projectId}/conversations/${id}/update?api-key=`;
+    if (Cypress.env('API_URL') !== '') {
+        url = `${Cypress.env('API_URL')}/project/${projectId}/conversations/${id}/update?api-key=`;
+    }
+    
+    cy.request({
+        method: 'POST',
+        url,
+        headers: { 'Content-Type': 'application/json' },
+        body: conversation,
+    });
+});
