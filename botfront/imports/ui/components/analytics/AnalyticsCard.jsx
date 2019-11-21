@@ -144,7 +144,7 @@ function AnalyticsCard(props) {
                 ...variables, ...exportQueryParams, nBuckets: nBucketsForExport,
             },
         });
-        const csvData = generateCSV(completeDataset, { ...queryParams, ...exportQueryParams }, bucketSize);
+        const csvData = generateCSV(completeDataset, { ...queryParams, ...exportQueryParams }, bucketSize, graphParams);
         const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
         saveAs(csvBlob, `${cardName}.csv`);
     };

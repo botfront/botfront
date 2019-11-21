@@ -72,11 +72,11 @@ function AnalyticsDashboard(props) {
             graphParams: {
                 x: 'duration',
                 y: [{ abs: 'count', rel: 'frequency' }],
-                formats: {
-                    duration: v => `${v} s`,
-                },
+                // formats: {
+                //     duration: v => `${v}s`,
+                // },
                 columns: [
-                    { header: 'Duration', accessor: 'duration' },
+                    { header: 'Duration (seconds)', accessor: 'duration' },
                     { header: 'Count', accessor: 'count' },
                     { header: 'Frequency', accessor: 'frequency' },
                 ],

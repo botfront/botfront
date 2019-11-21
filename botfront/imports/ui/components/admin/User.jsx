@@ -63,6 +63,7 @@ class User extends React.Component {
 
     renderRoles = () => {
         const { projectOptions } = this.props;
+        console.log(projectOptions);
         return (
             <ListField name='roles'>
                 <ListItemField name='$'>

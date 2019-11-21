@@ -3,12 +3,17 @@ import PropTypes from 'prop-types';
 import ReactTable, { ReactTableDefaults } from 'react-table';
 import moment from 'moment';
 
+import { formatDataForTable } from '../../../lib/graphs';
+
+
 const Table = (props) => {
     const {
-        data,
+        data: incomingData,
         columns,
         bucketSize,
     } = props;
+
+    const data = formatDataForTable(incomingData);
     
     const renderCell = (cellProps, accessor, options) => {
         const cellContent = cellProps.original[accessor];

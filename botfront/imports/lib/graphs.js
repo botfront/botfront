@@ -1,5 +1,16 @@
 import moment from 'moment';
 
+export const formatDataForTable = (data) => {
+    let formattedData = data;
+    if (data && data[0] && data[0].duration) {
+        formattedData = formattedData.map(dataElem => ({
+            ...dataElem,
+            duration: dataElem.duration.replace(/s/g, ''),
+        }));
+    }
+    return formattedData;
+};
+
 const xTickFilter = (data, nTicksIncoming) => {
     const maxTicks = 7;
     const nTicks = nTicksIncoming > maxTicks ? maxTicks : nTicksIncoming;
@@ -48,8 +59,32 @@ export const calculateTemporalBuckets = (startDate, endDate, chartType) => {
     return { nTicks: 7, nBuckets: Math.floor(+nDays.toFixed(0) / 7), bucketSize: 'week' };
 };
 
-export const formatData = (data, queryParams, bucketSize) => {
+const formatDuration = (data) => {
+    const formattedData = data.map((dataElem, index) => {
+        if (index === data.length - 1) {
+            return {
+                ...dataElem,
+                duration: `> ${dataElem.duration}s`,
+            };
+        }
+        if (index === 0) {
+            return {
+                ...dataElem,
+                duration: `< ${data[1].duration}s`,
+            };
+        }
+        return {
+            ...dataElem,
+            duration: `${dataElem.duration}s < ${data[index + 1].duration}s`,
+        };
+    });
+    return formattedData;
+};
+
+export const formatData = (data, queryParams, bucketSize, graphParams) => {
+    const { formats } = graphParams;
     let formattedData = data[queryParams.queryName];
+    if (formattedData[0] && formattedData[0].duration) formattedData = formatDuration(formattedData, formats);
     if (queryParams.temporal) formattedData = formatDateBuckets(formattedData, bucketSize);
     return formattedData;
 };
@@ -57,7 +92,7 @@ export const formatData = (data, queryParams, bucketSize) => {
 export const getDataToDisplayAndParamsToUse = ({
     data, queryParams, graphParams, valueType, bucketSize, nTicks,
 }) => {
-    const dataToDisplay = formatData(data, queryParams, bucketSize);
+    const dataToDisplay = formatData(data, queryParams, bucketSize, graphParams);
     let paramsToUse = valueType === 'relative'
         ? {
             ...graphParams,
@@ -76,23 +111,30 @@ export const getDataToDisplayAndParamsToUse = ({
     return { dataToDisplay, paramsToUse };
 };
 
-export const generateCSV = (data, queryParams, bucketSize) => {
-    let formattedData = formatData(data, queryParams, bucketSize);
+export const generateCSV = (data, queryParams, bucketSize, graphParams) => {
+    let formattedData = formatData(data, queryParams, bucketSize, graphParams);
+    formattedData = formatDataForTable(formattedData);
     formattedData = formattedData.map(((elem) => {
-        const { __typename, ...rest } = elem; // __typename is not exported
-        if (queryParams.temporal) { // rest.bucket is a date
+        const { __typename, bucket, ...rest } = elem; // __typename is not exported
+        let formattedElem = rest;
+        if (queryParams.temporal) { // bucket is a date
             if (bucketSize === 'day') {
-                rest.date = moment(rest.bucket).format('DD/MM/YYYY');
+                formattedElem = {
+                    date: moment(bucket).format('DD/MM/YYYY'),
+                    ...rest,
+                };
             }
             if (bucketSize === 'hour') {
-                rest.time = `${moment(rest.bucket).toISOString()} - ${moment(rest.bucket).add(1, 'hour').subtract(1, 'millisecond').toISOString()}`;
+                formattedElem = {
+                    time: `${moment(bucket).toISOString()} - ${moment(bucket).add(1, 'hour').subtract(1, 'millisecond').toISOString()}`,
+                    ...rest,
+                };
             }
             if (bucketSize === 'week') {
-                rest.date = moment(rest.bucket).format('DD/MM/YYYY');
+                rest.date = moment(bucket).format('DD/MM/YYYY');
             }
-            delete rest.bucket;
         }
-        return rest;
+        return formattedElem;
     }));
     const csvKeys = Object.keys(formattedData[0]).join();
     const csvValues = formattedData
