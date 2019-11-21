@@ -177,6 +177,12 @@ export const getConversations = async (
     ];
     
     const paginatedResults = await Conversations.aggregate(aggregation);
+    if (paginatedResults[0].conversations.length < 1) {
+        return ({
+            conversations: [],
+            pages: 0,
+        });
+    }
     return ({
         conversations: paginatedResults[0].conversations,
         pages: Math.ceil(paginatedResults[0].pages[0].numberOfDocuments / pageSize),

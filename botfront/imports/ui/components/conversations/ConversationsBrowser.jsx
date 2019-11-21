@@ -200,10 +200,10 @@ ConversationsBrowser.propTypes = {
 };
 
 ConversationsBrowser.defaultProps = {
+    trackers: [],
     activeConversationId: null,
     activeFilters: {},
     actionsOptions: [],
-    trackers: [],
 };
 
 const ConversationsBrowserContainer = (props) => {
@@ -240,6 +240,7 @@ const ConversationsBrowserContainer = (props) => {
         );
     }, []);
 
+
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
@@ -267,7 +268,7 @@ const ConversationsBrowserContainer = (props) => {
 
 
     const componentProps = {
-        page, projectId, router, modelId: router.params.model_id, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions,
+        page, projectId, router, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions,
     };
 
     if (!loading && !error) {
@@ -275,7 +276,7 @@ const ConversationsBrowserContainer = (props) => {
 
         // If for some reason the conversation is not in the current page, discard it.
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
-        if (!activeConversationId) {
+        if (!activeConversationId && conversations.length > 0) {
             const url = updateIncomingPath({ ...router.params, page: page || 1, selected_id: conversations[0]._id });
             browserHistory.replace({ pathname: url });
         } else {
@@ -289,6 +290,7 @@ const ConversationsBrowserContainer = (props) => {
         Object.assign(componentProps, {
             projectId,
             page,
+            pages: 1,
             modelId: router.params.model_id,
         });
     }

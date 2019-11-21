@@ -358,7 +358,29 @@ export default class ActivityDataTable extends React.Component {
     sortUtterances = () => {
         const { sortBy } = this.props;
         const { utterances } = this.props;
-        if (sortBy === 'newest') {
+        const filter = this.scrapFilter();
+        const { entities, intents, query } = filter;
+        let filtered = utterances.filter((e) => {
+            if (!e.entities) e.entities = [];
+            const intentOk = intents.length === 0 || difference([e.intent], intents).length === 0;
+            const entitiesOk = !!e.entities
+                && difference(entities, e.entities.map(ent => ent.entity)).length === 0;
+            const { onlyCanonical } = this.state;
+            const canonicalOk = onlyCanonical ? e.canonical : true;
+            return intentOk && entitiesOk && canonicalOk;
+        });
+        if (query) {
+            let matchCriteria = { keys: ['text', 'intent'] };
+            if (includeSynonyms(query)) matchCriteria = { keys: ['text', 'intent', 'extra'] };
+            filtered = matchSorter(filtered, _cleanQuery(query), matchCriteria);
+        }
+        return filtered;
+    }
+
+    getSortedUtterances = () => {
+        const { sortBy } = this.props;
+        const utterances = this.filterUtterances();
+        if (sortBy === 'mostRecent') {
             return utterances.sort(({ createdAt: dateA }, { createdAt: dateB }) => (
                 new Date(dateB) - new Date(dateA)
             ));
