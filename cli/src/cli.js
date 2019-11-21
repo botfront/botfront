@@ -107,9 +107,9 @@ program
     
 async function openDocs() {
     const spinner = ora()
-    spinner.start(`Opening ${chalk.green.bold('https://docs.botfront.io')} in your browser...`)
+    spinner.start(`Opening ${chalk.green.bold('https://botfront.io/docs')} in your browser...`)
     await wait(2000);
-    await open('https://docs.botfront.io')
+    await open('https://botfront.io/docs')
     spinner.succeed('Done')
     console.log('\n');
 }

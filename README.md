@@ -26,7 +26,7 @@ npm install -g botfront
 Then just run  `botfront` to get started, and select an option from the contextual menu.
 
 ### Getting help
-- [Read the documentation](https://docs.botfront.io)
+- [Read the documentation](https://botfront.io/docs)
 - Get answers on the [Spectrum community](https://spectrum.chat/botfront)
 
 ### License

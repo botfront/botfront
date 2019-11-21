@@ -20,7 +20,7 @@ export const publicSettingsSchema = new SimpleSchema({
         type: String, custom: validateYaml, optional: true, defaultValue: '',
     },
     chitChatProjectId: { type: String, optional: true },
-    docUrl: { type: String, defaultValue: 'https://docs.botfront.io' },
+    docUrl: { type: String, defaultValue: 'https://botfront.io/docs' },
     backgroundImages: { type: Array, defaultValue: [] },
     'backgroundImages.$': { type: String },
 });
