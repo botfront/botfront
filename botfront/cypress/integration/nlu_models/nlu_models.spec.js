@@ -24,7 +24,7 @@ describe('NLU Models ', function() {
         cy.get('[data-cy=example-text-editor-input]').should('exist');
         cy.get('[data-cy=model-selector]').click();
         cy.get('[data-cy=model-selector] input').type('French{enter}');
-        cy.get('.nlu-menu-settings').click();
+        cy.dataCy('nlu-menu-settings').click();
         cy.contains('Delete').click();
         cy.get('.dowload-model-backup-button').click();
         cy.get('.delete-model-button').click();
@@ -48,7 +48,7 @@ describe('NLU Models ', function() {
 
         // Try to delete the default model
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-settings').click();
+        cy.dataCy('nlu-menu-settings').click();
         cy.contains('Delete').click();
         cy.get('.dowload-model-backup-button').click();
         cy.get('.delete-model-button').should('not.exist');
