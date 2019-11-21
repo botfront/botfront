@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DynamicSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
@@ -37,8 +37,16 @@ export default function DataTable(props) {
         );
     });
 
+    const tableRef = useRef(null);
+    const [correction, setCorrection] = useState();
+    const tableOffsetTop = tableRef && tableRef.current
+        ? tableRef.current.offsetTop
+        : 0;
+
+    useEffect(() => setCorrection(tableOffsetTop + 40), [tableOffsetTop]);
+
     return (
-        <div className='virtual-table'>
+        <div className='virtual-table' ref={tableRef} style={{ height: `calc(100vh - ${correction}px)` }}>
             <div className='header row'>
                 {columns.map(c => (
                     <div key={`${c.key}-header`} className='item' style={c.style}>
