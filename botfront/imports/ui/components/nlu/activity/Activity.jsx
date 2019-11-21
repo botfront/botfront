@@ -170,7 +170,7 @@ function Activity(props) {
             header: 'Example', key: 'text', style: { width: '100%' }, render: renderExample,
         },
         {
-            header: 'Actions', key: 'actions', style: { width: '110px' }, render: renderActions,
+            header: 'Actions', key: 'actions', style: { width: '150px' }, render: renderActions,
         },
     ];
 
