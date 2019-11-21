@@ -19,7 +19,6 @@ type ActivityPage {
 type Mutation {
   upsertActivity(modelId: String!, data: [ActivityInput!]!): [Activity!]
   deleteActivity(modelId: String!, ids: [String!]!): [Activity!]
-  addActivityToTraining(modelId: String!, ids: [String!]!): [Activity!]
 }
 
 input ActivityInput {

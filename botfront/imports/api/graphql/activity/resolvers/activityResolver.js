@@ -2,7 +2,6 @@ import {
     getActivity,
     upsertActivity,
     deleteActivity,
-    addActivityToTraining,
 } from '../mongo/activity';
 
 export default {
@@ -30,7 +29,6 @@ export default {
     Mutation: {
         upsertActivity: async (_root, args) => upsertActivity(args),
         deleteActivity: async (_root, args) => deleteActivity(args),
-        addActivityToTraining: async (_root, args) => addActivityToTraining(args),
     },
 
     Activity: {

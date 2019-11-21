@@ -43,18 +43,3 @@ mutation (
     }
 }
 `;
-
-export const addActivityToTraining = gql`
-mutation (
-    $modelId: String!,
-    $ids: [String!]!
-) {
-    addActivityToTraining(
-        modelId: $modelId,
-        ids: $ids,
-    ) {
-        _id,
-        __typename
-    }
-}
-`;
