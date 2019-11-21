@@ -6,13 +6,13 @@ import {
     Message, Segment, Popup, Button, Icon,
 } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
-import IntentViewer from '../models/IntentViewer';
+import IntentViewer from './IntentViewer';
 import NLUExampleText from '../../example_editor/NLUExampleText';
-import { useActivity } from './hooks';
+import { useActivity } from '../activity/hooks';
 import {
     upsertActivity as upsertActivityMutation,
     deleteActivity as deleteActivityMutation,
-} from './mutations';
+} from '../activity/mutations';
 
 import DataTable from '../../common/DataTable';
 
