@@ -2,6 +2,7 @@
 
 describe('incoming page', function() {
     beforeEach(function() {
+        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
@@ -11,8 +12,68 @@ describe('incoming page', function() {
 
     afterEach(function() {
         cy.logout();
-        cy.deleteProject('bf');
     });
+
+    const conversationToAdd = {
+        sender_id: 'test',
+        slots: {
+            disambiguation_message: null,
+        },
+        latest_message: {
+            intent: {},
+            entities: [],
+            text: null,
+            message_id: null,
+            metadata: null,
+        },
+        latest_event_time: 1573490208.456171,
+        followup_action: null,
+        paused: false,
+        events: [
+            {
+                event: 'action',
+                timestamp: 1573490208.294734,
+                name: 'action_listen',
+                policy: null,
+                confidence: null,
+            }],
+        latest_input_channel: 'webchat',
+        active_form: {},
+        latest_action_name: 'action_listen',
+    };
+
+
+    const conversationUpdate = {
+        latest_message: {
+            intent: {},
+            entities: [],
+            text: null,
+            message_id: null,
+            metadata: null,
+        },
+        events: [
+            {
+                event: 'user',
+                timestamp: 1573490208.4083405,
+                text: 'test conv link',
+                parse_data: {
+                    intent: {
+                        name: null,
+                        confidence: 0,
+                    },
+                    entities: [],
+                    language: 'en',
+                    intent_ranking: [],
+                    text: 'test conv link',
+                },
+                input_channel: 'webchat',
+                message_id: '451e0d9d8b494c5aafae0f4ae923004f',
+                metadata: null,
+            }],
+        latest_input_channel: 'webchat',
+        active_form: {},
+        latest_action_name: 'action_listen',
+    };
 
     const addNewUtterances = () => {
     // add utterances with populate
@@ -163,12 +224,24 @@ describe('incoming page', function() {
             .click()
             .find('.item')
             .contains('Invalidate')
-            .click({ force: true }); 
+            .click({ force: true });
         cy.get('.dimmer')
             .find('button')
             .contains('OK')
             .click({ force: true });
         cy.dataCy('valid-utterance-button')
             .should('not.exist');
+    });
+
+    it('should be possible to view the conversation from the utterance', function() {
+        cy.addConversation('bf', 'test', JSON.stringify(conversationToAdd));
+        cy.updateConversation('bf', 'test', JSON.stringify(conversationUpdate));
+
+        cy.visit('/project/bf/incoming');
+        cy.wait(500); // wait for page to be ready before trying to hover the row
+        cy.dataCy('utterance-row').trigger('mouseover');
+        cy.dataCy('conversation-viewer').first().click({ force: true });
+        cy.get('.popup').should('exist');
+        cy.get('.popup').should('contains.text', 'test conv link');
     });
 });
