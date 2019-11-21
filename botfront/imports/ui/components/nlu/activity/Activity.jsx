@@ -10,7 +10,6 @@ import { useActivity } from './hooks';
 import {
     upsertActivity as upsertActivityMutation,
     deleteActivity as deleteActivityMutation,
-    addActivityToTraining as addActivityToTrainingMutation,
 } from './mutations';
 
 import { populateActivity } from './ActivityInsertions';
@@ -53,15 +52,15 @@ function Activity(props) {
 
     const [upsertActivity] = useMutation(upsertActivityMutation);
     const [deleteActivity] = useMutation(deleteActivityMutation);
-    const [addActivityToTraining] = useMutation(addActivityToTrainingMutation);
 
     const isUtteranceOutdated = ({ updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
     const isUtteranceReinterpreting = ({ _id }) => reinterpreting.includes(_id);
 
     const validated = data.filter(a => a.validated);
 
-    const handleAddToTraining = async (ids) => {
-        await addActivityToTraining({ variables: { modelId, ids } });
+    const handleAddToTraining = async (utterances) => {
+        await Meteor.call('nlu.insertExamples', modelId, utterances);
+        await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
         refetch();
     };
 
@@ -181,7 +180,7 @@ function Activity(props) {
                     <ActivityActions
                         onEvaluate={linkRender}
                         onDelete={() => handleDelete(validated.map(u => u._id))}
-                        onAddToTraining={() => handleAddToTraining(validated.map(u => u._id))}
+                        onAddToTraining={() => handleAddToTraining(validated)}
                         onInvalidate={() => handleUpdate(validated.map(({ _id, validated: v }) => ({ _id, validated: !v })))}
                         numValidated={validated.length}
                         projectId={projectId}

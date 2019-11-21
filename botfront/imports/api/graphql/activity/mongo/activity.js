@@ -35,19 +35,3 @@ export const deleteActivity = async ({ modelId, ids }) => {
     if (response.ok) return ids.map(_id => ({ _id }));
     return [];
 };
-
-export const addActivityToTraining = async ({ modelId, ids }) => {
-    try {
-        const examples = await Activity.find(
-            { modelId, _id: { $in: ids } },
-            {
-                _id: 1, text: 1, intent: 1, canonical: 1, entities: 1,
-            },
-        ).lean();
-        await Meteor.call('nlu.insertExamples', modelId, examples);
-        await Activity.remove({ modelId, _id: { $in: ids } }).exec();
-        return ids.map(_id => ({ _id }));
-    } catch (e) {
-        return [];
-    }
-};
