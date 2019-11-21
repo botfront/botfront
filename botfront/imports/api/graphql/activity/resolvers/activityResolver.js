@@ -19,7 +19,7 @@ export default {
             return {
                 activity,
                 pageInfo: {
-                    endCursor: activity[activity.length - 1]._id,
+                    endCursor: activity.length ? activity[activity.length - 1]._id : '',
                     hasNextPage: cursorIndex + pageSize < data.length,
                 },
             };
