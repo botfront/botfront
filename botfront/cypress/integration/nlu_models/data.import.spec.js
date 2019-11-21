@@ -14,7 +14,7 @@ describe('training data import', function() {
 
     it('should import training data', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-settings').click();
+        cy.dataCy('nlu-menu-settings').click();
         cy.contains('Import').click();
         cy.fixture('nlu_import.json', 'utf8').then((content) => {
             cy.get('.file-dropzone').upload(content, 'data.json');
