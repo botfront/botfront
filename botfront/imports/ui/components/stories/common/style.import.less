@@ -149,7 +149,7 @@
 }
 
 .responses-container {
-    width: 40rem;
+    width: 44rem;
     display: inline-flex;
     position: relative;
     flex-direction: column;
@@ -166,7 +166,8 @@
     }
 
     .utterance-container {
-        width: 100%;
+        max-width: 80%;
+        min-width: 80%;
         color: #212121;
         .inner{
             width: 100%;
@@ -217,15 +218,18 @@
     }
     
     .response-name {
-        color: @grey;
-        font-size: @mini;
+        color: #767676;
+        font-size: 0.78571429rem;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.1s ease-in-out;
         padding-left: 5px;
-        width: 95px;
+        position: relative;
+        width: 135px;
         text-overflow: ellipsis;
         overflow: hidden;
+        bottom: -19px;
+        right: -3px;
     }
 
     .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border
