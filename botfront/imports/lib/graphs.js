@@ -30,6 +30,28 @@ const dateFormatDictionary = {
     week: '%d/%m',
 };
 
+const matchOption = (object, options) => {
+    if (!object) return undefined;
+    const validOptions = options.filter(option => option in object);
+    return object[validOptions[0]] || object.default;
+};
+
+const formatAxisTitles = (
+    {
+        axisTitleX, axisTitleY, unitX, unitY,
+    },
+    options,
+) => {
+    const titleTextX = axisTitleX ? matchOption(axisTitleX, options) : '';
+    const titleTextY = axisTitleY ? matchOption(axisTitleY, options) : '';
+    const unitTextX = unitX && matchOption(unitX, options);
+    const unitTextY = unitY && matchOption(unitY, options);
+    return {
+        x: { legend: `${titleTextX}${unitTextX ? ` (${unitTextX})` : ''}` },
+        y: { legend: `${titleTextY}${unitTextY ? ` (${unitTextY})` : ''}` },
+    };
+};
+
 const formatDateBuckets = (data, bucketSize) => data
     .map((c) => {
         if (bucketSize === 'day') {
@@ -68,18 +90,18 @@ const formatDuration = (data, { cutoffs }) => {
         if (parseInt(dataElem.duration, 10) === cutoffs[cutoffs.length - 1]) {
             return {
                 ...dataElem,
-                duration: `> ${dataElem.duration}s`,
+                duration: `> ${dataElem.duration}`,
             };
         }
         if (parseInt(dataElem.duration, 10) === 0) {
             return {
                 ...dataElem,
-                duration: `< ${findDurationEnd(dataElem.duration, cutoffs)}s`,
+                duration: `< ${findDurationEnd(dataElem.duration, cutoffs)}`,
             };
         }
         return {
             ...dataElem,
-            duration: `${dataElem.duration}s < ${findDurationEnd(dataElem.duration, cutoffs)}s`,
+            duration: `${dataElem.duration} < ${findDurationEnd(dataElem.duration, cutoffs)}`,
         };
     });
     return formattedData;
@@ -96,21 +118,31 @@ export const getDataToDisplayAndParamsToUse = ({
     data, queryParams, graphParams, valueType, bucketSize, nTicks,
 }) => {
     const dataToDisplay = formatData(data, queryParams, bucketSize, graphParams);
+    const axisTitles = formatAxisTitles(graphParams, [bucketSize, valueType]);
     let paramsToUse = valueType === 'relative'
         ? {
             ...graphParams,
             yScale: { type: 'linear', min: 0, max: 100 },
-            axisLeft: { ...graphParams.axisLeft, legend: `${graphParams.axisLeft.legend} (%)` },
+            axisLeft: { ...graphParams.axisLeft },
             ...graphParams.rel,
         }
         : graphParams;
     paramsToUse = queryParams.temporal
         ? {
             ...paramsToUse,
-            axisBottom: { tickValues: xTickFilter(dataToDisplay, nTicks), format: dateFormatDictionary[bucketSize] },
+            axisBottom: {
+                ...(paramsToUse.axisBottom || {}),
+                tickValues: xTickFilter(dataToDisplay, nTicks),
+                format: dateFormatDictionary[bucketSize],
+            },
             xScale: { type: 'time', format: 'native' },
         }
         : paramsToUse;
+    paramsToUse = {
+        ...paramsToUse,
+        axisBottom: { ...paramsToUse.axisBottom, ...axisTitles.x },
+        axisLeft: { ...paramsToUse.axisLeft, ...axisTitles.y },
+    };
     return { dataToDisplay, paramsToUse };
 };
 

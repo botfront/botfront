@@ -41,8 +41,10 @@ function AnalyticsDashboard(props) {
                     { header: 'Count', accessor: 'count' },
                     { header: 'Frequency', accessor: 'frequency' },
                 ],
-                axisBottom: { legend: 'Length in Utterances', legendOffset: 36, legendPosition: 'middle' },
-                axisLeft: { legend: 'Number of Conversations', legendOffset: -46, legendPosition: 'middle' },
+                axisTitleX: { absolute: 'User Utterances' },
+                axisTitleY: { absolute: 'Number of Converesations' },
+                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
+                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
         intentFrequencies: {
@@ -57,16 +59,20 @@ function AnalyticsDashboard(props) {
             graphParams: {
                 x: 'name',
                 y: [{ abs: 'count', rel: 'frequency' }],
-                axisBottom: {
-                    tickRotation: -25,
-                    format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}`,
-                },
-                axisLeft: { legend: 'Number of Occurances', legendOffset: -46, legendPosition: 'middle' },
+
                 columns: [
                     { header: 'Name', accessor: 'name' },
                     { header: 'Count', accessor: 'count' },
                     { header: 'Frequency', accessor: 'frequency' },
                 ],
+                axisTitleY: { absolute: 'Number of Converesations' },
+                axisBottom: {
+                    tickRotation: -25,
+                    format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}`,
+                    legendOffset: 36,
+                    legendPosition: 'middle',
+                },
+                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
             },
         },
         conversationDurations: {
@@ -80,16 +86,19 @@ function AnalyticsDashboard(props) {
             graphParams: {
                 x: 'duration',
                 y: [{ abs: 'count', rel: 'frequency' }],
-                // formats: {
-                //     duration: v => `${v}s`,
-                // },
+                formats: {
+                    duration: v => `${v}s`,
+                },
                 columns: [
                     { header: 'Duration (seconds)', accessor: 'duration' },
                     { header: 'Count', accessor: 'count' },
                     { header: 'Frequency', accessor: 'frequency' },
                 ],
-                axisBottom: { legend: 'Duration (seconds)', legendOffset: 36, legendPosition: 'middle' },
-                axisLeft: { legend: 'Number of Conversations', legendOffset: -46, legendPosition: 'middle' },
+                axisTitleX: { absolute: 'Duration' },
+                axisTitleY: { absolute: 'Number of Converesations' },
+                unitX: { default: 'seconds' },
+                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
+                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
         fallbackCounts: {
@@ -113,7 +122,11 @@ function AnalyticsDashboard(props) {
                     { header: 'Proportion', accessor: 'proportion' },
                 ],
                 rel: { y: [{ abs: 'proportion' }] },
-                axisLeft: { legend: 'Fallbacks', legendOffset: -46, legendPosition: 'middle' },
+                axisTitleY: { absolute: 'Number of Fallbacks', relative: 'Fallback Ratio' },
+                axisTitleX: { day: 'Date', hour: 'Time' },
+                unitY: { relative: '%' },
+                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
+                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
         visitCounts: {
@@ -140,7 +153,11 @@ function AnalyticsDashboard(props) {
                     { header: 'Hits', accessor: 'hits' },
                     { header: 'Engagement', accessor: 'proportion' },
                 ],
-                axisLeft: { legend: 'Engagement Comparison', legendOffset: -46, legendPosition: 'middle' },
+                axisTitleY: { default: 'Visitor Engagement' },
+                axisTitleX: { day: 'Date', hour: 'Time' },
+                unitY: { relative: '%' },
+                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
+                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
     };
