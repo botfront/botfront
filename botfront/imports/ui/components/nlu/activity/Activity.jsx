@@ -177,7 +177,7 @@ function Activity(props) {
         },
     ];
 
-    const render = () => (
+    const renderTopBar = () => (
         <>
             <Segment.Group className='new-utterances-topbar' horizontal>
                 <Segment className='new-utterances-topbar-section' tertiary compact floated='left'>
@@ -204,22 +204,23 @@ function Activity(props) {
                     />
                 </Segment>
             </Segment.Group>
-            
             <br />
-            <DataTable
-                columns={columns}
-                data={data}
-                hasNextPage={hasNextPage}
-                loadMore={loading ? () => {} : loadMore}
-            />
         </>
     );
 
     return (
         <>
+            {renderTopBar()}
             {data && data.length
-                ? render()
-                : <Message success icon='check' header='Congratulations!' content='You are up to date' />
+                ? (
+                    <DataTable
+                        columns={columns}
+                        data={data}
+                        hasNextPage={hasNextPage}
+                        loadMore={loading ? () => {} : loadMore}
+                    />
+                )
+                : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
             }
         </>
     );
