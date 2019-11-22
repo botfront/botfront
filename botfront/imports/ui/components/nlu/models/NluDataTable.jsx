@@ -27,6 +27,7 @@ export default class NluDataTable extends React.Component {
             filter: {
                 intents: [],
                 entities: [],
+                query: '',
             },
             showLabels,
             onlyCanonical: false,
