@@ -68,14 +68,13 @@ function Activity(props) {
         refetch();
     };
 
-    const handleUpdate = async (d) => {
+    const handleUpdate = async (newData, rest) => {
+        // rest argument is to supress warnings caused by incomplete schema on optimistic response
         upsertActivity({
-            variables: { modelId, data: d },
+            variables: { modelId, data: newData },
             optimisticResponse: {
                 __typename: 'Mutation',
-                upsertActivity: {
-                    __typename: 'Activity', ...d[0],
-                },
+                upsertActivity: newData.map(d => ({ __typename: 'Activity', ...rest, ...d })),
             },
         });
     };
@@ -124,7 +123,7 @@ function Activity(props) {
                 intent={datum.intent || ''}
                 projectId={projectId}
                 enableReset
-                onSave={({ _id, intent }) => handleUpdate([{ _id, intent, confidence: null }])}
+                onSave={({ _id, intent, ...rest }) => handleUpdate([{ _id, intent, confidence: null }], rest)}
             />
         );
     };
@@ -136,10 +135,10 @@ function Activity(props) {
                 example={datum}
                 entities={entities}
                 showLabels
-                onSave={u => handleUpdate([{
-                    _id: u._id,
-                    entities: u.entities.map((e) => { delete e.__typename; e.confidence = null; return e; }),
-                }])}
+                onSave={({ _id, entities: ents, ...rest }) => handleUpdate([{
+                    _id,
+                    entities: ents.map((e) => { delete e.__typename; e.confidence = null; return e; }),
+                }], ...rest)}
                 editable={!isUtteranceOutdated(datum)}
                 disablePopup={isUtteranceOutdated(datum)}
                 projectId={projectId}
@@ -156,7 +155,7 @@ function Activity(props) {
             lang={lang}
             isUtteranceReinterpreting={isUtteranceReinterpreting}
             isUtteranceOutdated={isUtteranceOutdated}
-            onToggleValidation={u => handleUpdate([{ _id: u._id, validated: !u.validated }])}
+            onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
             onReinterpret={handleReinterpret}
             onDelete={utterances => handleDelete(utterances.map(u => u._id))}
         />
