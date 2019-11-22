@@ -13,7 +13,7 @@ Now that Botfront is installed you can expose your chatbot to end users. This gu
 
 ## Frontend: configure the widget
 
-Install the [Rasa Webchat](https://github.com/mrbot-ai/rasa-webchat) on your website. You will find installation instructions by following the link.
+Install the [Rasa Webchat](https://github.com/botfront/rasa-webchat) on your website. You will find installation instructions by following the link.
 It is very important to set the language you want to use, even if you only have one:
 
 ```javascript
@@ -61,7 +61,7 @@ All you have to do is create 2 different stories, one starting with `* get_start
 The **settings > credentials** screen lets you configure the channels that you want to support.
 
 ::: warning
-Botfront has specific features that are not natively supported by Rasa Core. It is multilingual, and bot responses support sequences of messages. For this reasons, native Rasa Core channels may not work. Botfront currently provides 1 channel to be used with the [Rasa Webchat](https://github.com/mrbot-ai/rasa-webchat) and Facebook Messenger is on the way.
+Botfront has specific features that are not natively supported by Rasa Core. For this reasons, native Rasa Core channels may not work. Botfront currently provides 1 channel to be used with the [Rasa Webchat](https://github.com/botfront/rasa-webchat) and Facebook Messenger is on the way.
 :::
 
 ## Webchat channel
