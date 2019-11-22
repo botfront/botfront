@@ -4,12 +4,13 @@ import Activity from '../activity.model.js';
 export const getActivity = async ({
     modelId,
     validated = false,
-    sortKey,
-    sortDesc,
+    sortKey = 'createdAt',
+    sortDesc = true,
+    filter = {},
 }) => {
     const onlyValidated = validated ? { validated: true } : {};
     const sort = `${sortDesc ? '-' : ''}${sortKey || ''}`;
-    const query = Activity.find({ modelId, ...onlyValidated })
+    const query = Activity.find({ modelId, ...onlyValidated });
     if (!sort) return query.lean();
     return query.sort(sort).lean();
 };
