@@ -1,16 +1,22 @@
 import {
     Button, Popup, Loader, Message, Icon,
 } from 'semantic-ui-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@apollo/react-hooks';
 import { useDrag, useDrop } from 'react-dnd-cjs';
+import moment from 'moment';
 import { calculateTemporalBuckets, getDataToDisplayAndParamsToUse } from '../../../lib/graphs';
 import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
 import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
 import SettingsPortal from './SettingsPortal';
+import { Projects } from '../../../api/project/project.collection';
+
+
+export const applyTimezoneOffset = (date, offset) => moment(date).utcOffset(offset, true);
+
 
 function AnalyticsCard(props) {
     const {
@@ -39,6 +45,14 @@ function AnalyticsCard(props) {
 
     const [settingsOpen, setSettingsOpen] = useState(false);
     const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate);
+    const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
+
+    useEffect(() => {
+        const {
+            timezoneOffset,
+        } = Projects.findOne({ _id: queryParams.projectId }, { fields: { timezoneOffset: 1 } });
+        setProjectTimezoneOffset(timezoneOffset);
+    }, []);
 
     const [, drag] = useDrag({
         item: { type: 'card', cardName },
@@ -55,12 +69,13 @@ function AnalyticsCard(props) {
             }
         },
     });
+    
 
     const variables = {
         projectId: queryParams.projectId,
         envs: queryParams.envs,
-        from: startDate.valueOf() / 1000,
-        to: endDate.valueOf() / 1000,
+        from: applyTimezoneOffset(startDate, projectTimezoneOffset).valueOf() / 1000,
+        to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
         ...(exclude ? { exclude } : {}),
         fallbacks: responses || [],
         nBuckets,
