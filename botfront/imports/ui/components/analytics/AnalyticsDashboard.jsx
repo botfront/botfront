@@ -68,7 +68,7 @@ function AnalyticsDashboard(props) {
             title: 'Conversation Duration',
             titleDescription: 'The number of seconds elapsed between the first and the last message of a conversation.',
             queryParams: {
-                projectId, envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180]
+                projectId, envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180],
             },
             query: conversationDurations,
             graphParams: {
