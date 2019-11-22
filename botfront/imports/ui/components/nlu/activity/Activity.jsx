@@ -27,6 +27,10 @@ function Activity(props) {
             return { sortKey: 'createdAt', sortDesc: true };
         case 'Oldest':
             return { sortKey: 'createdAt', sortDesc: false };
+        case '% ascending':
+            return { sortKey: 'confidence', sortDesc: false };
+        case '% decending':
+            return { sortKey: 'confidence', sortDesc: true };
         default:
             throw new Error('No such sort type');
         }
@@ -193,6 +197,8 @@ function Activity(props) {
                         options={[
                             { value: 'Newest', text: 'Newest' },
                             { value: 'Oldest', text: 'Oldest' },
+                            { value: '% ascending', text: '% ascending' },
+                            { value: '% decending', text: '% decending' },
                         ]}
                         prefix='Sort by'
                     />
