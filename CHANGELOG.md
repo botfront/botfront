@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.3](https://github.com/botfront/botfront/compare/v0.18.2...v0.18.3) (2019-11-22)
+
+
+### Bug Fixes
+
+* display update warnings for bot sequences ([6974bc0](https://github.com/botfront/botfront/commit/6974bc0))
+* export for Rasa: domain contains language information ([8330b23](https://github.com/botfront/botfront/commit/8330b23))
+
+
+### Tests
+
+* fixes visual edit tests  after removing sequences ([57f3748](https://github.com/botfront/botfront/commit/57f3748))
+
+
+
 ### [0.18.2](https://github.com/botfront/botfront/compare/v0.18.1...v0.18.2) (2019-11-18)
 
 
