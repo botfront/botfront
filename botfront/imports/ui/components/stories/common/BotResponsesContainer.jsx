@@ -6,7 +6,6 @@ import { Placeholder } from 'semantic-ui-react';
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import { ConversationOptionsContext } from '../../utils/Context';
 import BotResponseContainer from './BotResponseContainer';
-import { defaultTemplate } from './StoryVisualEditor';
 import ExceptionWrapper from './ExceptionWrapper';
 
 const BotResponsesContainer = (props) => {
@@ -22,7 +21,6 @@ const BotResponsesContainer = (props) => {
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
     const [template, setTemplate] = useState(null);
-    const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
 
     const getSequence = () => {
@@ -64,15 +62,6 @@ const BotResponsesContainer = (props) => {
         });
     }, [language]);
 
-    const handleCreateReponse = (index, responseType) => {
-        const newSequence = [...getSequence()];
-        newSequence.splice(index + 1, 0, {
-            content: yamlDump(defaultTemplate(responseType)),
-        });
-        setFocus(index + 1);
-        setSequence(newSequence);
-    };
-
     const handleDeleteResponse = (index) => {
         const newSequence = [...getSequence()];
         newSequence.splice(index, 1);
@@ -97,14 +86,6 @@ const BotResponsesContainer = (props) => {
         if (enter) addNewResponse();
         return true;
     };
-
-    useEffect(() => {
-        if (toBeCreated || toBeCreated === 0) {
-            handleCreateReponse(toBeCreated, 'text');
-            setToBeCreated(null);
-        }
-    }, [toBeCreated]);
-
 
     const renderResponse = (response, index, sequenceArray) => {
         const content = yamlLoad(response.content);
