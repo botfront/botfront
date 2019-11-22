@@ -220,7 +220,7 @@ describe('analytics tables', function() {
         });
     });
 
-    // RE-ENABLE THIS TEST WHEN NULL INTENT IS REMOVED
+    
     it('should display the correct data in the top 10 intents  table', function() {
         cy.visit('/project/bf/analytics');
         cy.pickDateRange(1, '5/11/2019', '4/11/2019');
@@ -228,6 +228,7 @@ describe('analytics tables', function() {
         ExpectedCellData.topIntents.forEach((cellData) => {
             verifyCellData(cellData);
         });
+    // RE-ENABLE THIS TEST WHEN NULL INTENT IS REMOVED
     //     cy.get('.table-chart')
     //         .find('.rt-td')
     //         .each((element) => {
