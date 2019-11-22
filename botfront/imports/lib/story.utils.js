@@ -247,7 +247,15 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
     return domains;
 };
 
-const getAllTemplates = (projectId) => {
+const filterTemplatesByLanguage = (templates, language) => {
+    const filteredTemplates = templates;
+    Object.keys(filteredTemplates).forEach((key) => {
+        filteredTemplates[key] = templates[key][language];
+    });
+    return filteredTemplates;
+};
+
+const getAllTemplates = (projectId, language = '') => {
     // fetches templates and turns them into nested key-value format
     let { templates } = Projects.findOne(
         { _id: projectId },
@@ -260,10 +268,13 @@ const getAllTemplates = (projectId) => {
             [v.lang]: v.sequence.map(seq => yaml.safeLoad(seq.content)),
         }), {}),
     }), {});
+    if (language && language.length > 0) {
+        templates = filterTemplatesByLanguage(templates, language);
+    }
     return templates;
 };
 
-export const getStoriesAndDomain = (projectId) => {
+export const getStoriesAndDomain = (projectId, language) => {
     let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
     defaultDomain = yaml.safeLoad(defaultDomain.content);
 
@@ -295,7 +306,7 @@ export const getStoriesAndDomain = (projectId) => {
         .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
 
-    const templates = getAllTemplates(projectId);
+    const templates = getAllTemplates(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     return {
         stories: storiesForRasa.join('\n'),
