@@ -2,42 +2,80 @@
 const ExpectedCellData = {
     conversationLength: [
         {
-            table: 0, row: 0, column: 0, contents: 0,
+            table: 0, row: 0, column: 0, contents: 1,
         },
         {
             table: 0, row: 0, column: 1, contents: 1,
         },
         {
-            table: 0, row: 0, column: 2, contents: '33%',
+            table: 0, row: 0, column: 2, contents: '25%',
         },
         {
-            table: 0, row: 1, column: 0, contents: 1,
+            table: 0, row: 1, column: 0, contents: 2,
         },
         {
-            table: 0, row: 1, column: 1, contents: 1,
+            table: 0, row: 1, column: 1, contents: 2,
         },
         {
-            table: 0, row: 1, column: 2, contents: '33%',
+            table: 0, row: 1, column: 2, contents: '50%',
         },
         {
-            table: 0, row: 2, column: 0, contents: 19,
+            table: 0, row: 2, column: 0, contents: 3,
         },
         {
             table: 0, row: 2, column: 1, contents: 1,
         },
         {
-            table: 0, row: 2, column: 2, contents: '33%',
+            table: 0, row: 2, column: 2, contents: '25%',
+        },
+    ],
+    topIntents: [
+        {
+            table: 0, row: 0, column: 0, contents: 'test1',
+        },
+        {
+            table: 0, row: 0, column: 1, contents: 5,
+        },
+        {
+            table: 0, row: 0, column: 2, contents: '62.5%',
+        },
+        {
+            table: 0, row: 1, column: 0, contents: 'test2',
+        },
+        {
+            table: 0, row: 1, column: 1, contents: 2,
+        },
+        {
+            table: 0, row: 1, column: 2, contents: '25%',
         },
     ],
     conversationDuration: [
         {
-            table: 0, row: 0, column: 0, contents: 0,
+            table: 0, row: 0, column: 0, contents: '< 30',
         },
         {
-            table: 0, row: 0, column: 1, contents: 3,
+            table: 0, row: 0, column: 1, contents: 1,
         },
         {
-            table: 0, row: 0, column: 2, contents: '100%',
+            table: 0, row: 0, column: 2, contents: '25%',
+        },
+        {
+            table: 0, row: 1, column: 0, contents: '120 < 180',
+        },
+        {
+            table: 0, row: 1, column: 1, contents: 2,
+        },
+        {
+            table: 0, row: 1, column: 2, contents: '50%',
+        },
+        {
+            table: 0, row: 2, column: 0, contents: '> 180',
+        },
+        {
+            table: 0, row: 2, column: 1, contents: 1,
+        },
+        {
+            table: 0, row: 2, column: 2, contents: '25%',
         },
     ],
     fallbackHourly: [
@@ -49,6 +87,15 @@ const ExpectedCellData = {
         },
         {
             table: 0, row: 0, column: 2, contents: '0%',
+        },
+        {
+            table: 0, row: 16, column: 0, contents: '16:00 - 16:59',
+        },
+        {
+            table: 0, row: 16, column: 1, contents: 1,
+        },
+        {
+            table: 0, row: 16, column: 2, contents: '50%',
         },
     ],
     fallbackThreeDay: [
@@ -65,10 +112,10 @@ const ExpectedCellData = {
             table: 0, row: 1, column: 0, contents: '04/11/2019',
         },
         {
-            table: 0, row: 1, column: 1, contents: 0,
+            table: 0, row: 1, column: 1, contents: 1,
         },
         {
-            table: 0, row: 1, column: 2, contents: '0%',
+            table: 0, row: 1, column: 2, contents: '25%',
         },
         {
             table: 0, row: 2, column: 0, contents: '05/11/2019',
@@ -117,10 +164,10 @@ const ExpectedCellData = {
             table: 0, row: 15, column: 0, contents: '15:00 - 15:59',
         },
         {
-            table: 0, row: 15, column: 1, contents: 12,
+            table: 0, row: 15, column: 1, contents: 1,
         },
         {
-            table: 0, row: 15, column: 2, contents: 12,
+            table: 0, row: 15, column: 2, contents: 1,
         },
         {
             table: 0, row: 15, column: 3, contents: '100%',
@@ -174,17 +221,19 @@ describe('analytics tables', function() {
     });
 
     // RE-ENABLE THIS TEST WHEN NULL INTENT IS REMOVED
-    // it('should display the correct data in the top 10 intents  table', function() {
-    //     cy.visit('/project/bf/analytics');
-    //     cy.pickDateRange(1, '5/11/2019', '4/11/2019');
-    //     selectChartType('.table.icon', 1);
+    it('should display the correct data in the top 10 intents  table', function() {
+        cy.visit('/project/bf/analytics');
+        cy.pickDateRange(1, '5/11/2019', '4/11/2019');
+        selectChartType('.table.icon', 1);
+        ExpectedCellData.topIntents.forEach((cellData) => {
+            verifyCellData(cellData);
+        });
     //     cy.get('.table-chart')
     //         .find('.rt-td')
     //         .each((element) => {
     //                 cy.expect(element[0].childNodes[0].data.length).not.to.be.equal(0);
     //         });
-    // });
-
+    });
     it('should display the correct data in the conversation duration table', function() {
         cy.visit('/project/bf/analytics');
         cy.pickDateRange(2, '5/11/2019', '4/11/2019');
