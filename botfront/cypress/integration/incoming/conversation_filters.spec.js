@@ -33,9 +33,9 @@ describe('filters', function () {
             .type('75');
         cy.dataCy('action-filter')
             .find('.filter-dropdown')
-            .click('topLeft')
+            .click()
             .find('input')
-            .type('test{enter}');
+            .type('test{enter}{esc}');
         cy.dataCy('toggle-filters')
             .click();
         cy.get('.accordion.ui > .content').should('not.have.class', 'active');
@@ -60,9 +60,9 @@ describe('filters', function () {
             .type('75');
         cy.dataCy('action-filter')
             .find('.filter-dropdown')
-            .click('topLeft')
+            .click()
             .find('input')
-            .type('test{enter}');
+            .type('test{enter}{esc}');
         cy.dataCy('reset-filters').click();
         cy.dataCy('length-filter').find('input').should('have.value', '');
         cy.dataCy('confidence-filter').find('input').should('have.value', '');
@@ -79,7 +79,7 @@ describe('filters', function () {
             cy.wait(100);
             cy.dataCy('length-filter')
                 .find('input')
-                .type('2{enter}');
+                .type('2{enter}{esc}');
             cy.dataCy('apply-filters').click();
             cy.wait(100);
             cy.dataCy('conversation-item').should('have.text', 'len3');
@@ -130,6 +130,7 @@ describe('filters', function () {
             cy.dataCy('confidence-filter')
                 .find('input')
                 .type('75');
+                
             cy.dataCy('apply-filters').click();
             cy.wait(100);
             cy.dataCy('conversation-item').should('have.text', 'conf70');
@@ -149,7 +150,7 @@ describe('filters', function () {
                 .find('.filter-dropdown')
                 .click()
                 .find('input')
-                .type('action_test{enter}');
+                .type('action_test{enter}{esc}');
             cy.dataCy('apply-filters').click();
             cy.wait(100);
             cy.dataCy('conversation-item').should('have.text', 'test');
@@ -162,9 +163,9 @@ describe('filters', function () {
                 .click();
             cy.dataCy('action-filter')
                 .find('.filter-dropdown')
-                .click('topLeft')
+                .click()
                 .find('input')
-                .type('action_autre{enter}');
+                .type('action_autre{enter}{esc}');
             cy.dataCy('apply-filters').click();
             cy.wait(100);
             cy.dataCy('conversation-item').should('have.text', 'autre');
@@ -189,13 +190,13 @@ describe('filters', function () {
                 .find('.filter-dropdown')
                 .click()
                 .find('input')
-                .type('action_test{enter}');
+                .type('action_test{enter}{esc}');
             cy.dataCy('confidence-filter')
                 .find('input')
                 .type('75');
             cy.dataCy('length-filter')
                 .find('input')
-                .type('2{enter}');
+                .type('2{enter}{esc}');
             cy.dataCy('apply-filters').click();
             cy.dataCy('conversation-item').should('have.text', 'pass_all');
         });

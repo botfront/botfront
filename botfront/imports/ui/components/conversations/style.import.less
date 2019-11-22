@@ -19,21 +19,27 @@ div.bot-response-message {
   }
 }
 
+.grid .accordion.filter-accordion{
+  width: 100%;
+
+  .toggle-filters {
+    color: #2185d0;
+  }
+}
+
 .conversation-filter-container {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
   .conversation-filter {
+    padding: 0em 0.75em;
    
-    padding: 0.75em;
-    &.apply{
-      align-self: flex-end;
-      margin-bottom: 1.1rem;
+    &.actions{
+      flex-basis: 100%;
     }
-    &.reset{
-      margin-left: auto;
-      align-self: flex-end;
-      margin-bottom: 1.1rem;
+    
+    &.buttons{
+      margin-top: 1.1rem;
     }
     .dropdown.filter-dropdown {
       min-height: 30px;
@@ -135,7 +141,9 @@ div.bot-response-message {
       }
       &.filter-button {
         max-width: 20em;
+        margin-right: 0.7rem ;
         border-style: none;
+        display: inline;
       }
     }
   }

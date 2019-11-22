@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Segment, Input, Dropdown, Button, Accordion, Label,
+    Segment, Input, Dropdown, Button, Accordion, Label, Icon,
 } from 'semantic-ui-react';
 import momentPropTypes from 'react-moment-proptypes';
 import DatePicker from '../common/DatePicker';
@@ -54,8 +54,8 @@ const ConversationFilters = ({
     const numberOfActiveFilter = () => {
         let count = 0;
         // We check that the filter does not have their empty value and that they match the props ( meaning that they have been applied)
-        if (newLengthFilter.compare !== -1 && newLengthFilter.compare === lengthFilter) count += 1;
-        if (newConfidenceFilter.compare !== -1 && newConfidenceFilter.compare === confidenceFilter * 100) count += 1;
+        if (newLengthFilter.compare >= 0 && newLengthFilter.compare === lengthFilter) count += 1;
+        if (newConfidenceFilter.compare >= 0 && newConfidenceFilter.compare === confidenceFilter * 100) count += 1;
         if (newActionFilters.length > 0 && newActionFilters.every(e => actionFilters.includes(e))) count += 1;
         if (newStartDate !== null && newEndDate !== null && newEndDate === endDate && newStartDate === startDate) count += 1;
         return count;
@@ -71,16 +71,38 @@ const ConversationFilters = ({
     };
 
     return (
-        <Accordion>
+        <Accordion className='filter-accordion'>
             <Accordion.Title
+               
                 active={activeAccordion}
                 onClick={() => handleAccordionClick()}
                 data-cy='toggle-filters'
             >
-                <a> {activeAccordion ? 'Hide Filters' : `Reveal Filters (${numberOfActiveFilter()} active)`}</a>
+                <Icon name='dropdown' />
+                <span className='toggle-filters'> {activeAccordion ? 'Hide Filters' : `Reveal Filters (${numberOfActiveFilter()} active)`} </span>
             </Accordion.Title>
             <Accordion.Content active={activeAccordion}>
                 <div className='conversation-filter-container'>
+                    <div className='conversation-filter' data-cy='confidence-filter'>
+                        <b>Filter by confidence level</b>
+                        <Segment.Group horizontal>
+                            <Segment className='x-than-filter'>
+                                <Label> Less Than</Label>
+                            </Segment>
+                            <Segment className='number-filter'>
+                                <Input
+                                    value={newConfidenceFilter.compare > 0 ? newConfidenceFilter.compare : ''}
+                                    onChange={(e, { value }) => setNewConfidenceFilter({ ...newConfidenceFilter, compare: value })}
+                                />
+                            </Segment>
+                            <Segment className='static-symbol'>
+                                <p>
+                                    %
+                                </p>
+                            </Segment>
+                        </Segment.Group>
+                    </div>
+
                     <div className='conversation-filter' data-cy='length-filter'>
                         <b>Filter by conversation length</b>
                         <Segment.Group horizontal>
@@ -102,25 +124,6 @@ const ConversationFilters = ({
                             </Segment>
                         </Segment.Group>
                     </div>
-                    <div className='conversation-filter' data-cy='confidence-filter'>
-                        <b>Filter by confidence level</b>
-                        <Segment.Group horizontal>
-                            <Segment className='x-than-filter'>
-                                <Label> Less Than</Label>
-                            </Segment>
-                            <Segment className='number-filter'>
-                                <Input
-                                    value={newConfidenceFilter.compare > 0 ? newConfidenceFilter.compare : ''}
-                                    onChange={(e, { value }) => setNewConfidenceFilter({ ...newConfidenceFilter, compare: value })}
-                                />
-                            </Segment>
-                            <Segment className='static-symbol'>
-                                <p>
-                                    %
-                                </p>
-                            </Segment>
-                        </Segment.Group>
-                    </div>
 
                     <div className='conversation-filter' data-cy='date-filter'>
                         <b>Filter by date</b>
@@ -135,16 +138,7 @@ const ConversationFilters = ({
                         </Segment>
                     </div>
 
-                    <div className='conversation-filter reset'>
-                        <Segment className='filter-button'>
-                            <Button data-cy='reset-filters' secondary onClick={() => resetFilters()}> Reset filters</Button>
-                        </Segment>
-                    </div>
-                    <div className='conversation-filter apply'>
-                        <Segment className='filter-button'>
-                            <Button data-cy='apply-filters' primary onClick={() => applyFilters()}> Apply filters</Button>
-                        </Segment>
-                    </div>
+                    
                     <div className='conversation-filter actions' data-cy='action-filter'>
                         <b>Filter by actions</b>
                         <Segment className='action-filter'>
@@ -165,6 +159,16 @@ const ConversationFilters = ({
                             />
                         </Segment>
                     </div>
+                    <br />
+                    <div className='conversation-filter buttons'>
+                        <Segment className='filter-button'>
+                            <Button data-cy='apply-filters' color='teal' size='mini' onClick={() => applyFilters()}> <Icon name='filter' /> Apply</Button>
+                        </Segment>
+                        <Segment className='filter-button'>
+                            <Button data-cy='reset-filters' size='mini' onClick={() => resetFilters()}> <Icon name='redo' /> Reset</Button>
+                        </Segment>
+                    </div>
+                   
                 </div>
             </Accordion.Content>
         </Accordion>

@@ -36,7 +36,7 @@ function ConversationsBrowser(props) {
 
     useEffect(() => {
         if (data && !data.delete.success) {
-            Alert.warning('Something went wrong, the conversation was not deleted', {
+            Alert.warning('Something went wrong, the acersation was not deleted', {
                 position: 'top-right',
                 timeout: 5000,
             });
