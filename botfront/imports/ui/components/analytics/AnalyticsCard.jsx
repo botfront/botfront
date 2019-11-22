@@ -131,7 +131,6 @@ function AnalyticsCard(props) {
                     <DatePicker
                         startDate={startDate}
                         endDate={endDate}
-                        projectId={queryParams.projectId}
                         onConfirm={(newStart, newEnd) => {
                             onChangeSettings('startDate', newStart);
                             onChangeSettings('endDate', newEnd);
