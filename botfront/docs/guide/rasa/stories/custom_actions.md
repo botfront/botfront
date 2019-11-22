@@ -128,14 +128,14 @@ Duckling is integrated in your project as a container (see the `docker-compose.y
 _Adding Duckling to the NLU pipeline_ means that we are going to use Duckling to extract numbers from user utterances ("2 adults and 2 kids").
 
 ```
-- name: "rasa_addons.nlu.compoments.duckling_http_extractor.DucklingHTTPExtractor"
+- name: "rasa_addons.nlu.components.duckling_http_extractor.DucklingHTTPExtractor"
   url: "http://duckling:8000"
   dimensions:
   - "number"
 ```
 
 ::: tip NOTE
-`rasa_addons.nlu.compoments.duckling_http_extractor.DucklingHTTPExtractor` provides the same functionality as `ner_http_duckling` and adds the possiblity to append the user `timezone` and `reftime` to the query string for better personalization of the user experience. More in the **Training Data > API** tab.
+`rasa_addons.nlu.components.duckling_http_extractor.DucklingHTTPExtractor` provides the same functionality as `ner_http_duckling` and adds the possiblity to append the user `timezone` and `reftime` to the query string for better personalization of the user experience. More in the **Training Data > API** tab.
 :::
 
 <video autoplay muted loop width="740" controls>
