@@ -126,7 +126,7 @@ const authenticateAdmin = (nextState, replace, callback) => {
 
 Meteor.startup(() => {
     render(
-        <DocumentTitle title='Botfront by Mr. Bot'>
+        <DocumentTitle title='Botfront.'>
             <ApolloProvider client={client}>
                 <ApolloHooksProvider client={client}>
                     <Provider store={store}>
