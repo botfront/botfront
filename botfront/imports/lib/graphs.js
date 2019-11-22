@@ -100,7 +100,7 @@ export const getDataToDisplayAndParamsToUse = ({
         ? {
             ...graphParams,
             yScale: { type: 'linear', min: 0, max: 100 },
-            axisLeft: { legend: '%', legendOffset: -36 },
+            axisLeft: { ...graphParams.axisLeft, legend: `${graphParams.axisLeft.legend} (%)` },
             ...graphParams.rel,
         }
         : graphParams;

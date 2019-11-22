@@ -41,6 +41,8 @@ function AnalyticsDashboard(props) {
                     { header: 'Count', accessor: 'count' },
                     { header: 'Frequency', accessor: 'frequency' },
                 ],
+                axisBottom: { legend: 'Length in Utterances', legendOffset: 36, legendPosition: 'middle' },
+                axisLeft: { legend: 'Number of Conversations', legendOffset: -46, legendPosition: 'middle' },
             },
         },
         intentFrequencies: {
@@ -55,7 +57,11 @@ function AnalyticsDashboard(props) {
             graphParams: {
                 x: 'name',
                 y: [{ abs: 'count', rel: 'frequency' }],
-                axisBottom: { tickRotation: -25, format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}` },
+                axisBottom: {
+                    tickRotation: -25,
+                    format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}`,
+                },
+                axisLeft: { legend: 'Number of Occurances', legendOffset: -46, legendPosition: 'middle' },
                 columns: [
                     { header: 'Name', accessor: 'name' },
                     { header: 'Count', accessor: 'count' },
@@ -82,6 +88,8 @@ function AnalyticsDashboard(props) {
                     { header: 'Count', accessor: 'count' },
                     { header: 'Frequency', accessor: 'frequency' },
                 ],
+                axisBottom: { legend: 'Duration (seconds)', legendOffset: 36, legendPosition: 'middle' },
+                axisLeft: { legend: 'Number of Conversations', legendOffset: -46, legendPosition: 'middle' },
             },
         },
         fallbackCounts: {
@@ -105,6 +113,7 @@ function AnalyticsDashboard(props) {
                     { header: 'Proportion', accessor: 'proportion' },
                 ],
                 rel: { y: [{ abs: 'proportion' }] },
+                axisLeft: { legend: 'Fallbacks', legendOffset: -46, legendPosition: 'middle' },
             },
         },
         visitCounts: {
@@ -131,6 +140,7 @@ function AnalyticsDashboard(props) {
                     { header: 'Hits', accessor: 'hits' },
                     { header: 'Engagement', accessor: 'proportion' },
                 ],
+                axisLeft: { legend: 'Engagement Comparison', legendOffset: -46, legendPosition: 'middle' },
             },
         },
     };
