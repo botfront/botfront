@@ -2,10 +2,11 @@ const version = require('../../package.json').version;
 
 
 module.exports = {
+    base: '/',
     permalink: ':slug',
     plugins: [
             ['@vuepress/google-analytics', {
-                ga: 'UA-110157233-2'
+                ga: 'UA-110157233-3'
             }],
             // '@vuepress/plugin-pwa',
             '@vuepress/active-header-links',
@@ -30,7 +31,7 @@ module.exports = {
             { text: 'Guide', link: '/guide/getting-started/setup' },
             { text: 'Get help', link: 'https://spectrum.chat/botfront' },
             { text: 'Github', link: 'https://github.com/botfront/botfront' },
-            { text: 'Botfront.io', link: 'https://botfront.io' },
+            { text: 'Botfront.io', link: '/' },
         ],
 
         sidebar: [

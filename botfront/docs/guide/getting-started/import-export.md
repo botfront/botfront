@@ -26,9 +26,6 @@ Consider removing Botfront specific NLU components, such as `rasa_addons.nlu.com
 
 You probably don't need to change them, or if you need to keep credentials from Botfront, be sure to keep the `rasa` and `rest` fields from the `credentials.yml` provided by Rasa X.
 
-#### Responses
-
-Responses (templates) are lists. Rasa treats them as variants that should be randomly displayed, Botfront treats them as sequences (each item is uttered). If you used the sequence feature in Botfront, you will need to rework your stories accordingly.
 
 ### Import
 

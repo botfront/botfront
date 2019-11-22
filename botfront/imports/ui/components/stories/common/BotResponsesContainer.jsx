@@ -5,9 +5,8 @@ import { Placeholder } from 'semantic-ui-react';
 
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import { ConversationOptionsContext } from '../../utils/Context';
-import BotResponsePopupContent from './BotResponsePopupContent';
 import BotResponseContainer from './BotResponseContainer';
-import { defaultTemplate } from './StoryVisualEditor';
+import ExceptionWrapper from './ExceptionWrapper';
 
 const BotResponsesContainer = (props) => {
     const {
@@ -18,11 +17,10 @@ const BotResponsesContainer = (props) => {
         isNew,
         removeNewState,
         language,
+        addNewResponse,
     } = props;
     const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
-
     const [template, setTemplate] = useState(null);
-    const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
 
     const getSequence = () => {
@@ -64,15 +62,6 @@ const BotResponsesContainer = (props) => {
         });
     }, [language]);
 
-    const handleCreateReponse = (index, responseType) => {
-        const newSequence = [...getSequence()];
-        newSequence.splice(index + 1, 0, {
-            content: yamlDump(defaultTemplate(responseType)),
-        });
-        setFocus(index + 1);
-        setSequence(newSequence);
-    };
-
     const handleDeleteResponse = (index) => {
         const newSequence = [...getSequence()];
         newSequence.splice(index, 1);
@@ -94,51 +83,8 @@ const BotResponsesContainer = (props) => {
         ) return handleDeleteResponse(index);
         sequence[index].content = yamlDump({ ...oldContent, ...newContent });
         setSequence(sequence);
-        if (enter) setToBeCreated(index);
+        if (enter) addNewResponse();
         return true;
-    };
-
-    useEffect(() => {
-        if (toBeCreated || toBeCreated === 0) {
-            handleCreateReponse(toBeCreated, 'text');
-            setToBeCreated(null);
-        }
-    }, [toBeCreated]);
-
-    const [popupOpen, setPopupOpen] = useState(null);
-
-    const renderAddLine = (index) => {
-        if (popupOpen !== index) {
-            return (
-                <FloatingIconButton
-                    icon='ellipsis horizontal'
-                    size='medium'
-                    onClick={() => setPopupOpen(index)}
-                />
-            );
-        }
-        return (
-            <BotResponsePopupContent
-                onSelect={() => {}} // not needed for now
-                onCreate={(responseType) => {
-                    setPopupOpen(null);
-                    handleCreateReponse(index, responseType);
-                }}
-                onClose={() => setPopupOpen(null)}
-                limitedSelection
-                disableExisting
-                noButtonResponse={index !== getSequence().length - 1}
-                defaultOpen
-                trigger={(
-                    <FloatingIconButton
-                        icon='ellipsis horizontal'
-                        visible
-                        size='medium'
-                        onClick={() => setPopupOpen(index)}
-                    />
-                )}
-            />
-        );
     };
 
     const renderResponse = (response, index, sequenceArray) => {
@@ -150,35 +96,59 @@ const BotResponsesContainer = (props) => {
                         deletable={deletable || sequenceArray.length > 1}
                         value={content}
                         onDelete={() => handleDeleteResponse(index)}
-                        onAbort={() => {}}
+                        onAbort={() => { }}
                         onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)
                         }
                         focus={focus === index}
                         onFocus={() => setFocus(index)}
                     />
+                    {index === sequenceArray.length - 1 && (
+                        <div className='response-name'>{name}</div>)}
                 </div>
-                {!content.buttons
-                    && renderAddLine(index) /* add line button if no buttons */}
+
             </React.Fragment>
         );
     };
 
+    const isSequence = () => {
+        // eslint-disable-next-line curly
+        if (
+            template
+            && template.values
+            && template.values[0]
+            && template.values[0].sequence
+        ) return template.values[0].sequence.length > 1;
+        return false;
+    };
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
-        <div className='responses-container exception-wrapper' exception={exceptions.severity}>
-            {renderAddLine(-1)}
-            {!template && (
-                <Placeholder>
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                </Placeholder>
-            )}
-            {getSequence().map(renderResponse)}
-            {deletable && (
-                <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
-            )}
-            <div className='response-name'>{name}</div>
-        </div>
+        <ExceptionWrapper
+            exceptions={
+                isSequence()
+                    ? [
+                        ...exceptions,
+                        {
+                            type: 'warning',
+                            message:
+                                'Support for message sequences will be removed in the next version, please create a new bot utterance for each item of your sequence.',
+                        },
+                    ]
+                    : exceptions
+            }
+        >
+            <div className={`responses-container exception-wrapper ${isSequence() ? 'multiple' : ''}`}>
+                {!template && (
+                    <Placeholder>
+                        <Placeholder.Line />
+                        <Placeholder.Line />
+                    </Placeholder>
+                )}
+                {getSequence().map(renderResponse)}
+                {deletable && isSequence() && (
+                    <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
+                )}
+            </div>
+        </ExceptionWrapper>
     );
 };
 
@@ -190,12 +160,12 @@ BotResponsesContainer.propTypes = {
     isNew: PropTypes.bool.isRequired,
     removeNewState: PropTypes.func.isRequired,
     language: PropTypes.string.isRequired,
+    addNewResponse: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
     exceptions: [{ type: null }],
-
 };
 
 export default BotResponsesContainer;

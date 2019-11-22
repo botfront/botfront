@@ -10,7 +10,7 @@ Botfront has a best in class **Rasa** integration and gives you the most advance
 
 <div align="center">
 
-<img src="/botfront/docs/images/botfront_animation.gif" width="85%"></width>
+<img src="/botfront/docs/images/botfront_animation.gif" width="100%"></width>
 
 </div>
 

@@ -219,12 +219,9 @@ const ConversationsBrowserContainer = (props) => {
         <div>
             <Loading loading={loading}>
                 <Container>
-                    <Message info>Conversations for all languages are displayed.</Message>
-                    <Segment>
                         <ConversationsBrowser
                             {...componentProps}
                         />
-                    </Segment>
 
                 </Container>
             </Loading>
