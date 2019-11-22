@@ -10,7 +10,7 @@ import SmartTip from './SmartTip';
 export default function ActivityActionsColumn(props) {
     const {
         datum,
-        data,
+        visibleData,
         isUtteranceOutdated,
         isUtteranceReinterpreting,
         onToggleValidation,
@@ -57,7 +57,7 @@ export default function ActivityActionsColumn(props) {
     );
 
     const size = 'mini';
-    const outdated = data.filter(isUtteranceOutdated).slice(0, 20);
+    const outdated = visibleData.filter(isUtteranceOutdated);
     let action;
     if (isUtteranceReinterpreting(datum)) {
         action = <Button size={size} disabled basic icon='redo' loading />;
@@ -105,8 +105,8 @@ export default function ActivityActionsColumn(props) {
 }
 
 ActivityActionsColumn.propTypes = {
-    data: PropTypes.array.isRequired,
     datum: PropTypes.object.isRequired,
+    visibleData: PropTypes.array,
     isUtteranceOutdated: PropTypes.func.isRequired,
     isUtteranceReinterpreting: PropTypes.func.isRequired,
     onReinterpret: PropTypes.func.isRequired,
@@ -115,4 +115,5 @@ ActivityActionsColumn.propTypes = {
 };
 
 ActivityActionsColumn.defaultProps = {
+    visibleData: [],
 };

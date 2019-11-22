@@ -50,6 +50,7 @@ function Activity(props) {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({ modelId, ...getSortFunction() });
     const [reinterpreting, setReinterpreting] = useState([]);
+    const [visibleData, setVisibleData] = useState([]);
 
     // always refetch on first page load; change this to subscription
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId]);
@@ -153,6 +154,7 @@ function Activity(props) {
             instance={instance}
             modelId={modelId}
             lang={lang}
+            visibleData={visibleData}
             isUtteranceReinterpreting={isUtteranceReinterpreting}
             isUtteranceOutdated={isUtteranceOutdated}
             onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
@@ -217,6 +219,7 @@ function Activity(props) {
                         data={data}
                         hasNextPage={hasNextPage}
                         loadMore={loading ? () => {} : loadMore}
+                        onChangeInVisibleItems={setVisibleData}
                     />
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
