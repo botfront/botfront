@@ -28,7 +28,7 @@ export const ProjectsSchema = new SimpleSchema({
         type: Number, defaultValue: 0.75, min: 0.5, max: 0.95,
     },
     timezoneOffset: {
-        type: Number, defaultValue: 0, min: -12, max: 14,
+        type: Number, defaultValue: 0, min: -22, max: 22,
     },
     defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
