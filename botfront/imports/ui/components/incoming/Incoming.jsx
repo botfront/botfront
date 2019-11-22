@@ -111,7 +111,7 @@ class Incoming extends React.Component {
                 <Container>
                     <Loading loading={!ready || !model}>
                         <Tab
-                            activeTab={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
+                            activeIndex={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
                             menu={{ pointing: true, secondary: true }}
                             panes={this.getPanes()}
                             onTabChange={this.handleTabClick}

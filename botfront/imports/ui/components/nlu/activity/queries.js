@@ -29,6 +29,7 @@ export const activityQuery = gql`
         $cursor: String,
         $validated: Boolean = false,
         $ooS: Boolean = false,
+        $filter: ExampleFilterInput
     ) {
         getActivity(
             modelId: $modelId,
@@ -39,6 +40,7 @@ export const activityQuery = gql`
             cursor: $cursor,
             validated: $validated,
             ooS: $ooS,
+            filter: $filter
         ) {
             activity {
                 ...ActivityFields

@@ -8,6 +8,7 @@ export const getActivity = async ({
     ooS = false,
     sortKey,
     sortDesc,
+    filter,
 }) => {
     const onlyValidated = validated ? { validated: true } : {};
     const ooSOption = ooS ? { ooS } : { $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] };
@@ -16,9 +17,19 @@ export const getActivity = async ({
             ? { environment: { $in: ['development', null] } }
             : { environment }
         : {};
+    const { query: textSearch, intents, entities } = filter;
+    const intentsOption = intents && intents.length ? { intent: { $in: intents } } : {};
+    const entitiesOption = entities && entities.length ? { entities: { $all: entities.map(e => ({ $elemMatch: { entity: e } })) } } : {};
+    const textSearchOption = textSearch ? { text: { $regex: textSearch } } : {};
     const sort = `${sortDesc ? '-' : ''}${sortKey || ''}`;
     const query = Activity.find({
-        modelId, ...onlyValidated, ...ooSOption, ...environmentOption,
+        modelId,
+        ...onlyValidated,
+        ...ooSOption,
+        ...environmentOption,
+        ...intentsOption,
+        ...entitiesOption,
+        ...textSearchOption,
     });
     if (!sort) return query.lean();
     return query.sort(sort).lean();

@@ -13,6 +13,8 @@ import {
 
 import { populateActivity } from './ActivityInsertions';
 import { getSmartTips } from '../../../../lib/smart_tips';
+import Filters from '../models/Filters';
+
 import DataTable from '../../common/DataTable';
 import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
@@ -27,6 +29,10 @@ function Activity(props) {
             return { sortKey: 'createdAt', sortDesc: true };
         case 'Oldest':
             return { sortKey: 'createdAt', sortDesc: false };
+        case '% ascending':
+            return { sortKey: 'confidence', sortDesc: false };
+        case '% decending':
+            return { sortKey: 'confidence', sortDesc: true };
         default:
             throw new Error('No such sort type');
         }
@@ -44,10 +50,18 @@ function Activity(props) {
         linkRender,
     } = props;
 
+
+    const [reinterpreting, setReinterpreting] = useState([]);
+    const [filter, setFilter] = useState({ entities: [], intents: [], query: '' });
+
     const {
         data, hasNextPage, loading, loadMore, refetch,
-    } = useActivity({ modelId, environment: workingEnvironment, ...getSortFunction() });
-    const [reinterpreting, setReinterpreting] = useState([]);
+    } = useActivity({
+        modelId,
+        environment: workingEnvironment,
+        filter,
+        ...getSortFunction(),
+    });
 
     // always refetch on first page load; change this to subscription
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, workingEnvironment]);
@@ -176,10 +190,17 @@ function Activity(props) {
         },
     ];
 
-    const render = () => (
+    const renderTopBar = () => (
         <>
             <Segment.Group className='new-utterances-topbar' horizontal>
                 <Segment className='new-utterances-topbar-section' tertiary compact floated='left'>
+                    <Filters
+                        intents={intents}
+                        entities={entities}
+                        filter={filter}
+                        onChange={f => setFilter(f)}
+                    />
+                    <div style={{ height: '5px' }} />
                     <ActivityActions
                         onEvaluate={linkRender}
                         onDelete={() => handleDelete(validated.map(u => u._id))}
@@ -196,27 +217,30 @@ function Activity(props) {
                         options={[
                             { value: 'Newest', text: 'Newest' },
                             { value: 'Oldest', text: 'Oldest' },
+                            { value: '% ascending', text: '% ascending' },
+                            { value: '% decending', text: '% decending' },
                         ]}
                         prefix='Sort by'
                     />
                 </Segment>
             </Segment.Group>
-            
             <br />
-            <DataTable
-                columns={columns}
-                data={data}
-                hasNextPage={hasNextPage}
-                loadMore={loading ? () => {} : loadMore}
-            />
         </>
     );
 
     return (
         <>
+            {renderTopBar()}
             {data && data.length
-                ? render()
-                : <Message success icon='check' header='Congratulations!' content='You are up to date' />
+                ? (
+                    <DataTable
+                        columns={columns}
+                        data={data}
+                        hasNextPage={hasNextPage}
+                        loadMore={loading ? () => {} : loadMore}
+                    />
+                )
+                : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
             }
         </>
     );
