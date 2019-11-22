@@ -17,7 +17,7 @@ describe('incoming page', function() {
     const addNewUtterances = () => {
     // add utterances with populate
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-populate-tab')
+        cy.dataCy('populate')
             .click({ force: true });
         cy.get('textarea')
             .click()
@@ -27,7 +27,7 @@ describe('incoming page', function() {
             .click();
         // define intents of new utterances
         cy.get('button').should('not.have.class', 'loading');
-        cy.dataCy('incoming-newutterances-tab')
+        cy.dataCy('newutterances')
             .click();
         cy.wait(100);
         cy.get('.ui.grey.basic.label')
