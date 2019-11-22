@@ -7,6 +7,7 @@ import FloatingIconButton from '../../nlu/common/FloatingIconButton';
 import { ConversationOptionsContext } from '../../utils/Context';
 import BotResponseContainer from './BotResponseContainer';
 import { defaultTemplate } from './StoryVisualEditor';
+import ExceptionWrapper from './ExceptionWrapper';
 
 const BotResponsesContainer = (props) => {
     const {
@@ -129,23 +130,44 @@ const BotResponsesContainer = (props) => {
     };
 
     const isSequence = () => {
-        if (template) return template.values[0].sequence.length > 1;
+        // eslint-disable-next-line curly
+        if (
+            template
+            && template.values
+            && template.values[0]
+            && template.values[0].sequence
+        ) return template.values[0].sequence.length > 1;
         return false;
     };
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
-        <div className={`responses-container exception-wrapper ${isSequence() ? 'multiple' : ''}`} exception={exceptions.severity}>
-            {!template && (
-                <Placeholder>
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                </Placeholder>
-            )}
-            {getSequence().map(renderResponse)}
-            {deletable && isSequence() && (
-                <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
-            )}
-        </div>
+        <ExceptionWrapper
+            exceptions={
+                isSequence()
+                    ? [
+                        ...exceptions,
+                        {
+                            type: 'warning',
+                            message:
+                                'Support for message sequences will be removed in the next version, please create a new bot utterance for each item of your sequence.',
+                        },
+                    ]
+                    : exceptions
+            }
+        >
+            <div className={`responses-container exception-wrapper ${isSequence() ? 'multiple' : ''}`}>
+                {!template && (
+                    <Placeholder>
+                        <Placeholder.Line />
+                        <Placeholder.Line />
+                    </Placeholder>
+                )}
+                {getSequence().map(renderResponse)}
+                {deletable && isSequence() && (
+                    <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
+                )}
+            </div>
+        </ExceptionWrapper>
     );
 };
 
@@ -163,7 +185,6 @@ BotResponsesContainer.propTypes = {
 BotResponsesContainer.defaultProps = {
     deletable: true,
     exceptions: [{ type: null }],
-
 };
 
 export default BotResponsesContainer;
