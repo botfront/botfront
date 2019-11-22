@@ -90,8 +90,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",
-    "@commitlint/cli": "8.2.0",
-    "@commitlint/config-conventional": "8.2.0",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
     "@meteorjs/eslint-config-meteor": "^1.0.5",
     "@storybook/addon-knobs": "^5.1.9",
     "@storybook/react": "^5.1.9",
@@ -100,7 +100,6 @@
     "@vuepress/plugin-google-analytics": "^1.2.0",
     "@vuepress/plugin-medium-zoom": "^1.2.0",
     "@vuepress/plugin-pwa": "^1.2.0",
-    "vuepress-plugin-element-tabs": "~0.1.8",
     "autoprefixer": "^6.3.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
@@ -127,6 +126,7 @@
     "selenium-webdriver": "3.6.0",
     "start-server-and-test": "^1.9.1",
     "vuepress": "^1.2.0",
+    "vuepress-plugin-element-tabs": "~0.1.8",
     "webpack": "^4.28.4"
   },
   "husky": {
