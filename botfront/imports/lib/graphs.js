@@ -59,32 +59,35 @@ export const calculateTemporalBuckets = (startDate, endDate, chartType) => {
     return { nTicks: 7, nBuckets: Math.floor(+nDays.toFixed(0) / 7), bucketSize: 'week' };
 };
 
-const formatDuration = (data) => {
-    const formattedData = data.map((dataElem, index) => {
-        if (index === data.length - 1) {
+const findDurationEnd = (num, cutoffs) => (
+    cutoffs[cutoffs.indexOf(parseInt(num, 10)) + 1]
+);
+
+const formatDuration = (data, { cutoffs }) => {
+    const formattedData = data.map((dataElem) => {
+        if (parseInt(dataElem.duration, 10) === cutoffs[cutoffs.length - 1]) {
             return {
                 ...dataElem,
                 duration: `> ${dataElem.duration}s`,
             };
         }
-        if (index === 0) {
+        if (parseInt(dataElem.duration, 10) === 0) {
             return {
                 ...dataElem,
-                duration: `< ${data[1].duration}s`,
+                duration: `< ${findDurationEnd(dataElem.duration, cutoffs)}s`,
             };
         }
         return {
             ...dataElem,
-            duration: `${dataElem.duration}s < ${data[index + 1].duration}s`,
+            duration: `${dataElem.duration}s < ${findDurationEnd(dataElem.duration, cutoffs)}s`,
         };
     });
     return formattedData;
 };
 
-export const formatData = (data, queryParams, bucketSize, graphParams) => {
-    const { formats } = graphParams;
+export const formatData = (data, queryParams, bucketSize) => {
     let formattedData = data[queryParams.queryName];
-    if (formattedData[0] && formattedData[0].duration) formattedData = formatDuration(formattedData, formats);
+    if (formattedData[0] && formattedData[0].duration) formattedData = formatDuration(formattedData, queryParams);
     if (queryParams.temporal) formattedData = formatDateBuckets(formattedData, bucketSize);
     return formattedData;
 };
