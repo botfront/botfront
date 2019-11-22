@@ -6,9 +6,9 @@ export const getActivity = async ({
     environment,
     validated = false,
     ooS = false,
-    sortKey,
-    sortDesc,
-    filter,
+    sortKey = 'createdAt',
+    sortDesc = true,
+    filter = {},
 }) => {
     const onlyValidated = validated ? { validated: true } : {};
     const ooSOption = ooS ? { ooS } : { $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] };

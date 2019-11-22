@@ -196,8 +196,8 @@ export default function ActivityActionsColumn(props) {
 }
 
 ActivityActionsColumn.propTypes = {
-    data: PropTypes.array.isRequired,
     datum: PropTypes.object.isRequired,
+    data: PropTypes.array.isRequired,
     getSmartTips: PropTypes.func.isRequired,
     isUtteranceReinterpreting: PropTypes.func.isRequired,
     onReinterpret: PropTypes.func.isRequired,
