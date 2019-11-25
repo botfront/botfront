@@ -1,0 +1,43 @@
+type Query {
+    botResponses(projectId: String!): [BotResponse!]
+    botResponse(key: String!): BotResponse
+}
+
+type BotResponse {
+  key: String
+  _id: String
+  projectId: String
+  values: [Value]
+  match: Match
+  followUp: FollowUp
+}
+
+type Value {
+  lang: String
+  sequence: [ContentContainer]
+}
+
+type ContentContainer {
+  content: String
+}
+
+type FollowUp {
+  action: String
+  delay: Float
+}
+
+type Match {
+  nlu: [Nlu]
+}
+
+type Nlu {
+  intent: String
+  entities: [Entity]
+}
+
+type Entity {
+  entity: String
+  value: String
+}
+
+
