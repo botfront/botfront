@@ -79,7 +79,7 @@ const ConversationFilters = ({
                 data-cy='toggle-filters'
             >
                 <Icon name='dropdown' />
-                <span className='toggle-filters'> {activeAccordion ? 'Hide Filters' : `Reveal Filters (${numberOfActiveFilter()} active)`} </span>
+                <span className='toggle-filters'> {activeAccordion ? 'Hide Filters' : `Reveal Filters (${numberOfActiveFilter()})`} </span>
             </Accordion.Title>
             <Accordion.Content active={activeAccordion}>
                 <div className='conversation-filter-container'>
@@ -91,7 +91,11 @@ const ConversationFilters = ({
                             </Segment>
                             <Segment className='number-filter'>
                                 <Input
-                                    value={newConfidenceFilter.compare > 0 ? newConfidenceFilter.compare : ''}
+                                    value={
+                                        // bounds the confidence value to 0-100
+                                        newConfidenceFilter.compare > 0
+                                            ? newConfidenceFilter.compare < 100
+                                                ? newConfidenceFilter.compare : 100 : ''}
                                     onChange={(e, { value }) => setNewConfidenceFilter({ ...newConfidenceFilter, compare: value })}
                                 />
                             </Segment>
