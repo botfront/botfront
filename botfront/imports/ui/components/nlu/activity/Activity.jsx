@@ -41,6 +41,7 @@ function Activity(props) {
         instance,
         entities,
         intents,
+        project,
         project: { training: { endTime } = {} },
         projectId,
         linkRender,
@@ -50,7 +51,6 @@ function Activity(props) {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({ modelId, ...getSortFunction() });
     const [reinterpreting, setReinterpreting] = useState([]);
-    const [visibleData, setVisibleData] = useState([]);
 
     // always refetch on first page load; change this to subscription
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId]);
@@ -91,6 +91,14 @@ function Activity(props) {
         try {
             populateActivity(instance, utterances.map(u => ({ text: u.text, lang })), modelId, reset);
         } catch (e) { reset(); }
+    };
+
+    const handleChangeInVisibleItems = (visibleData) => {
+        if (project.training.status === 'training') return;
+        const reinterpretable = visibleData
+            .filter(isUtteranceOutdated)
+            .filter(u => !isUtteranceReinterpreting(u));
+        if (reinterpretable.length) handleReinterpret(reinterpretable);
     };
 
     const renderConfidence = (row) => {
@@ -149,16 +157,10 @@ function Activity(props) {
 
     const renderActions = row => (
         <ActivityActionsColumn
-            data={data}
             datum={row.datum}
-            instance={instance}
-            modelId={modelId}
-            lang={lang}
-            visibleData={visibleData}
             isUtteranceReinterpreting={isUtteranceReinterpreting}
             isUtteranceOutdated={isUtteranceOutdated}
             onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
-            onReinterpret={handleReinterpret}
             onDelete={utterances => handleDelete(utterances.map(u => u._id))}
         />
     );
@@ -219,7 +221,7 @@ function Activity(props) {
                         data={data}
                         hasNextPage={hasNextPage}
                         loadMore={loading ? () => {} : loadMore}
-                        onChangeInVisibleItems={setVisibleData}
+                        onChangeInVisibleItems={handleChangeInVisibleItems}
                     />
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
