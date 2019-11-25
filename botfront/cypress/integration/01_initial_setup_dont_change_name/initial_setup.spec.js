@@ -9,6 +9,7 @@ describe('intial setup', function() {
     });
 
     after(function() {
+        cy.deleteProject('bf');
     });
 
     it('Should create projects when completing the initial setup', () => {
@@ -51,11 +52,8 @@ describe('intial setup', function() {
         cy.get('[data-cy=email-consent]').click();
 
         cy.wait(10000);
-        cy.url().then((url) => {
-            cy.url().should('include', '/stories');
-            const id = url.match(/project\/(.*?)\/stories/i)[1];
-            cy.deleteProject(id);
-        });
+        cy.url().should('include', '/stories');
+        
         // cy.url().then((url) => {
         // This gets the project id
         //     const id = url.match(/project\/(.*?)\/nlu/i)[1];
