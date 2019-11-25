@@ -3,6 +3,30 @@ import { languages } from '../../../lib/languages';
 
 const { Schema } = mongoose;
 
+/*
+const contentValidator = (content) => {
+    let payload = yaml.safeLoad(content);
+    if (typeof payload === 'string') payload = { text: payload };
+    const schemas = [LegacyCarouselSchema, ImageSchema, QuickRepliesSchema, TextSchema, FBMButtonTemplateSchema, FBMGenericTemplateSchema, FBMListTemplateSchema, FBMHandoffTemplateSchema];
+    const contexts = schemas.map(s => s.newContext());
+    contexts.map(c => c.validate(payload));
+    // An array like [0,1,0,0] means it's a QuickRepliesSchema
+    const valid = contexts.map(c => (c.isValid() ? 1 : 0));
+    // Sum over [0,0,0,0] = 0 means entry not validated against any schema
+    const hasError = valid.reduce((a, b) => a + b, 0) === 0;
+    if (hasError) {
+        contexts.forEach((context) => {
+            if (context.validationErrors()) {
+                context.validationErrors().forEach((e) => {
+                    e.name = `values.${vi}.sequence.${seqIndex}.${e.name}`;
+                    errors.push(e);
+                });
+            }
+        })
+    }
+}
+*/
+
 export const MatchSchema = new Schema({
     nlu: {
         required: false,
@@ -11,7 +35,7 @@ export const MatchSchema = new Schema({
             entities: {
                 default: [],
                 type: [{
-                    entity: { type: String, label: 'Entity name' },
+                    entity: String,
                     value: {
                         type: String,
                         required: false,
@@ -51,4 +75,4 @@ const botResponses = new Schema({
 });
 
 
-module.exports = mongoose.model('BotResponses', botResponses, 'botResponsess');
+module.exports = mongoose.model('BotResponses', botResponses, 'botResponses');
