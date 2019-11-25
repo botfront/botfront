@@ -95,6 +95,7 @@ function Activity(props) {
 
     const handleChangeInVisibleItems = (visibleData) => {
         if (project.training.status === 'training') return;
+        if (reinterpreting.length > 49) return;
         const reinterpretable = visibleData
             .filter(isUtteranceOutdated)
             .filter(u => !isUtteranceReinterpreting(u));
