@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import {
     Button, Popup, Icon,
 } from 'semantic-ui-react';
+import SmartTip from './SmartTip';
 
 import FloatingIconButton from '../common/FloatingIconButton';
-import SmartTip from './SmartTip';
 
 export default function ActivityActionsColumn(props) {
     const {
@@ -15,47 +15,8 @@ export default function ActivityActionsColumn(props) {
         isUtteranceReinterpreting,
         onToggleValidation,
         onMarkOoS,
-        onReinterpret,
         onDelete,
     } = props;
-
-    const renderReinterpretAllButton = utterances => mainAction => (
-        <Button
-            className='icon'
-            color='grey'
-            size={mainAction ? 'small' : 'mini'}
-            icon
-            fluid={mainAction}
-            labelPosition='left'
-            onClick={() => onReinterpret(utterances)}
-        >
-            <Icon name='redo' />
-            {utterances.length === 1
-                ? 'Reinterpret this utterance'
-                : `Reinterpret ${utterances.length} utterances like this`
-            }
-        </Button>
-    );
-
-    const renderReinterpretButton = utterance => mainAction => (
-        <Button
-            className='icon'
-            color='grey'
-            basic={!mainAction}
-            size={mainAction ? 'small' : 'mini'}
-            icon
-            fluid={mainAction}
-            labelPosition='left'
-            onClick={() => onReinterpret([utterance])}
-            key={`${utterance._id}-reinterpret`}
-        >
-            <Icon name='redo' />
-            {mainAction
-                ? 'Reinterpret this utterance'
-                : 'Reinterpret this one only'
-            }
-        </Button>
-    );
 
     const renderDeleteAllButton = utterances => mainAction => (
         <Button
@@ -104,24 +65,11 @@ export default function ActivityActionsColumn(props) {
     );
 
     const size = 'mini';
-    const outdated = data.filter(u => getSmartTips(u).code === 'outdated').slice(0, 20);
     const deleteable = data.filter(u => getSmartTips(u).code === 'aboveTh');
     const { code, tip, message } = getSmartTips(datum);
     let action;
-    if (isUtteranceReinterpreting(datum)) {
-        action = <Button size={size} disabled basic icon='redo' loading />;
-    } else if (code === 'outdated') {
-        action = (
-            <SmartTip
-                tip='Utterance outdated'
-                message='Model has been trained since this utterance was logged. It needs to be reinterpreted.'
-                mainAction={renderReinterpretAllButton(outdated)}
-                otherActions={[...(outdated.length > 1 ? [renderReinterpretButton(datum)] : [])]}
-                button={(
-                    <Button size={size} basic icon='redo' data-cy='re-interpret-button' />
-                )}
-            />
-        );
+    if (code === 'outdated') {
+        action = <Button size={size} disabled basic icon='redo' loading={isUtteranceReinterpreting(datum)} />;
     } else if (!!datum.validated) {
         action = <Button size={size} onClick={() => onToggleValidation(datum)} color='green' icon='check' data-cy='valid-utterance-button' />;
     } else if (code === 'aboveTh') {
@@ -200,7 +148,6 @@ ActivityActionsColumn.propTypes = {
     data: PropTypes.array.isRequired,
     getSmartTips: PropTypes.func.isRequired,
     isUtteranceReinterpreting: PropTypes.func.isRequired,
-    onReinterpret: PropTypes.func.isRequired,
     onMarkOoS: PropTypes.func.isRequired,
     onToggleValidation: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,

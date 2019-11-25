@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DynamicSizeList as List } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { debounce } from 'lodash';
 
 export default function DataTable(props) {
     const {
@@ -44,21 +45,14 @@ export default function DataTable(props) {
         ? tableRef.current.offsetTop
         : 0;
 
-    const listRef = useRef(null);
-    const handleScroll = () => {
+    const handleScroll = debounce((start, end) => {
         if (!onChangeInVisibleItems) return;
-        if (!listRef || !listRef.current) return;
-        const { scrollTop: minY, clientHeight } = listRef.current;
-        const maxY = minY + clientHeight;
-        const children = Array.from(listRef.current.children[0].children)
-            .filter((c) => { // filter out overscan
-                const { offsetTop: minCY, clientHeight: cHeight } = c;
-                const maxCY = minCY + cHeight;
-                return minY <= maxCY && minCY <= maxY;
-            })
-            .map(c => data[+c.getAttribute('data-index')]);
-        onChangeInVisibleItems(children);
-    };
+        const visibleData = Array(end - start + 1).fill()
+            .map((_, i) => start + i)
+            .map(i => data[i])
+            .filter(d => d);
+        onChangeInVisibleItems(visibleData);
+    }, 500);
 
     useEffect(() => setCorrection(tableOffsetTop + 40), [tableOffsetTop]);
 
@@ -67,7 +61,6 @@ export default function DataTable(props) {
             className='virtual-table'
             ref={tableRef}
             style={{ height: `calc(100vh - ${correction}px)` }}
-            onScroll={handleScroll}
         >
             <div className='header row'>
                 {columns.map(c => (
@@ -87,9 +80,11 @@ export default function DataTable(props) {
                             <List
                                 height={height}
                                 itemCount={dataCount}
-                                onItemsRendered={onItemsRendered}
+                                onItemsRendered={(items) => {
+                                    handleScroll(items.visibleStartIndex, items.visibleStopIndex);
+                                    onItemsRendered(items);
+                                }}
                                 ref={ref}
-                                outerRef={listRef}
                                 width={width}
                             >
                                 {Row}

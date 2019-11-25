@@ -62,7 +62,7 @@ function Activity(props) {
         filter,
         ...getSortFunction(),
     });
-
+    
     // always refetch on first page load; change this to subscription
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, workingEnvironment]);
 
@@ -102,6 +102,15 @@ function Activity(props) {
         try {
             populateActivity(instance, utterances.map(u => ({ text: u.text, lang })), modelId, reset);
         } catch (e) { reset(); }
+    };
+
+    const handleChangeInVisibleItems = (visibleData) => {
+        if (project.training.status === 'training') return;
+        if (reinterpreting.length > 49) return;
+        const reinterpretable = visibleData
+            .filter(isUtteranceOutdated)
+            .filter(u => !isUtteranceReinterpreting(u));
+        if (reinterpretable.length) handleReinterpret(reinterpretable);
     };
 
     const renderConfidence = (row) => {
@@ -160,16 +169,12 @@ function Activity(props) {
 
     const renderActions = row => (
         <ActivityActionsColumn
-            data={data}
             datum={row.datum}
-            instance={instance}
-            modelId={modelId}
-            lang={lang}
+            data={data}
             isUtteranceReinterpreting={isUtteranceReinterpreting}
             onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
             getSmartTips={u => getSmartTips(model, project, u)}
             onMarkOoS={({ _id, ooS, ...rest }) => { handleUpdate([{ _id, ooS: !ooS }], rest).then(() => refetch()); }}
-            onReinterpret={handleReinterpret}
             onDelete={utterances => handleDelete(utterances.map(u => u._id))}
         />
     );
@@ -237,6 +242,7 @@ function Activity(props) {
                         data={data}
                         hasNextPage={hasNextPage}
                         loadMore={loading ? () => {} : loadMore}
+                        onChangeInVisibleItems={handleChangeInVisibleItems}
                     />
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
