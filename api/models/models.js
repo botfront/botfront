@@ -37,6 +37,7 @@ const activity = new Schema({
     ooS: { type: Boolean, required: false },
     createdAt: { type: Date, required: false, default: Date.now },
     updatedAt: { type: Date, required: false, default: Date.now },
+    env: { type: String, enum: ['development', 'staging', 'production'] },
 }, { versionKey: false });
 
 exports.Activity = mongoose.model('Activity', activity, 'activity');

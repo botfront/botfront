@@ -38,6 +38,7 @@ const addParseDataToActivity = async function(
     projectId,
     conversation,
     oldestImportTimestamp,
+    env,
 ) {
     const modelsOfProject = await retreiveModelsIds(projectId);
     let parseDataToAdd = [];
@@ -60,6 +61,7 @@ const addParseDataToActivity = async function(
                     confidence: intent.confidence,
                     createdAt: new Date(),
                     updatedAt: new Date(),
+                    env,
                 });
             } else {
                 invalidParseData.push(event.parse_data);
@@ -138,6 +140,7 @@ exports.importConversation = async function(req, res) {
                         projectId,
                         conversation,
                         oldestImport,
+                        env,
                     );
                     if (parseDataToAdd && parseDataToAdd.length > 0) {
                         await Activity.insertMany(parseDataToAdd, function(err) {
