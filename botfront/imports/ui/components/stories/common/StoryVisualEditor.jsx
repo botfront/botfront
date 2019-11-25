@@ -38,7 +38,7 @@ export const defaultTemplate = (template) => {
 class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
-        menuCloser: () => {},
+        menuCloser: () => { },
     };
 
     addStoryCursor = React.createRef();
@@ -193,7 +193,7 @@ class StoryVisualEditor extends React.Component {
                     }
                     onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)
                     }
-                    onSelectResponse={() => {}} // not needed for now since disableExisting is on
+                    onSelectResponse={() => { }} // not needed for now since disableExisting is on
                     onCreateResponse={template => this.handleCreateSequence(index, template)
                     }
                     onSelectAction={action => this.handleCreateSlotOrAction(index, {
@@ -270,27 +270,26 @@ class StoryVisualEditor extends React.Component {
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(exception => exception.line === index + 1);
-            
+
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
                 return (
                     <React.Fragment key={`bot${line.gui.data.name}-${index}`}>
-                        <ExceptionWrapper exceptions={exceptions}>
-                            <BotResponsesContainer
-                                language={language}
-                                deletable
-                                exceptions={exceptions}
-                                name={line.gui.data.name}
-                                onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                                isNew={!!line.gui.data.new}
-                                removeNewState={() => story.replaceLine(index, {
-                                    type: 'bot',
-                                    data: { name: line.gui.data.name },
-                                })
-                                }
-                            />
-                        </ExceptionWrapper>
+                        <BotResponsesContainer
+                            language={language}
+                            deletable
+                            addNewResponse={() => this.handleCreateSequence(index, 'text')}
+                            exceptions={exceptions}
+                            name={line.gui.data.name}
+                            onDeleteAllResponses={() => this.handleDeleteLine(index)}
+                            isNew={!!line.gui.data.new}
+                            removeNewState={() => story.replaceLine(index, {
+                                type: 'bot',
+                                data: { name: line.gui.data.name },
+                            })
+                            }
+                        />
                         {this.renderAddLine(index)}
                     </React.Fragment>
                 );

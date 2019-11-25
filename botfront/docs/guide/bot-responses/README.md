@@ -41,7 +41,7 @@ Although the YAML specification does not require quotes ( i.e `text: Hello` work
 
 ### Markdown support
 
-Some channels, such as the [Webchat](https://github.com/mrbot-ai/rasa-webchat) with `bot.socketio.SocketIOInput` have built-in markdown support
+Some channels, such as the [Webchat](https://github.com/botfront/rasa-webchat) with `bot.socketio.SocketIOInput` have built-in markdown support
 
 ```yaml
 text: "Hello from [Botfront](https://botfront.io)"

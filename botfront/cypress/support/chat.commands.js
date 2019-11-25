@@ -16,6 +16,7 @@ Cypress.Commands.add('compareLastMessage', (expectedResponse) => {
         : expectedResponse.response;
     const { replies } = expectedResponse;
     cy.wait(500);
+    cy.get('.typing-indication').should('not.exist');
     if (response) cy.get('.message').last().get('.response').contains(response);
     if (replies) {
         cy.get('.message').last().get('.replies').find('.reply')
