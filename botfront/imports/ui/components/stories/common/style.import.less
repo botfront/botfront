@@ -172,9 +172,9 @@
         .inner{
             width: 100%;
         }
-        &:hover {
-            width: ~"calc(100% + 20px)";
-        }
+        // &:hover {
+        //     width: ~"calc(100% + 20px)";
+        // }
 
         textarea {
             width: 100%;
@@ -224,12 +224,13 @@
         visibility: hidden;
         transition: opacity 0.1s ease-in-out;
         padding-left: 5px;
-        position: relative;
+        position: absolute;
         width: 135px;
         text-overflow: ellipsis;
         overflow: hidden;
-        bottom: -19px;
-        right: -3px;
+        height: 2em;
+        bottom: 0px;
+        right: 4px;
     }
 
     .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border
