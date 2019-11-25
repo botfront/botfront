@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@apollo/react-hooks';
 import { useDrag, useDrop } from 'react-dnd-cjs';
-import moment from 'moment';
 import { saveAs } from 'file-saver';
 import {
     calculateTemporalBuckets, getDataToDisplayAndParamsToUse, generateCSV, applyTimezoneOffset,
