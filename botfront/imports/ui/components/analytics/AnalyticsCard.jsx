@@ -175,7 +175,7 @@ function AnalyticsCard(props) {
                                 key={chartOption}
                                 className={chartType === chartOption ? 'selected' : ''}
                                 onClick={() => onChangeSettings('chartType', chartOption)}
-                                data-cy='chart-type-button'
+                                data-cy={`${chartOption}-chart-button`}
                             />
                         ))}
                     </Button.Group>
@@ -204,7 +204,7 @@ function AnalyticsCard(props) {
                 <span className='title'>{title}</span>
             )}
             {renderExtraOptionsLink()}
-            <div className='graph-render-zone'>
+            <div className='graph-render-zone' data-cy='analytics-chart'>
                 {(!error && !loading && data) ? (
                     renderChart()
                 ) : (
