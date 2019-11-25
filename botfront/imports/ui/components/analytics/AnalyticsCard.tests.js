@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import moment from 'moment';
-import { applyTimezoneOffset } from './AnalyticsCard';
+import { applyTimezoneOffset } from '../../../lib/graphs';
 
 
 if (Meteor.isClient) {

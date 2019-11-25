@@ -8,7 +8,7 @@ import { useDrag, useDrop } from 'react-dnd-cjs';
 import moment from 'moment';
 import { saveAs } from 'file-saver';
 import {
-    calculateTemporalBuckets, getDataToDisplayAndParamsToUse, generateCSV,
+    calculateTemporalBuckets, getDataToDisplayAndParamsToUse, generateCSV, applyTimezoneOffset,
 } from '../../../lib/graphs';
 import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
@@ -18,8 +18,6 @@ import SettingsPortal from './SettingsPortal';
 import { Projects } from '../../../api/project/project.collection';
 import Table from '../charts/Table';
 import { client } from '../../../startup/client/routes';
-
-export const applyTimezoneOffset = (date, offset) => moment(date).utcOffset(offset, true);
 
 function AnalyticsCard(props) {
     const {
@@ -55,7 +53,7 @@ function AnalyticsCard(props) {
         const {
             timezoneOffset,
         } = Projects.findOne({ _id: queryParams.projectId }, { fields: { timezoneOffset: 1 } });
-        setProjectTimezoneOffset(timezoneOffset);
+        setProjectTimezoneOffset(timezoneOffset || 0);
     }, []);
 
     const [, drag] = useDrag({
@@ -73,7 +71,6 @@ function AnalyticsCard(props) {
             }
         },
     });
-    console.log(projectTimezoneOffset);
     const variables = {
         projectId: queryParams.projectId,
         envs: queryParams.envs,
@@ -83,16 +80,13 @@ function AnalyticsCard(props) {
         fallbacks: responses || [],
         nBuckets,
     };
-    console.log(variables.from);
-    console.log(variables.to);
     const { loading, error, data } = query
         ? useQuery(query, { variables })
         : { loading: true };
-    console.log(data);
     
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, nTicks, valueType, bucketSize,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset,
         });
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
@@ -145,7 +139,7 @@ function AnalyticsCard(props) {
                 ...variables, ...exportQueryParams, nBuckets: nBucketsForExport,
             },
         });
-        const csvData = generateCSV(completeDataset, { ...queryParams, ...exportQueryParams }, bucketSize, graphParams);
+        const csvData = generateCSV(completeDataset, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset);
         const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
         saveAs(csvBlob, `${cardName}.csv`);
     };

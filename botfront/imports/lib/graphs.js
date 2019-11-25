@@ -1,5 +1,7 @@
 import moment from 'moment';
 
+export const applyTimezoneOffset = (date, offset) => moment(date).utcOffset(offset, true);
+
 export const formatDataForTable = (data) => {
     // remove the unit from the table
     // NO LONGER NEEDED
@@ -13,9 +15,9 @@ export const formatDataForTable = (data) => {
     return formattedData;
 };
 
-const xTickFilter = (data, nTicksIncoming) => {
-    // Controls the maxiumum number of ticks on the X axis.
-    // extra ticks are removed
+const getXAxisTickInterval = (data, nTicksIncoming) => {
+    // nTicksIncomming is the number snap points on the x axis
+    // reduce the number of ticks on the X axis so that text does not overlap
     const maxTicks = 7;
     const nTicks = nTicksIncoming > maxTicks ? maxTicks : nTicksIncoming;
     const tickSpacing = data.length > nTicks
@@ -58,25 +60,27 @@ const formatAxisTitles = (
     };
 };
 
-const formatDateBuckets = (data, bucketSize) => data
+const formatDateBuckets = (data, bucketSize, projectTimezoneOffset) => data
     .map((c) => {
         // change the value in the date bucket from the end time to the start time
         // or middle of the day if the period is one day long
+        const localTimezone = new Date(parseInt(c.bucket, 10) * 1000 - 43200000).getTimezoneOffset() * 60 * 1000 + projectTimezoneOffset * 60 * 60 * 1000;
         if (bucketSize === 'day') {
             return {
                 ...c,
-                bucket: new Date(parseInt(c.bucket, 10) * 1000 - 43200000),
+                bucket: new Date(parseInt(c.bucket, 10) * 1000 - 43200000 + localTimezone),
             };
         }
         if (bucketSize === 'hour') {
             return {
                 ...c,
-                bucket: new Date(parseInt(c.bucket, 10) * 1000),
+                // subtract one hour from the time to match the start of the time period rather than the end
+                bucket: new Date(parseInt(c.bucket, 10) * 1000 - (60 * 60 * 1000) + localTimezone),
             };
         }
         return {
             ...c,
-            bucket: new Date(parseInt(c.bucket, 10) * 1000 - 43200000),
+            bucket: new Date(parseInt(c.bucket, 10) * 1000 - 43200000 + localTimezone),
         };
     });
 
@@ -117,17 +121,17 @@ const formatDuration = (data, { cutoffs }) => {
     return formattedData;
 };
 
-export const formatData = (data, queryParams, bucketSize) => {
+export const formatData = (data, queryParams, bucketSize, projectTimezoneOffset) => {
     let formattedData = data[queryParams.queryName];
     if (formattedData[0] && formattedData[0].duration) formattedData = formatDuration(formattedData, queryParams);
-    if (queryParams.temporal) formattedData = formatDateBuckets(formattedData, bucketSize);
+    if (queryParams.temporal) formattedData = formatDateBuckets(formattedData, bucketSize, projectTimezoneOffset);
     return formattedData;
 };
 
 export const getDataToDisplayAndParamsToUse = ({
-    data, queryParams, graphParams, valueType, bucketSize, nTicks,
+    data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset,
 }) => {
-    const dataToDisplay = formatData(data, queryParams, bucketSize, graphParams);
+    const dataToDisplay = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
     const axisTitles = formatAxisTitles(graphParams, [bucketSize, valueType]);
     let paramsToUse = valueType === 'relative'
         ? {
@@ -142,7 +146,7 @@ export const getDataToDisplayAndParamsToUse = ({
             ...paramsToUse,
             axisBottom: {
                 ...(paramsToUse.axisBottom || {}),
-                tickValues: xTickFilter(dataToDisplay, nTicks),
+                tickValues: getXAxisTickInterval(dataToDisplay, nTicks, projectTimezoneOffset),
                 format: dateFormatDictionary[bucketSize],
             },
             xScale: { type: 'time', format: 'native' },
@@ -156,9 +160,9 @@ export const getDataToDisplayAndParamsToUse = ({
     return { dataToDisplay, paramsToUse };
 };
 
-export const generateCSV = (data, queryParams, bucketSize, graphParams) => {
+export const generateCSV = (data, queryParams, bucketSize, projectTimezoneOffset) => {
     // create csv formatted data for export
-    let formattedData = formatData(data, queryParams, bucketSize, graphParams);
+    let formattedData = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
     formattedData = formatDataForTable(formattedData);
     formattedData = formattedData.map(((elem) => {
         const { __typename, bucket, ...rest } = elem; // __typename is not exported
@@ -172,7 +176,8 @@ export const generateCSV = (data, queryParams, bucketSize, graphParams) => {
             }
             if (bucketSize === 'hour') {
                 formattedElem = {
-                    time: `${moment(bucket).toISOString()} - ${moment(bucket).add(1, 'hour').subtract(1, 'millisecond').toISOString()}`,
+                    time: `${moment(bucket).format('HH:mm')} - ${moment(bucket).add(1, 'hour').subtract(1, 'millisecond').format('HH:mm')}`,
+                    date: moment(bucket).format('DD/MM/YYYY'),
                     ...rest,
                 };
             }

@@ -20,7 +20,6 @@ function LineChart(props) {
                 yRel: d[measure.rel],
             })),
         }));
-    console.log(otherProps);
     return (
         <>
             <ResponsiveLine
