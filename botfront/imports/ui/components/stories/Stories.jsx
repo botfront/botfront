@@ -64,12 +64,14 @@ function Stories(props) {
         }
     }, [switchToGroupByIdNext]);
 
-    useEffect(() => {
-        if (!storyGroups[storyGroupCurrent] && switchToGroupByIdNext === '') {
-            if (storyGroups[storyGroupCurrent + 1]) changeStoryGroup(storyGroupCurrent + 1);
-            changeStoryGroup(storyGroupCurrent - 1);
-        }
-    }, [storyGroups.length]);
+    // useEffect(() => {
+    //     if (!storyGroups[storyGroupCurrent] && switchToGroupByIdNext === '') {
+    //         if (storyGroups[storyGroupCurrent + 1]) {
+    //             changeStoryGroup(storyGroupCurrent + 1);
+    //         }
+    //         // changeStoryGroup(storyGroupCurrent - 1);
+    //     }
+    // }, [storyGroups.length]);
 
     // By passing an empty array as the second argument to this useEffect
     // We make it so UseEffect is only called once, onMount
@@ -176,7 +178,18 @@ function Stories(props) {
     };
 
     const handleDeleteGroup = (storyGroup) => {
-        if (!storyGroup.introStory) Meteor.call('storyGroups.delete', storyGroup);
+        if (!storyGroup.introStory) {
+            Meteor.call('storyGroups.delete', storyGroup, () => {
+                /* if the story group was the last story group, change the
+                selected index to be the new last story group */
+                const deletedStoryIndex = storyGroups.findIndex(({ _id }) => _id === storyGroup._id);
+                if (storyGroupCurrent > deletedStoryIndex || storyGroupCurrent === storyGroups.length - 1) {
+                    changeStoryGroup(storyGroupCurrent - 1);
+                    return;
+                }
+                changeStoryGroup(storyGroupCurrent);
+            });
+        }
     };
     const handleStoryGroupSelect = storyGroup => Meteor.call('storyGroups.update', {
         ...storyGroup,
@@ -239,6 +252,7 @@ function Stories(props) {
                 templates: [...project.templates],
                 stories,
                 storyGroups,
+                deleteStoryGroup: handleDeleteGroup,
             }}
         >
             {modalWrapper(

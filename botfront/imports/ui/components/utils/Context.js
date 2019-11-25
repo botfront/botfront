@@ -7,6 +7,7 @@ export const ConversationOptionsContext = React.createContext({
     language: 'en',
     insertResponse: () => {},
     updateResponse: () => {},
+    deleteStoryGroup: () => {},
     getResponse: () => {},
     templates: [],
     storyGroups: [],
