@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useMutation } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { Message, Segment, Label } from 'semantic-ui-react';
 import IntentViewer from '../models/IntentViewer';
 import NLUExampleText from '../../example_editor/NLUExampleText';
-import { useActivity } from './hooks';
-import {
-    upsertActivity as upsertActivityMutation,
-    deleteActivity as deleteActivityMutation,
-} from './mutations';
+import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
 
 import { populateActivity } from './ActivityInsertions';
 import DataTable from '../../common/DataTable';
@@ -52,11 +47,11 @@ function Activity(props) {
     } = useActivity({ modelId, ...getSortFunction() });
     const [reinterpreting, setReinterpreting] = useState([]);
 
-    // always refetch on first page load; change this to subscription
-    useEffect(() => { if (refetch) refetch(); }, [refetch, modelId]);
+    // always refetch on first page load and sortType change
+    useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, sortType]);
 
-    const [upsertActivity] = useMutation(upsertActivityMutation);
-    const [deleteActivity] = useMutation(deleteActivityMutation);
+    const [upsertActivity] = useUpsertActivity();
+    const [deleteActivity] = useDeleteActivity({ modelId, ...getSortFunction() });
 
     const isUtteranceOutdated = ({ updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
     const isUtteranceReinterpreting = ({ _id }) => reinterpreting.includes(_id);
@@ -66,7 +61,6 @@ function Activity(props) {
     const handleAddToTraining = async (utterances) => {
         await Meteor.call('nlu.insertExamples', modelId, utterances);
         await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
-        refetch();
     };
 
     const handleUpdate = async (newData, rest) => {
@@ -81,8 +75,13 @@ function Activity(props) {
     };
 
     const handleDelete = async (ids) => {
-        await deleteActivity({ variables: { modelId, ids } });
-        refetch();
+        await deleteActivity({
+            variables: { modelId, ids },
+            optimisticResponse: {
+                __typename: 'Mutation',
+                deleteActivity: ids.map(_id => ({ __typename: 'Activity', _id })),
+            },
+        });
     };
 
     const handleReinterpret = async (utterances) => {
