@@ -218,14 +218,18 @@ Activity.defaultProps = {
 
 const ActivityContainer = withTracker((props) => {
     const {
-        modelId, entities, intents, project,
+        modelId, entities, intents, project, environment,
     } = props;
-
+    let envSelector;
+    if (environment) envSelector = environment;
+    if (environment === 'development' || !environment) {
+        envSelector = { $in: ['development', null] };
+    }
     const activityHandler = Meteor.subscribe('activity', modelId);
     const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1, language: 1 } });
-
-    const utterances = ActivityCollection.find({ modelId, $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] }, { sort: { createdAt: 1 } }).fetch();
-    const oosUtterances = ActivityCollection.find({ modelId, ooS: true }, { sort: { createdAt: 1 } }).fetch();
+   
+    const utterances = ActivityCollection.find({ env: envSelector, modelId, $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] }, { sort: { createdAt: 1 } }).fetch();
+    const oosUtterances = ActivityCollection.find({ env: envSelector, modelId, ooS: true }, { sort: { createdAt: 1 } }).fetch();
     const smartTips = getAllSmartTips(model, project, utterances);
     const outDatedUtteranceIds = Object.keys(smartTips).filter(u => smartTips[u].code === 'outdated');
     let localIntents = [];

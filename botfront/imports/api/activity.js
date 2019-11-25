@@ -45,6 +45,7 @@ const ActivitySchema = new SimpleSchema({
         autoValue() { return new Date(); },
     },
     ooS: { type: Boolean, defaultValue: false },
+    env: { type: String, optional: true },
 });
 
 Meteor.startup(() => {
