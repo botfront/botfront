@@ -89,13 +89,13 @@ const ExpectedCellData = {
             table: 0, row: 0, column: 2, contents: '0%',
         },
         {
-            table: 0, row: 16, column: 0, contents: '16:00 - 16:59',
+            table: 0, row: 17, column: 0, contents: '17:00 - 17:59',
         },
         {
-            table: 0, row: 16, column: 1, contents: 1,
+            table: 0, row: 17, column: 1, contents: 1,
         },
         {
-            table: 0, row: 16, column: 2, contents: '50%',
+            table: 0, row: 17, column: 2, contents: '50%',
         },
     ],
     fallbackThreeDay: [
@@ -161,16 +161,16 @@ const ExpectedCellData = {
             table: 0, row: 0, column: 3, contents: '0%',
         },
         {
-            table: 0, row: 15, column: 0, contents: '15:00 - 15:59',
+            table: 0, row: 16, column: 0, contents: '16:00 - 16:59',
         },
         {
-            table: 0, row: 15, column: 1, contents: 1,
+            table: 0, row: 16, column: 1, contents: 1,
         },
         {
-            table: 0, row: 15, column: 2, contents: 1,
+            table: 0, row: 16, column: 2, contents: 1,
         },
         {
-            table: 0, row: 15, column: 3, contents: '100%',
+            table: 0, row: 16, column: 3, contents: '100%',
         },
     ],
 };

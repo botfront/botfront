@@ -2,11 +2,13 @@
   "project": {
     "_id": "bf",
     "name": "trial",
+    "namespace": "bf-trial",
     "defaultLanguage": "en",
     "defaultDomain": {
       "content": "slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping"
     },
     "nluThreshold": 0.75,
+    "timezoneOffset": -4,
     "disabled": false,
     "nlu_models": ["6c7756de-748c-4f10-b8b4-58129b3ab4f1"],
     "templates": [

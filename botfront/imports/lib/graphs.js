@@ -1,6 +1,8 @@
 import moment from 'moment';
 
 export const formatDataForTable = (data) => {
+    // remove the unit from the table
+    // NO LONGER NEEDED
     let formattedData = data;
     if (data && data[0] && data[0].duration) {
         formattedData = formattedData.map(dataElem => ({
@@ -12,6 +14,8 @@ export const formatDataForTable = (data) => {
 };
 
 const xTickFilter = (data, nTicksIncoming) => {
+    // Controls the maxiumum number of ticks on the X axis.
+    // extra ticks are removed
     const maxTicks = 7;
     const nTicks = nTicksIncoming > maxTicks ? maxTicks : nTicksIncoming;
     const tickSpacing = data.length > nTicks
@@ -31,6 +35,7 @@ const dateFormatDictionary = {
 };
 
 const matchOption = (object, options) => {
+    // find the first value in an array to match a property in an object
     if (!object) return undefined;
     const validOptions = options.filter(option => option in object);
     return object[validOptions[0]] || object.default;
@@ -42,6 +47,7 @@ const formatAxisTitles = (
     },
     options,
 ) => {
+    // get the axis title and unit values based on the current state of the chart
     const titleTextX = axisTitleX ? matchOption(axisTitleX, options) : '';
     const titleTextY = axisTitleY ? matchOption(axisTitleY, options) : '';
     const unitTextX = unitX && matchOption(unitX, options);
@@ -54,6 +60,8 @@ const formatAxisTitles = (
 
 const formatDateBuckets = (data, bucketSize) => data
     .map((c) => {
+        // change the value in the date bucket from the end time to the start time
+        // or middle of the day if the period is one day long
         if (bucketSize === 'day') {
             return {
                 ...c,
@@ -63,7 +71,7 @@ const formatDateBuckets = (data, bucketSize) => data
         if (bucketSize === 'hour') {
             return {
                 ...c,
-                bucket: new Date(parseInt(c.bucket, 10) * 1000 - 3600000),
+                bucket: new Date(parseInt(c.bucket, 10) * 1000),
             };
         }
         return {
@@ -73,6 +81,7 @@ const formatDateBuckets = (data, bucketSize) => data
     });
 
 export const calculateTemporalBuckets = (startDate, endDate, chartType) => {
+    // calculate if a time period is broken into hours, days or weeks
     const nDays = Math.round(((endDate.valueOf() - startDate.valueOf()) / 86400000));
     if (nDays <= 1) return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
     if (nDays <= 7) return { nTicks: +nDays.toFixed(0), nBuckets: +nDays.toFixed(0), bucketSize: 'day' };
@@ -86,6 +95,7 @@ const findDurationEnd = (num, cutoffs) => (
 );
 
 const formatDuration = (data, { cutoffs }) => {
+    // find the end time of a duration based on the starttime and the intervals in the api request
     const formattedData = data.map((dataElem) => {
         if (parseInt(dataElem.duration, 10) === cutoffs[cutoffs.length - 1]) {
             return {
@@ -147,6 +157,7 @@ export const getDataToDisplayAndParamsToUse = ({
 };
 
 export const generateCSV = (data, queryParams, bucketSize, graphParams) => {
+    // create csv formatted data for export
     let formattedData = formatData(data, queryParams, bucketSize, graphParams);
     formattedData = formatDataForTable(formattedData);
     formattedData = formattedData.map(((elem) => {

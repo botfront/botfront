@@ -73,8 +73,7 @@ function AnalyticsCard(props) {
             }
         },
     });
-    
-
+    console.log(projectTimezoneOffset);
     const variables = {
         projectId: queryParams.projectId,
         envs: queryParams.envs,
@@ -84,11 +83,13 @@ function AnalyticsCard(props) {
         fallbacks: responses || [],
         nBuckets,
     };
-
+    console.log(variables.from);
+    console.log(variables.to);
     const { loading, error, data } = query
         ? useQuery(query, { variables })
         : { loading: true };
-
+    console.log(data);
+    
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
             data, queryParams, graphParams, nTicks, valueType, bucketSize,
