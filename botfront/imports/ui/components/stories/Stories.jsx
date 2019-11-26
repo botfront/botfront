@@ -64,15 +64,6 @@ function Stories(props) {
         }
     }, [switchToGroupByIdNext]);
 
-    // useEffect(() => {
-    //     if (!storyGroups[storyGroupCurrent] && switchToGroupByIdNext === '') {
-    //         if (storyGroups[storyGroupCurrent + 1]) {
-    //             changeStoryGroup(storyGroupCurrent + 1);
-    //         }
-    //         // changeStoryGroup(storyGroupCurrent - 1);
-    //     }
-    // }, [storyGroups.length]);
-
     // By passing an empty array as the second argument to this useEffect
     // We make it so UseEffect is only called once, onMount
     useEffect(() => {
@@ -351,6 +342,24 @@ const StoriesWithTracker = withTracker((props) => {
         templates,
     };
 
+    // fetch and sort story groups
+    const unsortedStoryGroups = StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch();
+    const sortedStoryGroups = unsortedStoryGroups // sorted on the frontend
+        .slice(1)
+        .sort((storyGroupA, storyGroupB) => {
+            const nameA = storyGroupA.name.toUpperCase();
+            const nameB = storyGroupB.name.toUpperCase();
+            if (nameA < nameB) {
+                return -1;
+            }
+            if (nameA > nameB) {
+                return 1;
+            }
+            return 0;
+        });
+    // unsortedStoryGroups[0] is the intro story group
+    const storyGroups = [unsortedStoryGroups[0], ...sortedStoryGroups];
+
     if (!workingLanguage && defaultLanguage) changeWorkingLanguage(defaultLanguage);
 
     return {
@@ -360,7 +369,7 @@ const StoriesWithTracker = withTracker((props) => {
             && instancesHandler.ready()
             && slotsHandler.ready()
             && storiesHandler.ready(),
-        storyGroups: StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch(),
+        storyGroups,
         slots: Slots.find({}).fetch(),
         instance,
         project,
