@@ -49,16 +49,16 @@ config().then(async config => {
                 useFindAndModify: false,
             });
             clearInterval(mongoConnectInterval)
+            app.listen(port, function() {
+                // eslint-disable-next-line no-console
+                return console.log('Server running at http://127.0.0.1:' + port);
+            });
+            app.config = config;
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.log(`Connection to MongoDB server failed. Retrying... (#${retries})`);
         }
     }, 1000)
-
-    app.listen(port, function() {
-        // eslint-disable-next-line no-console
-        return console.log('Server running at http://127.0.0.1:' + port);
-    });
-    app.config = config;
 });
 module.exports = app;
 
