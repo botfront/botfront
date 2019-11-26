@@ -3,14 +3,14 @@ query ConversationDurations(
     $envs: [String] = ["development", null],    
     $from: Float,
     $to: Float,
-    $cuttoffs: [Int] = [30, 60, 90, 120, 180],
+    $cutoffs: [Int] = [30, 60, 90, 120, 180],
 ) {
     conversationDurations(
         projectId: $projectId,
         envs: $envs,
         from: $from,
         to: $to,
-        cuttoffs: $cuttoffs,
+        cutoffs: $cutoffs,
     ) {
         duration, count, frequency,
     }
