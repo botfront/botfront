@@ -152,6 +152,12 @@ export const getConversations = async (
 
     const aggregation = [
         {
+            $addFields: {
+                createdAt: { $toDate: '$createdAt' },
+                updatedAt: { $toDate: '$updatedAt' },
+            },
+        },
+        {
             $match: { ...filtersObject },
         },
         ...lengthFilterStages,
