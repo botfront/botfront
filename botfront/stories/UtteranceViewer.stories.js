@@ -14,13 +14,13 @@ function UserUtteranceViewerWrapped(props) {
                 start: 7,
                 end: 11,
                 value: 'blue',
-                entity: 'color',
+                entity: 'bean-color',
             },
             {
                 start: 23,
                 end: 26,
                 value: 'red',
-                entity: 'color',
+                entity: 'sauce-color',
             },
         ],
     });

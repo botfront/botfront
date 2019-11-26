@@ -23,8 +23,8 @@ function Entity({
             length={value.start ? value.end - value.start : 0}
             trigger={(
                 <div className='entity-container'>
-                    <div className={`${size}-entity-text entity`}>{value.entity}</div>
-                    <div className={`${size}-entity-value entity`}>{value.value}</div>
+                    <span className='float'>{value.entity}</span>
+                    <div>{value.value}</div>
                 </div>
             )}
             key={`${value.start || value.entity}${value.end || ''}`}

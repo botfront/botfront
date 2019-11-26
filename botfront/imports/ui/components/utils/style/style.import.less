@@ -34,61 +34,83 @@
 }
 
 .entity-container {
+  line-height: 1.2;
   display: inline-block;
-  border-style: solid;
-  border-color: @entity-teal; 
-  border-width: 1px;
-  border-radius: 4px;
   position: relative;
-  line-height: 1;
-  margin: 2px; 
-  .entity {
-    display: inline-block;
+  :not(.float) {
+    background-color: lighten(@teal, 60%);
+    border-bottom: 2.5px solid @teal;
   }
 
-  .mini-entity-text {
-    background-color: @entity-teal;
-    padding: 2px 5px 2px 6px;
-    font-weight: normal;
-    color: white;
-    font-size: inherit;
-  }
-
-  .tiny-entity-text {
-    background-color: @entity-teal;
-    padding: 5px 5px 3px 10px;
-    font-weight: bold;
-    color: white;
-    font-size: inherit;
-  }
-  
-  .mini-entity-value {
-    background-color: white;
-    padding: 2px 6px 2px 3px;
-    border-radius: 0px 4px 4px 0px;
-    font-weight: normal;
-    color: @black;
-    font-size: inherit;
-  }
-  
-  .tiny-entity-value {
-    background-color: white;
-    padding: 5px 10px 3px 5px;
-    border-radius: 0px 4px 4px 0px;
-    font-weight: bold;
-    color: @black;
-    font-size: inherit;
+  .float {
+    //display: inline-block;
+    position: absolute;
+    width: 100px;
+    // overflow: hidden;
+    // white-space: nowrap;
+    // text-overflow: clip; 
+    bottom: ~"calc(100% - 5px)";
+    color: @teal;
+    font-size: small;
   }
 }
 
-.entity-container:hover {
-  .mini-entity-text {
-    background-color: @entity-teal-hover;
-  }
-  .tiny-entity-text {
-    background-color: @entity-teal-hover;
-  }
-}
+// .entity-container {
+//   display: inline-block;
+//   border-style: solid;
+//   border-color: @teal; 
+//   border-width: 1px;
+//   border-radius: 4px;
+//   position: relative;
+//   line-height: 1;
+//   margin: 2px; 
+//   .entity {
+//     display: inline-block;
+//   }
+
+//   .mini-entity-text {
+//     background-color: @teal;
+//     padding: 2px 5px 2px 6px;
+//     font-weight: normal;
+//     color: white;
+//     font-size: inherit;
+//   }
+
+//   .tiny-entity-text {
+//     background-color: @teal;
+//     padding: 5px 5px 3px 10px;
+//     font-weight: bold;
+//     color: white;
+//     font-size: inherit;
+//   }
+  
+//   .mini-entity-value {
+//     background-color: white;
+//     padding: 2px 6px 2px 3px;
+//     border-radius: 0px 4px 4px 0px;
+//     font-weight: normal;
+//     color: @black;
+//     font-size: inherit;
+//   }
+  
+//   .tiny-entity-value {
+//     background-color: white;
+//     padding: 5px 10px 3px 5px;
+//     border-radius: 0px 4px 4px 0px;
+//     font-weight: bold;
+//     color: @black;
+//     font-size: inherit;
+//   }
+// }
+
+// .entity-container:hover {
+//   .mini-entity-text {
+//     background-color: darken(@teal, 3%);
+//   }
+//   .tiny-entity-text {
+//     background-color: darken(@teal, 3%);
+//   }
+// }
 
 .utterance-viewer {
   .selected-text {
