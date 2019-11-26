@@ -131,7 +131,7 @@ const ConversationFilters = ({
 
                     <div className='conversation-filter' data-cy='date-filter'>
                         <b>Filter by date</b>
-                        <Segment className='date-filter'>
+                        <Segment className='date-filter' data-cy='date-picker-container'>
                             <DatePicker
 
                                 position='bottom left'
