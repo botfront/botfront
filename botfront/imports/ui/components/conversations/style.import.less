@@ -18,3 +18,133 @@ div.bot-response-message {
     border: none;
   }
 }
+
+.grid .accordion.filter-accordion{
+  width: 100%;
+
+  .toggle-filters {
+    color: #2185d0;
+  }
+}
+
+.conversation-filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  .conversation-filter {
+    padding: 0em 0.75em;
+   
+    &.actions{
+      flex-basis: 100%;
+    }
+    
+    &.buttons{
+      margin-top: 1.1rem;
+    }
+    .dropdown.filter-dropdown {
+      min-height: 30px;
+      border-style: none;
+      box-shadow: none;
+      margin: 0;
+      &.multi-select{
+        padding-right: 0px;
+        overflow: auto;
+        overflow-y: hidden;
+        overflow-x: auto;
+        border-style: solid;
+        border-width: 1px;
+        input{
+          max-width: 14em;
+        }
+        .ui.label{
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+        .dropdown.icon{
+          position: relative;
+        }
+        &::-webkit-scrollbar {
+          -webkit-appearance: none;
+          height: 0px;
+        }
+        &:hover{
+          &::-webkit-scrollbar {
+            -webkit-appearance: none;
+            height: 6px;
+          }
+        }
+        &.active{
+          max-height: unset;
+          overflow: unset;
+          white-space: pre-wrap;
+          overflow-x: wrap;
+          overflow-y: unset;
+        }
+      }
+    }
+    .ui.segments{
+      box-shadow: none;
+    }
+    .ui.segment{
+      padding: 0;
+      text-align: center;
+      vertical-align: middle;
+      
+      .input {
+        width: 100%;
+        &.text-input{
+          input{
+            text-align: left;
+          }
+        }
+        input{
+          margin: 0px;
+          border-style: none;
+          box-shadow: none;
+          text-align: center;
+          font-weight: 400;
+        }
+        margin: 0px;
+        border-style: none;
+        box-shadow: none;
+      }
+      &.number-filter{
+        width: 4.5em;
+      }
+      &.x-than-filter{
+        width: 9em;
+        .label{
+          padding-top: 0.8rem;
+          width: 100%;
+          height: 100%;
+          border-radius: unset;
+          font-size: 1rem;
+        }
+      }
+      &.static-symbol{
+        p {
+          line-height: 36px;
+          width: 2.5em;
+          background-color: rgb(241, 241, 241);
+          color: rgba(0,0,0,.6);
+          font-weight: 700;
+        }
+      }
+      &.action-filter {
+        min-width: 15em;
+        border-style: none;
+      }
+      &.date-filter {
+        max-width: 20em;
+        border-style: none;
+      }
+      &.filter-button {
+        max-width: 20em;
+        margin-right: 0.7rem ;
+        border-style: none;
+        display: inline;
+      }
+    }
+  }
+}

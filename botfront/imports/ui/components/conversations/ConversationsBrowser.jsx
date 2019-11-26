@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import requiredIf from 'react-required-if';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
 import { browserHistory, withRouter } from 'react-router';
 import {
-    Container, Grid, Icon, Menu, Message, Segment, Pagination,
+    Container, Grid, Icon, Menu, Message, Pagination,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
+import { Meteor } from 'meteor/meteor';
 import { GET_CONVERSATIONS } from './queries';
 import { DELETE_CONV } from './mutations';
 import ConversationViewer from './ConversationViewer';
+import ConversationFilters from './ConversationFilters';
 import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
+import { wrapMeteorCallback } from '../utils/Errors';
 
 
 function ConversationsBrowser(props) {
@@ -23,6 +25,10 @@ function ConversationsBrowser(props) {
         activeConversationId,
         refetch,
         router,
+        activeFilters,
+        setActiveFilters,
+        actionsOptions,
+        setActionOptions,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -91,6 +97,19 @@ function ConversationsBrowser(props) {
         return items;
     }
 
+    function changeFilters(lengthFilter, confidenceFilter, actionFilters, startDate, endDate) {
+        setActiveFilters({
+            lengthFilter: parseInt(lengthFilter.compare, 10),
+            xThanLength: lengthFilter.xThan,
+            confidenceFilter: parseFloat(confidenceFilter.compare, 10) / 100,
+            xThanConfidence: confidenceFilter.xThan,
+            actionFilters,
+            startDate,
+            endDate,
+        });
+        refetch();
+    }
+
     function deleteConversation(conversationId) {
         const index = trackers.map(t => t._id).indexOf(conversationId);
         // deleted convo is not the last of the current page
@@ -111,59 +130,81 @@ function ConversationsBrowser(props) {
 
     return (
         <div>
-            {trackers.length > 0 ? (
-                <Grid>
-                    <Grid.Column width={4}>
-                        {pages > 1 ? (
-                            <Pagination
-                                totalPages={pages}
-                                onPageChange={(e, { activePage }) => pageChange(activePage)}
-                                activePage={page}
-                                boundaryRange={0}
-                                siblingRange={0}
-                                size='mini'
-                                firstItem='1'
-                                lastItem={`${pages}`}
-                                data-cy='pagination'
+            <Grid>
+                <Grid.Row>
+                    <ConversationFilters
+                        lengthFilter={activeFilters.lengthFilter}
+                        xThanLength={activeFilters.xThanLength}
+                        confidenceFilter={activeFilters.confidenceFilter}
+                        xThanConfidence={activeFilters.xThanConfidence}
+                        actionFilters={activeFilters.actionFilters}
+                        startDate={activeFilters.startDate}
+                        endDate={activeFilters.endDate}
+                        changeFilters={changeFilters}
+                        actionsOptions={actionsOptions}
+                        setActionOptions={setActionOptions}
+                    />
+                </Grid.Row>
+                {trackers.length > 0 ? (
+                    <>
+                        <Grid.Column width={4}>
+                            {pages > 1 ? (
+                                <Pagination
+                                    totalPages={pages}
+                                    onPageChange={(e, { activePage }) => pageChange(activePage)}
+                                    activePage={page}
+                                    boundaryRange={0}
+                                    siblingRange={0}
+                                    size='mini'
+                                    firstItem='1'
+                                    lastItem={`${pages}`}
+                                    data-cy='pagination'
+                                />
+                            ) : <></>}
+
+                            <Menu pointing vertical fluid>
+                                {renderMenuItems()}
+
+                            </Menu>
+                        </Grid.Column>
+                        <Grid.Column width={12}>
+                            <ConversationViewer
+                                conversationId={activeConversationId}
+                                onDelete={deleteConversation}
+                                removeReadMark={optimisticRemoveMarker}
+                                optimisticlyRemoved={optimisticRemoveReadMarker}
                             />
-                        ) : <></>}
-
-                        <Menu pointing vertical fluid>
-                            {renderMenuItems()}
-
-                        </Menu>
+                        </Grid.Column>
+                    </>
+                ) : (
+                    <Grid.Column width={16}>
+                        <Message data-cy='no-conv' info>No conversation to load</Message>
                     </Grid.Column>
-                    <Grid.Column width={12}>
-                        <ConversationViewer
-                            conversationId={activeConversationId}
-                            onDelete={deleteConversation}
-                            removeReadMark={optimisticRemoveMarker}
-                            optimisticlyRemoved={optimisticRemoveReadMarker}
-                        />
-                    </Grid.Column>
-                </Grid>
-            ) : (
-                <Message data-cy='no-conv' info>No conversation to load</Message>
-            )}
+                )}
+            </Grid>
         </div>
     );
 }
 
 ConversationsBrowser.propTypes = {
-    trackers: requiredIf(PropTypes.array, ({ loading }) => !loading),
+    trackers: PropTypes.array,
     activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
-    pages: PropTypes.number,
+    pages: PropTypes.number.isRequired,
     refetch: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
+    activeFilters: PropTypes.object,
+    setActiveFilters: PropTypes.func.isRequired,
+    actionsOptions: PropTypes.array,
+    setActionOptions: PropTypes.func.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
     trackers: [],
     activeConversationId: null,
-    pages: 1,
+    activeFilters: {},
+    actionsOptions: [],
 };
-
 
 const ConversationsBrowserContainer = (props) => {
     const { environment: env, router } = props;
@@ -173,24 +214,61 @@ const ConversationsBrowserContainer = (props) => {
 
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
-    let page = parseInt(router.params.page, 10) || 1;
-    if (!Number.isInteger(page) || page < 1) {
-        page = 1;
-    }
+    const page = parseInt(router.params.page, 10) || 1;
+    
+    const [activeFilters, setActiveFilters] = useState({
+        lengthFilter: -1,
+        xThanLength: 'greaterThan',
+        confidenceFilter: -1,
+        xThanConfidence: 'lessThan',
+        actionFilters: [],
+        startDate: null,
+        endDate: null,
+        timeZoneHoursOffset: null,
+    });
+    const [actionsOptions, setActionOptions] = useState([]);
+
+    useEffect(() => {
+        Meteor.call(
+            'project.getActions',
+            projectId,
+            wrapMeteorCallback((err, res) => {
+                if (!err) {
+                    setActionOptions(res.map(action => ({ text: action, value: action, key: action })));
+                }
+            }),
+        );
+    }, []);
 
 
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
         variables: {
-            projectId, page, pageSize: 20, env,
+            projectId,
+            page,
+            pageSize: 20,
+            env,
+            ...activeFilters,
+            /* the moment dates are not set on midnight by the date picker,
+            and uses client timezone we force UTC as were using a set timezone
+            */
+            startDate: activeFilters.startDate ? activeFilters.startDate
+                .hours(0)
+                .utcOffset(0)
+                .toISOString() : null,
+            endDate: activeFilters.endDate ? activeFilters.endDate
+                .hours(0)
+                .utcOffset(0)
+                .toISOString() : null,
+            timeZoneHoursOffset: -4, // force the offset to canada (gmt-4) for now
         },
         pollInterval: 5000,
     });
 
 
     const componentProps = {
-        page, projectId, refetch, router,
+        page, projectId, router, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions,
     };
 
     if (!loading && !error) {
@@ -198,7 +276,7 @@ const ConversationsBrowserContainer = (props) => {
 
         // If for some reason the conversation is not in the current page, discard it.
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
-        if (!activeConversationId) {
+        if (!activeConversationId && conversations.length > 0) {
             const url = updateIncomingPath({ ...router.params, page: page || 1, selected_id: conversations[0]._id });
             browserHistory.replace({ pathname: url });
         } else {
@@ -212,6 +290,7 @@ const ConversationsBrowserContainer = (props) => {
         Object.assign(componentProps, {
             projectId,
             page,
+            pages: 1,
             modelId: router.params.model_id,
         });
     }
@@ -219,10 +298,9 @@ const ConversationsBrowserContainer = (props) => {
         <div>
             <Loading loading={loading}>
                 <Container>
-                        <ConversationsBrowser
-                            {...componentProps}
-                        />
-
+                    <ConversationsBrowser
+                        {...componentProps}
+                    />
                 </Container>
             </Loading>
         </div>
@@ -232,12 +310,15 @@ const ConversationsBrowserContainer = (props) => {
 ConversationsBrowserContainer.propTypes = {
     router: PropTypes.object.isRequired,
     environment: PropTypes.string,
+    actionsOptions: PropTypes.array,
+    setActionOptions: PropTypes.func.isRequired,
+
 };
 
 ConversationsBrowserContainer.defaultProps = {
     environment: 'developement',
+    actionsOptions: [],
 };
-
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

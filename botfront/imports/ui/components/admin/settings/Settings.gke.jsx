@@ -10,7 +10,7 @@ export default [
         menuItem: <Menu.Item content='GKE settings' />,
         render: () => (
             <Tab.Pane>
-                <InfoField name='settings.private.bfApiHost' label='Botfront API host' />
+                <InfoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
                 <InfoField name='settings.private.gcpProjectId' label='GCP Project ID' />
                 <InfoField name='settings.private.gcpModelsBucket' label='GCS Bucket for Core models' />
                 <InfoField name='settings.private.dockerRegistry' label='Docker registry' />

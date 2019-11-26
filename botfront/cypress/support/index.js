@@ -30,17 +30,17 @@ switch (Cypress.env('abort_strategy')) {
 case 'run':
     // eslint-disable-next-line no-undef
     before(function onBeforeEach() {
-    // Skips any subsequent specs, if the run has been flagged as failed
+        // Skips any subsequent specs, if the run has been flagged as failed
         cy.getCookie('has_failed_test').then((cookie) => {
             if (cookie && typeof cookie === 'object' && cookie.value === 'true') {
                 Cypress.runner.stop();
             }
         });
     });
-/* fallthrough */
+    /* fallthrough */
 case 'spec':
     afterEach(function onAfterEach() {
-    // Skips all subsequent tests in a spec, and flags the whole run as failed
+        // Skips all subsequent tests in a spec, and flags the whole run as failed
         if (this.currentTest.state === 'failed') {
             cy.setCookie('has_failed_test', 'true');
             Cypress.runner.stop();
@@ -328,7 +328,7 @@ Cypress.Commands.add('deleteUser', (email) => {
                     resolve(result);
                 });
             } catch (e) {
-                throw err;
+                throw e;
             }
         }),
     );
@@ -481,7 +481,7 @@ Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = n
                 latest_message: {
                     text: '/get_started',
                     entities: [
-     
+
                     ],
                     intent_ranking: [
                         {
@@ -629,7 +629,7 @@ Cypress.Commands.add('addTrainingData', (modelId, language) => {
         ],
     );
 });
-Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Promise(async function(resolve, reject) {
+Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Promise(async function (resolve, reject) {
     for (let i = 1; i < Number.MAX_VALUE; i += 1) {
         try {
             await axios(url);
@@ -786,4 +786,18 @@ Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDate
         .find('button')
         .contains('Confirm')
         .click();
+});
+
+Cypress.Commands.add('addConversation', (projectId, id, conversation) => {
+    let url = `http://localhost:8080/project/${projectId}/conversations/${id}/insert?api-key=`;
+    if (Cypress.env('API_URL') !== '') {
+        url = `${Cypress.env('API_URL')}/project/${projectId}/conversations/${id}/insert?api-key=`;
+    }
+
+    cy.request({
+        method: 'POST',
+        url,
+        headers: { 'Content-Type': 'application/json' },
+        body: conversation,
+    });
 });

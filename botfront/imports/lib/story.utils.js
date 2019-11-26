@@ -255,7 +255,7 @@ const filterTemplatesByLanguage = (templates, language) => {
     return filteredTemplates;
 };
 
-const getAllTemplates = (projectId, language = '') => {
+export const getAllTemplates = (projectId, language = '') => {
     // fetches templates and turns them into nested key-value format
     let { templates } = Projects.findOne(
         { _id: projectId },

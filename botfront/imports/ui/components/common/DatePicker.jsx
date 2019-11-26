@@ -12,7 +12,9 @@ if (!Meteor.isTest) {
     import 'react-dates/lib/css/_datepicker.css';
 }
 
-function DatePicker({ startDate, endDate, onConfirm }) {
+function DatePicker({
+    startDate, endDate, onConfirm, position,
+}) {
     const [focusedInput, setFocusedInput] = useState('startDate');
     const [newStartDate, setNewStartDate] = useState(startDate);
     const [newEndDate, setNewEndDate] = useState(endDate);
@@ -92,6 +94,8 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     return (
         <Popup
             flowing
+            position={position}
+            pinned={!!position}
             className='date-picker'
             open={popupOpen}
             onClose={handlePopupState}
@@ -154,12 +158,14 @@ DatePicker.propTypes = {
     startDate: momentPropTypes.momentObj,
     endDate: momentPropTypes.momentObj,
     onConfirm: PropTypes.func.isRequired,
+    position: PropTypes.string,
 };
 
 
 DatePicker.defaultProps = {
     startDate: null,
     endDate: null,
+    position: null,
 };
 
 
