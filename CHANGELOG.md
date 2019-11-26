@@ -2,6 +2,68 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.5-ee.0](https://github.com/botfront/botfront/compare/v0.18.2-ee.0...v0.18.5-ee.0) (2019-11-26)
+
+
+### Features
+
+* add ui for conversation filters ([776f5ce](https://github.com/botfront/botfront/commit/776f5ce490129fd871c62ccd3a8fa75654a6a286))
+* analytics table view ([e3194bb](https://github.com/botfront/botfront/commit/e3194bb91d71008f7ef05680b9b15b1e0ecb93b1))
+* reset button, hide/reveal and style changes ([3dcf651](https://github.com/botfront/botfront/commit/3dcf651ac0f796c41a19154fbd32ae39da008eac))
+
+
+### Bug Fixes
+
+* Analytics display duration as time(s)<time(s) ([aeb7e31](https://github.com/botfront/botfront/commit/aeb7e3153b7026d2d672ad5e72f871695fa6597d))
+* analytics duration: axis values ([6cf27f2](https://github.com/botfront/botfront/commit/6cf27f2303d558b521409406fbecf06c22940cfe))
+* analytics duration: axis values ([d50d9b9](https://github.com/botfront/botfront/commit/d50d9b9b3e39e4e516ce93c319dad37df3fb3c72))
+* change api url if the run is from ci ([46d233e](https://github.com/botfront/botfront/commit/46d233e31f2d6f8a88b70e8a1b95759bdd0e4372))
+* custom range in date picker ([a040628](https://github.com/botfront/botfront/commit/a040628a4b7987362cd4d2089645fa8216c35c4b))
+* custom range in date picker ([0d3d21e](https://github.com/botfront/botfront/commit/0d3d21e2c2d7db1a728ca237ee1d01e063fd81af))
+* date picker creashes with a one day range ([17a7aa0](https://github.com/botfront/botfront/commit/17a7aa0c473365e854aaa011d54d6940c212a6a3))
+* date ranges for analytics line chart ([5a3d12d](https://github.com/botfront/botfront/commit/5a3d12db52eacfdf9e63544d615dc7eba58cd7cd))
+* display update warnings for bot sequences ([6974bc0](https://github.com/botfront/botfront/commit/6974bc080252e781bb6ef9ee86962eb69a8e2513))
+* env selector and the corresponding test ([99da2af](https://github.com/botfront/botfront/commit/99da2af06e62af4a6bbcc1cd6a80d3fb0a9d7c94))
+* env selector and the corresponding test ([cd34084](https://github.com/botfront/botfront/commit/cd3408438a122837afc500e608492ed3f1fbc6fa))
+* export for Rasa: domain contains language information ([8330b23](https://github.com/botfront/botfront/commit/8330b23c4ec4cfc4d54e5595c7febb4503058884))
+* input overflows action dropdown ([2fe3c77](https://github.com/botfront/botfront/commit/2fe3c773fe2c220fd23f1b9534538342c4761704))
+* long action names overflow dropdown ([558320a](https://github.com/botfront/botfront/commit/558320adb9d128f20e8241ac7cc2e2c7e18e372a))
+* remember story group selection ([febf6ef](https://github.com/botfront/botfront/commit/febf6ef0f7aab94c940f3cac75385031cc55d537))
+* removes a duplicate of insert many ([70e0238](https://github.com/botfront/botfront/commit/70e0238e6c6baa7292c22bdf837ddcef043d71b6))
+
+### [0.18.2-ee.0](https://github.com/botfront/botfront/compare/v0.18.1-ee.3...v0.18.2-ee.0) (2019-11-18)
+
+
+### Features
+
+* add cy.findCy command ([fe99ed5](https://github.com/botfront/botfront/commit/fe99ed5cf143fbb50e0da97dc56a6fe464b2c389))
+* remove reload in conversation tests ([0b3e55a](https://github.com/botfront/botfront/commit/0b3e55a876bcc7af19e8be43fb5d8339be2fd63f))
+* test deleting a branch in the visual editor ([4f1abdd](https://github.com/botfront/botfront/commit/4f1abdd08710237cae03efda095578b64bf0495c))
+
+
+### Bug Fixes
+
+* before/after each in convo tests ([e6f7fad](https://github.com/botfront/botfront/commit/e6f7fad05d8dff365fd2517560de86963e5dd5f1))
+* before/after each in convo tests ([94b2dde](https://github.com/botfront/botfront/commit/94b2dde115a22cca7e7e78c23fedfff85c9cb6cd))
+* branch deletion in visual_branches test ([9d1bb6c](https://github.com/botfront/botfront/commit/9d1bb6c420cc0cedb1939f62512beedc518e7713))
+* clean up state before tests instead of after ([2ece10f](https://github.com/botfront/botfront/commit/2ece10f7f127a4f875f009ebbad6f18bd000d47c))
+* conversation test needs to wait for rasa ([38985f1](https://github.com/botfront/botfront/commit/38985f16beefb25fbd628a0a0dcfecd87a9aeb02))
+* duplicate keys after deleting branch ([ecbbea7](https://github.com/botfront/botfront/commit/ecbbea7b82132834e01863d4da6c79efe67d3714))
+* error on delete user ([b4d7157](https://github.com/botfront/botfront/commit/b4d71571a0f0a1962a249bcd816d747d88536bad))
+* import delayed refresh causes test to fail ([1a1ebf1](https://github.com/botfront/botfront/commit/1a1ebf14c23c6cc7bd1ca9a78c493ceab36a996e))
+* merge conversation changes from master ([bc4d091](https://github.com/botfront/botfront/commit/bc4d0910c4c2cd38b3f474e8fa1c512785564b73))
+* merge conversation changes from master ([1a740f6](https://github.com/botfront/botfront/commit/1a740f64a297595f574f280c9ef6a546d93211df))
+* merge conversation pagination ([09c7d57](https://github.com/botfront/botfront/commit/09c7d573e8a9b6bd4ca1a5d7372cb91cb51affff))
+* nlu training button permanatly disabled ([03d85cd](https://github.com/botfront/botfront/commit/03d85cd4b4809ea22ecce31365b094d6d9993b61))
+* selecting fallback templates does nothing ([79c961c](https://github.com/botfront/botfront/commit/79c961cca37fa1ea41935c2aed11696edccc6afb))
+* standeradize test steps to delete branches ([2852dbc](https://github.com/botfront/botfront/commit/2852dbc6a2860c7d0451d1c62b7a835e84e12ddb))
+* training on linked stories ([4ade3a6](https://github.com/botfront/botfront/commit/4ade3a6538953c7d738b998c255b631e2fc08681))
+* training state stuck in training after import ([46ab050](https://github.com/botfront/botfront/commit/46ab0504ac3ee6ef02ffb1292e06201d79a3361c))
+* use importProject cypress command in tests ([568e212](https://github.com/botfront/botfront/commit/568e212206005010bf0499f694709367a00aaf14))
+* use importProject cypress command in tests ([63fb46a](https://github.com/botfront/botfront/commit/63fb46ad662efa124294ebbd34c4b62b78405b6c))
+* use withRouter for routing, func for get url ([a49cd47](https://github.com/botfront/botfront/commit/a49cd47d1c5edc8b1e2c03c51e7adf4447ba829a))
+* use withRouter for routing, func for get url ([e593a27](https://github.com/botfront/botfront/commit/e593a2790e0b316516adf38131e42e489a485d90))
+
 ### [0.18.1-ee.3](https://github.com/botfront/botfront/compare/v0.18.1-ee.2...v0.18.1-ee.3) (2019-11-14)
 
 
