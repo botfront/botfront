@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 import 'react-dates/initialize';
 import moment from 'moment';
 import { DayPickerRangeController } from 'react-dates';
@@ -68,11 +66,11 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     function datesChange(incomingRange) {
         const newRange = incomingRange;
         if (!newRange.endDate) { // selection has a range of one day
-            newRange.endDate = moment(newRange.startDate.endOf('day')._d);
-            newRange.startDate = moment(newRange.startDate.startOf('day')._d);
+            newRange.endDate = moment(newRange.startDate.endOf('day'));
+            newRange.startDate = moment(newRange.startDate.startOf('day'));
         } else {
-            newRange.endDate = moment(newRange.endDate.endOf('day')._d);
-            newRange.startDate = moment(newRange.startDate.startOf('day')._d);
+            newRange.endDate = moment(newRange.endDate.endOf('day'));
+            newRange.startDate = moment(newRange.startDate.startOf('day'));
         }
         setSelectedRangeType(0); // if there is date change, the range type is always custom (index 0)
         setCustomRange({ startDate: newRange.startDate, endDate: newRange.endDate });
@@ -82,7 +80,7 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     function rangeChange(data) {
         setSelectedRangeType(data.value);
         const range = DateOptions[data.value].data;
-        setNewDates(moment(range.startDate.startOf('day')._d), moment(range.endDate.endOf('day')._d));
+        setNewDates(moment(range.startDate.startOf('day')), moment(range.endDate.endOf('day')));
         setFocusedInput('startDate');
     }
 
