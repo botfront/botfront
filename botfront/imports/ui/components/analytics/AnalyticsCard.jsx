@@ -3,7 +3,7 @@ import {
 } from 'semantic-ui-react';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useLazyQuery } from '@apollo/react-hooks';
 import { useDrag, useDrop } from 'react-dnd-cjs';
 import { saveAs } from 'file-saver';
 import {
@@ -16,7 +16,6 @@ import LineChart from '../charts/LineChart';
 import SettingsPortal from './SettingsPortal';
 import { Projects } from '../../../api/project/project.collection';
 import Table from '../charts/Table';
-import { client } from '../../../startup/client/routes';
 
 function AnalyticsCard(props) {
     const {
@@ -47,6 +46,7 @@ function AnalyticsCard(props) {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
+    const [activateDownload, setActivateDownload] = useState(false);
 
     useEffect(() => {
         const {
@@ -83,6 +83,22 @@ function AnalyticsCard(props) {
         ? useQuery(query, { variables })
         : { loading: true };
     
+    const [getExportData, { error: exportError, data: exportData }] = useLazyQuery(query);
+    const downloadCSV = () => {
+        const csvData = generateCSV(exportData, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset);
+        const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+        saveAs(csvBlob, `${cardName}.csv`);
+    };
+    if (exportData !== undefined && activateDownload === true) {
+        setActivateDownload(false);
+        downloadCSV();
+    }
+    if (exportError && activateDownload === true) {
+        setActivateDownload(false);
+        // eslint-disable-next-line no-console
+        if (process.env.NODE_ENV === 'development') console.log(exportError);
+    }
+
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
             data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset,
@@ -132,15 +148,12 @@ function AnalyticsCard(props) {
 
     const handleExportClick = async () => {
         const { nBuckets: nBucketsForExport } = calculateTemporalBuckets(startDate, endDate, 'table');
-        const { data: completeDataset } = await client.query({
-            query,
+        getExportData({
             variables: {
                 ...variables, ...exportQueryParams, nBuckets: nBucketsForExport,
             },
         });
-        const csvData = generateCSV(completeDataset, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset);
-        const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
-        saveAs(csvBlob, `${cardName}.csv`);
+        setActivateDownload(true);
     };
 
     return (
