@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Hind:600|Raleway:500');
+@import url('https://fonts.googleapis.com/css?family=Be+Vietnam:400,500,700|Hind:600|Raleway:500');
 @import 'variables.import.less';
 @import '../imports/ui/layouts/project.import.less';
 @import '../imports/ui/layouts/setup.import.less';
@@ -50,11 +50,17 @@ html {
     overflow: hidden;
     height: 100%;
     font-size: @emSize !important;
+    font-family: @fontFamily !important;
 }
 
 body {
     color: #212121;
     font-size: inherit !important;
+    font-family: inherit !important;
+}
+
+.ui {
+    font-family: inherit !important;
 }
 
 #render-target {
