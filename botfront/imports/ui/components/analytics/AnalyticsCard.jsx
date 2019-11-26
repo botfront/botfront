@@ -171,7 +171,7 @@ function AnalyticsCard(props) {
                 </div>
             )}
             <span className='top-right-buttons'>
-                {
+                {exportQueryParams && (
                     <Button
                         className='export-card-button'
                         basic
@@ -179,7 +179,7 @@ function AnalyticsCard(props) {
                         icon='download'
                         onClick={handleExportClick}
                     />
-                }
+                )}
                 {uniqueChartOptions.length > 1 && (
                     <Button.Group basic size='medium' className='chart-type-selector'>
                         {uniqueChartOptions.map(chartOption => (
