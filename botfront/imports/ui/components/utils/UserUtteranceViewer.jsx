@@ -8,7 +8,7 @@ import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 
 function UserUtteranceViewer({
-    value, size, onChange, disableEditing, projectId,
+    value, onChange, disableEditing, projectId,
 }) {
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
@@ -243,7 +243,7 @@ function UserUtteranceViewer({
                     return (
                         <Entity
                             value={element}
-                            size={size}
+                            size='mini'
                             key={element.start}
                             allowEditing={!disableEditing}
                             deletable={!disableEditing}
@@ -280,7 +280,7 @@ function UserUtteranceViewer({
             {intent && (
                 <Intent
                     value={intent}
-                    size={size}
+                    size='mini'
                     allowEditing={!disableEditing}
                     allowAdditions
                     onChange={newIntent => onChange({ ...value, intent: newIntent })}
@@ -292,14 +292,12 @@ function UserUtteranceViewer({
 
 UserUtteranceViewer.propTypes = {
     value: PropTypes.object.isRequired,
-    size: PropTypes.string,
     disableEditing: PropTypes.bool,
     onChange: PropTypes.func,
     projectId: PropTypes.string.isRequired,
 };
 
 UserUtteranceViewer.defaultProps = {
-    size: 'mini',
     disableEditing: false,
     onChange: () => {},
 };

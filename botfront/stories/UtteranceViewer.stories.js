@@ -1,52 +1,43 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
-import { Label } from 'semantic-ui-react';
-import { withKnobs, boolean, select } from '@storybook/addon-knobs';
+import { withKnobs, boolean } from '@storybook/addon-knobs';
+import { withBackground } from '../.storybook/decorators';
 import UserUtteranceViewer from '../imports/ui/components/utils/UserUtteranceViewer';
 import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
 
 function UserUtteranceViewerWrapped(props) {
     const [utterance, setUtterance] = useState({
-        text: 'This is an intent that is an,entity',
-        intent: 'intent',
+        text: 'I like blue beans with red sauce.',
+        intent: 'I_like_beans',
         entities: [
             {
-                start: 8,
-                end: 10,
-                value: 'an',
-                entity: 'entity2',
+                start: 7,
+                end: 11,
+                value: 'blue',
+                entity: 'color',
             },
             {
-                start: 0,
-                end: 4,
-                value: 'This',
-                entity: 'entity1',
-            },
-            {
-                start: 11,
-                end: 17,
-                value: 'intent',
-                entity: 'entity2',
-            },
-            {
-                start: 26,
-                end: 28,
-                value: 'an',
-                entity: 'entity2',
-            },
-            {
-                start: 29,
-                end: 35,
-                value: 'entity',
-                entity: 'entity2',
+                start: 23,
+                end: 26,
+                value: 'red',
+                entity: 'color',
             },
         ],
     });
-    return <UserUtteranceViewer {...props} value={utterance} onChange={setUtterance} />;
+    return (
+        <div
+            style={{
+                width: '50%', backgroundColor: '#eee', padding: '10px', margin: '30px', outline: '1px black solid',
+            }}
+        >
+            <UserUtteranceViewer {...props} value={utterance} onChange={setUtterance} />
+        </div>
+    );
 }
 
 storiesOf('UserUtteranceViewer', module)
     .addDecorator(withKnobs)
+    .addDecorator(withBackground)
     .addDecorator(story => (
         <ConversationOptionsContext.Provider
             value={{
@@ -57,10 +48,8 @@ storiesOf('UserUtteranceViewer', module)
             {story()}
         </ConversationOptionsContext.Provider>
     ))
-    .addDecorator(renderLabel => <Label>{renderLabel()}</Label>)
     .add('with props', () => (
         <UserUtteranceViewerWrapped
-            size={select('size', ['mini', 'tiny'], 'mini')}
             disableEditing={boolean('disableEditing', false)}
         />
     ));
