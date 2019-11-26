@@ -7,9 +7,10 @@ import { ConversationOptionsContext } from './Context';
 import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 
-function UserUtteranceViewer({
-    value, onChange, disableEditing, projectId,
-}) {
+function UserUtteranceViewer(props) {
+    const {
+        value, onChange, disableEditing, projectId, showIntent,
+    } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
     const { entities: contextEntities } = useContext(ConversationOptionsContext);
@@ -276,16 +277,20 @@ function UserUtteranceViewer({
                     />
                 );
             })}
-            <> &nbsp; </>
-            {intent && (
-                <Intent
-                    value={intent}
-                    size='mini'
-                    allowEditing={!disableEditing}
-                    allowAdditions
-                    onChange={newIntent => onChange({ ...value, intent: newIntent })}
-                />
+            {showIntent && (
+                <> &nbsp;
+                    {intent && (
+                        <Intent
+                            value={intent}
+                            size='mini'
+                            allowEditing={!disableEditing}
+                            allowAdditions
+                            onChange={newIntent => onChange({ ...value, intent: newIntent })}
+                        />
+                    )}
+                </>
             )}
+
         </div>
     );
 }
@@ -293,12 +298,14 @@ function UserUtteranceViewer({
 UserUtteranceViewer.propTypes = {
     value: PropTypes.object.isRequired,
     disableEditing: PropTypes.bool,
+    showIntent: PropTypes.bool,
     onChange: PropTypes.func,
     projectId: PropTypes.string.isRequired,
 };
 
 UserUtteranceViewer.defaultProps = {
     disableEditing: false,
+    showIntent: true,
     onChange: () => {},
 };
 

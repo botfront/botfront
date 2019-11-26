@@ -51,5 +51,6 @@ storiesOf('UserUtteranceViewer', module)
     .add('with props', () => (
         <UserUtteranceViewerWrapped
             disableEditing={boolean('disableEditing', false)}
+            showIntent={boolean('showIntent', true)}
         />
     ));
