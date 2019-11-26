@@ -741,8 +741,11 @@ Cypress.Commands.add('findMonth', (queryMonth, index, incomingSearchPrev) => {
 });
 Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDateStr) => {
     /*
-        firstDate is the first date the function clicks on;
-        this is not necissarily the start date
+        clicks on firstDateStr, then clicks on SecondDateStr, then confirms the date selection
+        ----------------------------------------------------------
+        firstDateStr and secondDateStr should be a string 'dd/m/yyyy'
+        August 1st 2019 would be 1/8/2019 NOT 1/08/2019
+        November 17th 2019 would be 17/11/2019
     */
     const firstDate = firstDateStr.split('/');
     const secondDate = secondDateStr.split('/');
