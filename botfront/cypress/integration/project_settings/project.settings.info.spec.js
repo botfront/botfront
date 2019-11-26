@@ -1,18 +1,18 @@
 /* eslint-disable no-undef */
 
-describe('Project Settings', function() {
-    beforeEach(function() {
+describe('Project Settings', function () {
+    beforeEach(function () {
         cy.createProject('bf', 'My Project', 'en');
         cy.login();
     });
 
-    afterEach(function() {
+    afterEach(function () {
         cy.deleteProject('bf');
         cy.logout();
     });
 
-    describe('Project info', function() {
-        it('A project can be renamed', function() {
+    describe('Project info', function () {
+        it('A project can be renamed', function () {
             cy.visit('/project/bf/settings');
             cy.get('.project-name input').click();
             cy.get('.project-name input').type('33');
@@ -31,7 +31,7 @@ describe('Project Settings', function() {
             cy.get('.project-name input').should('have.value', 'My Project');
         });
 
-        it('Default language can be set', function() {
+        it('Default language can be set', function () {
             cy.visit('/project/bf/settings');
             cy.get('.project-default-language .ui > .search').click();
             cy.get('.project-default-language input').type('English');
@@ -51,7 +51,7 @@ describe('Project Settings', function() {
             });
         });
 
-        it('NLU threshold can be set', function() {
+        it('NLU threshold can be set', function () {
             cy.visit('/project/bf/settings');
             cy.get('[data-cy=change-nlu-threshold] input').click().type('{backspace}{backspace}{backspace}{backspace}0.56');
             cy.get('[data-cy=save-changes]').click();
@@ -64,6 +64,21 @@ describe('Project Settings', function() {
             cy.get('[data-cy=change-nlu-threshold] input').click().type('{backspace}{backspace}{backspace}{backspace}0.85');
             cy.get('[data-cy=save-changes]').click();
             cy.get('[data-cy=change-nlu-threshold] input').should('have.value', '0.85');
+        });
+
+        it('Time zone offset can be set', function () {
+            cy.visit('/project/bf/settings');
+            cy.get('[data-cy=change-timezone-offset] input').click().type('{backspace}{backspace}{backspace}{backspace}2');
+            cy.get('[data-cy=save-changes]').click();
+            cy.get('[data-cy=change-timezone-offset] input').should('have.value', '2');
+
+            cy.get('.project-settings-menu-credentials').click();
+            cy.get('.project-settings-menu-info').click();
+            cy.get('[data-cy=change-timezone-offset] input').should('have.value', '2');
+
+            cy.get('[data-cy=change-timezone-offset] input').click().type('{backspace}{backspace}{backspace}{backspace}-3');
+            cy.get('[data-cy=save-changes]').click();
+            cy.get('[data-cy=change-timezone-offset] input').should('have.value', '-3');
         });
     });
 });

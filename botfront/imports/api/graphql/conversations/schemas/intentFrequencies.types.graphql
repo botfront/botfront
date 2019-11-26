@@ -10,6 +10,7 @@ type Query {
         last: Int,
         beg: Int,
         end: Int,
+        limit: Int = 10,
     ): [IntentFrequency!]!
 }
 

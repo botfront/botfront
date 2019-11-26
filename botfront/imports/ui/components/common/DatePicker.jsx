@@ -18,6 +18,7 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     const [newEndDate, setNewEndDate] = useState(endDate);
     const [popupOpen, setPopupOpen] = useState(false);
     const [selectedRangeType, setSelectedRangeType] = useState(0);
+    const [customRange, setCustomRange] = useState({ startDate: null, endDate: null });
 
     function setNewDates(start, end) {
         setNewStartDate(start);
@@ -38,44 +39,53 @@ function DatePicker({ startDate, endDate, onConfirm }) {
     const DateOptions = [
         {
             key: 'custom',
-            text: `Custom: ${getDateString(newStartDate, newEndDate)}`,
+            text: `Custom: ${getDateString(customRange.startDate || startDate, customRange.endDate || endDate)}`,
             value: 0,
-            data: { startDate: null, endDate: null },
+            data: { startDate: customRange.startDate || startDate, endDate: customRange.endDate || endDate },
         },
         {
             key: 'seven',
             text: 'Last 7 days',
             value: 1,
-            data: { startDate: moment().subtract(7, 'days'), endDate: moment() },
+            data: { startDate: moment().subtract(6, 'days').startOf('day'), endDate: moment().endOf('day') },
         },
         {
             key: 'thirty',
             text: 'Last 30 days',
             value: 2,
-            data: { startDate: moment().subtract(30, 'days'), endDate: moment() },
+            data: { startDate: moment().subtract(29, 'days').startOf('day'), endDate: moment().endOf('day') },
         },
         {
             key: 'ninety',
             text: 'Last 90 days',
             value: 3,
-            data: { startDate: moment().subtract(90, 'days'), endDate: moment() },
+            data: { startDate: moment().subtract(89, 'days').startOf('day'), endDate: moment().endOf('day') },
         },
     ];
 
-    function datesChange(newRange) {
+    function datesChange(incomingRange) {
+        const newRange = incomingRange;
+        if (!newRange.endDate) { // selection has a range of one day
+            newRange.endDate = moment(newRange.startDate.endOf('day'));
+            newRange.startDate = moment(newRange.startDate.startOf('day'));
+        } else {
+            newRange.endDate = moment(newRange.endDate.endOf('day'));
+            newRange.startDate = moment(newRange.startDate.startOf('day'));
+        }
         setSelectedRangeType(0); // if there is date change, the range type is always custom (index 0)
+        setCustomRange({ startDate: newRange.startDate, endDate: newRange.endDate });
         setNewDates(newRange.startDate, newRange.endDate);
     }
 
     function rangeChange(data) {
         setSelectedRangeType(data.value);
         const range = DateOptions[data.value].data;
-        setNewDates(range.startDate, range.endDate);
+        setNewDates(moment(range.startDate.startOf('day')), moment(range.endDate.endOf('day')));
         setFocusedInput('startDate');
     }
 
     function handlePopupState() {
-        if (popupOpen) setNewDates(startDate, endDate); // removes dates changes before closing (in case of a cancel)
+        if (popupOpen) setNewDates(moment(startDate).startOf('day'), moment(endDate).endOf('day')); // removes dates changes before closing (in case of a cancel)
         setPopupOpen(!popupOpen);
     }
 
