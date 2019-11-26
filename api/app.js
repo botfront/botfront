@@ -39,19 +39,20 @@ config().then(async config => {
             transports: [new winston.transports.Console()],
         }),
     );
-    for (let i = 1; i < Number.MAX_VALUE; ++i) {
+    let retries = 0;
+    const mongoConnectInterval = setInterval(async () => {
+        retries += 1;
         try {
             await mongoose.connect(config.mongo.host, {
                 keepAlive: true,
                 useNewUrlParser: true,
                 useFindAndModify: false,
             });
-            break;
+            clearInterval(mongoConnectInterval)
         } catch (error) {
-            if (i === 1 || i % 1000 === 0)
-                console.log(`Connection to ${config.mongo.host} failed. Retrying... (#${i})`);
+            console.log(`Connection to MongoDB server failed. Retrying... (#${retries})`);
         }
-    }
+    }, 1000)
 
     app.listen(port, function() {
         // eslint-disable-next-line no-console
