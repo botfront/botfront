@@ -1,10 +1,12 @@
-
 import { Accounts } from 'meteor/accounts-base';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
+import { WebSocketLink } from 'apollo-link-ws';
+import { getMainDefinition } from 'apollo-utilities';
 import { onError } from 'apollo-link-error';
-import { ApolloLink, Observable } from 'apollo-link';
+import { ApolloLink, Observable, split } from 'apollo-link';
+
 
 const request = async (operation) => {
     operation.setContext({
@@ -48,9 +50,26 @@ const httpLink = new HttpLink({
     credentials: 'same-origin',
 });
 
+//Create a WebSocket link:
+const wsLink = new WebSocketLink({
+    uri: 'ws://localhost:3000/subscriptions',
+    options: {
+        reconnect: true,
+    },
+});
+
+const link = split(
+    ({ query }) => {
+        const { kind, operation } = getMainDefinition(query);
+        return kind === 'OperationDefinition' && operation === 'subscription';
+    },
+    wsLink,
+    httpLink,
+);
 const client = new ApolloClient({
-    link: ApolloLink.from([errorLink, requestLink, httpLink]),
+    link: ApolloLink.from([errorLink, requestLink, link]),
     cache: new InMemoryCache(),
 });
+
 
 export default client;

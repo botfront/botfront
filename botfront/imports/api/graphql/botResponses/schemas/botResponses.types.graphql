@@ -3,6 +3,10 @@ type Query {
     botResponse(projectId: String!, key: String!, lang: String): BotResponse
 }
 
+type Subscription {
+    botResponseAdded: BotResponse
+}
+
 type Mutation {
   deleteResponse(projectId: String!, key: String!): updateResponse!
   updateResponse(projectId: String!, key: String!, response: BotResponseInput): updateResponse!

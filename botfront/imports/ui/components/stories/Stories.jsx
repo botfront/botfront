@@ -5,7 +5,9 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks';
+import {
+    useQuery, useSubscription, useMutation, useApolloClient,
+} from '@apollo/react-hooks';
 import { setStoryGroup, setStoryMode, setWorkingLanguage } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
@@ -16,11 +18,14 @@ import { ConversationOptionsContext } from '../utils/Context';
 import StoryGroupBrowser from './StoryGroupBrowser';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
-import { GET_BOT_RESPONSES, GET_BOT_RESPONSE } from './queries';
+import { GET_BOT_RESPONSES, GET_BOT_RESPONSE } from './graphQL/queries';
 import {
     CREATE_BOT_RESPONSE,
     UPDATE_BOT_RESPONSE,
-} from './mutations';
+} from './graphQL/mutations';
+import {
+    RESPONSE_ADDED,
+} from './graphQL/subscriptions';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
@@ -54,9 +59,16 @@ function Stories(props) {
     */
     const client = useApolloClient();
 
+ 
     const { loading, data: responses } = useQuery(GET_BOT_RESPONSES, {
         variables: { projectId }, pollInterval: 5000,
     });
+
+    useSubscription(
+        RESPONSE_ADDED,
+        { onSubscriptionData: ({ subscriptionData }) => responses.botResponses.push(subscriptionData.data.botResponseAdded) },
+    );
+
     const closeModals = () => {
         setSlotsModal(false);
         setPoliciesModal(false);
