@@ -77,7 +77,7 @@
     "react-table-v6": "^6.8.6",
     "react-transition-group": "^2.4.0",
     "react-virtualized-auto-sizer": "^1.0.2",
-    "react-window": "bvaughn/react-window#issues/6",
+    "@john-osullivan/react-window-dynamic-fork": "1.9.0-alpha.1",
     "react-window-infinite-loader": "^1.0.5",
     "react-window-size": "^1.2.2",
     "redux": "^4.0.4",
