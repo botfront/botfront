@@ -151,7 +151,7 @@ async function general() {
         if (isProjectDir()){
             if (containers && containers.length){
                 choices.push({ title: 'Stop Botfront', cmd: () => dockerComposeDown({ verbose: false }) });
-                choices.push({ title: 'Show logs', cmd: dockerComposeFollow });
+                choices.push({ title: 'Show logs', cmd: () => dockerComposeFollow({}) });
             } else {
                 choices.push({ title: 'Start project', cmd: () => dockerComposeUp({ verbose: false })});
             }
