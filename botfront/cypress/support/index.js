@@ -689,7 +689,7 @@ const MONTHS = [
     'December',
 ];
 Cypress.Commands.add('findMonth', (queryMonth, index, incomingSearchPrev) => {
-    cy.log(queryMonth);
+    cy.log(`finding month step ${index}`);
     let searchPrev = incomingSearchPrev !== undefined ? incomingSearchPrev : true;
     let shouldExit = false;
     if (index > 36) {
