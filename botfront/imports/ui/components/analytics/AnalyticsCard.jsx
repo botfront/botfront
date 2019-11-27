@@ -102,7 +102,7 @@ function AnalyticsCard(props) {
 
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, size,
         });
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;

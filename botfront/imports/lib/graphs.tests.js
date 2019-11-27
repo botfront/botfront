@@ -6,38 +6,38 @@ import { calculateTemporalBuckets, getDataToDisplayAndParamsToUse } from './grap
 if (Meteor.isClient) {
     describe('temporal nBuckets', function () {
         it('change tick number with card size', function () {
-            let tickValues;
+            let nTicks;
             let nBuckets;
             const startDate = moment().subtract(3, 'd');
             const endDate = moment();
 
-            ({ tickValues, nBuckets } = calculateTemporalBuckets(endDate, startDate));
-            expect(tickValues).to.be.equal(3);
+            ({ nTicks, nBuckets } = calculateTemporalBuckets(startDate, endDate));
+            expect(nTicks).to.be.equal(3);
             expect(nBuckets).to.be.equal(3);
-            ({ tickValues, nBuckets } = calculateTemporalBuckets(endDate, startDate, 'wide'));
-            expect(tickValues).to.be.equal(21);
-            expect(nBuckets).to.be.equal(72);
+            ({ nTicks, nBuckets } = calculateTemporalBuckets(startDate, endDate, _, 'wide'));
+            expect(nTicks).to.be.equal(12);
+            expect(nBuckets).to.be.equal(24);
         });
 
         it('change tick number with time span', function () {
-            let tickValues;
+            let nTicks;
             let nBuckets;
             let startDate = moment().subtract(4, 'd');
             let endDate = moment();
-            ({ tickValues, nBuckets } = calculateTemporalBuckets(endDate, startDate));
-            expect(tickValues).to.be.equal(4);
+            ({ nTicks, nBuckets } = calculateTemporalBuckets(startDate, endDate));
+            expect(nTicks).to.be.equal(4);
             expect(nBuckets).to.be.equal(4);
 
             startDate = moment().subtract(10, 'd');
             endDate = moment();
-            ({ tickValues, nBuckets } = calculateTemporalBuckets(endDate, startDate));
-            expect(tickValues).to.be.equal(7);
+            ({ nTicks, nBuckets } = calculateTemporalBuckets(startDate, endDate));
+            expect(nTicks).to.be.equal(7);
             expect(nBuckets).to.be.equal(10);
 
             startDate = moment().subtract(100, 'd');
             endDate = moment();
-            ({ tickValues, nBuckets } = calculateTemporalBuckets(endDate, startDate));
-            expect(tickValues).to.be.equal(7);
+            ({ nTicks, nBuckets } = calculateTemporalBuckets(startDate, endDate));
+            expect(nTicks).to.be.equal(7);
             expect(nBuckets).to.be.equal(14);
         });
     });
@@ -46,18 +46,23 @@ if (Meteor.isClient) {
         const data = { dummy: [{ bucket: '123' }] };
         const queryParams = { queryName: 'dummy', temporal: true };
         const graphParams = {};
-        const tickValues = 3;
         const valueType = 'dummy';
+        const projectTimezoneOffset = 0;
         it('change tick format with card size', function () {
             let paramsToUse;
             const startDate = moment().subtract(3, 'd');
             const endDate = moment();
+            let nTicks;
+            let bucketSize;
+            ({ nTicks, bucketSize } = calculateTemporalBuckets(startDate, endDate, _, 'wide'));
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
-                data, queryParams, graphParams, tickValues, valueType, startDate, endDate, size: 'wide',
+                data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset, size: 'wide',
             }));
             expect(paramsToUse.axisBottom.format).to.be.equal('%H:%M');
+
+            ({ nTicks, bucketSize } = calculateTemporalBuckets(startDate, endDate, _));
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
-                data, queryParams, graphParams, tickValues, valueType, startDate, endDate,
+                data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset,
             }));
             expect(paramsToUse.axisBottom.format).to.be.equal('%d/%m');
         });
@@ -66,22 +71,20 @@ if (Meteor.isClient) {
             let paramsToUse;
             let startDate = moment().subtract(1, 'd');
             const endDate = moment();
-
+            let nTicks;
+            let bucketSize;
+            ({ nTicks, bucketSize } = calculateTemporalBuckets(startDate, endDate));
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
-                data, queryParams, graphParams, tickValues, valueType, startDate, endDate,
+                data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset,
             }));
             expect(paramsToUse.axisBottom.format).to.be.equal('%H:%M');
 
-            startDate = moment().subtract(3, 'd');
-            ({ paramsToUse } = getDataToDisplayAndParamsToUse({
-                data, queryParams, graphParams, tickValues, valueType, startDate, endDate,
-            }));
-
             startDate = moment().subtract(10, 'd');
-            expect(paramsToUse.axisBottom.format).to.be.equal('%d/%m');
+            ({ nTicks, bucketSize } = calculateTemporalBuckets(startDate, endDate));
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
-                data, queryParams, graphParams, tickValues, valueType, startDate, endDate,
+                data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset,
             }));
+            expect(paramsToUse.axisBottom.format).to.be.equal('%d/%m');
         });
     });
 }

@@ -29,6 +29,7 @@ function AnalyticsDashboard(props) {
                 temporal: true, projectId, envs, queryName: 'conversationCounts',
             },
             query: visitCounts,
+            size: 'wide',
             graphParams: {
                 x: 'bucket',
                 y: [{ abs: 'count' }, { abs: 'hits', rel: 'proportion' }],

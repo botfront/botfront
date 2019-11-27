@@ -15,10 +15,10 @@ export const formatDataForTable = (data) => {
     return formattedData;
 };
 
-const getXAxisTickInterval = (data, nTicksIncoming) => {
+const getXAxisTickInterval = (data, nTicksIncoming, size) => {
     // nTicksIncomming is the number snap points on the x axis
     // reduce the number of ticks on the X axis so that text does not overlap
-    const maxTicks = 7;
+    const maxTicks = size === 'wide' ? 14 : 7;
     const nTicks = nTicksIncoming > maxTicks ? maxTicks : nTicksIncoming;
     const tickSpacing = data.length > nTicks
         ? Math.floor(data.length / nTicks)
@@ -88,7 +88,7 @@ export const calculateTemporalBuckets = (startDate, endDate, chartType, size) =>
     // calculate if a time period is broken into hours, days or weeks
     const nDays = Math.round(((endDate.valueOf() - startDate.valueOf()) / 86400000));
     if (nDays <= 1 && size !== 'wide') return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
-    if (nDays <= 3 && size === 'wide') return { tickValues: (nDays * 7), nBuckets: (nDays * 24), bucketSize: 'hour' };
+    if (nDays <= 3 && size === 'wide') return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
     if (nDays <= 7) return { nTicks: nDays, nBuckets: nDays, bucketSize: 'day' };
     if (nDays <= 90) return { nTicks: 7, nBuckets: nDays, bucketSize: 'day' };
     if (chartType === 'table') return { nTicks: 7, nBuckets: nDays, bucketSize: 'day' };
@@ -130,7 +130,7 @@ export const formatData = (data, queryParams, bucketSize, projectTimezoneOffset)
 };
 
 export const getDataToDisplayAndParamsToUse = ({
-    data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset,
+    data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset, size,
 }) => {
     const dataToDisplay = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
     const axisTitles = formatAxisTitles(graphParams, [bucketSize, valueType]);
@@ -150,7 +150,7 @@ export const getDataToDisplayAndParamsToUse = ({
             ...paramsToUse,
             axisBottom: {
                 ...(paramsToUse.axisBottom || {}),
-                tickValues: getXAxisTickInterval(dataToDisplay, nTicks, projectTimezoneOffset),
+                tickValues: getXAxisTickInterval(dataToDisplay, nTicks, size),
                 format: dateFormatDictionary[bucketSize],
             },
             xScale: { type: 'time', format: 'native' },
