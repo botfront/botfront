@@ -10,6 +10,8 @@ const colors = [
     { name: 'red', bg: '#DB2828' },
     { name: 'yellow', bg: '#FBBD08' },
     { name: 'teal', bg: '#00B5AD' },
+    { name: 'pink', bg: '#E03997' },
+    { name: 'brown', bg: '#A5673F' },
     { name: 'olive', bg: '#B5CC18' },
 ];
 

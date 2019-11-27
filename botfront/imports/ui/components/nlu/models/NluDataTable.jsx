@@ -8,7 +8,7 @@ import 'react-s-alert/dist/s-alert-default.css';
 import _, { difference } from 'lodash';
 import ReactTable from 'react-table-v6';
 import matchSorter from 'match-sorter';
-import Entity from '../../utils/EntityLabel';
+import getColor from '../../../../lib/getColors';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
 import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import EntityUtils from '../../utils/EntityUtils';
@@ -169,7 +169,7 @@ export default class NluDataTable extends React.Component {
                                     ? (
                                         <>
                                             and for the following entity - entity value combinations: <br />
-                                            {props.row.example.entities.map(entity => (<Entity size='tiny' value={entity} onChange={() => { }} />))}
+                                            {props.row.example.entities.map(entity => <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>)}
                                         </>
                                     )
                                     : ''}
