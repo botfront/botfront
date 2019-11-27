@@ -47,24 +47,6 @@ const longCanonicalExample = {
         },
     ],
 };
-const canonicalUndefinedExample = {
-    text: 'I like blue beans with red sauce.',
-    intent: 'I_like_beans',
-    entities: [
-        {
-            start: 7,
-            end: 11,
-            value: 'blue',
-            entity: 'bean-color',
-        },
-        {
-            start: 23,
-            end: 26,
-            value: 'red',
-            entity: 'sauce-color',
-        },
-    ],
-};
 const canonicalFalseExample = {
     text: 'I like blue beans with red sauce.',
     intent: 'I_like_beans',
@@ -126,7 +108,4 @@ storiesOf('Canonical Popup', module)
     ))
     .add('visual overflow edge case', () => (
         <CanonicalPopupWrapped example={EdgeCase} />
-    ))
-    .add('example.canonical = undefined', () => (
-        <CanonicalPopupWrapped example={canonicalUndefinedExample} />
     ));
