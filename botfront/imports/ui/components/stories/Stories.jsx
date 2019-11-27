@@ -5,6 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks';
 import { setStoryGroup, setStoryMode, setWorkingLanguage } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
@@ -15,6 +16,11 @@ import { ConversationOptionsContext } from '../utils/Context';
 import StoryGroupBrowser from './StoryGroupBrowser';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
+import { GET_BOT_RESPONSES, GET_BOT_RESPONSE } from './queries';
+import {
+    CREATE_BOT_RESPONSE,
+    UPDATE_BOT_RESPONSE,
+} from './mutations';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
@@ -25,7 +31,6 @@ function Stories(props) {
         storyGroups,
         slots,
         instance,
-        project,
         stories,
         storyGroupCurrent,
         storyMode,
@@ -37,10 +42,21 @@ function Stories(props) {
 
     const [intents, setIntents] = useState([]);
     const [entities, setEntities] = useState([]);
-
     const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
+
+    const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
+    const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
+    /* the client is used here because the lazy queries don't have a callback option and aren't a promise either
+    so getting the results of the query to return them is not possible
+    const [loadResponse, { loadingResponse, data: response }] = useLazyQuery(GET_BOT_RESPONSE);
+    */
+    const client = useApolloClient();
+
+    const { loading, data: responses } = useQuery(GET_BOT_RESPONSES, {
+        variables: { projectId }, pollInterval: 5000,
+    });
     const closeModals = () => {
         setSlotsModal(false);
         setPoliciesModal(false);
@@ -80,12 +96,20 @@ function Stories(props) {
     }, []);
 
     function getResponse(key, callback = () => {}) {
-        Meteor.call(
-            'project.findTemplate',
-            projectId,
-            key,
-            workingLanguage || 'en',
-            wrapMeteorCallback((err, res) => callback(err, res)),
+        client.query({
+            query: GET_BOT_RESPONSE,
+            variables: {
+                projectId,
+                key,
+                lang: workingLanguage || 'en',
+            },
+        }).then(
+            (result) => {
+                callback(undefined, result.data.botResponse);
+            },
+            (error) => {
+                callback(error);
+            },
         );
     }
 
@@ -99,22 +123,38 @@ function Stories(props) {
         );
     }
 
-    function updateResponse(response, callback = () => {}) {
-        Meteor.call(
-            'project.updateTemplate',
-            projectId,
-            response.key,
-            response,
-            wrapMeteorCallback((err, res) => callback(err, res)),
+    function updateResponse(newResponse, callback = () => {}) {
+        /* apollo add a __typename field to all of its object for caching purposes
+         we need to remmove it so the update do not fail because a field is unrecognised
+         
+         JSON.parse accept reviver function that is applied to every key/value pair  withing an object
+         */
+         
+        const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
+        const cleanedResponse = JSON.parse(JSON.stringify(newResponse), omitTypename);
+        updateBotResponse({
+            variables: { projectId, response: cleanedResponse, key: newResponse.key },
+        }).then(
+            (result) => {
+                callback(undefined, result);
+            },
+            (error) => {
+                callback(error);
+            },
         );
     }
 
-    function insertResponse(response, callback = () => {}) {
-        Meteor.call(
-            'project.insertTemplate',
-            projectId,
-            response,
-            wrapMeteorCallback((err, res) => callback(err, res)),
+    function insertResponse(newResponse, callback = () => {}) {
+        // onCompleted and onError seems to have issues currently https://github.com/apollographql/react-apollo/issues/2293
+        createBotResponse({
+            variables: { projectId, response: newResponse },
+        }).then(
+            (result) => {
+                callback(undefined, result);
+            },
+            (error) => {
+                callback(error);
+            },
         );
     }
 
@@ -239,7 +279,7 @@ function Stories(props) {
                 parseUtterance,
                 addUtteranceToTrainingData,
                 browseToSlots: () => setSlotsModal(true),
-                templates: [...project.templates],
+                templates: responses ? responses.botResponses : [],
                 stories,
                 storyGroups,
                 deleteStoryGroup: handleDeleteGroup,
@@ -292,13 +332,12 @@ function Stories(props) {
         </ConversationOptionsContext.Provider>
     );
 
-    if (ready) return renderStoriesContainer();
+    if (ready && !loading) return renderStoriesContainer();
     return null;
 }
 
 Stories.propTypes = {
     projectId: PropTypes.string.isRequired,
-    project: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
     storyGroups: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
@@ -325,21 +364,16 @@ const StoriesWithTracker = withTracker((props) => {
     const projectsHandler = Meteor.subscribe('projects', projectId);
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
-    const { templates, defaultLanguage } = Projects.findOne(
+    const { defaultLanguage } = Projects.findOne(
         { _id: projectId },
         {
             fields: {
-                'templates.key': 1,
                 defaultLanguage: 1,
             },
         },
     );
     const instance = Instances.findOne({ projectId });
 
-    const project = {
-        _id: projectId,
-        templates,
-    };
 
     // fetch and sort story groups
     const unsortedStoryGroups = StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch();
@@ -371,7 +405,6 @@ const StoriesWithTracker = withTracker((props) => {
         storyGroups,
         slots: Slots.find({}).fetch(),
         instance,
-        project,
         stories: StoriesCollection.find({}).fetch(),
         defaultLanguage,
     };
