@@ -4,7 +4,7 @@ import {
     withKnobs, text, select, boolean,
 } from '@storybook/addon-knobs';
 import QuickReplies from '../imports/ui/components/stories/common/QuickReplies';
-import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+import { ProjectContext } from '../imports/ui/layouts/context';
 
 export const intents = ['intent1', 'intent2', 'intent3', 'intent4'];
 
@@ -46,9 +46,9 @@ const QuickRepliesWrapped = (props) => {
 storiesOf('QuickReplies', module)
     .addDecorator(withKnobs)
     .addDecorator(buttons => (
-        <ConversationOptionsContext.Provider value={{ intents, entities }}>
+        <ProjectContext.Provider value={{ intents, entities }}>
             {buttons()}
-        </ConversationOptionsContext.Provider>
+        </ProjectContext.Provider>
     ))
     .add('Buttons', () => <QuickRepliesWrapped value={values} />)
     .add('With max 2', () => <QuickRepliesWrapped value={values} max={3} />);

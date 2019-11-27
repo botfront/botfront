@@ -12,7 +12,7 @@ import AddStoryLine from './AddStoryLine';
 import ActionLabel from '../ActionLabel';
 import SlotLabel from '../SlotLabel';
 import BadLineLabel from '../BadLineLabel';
-import { ConversationOptionsContext } from '../../utils/Context';
+import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
 
@@ -372,7 +372,7 @@ StoryVisualEditor.defaultProps = {
 };
 
 export default props => (
-    <ConversationOptionsContext.Consumer>
+    <ProjectContext.Consumer>
         {value => (
             <StoryVisualEditor
                 {...props}
@@ -382,5 +382,5 @@ export default props => (
                 addUtteranceToTrainingData={value.addUtteranceToTrainingData}
             />
         )}
-    </ConversationOptionsContext.Consumer>
+    </ProjectContext.Consumer>
 );

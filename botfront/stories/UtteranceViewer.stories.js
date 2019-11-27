@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { withBackground } from '../.storybook/decorators';
 import UserUtteranceViewer from '../imports/ui/components/utils/UserUtteranceViewer';
-import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+import { ProjectContext } from '../imports/ui/layouts/context';
 
 function UserUtteranceViewerWrapped(props) {
     const [utterance, setUtterance] = useState({
@@ -39,14 +39,14 @@ storiesOf('UserUtteranceViewer', module)
     .addDecorator(withKnobs)
     .addDecorator(withBackground)
     .addDecorator(story => (
-        <ConversationOptionsContext.Provider
+        <ProjectContext.Provider
             value={{
                 intents: ['Intent 1', 'Intent 2', 'Intent 3'],
                 entities: ['entity1', 'entity4'],
             }}
         >
             {story()}
-        </ConversationOptionsContext.Provider>
+        </ProjectContext.Provider>
     ))
     .add('with props', () => (
         <UserUtteranceViewerWrapped

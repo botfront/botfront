@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select } from '@storybook/addon-knobs';
-import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+import { ProjectContext } from '../imports/ui/layouts/context';
 import SlotLabel from '../imports/ui/components/stories/SlotLabel';
 import store from '../imports/ui/store/store';
 
@@ -53,13 +53,13 @@ storiesOf('Slot Label', module)
         </Provider>
     ))
     .addDecorator(story => (
-        <ConversationOptionsContext.Provider
+        <ProjectContext.Provider
             value={{
                 slots: select('Available slots', selection, noSlots),
             }}
         >
             {story()}
-        </ConversationOptionsContext.Provider>
+        </ProjectContext.Provider>
     ))
     .add('default', () => (
         <SlotLabelWrapped value={select('Selected slot', selected, null)} />

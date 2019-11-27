@@ -15,6 +15,7 @@ import {
 } from '../../../lib/story.utils';
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from '../utils/Context';
+import { ProjectContext } from '../../layouts/context';
 import { setStoryPath } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';
 import StoryErrorBoundary from './StoryErrorBoundary';
@@ -51,7 +52,8 @@ const StoryEditorContainer = ({
     changeStoryPath,
     collapsed,
 }) => {
-    const { slots, templates, stories } = useContext(ConversationOptionsContext);
+    const { stories } = useContext(ConversationOptionsContext);
+    const { slots, templates } = useContext(ProjectContext);
     // The next path to go to when a change is made, we wait for the story prop to be updated to go that path
     // useful when we add branch for instance, we have to wait for the branches to actually be in the db
     // set to null when we don't want to go anywhere

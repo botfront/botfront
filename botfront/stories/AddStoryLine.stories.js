@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select, boolean } from '@storybook/addon-knobs';
 import AddStoryLine from '../imports/ui/components/stories/common/AddStoryLine';
-import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+import { ProjectContext } from '../imports/ui/layouts/context';
 import { intents, entities } from './PayloadEditor.stories';
 import { selectionThree as slots } from './SlotPopupContent.stories';
 
@@ -48,7 +48,7 @@ storiesOf('AddStoryLine', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
         <div className='story-visual-editor'>
-            <ConversationOptionsContext.Provider
+            <ProjectContext.Provider
                 value={{
                     slots,
                     responses,
@@ -57,7 +57,7 @@ storiesOf('AddStoryLine', module)
                 }}
             >
                 {story()}
-            </ConversationOptionsContext.Provider>
+            </ProjectContext.Provider>
         </div>
     ))
     .add('default', () => (

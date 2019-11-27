@@ -4,13 +4,13 @@ import React, {
 import { Icon, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import IntentDropdown from '../nlu/common/IntentDropdown';
-import { ConversationOptionsContext } from './Context';
+import { ProjectContext } from '../../layouts/context';
 import { OOS_LABEL } from '../constants.json';
 
 function Intent({
     value, allowEditing, allowAdditions, onChange, disabled, enableReset,
 }) {
-    const { intents, addIntent } = useContext(ConversationOptionsContext);
+    const { intents, addIntent } = useContext(ProjectContext);
     const popupTrigger = useRef(null);
     const popupContent = useRef(null);
     const [hover, setHover] = useState(false);

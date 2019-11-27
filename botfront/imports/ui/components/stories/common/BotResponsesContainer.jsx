@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Placeholder } from 'semantic-ui-react';
 
 import FloatingIconButton from '../../nlu/common/FloatingIconButton';
-import { ConversationOptionsContext } from '../../utils/Context';
+import { ProjectContext } from '../../../layouts/context';
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
 
@@ -19,7 +19,7 @@ const BotResponsesContainer = (props) => {
         language,
         addNewResponse,
     } = props;
-    const { getResponse, updateResponse } = useContext(ConversationOptionsContext);
+    const { getResponse, updateResponse } = useContext(ProjectContext);
     const [template, setTemplate] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
 

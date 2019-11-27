@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import EntityPopup from '../example_editor/EntityPopup';
-import { ConversationOptionsContext } from './Context';
+import { ProjectContext } from '../../layouts/context';
 import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 
@@ -13,7 +13,7 @@ function UserUtteranceViewer(props) {
     } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
-    const { entities: contextEntities } = useContext(ConversationOptionsContext);
+    const { entities: contextEntities } = useContext(ProjectContext);
     const textContent = []; // an ordered list of the utterance cut down into text and entities.
     // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
     const sortedEntities = entities

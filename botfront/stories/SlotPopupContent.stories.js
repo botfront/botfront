@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Provider } from 'react-redux';
 import { withKnobs, select } from '@storybook/addon-knobs';
-import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+import { ProjectContext } from '../imports/ui/layouts/context';
 import store from '../imports/ui/store/store';
 import SlotPopupContent from '../imports/ui/components/stories/common/SlotPopupContent';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
@@ -40,13 +40,13 @@ storiesOf('SlotPopupContent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
         <div className='story-visual-editor'>
-            <ConversationOptionsContext.Provider
+            <ProjectContext.Provider
                 value={{
                     slots: select('Available slots', selection, noSlots),
                 }}
             >
                 {story()}
-            </ConversationOptionsContext.Provider>
+            </ProjectContext.Provider>
         </div>
     ))
     .add('default', () => (

@@ -5,11 +5,6 @@ import {
     withKnobs, text, select, boolean,
 } from '@storybook/addon-knobs';
 import ResponseButtonEditor from '../imports/ui/components/stories/common/ResponseButtonEditor';
-// import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
-
-// export const intents = ['intent1', 'intent2', 'intent3', 'intent4'];
-
-// export const entities = ['entity1', 'entity2', 'entity3', 'entity4'];
 
 const values = [{
     title: 'short',
@@ -38,11 +33,4 @@ const ResponseButtonEditorWrapped = (props) => {
 
 const stories = storiesOf('ResponseButtonEditor', module);
 stories.addDecorator(withKnobs);
-// stories.addDecorator(payload => (
-//     <ConversationOptionsContext.Provider
-//         value={{ intents, entities }}
-//     >
-//         {payload()}
-//     </ConversationOptionsContext.Provider>
-// ));
 values.forEach(v => stories.add(v.title, () => <ResponseButtonEditorWrapped value={v} />));

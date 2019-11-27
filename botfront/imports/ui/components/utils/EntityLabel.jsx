@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import EntityPopup from '../example_editor/EntityPopup';
-import { ConversationOptionsContext } from './Context';
+import { ProjectContext } from '../../layouts/context';
 
 function Entity({
     value, onChange, onDelete, allowEditing, deletable, color,
 }) {
-    const { entities, addEntity } = useContext(ConversationOptionsContext);
+    const { entities, addEntity } = useContext(ProjectContext);
     return (
         <EntityPopup
             entity={value}

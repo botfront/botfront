@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
-import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+import { ProjectContext } from '../imports/ui/layouts/context';
 import BotResponsePopupContent from '../imports/ui/components/stories/common/BotResponsePopupContent';
 import DashedButton from '../imports/ui/components/stories/common/DashedButton';
 
@@ -17,9 +17,9 @@ storiesOf('BotResponsePopupContent', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
         <div className='story-visual-editor'>
-            <ConversationOptionsContext.Provider value={{ responses }}>
+            <ProjectContext.Provider value={{ responses }}>
                 {story()}
-            </ConversationOptionsContext.Provider>
+            </ProjectContext.Provider>
         </div>
     ))
     .add('default', () => (
