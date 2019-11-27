@@ -79,11 +79,6 @@ class NLUModel extends React.Component {
         return common_examples.map(e => _appendSynonymsToText(e, entity_synonyms));
     };
 
-    componentDidUpdate() {
-        const { workingLanguage, changeWorkingLanguage, projectDefaultLanguage } = this.props;
-        if (!workingLanguage && projectDefaultLanguage) changeWorkingLanguage(projectDefaultLanguage);
-    }
-
     validationRender = () => {
         const { activityLinkRender } = this.state;
         if (activityLinkRender === true) {

@@ -5,10 +5,9 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { setStoryGroup, setStoryMode, setWorkingLanguage } from '../../store/actions/actions';
+import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
-import { Projects } from '../../../api/project/project.collection';
 import { ProjectContext } from '../../layouts/context';
 import { ConversationOptionsContext } from '../utils/Context';
 import StoryGroupBrowser from './StoryGroupBrowser';
@@ -206,37 +205,17 @@ Stories.propTypes = {
     changeStoryMode: PropTypes.func.isRequired,
     storyGroupCurrent: PropTypes.number,
     storyMode: PropTypes.string,
-    workingLanguage: PropTypes.string,
-    changeWorkingLanguage: PropTypes.func.isRequired,
-    defaultLanguage: PropTypes.string,
 };
 
 Stories.defaultProps = {
     storyGroupCurrent: 0,
     storyMode: 'visual',
-    workingLanguage: null,
-    defaultLanguage: '',
 };
 
 const StoriesWithTracker = withTracker((props) => {
-    const { projectId, workingLanguage, changeWorkingLanguage } = props;
+    const { projectId } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
-    const projectsHandler = Meteor.subscribe('projects', projectId);
-    const { templates, defaultLanguage } = Projects.findOne(
-        { _id: projectId },
-        {
-            fields: {
-                'templates.key': 1,
-                defaultLanguage: 1,
-            },
-        },
-    );
-
-    const project = {
-        _id: projectId,
-        templates,
-    };
 
     // fetch and sort story groups
     const unsortedStoryGroups = StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch();
@@ -256,30 +235,23 @@ const StoriesWithTracker = withTracker((props) => {
     // unsortedStoryGroups[0] is the intro story group
     const storyGroups = [unsortedStoryGroups[0], ...sortedStoryGroups];
 
-    if (!workingLanguage && defaultLanguage) changeWorkingLanguage(defaultLanguage);
-
     return {
         ready:
             storyGroupsHandler.ready()
-            && projectsHandler.ready()
             && storiesHandler.ready(),
         storyGroups,
-        project,
         stories: StoriesCollection.find({}).fetch(),
-        defaultLanguage,
     };
 })(Stories);
 
 const mapStateToProps = state => ({
     storyGroupCurrent: state.stories.get('storyGroupCurrent'),
     storyMode: state.stories.get('storyMode'),
-    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 const mapDispatchToProps = {
     changeStoryGroup: setStoryGroup,
     changeStoryMode: setStoryMode,
-    changeWorkingLanguage: setWorkingLanguage,
 };
 
 export default connect(

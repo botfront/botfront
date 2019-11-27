@@ -16,7 +16,7 @@ import {
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
-import { setProjectId } from '../store/actions/actions';
+import { setProjectId, setWorkingLanguage } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
@@ -327,6 +327,7 @@ const ProjectContainer = withTracker((props) => {
     ];
     const ready = readyHandlerList.every(readyHandler);
     const project = Projects.findOne({ _id: projectId });
+    const { defaultLanguage } = project || {};
 
     if (ready && !project) {
         return browserHistory.replace({ pathname: '/404' });
@@ -347,6 +348,11 @@ const ProjectContainer = withTracker((props) => {
     // update store if new projectId
     if (store.getState().settings.get('projectId') !== projectId) {
         store.dispatch(setProjectId(projectId));
+    }
+
+    // update working language
+    if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {
+        store.dispatch(setWorkingLanguage(defaultLanguage));
     }
 
     return {
