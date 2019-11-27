@@ -13,8 +13,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.raw({ limit: '100mb' }));
 
-if (process.env.CORS === '*') app.use(cors());
-if (process.env.CORS) {
+if (process.env.CORS === '*') {
+    app.use(cors());
+} else if (process.env.CORS) {
     const allowedOrigins = process.env.CORS.split(',');
     app.use(cors({
         origin: function(origin, callback) {
