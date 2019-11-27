@@ -26,11 +26,14 @@ import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { ProjectContext } from './context';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
-import { GET_BOT_RESPONSES, GET_BOT_RESPONSE } from './queries';
+import { GET_BOT_RESPONSES, GET_BOT_RESPONSE } from './graphQL/queries';
 import {
     CREATE_BOT_RESPONSE,
     UPDATE_BOT_RESPONSE,
-} from './mutations';
+} from './graphQL/mutations';
+import {
+    RESPONSE_ADDED,
+} from './graphQL/subscriptions';
 
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
@@ -290,16 +293,18 @@ class Project extends React.Component {
                         )}
                         {!loading && (
                             <Query query={GET_BOT_RESPONSES} variables={{ projectId }}>
-                                {({ loadingResponses, data: responses }) => (
+                                {({ loadingResponses, data, subscribeToMore }) => (
+
                                     <Mutation mutation={CREATE_BOT_RESPONSE}>
                                         {createBotResponse => (
                                             <Mutation mutation={UPDATE_BOT_RESPONSE}>
                                                 {updateBotResponse => (
                                                     <ApolloConsumer>
                                                         {client => (
+
                                                             <ProjectContext.Provider
                                                                 value={{
-                                                                    templates: responses && !loadingResponses ? responses.botResponses : [],
+                                                                    templates: data && !loadingResponses ? data.botResponses : [],
                                                                     intents,
                                                                     entities,
                                                                     slots,
@@ -312,6 +317,18 @@ class Project extends React.Component {
                                                                     getUtteranceFromPayload: this.getUtteranceFromPayload,
                                                                     parseUtterance: this.parseUtterance,
                                                                     addUtteranceToTrainingData: this.addUtteranceToTrainingData,
+                                                                    subscribeToNewBotResponses: () => {
+                                                                        subscribeToMore({
+                                                                            document: RESPONSE_ADDED,
+                                                                            updateQuery: (prev, { subscriptionData }) => {
+                                                                                if (!subscriptionData.data) return prev;
+                                                                                const newBotResponse = subscriptionData.data.botResponseAdded;
+                                                                                return Object.assign({}, prev, {
+                                                                                    botResponses: [...prev.botResponses, newBotResponse],
+                                                                                });
+                                                                            },
+                                                                        });
+                                                                    },
                                                                 }}
                                                             >
                                                                 <div data-cy='left-pane'>
@@ -330,6 +347,7 @@ class Project extends React.Component {
                                             </Mutation>
                                         )}
                                     </Mutation>
+
                                 )}
                             </Query>
                         )}

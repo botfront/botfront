@@ -1,98 +1,98 @@
 type Query {
     conversationsPage(
-      projectId: String!, 
-      page: Int!,
-      pageSize: Int,
-      status: [String] 
-      sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
-      ): Pagination
+        projectId: String!
+        page: Int!
+        pageSize: Int
+        status: [String]
+        sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
+    ): Pagination
     conversation(projectId: String!, id: String!): ConversationContainer!
 }
 
 enum order {
-  updatedAt_ASC
-  updatedAt_DESC
+    updatedAt_ASC
+    updatedAt_DESC
 }
 
 type Mutation {
-  markAsRead(id: String!): updateResponse!
-  updateStatus(id: String!, status: String): updateResponse!
-  delete(id: String!): updateResponse!
+    markAsRead(id: String!): updateResponse!
+    updateStatus(id: String!, status: String): updateResponse!
+    delete(id: String!): updateResponse!
 }
 
 type updateResponse {
-  success: Boolean!
+    success: Boolean!
 }
 
 type Pagination {
-  conversations: [ConversationContainer!]!
-  pages: Int
+    conversations: [ConversationContainer!]!
+    pages: Int
 }
 
 type ConversationContainer {
-  tracker: Conversation,
-  projectId: String,
-  status: String,
-  _id: String,
-  updatedAt: String,
+    tracker: Conversation
+    projectId: String
+    status: String
+    _id: String
+    updatedAt: String
 }
 
 type Conversation {
-  latest_message: Message,
-  events: [Event]!,
-  sender_id: String,
+    latest_message: Message
+    events: [Event]!
+    sender_id: String
 }
 
 type Message {
-  intent_ranking: [Intent!],
-  intent: Intent!,
-  text: String,
-  language: String,
-  project: String,
-  entities: [Entity] ,
+    intent_ranking: [Intent!]
+    intent: Intent!
+    text: String
+    language: String
+    project: String
+    entities: [Entity]
 }
 
 type Entity {
-  entity: String!,
-  value: String!,
-  start: Int!,
-  end: Int!,
-  confidence: Float,
-  extractor: String,
-  processors: [String],
+    entity: String
+    value: String
+    start: Int!
+    end: Int!
+    confidence: Float
+    extractor: String
+    processors: [String]
 }
 
 input EntityInput {
-  entity: String!,
-  value: String!,
-  start: Int!,
-  end: Int!,
-  confidence: Float,
-  extractor: String,
-  processors: [String],
+    entity: String
+    value: String
+    start: Int!
+    end: Int!
+    confidence: Float
+    extractor: String
+    processors: [String]
 }
 
 type Intent {
-  confidence: Float,
-  name: String,
+    confidence: Float
+    name: String
 }
 
 type Event {
-  event: String,
-  text:  String,
-  timestamp: Float,
-  name: String,
-  policy: String,
-  confidence: Float,
-  parse_data: Message,
-  data:Data,
+    event: String
+    text: String
+    timestamp: Float
+    name: String
+    policy: String
+    confidence: Float
+    parse_data: Message
+    data: Data
 }
 
 type Data {
-  elements: String,
-  quick_replies: String,
-  buttons: String,
-  attachment: String,
-  image: String,
-  custom: String,
+    elements: String
+    quick_replies: String
+    buttons: String
+    attachment: String
+    image: String
+    custom: String
 }

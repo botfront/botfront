@@ -43,6 +43,12 @@ class StoryVisualEditor extends React.Component {
 
     addStoryCursor = React.createRef();
 
+
+    componentDidMount() {
+        // eslint-disable-next-line react/destructuring-assignment
+        this.props.subscribeToNewBotResponses();
+    }
+
     componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
         if (
@@ -52,6 +58,7 @@ class StoryVisualEditor extends React.Component {
             this.addStoryCursor.current.focus();
         }
     }
+
 
     trackOpenMenu = func => this.setState({ menuCloser: func });
 
@@ -365,6 +372,7 @@ StoryVisualEditor.propTypes = {
     language: PropTypes.string.isRequired,
     parseUtterance: PropTypes.func.isRequired,
     addUtteranceToTrainingData: PropTypes.func.isRequired,
+    subscribeToNewBotResponses: PropTypes.func.isRequired,
 };
 
 StoryVisualEditor.defaultProps = {
@@ -376,6 +384,7 @@ export default props => (
         {value => (
             <StoryVisualEditor
                 {...props}
+                subscribeToNewBotResponses={value.subscribeToNewBotResponses}
                 insertResponse={value.insertResponse}
                 language={value.language}
                 parseUtterance={value.parseUtterance}

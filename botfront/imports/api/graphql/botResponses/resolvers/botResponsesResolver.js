@@ -7,7 +7,17 @@ import {
     deleteResponse,
 } from '../mongo/botResponses';
 
+const { PubSub } = require('apollo-server-express');
+
+const pubsub = new PubSub();
+const RESPONSE_ADDED = 'RESPONSE_ADDED';
+
 export default {
+    Subscription: {
+        botResponseAdded: {
+            subscribe: () => pubsub.asyncIterator([RESPONSE_ADDED]),
+        },
+    },
     Query: {
         async botResponses(_, args, __) {
             return getBotResponses(args.projectId);
@@ -22,11 +32,16 @@ export default {
             return { success: response.ok === 1 };
         },
         async updateResponse(_, args, __) {
-            const response = await updateResponse(args.projectId, args.key, args.response);
+            const response = await updateResponse(
+                args.projectId,
+                args.key,
+                args.response,
+            );
             return { success: response.ok === 1 };
         },
         async createResponse(_, args, __) {
             const response = await createResponse(args.projectId, args.response);
+            pubsub.publish(RESPONSE_ADDED, { botResponseAdded: args.response });
             return { success: !!response.id };
         },
     },
