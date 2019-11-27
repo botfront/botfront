@@ -198,7 +198,6 @@ function Stories(props) {
 
 Stories.propTypes = {
     projectId: PropTypes.string.isRequired,
-    project: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
     storyGroups: PropTypes.array.isRequired,
     changeStoryGroup: PropTypes.func.isRequired,

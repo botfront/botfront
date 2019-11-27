@@ -2,11 +2,13 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import EntityPopup from '../example_editor/EntityPopup';
 import { ProjectContext } from '../../layouts/context';
+import getColor from '../../../lib/getColors';
 
 function Entity({
     value, onChange, onDelete, allowEditing, deletable, color,
 }) {
     const { entities, addEntity } = useContext(ProjectContext);
+    const colorToRender = color || getColor(value.entity, true);
     return (
         <EntityPopup
             entity={value}
@@ -22,7 +24,7 @@ function Entity({
             deletable={deletable}
             length={value.start ? value.end - value.start : 0}
             trigger={(
-                <div className={`entity-container ${color}`}>
+                <div className={`entity-container ${colorToRender}`}>
                     <span className='float'>{value.entity}</span>
                     <div>{value.value}</div>
                 </div>
@@ -46,7 +48,7 @@ Entity.defaultProps = {
     onDelete: () => {},
     deletable: false,
     allowEditing: false,
-    color: 'teal',
+    color: null,
 };
 
 export default Entity;

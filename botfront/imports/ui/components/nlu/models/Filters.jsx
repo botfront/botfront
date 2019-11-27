@@ -32,7 +32,7 @@ export default class Filters extends React.Component {
     render() {
         const { filter: { intents: intentsFilter, entities: entitiesFilter, query }, intents, entities } = this.props;
         const renderIntentLabel = label => ({ color: 'purple', content: `${label.text}` });
-        const renderEntityLabel = label => ({ color: getColor(entities.indexOf(label.text), true), content: `${label.text}` });
+        const renderEntityLabel = label => ({ color: getColor(label.text, true), content: `${label.text}` });
 
         return (
             <div style={{ marginRight: '10px' }}>

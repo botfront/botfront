@@ -9,7 +9,7 @@ import Entity from './EntityLabel';
 
 function UserUtteranceViewer(props) {
     const {
-        value, onChange, disableEditing, projectId, showIntent,
+        value, onChange, disableEditing, projectId, showIntent, disabled,
     } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
@@ -225,6 +225,8 @@ function UserUtteranceViewer(props) {
         });
     }
 
+    const color = disabled ? { color: 'grey' } : {};
+
     return (
         <div className='utterance-viewer'>
             {textContent.map((element) => {
@@ -245,6 +247,7 @@ function UserUtteranceViewer(props) {
                         <Entity
                             value={element}
                             size='mini'
+                            {...color}
                             key={element.start}
                             allowEditing={!disableEditing}
                             deletable={!disableEditing}
@@ -297,6 +300,7 @@ function UserUtteranceViewer(props) {
 UserUtteranceViewer.propTypes = {
     value: PropTypes.object.isRequired,
     disableEditing: PropTypes.bool,
+    disabled: PropTypes.bool,
     showIntent: PropTypes.bool,
     onChange: PropTypes.func,
     projectId: PropTypes.string.isRequired,
@@ -305,6 +309,7 @@ UserUtteranceViewer.propTypes = {
 UserUtteranceViewer.defaultProps = {
     disableEditing: false,
     showIntent: true,
+    disabled: false,
     onChange: () => {},
 };
 
