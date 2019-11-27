@@ -175,14 +175,45 @@ const ExpectedCellData = {
     ],
 };
 
-
 describe('analytics tables', function() {
+    const importProject = () => {
+        cy.visit('/project/bf/settings');
+        cy.dataCy('project-settings-more')
+            .click();
+        cy.dataCy('admin-settings-menu')
+            .find('a')
+            .contains('Docker Compose')
+            .click();
+        cy.dataCy('docker-api-host')
+            .click();
+        cy.dataCy('docker-api-host')
+            .find('input')
+            .clear()
+            .type(`${Cypress.env('API_URL')}{enter}`);
+        cy.visit('/project/bf/settings');
+        cy.contains('Import/Export').click();
+        cy.dataCy('import-type-dropdown')
+            .click();
+        cy.dataCy('import-type-dropdown')
+            .find('span')
+            .contains('Botfront')
+            .click();
+        cy.fixture('analytics_test_project.json', 'utf8').then((content) => {
+            cy.get('.file-dropzone').upload(content, 'data.json');
+        });
+        cy.dataCy('export-with-conversations')
+            .click();
+        cy.dataCy('import-button')
+            .click();
+        cy.dataCy('project-import-success').should('exist');
+    };
+
     beforeEach(function() {
         cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
-        cy.importProject('bf', 'analytics_test_project.json');
+        importProject(); // replace with cy.importProject once it has been fixed
     });
 
     afterEach(function() {
@@ -207,7 +238,6 @@ describe('analytics tables', function() {
             .eq(cardIndex)
             .click();
     };
-    
     it('should display the correct data in the conversation length table', function() {
         cy.visit('/project/bf/analytics');
         cy.pickDateRange(0, '5/11/2019', '4/11/2019');
@@ -242,36 +272,53 @@ describe('analytics tables', function() {
     });
     it('should display the correct data in the fallback table', function() {
         cy.visit('/project/bf/analytics');
+        cy.log('visit analytics');
         cy.pickDateRange(3, '5/11/2019', '4/11/2019');
+        cy.log('selected one day date range');
         selectTableChart(3);
+        cy.log('switched to table view (one day)');
         // test 1 day range
         cy.dataCy('analytics-chart')
             .eq(3)
             .find('.rt-tr-group')
             .should('have.length', 24);
-        ExpectedCellData.fallbackHourly.forEach((cellData) => {
+        cy.log('verified data length (oneDay)');
+        ExpectedCellData.fallbackHourly.forEach((cellData, index) => {
             verifyCellData(cellData);
+            cy.log(`verifiedDataStep ${index} (oneDay)`);
         });
+        cy.log('verified one day table data');
         // test 3 day range
         cy.pickDateRange(3, '3/11/2019', '5/11/2019');
+        cy.log('selected 3 day range');
         cy.dataCy('analytics-chart')
             .eq(3)
             .find('.rt-tr-group')
             .should('have.length', 3);
-        ExpectedCellData.fallbackThreeDay.forEach((cellData) => {
+        cy.log('switched to table view (3day)');
+        ExpectedCellData.fallbackThreeDay.forEach((cellData, index) => {
+            cy.log(`verifiedDataStep ${index} (threeDay)`);
             verifyCellData(cellData);
         });
+        cy.log('verified data table (3day)');
         // test 91 day range
         cy.pickDateRange(3, '15/8/2019', '29/11/2019');
-        ExpectedCellData.fallbackLong.forEach((cellData) => {
+        cy.log('selected 90 day range');
+        ExpectedCellData.fallbackLong.forEach((cellData, index) => {
             verifyCellData(cellData);
+            cy.log(`verifiedDataStep ${index} (90Day)`);
         });
+        cy.log('verified table dat 90 day');
     });
     it('should display the correct data in the engagement table', function() {
         cy.visit('/project/bf/analytics');
+        cy.log('visited analytics(engagement)');
         cy.pickDateRange(4, '5/11/2019', '4/11/2019');
+        cy.log('selected one day range(engagement)');
         selectTableChart(4);
-        ExpectedCellData.VisitsHourly.forEach((cellData) => {
+        cy.log('switched to table view(engagement)');
+        ExpectedCellData.VisitsHourly.forEach((cellData, index) => {
+            cy.log(`verify cell data ${index} (engagement)`);
             verifyCellData(cellData);
         });
     });
