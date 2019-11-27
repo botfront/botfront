@@ -689,6 +689,7 @@ const MONTHS = [
     'December',
 ];
 Cypress.Commands.add('findMonth', (queryMonth, index, incomingSearchPrev) => {
+    cy.log(queryMonth);
     let searchPrev = incomingSearchPrev !== undefined ? incomingSearchPrev : true;
     let shouldExit = false;
     if (index > 36) {
@@ -801,3 +802,5 @@ Cypress.Commands.add('addConversation', (projectId, id, conversation) => {
         body: conversation,
     });
 });
+
+Cypress.Commands.overwrite('log', (subject, message) => cy.task('log', message));
