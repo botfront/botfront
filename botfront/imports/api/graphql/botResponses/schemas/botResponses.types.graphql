@@ -1,6 +1,16 @@
 type Query {
     botResponses(projectId: String!): [BotResponse!]
-    botResponse(key: String!): BotResponse
+    botResponse(projectId: String!, key: String!, lang: String): BotResponse
+}
+
+type Mutation {
+  deleteResponse(projectId: String!, key: String!): updateResponse!
+  updateResponse(projectId: String!, key: String!, response: BotResponseInput): updateResponse!
+  createResponse(projectId: String!, response: BotResponseInput): updateResponse!
+}
+
+type updateResponse {
+  success: Boolean!
 }
 
 type BotResponse {
@@ -36,6 +46,44 @@ type Nlu {
 }
 
 type Entity {
+  entity: String
+  value: String
+}
+
+#Input types
+input BotResponseInput {
+  key: String
+  _id: String
+  projectId: String
+  values: [ValueInput]
+  match: MatchInput
+  followUp: FollowUpInput
+}
+
+input ValueInput {
+  lang: String
+  sequence: [ContentContainerInput]
+}
+
+input ContentContainerInput {
+  content: String
+}
+
+input FollowUpInput {
+  action: String
+  delay: Float
+}
+
+input MatchInput {
+  nlu: [NluInput]
+}
+
+input NluInput {
+  intent: String
+  entities: [EntityInput]
+}
+
+input EntityInput {
   entity: String
   value: String
 }
