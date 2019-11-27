@@ -40,7 +40,7 @@ class Project extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount = () => {
         const { projectId } = this.props;
         Meteor.call(
             'project.getEntitiesAndIntents',
@@ -54,7 +54,7 @@ class Project extends React.Component {
         );
     }
 
-    componentDidUpdate() {
+    componentDidUpdate = () => {
         const { showIntercom } = this.state;
         if (window.Intercom && showIntercom) {
             window.Intercom('show');
@@ -67,7 +67,7 @@ class Project extends React.Component {
         }
     }
 
-    getResponse(key, callback = () => {}) {
+    getResponse = (key, callback = () => {}) => {
         const { projectId, workingLanguage } = this.props;
         Meteor.call(
             'project.findTemplate',
@@ -87,7 +87,7 @@ class Project extends React.Component {
         };
     };
 
-    getUtteranceFromPayload(payload, callback = () => {}) {
+    getUtteranceFromPayload = (payload, callback = () => {}) => {
         const { projectId, workingLanguage } = this.props;
         Meteor.call(
             'nlu.getUtteranceFromPayload',
@@ -117,7 +117,7 @@ class Project extends React.Component {
         }));
     };
 
-    parseUtterance(utterance) {
+    parseUtterance = (utterance) => {
         const { instance, workingLanguage } = this.props;
         return Meteor.callWithPromise(
             'rasa.parse',
@@ -127,17 +127,17 @@ class Project extends React.Component {
         );
     }
 
-    addIntent(newIntent) {
+    addIntent = (newIntent) => {
         const { intents } = this.state;
         this.setState({ intents: [...new Set([...intents, newIntent])] });
     }
 
-    addEntity(newEntity) {
+    addEntity = (newEntity) => {
         const { entities } = this.state;
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    updateResponse(response, callback = () => {}) {
+    updateResponse = (response, callback = () => {}) => {
         const { projectId } = this.props;
         Meteor.call(
             'project.updateTemplate',
@@ -148,7 +148,7 @@ class Project extends React.Component {
         );
     }
 
-    insertResponse(response, callback = () => {}) {
+    insertResponse = (response, callback = () => {}) => {
         const { projectId } = this.props;
         Meteor.call(
             'project.insertTemplate',
@@ -158,7 +158,7 @@ class Project extends React.Component {
         );
     }
 
-    addUtteranceToTrainingData(utterance, callback = () => {}) {
+    addUtteranceToTrainingData = (utterance, callback = () => {}) => {
         const { projectId, workingLanguage } = this.props;
         Meteor.call(
             'nlu.insertExamplesWithLanguage',

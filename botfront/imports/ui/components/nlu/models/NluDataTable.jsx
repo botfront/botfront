@@ -33,10 +33,9 @@ export default class NluDataTable extends React.Component {
         };
     }
 
-    onEditExample = (example, callback) => {
+    onEditExample = (example) => {
         const { onEditExample } = this.props;
-        onEditExample(example, (err, res) => {
-            callback(err, res);
+        onEditExample(example, (err) => {
             if (!err) {
                 this.setState({ expanded: {} });
             }
@@ -84,7 +83,7 @@ export default class NluDataTable extends React.Component {
 
     getColumns() {
         const {
-            onRenameIntent, examples, projectId, entities, extraColumns, onDeleteExample, onSwitchCanonical,
+            entities, extraColumns, onDeleteExample, onSwitchCanonical,
         } = this.props;
         let { intentColumns } = this.props;
         const { showLabels, waiting } = this.state;
@@ -95,28 +94,14 @@ export default class NluDataTable extends React.Component {
                 width: 200,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['intent'] }),
                 Cell: (props) => {
-                    const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                     return (
                         <IntentLabel
                             value={props.value}
                             allowEditing
                             allowAdditions
-                            onChange={this.onEditExample}
+                            onChange={intent => this.onEditExample({ ...props.row.example, intent })}
                         />
                     );
-                    // return (
-                    //     <IntentNameEditor
-                    //         intent={props.value}
-                    //         onRenameIntent={onRenameIntent}
-                    //         examples={examples}
-                    //         intents={this.getIntentForDropdown(false)}
-                    //         onSave={this.onEditExample}
-                    //         example={props.original}
-                    //         enableRenaming={props.row && !canonical}
-                    //         projectId={projectId}
-                    //         canonical={canonical}
-                    //     />
-                    // );
                 },
 
             },
@@ -180,17 +165,24 @@ export default class NluDataTable extends React.Component {
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                 let toolTip = (<div>Mark as canonical</div>);
                 if (canonical) {
-                    toolTip = (<><Popup.Header>Canonical Example</Popup.Header>
-                        <Popup.Content className='popup-canonical'>
-                            This example is canonical for the intent
-                            <span className='intent-name'> {props.row.example.intent}</span>
+                    toolTip = (
+                        <>
+                            <Popup.Header>Canonical Example</Popup.Header>
+                            <Popup.Content className='popup-canonical'>
+                                This example is canonical for the intent
+                                <span className='intent-name'> {props.row.example.intent}</span>
 
-                            {props.row.example.entities && props.row.example.entities.length > 0
-                                ? (<>and for the following entity - entity value combinations: <br />
-                                    {props.row.example.entities.map(entity => (<Entity size='tiny' value={entity} onChange={() => { }} />))}</>)
-                                : ''}
-
-                        </Popup.Content></>);
+                                {props.row.example.entities && props.row.example.entities.length > 0
+                                    ? (
+                                        <>
+                                            and for the following entity - entity value combinations: <br />
+                                            {props.row.example.entities.map(entity => (<Entity size='tiny' value={entity} onChange={() => { }} />))}
+                                        </>
+                                    )
+                                    : ''}
+                            </Popup.Content>
+                        </>
+                    );
                 }
 
                 return (
@@ -215,7 +207,8 @@ export default class NluDataTable extends React.Component {
                             this.setState({ waiting: new Set(waiting) });
                         }}
                         iconClass={canonical ? '' : undefined} // remove the on hover class if canonical
-                    />);
+                    />
+                );
             },
             Header: '',
             width: 30,
@@ -389,12 +382,10 @@ NluDataTable.propTypes = {
     entities: PropTypes.array.isRequired,
     onEditExample: PropTypes.func.isRequired,
     onDeleteExample: PropTypes.func.isRequired,
-    onRenameIntent: PropTypes.func.isRequired,
     showLabels: PropTypes.bool,
     hideHeader: PropTypes.bool,
     extraColumns: PropTypes.array,
     intentColumns: PropTypes.arrayOf(PropTypes.object),
-    projectId: PropTypes.string.isRequired,
     onSwitchCanonical: PropTypes.func.isRequired,
 };
 
