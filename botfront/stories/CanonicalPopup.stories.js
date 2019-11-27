@@ -48,7 +48,7 @@ const longCanonicalExample = {
     ],
 };
 const canonicalUndefinedExample = {
-    text: 'I like blue beans with red sauce. It is important to test how a very long example would look in css. does it wrap properly or does it just overflow its container',
+    text: 'I like blue beans with red sauce.',
     intent: 'I_like_beans',
     entities: [
         {
@@ -63,16 +63,10 @@ const canonicalUndefinedExample = {
             value: 'red',
             entity: 'sauce-color',
         },
-        {
-            start: 152,
-            end: 161,
-            value: 'container',
-            entity: 'box',
-        },
     ],
 };
 const canonicalFalseExample = {
-    text: 'I like blue beans with red sauce. It is important to test how a very long example would look in css. does it wrap properly or does it just overflow its container',
+    text: 'I like blue beans with red sauce.',
     intent: 'I_like_beans',
     canonical: false,
     entities: [
@@ -87,12 +81,6 @@ const canonicalFalseExample = {
             end: 26,
             value: 'red',
             entity: 'sauce-color',
-        },
-        {
-            start: 152,
-            end: 161,
-            value: 'container',
-            entity: 'box',
         },
     ],
 };
@@ -113,19 +101,11 @@ const EdgeCase = {
             value: 'red',
             entity: 'sauce-color',
         },
-        {
-            start: 152,
-            end: 161,
-            value: 'container',
-            entity: 'box',
-        },
     ],
 };
 const CanonicalPopupWrapped = props => (
     <CanonicalPopup
-        // trigger={<Button icon='add' />}
         trigger={<IntentLabel value={sampleCanonicalExample.intent} />}
-        // trigger={<div style={{ width: '100px', backgroundColor: 'purple' }}>I_like_beans</div>}
         example={sampleCanonicalExample}
         {...props}
     />
