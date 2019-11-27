@@ -78,7 +78,7 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
         startSpinner(spinner, 'Starting Botfront...')
         await shellAsync(command, { silent: !verbose });
         if (ci) process.exit(0); // exit now if ci
-        
+
         if (!exclude.includes('botfront')) await waitForService('botfront');
         stopSpinner();
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
@@ -242,7 +242,7 @@ export async function watchFolder({ verbose }, workingDir) {
     const service = 'actions';
     startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
     watch(watchedPath, {
-        ignored: /(^|[\/\\])\../,
+        ignored: /(^|[\/\\])\..|pyc/,
         ignoreInitial: true,
         interval: 1000,
     })
@@ -253,3 +253,4 @@ export async function watchFolder({ verbose }, workingDir) {
             startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
         });
 }
+

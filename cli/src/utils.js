@@ -156,7 +156,7 @@ export async function generateDockerCompose(exclude = [], dir) {
     })
     const config = getProjectConfig(dir);
     const dcCopy = JSON.parse(JSON.stringify(dc));
-    Object.keys(dc.services).forEach(service => {
+    Object.keys(dc.services).filter(service => service !== 'actions').forEach(service => {
         dcCopy.services[service].image = config.images.current[service]
     })
     // for (let key in dcCopy.services) {
@@ -178,7 +178,7 @@ export async function verifySystem() {
     const results = await promisify(check)({ node: '>= 8.9'});
     if (!results.versions.node.isSatisfied) {
         throw `You must upgrade your Node.js installation to use Botfront. Please visit ${chalk.green('https://nodejs.org/en/download/')}`
-    };
+    }
 }
 
 export function getBotfrontVersion() {
@@ -202,7 +202,7 @@ export function getProjectEnvFilePath(dir) {
 }
 
 export function isProjectDir(dir) {
-    return fs.existsSync(getComposeFilePath(fixDir(dir)));
+    return fs.existsSync(getComposeFilePath(fixDir(dir), DOCKER_COMPOSE_TEMPLATE_FILENAME));
 }
 
 export function getComposeFile(dir, fileName) {

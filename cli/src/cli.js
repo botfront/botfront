@@ -99,12 +99,12 @@ program
     .command('watch')
     .description('Restart the Actions service automatically on file change. Must be executed in your project\'s directory')
     .action(watchFolder);
-    
+
 program
     .command('docs')
     .description('Open the online documentation in your browser')
     .action(openDocs);
-    
+
 async function openDocs() {
     const spinner = ora()
     spinner.start(`Opening ${chalk.green.bold('https://botfront.io/docs')} in your browser...`)
@@ -113,7 +113,7 @@ async function openDocs() {
     spinner.succeed('Done')
     console.log('\n');
 }
-    
+
 async function killAllCommand(cmd) {
     const { stop } = await inquirer.prompt({
         type: 'confirm',
@@ -139,7 +139,7 @@ async function killAllCommand(cmd) {
         } catch (e) {
             failSpinner(spinner, e);
         }
-        
+
     }
 }
 
@@ -162,7 +162,6 @@ async function general() {
             choices.push({ title: 'Create a new project', cmd: initCommand });
         }
         choices.push({ title: 'Browse the online documentation', cmd: openDocs});
-        
         choices.push({ title: 'More options (display the --help)', cmd: () => shell.exec('botfront -h') });
         choices.push({ title: 'Exit', cmd:  () => process.exit(0) });
         console.log(boxen(`Welcome to ${chalk.green.bold('Botfront')}!\nversion: ${getBotfrontVersion()}`,  { padding: 1,  margin: 1 }));
@@ -173,7 +172,6 @@ async function general() {
             choices: choices.map(choice => choice.title),
         });
         choices.find(c => c.title === action).cmd()
-    
     } catch (e) {
         console.log(e)
     }

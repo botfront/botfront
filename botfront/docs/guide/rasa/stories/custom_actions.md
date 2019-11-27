@@ -9,7 +9,9 @@ permalink: /rasa/:slug
 
 # Custom actions
 
-Botfront supports Rasa custom actions out of the box.
+## Development
+
+Botfront makes Rasa custom actions. Writing and using custom actions is very easy.
 
 In your project you should have the following folders:
 
@@ -23,14 +25,22 @@ In your project you should have the following folders:
 
 You probably figured it out: `actions` is our folder of interest.
 
-Adding custom actions is fairly easy:
+#### Launch the watcher
+The first thing to do is to launch the watcher. Symply run `botfront watch` from the root of your project. Any change in the `actions` folder will rebuild and restart the actions server so you can test the actions in Botfront
 
-1. Run `botfront watch` from the root of your project folder to automatically rebuild your action server on file changes.
+#### Write custom actions
 
-2. Add your actions to the `actions/my_actions.py` file.
+All actions in the `actions` folder will be found by the watcher. You can add actions to the default `my_actions.py` file or add new files.
 
-3. Run `botfront logs` and verify that your actions are correctly imported. You should see something like `
-INFO:rasa_sdk.executor:Registered function for 'action_guests'.`
+#### Verify that your actions are registered
 
-4. From the [conversation builder guide](/rasa/conversation-builder/#actions), add your action to the conversation.
+Run `botfront logs` and verify that your actions are correctly imported. You should see something like `
+INFO:rasa_sdk.executor:Registered function for 'action_guests'.` for each action in the folder.
+
+
+#### Add your action to the conversation
+From the [conversation builder guide](/rasa/conversation-builder/#actions), add your action to the conversation.
+
+## Deployment
+You can build your action server Docker image with the `Dockerfile.production` found in your project folder.
 
