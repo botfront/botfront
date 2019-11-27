@@ -14,6 +14,7 @@ import StoryGroupBrowser from './StoryGroupBrowser';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
 
+
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
 
@@ -34,6 +35,8 @@ function Stories(props) {
     const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
+
+
     const closeModals = () => {
         setSlotsModal(false);
         setPoliciesModal(false);
@@ -119,7 +122,7 @@ function Stories(props) {
                 id='remove-focus'
                 tabIndex='0'
                 onClick={removeAllSelection}
-                onKeyDown={() => {}}
+                onKeyDown={() => { }}
                 role='button'
             >
                 Remove focus

@@ -13,7 +13,8 @@ import React from 'react';
 import {
     Placeholder, Header, Menu, Container, Button, Loader, Popup,
 } from 'semantic-ui-react';
-
+import { Mutation, Query } from '@apollo/react-components';
+import { ApolloConsumer } from '@apollo/react-common';
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
@@ -25,6 +26,12 @@ import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { ProjectContext } from './context';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
+import { GET_BOT_RESPONSES, GET_BOT_RESPONSE } from './queries';
+import {
+    CREATE_BOT_RESPONSE,
+    UPDATE_BOT_RESPONSE,
+} from './mutations';
+
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -40,6 +47,7 @@ class Project extends React.Component {
             intents: [],
         };
     }
+
 
     componentDidUpdate = (prevProps) => {
         const { projectId, workingLanguage: language } = this.props;
@@ -69,7 +77,8 @@ class Project extends React.Component {
         }
     }
 
-    getResponse = (key, callback = () => {}) => {
+
+    getResponse = (key, callback = () => { }) => {
         const { projectId, workingLanguage } = this.props;
         Meteor.call(
             'project.findTemplate',
@@ -89,7 +98,7 @@ class Project extends React.Component {
         };
     };
 
-    getUtteranceFromPayload = (payload, callback = () => {}) => {
+    getUtteranceFromPayload = (payload, callback = () => { }) => {
         const { projectId, workingLanguage } = this.props;
         Meteor.call(
             'nlu.getUtteranceFromPayload',
@@ -138,28 +147,65 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    updateResponse = (response, callback = () => {}) => {
+    updateResponse = (updateFunc) => {
         const { projectId } = this.props;
-        Meteor.call(
-            'project.updateTemplate',
-            projectId,
-            response.key,
-            response,
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
+        return (newResponse, callback = () => { }) => {
+            const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
+            const cleanedResponse = JSON.parse(JSON.stringify(newResponse), omitTypename);
+            updateFunc({
+                variables: { projectId, response: cleanedResponse, key: newResponse.key },
+            }).then(
+                (result) => {
+                    callback(undefined, result);
+                },
+                (error) => {
+                    callback(error);
+                },
+            );
+        };
     }
 
-    insertResponse = (response, callback = () => {}) => {
+
+    insertResponse = (insertFunc) => {
         const { projectId } = this.props;
-        Meteor.call(
-            'project.insertTemplate',
-            projectId,
-            response,
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
+        return (newResponse, callback = () => { }) => {
+            // onCompleted and onError seems to have issues currently https://github.com/apollographql/react-apollo/issues/2293
+            insertFunc({
+                variables: { projectId, response: newResponse },
+            }).then(
+                (result) => {
+                    callback(undefined, result);
+                },
+                (error) => {
+                    callback(error);
+                },
+            );
+        };
     }
 
-    addUtteranceToTrainingData = (utterance, callback = () => {}) => {
+
+    getResponse = (client) => {
+        const { projectId, workingLanguage } = this.props;
+        return (key, callback = () => { }) => {
+            client.query({
+                query: GET_BOT_RESPONSE,
+                variables: {
+                    projectId,
+                    key,
+                    lang: workingLanguage || 'en',
+                },
+            }).then(
+                (result) => {
+                    callback(undefined, result.data.botResponse);
+                },
+                (error) => {
+                    callback(error);
+                },
+            );
+        };
+    }
+
+    addUtteranceToTrainingData = (utterance, callback = () => { }) => {
         const { projectId, workingLanguage } = this.props;
         Meteor.call(
             'nlu.insertExamplesWithLanguage',
@@ -243,33 +289,49 @@ class Project extends React.Component {
                             </div>
                         )}
                         {!loading && (
-                            <ProjectContext.Provider
-                                value={{
-                                    templates: [...project.templates],
-                                    intents,
-                                    entities,
-                                    slots,
-                                    language: workingLanguage,
-                                    insertResponse: this.insertResponse,
-                                    updateResponse: this.updateResponse,
-                                    getResponse: this.getResponse,
-                                    addEntity: this.addEntity,
-                                    addIntent: this.addIntent,
-                                    getUtteranceFromPayload: this.getUtteranceFromPayload,
-                                    parseUtterance: this.parseUtterance,
-                                    addUtteranceToTrainingData: this.addUtteranceToTrainingData,
-                                }}
-                            >
-                                <div data-cy='left-pane'>
-                                    {children}
-                                    {!showChatPane && channel && (
-                                        <Popup
-                                            trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
-                                            content='Try out your chatbot'
-                                        />
-                                    )}
-                                </div>
-                            </ProjectContext.Provider>
+                            <Query query={GET_BOT_RESPONSES} variables={{ projectId }}>
+                                {({ loadingResponses, data: responses }) => (
+                                    <Mutation mutation={CREATE_BOT_RESPONSE}>
+                                        {createBotResponse => (
+                                            <Mutation mutation={UPDATE_BOT_RESPONSE}>
+                                                {updateBotResponse => (
+                                                    <ApolloConsumer>
+                                                        {client => (
+                                                            <ProjectContext.Provider
+                                                                value={{
+                                                                    templates: responses && !loadingResponses ? responses.botResponses : [],
+                                                                    intents,
+                                                                    entities,
+                                                                    slots,
+                                                                    language: workingLanguage,
+                                                                    insertResponse: this.insertResponse(createBotResponse),
+                                                                    updateResponse: this.updateResponse(updateBotResponse),
+                                                                    getResponse: this.getResponse(client),
+                                                                    addEntity: this.addEntity,
+                                                                    addIntent: this.addIntent,
+                                                                    getUtteranceFromPayload: this.getUtteranceFromPayload,
+                                                                    parseUtterance: this.parseUtterance,
+                                                                    addUtteranceToTrainingData: this.addUtteranceToTrainingData,
+                                                                }}
+                                                            >
+                                                                <div data-cy='left-pane'>
+                                                                    {children}
+                                                                    {!showChatPane && channel && (
+                                                                        <Popup
+                                                                            trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
+                                                                            content='Try out your chatbot'
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </ProjectContext.Provider>
+                                                        )}
+                                                    </ApolloConsumer>
+                                                )}
+                                            </Mutation>
+                                        )}
+                                    </Mutation>
+                                )}
+                            </Query>
                         )}
                         {!loading && showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
