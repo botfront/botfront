@@ -182,7 +182,6 @@ describe('analytics tables', function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
-        cy.waitForResolve(Cypress.env('API_URL'));
         cy.importProject('bf', 'analytics_test_project.json');
     });
 
