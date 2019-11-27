@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Comment } from 'semantic-ui-react';
 
-import NLUExampleText from './NLUExampleText';
+import UserUtteranceViewer from '../utils/UserUtteranceViewer';
 
 export default function UserUtteredEventViewer({ event }) {
     return (
@@ -12,7 +12,7 @@ export default function UserUtteredEventViewer({ event }) {
                 <span>{event.timestamp.format('ddd, MMM Do, h:mm:ss a')}</span>
             </Comment.Metadata>
             <Comment.Text>
-                <NLUExampleText example={event.example} showIntent />
+                <UserUtteranceViewer value={event.example} disableEditing />
             </Comment.Text>
             <Comment.Actions>
             </Comment.Actions>

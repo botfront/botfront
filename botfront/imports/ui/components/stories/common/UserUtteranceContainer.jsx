@@ -86,7 +86,6 @@ const UtteranceContainer = (props) => {
                 <>
                     <UserUtteranceViewer
                         value={stateValue}
-                        size='mini'
                         onChange={setStateValue}
                     />
                     <Button
@@ -104,7 +103,6 @@ const UtteranceContainer = (props) => {
             <UserUtteranceViewer
                 value={fetchedData || value}
                 disableEditing
-                size='mini'
                 // onChange={v => onChange(v)}
             />
         );

@@ -4,17 +4,17 @@ import ReactTable from 'react-table-v6';
 import _ from 'lodash';
 import { Message } from 'semantic-ui-react';
 
-import NLUExampleText from '../../example_editor/NLUExampleText';
+import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
 import EntityUtils from '../../utils/EntityUtils';
 import { examplePropType } from '../../utils/ExampleUtils';
 import { Info } from '../../utils/Utils';
 import { Metrics } from './KeyMetrics';
 
-function ExampleTextComparison({ example, prediction, entities }) {
+function ExampleTextComparison({ example, prediction }) {
     return (
         <div className='entity_evaluation'>
-            <NLUExampleText example={example} entities={entities} color='green' showLabels withMargin />
-            <NLUExampleText example={prediction} entities={entities} color='red' showLabels />
+            <UserUtteranceViewer value={example} color='green' disableEditing />
+            <UserUtteranceViewer value={prediction} color='red' disableEditing />
         </div>
     );
 }
