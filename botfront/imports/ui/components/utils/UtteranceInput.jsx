@@ -59,7 +59,7 @@ UtteranceInput.propTypes = {
 
 UtteranceInput.defaultProps = {
     placeholder: 'Say....',
-    size: 'mini',
+    size: 'small',
     value: '',
     onValidate: () => {},
     fluid: false,

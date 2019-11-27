@@ -278,11 +278,10 @@ function UserUtteranceViewer(props) {
                 );
             })}
             {showIntent && (
-                <> &nbsp;
+                <> &nbsp;&nbsp;&nbsp;
                     {intent && (
                         <Intent
                             value={intent}
-                            size='mini'
                             allowEditing={!disableEditing}
                             allowAdditions
                             onChange={newIntent => onChange({ ...value, intent: newIntent })}

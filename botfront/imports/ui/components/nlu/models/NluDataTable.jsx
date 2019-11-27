@@ -13,8 +13,7 @@ import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
 import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import NLUExampleText from '../../example_editor/NLUExampleText';
 import EntityUtils from '../../utils/EntityUtils';
-import IntentNameEditor from './IntentViewer';
-import 'react-select/dist/react-select.css'; // Is it used somewhere?
+import IntentLabel from '../../utils/IntentLabel';
 import Filters from './Filters';
 import FloatingIconButton from '../common/FloatingIconButton';
 
@@ -98,18 +97,26 @@ export default class NluDataTable extends React.Component {
                 Cell: (props) => {
                     const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                     return (
-                        <IntentNameEditor
-                            intent={props.value}
-                            onRenameIntent={onRenameIntent}
-                            examples={examples}
-                            intents={this.getIntentForDropdown(false)}
-                            onSave={this.onEditExample}
-                            example={props.original}
-                            enableRenaming={props.row && !canonical}
-                            projectId={projectId}
-                            canonical={canonical}
+                        <IntentLabel
+                            value={props.value}
+                            allowEditing
+                            allowAdditions
+                            onChange={this.onEditExample}
                         />
                     );
+                    // return (
+                    //     <IntentNameEditor
+                    //         intent={props.value}
+                    //         onRenameIntent={onRenameIntent}
+                    //         examples={examples}
+                    //         intents={this.getIntentForDropdown(false)}
+                    //         onSave={this.onEditExample}
+                    //         example={props.original}
+                    //         enableRenaming={props.row && !canonical}
+                    //         projectId={projectId}
+                    //         canonical={canonical}
+                    //     />
+                    // );
                 },
 
             },

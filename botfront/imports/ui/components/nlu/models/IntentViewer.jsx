@@ -147,17 +147,9 @@ class IntentNameEditor extends React.Component {
     renderViewer() {
         const { intents, intent, canonical } = this.props;
         const { hovering, confirmOpen } = this.state;
-        const style = {
-            borderRadius: '4px',
-            cursor: 'default',
-        };
-        const trigger = intent ? (
-            <Label color='purple' style={style} data-cy='intent-label'>
-                {intent}
-            </Label>
-        ) : (
-            <Label color='grey' style={style} basic data-cy='intent-label'>
-                -
+        const trigger = (
+            <Label color={intent ? 'purple' : 'grey'} className='intent-label' data-cy='intent-label'>
+                {intent || '-'}
             </Label>
         );
         return (

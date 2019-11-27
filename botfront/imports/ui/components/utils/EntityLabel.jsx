@@ -4,7 +4,7 @@ import EntityPopup from '../example_editor/EntityPopup';
 import { ConversationOptionsContext } from './Context';
 
 function Entity({
-    value, onChange, onDelete, size, allowEditing, deletable,
+    value, onChange, onDelete, allowEditing, deletable, color,
 }) {
     const { entities, addEntity } = useContext(ConversationOptionsContext);
     return (
@@ -22,7 +22,7 @@ function Entity({
             deletable={deletable}
             length={value.start ? value.end - value.start : 0}
             trigger={(
-                <div className='entity-container'>
+                <div className={`entity-container ${color}`}>
                     <span className='float'>{value.entity}</span>
                     <div>{value.value}</div>
                 </div>
@@ -35,8 +35,8 @@ function Entity({
 
 Entity.propTypes = {
     onChange: PropTypes.func.isRequired,
+    color: PropTypes.string,
     onDelete: PropTypes.func,
-    size: PropTypes.string,
     deletable: PropTypes.bool,
     value: PropTypes.object.isRequired,
     allowEditing: PropTypes.bool,
@@ -44,9 +44,9 @@ Entity.propTypes = {
 
 Entity.defaultProps = {
     onDelete: () => {},
-    size: 'mini',
     deletable: false,
     allowEditing: false,
+    color: 'teal',
 };
 
 export default Entity;

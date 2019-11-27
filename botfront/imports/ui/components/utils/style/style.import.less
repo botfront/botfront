@@ -37,19 +37,31 @@
   line-height: 1.2;
   display: inline-block;
   position: relative;
-  :not(.float) {
-    background-color: lighten(@teal, 60%);
-    border-bottom: 2.5px solid @teal;
-  }
-
   .float {
     position: absolute;
     width: 100px;
     bottom: ~"calc(100% - 5px)";
-    color: @teal;
     font-size: small;
   }
 }
+
+.createentitycolorclasses(@i:1) when(@i <= length(@basic-colors)) {
+  @name: extract(extract(@basic-colors, @i), 1);
+  @color: extract(extract(@basic-colors, @i), 2);
+
+  .entity-container.@{name} {
+    :not(.float) {
+      background-color: fade(@color, 17%);
+      border-bottom: 2.5px solid @color;
+    }
+    .float {
+      color: @color
+    }
+  }
+  .createentitycolorclasses(@i + 1);
+}
+
+.createentitycolorclasses();
 
 .utterance-viewer {
   .selected-text {
@@ -57,14 +69,24 @@
   }
 }
 
-#intent {
-  font-size: inherit;
-  font-weight: normal;
-  padding: 3px 5px;
-  margin: 2px;
+.intent-label {
+  display: inline-block;
+  color: @purple;
+  width: max-content;
+  font-weight: bold;
+  padding: 2px;
+  margin: 0;
+  cursor: default;
+
+  &.disabled {
+    color: @grey;
+  }
+  &.null {
+    color: darken(@purple, 20%);
+  }
 }
 
-#intent.tiny{
-  padding: 5px 10px;
-  font-weight: bold;
+.intent-dropdown-container {
+  display: flex;
+  width: max-content;
 }
