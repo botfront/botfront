@@ -24,7 +24,7 @@ const formatTextOnSave = values => values.map((item) => {
 
 export const updateResponse = async (projectId, key, newResponse) => {
     const formatedResponse = { ...newResponse, values: formatTextOnSave(newResponse.values) };
-    return BotResponses.findOneAndUpdate({ projectId, key }, formatedResponse).exec();
+    return BotResponses.updateOne({ projectId, key }, formatedResponse).exec();
 };
 export const createResponse = async (projectId, newResponse) => BotResponses.create({ ...newResponse, projectId, _id: newResponse.key });
 export const deleteResponse = async (projectId, key) => BotResponses.deleteOne({ projectId, key });
