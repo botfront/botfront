@@ -2,6 +2,9 @@
 import {
     getBotResponses,
     getBotResponse,
+    updateResponse,
+    createResponse,
+    deleteResponse,
 } from '../mongo/botResponses';
 
 export default {
@@ -10,10 +13,23 @@ export default {
             return getBotResponses(args.projectId);
         },
         async botResponse(_, args, __) {
-            return getBotResponse(args.key);
+            return getBotResponse(args.projectId, args.key, args.lang);
         },
     },
-
+    Mutation: {
+        async deleteResponse(_, args, __) {
+            const response = await deleteResponse(args.projectId, args.key);
+            return { success: response.ok === 1 };
+        },
+        async updateResponse(_, args, __) {
+            const response = await updateResponse(args.projectId, args.key, args.response);
+            return { success: response.ok === 1 };
+        },
+        async createResponse(_, args, __) {
+            const response = await createResponse(args.projectId, args.response);
+            return { success: !!response.id };
+        },
+    },
     BotResponse: {
         key: (parent, _, __) => parent.key,
         _id: (parent, _, __) => parent._id,
