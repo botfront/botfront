@@ -67,16 +67,34 @@
   .selected-text {
     background-color: #c4d8f5;
   }
+  line-height: 1.7em;
 }
+
 .ui.popup.canonical-popup{
   max-width: 600px;
+  /* padding is moved from canonical-popup to canonical-popup-content so that
+    the arrow that points to the popup trigger is not removed by overflow: hidden;
+  */
+  padding: 0px; // remove the default padding on the popup
   .canonical-popup-content {
+    padding: 13.3px 16px 13.3px 16px; // mimic the default padding of the popup
     display: flex;
+    overflow: hidden;
+  }
+  .icon{
+    margin-right: 0.5em;
+    margin-top: 4px;
+    &.gem{
+      margin-top: 4px;
+    }
+    &.tag{
+      margin-top: 4px;
+    }
   }
 }
 
 .canonical-popup-trigger{
-  display: inline-block; // fit to the size of it's children
+  display: inline-block; // match the size of it's children
 }
 
 

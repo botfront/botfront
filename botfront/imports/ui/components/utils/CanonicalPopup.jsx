@@ -18,7 +18,10 @@ const CanonicalPopup = (props) => {
         }
         return (
             <span className='canonical-popup-content'>
-                <Icon name={example.canonical === true ? 'gem' : 'tag'} />
+                <Icon
+                    name={example.canonical === true ? 'gem' : 'tag'}
+                    // size='small'
+                />
                 <UserUtteranceViewer
                     value={example}
                     disableEditing
@@ -31,24 +34,29 @@ const CanonicalPopup = (props) => {
         <Popup
             content={renderPopupContent}
             /* if the root element of the trigger has custom hover behaviour it
-               prevents the popup from opening, wrapping the trigger in a div this ensures
+               prevents the popup from opening. Wrapping the trigger in a div ensures
                the popup will open
             */
             trigger={<div className='canonical-popup-trigger'>{trigger}</div>}
-            position='bottom right'
             inverted
-            basic
             flowing
             hoverable
+            open
             className='canonical-popup'
         />
     );
     return renderCanonicalPopup();
 };
 
+const exampleShape = {
+    text: PropTypes.string.isRequired,
+    entities: PropTypes.array.isRequired,
+    canonical: PropTypes.bool,
+};
+
 CanonicalPopup.propTypes = {
     trigger: PropTypes.element.isRequired,
-    example: PropTypes.object,
+    example: PropTypes.shape(exampleShape),
 };
 CanonicalPopup.defaultProps = {
     example: undefined,
