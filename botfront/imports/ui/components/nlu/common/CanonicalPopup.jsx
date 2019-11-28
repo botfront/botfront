@@ -1,16 +1,23 @@
 
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Icon } from 'semantic-ui-react';
 import UserUtteranceViewer from './UserUtteranceViewer';
+import Context from '../../../layouts/context';
 
 const CanonicalPopup = (props) => {
     const {
         trigger,
         example,
     } = props;
+
+    const { getCanonicalExample } = useContext(Context);
+
+    // const canonicalExample = getCanonicalExample(example);
+    const canonicalExample = example;
+    
     const renderPopupContent = () => {
-        if (!example) {
+        if (!canonicalExample) {
             return (
                 <span className='canonical-popup-content'>
                     <p>There are no examples associated with this intent</p>
@@ -20,11 +27,11 @@ const CanonicalPopup = (props) => {
         return (
             <span className='canonical-popup-content'>
                 <Icon
-                    name={example.canonical === true ? 'gem' : 'tag'}
-                    // size='small'
+                    name='gem'
+                    // name={canonicalExample.canonical === true ? 'gem' : 'tag'}
                 />
                 <UserUtteranceViewer
-                    value={example}
+                    value={canonicalExample}
                     disableEditing
                     showIntent={false}
                 />
@@ -49,6 +56,7 @@ const CanonicalPopup = (props) => {
 };
 
 const exampleShape = {
+    intent: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,
     entities: PropTypes.array.isRequired,
     canonical: PropTypes.bool,
