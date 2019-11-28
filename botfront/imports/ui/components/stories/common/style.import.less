@@ -101,15 +101,15 @@
     .action-name-prefix {
         position: absolute;
         z-index: 100;
-        left: 0.67857143em;
-        top: ~"calc(calc(100% - 2em) - 0.55px)";
+        left: 1ch;
+        top: ~"calc(calc(100% - 2em) - 2px)";
     }
     .action-name-prefix + .input input {
         color: @grey;
         &:focus {
             color: @grey;
         }
-        padding-left: 6.5ch;
+        padding-left: 7.5ch;
     }
 }
 
@@ -361,6 +361,7 @@ div.add-entity-wrap {
         display: inline-block;
         line-height: 1.2;
         margin: auto 4px;
+        padding: 10px 5px;
 
         .ui.primary.button {
             padding-left: 0.8em;
