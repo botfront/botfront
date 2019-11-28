@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import {
     Container, Icon, Menu,
@@ -7,7 +6,7 @@ import {
 import AutoForm from 'uniforms-semantic/AutoForm';
 import React from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
-import { find, cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { browserHistory } from 'react-router';
 import {
     AutoField, SubmitField, ErrorsField, HiddenField,
@@ -15,6 +14,7 @@ import {
 import { connect } from 'react-redux';
 import shortId from 'shortid';
 import slugify from 'slugify';
+import { useQuery } from '@apollo/react-hooks';
 import { TemplateSchema } from '../../../../api/project/response.schema';
 import { Projects } from '../../../../api/project/project.collection';
 import SequenceField from './SequenceField';
@@ -24,6 +24,9 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import TemplateValueItemField from './TemplateValueItemField';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import DisplayIf from '../../DisplayIf';
+import { GET_BOT_RESPONSE } from '../../stories/graphQL/queries';
+import { Loading } from '../../utils/Utils';
+
 
 class Template extends React.Component {
     constructor(props) {
@@ -157,21 +160,48 @@ Template.defaultProps = {
     workingLanguage: null,
 };
 
-const TemplateContainer = withTracker((props) => {
+const TemplateContainer = (props) => {
     const {
         params: { project_id: projectId, template_id: templateId },
         router,
+        changeWorkingLanguage,
+        workingLanguage,
     } = props;
-    const project = Projects.find({ _id: projectId }, { fields: { templates: 1, nlu_models: 1 } }).fetch();
+   
+    const project = Projects.find({ _id: projectId }, { fields: { nlu_models: 1 } }).fetch();
     if (!project) return router.replace('/404');
-    const template = find(project[0].templates, { key: templateId });
-    return {
-        edit: !!templateId,
+    const {
+        loading, error, data,
+    } = useQuery(GET_BOT_RESPONSE, { variables: { projectId, key: templateId, lang: workingLanguage || 'en' } });
+    const componentsProps = ({
+        workingLanguage,
+        changeWorkingLanguage,
         projectId,
-        template,
+        edit: !!templateId,
         languages: getNluModelLanguages(project[0].nlu_models),
-    };
-})(Template);
+    });
+    if (!loading && !error) {
+        componentsProps.template = data.botResponse;
+    }
+    
+    return (
+        <Loading loading={loading}>
+            <Template {...componentsProps} />
+        </Loading>
+    );
+};
+
+
+TemplateContainer.propTypes = {
+    params: PropTypes.object.isRequired,
+    router: PropTypes.string.isRequired,
+    workingLanguage: PropTypes.string,
+    changeWorkingLanguage: PropTypes.func.isRequired,
+};
+
+TemplateContainer.defaultProps = {
+    workingLanguage: null,
+};
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
