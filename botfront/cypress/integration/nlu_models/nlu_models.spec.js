@@ -22,16 +22,16 @@ describe('NLU Models ', function() {
         cy.visit('/project/bf/nlu/models');
         // Instance should also be added to the model that is created.
         cy.get('[data-cy=example-text-editor-input]').should('exist');
-        cy.get('[data-cy=model-selector]').click();
-        cy.get('[data-cy=model-selector] input').type('French{enter}');
+        cy.get('[data-cy=language-selector]').click();
+        cy.get('[data-cy=language-selector] input').type('French{enter}');
         cy.dataCy('nlu-menu-settings').click();
         cy.contains('Delete').click();
         cy.get('.dowload-model-backup-button').click();
         cy.get('.delete-model-button').click();
         cy.get('.ui.page.modals .primary').click();
-        cy.get('[data-cy=model-selector]').click();
-        cy.get('[data-cy=model-selector] input').type('Fre');
-        cy.get('[data-cy=model-selector]')
+        cy.get('[data-cy=language-selector]').click();
+        cy.get('[data-cy=language-selector] input').type('Fre');
+        cy.get('[data-cy=language-selector]')
             .contains('French')
             .should('not.exist');
     });
