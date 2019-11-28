@@ -1,3 +1,4 @@
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Icon } from 'semantic-ui-react';
@@ -41,7 +42,6 @@ const CanonicalPopup = (props) => {
             inverted
             flowing
             hoverable
-            open
             className='canonical-popup'
         />
     );

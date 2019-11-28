@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import CanonicalPopup from '../imports/ui/components/utils/CanonicalPopup';
-import IntentLabel from '../imports/ui/components/utils/IntentLabel';
+import CanonicalPopup from '../imports/ui/components/nlu/common/CanonicalPopup';
+import IntentLabel from '../imports/ui/components/nlu/common/IntentLabel';
 
 const sampleCanonicalExample = {
     text: 'I like blue beans with red sauce.',
