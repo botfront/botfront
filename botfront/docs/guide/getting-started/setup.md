@@ -10,13 +10,13 @@ permalink: /getting-started/:slug
 # Setup
 
 ### Requirements
-Botfront has a few requirements. Please head to [Installing requirements](/install-requirements) if you don't have Node or Docker installed
+Botfront has a few requirements. Please head to [Installing requirements](/getting-started/install-requirements) if you don't have Node or Docker installed
 - Linux or macOS (Windows may work but is not officially supported yet, [help is welcome](https://github.com/botfront/botfront/issues/115))
 - Chrome (some issues with other browsers)
 - A recent version of Docker
 - A recent version of Node.js
 
-See the [Installing requirements](#installing-requirements) section.
+See the [Installing requirements](/getting-started/install-requirements) section.
 
 ### Install the Botfront CLI
 ```bash
@@ -45,5 +45,5 @@ At any time, you can access the Botfront menu to create or run a project by runn
   Your browser does not support the video tag.
 </video>
 
-Congrats, you can skip the rest of this page and go directly to the next tutorial.
+You can also [install Botfront on a remote server](/deployment/installation/#single-server)
 
