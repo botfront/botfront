@@ -78,16 +78,16 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
         startSpinner(spinner, 'Starting Botfront...')
         await shellAsync(command, { silent: !verbose });
         if (ci) process.exit(0); // exit now if ci
-        
+
         if (!exclude.includes('botfront')) await waitForService('botfront');
         stopSpinner();
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
         const message = 'Useful commands:\n\n' + (
             `\u2022 Run ${chalk.cyan.bold('botfront logs')} to see logs and debug \n` +
-            `\u2022 Run ${chalk.cyan.bold('botfront <stop|start|restart>')} to <stop|start|restart> a service \n` +
-            `\u2022 Run ${chalk.cyan.bold('botfront down')} to stop Botfront\n` +
+            `\u2022 Run ${chalk.cyan.bold('botfront watch')} to rebuild and restart the action server when actions change\n` +
             `\u2022 Run ${chalk.cyan.bold('botfront --help')} to get help with the CLI\n` +
-            `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation\n`
+            `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation\n` +
+            `\u2022 Run ${chalk.cyan.bold('botfront down')} to stop Botfront\n`
         );
         console.log(boxen(message) + '\n');
 
@@ -242,7 +242,7 @@ export async function watchFolder({ verbose }, workingDir) {
     const service = 'actions';
     startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
     watch(watchedPath, {
-        ignored: /(^|[\/\\])\../,
+        ignored: /(^|[\/\\])\..|pyc/,
         ignoreInitial: true,
         interval: 1000,
     })
@@ -253,3 +253,4 @@ export async function watchFolder({ verbose }, workingDir) {
             startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
         });
 }
+
