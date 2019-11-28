@@ -5,7 +5,7 @@ import IntentLabel from '../imports/ui/components/nlu/common/IntentLabel';
 
 const sampleCanonicalExample = {
     text: 'I like blue beans with red sauce.',
-    intent: 'I_like_beans',
+    intent: 'I_like_beans_A',
     canonical: true,
     entities: [
         {
@@ -22,9 +22,28 @@ const sampleCanonicalExample = {
         },
     ],
 };
-const longCanonicalExample = {
+const canonicalFalseExample = {
+    text: 'I like blue beans with red sauce.',
+    intent: 'I_like_beans_B',
+    canonical: false,
+    entities: [
+        {
+            start: 7,
+            end: 11,
+            value: 'blue',
+            entity: 'bean-color',
+        },
+        {
+            start: 23,
+            end: 26,
+            value: 'red',
+            entity: 'sauce-color',
+        },
+    ],
+};
+const noMatchingExample = {
     text: 'I like blue beans with red sauce. It is important to test how a very long example would look in css. does it wrap properly or does it just overflow its container',
-    intent: 'I_like_beans',
+    intent: 'I_like_beans_C',
     canonical: true,
     entities: [
         {
@@ -47,10 +66,10 @@ const longCanonicalExample = {
         },
     ],
 };
-const canonicalFalseExample = {
-    text: 'I like blue beans with red sauce.',
-    intent: 'I_like_beans',
-    canonical: false,
+const longCanonicalExample = {
+    text: 'I like blue beans with red sauce. It is important to test how a very long example would look in css. does it wrap properly or does it just overflow its container',
+    intent: 'I_like_beans_D',
+    canonical: true,
     entities: [
         {
             start: 7,
@@ -64,11 +83,17 @@ const canonicalFalseExample = {
             value: 'red',
             entity: 'sauce-color',
         },
+        {
+            start: 152,
+            end: 161,
+            value: 'container',
+            entity: 'box',
+        },
     ],
 };
-const EdgeCase = {
+const edgeCase = {
     text: 'I like blue beans with red',
-    intent: 'I_like_beans',
+    intent: 'I_like_beans_E',
     canonical: false,
     entities: [
         {
@@ -85,12 +110,25 @@ const EdgeCase = {
         },
     ],
 };
+const examples = [
+    sampleCanonicalExample,
+    longCanonicalExample,
+    canonicalFalseExample,
+    edgeCase,
+];
+const getCanonicalExample = example => examples.find(({ intent }) => intent === example.intent);
+export const Context = React.createContext({
+    getCanonicalExample: example => examples.find(({ intent }) => intent === example.intent),
+});
+
 const CanonicalPopupWrapped = props => (
-    <CanonicalPopup
-        trigger={<IntentLabel value={sampleCanonicalExample.intent} />}
-        example={sampleCanonicalExample}
-        {...props}
-    />
+    <Context.Provider value={{ getCanonicalExample }}>
+        <CanonicalPopup
+            trigger={<IntentLabel value={sampleCanonicalExample.intent} />}
+            example={sampleCanonicalExample}
+            {...props}
+        />
+    </Context.Provider>
 );
 
 storiesOf('Canonical Popup', module)
@@ -98,14 +136,26 @@ storiesOf('Canonical Popup', module)
         <CanonicalPopupWrapped />
     ))
     .add('example.canonical = false', () => (
-        <CanonicalPopupWrapped example={canonicalFalseExample} />
+        <CanonicalPopupWrapped
+            example={canonicalFalseExample}
+            trigger={<IntentLabel value={canonicalFalseExample.intent} />}
+        />
     ))
     .add('no matching example', () => (
-        <CanonicalPopupWrapped example={undefined} />
+        <CanonicalPopupWrapped
+            example={undefined}
+            trigger={<IntentLabel value={noMatchingExample.intent} />}
+        />
     ))
     .add('long example text', () => (
-        <CanonicalPopupWrapped example={longCanonicalExample} />
+        <CanonicalPopupWrapped
+            example={longCanonicalExample}
+            trigger={<IntentLabel value={longCanonicalExample.intent} />}
+        />
     ))
     .add('visual overflow edge case', () => (
-        <CanonicalPopupWrapped example={EdgeCase} />
+        <CanonicalPopupWrapped
+            example={edgeCase}
+            trigger={<IntentLabel value={edgeCase.intent} />}
+        />
     ));

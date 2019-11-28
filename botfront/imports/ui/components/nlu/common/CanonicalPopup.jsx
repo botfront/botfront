@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Icon } from 'semantic-ui-react';
 import UserUtteranceViewer from './UserUtteranceViewer';
-import Context from '../../../layouts/context';
+import { Context } from '../../../../../stories/CanonicalPopup.stories';
 
 const CanonicalPopup = (props) => {
     const {
@@ -13,22 +13,20 @@ const CanonicalPopup = (props) => {
 
     const { getCanonicalExample } = useContext(Context);
 
-    // const canonicalExample = getCanonicalExample(example);
-    const canonicalExample = example;
+    const canonicalExample = getCanonicalExample(example);
     
     const renderPopupContent = () => {
         if (!canonicalExample) {
             return (
                 <span className='canonical-popup-content'>
-                    <p>There are no examples associated with this intent</p>
+                    <p>There are no examples associated with this intent.</p>
                 </span>
             );
         }
         return (
             <span className='canonical-popup-content'>
                 <Icon
-                    name='gem'
-                    // name={canonicalExample.canonical === true ? 'gem' : 'tag'}
+                    name={canonicalExample.canonical === true ? 'gem' : 'tag'}
                 />
                 <UserUtteranceViewer
                     value={canonicalExample}
@@ -49,6 +47,7 @@ const CanonicalPopup = (props) => {
             inverted
             flowing
             hoverable
+            open
             className='canonical-popup'
         />
     );
@@ -67,6 +66,6 @@ CanonicalPopup.propTypes = {
     example: PropTypes.shape(exampleShape),
 };
 CanonicalPopup.defaultProps = {
-    example: undefined,
+    example: {},
 };
 export default CanonicalPopup;
