@@ -64,13 +64,6 @@ function Stories(props) {
         }
     }, [switchToGroupByIdNext]);
 
-    useEffect(() => {
-        if (!storyGroups[storyGroupCurrent] && switchToGroupByIdNext === '') {
-            if (storyGroups[storyGroupCurrent + 1]) changeStoryGroup(storyGroupCurrent + 1);
-            changeStoryGroup(storyGroupCurrent - 1);
-        }
-    }, [storyGroups.length]);
-
     // By passing an empty array as the second argument to this useEffect
     // We make it so UseEffect is only called once, onMount
     useEffect(() => {
@@ -175,7 +168,18 @@ function Stories(props) {
     };
 
     const handleDeleteGroup = (storyGroup) => {
-        if (!storyGroup.introStory) Meteor.call('storyGroups.delete', storyGroup);
+        if (!storyGroup.introStory) {
+            Meteor.call('storyGroups.delete', storyGroup, () => {
+                /* if the story group was the last story group, change the
+                selected index to be the new last story group */
+                const deletedStoryIndex = storyGroups.findIndex(({ _id }) => _id === storyGroup._id);
+                if (storyGroupCurrent > deletedStoryIndex || storyGroupCurrent === storyGroups.length - 1) {
+                    changeStoryGroup(storyGroupCurrent - 1);
+                    return;
+                }
+                changeStoryGroup(storyGroupCurrent);
+            });
+        }
     };
     const handleStoryGroupSelect = storyGroup => Meteor.call('storyGroups.update', {
         ...storyGroup,
@@ -238,6 +242,7 @@ function Stories(props) {
                 templates: [...project.templates],
                 stories,
                 storyGroups,
+                deleteStoryGroup: handleDeleteGroup,
             }}
         >
             {modalWrapper(
@@ -336,6 +341,24 @@ const StoriesWithTracker = withTracker((props) => {
         templates,
     };
 
+    // fetch and sort story groups
+    const unsortedStoryGroups = StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch();
+    const sortedStoryGroups = unsortedStoryGroups // sorted on the frontend
+        .slice(1)
+        .sort((storyGroupA, storyGroupB) => {
+            const nameA = storyGroupA.name.toUpperCase();
+            const nameB = storyGroupB.name.toUpperCase();
+            if (nameA < nameB) {
+                return -1;
+            }
+            if (nameA > nameB) {
+                return 1;
+            }
+            return 0;
+        });
+    // unsortedStoryGroups[0] is the intro story group
+    const storyGroups = [unsortedStoryGroups[0], ...sortedStoryGroups];
+
     if (!workingLanguage && defaultLanguage) changeWorkingLanguage(defaultLanguage);
 
     return {
@@ -345,7 +368,7 @@ const StoriesWithTracker = withTracker((props) => {
             && instancesHandler.ready()
             && slotsHandler.ready()
             && storiesHandler.ready(),
-        storyGroups: StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch(),
+        storyGroups,
         slots: Slots.find({}).fetch(),
         instance,
         project,

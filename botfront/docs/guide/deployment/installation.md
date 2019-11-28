@@ -12,12 +12,66 @@ permalink: /deployment/:slug
 Botfront comes as a collection of services delivered as Docker images that you need to orchestrate so they can work together. You have different options.
 
 ## Orchestration framework (recommended)
-Deploying on  Kubernetes, Openshift or Swarm is by far the best option if you are familiar with one of them, especially if you are running it in production.
+Deploying on Kubernetes or Openshift is by far the best option if you are familiar with one of them, especially if you are running it in production.
 
 ## Single server
-An alternative option is to deploy all the services on a single machine with Docker installed. The easiest option is then to run Botfront with Docker compose and you can easily re-use the `docker-compose.yaml` file in the `.botfront` directory on your project.
+An alternative option is to deploy all the services on a single machine. You can get a virtual machine from the Cloud Provider of your choice. We recommend a machine with at least 1 CPU and 2 Gb of RAM
 
-Note that using docker-compose in production is generally not recommended as a best practice.
+::: warning
+This is for experimentation only. The following installation is not secure and not suitable for production.
+:::
+
+1. Create a virtual machine with Ubuntu installed, and note the external IP address. For this tutorial, we'll assume the IP address is `123.99.135.3`
+2. Install Node.js
+```bash
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+nvm install lts/erbium
+```
+3. Install Docker and Docker Compose
+```bash
+sudo apt-get -y update
+sudo apt-get -y remove docker docker-engine docker.io
+sudo apt -y install docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo apt install curl
+sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+4. Install Botfront
+```bash
+npm install -g botfront
+botfront init # create a project
+```
+
+5. Edit the `botfront.yml` file
+```bash
+nano .botfront/botfront.yml
+```
+
+In the `env` section, change the `root_url` to the machine IP address (leave the port 8888 unchanged)
+```yaml
+env:
+  ...
+  root_url: 'http://123.99.135.3:8888'
+  ...
+```
+6. Launch Botfront
+```bash
+botfront up
+```
+7. Open Botfront in your browser (`http://123.99.135.3:8888`) and setup your project
+8. Go to settings/credentials and change the `base_url` host to the IP address (keep the host unchanged)
+```yaml
+rasa_addons.core.channels.webchat.WebchatInput:
+  session_persistence: true
+  base_url: http://123.99.135.3:5005
+  socket_path: '/socket.io/'
+```
+9. Botfront is ready to use.
+
 
 ## Services and Docker images
 The table below lists all the services that can be used with Botfront.

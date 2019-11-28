@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     Menu, Icon, Input, Loader, Confirm,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import EllipsisMenu from '../common/EllipsisMenu';
+import { ConversationOptionsContext } from '../utils/Context';
 
 function StoryGroupItem(props) {
     const {
@@ -24,6 +25,8 @@ function StoryGroupItem(props) {
     const [editing, setEditing] = useState(false);
     const [storyName, setStoryName] = useState(item[nameAccessor]);
     const [deletable, setDeletable] = useState(false);
+
+    const { deleteStoryGroup } = useContext(ConversationOptionsContext);
 
     useEffect(() => {
         setStoryName(item[nameAccessor]);
@@ -79,7 +82,8 @@ function StoryGroupItem(props) {
     }
 
     function removeStoryGroup() {
-        Meteor.call('storyGroups.delete', item);
+        // Meteor.call('storyGroups.delete', item);
+        deleteStoryGroup(item);
         setDeletionModalVisible(false);
     }
 

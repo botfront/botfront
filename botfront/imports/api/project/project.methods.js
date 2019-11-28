@@ -114,7 +114,7 @@ if (Meteor.isServer) {
                 CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
                 Credentials.remove({ projectId: project._id }); // Delete credentials
                 Endpoints.remove({ projectId: project._id }); // Delete endpoints
-                Conversations.remove({ projectId: project._id }); // Delete Conversations
+                Conversations.remove({ projectId: project._id });// Delete Conversations
                 StoryGroups.remove({ projectId });
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });

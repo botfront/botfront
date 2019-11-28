@@ -1,4 +1,4 @@
-// /* eslint-disable no-undef */
+// /* global cy:true */
 
 // const responseName = 'utter_abcdef';
 // const templateFormats = [
@@ -12,22 +12,20 @@
 // ];
 
 // describe('Bot responses', function() {
-//     before(function() {
-//         cy.createProject('bf', 'My Project', 'fr');
-//         cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
-//         cy.createNLUModelProgramatically('bf', '', 'de');
-//     });
-
 //     beforeEach(function() {
-//         cy.loginTestUser('admin@bf.com');
+//         cy.login();
 //     });
 
 //     afterEach(function() {
 //         cy.logout();
 //     });
 
+//     before(function() {
+//         cy.createProject('bf', 'My Project', 'fr')
+//             .then(() => cy.createNLUModelProgramatically('bf', '', 'de'));
+//     });
+
 //     after(function() {
-//         cy.deleteUser('admin@bf.com');
 //         cy.deleteProject('bf');
 //     });
 
@@ -74,12 +72,12 @@
 //         cy.contains('German').click();
 //         cy.get('input')
 //             .first()
-//             .type(`{selectall}{del}${responseName}aab`);
+//             .type(`{selectall}{del}${responseName}aaa`);
 //         cy.get('.response-save-button').click();
-//         cy.openResponse('bf', `${responseName}aab`);
+//         cy.openResponse('bf', `${responseName}aaa`);
 //         cy.get('input')
 //             .first()
-//             .should('have.attr', 'value', `${responseName}aab`);
+//             .should('have.attr', 'value', `${responseName}aaa`);
 //         cy.get('input')
 //             .first()
 //             .type(`{selectall}{del}${responseName}`);

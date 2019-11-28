@@ -170,7 +170,6 @@ class Evaluation extends React.Component {
             validationRender,
             evaluation,
             loading: reportLoading,
-            projectId,
         } = this.props;
 
         const {

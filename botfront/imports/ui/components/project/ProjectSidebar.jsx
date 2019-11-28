@@ -105,7 +105,7 @@ const ProjectSidebarContainer = withTracker((props) => {
     const settingsHandler = Meteor.subscribe('settings');
     const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.docUrl': 1 } });
     const currentProject = Projects.find({ _id: projectId }).fetch();
-    const projectName = currentProject.length > 0 ? `${currentProject[0].name}` : 'Botfront by Mr. Bot';
+    const projectName = currentProject.length > 0 ? `${currentProject[0].name}` : 'Botfront.';
 
     return {
         projectName,

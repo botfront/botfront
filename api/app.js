@@ -13,8 +13,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.raw({ limit: '100mb' }));
 
-if (process.env.CORS === '*') app.use(cors());
-if (process.env.CORS) {
+if (process.env.CORS === '*') {
+    app.use(cors());
+} else if (process.env.CORS) {
     const allowedOrigins = process.env.CORS.split(',');
     app.use(cors({
         origin: function(origin, callback) {
@@ -39,25 +40,26 @@ config().then(async config => {
             transports: [new winston.transports.Console()],
         }),
     );
-    for (let i = 1; i < Number.MAX_VALUE; ++i) {
+    let retries = 0;
+    const mongoConnectInterval = setInterval(async () => {
+        retries += 1;
         try {
             await mongoose.connect(config.mongo.host, {
                 keepAlive: true,
                 useNewUrlParser: true,
                 useFindAndModify: false,
             });
-            break;
+            clearInterval(mongoConnectInterval)
+            app.listen(port, function() {
+                // eslint-disable-next-line no-console
+                return console.log('Server running at http://127.0.0.1:' + port);
+            });
+            app.config = config;
         } catch (error) {
-            if (i === 1 || i % 1000 === 0)
-                console.log(`Connection to ${config.mongo.host} failed. Retrying... (#${i})`);
+            // eslint-disable-next-line no-console
+            console.log(`Connection to MongoDB server failed. Retrying... (#${retries})`);
         }
-    }
-
-    app.listen(port, function() {
-        // eslint-disable-next-line no-console
-        return console.log('Server running at http://127.0.0.1:' + port);
-    });
-    app.config = config;
+    }, 1000)
 });
 module.exports = app;
 
