@@ -1,244 +1,251 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Meteor } from 'meteor/meteor';
-import { browserHistory, withRouter } from 'react-router';
-import { withTracker } from 'meteor/react-meteor-data';
-import { sortBy, uniq } from 'lodash';
-import moment from 'moment';
-import {
-    Tab, Message, Segment,
-} from 'semantic-ui-react';
-
 import { connect } from 'react-redux';
-import ActivityInsertions from './ActivityInsertions';
-import ActivityDataTable from './ActivityDataTable';
+import moment from 'moment';
+import { Message, Segment, Label } from 'semantic-ui-react';
+import IntentViewer from '../models/IntentViewer';
+import NLUExampleText from '../../example_editor/NLUExampleText';
+import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
+
+import { populateActivity } from './ActivityInsertions';
+import DataTable from '../../common/DataTable';
 import ActivityActions from './ActivityActions';
-import { Loading } from '../../utils/Utils';
-import { ActivityCollection } from '../../../../api/activity';
-import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import { getPureIntents } from '../../../../api/nlu_model/nlu_model.utils';
-import { wrapMeteorCallback } from '../../utils/Errors';
-import ConversationBrowser from '../../conversations/ConversationsBrowser';
-import { updateIncomingPath } from '../../incoming/incoming.utils';
+import ActivityActionsColumn from './ActivityActionsColumn';
+import { clearTypenameField } from '../../../../lib/utils';
+
 import PrefixDropdown from '../../common/PrefixDropdown';
 
-class Activity extends React.Component {
-    // eslint-disable-next-line react/sort-comp
-    getDefaultState = () => ({
-        filterFn: utterances => utterances,
-        activeTabIndex: undefined,
-        sortType: 'newest',
-    });
+function Activity(props) {
+    const [sortType, setSortType] = useState('Newest');
+    const getSortFunction = () => {
+        switch (sortType) {
+        case 'Newest':
+            return { sortKey: 'createdAt', sortDesc: true };
+        case 'Oldest':
+            return { sortKey: 'createdAt', sortDesc: false };
+        case '% ascending':
+            return { sortKey: 'confidence', sortDesc: false };
+        case '% decending':
+            return { sortKey: 'confidence', sortDesc: true };
+        default:
+            throw new Error('No such sort type');
+        }
+    };
 
-    state = this.getDefaultState();
+    const {
+        model: { _id: modelId, language: lang },
+        instance,
+        entities,
+        intents,
+        project,
+        project: { training: { endTime } = {} },
+        projectId,
+        linkRender,
+    } = props;
 
-    createMenuItem = (name, index, tag = '', dataCy = null) => {
-        const { router } = this.props;
-        const regexp = / /g;
-        const urlId = name.toLowerCase().replace(regexp, '');
-        const url = updateIncomingPath({ ...router.params, tab: urlId });
-        return {
-            name,
-            content: `${name} ${tag || ''}`,
-            key: urlId,
-            'data-cy': `incoming-${dataCy || urlId}-tab`,
-            onClick: () => {
-                if (router.params.tab === urlId) return;
-                browserHistory.push({ pathname: url });
-                this.setState({ activeTabIndex: index });
+    const {
+        data, hasNextPage, loading, loadMore, refetch,
+    } = useActivity({ modelId, ...getSortFunction() });
+    const [reinterpreting, setReinterpreting] = useState([]);
+
+    // always refetch on first page load and sortType change
+    useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, sortType]);
+
+    const [upsertActivity] = useUpsertActivity();
+    const [deleteActivity] = useDeleteActivity({ modelId, ...getSortFunction() });
+
+    const isUtteranceOutdated = ({ updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+    const isUtteranceReinterpreting = ({ _id }) => reinterpreting.includes(_id);
+
+    const validated = data.filter(a => a.validated);
+
+    const handleAddToTraining = async (utterances) => {
+        await Meteor.call('nlu.insertExamples', modelId, utterances);
+        await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
+    };
+
+    const handleUpdate = async (newData, rest) => {
+        // rest argument is to supress warnings caused by incomplete schema on optimistic response
+        upsertActivity({
+            variables: { modelId, data: newData },
+            optimisticResponse: {
+                __typename: 'Mutation',
+                upsertActivity: newData.map(d => ({ __typename: 'Activity', ...rest, ...d })),
             },
-        };
-    }
+        });
+    };
 
-    getPanes = () => {
-        const {
-            model, instance, project, utterances,
-        } = this.props;
-        return [
-            { menuItem: this.createMenuItem('New Utterances', 0, `(${utterances.length})`, 'newutterances'), render: this.renderIncomingTab },
-            {
-                menuItem: this.createMenuItem('Conversations', 1),
-                render: () => <ConversationBrowser projectId={project._id} />,
+    const handleDelete = async (ids) => {
+        await deleteActivity({
+            variables: { modelId, ids },
+            optimisticResponse: {
+                __typename: 'Mutation',
+                deleteActivity: ids.map(_id => ({ __typename: 'Activity', _id })),
             },
-            { menuItem: this.createMenuItem('Populate', 2), render: () => <ActivityInsertions model={model} instance={instance} /> },
-        ];
-    }
-
-    batchAdd = () => {
-        const { modelId } = this.props;
-        Meteor.call('activity.addValidatedToTraining', modelId, wrapMeteorCallback());
+        });
     };
 
-    batchDelete = (modelId, itemIds) => {
-        Meteor.call('activity.deleteExamples', modelId, itemIds, wrapMeteorCallback());
+    const handleReinterpret = async (utterances) => {
+        setReinterpreting(Array.from(new Set([...reinterpreting, ...utterances.map(u => u._id)])));
+        const reset = () => setReinterpreting(reinterpreting.filter(uid => !utterances.map(u => u._id).includes(uid)));
+        try {
+            populateActivity(instance, utterances.map(u => ({ text: u.text, lang })), modelId, reset);
+        } catch (e) { reset(); }
     };
 
-    onEvaluate = () => {
-        const { linkRender } = this.props;
-        linkRender();
+    const handleChangeInVisibleItems = (visibleData) => {
+        if (project.training.status === 'training') return;
+        if (reinterpreting.length > 49) return;
+        const reinterpretable = visibleData
+            .filter(isUtteranceOutdated)
+            .filter(u => !isUtteranceReinterpreting(u));
+        if (reinterpretable.length) handleReinterpret(reinterpretable);
     };
 
-    onValidateExamples = utterances => this.onExamplesEdit(utterances.map(e => ({ ...e, validated: !e.validated })));
-
-    onExamplesEdit = (utterances, callback) => {
-        Meteor.call('activity.updateExamples', utterances, wrapMeteorCallback(callback));
-    };
-
-    renderIncomingTab = () => {
-        const {
-            model: { _id: modelId },
-            utterances,
-            entities,
-            intents,
-            projectId,
-            outDatedUtteranceIds,
-            numValidated,
-        } = this.props;
-
-        const { filterFn, sortType } = this.state;
-        const filteredExamples = filterFn(utterances);
-        return utterances && utterances.length > 0 ? (
-            <>
-                <Segment.Group className='new-utterances-topbar' horizontal>
-                    <Segment className='new-utterances-topbar-section' tertiary compact floated='left'>
-                        <ActivityActions
-                            onEvaluate={this.onEvaluate}
-                            onDelete={() => this.batchDelete(modelId, filteredExamples.map(e => e._id))}
-                            onAddToTraining={this.batchAdd}
-                            onDone={() => this.setState(this.getDefaultState())}
-                            onValidate={() => this.onValidateExamples(filteredExamples)}
-                            numValidated={numValidated}
-                            // eslint-disable-next-line no-shadow
-                            onFilterChange={filterFn => this.setState({ filterFn })}
-                            projectId={projectId}
-                        />
-                    </Segment>
-                    <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
-                        <PrefixDropdown
-                            selection={sortType}
-                            updateSelection={(option) => {
-                                this.setState({ sortType: option.value });
-                            }}
-                            options={[
-                                { value: 'newest', text: 'Newest' },
-                                { value: 'oldest', text: 'Oldest' },
-                            ]}
-                            prefix='Sort by'
-                        />
-                    </Segment>
-                </Segment.Group>
-                
-                <br />
-                <ActivityDataTable
-                    utterances={utterances}
-                    entities={entities}
-                    intents={intents}
-                    projectId={projectId}
-                    outDatedUtteranceIds={outDatedUtteranceIds}
-                    modelId={modelId}
-                    sortBy={sortType}
-                />
-            </>
-        ) : (
-            <Message success icon='check' header='Congratulations!' content='You are up to date' />
+    const renderConfidence = (row) => {
+        const { datum } = row;
+        if (
+            isUtteranceOutdated(datum)
+            || typeof datum.intent !== 'string'
+            || typeof datum.confidence !== 'number'
+            || datum.confidence <= 0
+        ) return null;
+        return (
+            <div className='confidence-text'>
+                {`${Math.floor(datum.confidence * 100)}%`}
+            </div>
         );
     };
 
-    componentDidMount = () => {
-        const { router } = this.props;
-        const { activeTabIndex } = this.state;
-        const panes = this.getPanes();
-        const paneIndex = panes.findIndex(({ menuItem }) => menuItem.key === router.params.tab);
-        if (activeTabIndex === undefined) this.setState({ activeTabIndex: paneIndex >= 0 ? paneIndex : 0 });
-    }
-
-    render() {
-        const { ready } = this.props;
-        const { activeTabIndex } = this.state;
-        if (!ready) {
-            return <Loading loading={!ready} />;
+    const renderIntent = (row) => {
+        const { datum } = row;
+        if (isUtteranceOutdated(datum)) {
+            return (
+                <Label color='grey' basic data-cy='intent-label'>
+                    {datum.intent || '-'}
+                </Label>
+            );
         }
         return (
-            <Tab
-                activeIndex={activeTabIndex}
-                menu={{ pointing: true, secondary: true }}
-                panes={this.getPanes()}
+            <IntentViewer
+                intents={intents.map(i => ({ value: i, text: i }))}
+                example={datum}
+                intent={datum.intent || ''}
+                projectId={projectId}
+                enableReset
+                onSave={({ _id, intent, ...rest }) => handleUpdate([{ _id, intent, confidence: null }], rest)}
             />
         );
-    }
+    };
+
+    const renderExample = (row) => {
+        const { datum } = row;
+        return (
+            <NLUExampleText
+                example={datum}
+                entities={entities}
+                showLabels
+                onSave={({ _id, entities: ents, ...rest }) => handleUpdate([{
+                    _id,
+                    entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
+                }], ...rest)}
+                editable={!isUtteranceOutdated(datum)}
+                disablePopup={isUtteranceOutdated(datum)}
+                projectId={projectId}
+            />
+        );
+    };
+
+    const renderActions = row => (
+        <ActivityActionsColumn
+            datum={row.datum}
+            isUtteranceReinterpreting={isUtteranceReinterpreting}
+            isUtteranceOutdated={isUtteranceOutdated}
+            onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
+            onDelete={utterances => handleDelete(utterances.map(u => u._id))}
+        />
+    );
+
+    const columns = [
+        {
+            header: '%', key: 'confidence', style: { width: '40px' }, render: renderConfidence,
+        },
+        {
+            header: 'Intent', key: 'intent', style: { width: '200px' }, render: renderIntent,
+        },
+        {
+            header: 'Example', key: 'text', style: { width: '100%' }, render: renderExample,
+        },
+        {
+            header: 'Actions', key: 'actions', style: { width: '110px' }, render: renderActions,
+        },
+    ];
+
+    const renderTopBar = () => (
+        <>
+            <Segment.Group className='new-utterances-topbar' horizontal>
+                <Segment className='new-utterances-topbar-section' tertiary compact floated='left'>
+                    <ActivityActions
+                        onEvaluate={linkRender}
+                        onDelete={() => handleDelete(validated.map(u => u._id))}
+                        onAddToTraining={() => handleAddToTraining(validated)}
+                        onInvalidate={() => handleUpdate(validated.map(({ _id, validated: v }) => ({ _id, validated: !v })))}
+                        numValidated={validated.length}
+                        projectId={projectId}
+                    />
+                </Segment>
+                <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
+                    <PrefixDropdown
+                        selection={sortType}
+                        updateSelection={option => setSortType(option.value)}
+                        options={[
+                            { value: 'Newest', text: 'Newest' },
+                            { value: 'Oldest', text: 'Oldest' },
+                            { value: '% ascending', text: '% ascending' },
+                            { value: '% decending', text: '% decending' },
+                        ]}
+                        prefix='Sort by'
+                    />
+                </Segment>
+            </Segment.Group>
+            <br />
+        </>
+    );
+
+    return (
+        <>
+            {renderTopBar()}
+            {data && data.length
+                ? (
+                    <DataTable
+                        columns={columns}
+                        data={data}
+                        hasNextPage={hasNextPage}
+                        loadMore={loading ? () => {} : loadMore}
+                        onChangeInVisibleItems={handleChangeInVisibleItems}
+                    />
+                )
+                : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
+            }
+        </>
+    );
 }
 
 Activity.propTypes = {
+    projectId: PropTypes.string.isRequired,
     model: PropTypes.object.isRequired,
-    utterances: PropTypes.array.isRequired,
+    instance: PropTypes.object.isRequired,
+    project: PropTypes.object.isRequired,
     entities: PropTypes.array.isRequired,
     intents: PropTypes.array.isRequired,
-    instance: PropTypes.object.isRequired,
     linkRender: PropTypes.func.isRequired,
-    outDatedUtteranceIds: PropTypes.array.isRequired,
 };
 
 Activity.defaultProps = {
 };
 
-const ActivityContainer = withTracker((props) => {
-    const {
-        modelId, entities, intents, project,
-    } = props;
-
-    const isUtteranceOutdated = ({ training: { endTime } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
-    const getOutdatedUtterances = (utterances, projectData) => utterances.filter(u => isUtteranceOutdated(projectData, u));
-
-    const activityHandler = Meteor.subscribe('activity', modelId);
-    const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1, training: 1, language: 1 } });
-    const trainingExamples = model && model.training_data && (model.training_data.common_examples || []);
-    const pureIntents = getPureIntents(trainingExamples);
-    const utterances = ActivityCollection.find({ modelId }, { sort: { createdAt: 1 } }).fetch();
-    const outDatedUtteranceIds = getOutdatedUtterances(utterances, project).map(u => u._id);
-
-    let localIntents = [];
-    let localEntities = []; // eslint-disable-line
-    let numValidated = 0;
-    if (utterances) {
-        localIntents = uniq(
-            utterances
-                .filter(e => !!e.intent)
-                .map((e) => {
-                    if (e.entities) {
-                        e.entities.forEach((ent) => {
-                            if (localEntities.indexOf(ent.entity) === -1) {
-                                localEntities.push(ent.entity);
-                            }
-                        });
-                    }
-
-                    if (e.validated) {
-                        numValidated += 1;
-                    }
-
-                    return e.intent.name || e.intent;
-                }),
-        );
-    }
-
-    const ready = activityHandler.ready() && model && model._id;
-    return {
-        model,
-        pureIntents,
-        utterances,
-        outDatedUtteranceIds,
-        ready,
-        entities: uniq(entities.concat(localEntities)),
-        intents: sortBy(uniq(intents.concat(localIntents))),
-        numValidated,
-    };
-})(Activity);
-
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
 });
 
-const ActivityContainerRouter = withRouter(ActivityContainer);
-
-export default connect(mapStateToProps)(ActivityContainerRouter);
+export default connect(mapStateToProps)(Activity);

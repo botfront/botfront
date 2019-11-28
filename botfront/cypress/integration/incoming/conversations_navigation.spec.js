@@ -1,5 +1,5 @@
 
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 function addConversation(id) {
     let url = `http://localhost:8080/project/bf/conversations/${id}/insert?api-key=`;
@@ -114,8 +114,6 @@ describe('incoming page conversation tab', function () {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
-        cy.waitForResolve(Cypress.env('RASA_URL'));
-        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
     });
 
     afterEach(function () {
@@ -125,7 +123,7 @@ describe('incoming page conversation tab', function () {
     
     it('should show a message if no converastions', function () {
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('no-conv').should('contains.text', 'No conversation to load');
     });
@@ -135,7 +133,7 @@ describe('incoming page conversation tab', function () {
         addConversation('test1');
         addConversation('test2');
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('conversation-item').should('have.length', 2);
     });
@@ -144,7 +142,7 @@ describe('incoming page conversation tab', function () {
         addConversation('test1');
         addConversation('test2');
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('conversation-item').eq(1).should('have.text', 'test1');
         cy.dataCy('conversation-item').eq(1).click({ force: true });
@@ -160,8 +158,6 @@ describe('incoming page conversation tab pagination', function () {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
-        cy.waitForResolve(Cypress.env('RASA_URL'));
-        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
     });
 
     afterEach(function () {
@@ -175,7 +171,7 @@ describe('incoming page conversation tab pagination', function () {
         }
         cy.wait(1000);
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('pagination').should('not.exist');
         cy.dataCy('conversation-item').should('have.length', 20);
@@ -187,7 +183,7 @@ describe('incoming page conversation tab pagination', function () {
         }
         cy.wait(1000);
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('conversation-item')
             .should('have.length', 20);

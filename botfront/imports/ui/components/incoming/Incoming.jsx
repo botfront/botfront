@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { Container } from 'semantic-ui-react';
+import { Container, Tab } from 'semantic-ui-react';
 import { browserHistory, withRouter } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
@@ -16,10 +16,16 @@ import { Instances } from '../../../api/instances/instances.collection';
 import TopMenu from './TopMenu';
 import { extractEntities } from '../nlu/models/nluModel.utils';
 import Activity from '../nlu/activity/Activity';
+import ActivityInsertions from '../nlu/activity/ActivityInsertions';
+import ConversationBrowser from '../conversations/ConversationsBrowser';
 import { setWorkingLanguage } from '../../store/actions/actions';
 import { updateIncomingPath } from './incoming.utils';
 
 class Incoming extends React.Component {
+    state = {
+        activeTab: undefined,
+    };
+
     linkToEvaluation = () => {
         const { router, projectId, model } = this.props;
         router.push({ pathname: `/project/${projectId}/nlu/model/${model._id}`, state: { isActivityLinkRender: true } });
@@ -37,10 +43,53 @@ class Incoming extends React.Component {
         }
     }
 
+    handleTabClick = (_, d) => {
+        const { router } = this.props;
+        const tabName = d.panes[d.activeIndex].menuItem.key;
+        this.setState({ activeTab: tabName });
+        const url = updateIncomingPath({ ...router.params, tab: tabName });
+        if (router.params.tab === url) return;
+        browserHistory.push({ pathname: url });
+    }
+
+    getPanes = () => {
+        const {
+            model, instance, project, entities, intents,
+        } = this.props;
+        return [
+            {
+                menuItem: { content: 'New Utterances', key: 'newutterances', 'data-cy': 'newutterances' },
+                render: () => <Activity project={project} model={model} instance={instance} entities={entities} intents={intents} linkRender={this.linkToEvaluation} />,
+            },
+            {
+                menuItem: { content: 'Conversations', key: 'conversations', 'data-cy': 'conversations' },
+                render: () => <ConversationBrowser projectId={project._id} />,
+            },
+            {
+                menuItem: { content: 'Populate', key: 'populate', 'data-cy': 'populate' },
+                render: () => <ActivityInsertions model={model} instance={instance} />,
+            },
+        ];
+    }
+
+    componentDidMount = () => {
+        const { router } = this.props;
+        const { activeTab } = this.state;
+        if (activeTab === undefined) {
+            if (router.params.tab) {
+                this.setState({ activeTab: router.params.tab });
+            } else {
+                this.setState({ activeTab: 'newutterances' });
+            }
+        }
+    }
+
     render () {
         const {
-            projectLanguages, ready, entities, intents, modelId, project, model, instance, router, workingLanguage,
+            projectLanguages, ready, model, router, workingLanguage,
         } = this.props;
+        const { activeTab } = this.state;
+
         return (
             <>
                 <TopMenu
@@ -51,13 +100,11 @@ class Incoming extends React.Component {
                 />
                 <Container>
                     <Loading loading={!ready || !model}>
-                        <Activity
-                            project={project}
-                            modelId={modelId}
-                            entities={entities}
-                            intents={intents}
-                            linkRender={this.linkToEvaluation}
-                            instance={instance}
+                        <Tab
+                            activeIndex={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
+                            menu={{ pointing: true, secondary: true }}
+                            panes={this.getPanes()}
+                            onTabChange={this.handleTabClick}
                         />
                     </Loading>
                 </Container>
@@ -76,7 +123,6 @@ Incoming.propTypes = {
     entities: PropTypes.array,
     intents: PropTypes.array,
     instance: PropTypes.object,
-    modelId: PropTypes.string,
     params: PropTypes.object,
     router: PropTypes.object,
     workingLanguage: PropTypes.string,
@@ -94,7 +140,6 @@ Incoming.defaultProps = {
     project: {},
     instance: {},
     entities: [],
-    modelId: '',
     router: {},
     workingLanguage: null,
 };

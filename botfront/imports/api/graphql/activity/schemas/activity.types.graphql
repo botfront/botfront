@@ -1,0 +1,44 @@
+type Query {
+  getActivity(
+    modelId: String!,
+    pageSize: Int,
+    sortKey: String,
+    sortDesc: Boolean,
+    cursor: String,
+    validated: Boolean
+  ): ActivityPage
+}
+
+type ActivityPage {
+  activity: [Activity!],
+  pageInfo: PageInfo
+}
+
+type Mutation {
+  upsertActivity(modelId: String!, data: [ActivityInput!]!): [Activity!]
+  deleteActivity(modelId: String!, ids: [String!]!): [Activity!]
+}
+
+input ActivityInput {
+  _id: String,
+  modelId: String,
+  text: String,
+  intent: String,
+  entities: [EntityInput],
+  confidence: Float,
+  validated: Boolean,
+  createdAt: Date,
+  updatedAt: Date,
+}
+
+type Activity {
+  _id: String!,
+  modelId: String!,
+  text: String!,
+  intent: String,
+  entities: [Entity],
+  confidence: Float,
+  validated: Boolean,
+  createdAt: Date,
+  updatedAt: Date,
+}

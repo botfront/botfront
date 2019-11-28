@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 describe('Exporting a Project', function() {
     beforeEach(function() {

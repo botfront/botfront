@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 describe('intial setup', function() {
     before(function() {
@@ -66,7 +66,7 @@ describe('intial setup', function() {
         //     cy.writeFile('cypress/fixtures/bf_model_id.txt', id);
         // });
         // cy.get('[data-cy=example-text-editor-input]').should('exist'); // Test if a default instance is added
-        // cy.get('[data-cy=settings-in-model]').click();
+        // cy.get('[data-cy=nlu-menu-settings]').click();
         // cy.contains('Pipeline').click();
         // cy.get(':checkbox').should('be.checked');
     });

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'react-s-alert';
+
 import requiredIf from 'react-required-if';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -11,6 +12,8 @@ import {
     Message,
     Tab,
 } from 'semantic-ui-react';
+import { activityQuery } from '../activity/queries';
+import apolloClient from '../../../../startup/client/apollo';
 
 import IntentReport from './IntentReport';
 import EntityReport from './EntityReport';
@@ -120,32 +123,30 @@ class Evaluation extends React.Component {
         this.changeExampleSet('train');
     }
 
-    useValidatedSet(callback) {
+    async useValidatedSet() {
         this.changeExampleSet('validation', true);
-        const {
-            model: {
-                _id: modelId,
-            } = {},
-        } = this.props;
-        Meteor.call('activity.getValidatedExamples', modelId, (error, examples) => {
-            const validExamples = examples.filter(({ validated }) => validated)
-                .map(example => ExampleUtils.stripBare(example, false));
-            // Check that there are nonzero validated examples
-            if (validExamples.length > 0) {
-                this.setState({
-                    data: { rasa_nlu_data: { common_examples: validExamples, entity_synonyms: [], gazetter: [] } },
-                    loading: false,
-                }, callback);
-            } else {
-                const message = (
-                    <Message warning>
-                        <Message.Header>No validated examples</Message.Header>
-                        <p>See the activity section to manage incoming traffic to this model</p>
-                    </Message>
-                );
-                this.setState({ errorMessage: message, loading: false });
-            }
+        const { model: { _id: modelId } = {} } = this.props;
+        const { data: { getActivity: { activity: examples } } } = await apolloClient.query({
+            query: activityQuery,
+            variables: { modelId, validated: true, pageSize: 0 },
         });
+        const validExamples = examples.filter(({ validated }) => validated)
+            .map(example => ExampleUtils.stripBare(example, false));
+        // Check that there are nonzero validated examples
+        if (validExamples.length > 0) {
+            this.setState({
+                data: { rasa_nlu_data: { common_examples: validExamples, entity_synonyms: [], gazetter: [] } },
+                loading: false,
+            });
+        } else {
+            const message = (
+                <Message warning>
+                    <Message.Header>No validated examples</Message.Header>
+                    <p>See the activity section to manage incoming traffic to this model</p>
+                </Message>
+            );
+            this.setState({ errorMessage: message, loading: false });
+        }
     }
 
     changeExampleSet(exampleSet, loading = false) {
@@ -168,7 +169,6 @@ class Evaluation extends React.Component {
             validationRender,
             evaluation,
             loading: reportLoading,
-            projectId,
         } = this.props;
 
         const {

@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 describe('NLU canonical examples', function () {
     beforeEach(function () {
@@ -13,7 +13,7 @@ describe('NLU canonical examples', function () {
     });
     it('should be possible to mark an example as canonical', function () {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-training-data').click();
+        cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
         cy.get('.purple > .ui').click();
@@ -31,7 +31,7 @@ describe('NLU canonical examples', function () {
 
     it('should display a popup for canonical example', function () {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-training-data').click();
+        cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
         cy.get('.purple > .ui').click();
@@ -53,7 +53,7 @@ describe('NLU canonical examples', function () {
 
     it('should not be possible to delete or edit a canonical example', function () {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-training-data').click();
+        cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
         cy.get('.purple > .ui').click();
@@ -76,7 +76,7 @@ describe('NLU canonical examples', function () {
 
     it('should be possible switch canonical examples ', function () {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-training-data').click();
+        cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\nwelcome');
         cy.get('.purple > .ui').click();
@@ -109,7 +109,7 @@ describe('NLU canonical examples', function () {
 
     it('should be possible display only canonical examples ', function () {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-training-data').click();
+        cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\nwelcome');
         cy.get('.purple > .ui').click();
@@ -129,7 +129,7 @@ describe('NLU canonical examples', function () {
     it('canonical should be unique per intent, entity and entity value', function () {
         // firstly import all the testing data
         cy.visit('/project/bf/nlu/models');
-        cy.get('.nlu-menu-settings').click();
+        cy.dataCy('nlu-menu-settings').click();
         cy.contains('Import').click();
         cy.fixture('nlu_import_canonical.json', 'utf8').then((content) => {
             cy.get('.file-dropzone').upload(content, 'data.json');

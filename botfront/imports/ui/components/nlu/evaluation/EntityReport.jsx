@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-v6';
 import _ from 'lodash';
 import { Message } from 'semantic-ui-react';
 

@@ -51,7 +51,6 @@ export default class NLUExampleTester extends React.Component {
             'rasa.parse',
             instance,
             [{ text, lang }],
-            true,
             wrapMeteorCallback((err, example) => {
                 if (err) return this.setState({ example: { text: err.error }, clickable: false });
                 Object.assign(example, { intent: example.intent ? example.intent.name : null });

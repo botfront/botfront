@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-v6';
 import PropTypes from 'prop-types';
 import {
     Checkbox, Icon, Label, Tab, Message,

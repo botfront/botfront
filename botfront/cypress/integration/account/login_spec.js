@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 describe('Login', function() {
     it('Visits login', function() {
         cy.visit('/');
