@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import { Message, Segment, Label } from 'semantic-ui-react';
-import IntentViewer from '../models/IntentViewer';
-import NLUExampleText from '../../example_editor/NLUExampleText';
+import { Message, Segment } from 'semantic-ui-react';
+import IntentLabel from '../common/IntentLabel';
+import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
 
 import { populateActivity } from './ActivityInsertions';
@@ -36,7 +36,6 @@ function Activity(props) {
         model: { _id: modelId, language: lang },
         instance,
         entities,
-        intents,
         project,
         project: { training: { endTime } = {} },
         projectId,
@@ -119,21 +118,14 @@ function Activity(props) {
 
     const renderIntent = (row) => {
         const { datum } = row;
-        if (isUtteranceOutdated(datum)) {
-            return (
-                <Label color='grey' basic data-cy='intent-label'>
-                    {datum.intent || '-'}
-                </Label>
-            );
-        }
         return (
-            <IntentViewer
-                intents={intents.map(i => ({ value: i, text: i }))}
-                example={datum}
-                intent={datum.intent || ''}
-                projectId={projectId}
+            <IntentLabel
+                disabled={isUtteranceOutdated(datum)}
+                value={datum.intent ? datum.intent : ''}
+                allowEditing={!isUtteranceOutdated(datum)}
+                allowAdditions
+                onChange={({ _id, intent, ...rest }) => handleUpdate([{ _id, intent, confidence: null }], rest)}
                 enableReset
-                onSave={({ _id, intent, ...rest }) => handleUpdate([{ _id, intent, confidence: null }], rest)}
             />
         );
     };
@@ -141,17 +133,16 @@ function Activity(props) {
     const renderExample = (row) => {
         const { datum } = row;
         return (
-            <NLUExampleText
-                example={datum}
-                entities={entities}
-                showLabels
-                onSave={({ _id, entities: ents, ...rest }) => handleUpdate([{
+            <UserUtteranceViewer
+                value={datum}
+                onChange={({ _id, entities: ents, ...rest }) => handleUpdate([{
                     _id,
                     entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
                 }], ...rest)}
-                editable={!isUtteranceOutdated(datum)}
-                disablePopup={isUtteranceOutdated(datum)}
                 projectId={projectId}
+                disabled={isUtteranceOutdated(datum)}
+                disableEditing={isUtteranceOutdated(datum)}
+                showIntent={false}
             />
         );
     };
@@ -237,7 +228,6 @@ Activity.propTypes = {
     instance: PropTypes.object.isRequired,
     project: PropTypes.object.isRequired,
     entities: PropTypes.array.isRequired,
-    intents: PropTypes.array.isRequired,
     linkRender: PropTypes.func.isRequired,
 };
 

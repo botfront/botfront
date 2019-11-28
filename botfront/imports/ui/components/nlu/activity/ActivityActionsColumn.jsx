@@ -4,7 +4,7 @@ import {
     Button, Popup,
 } from 'semantic-ui-react';
 
-import FloatingIconButton from '../common/FloatingIconButton';
+import FloatingIconButton from '../../common/FloatingIconButton';
 
 export default function ActivityActionsColumn(props) {
     const {
