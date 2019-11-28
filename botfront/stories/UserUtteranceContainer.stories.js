@@ -77,7 +77,7 @@ const UserUtteranceContainerWrapped = (props) => {
     );
 };
 
-storiesOf('UtteranceContainer', module)
+storiesOf('UserUtteranceContainer', module)
     .addDecorator(withKnobs)
     .add('w/o value', () => (
         <UserUtteranceContainerWrapped />

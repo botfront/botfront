@@ -7,15 +7,12 @@ import getColor from '../../../lib/getColors';
 function Entity({
     value, onChange, onDelete, allowEditing, deletable, color,
 }) {
-    const { entities, addEntity } = useContext(ProjectContext);
+    const { entities } = useContext(ProjectContext);
     const colorToRender = color || getColor(value.entity, true);
     return (
         <EntityPopup
             entity={value}
-            onAddOrChange={(_event, data) => {
-                addEntity(data.value);
-                onChange(data.value);
-            }}
+            onAddOrChange={onChange}
             onDelete={() => onDelete()}
             options={[...new Set([...entities, value.entity])].map(e => ({
                 text: e,

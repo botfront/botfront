@@ -13,7 +13,7 @@ function UserUtteranceViewer(props) {
     } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
-    const { entities: contextEntities } = useContext(ProjectContext);
+    const { entities: contextEntities, addEntity } = useContext(ProjectContext);
     const textContent = []; // an ordered list of the utterance cut down into text and entities.
     // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
     const sortedEntities = entities
@@ -24,6 +24,11 @@ function UserUtteranceViewer(props) {
                 return 0;
             })
         : [];
+    
+    const onChangeWrapped = (data) => {
+        addEntity(data);
+        onChange(data);
+    };
 
     // if there is no text we can just get the sorted entities.
     if (!text) {
@@ -79,7 +84,7 @@ function UserUtteranceViewer(props) {
     }
 
     function handleEntityChange(newValue, entityIndex) {
-        return onChange({
+        return onChangeWrapped({
             ...value,
             entities: entities.map((e, index) => {
                 if (entityIndex === index) {
@@ -107,7 +112,7 @@ function UserUtteranceViewer(props) {
         delete newEntity.type;
         delete newEntity.text;
         const entityToAdd = { ...newEntity, entity, value: element.text };
-        return onChange({
+        return onChangeWrapped({
             ...value,
             entities: entities instanceof Array ? [entityToAdd, ...entities] : [entityToAdd],
         });

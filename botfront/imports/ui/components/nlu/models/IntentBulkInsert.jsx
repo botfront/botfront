@@ -4,7 +4,7 @@ import {
     Form, TextArea, Tab, Message, Button,
 } from 'semantic-ui-react';
 
-import IntentDropdown from '../../example_editor/IntentDropdown';
+import IntentDropdown from '../common/OldIntentDropdown';
 import SaveButton from '../../utils/SaveButton';
 
 export default class IntentBulkInsert extends React.Component {

@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import ReactTable from 'react-table-v6';
 import PropTypes from 'prop-types';
 import {
-    Checkbox, Icon, Label, Tab, Message,
+    Icon, Label, Tab, Message,
 } from 'semantic-ui-react';
 import React from 'react';
 import { find } from 'lodash';
@@ -10,8 +10,6 @@ import { connect } from 'react-redux';
 import 'react-s-alert/dist/s-alert-default.css';
 import { browserHistory } from 'react-router';
 import matchSorter from 'match-sorter';
-import Intent from '../../example_editor/Intent';
-import Entity from '../../example_editor/Entity';
 import TemplatesTableItem from './TemplatesTableItem';
 import {
     changePageTemplatesTable, setWorkingLanguage, changeFilterTemplatesTable, toggleMatchingTemplatesTable,
@@ -19,10 +17,6 @@ import {
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { getTemplateLanguages } from '../../../../api/project/response.methods';
 import { languages } from '../../../../lib/languages';
-
-const cellIntentStyle = {
-    marginLeft: '0',
-};
 
 class TemplatesTable extends React.Component {
     constructor(props) {
@@ -36,11 +30,7 @@ class TemplatesTable extends React.Component {
     }
 
     getData = () => {
-        const { templates, filterText, showMatchingCriteria } = this.props;
-
-        if (!showMatchingCriteria) {
-            return templates;
-        }
+        const { templates, filterText } = this.props;
 
         const matchTemplate = (template) => {
             // Remove all that do not have matching criteria
@@ -69,9 +59,7 @@ class TemplatesTable extends React.Component {
     };
 
     getColumns = (lang) => {
-        const {
-            projectId, filterText, changeFilter, showMatchingCriteria: matching,
-        } = this.props;
+        const { projectId } = this.props;
 
         const columns = [
             {
@@ -122,60 +110,16 @@ class TemplatesTable extends React.Component {
             },
         ];
 
-        if (matching) {
-            columns.unshift({
-                id: 'match',
-                Header: 'Match',
-                accessor: row => row.match.nlu,
-                width: 200,
-                filterable: true,
-                sortMethod: (rowA, rowB) => {
-                    const textA = this.prepFilterableText(rowA);
-                    const textB = this.prepFilterableText(rowB);
-                    return textA.localeCompare(textB);
-                },
-                Filter: () => (
-                    <input
-                        className='nlu-criteria-filter'
-                        onChange={event => changeFilter(event.target.value)}
-                        value={filterText}
-                    />
-                ),
-                Cell: ({ value: criterias }) => (
-                    <div className='match-cell'>
-                        {criterias.map((criteria, index) => (
-                            <>
-                                {index > 0 && <br />}
-                                <Intent intent={criteria.intent} size='mini' style={cellIntentStyle} />
-                                <div className='entities-container'>
-                                    {Array.isArray(criteria.entities) && criteria.entities.map((entity, i) => (
-                                        <Entity
-                                            text={entity.value}
-                                            entity={entity}
-                                            colour='blue'
-                                            size='mini'
-                                            key={i}
-                                        />
-                                    ))}
-                                </div>
-                            </>
-                        ))}
-                    </div>
-                ),
-                filterAll: true,
-            });
-        } else {
-            columns.unshift({
-                id: 'key',
-                accessor: t => t.key,
-                Header: 'Key',
-                filterable: true,
-                filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['key'] }),
-                Cell: props => <div data-cy='template-intent'><Label horizontal basic size='tiny'>{props.value}</Label></div>,
-                filterAll: true,
-                width: 200,
-            });
-        }
+        columns.unshift({
+            id: 'key',
+            accessor: t => t.key,
+            Header: 'Key',
+            filterable: true,
+            filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['key'] }),
+            Cell: props => <div data-cy='template-intent'><Label horizontal basic size='tiny'>{props.value}</Label></div>,
+            filterAll: true,
+            width: 200,
+        });
 
         return columns;
     };
@@ -245,7 +189,7 @@ class TemplatesTable extends React.Component {
 
     renderTable = (lang) => {
         const {
-            changePage, pageNumber, showMatchingCriteria, toggleMatch,
+            changePage, pageNumber,
         } = this.props;
         return (
             <>
@@ -310,11 +254,8 @@ TemplatesTable.propTypes = {
     pageNumber: PropTypes.number.isRequired,
     workingLanguage: PropTypes.string.isRequired,
     changePage: PropTypes.func.isRequired,
-    changeFilter: PropTypes.func.isRequired,
     filterText: PropTypes.string,
     changeWorkingLanguage: PropTypes.func.isRequired,
-    toggleMatch: PropTypes.func.isRequired,
-    showMatchingCriteria: PropTypes.bool.isRequired,
 };
 
 TemplatesTable.defaultProps = {
@@ -326,7 +267,6 @@ const mapStateToProps = state => ({
     pageNumber: state.settings.get('templatesTablePage'),
     filterText: state.settings.get('templatesTableFilter'),
     workingLanguage: state.settings.get('workingLanguage'),
-    showMatchingCriteria: state.settings.get('templatesTableShowMatching'),
 });
 
 const mapDispatchToProps = {
