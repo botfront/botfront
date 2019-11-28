@@ -11,6 +11,7 @@ import { populateActivity } from './ActivityInsertions';
 import DataTable from '../../common/DataTable';
 import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
+import { clearTypenameField } from '../../../../lib/utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 
@@ -146,7 +147,7 @@ function Activity(props) {
                 showLabels
                 onSave={({ _id, entities: ents, ...rest }) => handleUpdate([{
                     _id,
-                    entities: ents.map((e) => { delete e.__typename; e.confidence = null; return e; }),
+                    entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
                 }], ...rest)}
                 editable={!isUtteranceOutdated(datum)}
                 disablePopup={isUtteranceOutdated(datum)}
