@@ -28,21 +28,23 @@ import { GET_BOT_RESPONSE } from '../../stories/graphQL/queries';
 import { Loading } from '../../utils/Utils';
 
 
-class Template extends React.Component {
-    constructor(props) {
-        super(props);
+function Template(props) {
+    const {
+        workingLanguage,
+        changeWorkingLanguage,
+        languages,
+        projectId,
+        template,
+        edit,
+    } = props;
+    if (!languages.includes(workingLanguage)) changeWorkingLanguage(languages[0]);
 
-        const { workingLanguage, changeWorkingLanguage, languages } = this.props;
-
-        if (!languages.includes(workingLanguage)) changeWorkingLanguage(languages[0]);
-    }
-
-    methodCallback = () => wrapMeteorCallback((err) => {
+    const methodCallback = () => wrapMeteorCallback((err) => {
         if (!err) browserHistory.goBack();
     });
 
-    generateKey = (template) => {
-        const criteria = template.match.nlu[0];
+    const generateKey = (aTemplate) => {
+        const criteria = aTemplate.match.nlu[0];
         let key = [];
         key.push(criteria.intent);
         if (criteria.entities[0]) {
@@ -53,7 +55,7 @@ class Template extends React.Component {
         return slugify(['utter', key, shortId.generate()].join(' '), '_');
     };
 
-    updateTemplate = (formData) => {
+    const updateTemplate = (formData) => {
         let newTemplate = { ...formData };
         // Remove empty sequences (they were added for each possible languages by AutoForm)
         if (formData.value) {
@@ -63,29 +65,26 @@ class Template extends React.Component {
             };
         }
 
-        const { projectId, template } = this.props;
-
         if (template) {
-            Meteor.call('project.updateTemplate', projectId, template.key, newTemplate, this.methodCallback());
+            Meteor.call('project.updateTemplate', projectId, template.key, newTemplate, methodCallback());
         } else {
-            Meteor.call('project.insertTemplate', projectId, newTemplate, this.methodCallback());
+            Meteor.call('project.insertTemplate', projectId, newTemplate, methodCallback());
         }
     };
 
-    renderMenu = template => (
+    const renderMenu = aTemplate => (
         <Menu pointing secondary style={{ background: '#fff' }}>
             <Menu.Item>
                 <Menu.Header as='h3'>
                     <Icon name='comment alternate' />
-                    {template && 'Edit bot response'}
-                    {!template && 'Add bot response'}
+                    {aTemplate && 'Edit bot response'}
+                    {!aTemplate && 'Add bot response'}
                 </Menu.Header>
             </Menu.Item>
         </Menu>
     );
 
-    modelTransform = (mode, model) => {
-        const { template } = this.props;
+    const modelTransform = (mode, model) => {
         const newModel = cloneDeep(model);
         // This means that the template is already in db,
         // thus we don't want to change the key
@@ -96,13 +95,13 @@ class Template extends React.Component {
         if (mode === 'validate' || mode === 'submit') {
             return {
                 ...newModel,
-                key: model.match ? this.generateKey(newModel) : newModel.key,
+                key: model.match ? generateKey(newModel) : newModel.key,
             };
         }
         return newModel;
     };
 
-    renderContentFields = l => (
+    const renderContentFields = l => (
         <TemplateValuesField name='values' languages={l}>
             <TemplateValueItemField name='$'>
                 <HiddenField name='lang' />
@@ -111,39 +110,35 @@ class Template extends React.Component {
         </TemplateValuesField>
     );
 
-    render() {
-        const {
-            template, languages: langs, edit,
-        } = this.props;
-        return (
-            <>
-                {this.renderMenu(template)}
-                {(!edit || template) && (
-                    <Container className='bot-response-form'>
-                        <AutoForm schema={TemplateSchema} onSubmit={this.updateTemplate} model={template || {}} modelTransform={this.modelTransform}>
-                            {/* <DisplayIf condition={context => context.model.match != null}>
-                                <AutoField data-cy='response-name' name='key' className='tiny' label='Response name' placeholder='this will be auto generated' disabled />
-                            </DisplayIf> */}
-                            <DisplayIf condition={context => context.model.match == null}>
-                                <AutoField data-cy='response-name' name='key' className='tiny' label='Response name' />
-                            </DisplayIf>
+    
+    return (
+        <>
+            {renderMenu(template)}
+            {(!edit || template) && (
+                <Container className='bot-response-form'>
+                    <AutoForm schema={TemplateSchema} onSubmit={updateTemplate} model={template || {}} modelTransform={modelTransform}>
+                        {/* <DisplayIf condition={context => context.model.match != null}>
+                            <AutoField data-cy='response-name' name='key' className='tiny' label='Response name' placeholder='this will be auto generated' disabled />
+                        </DisplayIf> */}
+                        <DisplayIf condition={context => context.model.match == null}>
+                            <AutoField data-cy='response-name' name='key' className='tiny' label='Response name' />
+                        </DisplayIf>
 
-                            <br />
-                            <br />
-                            <DisplayIf condition={context => context.model.match == null}>
-                                <>
-                                    {this.renderContentFields(langs)}
-                                    <br />
-                                </>
-                            </DisplayIf>
-                            <ErrorsField />
-                            <SubmitField className='primary response-save-button' value='Save response' />
-                        </AutoForm>
-                    </Container>
-                )}
-            </>
-        );
-    }
+                        <br />
+                        <br />
+                        <DisplayIf condition={context => context.model.match == null}>
+                            <>
+                                {renderContentFields(languages)}
+                                <br />
+                            </>
+                        </DisplayIf>
+                        <ErrorsField />
+                        <SubmitField className='primary response-save-button' value='Save response' />
+                    </AutoForm>
+                </Container>
+            )}
+        </>
+    );
 }
 
 Template.propTypes = {
