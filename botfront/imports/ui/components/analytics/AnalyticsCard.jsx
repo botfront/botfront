@@ -171,7 +171,7 @@ function AnalyticsCard(props) {
                 </div>
             )}
             <span className='top-right-buttons'>
-                {exportQueryParams && (
+                {!error && !loading && data[queryParams.queryName].length > 0 && (
                     <Button
                         className='export-card-button'
                         basic
