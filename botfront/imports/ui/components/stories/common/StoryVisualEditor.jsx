@@ -5,7 +5,7 @@ import { safeDump } from 'js-yaml';
 
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController } from '../../../../lib/story_controller';
-import FloatingIconButton from '../../nlu/common/FloatingIconButton';
+import FloatingIconButton from '../../common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
 import AddStoryLine from './AddStoryLine';

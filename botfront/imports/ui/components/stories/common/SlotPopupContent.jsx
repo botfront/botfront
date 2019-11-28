@@ -5,7 +5,7 @@ import {
     Dropdown, Button, Popup,
 } from 'semantic-ui-react';
 import { groupBy } from 'lodash';
-import { ConversationOptionsContext } from '../../utils/Context';
+import { ConversationOptionsContext } from '../Context';
 import { ProjectContext } from '../../../layouts/context';
 import { slotValueToLabel } from '../SlotLabel';
 

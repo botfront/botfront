@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Segment } from 'semantic-ui-react';
 import { debounce } from 'lodash';
-import UserUtteranceViewer from '../utils/UserUtteranceViewer';
+import UserUtteranceViewer from '../nlu/common/UserUtteranceViewer';
 import { wrapMeteorCallback } from '../utils/Errors';
 
 export default class NLUExampleTester extends React.Component {

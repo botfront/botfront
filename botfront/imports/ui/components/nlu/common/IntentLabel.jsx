@@ -3,9 +3,9 @@ import React, {
 } from 'react';
 import { Icon, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import IntentDropdown from '../nlu/common/IntentDropdown';
-import { ProjectContext } from '../../layouts/context';
-import { OOS_LABEL } from '../constants.json';
+import IntentDropdown from './IntentDropdown';
+import { ProjectContext } from '../../../layouts/context';
+import { OOS_LABEL } from '../../constants.json';
 
 function Intent({
     value, allowEditing, allowAdditions, onChange, disabled, enableReset,

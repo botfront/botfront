@@ -7,7 +7,7 @@ import { withBackground } from '../.storybook/decorators';
 import store from '../imports/ui/store/store';
 import { StoryController } from '../imports/lib/story_controller';
 import StoryVisualEditor from '../imports/ui/components/stories/common/StoryVisualEditor';
-import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
+import { ConversationOptionsContext } from '../imports/ui/components/stories/Context';
 import { slots, intents, entities } from './AddStoryLine.stories';
 import { responses as responseFixtures } from './BotResponseContainer.stories';
 import { OOS_LABEL } from '../imports/ui/components/constants.json';

@@ -4,7 +4,7 @@ import ReactTable from 'react-table-v6';
 import _ from 'lodash';
 import { Message } from 'semantic-ui-react';
 
-import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
+import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import EntityUtils from '../../utils/EntityUtils';
 import { examplePropType } from '../../utils/ExampleUtils';
 import { Info } from '../../utils/Utils';

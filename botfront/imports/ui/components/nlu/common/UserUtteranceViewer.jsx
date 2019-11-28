@@ -2,8 +2,8 @@ import React, { useState, useContext } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import EntityPopup from '../example_editor/EntityPopup';
-import { ProjectContext } from '../../layouts/context';
+import EntityPopup from '../../example_editor/EntityPopup';
+import { ProjectContext } from '../../../layouts/context';
 import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 

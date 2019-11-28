@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Comment } from 'semantic-ui-react';
 
-import UserUtteranceViewer from '../utils/UserUtteranceViewer';
+import UserUtteranceViewer from '../nlu/common/UserUtteranceViewer';
 
 export default function UserUtteredEventViewer({ event }) {
     return (

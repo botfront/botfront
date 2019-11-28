@@ -8,7 +8,7 @@ import {
     Dropdown,
 } from 'semantic-ui-react';
 import StoryPathPopup from './StoryPathPopup.jsx';
-import { ConversationOptionsContext } from '../utils/Context';
+import { ConversationOptionsContext } from './Context';
 
 class StoryFooter extends React.Component {
     constructor(props) {

@@ -14,7 +14,7 @@ import {
     accumulateExceptions,
 } from '../../../lib/story.utils';
 import { StoryController } from '../../../lib/story_controller';
-import { ConversationOptionsContext } from '../utils/Context';
+import { ConversationOptionsContext } from './Context';
 import { ProjectContext } from '../../layouts/context';
 import { setStoryPath } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';

@@ -12,10 +12,10 @@ import getColor from '../../../../lib/getColors';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
 import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import EntityUtils from '../../utils/EntityUtils';
-import IntentLabel from '../../utils/IntentLabel';
+import IntentLabel from '../common/IntentLabel';
 import Filters from './Filters';
-import FloatingIconButton from '../common/FloatingIconButton';
-import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
+import FloatingIconButton from '../../common/FloatingIconButton';
+import UserUtteranceViewer from '../common/UserUtteranceViewer';
 
 export default class NluDataTable extends React.Component {
     constructor(props) {

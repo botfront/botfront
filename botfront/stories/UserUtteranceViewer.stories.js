@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { withBackground } from '../.storybook/decorators';
-import UserUtteranceViewer from '../imports/ui/components/utils/UserUtteranceViewer';
+import UserUtteranceViewer from '../imports/ui/components/nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../imports/ui/layouts/context';
 
 function UserUtteranceViewerWrapped(props) {

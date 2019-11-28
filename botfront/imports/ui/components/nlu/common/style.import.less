@@ -1,0 +1,93 @@
+.entity-dropdown.ui.selection.dropdown {
+    border-color: fade(@teal, 50%);
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-radius: 0;
+    min-width: 12em;
+
+    & > input.search {
+        padding-left: 3em !important;
+    }
+
+    &.icon > .icon {
+        background-color: fade(@teal, 5%);
+        color: @teal;
+    }
+}
+
+.intent-dropdown.ui.selection.dropdown {
+    border-color: fade(@purple, 50%);
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-radius: 0;
+    min-width: 12em;
+
+    & > input.search {
+        padding-left: 3em !important;
+    }
+
+    &.icon > .icon {
+        background-color: fade(@purple, 5%);
+        color: @purple;
+    }
+}
+
+.intent-label {
+    display: inline-block;
+    color: @purple;
+    width: max-content;
+    font-weight: medium;
+    padding: 2px;
+    margin: 0;
+    cursor: default;
+
+    &.disabled {
+        color: @grey;
+    }
+    &.null {
+        color: darken(@purple, 20%);
+    }
+}
+
+.intent-dropdown-container {
+    display: flex;
+    width: max-content;
+}
+
+.entity-container {
+    line-height: 1.25;
+    display: inline-block;
+    position: relative;
+    .float {
+        position: absolute;
+        width: 100px;
+        bottom: ~"calc(100% - 1px)";
+        font-size: small;
+    }
+}
+
+.createentitycolorclasses(@i:1) when(@i <= length(@basic-colors)) {
+    @name: extract(extract(@basic-colors, @i), 1);
+    @color: extract(extract(@basic-colors, @i), 2);
+
+    .entity-container.@{name} {
+        :not(.float) {
+            background-color: fade(@color, 17%);
+            border-bottom: 2.5px solid @color;
+        }
+        .float {
+            color: @color
+        }
+    }
+    .createentitycolorclasses(@i + 1);
+}
+
+.createentitycolorclasses();
+
+.utterance-viewer {
+    .selected-text {
+        background-color: #c4d8f5;
+    }
+}

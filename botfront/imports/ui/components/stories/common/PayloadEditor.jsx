@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Grid, Icon, Input } from 'semantic-ui-react';
 import IntentDropdown from '../../nlu/common/IntentDropdown';
 import EntityDropdown from '../../nlu/common/EntityDropdown';
-import FloatingIconButton from '../../nlu/common/FloatingIconButton';
+import FloatingIconButton from '../../common/FloatingIconButton';
 import DashedButton from './DashedButton';
 import { ProjectContext } from '../../../layouts/context';
 

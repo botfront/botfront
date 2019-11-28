@@ -9,7 +9,7 @@ import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
 import { ProjectContext } from '../../layouts/context';
-import { ConversationOptionsContext } from '../utils/Context';
+import { ConversationOptionsContext } from './Context';
 import StoryGroupBrowser from './StoryGroupBrowser';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';

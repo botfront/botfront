@@ -3,7 +3,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Placeholder } from 'semantic-ui-react';
 
-import FloatingIconButton from '../../nlu/common/FloatingIconButton';
+import FloatingIconButton from '../../common/FloatingIconButton';
 import { ProjectContext } from '../../../layouts/context';
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';

@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import EntityPopup from '../example_editor/EntityPopup';
-import { ProjectContext } from '../../layouts/context';
-import getColor from '../../../lib/getColors';
+import EntityPopup from '../../example_editor/EntityPopup';
+import { ProjectContext } from '../../../layouts/context';
+import getColor from '../../../../lib/getColors';
 
 function Entity({
     value, onChange, onDelete, allowEditing, deletable, color,
