@@ -1,10 +1,9 @@
-import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import {
     Container, Icon, Menu,
 } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
-import React from 'react';
+import React, { useState } from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
 import { cloneDeep } from 'lodash';
 import { browserHistory } from 'react-router';
@@ -14,19 +13,20 @@ import {
 import { connect } from 'react-redux';
 import shortId from 'shortid';
 import slugify from 'slugify';
-import { useQuery } from '@apollo/react-hooks';
+import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { TemplateSchema } from '../../../../api/project/response.schema';
 import { Projects } from '../../../../api/project/project.collection';
 import SequenceField from './SequenceField';
 import TemplateValuesField from './TemplateValuesField';
 import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
-import { wrapMeteorCallback } from '../../utils/Errors';
 import TemplateValueItemField from './TemplateValueItemField';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import DisplayIf from '../../DisplayIf';
 import { GET_BOT_RESPONSE } from '../../stories/graphQL/queries';
+import { GET_BOT_RESPONSES } from '../templates-list/queries';
+import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../../stories/graphQL/mutations';
 import { Loading } from '../../utils/Utils';
-
+import { clearTypenameField } from '../../../../lib/utils';
 
 function Template(props) {
     const {
@@ -38,10 +38,8 @@ function Template(props) {
         edit,
     } = props;
     if (!languages.includes(workingLanguage)) changeWorkingLanguage(languages[0]);
-
-    const methodCallback = () => wrapMeteorCallback((err) => {
-        if (!err) browserHistory.goBack();
-    });
+    const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
+    const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
 
     const generateKey = (aTemplate) => {
         const criteria = aTemplate.match.nlu[0];
@@ -64,11 +62,18 @@ function Template(props) {
                 values: formData.value.filter(t => t.sequence.length > 0),
             };
         }
-
-        if (template) {
-            Meteor.call('project.updateTemplate', projectId, template.key, newTemplate, methodCallback());
+        if (template && Object.keys(template).length > 0) {
+            updateBotResponse({
+                variables: { projectId, response: clearTypenameField(newTemplate), key: template.key },
+                refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: template.key, lang: workingLanguage || 'en' } },
+                    { query: GET_BOT_RESPONSES, variables: { projectId } }],
+            }).then(() => { browserHistory.goBack(); });
         } else {
-            Meteor.call('project.insertTemplate', projectId, newTemplate, methodCallback());
+            createBotResponse({
+                variables: { projectId, response: clearTypenameField(newTemplate) },
+                refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: newTemplate.key, lang: workingLanguage || 'en' } },
+                    { query: GET_BOT_RESPONSES, variables: { projectId } }],
+            }).then(() => { browserHistory.goBack(); });
         }
     };
 
@@ -162,12 +167,20 @@ const TemplateContainer = (props) => {
         changeWorkingLanguage,
         workingLanguage,
     } = props;
-   
+
+    const [template, setTemplate] = useState({});
+
+    
     const project = Projects.find({ _id: projectId }, { fields: { nlu_models: 1 } }).fetch();
     if (!project) return router.replace('/404');
-    const {
-        loading, error, data,
-    } = useQuery(GET_BOT_RESPONSE, { variables: { projectId, key: templateId, lang: workingLanguage || 'en' } });
+
+   
+    const [getBotResponse, { loading, data }] = useLazyQuery(GET_BOT_RESPONSE, {
+        variables: { projectId, key: templateId, lang: workingLanguage || 'en' },
+        onCompleted: () => setTemplate(data.botResponse),
+    });
+    
+
     const componentsProps = ({
         workingLanguage,
         changeWorkingLanguage,
@@ -175,13 +188,19 @@ const TemplateContainer = (props) => {
         edit: !!templateId,
         languages: getNluModelLanguages(project[0].nlu_models),
     });
-    if (!loading && !error) {
-        componentsProps.template = data.botResponse;
+
+
+    function getTemplate() {
+        if (templateId) {
+            getBotResponse();
+        }
+        return template;
     }
+    
     
     return (
         <Loading loading={loading}>
-            <Template {...componentsProps} />
+            <Template {...componentsProps} template={getTemplate()} />
         </Loading>
     );
 };

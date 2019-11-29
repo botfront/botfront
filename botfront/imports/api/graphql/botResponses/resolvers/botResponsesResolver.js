@@ -7,15 +7,29 @@ import {
     deleteResponse,
 } from '../mongo/botResponses';
 
-const { PubSub } = require('apollo-server-express');
+const { PubSub, withFilter } = require('apollo-server-express');
 
 const pubsub = new PubSub();
 const RESPONSE_ADDED = 'RESPONSE_ADDED';
+const RESPONSES_MODIFIED = 'RESPONSES_MODIFIED';
+const RESPONSE_DELETED = 'RESPONSE_DELETED';
 
 export default {
     Subscription: {
         botResponseAdded: {
             subscribe: () => pubsub.asyncIterator([RESPONSE_ADDED]),
+        },
+        botResponsesModified: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator([RESPONSES_MODIFIED]),
+                (payload, variables) => payload.projectId === variables.projectId,
+            ),
+        },
+        botResponseDeleted: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator([RESPONSE_DELETED]),
+                (payload, variables) => payload.projectId === variables.projectId,
+            ),
         },
     },
     Query: {
@@ -28,7 +42,12 @@ export default {
     },
     Mutation: {
         async deleteResponse(_, args, __) {
+            const toBeDeleted = await getBotResponse(args.projectId, args.key);
             const response = await deleteResponse(args.projectId, args.key);
+            pubsub.publish(RESPONSE_DELETED, {
+                projectId: args.projectId,
+                botResponseDeleted: toBeDeleted,
+            });
             return { success: response.ok === 1 };
         },
         async updateResponse(_, args, __) {
@@ -37,10 +56,18 @@ export default {
                 args.key,
                 args.response,
             );
+            pubsub.publish(RESPONSES_MODIFIED, {
+                projectId: args.projectId,
+                botResponsesModified: args.response,
+            });
             return { success: response.ok === 1 };
         },
         async createResponse(_, args, __) {
             const response = await createResponse(args.projectId, args.response);
+            pubsub.publish(RESPONSES_MODIFIED, {
+                projectId: args.projectId,
+                botResponsesModified: args.response,
+            });
             pubsub.publish(RESPONSE_ADDED, { botResponseAdded: args.response });
             return { success: !!response.id };
         },

@@ -5,6 +5,8 @@ type Query {
 
 type Subscription {
     botResponseAdded: BotResponse
+    botResponsesModified(projectId: String!): BotResponse
+    botResponseDeleted(projectId: String!): BotResponse
 }
 
 type Mutation {
