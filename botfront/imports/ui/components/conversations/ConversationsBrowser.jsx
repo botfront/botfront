@@ -29,6 +29,7 @@ function ConversationsBrowser(props) {
         setActiveFilters,
         actionsOptions,
         setActionOptions,
+        loading,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -145,42 +146,44 @@ function ConversationsBrowser(props) {
                         setActionOptions={setActionOptions}
                     />
                 </Grid.Row>
-                {trackers.length > 0 ? (
-                    <>
-                        <Grid.Column width={4}>
-                            {pages > 1 ? (
-                                <Pagination
-                                    totalPages={pages}
-                                    onPageChange={(e, { activePage }) => pageChange(activePage)}
-                                    activePage={page}
-                                    boundaryRange={0}
-                                    siblingRange={0}
-                                    size='mini'
-                                    firstItem='1'
-                                    lastItem={`${pages}`}
-                                    data-cy='pagination'
+                <Loading loading={loading}>
+                    {trackers.length > 0 ? (
+                        <>
+                            <Grid.Column width={4}>
+                                {pages > 1 ? (
+                                    <Pagination
+                                        totalPages={pages}
+                                        onPageChange={(e, { activePage }) => pageChange(activePage)}
+                                        activePage={page}
+                                        boundaryRange={0}
+                                        siblingRange={0}
+                                        size='mini'
+                                        firstItem='1'
+                                        lastItem={`${pages}`}
+                                        data-cy='pagination'
+                                    />
+                                ) : <></>}
+
+                                <Menu pointing vertical fluid>
+                                    {renderMenuItems()}
+
+                                </Menu>
+                            </Grid.Column>
+                            <Grid.Column width={12}>
+                                <ConversationViewer
+                                    conversationId={activeConversationId}
+                                    onDelete={deleteConversation}
+                                    removeReadMark={optimisticRemoveMarker}
+                                    optimisticlyRemoved={optimisticRemoveReadMarker}
                                 />
-                            ) : <></>}
-
-                            <Menu pointing vertical fluid>
-                                {renderMenuItems()}
-
-                            </Menu>
+                            </Grid.Column>
+                        </>
+                    ) : (
+                        <Grid.Column width={16}>
+                            <Message data-cy='no-conv' info>No conversation to load</Message>
                         </Grid.Column>
-                        <Grid.Column width={12}>
-                            <ConversationViewer
-                                conversationId={activeConversationId}
-                                onDelete={deleteConversation}
-                                removeReadMark={optimisticRemoveMarker}
-                                optimisticlyRemoved={optimisticRemoveReadMarker}
-                            />
-                        </Grid.Column>
-                    </>
-                ) : (
-                    <Grid.Column width={16}>
-                        <Message data-cy='no-conv' info>No conversation to load</Message>
-                    </Grid.Column>
-                )}
+                    )}
+                </Loading>
             </Grid>
         </div>
     );
@@ -197,6 +200,7 @@ ConversationsBrowser.propTypes = {
     setActiveFilters: PropTypes.func.isRequired,
     actionsOptions: PropTypes.array,
     setActionOptions: PropTypes.func.isRequired,
+    loading: PropTypes.bool.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
@@ -296,13 +300,12 @@ const ConversationsBrowserContainer = (props) => {
     }
     return (
         <div>
-            <Loading loading={loading}>
-                <Container>
-                    <ConversationsBrowser
-                        {...componentProps}
-                    />
-                </Container>
-            </Loading>
+            <Container>
+                <ConversationsBrowser
+                    {...componentProps}
+                    loading={loading}
+                />
+            </Container>
         </div>
     );
 };
