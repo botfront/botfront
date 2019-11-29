@@ -1,9 +1,6 @@
-import { find, intersectionBy, sortBy } from 'lodash';
-import { safeDump } from 'js-yaml';
+import { intersectionBy, sortBy } from 'lodash';
 import { check, Match } from 'meteor/check';
 import { Projects } from './project.collection';
-import { formatError } from '../../lib/utils';
-import { formatTextOnSave } from './response.utils';
 
 export const getTemplateLanguages = (templates) => {
     const langs = [];
@@ -16,14 +13,6 @@ export const getTemplateLanguages = (templates) => {
 
 if (Meteor.isServer) {
     Meteor.methods({
-
-        'templates.download'(projectId) {
-            check(projectId, String);
-
-            const project = Projects.findOne({ _id: projectId }, { fields: { templates: 1 } });
-            if (!project) throw new Meteor.Error('404', 'Project not found');
-            return project.templates;
-        },
 
         'templates.import'(projectId, templates) {
             check(projectId, String);
