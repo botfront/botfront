@@ -1,5 +1,5 @@
 
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 function addConversation(id) {
     let url = `http://localhost:8080/project/bf/conversations/${id}/insert?api-key=`;
@@ -110,22 +110,20 @@ function addConversation(id) {
 
 describe('incoming page conversation tab', function () {
     beforeEach(function () {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
-        cy.waitForResolve(Cypress.env('RASA_URL'));
-        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
     });
 
     afterEach(function () {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     
     it('should show a message if no converastions', function () {
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('no-conv').should('contains.text', 'No conversation to load');
     });
@@ -135,7 +133,7 @@ describe('incoming page conversation tab', function () {
         addConversation('test1');
         addConversation('test2');
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('conversation-item').should('have.length', 2);
     });
@@ -144,7 +142,7 @@ describe('incoming page conversation tab', function () {
         addConversation('test1');
         addConversation('test2');
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('conversation-item').eq(1).should('have.text', 'test1');
         cy.dataCy('conversation-item').eq(1).click({ force: true });
@@ -160,8 +158,6 @@ describe('incoming page conversation tab pagination', function () {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
-        cy.waitForResolve(Cypress.env('RASA_URL'));
-        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
     });
 
     afterEach(function () {
@@ -175,7 +171,7 @@ describe('incoming page conversation tab pagination', function () {
         }
         cy.wait(1000);
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('pagination').should('not.exist');
         cy.dataCy('conversation-item').should('have.length', 20);
@@ -187,14 +183,14 @@ describe('incoming page conversation tab pagination', function () {
         }
         cy.wait(1000);
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.dataCy('conversation-item')
             .should('have.length', 20);
         cy.dataCy('pagination').should('exist');
         cy.dataCy('pagination').children().last().click({ force: true });
         cy.dataCy('conversation-item').should('have.length', 5);
-        cy.reload();
+        cy.reload(); // deep linking should bring the user to the same location after a refresh
         cy.dataCy('conversation-item').should('have.length', 5);
     });
 });

@@ -6,7 +6,7 @@ import {
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import _, { difference } from 'lodash';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-v6';
 import matchSorter from 'match-sorter';
 import Entity from '../../utils/EntityLabel';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
@@ -28,6 +28,7 @@ export default class NluDataTable extends React.Component {
             filter: {
                 intents: [],
                 entities: [],
+                query: '',
             },
             showLabels,
             onlyCanonical: false,

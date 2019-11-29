@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactTable, { ReactTableDefaults } from 'react-table';
+import ReactTable, { ReactTableDefaults } from 'react-table-v6';
 import moment from 'moment';
 
 import { formatDataForTable } from '../../../lib/graphs';

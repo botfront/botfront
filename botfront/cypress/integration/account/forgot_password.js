@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 describe('Forgot password', function() {
     it('Open lost password', function() {
         cy.visit('/');

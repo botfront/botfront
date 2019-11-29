@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy Cypress:true */
 
 const storyGroupName = 'Account';
 const slotName = 'test_slot';

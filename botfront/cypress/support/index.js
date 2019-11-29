@@ -153,7 +153,7 @@ Cypress.Commands.add('MeteorCall', (method, args) => {
 //             cy.fixture('bf_project_id.txt').then((id) => {
 //                 cy.visit(`/project/${id}/nlu/model/${modelId}`);
 //             });
-//             cy.get('.nlu-menu-settings').click();
+//             cy.dataCy('nlu-menu-settings').click();
 //             cy.contains('Import').click();
 //             cy.fixture('nlu_import.json', 'utf8').then((content) => {
 //                 cy.get('.file-dropzone').upload(content, 'data.json');
@@ -168,9 +168,9 @@ Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.get(`#model-${name} [data-cy=open-model]`)
         .first()
         .click();
-    cy.get('.nlu-menu-settings').click();
+    cy.dataCy('nlu-menu-settings').click();
     cy.contains('Delete').click();
-    cy.get('.nlu-menu-settings').click();
+    cy.dataCy('nlu-menu-settings').click();
     cy.get('.dowload-model-backup-button').click();
     cy.get('.delete-model-button').click();
     cy.get('.ui.page.modals').should('be.visible');
@@ -656,7 +656,7 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, langName = 'En
     cy.visit(`/project/${projectId}/nlu/models`);
     cy.get('[data-cy=model-selector]').click();
     cy.get('[data-cy=model-selector] input').type(`${langName}{enter}`);
-    cy.get('.nlu-menu-settings').click();
+    cy.dataCy('nlu-menu-settings').click();
     cy.contains('Import').click({ force: true });
     cy.fixture(fixture, 'utf8').then((content) => {
         cy.get('.file-dropzone').upload(content, 'data.json');

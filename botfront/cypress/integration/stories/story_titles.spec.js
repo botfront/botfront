@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 const storyGroupOne = 'storyGroupOne';
 const editedGroupOne = 'editedGroupOne';

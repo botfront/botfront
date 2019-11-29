@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 
 const qrGold = new RegExp(`
 buttons:

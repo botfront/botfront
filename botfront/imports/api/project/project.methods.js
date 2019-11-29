@@ -4,7 +4,7 @@ import { Projects, createProject } from './project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
-import { ActivityCollection } from '../activity';
+import Activity from '../graphql/activity/activity.model';
 import { formatError } from '../../lib/utils';
 import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
@@ -109,12 +109,12 @@ if (Meteor.isServer) {
             try {
                 if (!project) throw new Meteor.Error('Project not found');
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
-                ActivityCollection.remove({ modelId: { $in: project.nlu_models } }); // Delete Logs
+                Activity.remove({ modelId: { $in: project.nlu_models } }).exec(); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
                 CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
                 Credentials.remove({ projectId: project._id }); // Delete credentials
                 Endpoints.remove({ projectId: project._id }); // Delete endpoints
-                Conversations.remove({ projectId: project._id }); // Delete Conversations
+                Conversations.remove({ projectId: project._id });// Delete Conversations
                 StoryGroups.remove({ projectId });
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });

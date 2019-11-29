@@ -47,7 +47,7 @@ services:
       - .botfront/.env
 
   actions:
-    image: rasa/rasa-sdk
+    build: ./actions
     container_name: botfront-actions
     networks: ["botfront-network"]
     restart: always

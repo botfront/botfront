@@ -16,8 +16,8 @@ import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import { checkIfCan } from '../roles/roles';
-import { ActivityCollection } from '../activity';
 import { Deployments } from '../deployment/deployment.collection';
+import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
 
 export const createInstance = async (project) => {
@@ -90,14 +90,9 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
 };
 
 if (Meteor.isServer) {
-    export const parseNlu = async (instance, examples, nolog = true) => {
+    export const parseNlu = async (instance, examples) => {
         check(instance, Object);
         check(examples, Array);
-        check(nolog, Boolean);
-        const models = NLUModels.find(
-            { _id: { $in: getModelIdsFromProjectId(instance.projectId) } },
-            { fields: { _id: 1, language: 1 } },
-        ).fetch();
 
         try {
             const client = axios.create({
@@ -119,20 +114,11 @@ if (Meteor.isServer) {
                 .map(r => r.data);
             
             if (result.length < 1) throw new Meteor.Error('Error when parsing NLU');
-
-            if (!nolog) {
-                result.forEach((r) => {
-                    try {
-                        const { _id: modelId } = models.filter(m => m.language === r.language)[0];
-                        Meteor.call('activity.log', { ...r, modelId });
-                    } catch (e) {
-                        //
-                    }
-                });
+            if (Array.from(new Set(result.map(r => r.language))).length > 1) {
+                throw new Meteor.Error('Tried to parse for more than one language at a time.');
             }
 
-            if (result.length < 2) return result[0];
-            return result;
+            return examples.length < 2 ? result[0] : result;
         } catch (e) {
             if (e instanceof Meteor.Error) {
                 throw e;
@@ -143,13 +129,11 @@ if (Meteor.isServer) {
     };
 
     Meteor.methods({
-        'rasa.parse'(instance, params, nolog = true) {
+        'rasa.parse'(instance, params) {
             check(instance, Object);
             check(params, Array);
-            check(nolog, Boolean);
-            checkIfCan('nlu-data:r', instance.projectId);
             this.unblock();
-            return parseNlu(instance, params, nolog);
+            return parseNlu(instance, params);
         },
 
         async 'rasa.convertToJson'(file, language, outputFormat, host) {
@@ -269,7 +253,7 @@ if (Meteor.isServer) {
                         }
                     }
                     const modelIds = getModelIdsFromProjectId(projectId);
-                    ActivityCollection.update({ modelId: { $in: modelIds }, validated: true }, { $set: { validated: false } }, { multi: true });
+                    Activity.update({ modelId: { $in: modelIds }, validated: true }, { $set: { validated: false } }, { multi: true }).exec();
                 }
 
                 Meteor.call('project.markTrainingStopped', projectId, 'success');

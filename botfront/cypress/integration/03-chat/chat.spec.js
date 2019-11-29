@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy:true */
 const storyGroupOne = 'storyGroupOne';
 const testText = '* my_intent OR my_intent2{enter}  - utter_test';
 

@@ -5,7 +5,7 @@ import {
 import { Link, browserHistory } from 'react-router';
 import matchSorter from 'match-sorter';
 import { Meteor } from 'meteor/meteor';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-v6';
 import PropTypes from 'prop-types';
 import React from 'react';
 

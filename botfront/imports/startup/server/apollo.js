@@ -9,6 +9,7 @@ const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:3001/meteor';
 mongoose.connect(MONGO_URL, {
     keepAlive: 1,
     useUnifiedTopology: 1,
+    useFindAndModify: 0,
     useNewUrlParser: 1,
 });
 mongoose.connection.on('error', () => {

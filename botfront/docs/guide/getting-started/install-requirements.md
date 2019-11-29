@@ -1,3 +1,12 @@
+---
+meta:
+  - name: description
+    content: 'Botfront tutorial: install requirements'
+  - name: keywords
+    content: botfront stories nlu rasa
+permalink: /getting-started/:slug
+---
+
 ## Installing requirements
 
 ::: tip

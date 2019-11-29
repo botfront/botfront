@@ -22,18 +22,22 @@ const TopMenu = ({
             )}
         </Menu.Item>
         <Menu.Item header className='env-select'>
-            <EnvSelector
-                availableEnvs={projectEnvironments}
-                envChange={handleEnvChange}
-                value={selectedEnvironment}
-            />
+            {['oos', 'populate'].includes(tab) ? (
+                <></>
+            ) : (
+                <EnvSelector
+                    availableEnvs={projectEnvironments}
+                    envChange={handleEnvChange}
+                    value={selectedEnvironment}
+                />
+            )}
         </Menu.Item>
     </Menu>
 );
 
 TopMenu.propTypes = {
     projectLanguages: PropTypes.array.isRequired,
-    selectedLanguage: PropTypes.object.isRequired,
+    selectedLanguage: PropTypes.string,
     handleLanguageChange: PropTypes.func.isRequired,
     projectEnvironments: PropTypes.array.isRequired,
     handleEnvChange: PropTypes.func.isRequired,
@@ -43,6 +47,7 @@ TopMenu.propTypes = {
 
 TopMenu.defaultProps = {
     tab: '',
+    selectedLanguage: '',
 };
 
 export default TopMenu;

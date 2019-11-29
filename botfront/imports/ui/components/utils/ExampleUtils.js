@@ -13,11 +13,7 @@ export const examplePropType = {
     entities: PropTypes.arrayOf(PropTypes.shape(entityPropType)),
     confidence: PropTypes.number,
     validated: PropTypes.bool,
-    warning: PropTypes.shape({
-        title: PropTypes.string,
-        description: PropTypes.string,
-    }),
-    createdAt: PropTypes.instanceOf(Date),
+    createdAt: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.number]),
     color: PropTypes.string,
 };
 

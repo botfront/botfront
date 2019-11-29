@@ -35,6 +35,7 @@ import DataImport from '../import-export/DataImport';
 import DataExport from '../import-export/DataExport';
 import TrainButton from '../../utils/TrainButton';
 import Statistics from './Statistics';
+import OutOfScope from './OutOfScope';
 import DeleteModel from '../import-export/DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
@@ -173,6 +174,7 @@ class NLUModel extends React.Component {
             },
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} projectId={projectId} /> },
             { menuItem: 'Gazette', render: () => <Gazette model={model} projectId={projectId} /> },
+            { menuItem: 'Out of Scope', render: () => <OutOfScope model={model} entities={entities} intents={intents} /> },
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
             { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
         ];
@@ -181,7 +183,7 @@ class NLUModel extends React.Component {
             tabs.push(
                 { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
             );
-            if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
+            if (chitChatProjectId) tabs.splice(5, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
         }
         return tabs;
     };
@@ -320,15 +322,15 @@ class NLUModel extends React.Component {
             <div id='nlu-model'>
                 <Menu pointing secondary>
                     <Menu.Item header>{this.getHeader()}</Menu.Item>
-                    <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} className='nlu-menu-training-data'>
+                    <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-training-data'>
                         <Icon size='small' name='database' />
                         Training Data
                     </Menu.Item>
-                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} className='nlu-menu-evaluation'>
+                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-evaluation'>
                         <Icon size='small' name='percent' />
                         Evaluation
                     </Menu.Item>
-                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} className='nlu-menu-settings' data-cy='settings-in-model'>
+                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-settings'>
                         <Icon size='small' name='setting' />
                         Settings
                     </Menu.Item>
