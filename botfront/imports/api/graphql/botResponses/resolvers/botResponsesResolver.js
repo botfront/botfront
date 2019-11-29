@@ -4,6 +4,7 @@ import {
     getBotResponse,
     updateResponse,
     createResponse,
+    createResponses,
     deleteResponse,
 } from '../mongo/botResponses';
 
@@ -69,6 +70,10 @@ export default {
                 botResponsesModified: args.response,
             });
             pubsub.publish(RESPONSE_ADDED, { botResponseAdded: args.response });
+            return { success: !!response.id };
+        },
+        async createResponses(_, args, __) {
+            const response = await createResponses(args.projectId, args.responses);
             return { success: !!response.id };
         },
     },

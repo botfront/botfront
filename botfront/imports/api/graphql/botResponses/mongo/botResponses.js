@@ -22,27 +22,44 @@ const formatTextOnSave = values => values.map((item) => {
     return updatedItem;
 });
 
+export const createResponses = async (projectId, responses) => {
+    const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
+
+    // eslint-disable-next-line array-callback-return
+    newResponses.map((newResponse) => {
+        const properResponse = newResponse;
+        properResponse._id = `${properResponse.key}-${projectId}`;
+        properResponse.projectId = projectId;
+        properResponse.values = formatTextOnSave(properResponse.values);
+        BotResponses.update({ _id: properResponse._id }, properResponse, { upsert: true });
+    });
+
+    return { ok: 1 };
+};
+
 export const updateResponse = async (projectId, key, newResponse) => {
-    const formatedResponse = { ...newResponse, values: formatTextOnSave(newResponse.values) };
+    const formatedResponse = {
+        ...newResponse,
+        values: formatTextOnSave(newResponse.values),
+    };
     return BotResponses.updateOne({ projectId, key }, formatedResponse).exec();
 };
-export const createResponse = async (projectId, newResponse) => BotResponses.create({ ...newResponse, projectId, _id: `${newResponse.key}-${projectId}` });
+export const createResponse = async (projectId, newResponse) => BotResponses.create({
+    ...newResponse,
+    projectId,
+    _id: `${newResponse.key}-${projectId}`,
+});
 export const deleteResponse = async (projectId, key) => BotResponses.deleteOne({ projectId, key });
 
-
-export const getBotResponses = async projectId => (BotResponses.find(
-    {
-        projectId,
-    },
-).lean());
-
+export const getBotResponses = async projectId => BotResponses.find({
+    projectId,
+}).lean();
 
 export const getBotResponse = async (projectId, key, lang = 'en') => {
-    let botResponse = await BotResponses.findOne(
-        {
-            projectId, key,
-        },
-    ).lean();
+    let botResponse = await BotResponses.findOne({
+        projectId,
+        key,
+    }).lean();
     const newSeq = {
         sequence: [{ content: safeDump({ text: key }) }],
         lang,
