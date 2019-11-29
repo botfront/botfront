@@ -45,7 +45,7 @@ function Intent({
                 className={`intent-label ${extraClass}`}
                 data-cy='intent-label'
             >
-                <Icon name='tag' size='small' />{value || '-'}
+                <div className='content-on-label'><Icon name='tag' size='small' /><span>{value || '-'}</span></div>
             </div>
         );
     }
