@@ -53,8 +53,8 @@ type Message {
 }
 
 type Entity {
-  entity: String!,
-  value: String!,
+  entity: String,
+  value: String,
   start: Int!,
   end: Int!,
   confidence: Float,
@@ -63,8 +63,8 @@ type Entity {
 }
 
 input EntityInput {
-  entity: String!,
-  value: String!,
+  entity: String,
+  value: String,
   start: Int!,
   end: Int!,
   confidence: Float,
