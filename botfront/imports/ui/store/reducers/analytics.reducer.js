@@ -7,6 +7,13 @@ const endDate = moment().endOf('day');
 
 const initialState = Map({
     cardSettings: OrderedMap({
+        visitCounts: Map({
+            visible: true,
+            startDate,
+            endDate,
+            chartType: 'line',
+            valueType: 'absolute',
+        }),
         conversationLengths: Map({
             visible: true,
             startDate,
@@ -37,13 +44,7 @@ const initialState = Map({
             valueType: 'absolute',
             responses: List(['action_botfront_fallback']),
         }),
-        visitCounts: Map({
-            visible: true,
-            startDate,
-            endDate,
-            chartType: 'line',
-            valueType: 'absolute',
-        }),
+       
     }),
 });
 

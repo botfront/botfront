@@ -21,6 +21,38 @@ function AnalyticsDashboard(props) {
     if (environment === 'development') envs.push(null);
 
     const cards = {
+        visitCounts: {
+            chartTypeOptions: ['line', 'table'],
+            title: 'Visits & Engagement',
+            titleDescription: 'Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.',
+            queryParams: {
+                temporal: true, projectId, envs, queryName: 'conversationCounts',
+            },
+            query: visitCounts,
+            size: 'wide',
+            graphParams: {
+                x: 'bucket',
+                y: [{ abs: 'count' }, { abs: 'hits', rel: 'proportion' }],
+                formats: {
+                    bucket: v => v.toLocaleDateString(),
+                    count: v => `${v} visit${v !== 1 ? 's' : ''}`,
+                    engagements: v => `${v} engagement${v !== 1 ? 's' : ''}`,
+                    proportion: v => `${v}%`,
+                },
+                rel: { y: [{ abs: 'proportion' }] },
+                columns: [
+                    { header: 'Date', accessor: 'bucket', temporal: true },
+                    { header: 'Visits', accessor: 'count' },
+                    { header: 'Hits', accessor: 'hits' },
+                    { header: 'Engagement', accessor: 'proportion' },
+                ],
+                axisTitleY: { default: 'Visitor Engagement' },
+                axisTitleX: { day: 'Date', hour: 'Time' },
+                unitY: { relative: '%' },
+                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
+                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
+            },
+        },
         conversationLengths: {
             chartTypeOptions: ['bar', 'pie', 'table'],
             title: 'Conversation Length',
@@ -129,37 +161,8 @@ function AnalyticsDashboard(props) {
                 axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
-        visitCounts: {
-            chartTypeOptions: ['line', 'table'],
-            title: 'Visits & Engagement',
-            titleDescription: 'Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.',
-            queryParams: {
-                temporal: true, projectId, envs, queryName: 'conversationCounts',
-            },
-            query: visitCounts,
-            graphParams: {
-                x: 'bucket',
-                y: [{ abs: 'count' }, { abs: 'hits', rel: 'proportion' }],
-                formats: {
-                    bucket: v => v.toLocaleDateString(),
-                    count: v => `${v} visit${v !== 1 ? 's' : ''}`,
-                    engagements: v => `${v} engagement${v !== 1 ? 's' : ''}`,
-                    proportion: v => `${v}%`,
-                },
-                rel: { y: [{ abs: 'proportion' }] },
-                columns: [
-                    { header: 'Date', accessor: 'bucket', temporal: true },
-                    { header: 'Visits', accessor: 'count' },
-                    { header: 'Hits', accessor: 'hits' },
-                    { header: 'Engagement', accessor: 'proportion' },
-                ],
-                axisTitleY: { default: 'Visitor Engagement' },
-                axisTitleX: { day: 'Date', hour: 'Time' },
-                unitY: { relative: '%' },
-                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
-                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
-            },
-        },
+        
+       
     };
     
     const [, drop] = useDrop({ accept: 'card' });

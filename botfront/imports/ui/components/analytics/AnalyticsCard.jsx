@@ -36,6 +36,7 @@ function AnalyticsCard(props) {
             exclude,
             responses,
         },
+        size,
         onChangeSettings,
         onReorder,
     } = props;
@@ -44,7 +45,7 @@ function AnalyticsCard(props) {
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType);
+    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType, size);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
     const [activateDownload, setActivateDownload] = useState(false);
 
@@ -101,7 +102,7 @@ function AnalyticsCard(props) {
 
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, size,
         });
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
@@ -157,7 +158,11 @@ function AnalyticsCard(props) {
     };
 
     return (
-        <div className='analytics-card' ref={node => drag(drop(node))} data-cy='analytics-card'>
+        <div
+            className={`analytics-card ${size === 'wide' ? 'wide' : ''}`}
+            ref={node => drag(drop(node))}
+            data-cy='analytics-card'
+        >
             {displayDateRange && (
                 <div className='date-picker' data-cy='date-picker-container'>
                     <DatePicker
@@ -241,6 +246,7 @@ AnalyticsCard.propTypes = {
     settings: PropTypes.object.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
+    size: PropTypes.string,
 };
 
 AnalyticsCard.defaultProps = {
@@ -250,6 +256,7 @@ AnalyticsCard.defaultProps = {
     graphParams: {},
     exportQueryParams: {},
     onReorder: null,
+    size: 'standard',
 };
 
 export default AnalyticsCard;
