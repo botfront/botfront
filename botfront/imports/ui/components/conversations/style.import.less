@@ -12,7 +12,7 @@ div.bot-response-message {
 }
 
 .ui.secondary.pointing.menu .env-select.item {
-  padding: 0.3rem 0rem 1.2rem 0rem;
+  padding: 0.3rem 0rem 1.2rem 0;
   border: none;
   .active.selected.item {
     border: none;
@@ -25,29 +25,56 @@ div.bot-response-message {
   .toggle-filters {
     color: #2185d0;
   }
+
+  span.reset-button {
+    color: rgba(0,0,0,0.4);
+    padding-left: 8px;
+    outline: none;
+    &:hover {
+      color: rgba(0,0,0,0.6);
+    }
+  }
 }
 
 .conversation-filter-container {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100%;
+  display: inline-flex;
+
+  button.filter-button {
+    max-width: 20em;
+    display: inline-block;
+    margin-right: 0.7rem ;
+    border-style: none;
+    height: 36px;
+  }
+
   .conversation-filter {
-    padding: 0em 0.75em;
+    padding: 0 0.75em;
+    display: inline-block;
    
-    &.actions{
-      flex-basis: 100%;
+    &.actions {
+      max-width: 320px;
+      width: 320px;
     }
-    
-    &.buttons{
-      margin-top: 1.1rem;
+
+    &.conv-length {
+      .segments {
+        .ui.segment.x-than-filter {
+          width: 71px;
+        }
+        .dropdown {
+          background-color: white;
+          width: 56px;
+        }
+      }
     }
+
     .dropdown.filter-dropdown {
       min-height: 30px;
       border-style: none;
       box-shadow: none;
       margin: 0;
       &.multi-select{
-        padding-right: 0px;
+        padding-right: 0;
         overflow: auto;
         overflow-y: hidden;
         overflow-x: auto;
@@ -56,23 +83,8 @@ div.bot-response-message {
         input{
           max-width: 14em;
         }
-        .ui.label{
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
         .dropdown.icon{
           position: relative;
-        }
-        &::-webkit-scrollbar {
-          -webkit-appearance: none;
-          height: 0px;
-        }
-        &:hover{
-          &::-webkit-scrollbar {
-            -webkit-appearance: none;
-            height: 6px;
-          }
         }
         &.active{
           max-height: unset;
@@ -85,6 +97,7 @@ div.bot-response-message {
     }
     .ui.segments{
       box-shadow: none;
+      margin: 0;
     }
     .ui.segment{
       padding: 0;
@@ -99,13 +112,13 @@ div.bot-response-message {
           }
         }
         input{
-          margin: 0px;
+          margin: 0;
           border-style: none;
           box-shadow: none;
           text-align: center;
           font-weight: 400;
         }
-        margin: 0px;
+        margin: 0;
         border-style: none;
         box-shadow: none;
       }
@@ -113,7 +126,8 @@ div.bot-response-message {
         width: 4.5em;
       }
       &.x-than-filter{
-        width: 9em;
+        width: 106px;
+        background-color: #e8e8e8;
         .label{
           padding-top: 0.8rem;
           width: 100%;
@@ -126,7 +140,7 @@ div.bot-response-message {
         p {
           line-height: 36px;
           width: 2.5em;
-          background-color: rgb(241, 241, 241);
+          background-color: #e8e8e8;
           color: rgba(0,0,0,.6);
           font-weight: 700;
         }
@@ -136,14 +150,12 @@ div.bot-response-message {
         border-style: none;
       }
       &.date-filter {
-        max-width: 20em;
         border-style: none;
-      }
-      &.filter-button {
-        max-width: 20em;
-        margin-right: 0.7rem ;
-        border-style: none;
-        display: inline;
+        height: 38px;
+        max
+        button {
+          height: 100%;
+        }
       }
     }
   }
