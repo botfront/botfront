@@ -27,32 +27,6 @@ const contentValidator = (content) => {
 }
 */
 
-export const MatchSchema = new Schema({
-    _id: false,
-    nlu: {
-        required: false,
-        type: [{
-            intent: { type: String, min: 1 },
-            entities: {
-                default: [],
-                type: [{
-                    entity: String,
-                    value: {
-                        type: String,
-                        required: false,
-                        min: 1,
-                    },
-                }],
-            },
-        }],
-    },
-});
-
-const FollowUpSchema = new Schema({
-    _id: false,
-    action: { type: String, required: false },
-    delay: { type: Number, default: 0, min: 0 },
-});
 
 const botResponses = new Schema({
     _id: String,
@@ -63,20 +37,18 @@ const botResponses = new Schema({
     },
     projectId: String,
     values: {
-
-        type: [{
-            _id: false,
-            lang: { type: String, enum: Object.keys(languages) },
-            sequence: [{ _id: false, content: { type: String } }],
-        }],
+        type: [
+            {
+                _id: false,
+                lang: { type: String, enum: Object.keys(languages) },
+                sequence: [{ _id: false, content: { type: String } }],
+            },
+        ],
         max: 5,
         min: 0,
     },
-    match: { type: MatchSchema, required: false },
-    followUp: { type: FollowUpSchema, required: false },
 });
 
 botResponses.index({ key: 1, projectId: 1 }, { unique: true });
-
 
 module.exports = mongoose.model('BotResponses', botResponses, 'botResponses');

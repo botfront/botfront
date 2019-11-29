@@ -10,88 +10,60 @@ type Subscription {
 }
 
 type Mutation {
-  deleteResponse(projectId: String!, key: String!): updateResponse!
-  updateResponse(projectId: String!, key: String!, response: BotResponseInput): updateResponse!
-  createResponse(projectId: String!, response: BotResponseInput): updateResponse!
+    deleteResponse(projectId: String!, key: String!): updateResponse!
+    updateResponse(
+        projectId: String!
+        key: String!
+        response: BotResponseInput
+    ): updateResponse!
+    createResponse(projectId: String!, response: BotResponseInput): updateResponse!
+    createResponses(projectId: String!, responses: String): updateResponse!
 }
 
 type updateResponse {
-  success: Boolean!
+    success: Boolean!
 }
 
 type BotResponse {
-  key: String
-  _id: String
-  projectId: String
-  values: [Value]
-  match: Match
-  followUp: FollowUp
+    key: String
+    _id: String
+    projectId: String
+    values: [Value]
 }
 
 type Value {
-  lang: String
-  sequence: [ContentContainer]
+    lang: String
+    sequence: [ContentContainer]
 }
 
 type ContentContainer {
-  content: String
+    content: String
 }
 
-type FollowUp {
-  action: String
-  delay: Float
-}
-
-type Match {
-  nlu: [Nlu]
-}
-
-type Nlu {
-  intent: String
-  entities: [Entity]
-}
 
 type Entity {
-  entity: String
-  value: String
+    entity: String
+    value: String
 }
 
 #Input types
 input BotResponseInput {
-  key: String
-  _id: String
-  projectId: String
-  values: [ValueInput]
-  match: MatchInput
-  followUp: FollowUpInput
+    key: String
+    _id: String
+    projectId: String
+    values: [ValueInput]
 }
 
 input ValueInput {
-  lang: String
-  sequence: [ContentContainerInput]
+    lang: String
+    sequence: [ContentContainerInput]
 }
 
 input ContentContainerInput {
-  content: String
+    content: String
 }
 
 input FollowUpInput {
-  action: String
-  delay: Float
+    action: String
+    delay: Float
 }
-
-input MatchInput {
-  nlu: [NluInput]
-}
-
-input NluInput {
-  intent: String
-  entities: [EntityInput]
-}
-
-input EntityInput {
-  entity: String
-  value: String
-}
-
-
