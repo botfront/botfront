@@ -79,7 +79,7 @@ if (Meteor.isClient) {
 
         it('should change dropdown text when changing date', () => {
             DatePickerComponent.find('DayPickerRangeController').prop('onDatesChange')({
-                startDate: moment().subtract(7, 'days'),
+                startDate: moment().subtract(6, 'days'),
                 endDate: moment(),
             });
             expect(
@@ -91,7 +91,7 @@ if (Meteor.isClient) {
                     .find('.text')
                     .text(),
             ).to.equal(`Custom: ${moment()
-                .subtract(7, 'days')
+                .subtract(6, 'days')
                 .format('DD MMM YYYY')} - ${moment()
                 .format('DD MMM YYYY')}`);
         });
@@ -123,7 +123,7 @@ if (Meteor.isClient) {
             // use moment().format to fuzzy match the date
             expect(startDate.format('DD MMM YYYY')).to.equal(
                 moment()
-                    .subtract(30, 'days')
+                    .subtract(29, 'days')
                     .format('DD MMM YYYY'),
             );
             expect(endDate.format('DD MMM YYYY')).to.equal(
@@ -147,9 +147,71 @@ if (Meteor.isClient) {
 
             expect(DatePickerComponent.find('Popup')
                 .prop('trigger').props.children[0]).to.equal(`${moment()
-                .subtract(30, 'days')
+                .subtract(29, 'days')
                 .format('DD MMM YYYY')} - ${moment()
                 .format('DD MMM YYYY')}`);
+        });
+        
+        it('should be able to select a single day', () => {
+            const incomingRange = {
+                startDate: moment(),
+                endDate: null,
+            };
+            const expectedRange = {
+                startDate: moment().startOf('day'),
+                endDate: moment().endOf('day'),
+            };
+            // trigger date change
+            DatePickerComponent
+                .find('DayPickerRangeController')
+                .prop('onDatesChange')(incomingRange);
+            DatePickerComponent.find('Button')
+                .find({ content: 'Confirm' })
+                .simulate('click');
+            // check state start and end dates match expectations
+            expect(startDate.toISOString()).to.have.string(
+                expectedRange.startDate.toISOString(),
+            );
+            expect(endDate.toISOString()).to.have.string(
+                expectedRange.endDate.toISOString(),
+            );
+        });
+
+        it('should persist custom range', () => {
+            const customRange = { startDate: moment().subtract(25, 'days'), endDate: moment() };
+            // set a custom range
+            DatePickerComponent
+                .find('DayPickerRangeController')
+                .prop('onDatesChange')(customRange);
+            DatePickerComponent.find('Button')
+                .find({ content: 'Confirm' })
+                .simulate('click');
+            // switch to a preset range
+            DatePickerComponent.find('FormDropdown')
+                .dive() // the component form field
+                .dive() // the component label and dropdown
+                .find('Dropdown')
+                .prop('onChange')(null, { value: 2 });
+            DatePickerComponent.find('Button')
+                .find({ content: 'Confirm' })
+                .simulate('click');
+            // switch back to the custom range
+            DatePickerComponent.find('FormDropdown')
+                .dive() // the component form field
+                .dive() // the component label and dropdown
+                .find('Dropdown')
+                .prop('onChange')(null, { value: 0 });
+            DatePickerComponent.find('Button')
+                .find({ content: 'Confirm' })
+                .simulate('click');
+            expect(startDate.format('DD MM YY'))
+                .to.have.string(
+                    customRange.startDate.format('DD MM YY'),
+                );
+            expect(endDate.format('DD MM YY'))
+                .to.have.string(
+                    customRange.endDate.format('DD MM YY'),
+                );
         });
     });
 }

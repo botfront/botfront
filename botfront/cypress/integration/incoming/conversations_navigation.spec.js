@@ -129,7 +129,7 @@ describe('incoming page conversation tab', function () {
     });
 
 
-    it('should be list all conversation in db', function () {
+    it('should list all conversation in db', function () {
         addConversation('test1');
         addConversation('test2');
         cy.visit('/project/bf/incoming');

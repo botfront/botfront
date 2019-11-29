@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.5-ee.2](https://github.com/botfront/botfront/compare/v0.18.5-ee.1...v0.18.5-ee.2) (2019-11-29)
+
+### [0.18.5-ee.1](https://github.com/botfront/botfront/compare/v0.18.5-ee.0...v0.18.5-ee.1) (2019-11-27)
+
+### [0.18.5-ee.0](https://github.com/botfront/botfront/compare/v0.18.2-ee.0...v0.18.5-ee.0) (2019-11-26)
+
+
+### Features
+
+* add ui for conversation filters ([776f5ce](https://github.com/botfront/botfront/commit/776f5ce490129fd871c62ccd3a8fa75654a6a286))
+* analytics table view ([e3194bb](https://github.com/botfront/botfront/commit/e3194bb91d71008f7ef05680b9b15b1e0ecb93b1))
+* reset button, hide/reveal and style changes ([3dcf651](https://github.com/botfront/botfront/commit/3dcf651ac0f796c41a19154fbd32ae39da008eac))
+
+
+### Bug Fixes
+
+* Analytics display duration as time(s)<time(s) ([aeb7e31](https://github.com/botfront/botfront/commit/aeb7e3153b7026d2d672ad5e72f871695fa6597d))
+* analytics duration: axis values ([6cf27f2](https://github.com/botfront/botfront/commit/6cf27f2303d558b521409406fbecf06c22940cfe))
+* analytics duration: axis values ([d50d9b9](https://github.com/botfront/botfront/commit/d50d9b9b3e39e4e516ce93c319dad37df3fb3c72))
+* change api url if the run is from ci ([46d233e](https://github.com/botfront/botfront/commit/46d233e31f2d6f8a88b70e8a1b95759bdd0e4372))
+* custom range in date picker ([a040628](https://github.com/botfront/botfront/commit/a040628a4b7987362cd4d2089645fa8216c35c4b))
+* custom range in date picker ([0d3d21e](https://github.com/botfront/botfront/commit/0d3d21e2c2d7db1a728ca237ee1d01e063fd81af))
+* date picker creashes with a one day range ([17a7aa0](https://github.com/botfront/botfront/commit/17a7aa0c473365e854aaa011d54d6940c212a6a3))
+* date ranges for analytics line chart ([5a3d12d](https://github.com/botfront/botfront/commit/5a3d12db52eacfdf9e63544d615dc7eba58cd7cd))
+* display update warnings for bot sequences ([6974bc0](https://github.com/botfront/botfront/commit/6974bc080252e781bb6ef9ee86962eb69a8e2513))
+* env selector and the corresponding test ([99da2af](https://github.com/botfront/botfront/commit/99da2af06e62af4a6bbcc1cd6a80d3fb0a9d7c94))
+* env selector and the corresponding test ([cd34084](https://github.com/botfront/botfront/commit/cd3408438a122837afc500e608492ed3f1fbc6fa))
+* export for Rasa: domain contains language information ([8330b23](https://github.com/botfront/botfront/commit/8330b23c4ec4cfc4d54e5595c7febb4503058884))
+* input overflows action dropdown ([2fe3c77](https://github.com/botfront/botfront/commit/2fe3c773fe2c220fd23f1b9534538342c4761704))
+* long action names overflow dropdown ([558320a](https://github.com/botfront/botfront/commit/558320adb9d128f20e8241ac7cc2e2c7e18e372a))
+* remember story group selection ([febf6ef](https://github.com/botfront/botfront/commit/febf6ef0f7aab94c940f3cac75385031cc55d537))
+* removes a duplicate of insert many ([70e0238](https://github.com/botfront/botfront/commit/70e0238e6c6baa7292c22bdf837ddcef043d71b6))
+
 ### [0.18.2-ee.0](https://github.com/botfront/botfront/compare/v0.18.1-ee.3...v0.18.2-ee.0) (2019-11-18)
 
 

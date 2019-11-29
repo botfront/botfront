@@ -17,6 +17,7 @@ const model = new Schema({
     }],
     confidence: { type: Number, required: false },
     validated: { type: Boolean, required: false },
+    environment: { type: String, required: false },
     createdAt: {
         type: Date,
         required: false,

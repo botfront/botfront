@@ -4,7 +4,7 @@ type Query {
         envs: [String],
         from: Float = 0,
         to: Float,
-        cuttoffs: [Int] = [30, 60, 90, 120, 180],
+        cutoffs: [Int] = [30, 60, 90, 120, 180],
     ): [ConversationDuration!]!
 }
 

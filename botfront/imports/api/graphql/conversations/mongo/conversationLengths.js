@@ -5,6 +5,7 @@ export const getConversationLengths = async ({
     envs,
     from,
     to = new Date().getTime(),
+    limit,
 }) => Conversations.aggregate([
     {
         $match: {
@@ -81,5 +82,5 @@ export const getConversationLengths = async ({
     },
 
     { $sort: { length: 1 } },
-    { $limit: 10 },
+    { $limit: limit },
 ]);

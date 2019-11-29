@@ -18,7 +18,7 @@ import { createIntroStoryGroup, createDefaultStoryGroup } from '../storyGroups/s
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
-import { flattenStory, extractDomain } from '../../lib/story.utils';
+import { flattenStory, extractDomain, getAllTemplates } from '../../lib/story.utils';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
@@ -183,6 +183,32 @@ if (Meteor.isServer) {
                     intents,
                     entities,
                 };
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async 'project.getActions'(projectId) {
+            check(projectId, String);
+            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
+            let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
+            defaultDomain = yamlLoad(defaultDomain.content);
+            const templates = getAllTemplates(projectId);
+
+            try {
+                const stories = await Meteor.callWithPromise('stories.getStories', projectId);
+                const slots = Slots.find({ projectId }).fetch();
+                const {
+                    actions: actionsSetFromDomain = [],
+                } = stories.length !== 0 ? yamlLoad(extractDomain(
+                    stories
+                        .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
+                        .map(story => story.story || ''),
+                    slots,
+                    templates,
+                    defaultDomain,
+                )) : {};
+                return actionsSetFromDomain;
             } catch (error) {
                 throw error;
             }

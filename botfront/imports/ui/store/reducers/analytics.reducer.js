@@ -2,11 +2,18 @@ import { Map, OrderedMap, List } from 'immutable';
 import moment from 'moment';
 import * as types from '../actions/types';
 
-const startDate = moment().subtract(7, 'days');
-const endDate = moment();
+const startDate = moment().subtract(6, 'days').startOf('day');
+const endDate = moment().endOf('day');
 
 const initialState = Map({
     cardSettings: OrderedMap({
+        visitCounts: Map({
+            visible: true,
+            startDate,
+            endDate,
+            chartType: 'line',
+            valueType: 'absolute',
+        }),
         conversationLengths: Map({
             visible: true,
             startDate,
@@ -37,13 +44,7 @@ const initialState = Map({
             valueType: 'absolute',
             responses: List(['action_botfront_fallback']),
         }),
-        visitCounts: Map({
-            visible: true,
-            startDate,
-            endDate,
-            chartType: 'line',
-            valueType: 'absolute',
-        }),
+       
     }),
 });
 

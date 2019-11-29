@@ -54,7 +54,7 @@ class ProjectInfo extends React.Component {
         const { supportedLanguages } = this.state;
         // Check if the supported lanaguages are present in the newValue
         let renderNewValue = true;
-        supportedLanguages.forEach(function(language) {
+        supportedLanguages.forEach(function (language) {
             if (!newValue.includes(language)) {
                 renderNewValue = false;
             }
@@ -85,7 +85,7 @@ class ProjectInfo extends React.Component {
     onSave = (project, modelLanguages) => {
         const { value } = this.state;
         const {
-            name, _id, defaultLanguage, nluThreshold, deploymentEnvironments,
+            name, _id, defaultLanguage, nluThreshold, deploymentEnvironments, timezoneOffset,
         } = project;
         const modelLanguageCodes = modelLanguages.map(lang => lang.value);
         const differenceArray = this.diffArray(value, modelLanguageCodes);
@@ -97,7 +97,7 @@ class ProjectInfo extends React.Component {
         Meteor.call(
             'project.update',
             {
-                name, _id, defaultLanguage, nluThreshold, deploymentEnvironments,
+                name, _id, defaultLanguage, nluThreshold, deploymentEnvironments, timezoneOffset,
             },
             wrapMeteorCallback((err) => {
                 if (!err) {
@@ -196,16 +196,24 @@ class ProjectInfo extends React.Component {
                             data-cy='change-nlu-threshold'
                         />
                         <br />
-                        
+
                         <InfoField
                             name='deploymentEnvironments'
                             label='Deployment environments'
                             info='Botfront will enable additional environments for your workflow'
                             data-cy='deployment-environments'
                         />
+
+                        <InfoField
+                            step='0.5'
+                            name='timezoneOffset'
+                            label='Timezone offset relative to UTC±00:00'
+                            info='All date of the application are queried as your timezone was UTC±00:00, use this field if you want to offest your dates queries'
+                            data-cy='change-timezone-offset'
+                        />
                         <br />
                         <ErrorsField />
-                        
+
                         {/* <Button
                             onClick={this.HandleDevToStaging}
                             className='deployment-button'
@@ -250,6 +258,7 @@ const ProjectInfoContainer = withTracker(({ projectId }) => {
                 defaultLanguage: 1,
                 deploymentEnvironments: 1,
                 nluThreshold: 1,
+                timezoneOffset: 1,
             },
         },
     );

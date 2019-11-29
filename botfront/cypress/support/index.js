@@ -30,17 +30,17 @@ switch (Cypress.env('abort_strategy')) {
 case 'run':
     // eslint-disable-next-line no-undef
     before(function onBeforeEach() {
-    // Skips any subsequent specs, if the run has been flagged as failed
+        // Skips any subsequent specs, if the run has been flagged as failed
         cy.getCookie('has_failed_test').then((cookie) => {
             if (cookie && typeof cookie === 'object' && cookie.value === 'true') {
                 Cypress.runner.stop();
             }
         });
     });
-/* fallthrough */
+    /* fallthrough */
 case 'spec':
     afterEach(function onAfterEach() {
-    // Skips all subsequent tests in a spec, and flags the whole run as failed
+        // Skips all subsequent tests in a spec, and flags the whole run as failed
         if (this.currentTest.state === 'failed') {
             cy.setCookie('has_failed_test', 'true');
             Cypress.runner.stop();
@@ -328,7 +328,7 @@ Cypress.Commands.add('deleteUser', (email) => {
                     resolve(result);
                 });
             } catch (e) {
-                throw err;
+                throw e;
             }
         }),
     );
@@ -481,7 +481,7 @@ Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = n
                 latest_message: {
                     text: '/get_started',
                     entities: [
-     
+
                     ],
                     intent_ranking: [
                         {
@@ -505,10 +505,15 @@ Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = n
         }],
         processNlu: true,
     });
+   
+    let url = `http://localhost:8080/conversations/bf/environment/${env}?api-key=`;
+    if (Cypress.env('API_URL')) {
+        url = `${Cypress.env('API_URL')}/conversations/bf/environment/${env}?api-key=`;
+    }
 
     cy.request({
         method: 'POST',
-        url: `http://localhost:8080/conversations/bf/environment/${env}?apiKey=`,
+        url,
         headers: { 'Content-Type': 'application/json' },
         body,
     });
@@ -624,7 +629,7 @@ Cypress.Commands.add('addTrainingData', (modelId, language) => {
         ],
     );
 });
-Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Promise(async function(resolve, reject) {
+Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Promise(async function (resolve, reject) {
     for (let i = 1; i < Number.MAX_VALUE; i += 1) {
         try {
             await axios(url);
@@ -667,3 +672,135 @@ Cypress.Commands.add('train', () => {
     cy.wait(5000);
     cy.dataCy('train-button').should('not.have.class', 'disabled');
 });
+
+const MONTHS = [
+    '', // January is /01/ not /00/
+    'January',
+    'Febuary',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+];
+Cypress.Commands.add('findMonth', (queryMonth, index, incomingSearchPrev) => {
+    cy.log(`finding month step ${index}`);
+    let searchPrev = incomingSearchPrev !== undefined ? incomingSearchPrev : true;
+    let shouldExit = false;
+    if (index > 36) {
+        return; // stop it from clicking next month FOREVER
+    }
+    // check if the queryMonth is currently loaded in the datepicker
+    if (index === 0) {
+        cy.get('.visible.date-picker')
+            .find('.CalendarMonth')
+            .find('.CalendarMonth_caption')
+            .find('strong')
+            .each((element) => {
+                // cy.XXX is a promise so the exit has to be here rather than in the body
+                if (shouldExit === true) return;
+                // if the query month is currently rendered, exit the function
+                const currentMonthStr = element[0].childNodes[0].data;
+                if (currentMonthStr === queryMonth) {
+                    shouldExit = true;
+                    return;
+                }
+                // if queryMonth is in the future; search future months
+                if (currentMonthStr === queryMonth) {
+                    const currentMonth = currentMonthStr.split(' ');
+                    currentMonth[0] = MONTHS.indexOf(currentMonth[0]);
+                    if (currentMonth[1] < MONTHS.indexOf(queryMonth.split(' ')[1])
+                        || (currentMonth[0] < queryMonth.split(' ')[0] && currentMonth[1] === queryMonth[1])
+                    ) {
+                        searchPrev = false;
+                    }
+                }
+            });
+    }
+    cy.get('.visible.date-picker')
+        .find('.CalendarMonth')
+        .find('.CalendarMonth_caption')
+        .first()
+        .find('strong')
+        .then((element) => {
+            // cy.XXX is a promise so the exit has to be here rather than in the body
+            if (shouldExit === true) return;
+            const currentMonth = element[0].childNodes[0].data;
+            if (currentMonth !== queryMonth) {
+                if (searchPrev === true) {
+                    cy.get('.DayPickerNavigation_button')
+                        .first()
+                        .click();
+                } else {
+                    cy.get('.DayPickerNavigation_button')
+                        .last()
+                        .click();
+                }
+                cy.findMonth(queryMonth, index + 1, searchPrev);
+            }
+        });
+});
+Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDateStr) => {
+    /*
+        clicks on firstDateStr, then clicks on SecondDateStr, then confirms the date selection
+        ----------------------------------------------------------
+        firstDateStr and secondDateStr should be a string 'dd/m/yyyy'
+        August 1st 2019 would be 1/8/2019 NOT 1/08/2019
+        November 17th 2019 would be 17/11/2019
+    */
+    const firstDate = firstDateStr.split('/');
+    const secondDate = secondDateStr.split('/');
+    let searchFutureMonths = false;
+
+    cy.dataCy('date-picker-container')
+        .eq(datePickerIndex)
+        .click();
+    cy.findMonth(`${MONTHS[firstDate[1]]} ${firstDate[2]}`, 0);
+    cy.get('.visible.date-picker')
+        .first()
+        .contains(`${MONTHS[firstDate[1]]} ${firstDate[2]}`)
+        .parents('.CalendarMonth')
+        .find('.CalendarDay')
+        .contains(firstDate[0])
+        .click({ force: true });
+
+    if (firstDate[3] < secondDate[3]
+        || (firstDate[2] < secondDate[2] && firstDate[3] === secondDate[3])
+    ) {
+        searchFutureMonths = true;
+    }
+    cy.findMonth(`${MONTHS[secondDate[1]]} ${secondDate[2]}`, 0, searchFutureMonths);
+    cy.get('.visible.date-picker')
+        .first()
+        .contains(`${MONTHS[secondDate[1]]} ${secondDate[2]}`)
+        .parents('.CalendarMonth')
+        .find('.CalendarDay')
+        .contains(secondDate[0])
+        .click({ force: true });
+    cy.get('.visible.date-picker')
+        .first()
+        .find('button')
+        .contains('Confirm')
+        .click();
+});
+
+Cypress.Commands.add('addConversation', (projectId, id, conversation) => {
+    let url = `http://localhost:8080/project/${projectId}/conversations/${id}/insert?api-key=`;
+    if (Cypress.env('API_URL') !== '') {
+        url = `${Cypress.env('API_URL')}/project/${projectId}/conversations/${id}/insert?api-key=`;
+    }
+
+    cy.request({
+        method: 'POST',
+        url,
+        headers: { 'Content-Type': 'application/json' },
+        body: conversation,
+    });
+});
+
+Cypress.Commands.overwrite('log', (subject, message) => cy.task('log', message));

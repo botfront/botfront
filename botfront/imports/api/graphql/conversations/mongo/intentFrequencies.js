@@ -34,6 +34,7 @@ export const getIntentFrequencies = async ({
     last,
     beg,
     end,
+    limit,
 }) => Conversations.aggregate([
     {
         $match: {
@@ -81,7 +82,7 @@ export const getIntentFrequencies = async ({
     },
     {
         $project: {
-            intents: '$events.parse_data.intent.name',
+            intents: { $ifNull: ['$events.parse_data.intent.name', 'No intent'] },
         },
     },
     {
@@ -129,5 +130,5 @@ export const getIntentFrequencies = async ({
     },
 
     { $sort: { count: -1 } },
-    { $limit: 10 },
+    { $limit: limit },
 ]);

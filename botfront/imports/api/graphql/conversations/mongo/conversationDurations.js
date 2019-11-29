@@ -5,18 +5,19 @@ const generateBucket = bounds => ({
     then: bounds[0].$gte[1].toString(),
 });
 
-const generateBuckets = (cuttoffs, variable) => {
+const generateBuckets = (cutoffs, variable) => {
     const buckets = [];
-    cuttoffs.forEach((val, idx, array) => {
+    cutoffs.forEach((val, idx, array) => {
         const bounds = [{ $gte: [variable, val] }];
         if (idx + 1 !== array.length) {
             bounds.push({ $lt: [variable, array[idx + 1]] });
         }
+
         buckets.push(generateBucket(bounds));
     });
     buckets.unshift(generateBucket([
         { $gte: [variable, 0] },
-        { $lt: [variable, cuttoffs[0]] },
+        { $lt: [variable, cutoffs[0]] },
     ]));
     return buckets;
 };
@@ -26,7 +27,7 @@ export const getConversationDurations = async ({
     envs,
     from,
     to = new Date().getTime(),
-    cuttoffs,
+    cutoffs,
 }) => Conversations.aggregate([
     {
         $match: {
@@ -72,7 +73,7 @@ export const getConversationDurations = async ({
         $project: {
             duration: {
                 $switch: {
-                    branches: generateBuckets(cuttoffs, '$difference'),
+                    branches: generateBuckets(cutoffs, '$difference'),
                     default: 'bad_timestamp',
                 },
             },
