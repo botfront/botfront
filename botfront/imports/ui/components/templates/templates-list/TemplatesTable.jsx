@@ -13,7 +13,6 @@ import TemplatesTableItem from './TemplatesTableItem';
 import {
     changePageTemplatesTable, setWorkingLanguage, changeFilterTemplatesTable, toggleMatchingTemplatesTable,
 } from '../../../store/actions/actions';
-import { getTemplateLanguages } from '../../../../api/project/response.methods';
 import { languages } from '../../../../lib/languages';
 
 class TemplatesTable extends React.Component {
@@ -124,7 +123,7 @@ class TemplatesTable extends React.Component {
         // If on a template page a user selects a language for which there is not template yet, leaves it empty
         // and comes back here, the working language will be set to a language for which there is no template.
         // That's why we need to reset the workingLanguage except if there are no templates yet
-        const templateLanguages = getTemplateLanguages(templates);
+        const templateLanguages = this.getTemplateLanguages(templates);
         if (templates.length > 0 && templateLanguages.indexOf(workingLanguage) < 0) {
             changeWorkingLanguage(templateLanguages[0]);
         }
@@ -183,19 +182,19 @@ class TemplatesTable extends React.Component {
         );
     };
 
-    getPanes = templates => getTemplateLanguages(templates).map(lang => ({
+    getPanes = templates => this.getTemplateLanguages(templates).map(lang => ({
         menuItem: languages[lang].name,
         render: () => this.renderTable(lang),
     }));
 
     onTabChange = (e, { activeIndex }) => {
         const { changeWorkingLanguage, templates } = this.props;
-        changeWorkingLanguage(getTemplateLanguages(templates)[activeIndex]);
+        changeWorkingLanguage(this.getTemplateLanguages(templates)[activeIndex]);
     };
 
     render() {
         const { nluLanguages, templates, workingLanguage } = this.props;
-        const activeIndex = getTemplateLanguages(templates).indexOf(workingLanguage);
+        const activeIndex = this.getTemplateLanguages(templates).indexOf(workingLanguage);
         return (
             <div>
                 <br />

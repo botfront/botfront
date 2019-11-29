@@ -1,6 +1,4 @@
 import SimpleSchema from 'simpl-schema';
-import yaml from 'js-yaml';
-import { languages } from '../../lib/languages';
 
 const sequenceSchema = new SimpleSchema({
     metadata: { type: Object, blackbox: true, optional: true },
@@ -116,79 +114,3 @@ export const LegacyCarouselSchema = new SimpleSchema(
     },
     { tracker: Tracker },
 ).extend(sequenceSchema);
-
-export const MatchSchema = new SimpleSchema({
-    nlu: { type: Array, optional: true },
-    'nlu.$': Object,
-    'nlu.$.intent': { type: String, min: 1 },
-    'nlu.$.entities': { type: Array, defaultValue: [] },
-    'nlu.$.entities.$': { type: Object },
-    'nlu.$.entities.$.entity': { type: String, label: 'Entity name' },
-    'nlu.$.entities.$.value': {
-        type: String,
-        label: 'Entity value',
-        optional: true,
-        min: 1,
-    },
-});
-
-export const FollowUpSchema = new SimpleSchema({
-    action: { type: String, required: false },
-    delay: { type: Number, defaultValue: 0, min: 0 },
-});
-
-export const TemplateSchema = new SimpleSchema(
-    {
-        key: {
-            type: String,
-            label: 'Template Key',
-            regEx: /^(utter_)/,
-        },
-        values: {
-            type: Array,
-            maxCount: 5,
-            minCount: 0,
-        },
-        match: { type: MatchSchema, optional: true },
-        followUp: { type: FollowUpSchema, optional: true },
-        'values.$': { type: Object },
-        'values.$.lang': {
-            type: String,
-            allowedValues: Object.keys(languages),
-        },
-        'values.$.sequence': { type: Array },
-        'values.$.sequence.$': { type: Object },
-        'values.$.sequence.$.content': { type: String },
-    },
-    { tracker: Tracker },
-);
-
-TemplateSchema.addDocValidator((obj) => {
-    const errors = [];
-    obj.values.map((v, vi) => v.sequence.forEach((sequence, seqIndex) => {
-        try {
-            let payload = yaml.safeLoad(sequence.content);
-            if (typeof payload === 'string') payload = { text: payload };
-            const schemas = [LegacyCarouselSchema, ImageSchema, QuickRepliesSchema, TextSchema, FBMButtonTemplateSchema, FBMGenericTemplateSchema, FBMListTemplateSchema, FBMHandoffTemplateSchema];
-            const contexts = schemas.map(s => s.newContext());
-            contexts.map(c => c.validate(payload));
-            // An array like [0,1,0,0] means it's a QuickRepliesSchema
-            const valid = contexts.map(c => (c.isValid() ? 1 : 0));
-            // Sum over [0,0,0,0] = 0 means entry not validated against any schema
-            const hasError = valid.reduce((a, b) => a + b, 0) === 0;
-            if (hasError) {
-                contexts.forEach((context) => {
-                    if (context.validationErrors()) {
-                        context.validationErrors().forEach((e) => {
-                            e.name = `values.${vi}.sequence.${seqIndex}.${e.name}`;
-                            errors.push(e);
-                        });
-                    }
-                });
-            }
-        } catch (e) {
-            errors.push('unknown');
-        }
-    }));
-    return errors;
-});
