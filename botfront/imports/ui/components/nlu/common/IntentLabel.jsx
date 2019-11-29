@@ -36,11 +36,10 @@ function Intent({
     }
 
     function renderTrigger() {
-        const extraClass = disabled
-            ? 'disabled'
-            : value === OOS_LABEL || !value
-                ? 'null'
-                : '';
+        let extraClass = '';
+        if (disabled) extraClass = `${extraClass} disabled`;
+        if (value === OOS_LABEL || !value) extraClass = `${extraClass} null`;
+        if (!allowEditing) extraClass = `${extraClass} uneditable`;
         return (
             <div
                 className={`intent-label ${extraClass}`}

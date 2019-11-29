@@ -37,12 +37,21 @@
 .intent-label {
     display: inline-block;
     color: @purple;
+    min-width: 140px;
     width: max-content;
     font-weight: medium;
     padding: 2px;
     margin: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
     cursor: default;
 
+    &:not(.disabled):not(.uneditable):hover {
+        border: 1px solid rgba(176, 176, 176, 0.4);
+        span {
+            color: @grey;
+        }
+    }
     &.disabled {
         color: @grey;
     }
