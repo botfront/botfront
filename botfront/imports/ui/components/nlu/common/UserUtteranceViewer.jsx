@@ -24,11 +24,6 @@ function UserUtteranceViewer(props) {
                 return 0;
             })
         : [];
-    
-    const onChangeWrapped = (data) => {
-        addEntity(data);
-        onChange(data);
-    };
 
     // if there is no text we can just get the sorted entities.
     if (!text) {
@@ -82,6 +77,13 @@ function UserUtteranceViewer(props) {
             }
         }
     }
+
+    const onChangeWrapped = (data) => {
+        data.entities.forEach((e) => {
+            if (!contextEntities.includes(e.entity)) addEntity(e.entity);
+        });
+        onChange(data);
+    };
 
     function handleEntityChange(newValue, entityIndex) {
         return onChangeWrapped({
@@ -257,8 +259,7 @@ function UserUtteranceViewer(props) {
                             allowEditing={!disableEditing}
                             deletable={!disableEditing}
                             onDelete={() => handleEntityDeletion(element.index)}
-                            onChange={newValue => handleEntityChange(newValue, element.index)
-                            }
+                            onChange={(_e, { value: newValue }) => handleEntityChange(newValue, element.index)}
                         />
                     );
                 }

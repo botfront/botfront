@@ -35,7 +35,6 @@ function Activity(props) {
     const {
         model: { _id: modelId, language: lang },
         instance,
-        entities,
         project,
         project: { training: { endTime } = {} },
         projectId,
@@ -138,7 +137,7 @@ function Activity(props) {
                 onChange={({ _id, entities: ents, ...rest }) => handleUpdate([{
                     _id,
                     entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
-                }], ...rest)}
+                }], rest)}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
                 disableEditing={isUtteranceOutdated(datum)}
@@ -227,7 +226,6 @@ Activity.propTypes = {
     model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
     project: PropTypes.object.isRequired,
-    entities: PropTypes.array.isRequired,
     linkRender: PropTypes.func.isRequired,
 };
 
