@@ -27,30 +27,30 @@ Cypress.Screenshot.defaults({
 });
 
 switch (Cypress.env('abort_strategy')) {
-case 'run':
-    // eslint-disable-next-line no-undef
-    before(function onBeforeEach() {
-    // Skips any subsequent specs, if the run has been flagged as failed
-        cy.getCookie('has_failed_test').then((cookie) => {
-            if (cookie && typeof cookie === 'object' && cookie.value === 'true') {
+    case 'run':
+        // eslint-disable-next-line no-undef
+        before(function onBeforeEach() {
+            // Skips any subsequent specs, if the run has been flagged as failed
+            cy.getCookie('has_failed_test').then((cookie) => {
+                if (cookie && typeof cookie === 'object' && cookie.value === 'true') {
+                    Cypress.runner.stop();
+                }
+            });
+        });
+    /* fallthrough */
+    case 'spec':
+        afterEach(function onAfterEach() {
+            // Skips all subsequent tests in a spec, and flags the whole run as failed
+            if (this.currentTest.state === 'failed') {
+                cy.setCookie('has_failed_test', 'true');
                 Cypress.runner.stop();
             }
         });
-    });
-/* fallthrough */
-case 'spec':
-    afterEach(function onAfterEach() {
-    // Skips all subsequent tests in a spec, and flags the whole run as failed
-        if (this.currentTest.state === 'failed') {
-            cy.setCookie('has_failed_test', 'true');
-            Cypress.runner.stop();
-        }
-    });
-    Cypress.Cookies.defaults({
-        whitelist: 'has_failed_test',
-    });
-    break;
-default:
+        Cypress.Cookies.defaults({
+            whitelist: 'has_failed_test',
+        });
+        break;
+    default:
 }
 
 Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
@@ -134,7 +134,7 @@ Cypress.Commands.add('MeteorCall', (method, args) => {
 //             cy.fixture('nlu_import.json', 'utf8').then((content) => {
 //                 cy.get('.file-dropzone').upload(content, 'data.json');
 //             });
-        
+
 //             cy.contains('Import Training Data').click();
 //         });
 // });
@@ -178,16 +178,6 @@ Cypress.Commands.add('createResponse', (projectId, responseName) => {
     cy.get('.response-save-button').click();
 });
 
-Cypress.Commands.add('createResponseFast', (projectId, responseName) => {
-    cy.window().then(({ Meteor }) => Meteor.call(
-        'project.insertTemplate',
-        projectId,
-        {
-            key: responseName,
-            values: [{ sequence: [], lang: 'en' }, { sequence: [], lang: 'fr' }],
-        },
-    ));
-});
 
 Cypress.Commands.add('openResponse', (projectId, responseName) => {
     cy.visit(`/project/${projectId}/dialogue/templates`);
@@ -203,14 +193,6 @@ Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);
     cy.get('[data-cy=remove-response-0]').click();
-});
-
-Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
-    cy.window().then(({ Meteor }) => Meteor.call(
-        'project.deleteTemplate',
-        projectId,
-        key,
-    ));
 });
 
 Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
@@ -255,7 +237,7 @@ Cypress.Commands.add(
     },
 );
 
-Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Promise(async function(resolve, reject) {
+Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Promise(async function (resolve, reject) {
     for (let i = 1; i < Number.MAX_VALUE; i += 1) {
         try {
             await axios(url);
