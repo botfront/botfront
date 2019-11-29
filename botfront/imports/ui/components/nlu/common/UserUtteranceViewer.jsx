@@ -294,6 +294,7 @@ function UserUtteranceViewer(props) {
                             allowEditing={!disableEditing}
                             allowAdditions
                             onChange={newIntent => onChange({ ...value, intent: newIntent })}
+                            disabled={disabled}
                         />
                     )}
                 </>
