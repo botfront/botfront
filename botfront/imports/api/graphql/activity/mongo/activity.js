@@ -3,7 +3,7 @@ import Activity from '../activity.model.js';
 
 export const getActivity = async ({
     modelId,
-    environment,
+    env,
     validated = false,
     ooS = false,
     sortKey = 'createdAt',
@@ -12,10 +12,10 @@ export const getActivity = async ({
 }) => {
     const onlyValidated = validated ? { validated: true } : {};
     const ooSOption = ooS ? { ooS } : { $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] };
-    const environmentOption = environment
-        ? environment === 'development'
-            ? { environment: { $in: ['development', null] } }
-            : { environment }
+    const envOption = env
+        ? env === 'development'
+            ? { env: { $in: ['development', null] } }
+            : { env }
         : {};
     const { query: textSearch, intents, entities } = filter;
     const intentsOption = intents && intents.length ? { intent: { $in: intents } } : {};
@@ -26,7 +26,7 @@ export const getActivity = async ({
         modelId,
         ...onlyValidated,
         ...ooSOption,
-        ...environmentOption,
+        ...envOption,
         ...intentsOption,
         ...entitiesOption,
         ...textSearchOption,

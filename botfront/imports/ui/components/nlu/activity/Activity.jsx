@@ -53,7 +53,7 @@ function Activity(props) {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({
         modelId,
-        environment: workingEnvironment,
+        env: workingEnvironment,
         filter,
         ...getSortFunction(),
     });
