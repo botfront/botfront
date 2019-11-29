@@ -1,8 +1,7 @@
-import { Meteor } from 'meteor/meteor';
 import ReactTable from 'react-table-v6';
 import PropTypes from 'prop-types';
 import {
-    Checkbox, Icon, Label, Tab, Message,
+    Icon, Label, Tab, Message,
 } from 'semantic-ui-react';
 import React from 'react';
 import { find } from 'lodash';
@@ -16,7 +15,6 @@ import TemplatesTableItem from './TemplatesTableItem';
 import {
     changePageTemplatesTable, setWorkingLanguage, changeFilterTemplatesTable, toggleMatchingTemplatesTable,
 } from '../../../store/actions/actions';
-import { wrapMeteorCallback } from '../../utils/Errors';
 import { getTemplateLanguages } from '../../../../api/project/response.methods';
 import { languages } from '../../../../lib/languages';
 
@@ -30,8 +28,7 @@ class TemplatesTable extends React.Component {
         this.fixLanguage();
     }
 
-    componentWillReceiveProps(props) {
-        this.props = props;
+    componentDidUpdate() {
         this.fixLanguage();
     }
 
@@ -203,8 +200,8 @@ class TemplatesTable extends React.Component {
     };
 
     deleteTemplate = (key) => {
-        const { projectId } = this.props;
-        Meteor.call('project.deleteTemplate', projectId, key, wrapMeteorCallback());
+        const { projectId, deleteBotResponse } = this.props;
+        deleteBotResponse({ variables: { projectId, key } });
     };
 
     fixLanguage = () => {
@@ -315,6 +312,7 @@ TemplatesTable.propTypes = {
     changeWorkingLanguage: PropTypes.func.isRequired,
     toggleMatch: PropTypes.func.isRequired,
     showMatchingCriteria: PropTypes.bool.isRequired,
+    deleteBotResponse: PropTypes.func.isRequired,
 };
 
 TemplatesTable.defaultProps = {
