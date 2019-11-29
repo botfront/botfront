@@ -61,7 +61,7 @@ class Incoming extends React.Component {
 
     getPanes = () => {
         const {
-            model, instance, project, entities, intents,
+            model, instance, project, entities, intents, workingEnvironment,
         } = this.props;
         return [
             {
@@ -70,7 +70,7 @@ class Incoming extends React.Component {
             },
             {
                 menuItem: { content: 'Conversations', key: 'conversations', 'data-cy': 'conversations' },
-                render: () => <ConversationBrowser projectId={project._id} />,
+                render: () => <ConversationBrowser projectId={project._id} environment={workingEnvironment} />,
             },
             {
                 menuItem: { content: 'Populate', key: 'populate', 'data-cy': 'populate' },
