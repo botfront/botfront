@@ -159,8 +159,7 @@ function AnalyticsCard(props) {
 
     return (
         <div
-            className='analytics-card'
-            style={size === 'wide' ? { width: '95%' } : {}}
+            className={`analytics-card ${size === 'wide' ? 'wide' : ''}`}
             ref={node => drag(drop(node))}
             data-cy='analytics-card'
         >
