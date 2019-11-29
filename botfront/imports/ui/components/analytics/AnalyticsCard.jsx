@@ -104,7 +104,7 @@ function AnalyticsCard(props) {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
             data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, size,
         });
-        if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' />No data to show for selected period!</Message>;
+        if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
         if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} />;
         if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} />;
@@ -176,9 +176,10 @@ function AnalyticsCard(props) {
                 </div>
             )}
             <span className='top-right-buttons'>
-                {exportQueryParams && (
+                {!error && !loading && data[queryParams.queryName].length > 0 && (
                     <Button
                         className='export-card-button'
+                        data-cy='analytics-export-button'
                         basic
                         size='medium'
                         icon='download'
