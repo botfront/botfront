@@ -162,7 +162,7 @@ function Activity(props) {
                 onSave={({ _id, entities: ents, ...rest }) => handleUpdate([{
                     _id,
                     entities: ents.map((e) => { delete e.__typename; e.confidence = null; return e; }),
-                }], ...rest)}
+                }], rest)}
                 editable={!isUtteranceOutdated(datum)}
                 disablePopup={isUtteranceOutdated(datum)}
                 projectId={projectId}
