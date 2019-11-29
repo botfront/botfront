@@ -26,7 +26,7 @@ export const updateResponse = async (projectId, key, newResponse) => {
     const formatedResponse = { ...newResponse, values: formatTextOnSave(newResponse.values) };
     return BotResponses.updateOne({ projectId, key }, formatedResponse).exec();
 };
-export const createResponse = async (projectId, newResponse) => BotResponses.create({ ...newResponse, projectId, _id: newResponse.key });
+export const createResponse = async (projectId, newResponse) => BotResponses.create({ ...newResponse, projectId, _id: `${newResponse.key}-${projectId}` });
 export const deleteResponse = async (projectId, key) => BotResponses.deleteOne({ projectId, key });
 
 

@@ -28,6 +28,7 @@ const contentValidator = (content) => {
 */
 
 export const MatchSchema = new Schema({
+    _id: false,
     nlu: {
         required: false,
         type: [{
@@ -48,6 +49,7 @@ export const MatchSchema = new Schema({
 });
 
 const FollowUpSchema = new Schema({
+    _id: false,
     action: { type: String, required: false },
     delay: { type: Number, default: 0, min: 0 },
 });
@@ -58,14 +60,14 @@ const botResponses = new Schema({
         type: String,
         label: 'Template Key',
         match: /^(utter_)/,
-        index: true,
-        unique: true,
     },
     projectId: String,
     values: {
+
         type: [{
+            _id: false,
             lang: { type: String, enum: Object.keys(languages) },
-            sequence: [{ content: { type: String } }],
+            sequence: [{ _id: false, content: { type: String } }],
         }],
         max: 5,
         min: 0,
@@ -73,6 +75,8 @@ const botResponses = new Schema({
     match: { type: MatchSchema, required: false },
     followUp: { type: FollowUpSchema, required: false },
 });
+
+botResponses.index({ key: 1, projectId: 1 }, { unique: true });
 
 
 module.exports = mongoose.model('BotResponses', botResponses, 'botResponses');
