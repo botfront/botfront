@@ -93,7 +93,7 @@ class Incoming extends React.Component {
 
     render () {
         const {
-            projectLanguages, ready, model, router, workingLanguage, workingEnvironment, projectEnvironments,
+            projectLanguages, ready, model, workingLanguage, workingEnvironment, projectEnvironments,
         } = this.props;
         const { activeTab } = this.state;
 
@@ -106,7 +106,7 @@ class Incoming extends React.Component {
                     projectEnvironments={projectEnvironments}
                     handleEnvChange={this.handleEnvChange}
                     selectedEnvironment={workingEnvironment}
-                    tab={router.params.tab}
+                    tab={activeTab}
                 />
                 <Container>
                     <Loading loading={!ready || !model}>
