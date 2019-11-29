@@ -3,7 +3,6 @@ import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { withBackground } from '../.storybook/decorators';
 import UserUtteranceViewer from '../imports/ui/components/nlu/common/UserUtteranceViewer';
-import { ProjectContext } from '../imports/ui/layouts/context';
 
 function UserUtteranceViewerWrapped(props) {
     const [utterance, setUtterance] = useState({
@@ -38,19 +37,10 @@ function UserUtteranceViewerWrapped(props) {
 storiesOf('UserUtteranceViewer', module)
     .addDecorator(withKnobs)
     .addDecorator(withBackground)
-    .addDecorator(story => (
-        <ProjectContext.Provider
-            value={{
-                intents: ['Intent 1', 'Intent 2', 'Intent 3'],
-                entities: ['entity1', 'entity4'],
-            }}
-        >
-            {story()}
-        </ProjectContext.Provider>
-    ))
     .add('with props', () => (
         <UserUtteranceViewerWrapped
             disableEditing={boolean('disableEditing', false)}
             showIntent={boolean('showIntent', true)}
+            disabled={boolean('disabled', false)}
         />
     ));

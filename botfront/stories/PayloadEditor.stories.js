@@ -2,17 +2,13 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import PayloadEditor from '../imports/ui/components/stories/common/PayloadEditor';
-import { ProjectContext } from '../imports/ui/layouts/context';
 
-export const intents = ['intent1', 'intent2', 'intent3', 'intent4'];
-export const entities = ['entity1', 'entity2', 'entity3', 'entity4'];
-
-const none = { intent: null, entities: [] };
-const value1 = {
+const emptyPayload = { intent: null, entities: [] };
+const payloadOne = {
     intent: 'intent1',
     entities: [{ entity: 'entity3', value: 'HOHO' }, { entity: 'entity4', value: 'HEHE' }],
 };
-const value2 = { intent: 'intent2', entities: [] };
+const payloadTwo = { intent: 'intent2', entities: [] };
 
 const handleChange = pl => alert(`
     Intent: ${pl.intent}
@@ -34,25 +30,12 @@ const PayloadEditorWrapped = (props) => {
 };
 
 storiesOf('PayloadEditor', module)
-    .addDecorator(story => (
-        <ProjectContext.Provider
-            value={{ intents, entities }}
-        >
-            {story()}
-        </ProjectContext.Provider>
+    .add('emptyPayload', () => (
+        <PayloadEditorWrapped value={emptyPayload} />
     ))
-    .add('noVal', () => (
-        <PayloadEditorWrapped
-            value={none}
-        />
+    .add('payloadOne', () => (
+        <PayloadEditorWrapped value={payloadOne} />
     ))
-    .add('value1', () => (
-        <PayloadEditorWrapped
-            value={value1}
-        />
-    ))
-    .add('value2', () => (
-        <PayloadEditorWrapped
-            value={value2}
-        />
+    .add('payloadTwo', () => (
+        <PayloadEditorWrapped value={payloadTwo} />
     ));

@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select, text } from '@storybook/addon-knobs';
-import { color } from './DashedButton.stories';
+import { color } from '../.storybook/knobs';
 import GenericLabel from '../imports/ui/components/stories/GenericLabel';
 
 storiesOf('Generic Label', module)

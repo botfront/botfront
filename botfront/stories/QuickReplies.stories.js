@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
-import {
-    withKnobs, text, select, boolean,
-} from '@storybook/addon-knobs';
+import { withKnobs } from '@storybook/addon-knobs';
 import QuickReplies from '../imports/ui/components/stories/common/QuickReplies';
-import { ProjectContext } from '../imports/ui/layouts/context';
-
-export const intents = ['intent1', 'intent2', 'intent3', 'intent4'];
-
-export const entities = ['entity1', 'entity2', 'entity3', 'entity4'];
 
 const values = [
     {
@@ -36,19 +29,12 @@ const QuickRepliesWrapped = (props) => {
         <QuickReplies
             {...props}
             value={buttons}
-            onChange={(b) => {
-                setButtons(b);  console.log(b);
-            }}
+            onChange={setButtons}
         />
     );
 };
 
 storiesOf('QuickReplies', module)
     .addDecorator(withKnobs)
-    .addDecorator(buttons => (
-        <ProjectContext.Provider value={{ intents, entities }}>
-            {buttons()}
-        </ProjectContext.Provider>
-    ))
     .add('Buttons', () => <QuickRepliesWrapped value={values} />)
     .add('With max 2', () => <QuickRepliesWrapped value={values} max={3} />);
