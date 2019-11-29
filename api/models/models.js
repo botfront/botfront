@@ -38,6 +38,15 @@ const activity = new Schema({
     createdAt: { type: Date, required: false, default: Date.now },
     updatedAt: { type: Date, required: false, default: Date.now },
 }, { versionKey: false });
+const botResponses = new Schema({
+    _id: { type: String, default: shortid.generate },
+    key: { type: String, required: true },
+    values: { type: Array, required: true },
+    'values.$.sequence': { type: Array, required: true },
+    'values.$.sequence.$.content': { type: String },
+    'values.$.lang': { type: String, required: true },
+    projectId: { type: String, required: true },
+}, { versionKey: false });
 
 exports.Activity = mongoose.model('Activity', activity, 'activity');
 exports.Conversations = mongoose.model('Conversations', conversations, 'conversations');
@@ -51,3 +60,4 @@ exports.NLUModels = mongoose.model('NLUModels', nlu_models, 'nlu_models');
 exports.Endpoints = mongoose.model('Endpoints', endpoints, 'endpoints');
 exports.Credentials = mongoose.model('Credentials', credentials, 'credentials');
 exports.Projects = mongoose.model('Projects', projects, 'projects');
+exports.BotResponses = mongoose.model('BotResponses', botResponses, 'botResponses');

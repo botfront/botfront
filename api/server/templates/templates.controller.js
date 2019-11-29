@@ -1,6 +1,7 @@
 const yaml = require('js-yaml');
 const { body, validationResult, query } = require('express-validator/check');
-const { getVerifiedProject } = require('../utils');
+// const { getVerifiedProject } = require('../utils');
+const { BotResponses } = require('../../models/models');
 
 const formatTemplates = templates => yaml.safeDump({
     templates: templates.reduce((ks, k) => ({
@@ -59,11 +60,13 @@ exports.nlg = async function(req, res) {
     } = req.body;
 
     try {
-        const project = await getVerifiedProject(projectId, req, { templates: { $elemMatch: { key: template } } });
+        // const project = await getVerifiedProject(projectId, req, { templates: { $elemMatch: { key: template } } });
 
-        const responses = project.templates || [];
-        if (!responses.length) throw { code: 404, error: 'not_found' };
-        const localizedValue = responses[0].values.find(v => v.lang === language);
+        const response = await BotResponses.findOne({ projectId, key: template });
+        // const responses = project.templates || [];
+        // if (!responses.length) throw { code: 404, error: 'not_found' };
+        // const localizedValue = responses[0].values.find(v => v.lang === language);
+        const localizedValue = response.values.find(v => v.lang === language);
         if (!localizedValue || !localizedValue.sequence.length)
             throw {
                 code: 404,
@@ -83,11 +86,12 @@ exports.getResponseByName = async function(req, res) {
 
     const { project_id: projectId, name: template, lang } = req.params;
     try {
-        const project = await getVerifiedProject(projectId, req, { templates: { $elemMatch: { key: template } } });
-
-        const responses = project.templates || [];
-        if (!responses.length) throw { code: 404, error: 'not_found' };
-        const localizedValue = responses[0].values.find(v => v.lang === lang);
+        // const project = await getVerifiedProject(projectId, req, { templates: { $elemMatch: { key: template } } });
+        const response = await BotResponses.findOne({ projectId, key: template })
+        // const responses = project.templates || [];
+        if (!response) throw { code: 404, error: 'not_found' };
+        // const localizedValue = responses[0].values.find(v => v.lang === lang);
+        const localizedValue = response.values.find(v => v.lang === lang);
         if (!localizedValue || !localizedValue.sequence.length)
             throw {
                 code: 404,
@@ -118,7 +122,20 @@ exports.getAllResponses = async function(req, res) {
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
     const { project_id: projectId } = req.params;
-    const { timestamp, output } = req.query;
+    const { output/*, timestamp */ } = req.query;
+    try {
+        const responses = await BotResponses.find({ projectId }).lean()
+        // if (project.responsesUpdatedAt === parseInt(timestamp)) {
+        //     return res.status(304).json();
+        // }
+        if (output == 'yaml') {
+            return res.status(200).send(formatTemplates(responses))
+        }
+        return res.status(200).json({ responses })
+    } catch (err) {
+        return res.status(err.code || 500).json(err);
+    }
+    /*
     try {
         const project = await getVerifiedProject(projectId, req, { templates: 1, responsesUpdatedAt: 1 });
         if (project.responsesUpdatedAt === parseInt(timestamp)) {
@@ -135,4 +152,5 @@ exports.getAllResponses = async function(req, res) {
     } catch (err) {
         return res.status(err.code || 500).json(err);
     }
+    */
 };

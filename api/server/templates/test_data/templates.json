@@ -1,0 +1,60 @@
+[
+    {
+        "_id": "utter_bye-bf",
+        "key": "utter_bye",
+        "values": [
+            { "lang": "en", "sequence": [{ "content": "text: goodbye\n" }] },
+            { "lang": "fr", "sequence": [{ "content": "text: au revoir\n" }] }
+        ],
+        "projectId": "bf",
+        "__v": 0
+    },
+    {
+        "_id": "utter_get_started-bf",
+        "key": "utter_get_started",
+        "values": [
+            { "sequence": [{ "content": "text: utter_get_started\n" }], "lang": "en" }
+        ],
+        "projectId": "bf",
+        "__v": 0
+    },
+    {
+        "_id": "utter_hi-bf",
+        "key": "utter_hi",
+        "values": [
+            { "lang": "en", "sequence": [{ "content": "text: hello\n" }] },
+            { "lang": "fr", "sequence": [{ "content": "text: bonjour\n" }] }
+        ],
+        "projectId": "bf",
+        "__v": 0
+    },
+    {
+        "_id": "utter_english_only-bf",
+        "key": "utter_english_only",
+        "values": [
+            { "lang": "en", "sequence": [{ "content": "text: English text\n" }] }
+        ],
+        "projectId": "bf",
+        "__v": 0
+    },
+    {
+        "_id": "utter_empty_sequence-bf",
+        "key": "utter_empty_sequence",
+        "values": [
+            { "lang": "en", "sequence": [] },
+            { "lang": "fr", "sequence": [] }
+        ],
+        "projectId": "bf",
+        "__v": 0
+    },
+    {
+        "_id": "utter_empty_sequence-otherProject",
+        "key": "utter_test_response",
+        "values": [
+            { "lang": "fr", "sequence": [{ "content": "text: test english\n" }] },
+            { "lang": "fr", "sequence": [{ "content": "text: test french\n" }] }
+        ],
+        "projectId": "otherProject",
+        "__v": 0
+    }
+]
