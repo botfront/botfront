@@ -41,7 +41,7 @@ export const createInstance = async (project) => {
 const getConfig = (model) => {
     const config = yaml.safeLoad(model.config);
     if (!config.pipeline) {
-        throw new Meteor.Error('Please set a configuration');
+        throw new Meteor.Error('Your NLU pipeline is empty.');
     }
     config.pipeline.forEach((item) => {
         if (item.name.includes('Gazette')) {
@@ -110,7 +110,7 @@ if (Meteor.isServer) {
             const result = (await axios.all(requests))
                 .filter(r => r.status === 200)
                 .map(r => r.data);
-            
+
             if (result.length < 1) throw new Meteor.Error('Error when parsing NLU');
             if (Array.from(new Set(result.map(r => r.language))).length > 1) {
                 throw new Meteor.Error('Tried to parse for more than one language at a time.');
@@ -148,7 +148,6 @@ if (Meteor.isServer) {
                 output_format: outputFormat,
                 language,
             });
-            
             return data;
         },
         async 'rasa.getTrainingPayload'(projectId, instance, language = '') {
@@ -191,7 +190,7 @@ if (Meteor.isServer) {
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
 
-                const { stories, domain } = getStoriesAndDomain(projectId, language);
+                const { stories, domain } = await getStoriesAndDomain(projectId, language);
                 const payload = {
                     domain,
                     stories,
@@ -205,7 +204,7 @@ if (Meteor.isServer) {
                 throw getAxiosError(e);
             }
         },
-        
+
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
@@ -234,7 +233,7 @@ if (Meteor.isServer) {
                         // eslint-disable-next-line no-console
                         console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
                     }
-                    
+
                     await client.put('/model', { model_file: trainedModelPath });
                     const modelIds = getModelIdsFromProjectId(projectId);
                     Activity.update({ modelId: { $in: modelIds }, validated: true }, { $set: { validated: false } }, { multi: true }).exec();
@@ -256,7 +255,7 @@ if (Meteor.isServer) {
                 check(model, Object);
                 const examples = testData || getTrainingDataInRasaFormat(model, false);
                 const params = { language: model.language };
-                
+
                 const instance = Instances.findOne({ projectId });
                 if (instance.token) Object.assign(params, { token: instance.token });
                 const qs = queryString.stringify(params);
