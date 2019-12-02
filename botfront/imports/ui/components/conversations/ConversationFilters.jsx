@@ -39,8 +39,8 @@ const ConversationFilters = ({
 
     useEffect(() => setNewActionFilters(actionFilters), [actionFilters]);
     const filterLengthOptions = [
-        { value: 'greaterThan', text: '>' },
-        { value: 'lessThan', text: '<' },
+        { value: 'greaterThan', text: '≥' },
+        { value: 'lessThan', text: '≤' },
         { value: 'equals', text: '=' },
     ];
     /*
@@ -167,7 +167,7 @@ const ConversationFilters = ({
                             className='conversation-filter'
                         >
                             <Segment className='x-than-filter'>
-                                <Label> Confidence &lt;</Label>
+                                <Label> Confidence &le;</Label>
                             </Segment>
                             <Segment className='number-filter'>
                                 <Input
