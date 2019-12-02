@@ -1,4 +1,5 @@
 import SimpleSchema from 'simpl-schema';
+import { languages } from '../../lib/languages';
 
 const sequenceSchema = new SimpleSchema({
     metadata: { type: Object, blackbox: true, optional: true },
@@ -114,3 +115,49 @@ export const LegacyCarouselSchema = new SimpleSchema(
     },
     { tracker: Tracker },
 ).extend(sequenceSchema);
+
+export const MatchSchema = new SimpleSchema({
+    nlu: { type: Array, optional: true },
+    'nlu.$': Object,
+    'nlu.$.intent': { type: String, min: 1 },
+    'nlu.$.entities': { type: Array, defaultValue: [] },
+    'nlu.$.entities.$': { type: Object },
+    'nlu.$.entities.$.entity': { type: String, label: 'Entity name' },
+    'nlu.$.entities.$.value': {
+        type: String,
+        label: 'Entity value',
+        optional: true,
+        min: 1,
+    },
+});
+
+export const FollowUpSchema = new SimpleSchema({
+    action: { type: String, required: false },
+    delay: { type: Number, defaultValue: 0, min: 0 },
+});
+
+export const TemplateSchema = new SimpleSchema(
+    {
+        key: {
+            type: String,
+            label: 'Template Key',
+            regEx: /^(utter_)/,
+        },
+        values: {
+            type: Array,
+            maxCount: 5,
+            minCount: 0,
+        },
+        match: { type: MatchSchema, optional: true },
+        followUp: { type: FollowUpSchema, optional: true },
+        'values.$': { type: Object },
+        'values.$.lang': {
+            type: String,
+            allowedValues: Object.keys(languages),
+        },
+        'values.$.sequence': { type: Array },
+        'values.$.sequence.$': { type: Object },
+        'values.$.sequence.$.content': { type: String },
+    },
+    { tracker: Tracker },
+);
