@@ -2,16 +2,14 @@ import {
     Container, Grid, Message, Modal,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { setStoryGroup, setStoryMode, setWorkingLanguage } from '../../store/actions/actions';
+import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
-import { Instances } from '../../../api/instances/instances.collection';
-import { Projects } from '../../../api/project/project.collection';
-import { Slots } from '../../../api/slots/slots.collection';
-import { ConversationOptionsContext } from '../utils/Context';
+import { ProjectContext } from '../../layouts/context';
+import { ConversationOptionsContext } from './Context';
 import StoryGroupBrowser from './StoryGroupBrowser';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
@@ -23,20 +21,15 @@ function Stories(props) {
     const {
         projectId,
         storyGroups,
-        slots,
-        instance,
-        project,
         stories,
         storyGroupCurrent,
         storyMode,
         changeStoryGroup,
         changeStoryMode,
         ready,
-        workingLanguage,
     } = props;
 
-    const [intents, setIntents] = useState([]);
-    const [entities, setEntities] = useState([]);
+    const { slots } = useContext(ProjectContext);
 
     const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
@@ -63,86 +56,6 @@ function Stories(props) {
             setSwitchToGroupByIdNext('');
         }
     }, [switchToGroupByIdNext]);
-
-    // By passing an empty array as the second argument to this useEffect
-    // We make it so UseEffect is only called once, onMount
-    useEffect(() => {
-        Meteor.call(
-            'project.getEntitiesAndIntents',
-            projectId,
-            wrapMeteorCallback((err, res) => {
-                if (!err) {
-                    setEntities(res.entities);
-                    setIntents(res.intents);
-                }
-            }),
-        );
-    }, []);
-
-    function getResponse(key, callback = () => {}) {
-        Meteor.call(
-            'project.findTemplate',
-            projectId,
-            key,
-            workingLanguage || 'en',
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
-    }
-
-    function addUtteranceToTrainingData(utterance, callback = () => {}) {
-        Meteor.call(
-            'nlu.insertExamplesWithLanguage',
-            projectId,
-            workingLanguage,
-            [utterance],
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
-    }
-
-    function updateResponse(response, callback = () => {}) {
-        Meteor.call(
-            'project.updateTemplate',
-            projectId,
-            response.key,
-            response,
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
-    }
-
-    function insertResponse(response, callback = () => {}) {
-        Meteor.call(
-            'project.insertTemplate',
-            projectId,
-            response,
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
-    }
-
-    function getUtteranceFromPayload(payload, callback = () => {}) {
-        Meteor.call(
-            'nlu.getUtteranceFromPayload',
-            projectId,
-            payload,
-            workingLanguage,
-            (err, res) => callback(err, res),
-        );
-    }
-
-    function parseUtterance(utterance) {
-        return Meteor.callWithPromise(
-            'rasa.parse',
-            instance,
-            [{ text: utterance, lang: workingLanguage }],
-        );
-    }
-
-    function addIntent(newIntent) {
-        setIntents([...new Set([...intents, newIntent])]);
-    }
-
-    function addEntity(newEntity) {
-        setEntities([...new Set([...entities, newEntity])]);
-    }
 
     const handleAddStoryGroup = async (name) => {
         Meteor.call(
@@ -226,20 +139,7 @@ function Stories(props) {
     const renderStoriesContainer = () => (
         <ConversationOptionsContext.Provider
             value={{
-                intents,
-                entities,
-                slots,
-                language: workingLanguage,
-                insertResponse,
-                updateResponse,
-                getResponse,
-                addEntity,
-                addIntent,
-                getUtteranceFromPayload,
-                parseUtterance,
-                addUtteranceToTrainingData,
                 browseToSlots: () => setSlotsModal(true),
-                templates: [...project.templates],
                 stories,
                 storyGroups,
                 deleteStoryGroup: handleDeleteGroup,
@@ -298,48 +198,23 @@ function Stories(props) {
 
 Stories.propTypes = {
     projectId: PropTypes.string.isRequired,
-    project: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
     storyGroups: PropTypes.array.isRequired,
-    slots: PropTypes.array.isRequired,
     changeStoryGroup: PropTypes.func.isRequired,
     changeStoryMode: PropTypes.func.isRequired,
     storyGroupCurrent: PropTypes.number,
     storyMode: PropTypes.string,
-    workingLanguage: PropTypes.string,
-    changeWorkingLanguage: PropTypes.func.isRequired,
-    defaultLanguage: PropTypes.string,
 };
 
 Stories.defaultProps = {
     storyGroupCurrent: 0,
     storyMode: 'visual',
-    workingLanguage: null,
-    defaultLanguage: '',
 };
 
 const StoriesWithTracker = withTracker((props) => {
-    const { projectId, workingLanguage, changeWorkingLanguage } = props;
+    const { projectId } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
-    const projectsHandler = Meteor.subscribe('projects', projectId);
-    const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
-    const slotsHandler = Meteor.subscribe('slots', projectId);
-    const { templates, defaultLanguage } = Projects.findOne(
-        { _id: projectId },
-        {
-            fields: {
-                'templates.key': 1,
-                defaultLanguage: 1,
-            },
-        },
-    );
-    const instance = Instances.findOne({ projectId });
-
-    const project = {
-        _id: projectId,
-        templates,
-    };
 
     // fetch and sort story groups
     const unsortedStoryGroups = StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch();
@@ -359,34 +234,23 @@ const StoriesWithTracker = withTracker((props) => {
     // unsortedStoryGroups[0] is the intro story group
     const storyGroups = [unsortedStoryGroups[0], ...sortedStoryGroups];
 
-    if (!workingLanguage && defaultLanguage) changeWorkingLanguage(defaultLanguage);
-
     return {
         ready:
             storyGroupsHandler.ready()
-            && projectsHandler.ready()
-            && instancesHandler.ready()
-            && slotsHandler.ready()
             && storiesHandler.ready(),
         storyGroups,
-        slots: Slots.find({}).fetch(),
-        instance,
-        project,
         stories: StoriesCollection.find({}).fetch(),
-        defaultLanguage,
     };
 })(Stories);
 
 const mapStateToProps = state => ({
     storyGroupCurrent: state.stories.get('storyGroupCurrent'),
     storyMode: state.stories.get('storyMode'),
-    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 const mapDispatchToProps = {
     changeStoryGroup: setStoryGroup,
     changeStoryMode: setStoryMode,
-    changeWorkingLanguage: setWorkingLanguage,
 };
 
 export default connect(

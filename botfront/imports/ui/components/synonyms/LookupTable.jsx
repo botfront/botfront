@@ -8,7 +8,7 @@ import matchSorter from 'match-sorter';
 import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
 import LookupTableEditorViewer from './LookupTableListEditorViewer';
-import FloatingIconButton from '../nlu/common/FloatingIconButton';
+import FloatingIconButton from '../common/FloatingIconButton';
 
 export default class LookupTable extends React.Component {
     getColumns() {

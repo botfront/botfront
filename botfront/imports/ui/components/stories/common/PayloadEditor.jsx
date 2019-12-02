@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { Grid, Icon, Input } from 'semantic-ui-react';
 import IntentDropdown from '../../nlu/common/IntentDropdown';
 import EntityDropdown from '../../nlu/common/EntityDropdown';
-import FloatingIconButton from '../../nlu/common/FloatingIconButton';
+import FloatingIconButton from '../../common/FloatingIconButton';
 import DashedButton from './DashedButton';
-import { ConversationOptionsContext } from '../../utils/Context';
+import { ProjectContext } from '../../../layouts/context';
 
 const PayloadEditor = (props) => {
     const {
@@ -13,7 +13,7 @@ const PayloadEditor = (props) => {
         entities: availableEntities,
         addIntent,
         addEntity,
-    } = useContext(ConversationOptionsContext);
+    } = useContext(ProjectContext);
     const {
         value: { intent, entities: originalEntities },
         autofocusOnIntent,

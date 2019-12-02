@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
-import FloatingIconButton from '../../nlu/common/FloatingIconButton';
+import FloatingIconButton from '../../common/FloatingIconButton';
 
 
 const BotResponseContainer = (props) => {

@@ -9,8 +9,7 @@ import { PageMenu } from '../utils/Utils';
 import Credentials from './Credentials';
 import Endpoints from './Endpoints';
 import ProjectInfo from './ProjectInfo';
-import Instances from '../nlu/instances/Instances';
-import CorePolicy from './CorePolicy';
+import Instances from './Instances';
 import DefaultDomain from './DefaultDomain';
 import ImportExportProject from './ImportExportProject';
 

@@ -4,10 +4,11 @@ import {
     Form, TextArea, Tab, Message, Button,
 } from 'semantic-ui-react';
 
-import IntentDropdown from '../../example_editor/IntentDropdown';
+import IntentDropdown from '../common/IntentDropdown';
+import { ProjectContext } from '../../../layouts/context';
 import SaveButton from '../../utils/SaveButton';
 
-export default class IntentBulkInsert extends React.Component {
+class IntentBulkInsert extends React.Component {
     static getInitialState() {
         return {
             text: '',
@@ -63,6 +64,12 @@ export default class IntentBulkInsert extends React.Component {
         });
     }
 
+    handleAddOrChangeItem = (_e, { value: intent }) => {
+        const { addIntent } = this.props;
+        addIntent(intent);
+        this.setState({ intent });
+    }
+
     render() {
         const {
             text, saving, intent, saved,
@@ -83,17 +90,19 @@ export default class IntentBulkInsert extends React.Component {
                         onChange={this.onTextChanged}
                     />
                     <Message info content='Select an existing intent or type to create a new one' />
-                    <IntentDropdown
-                        intents={intents}
-                        setIntent={newIntent => this.setState({ intent: newIntent })}
-                    />
-                    <Button.Group floated='right'>
+                    <div className='side-by-side'>
+                        <IntentDropdown
+                            options={intents.map(o => ({ value: o, text: o }))}
+                            intent={intent}
+                            onChange={this.handleAddOrChangeItem}
+                            onAddItem={this.handleAddOrChangeItem}
+                        />
                         <SaveButton
                             onSave={this.onSaveExamples}
                             disabled={!intent || !text}
                             saved={saved}
                         />
-                    </Button.Group>
+                    </div>
                 </Form>
             </Tab.Pane>
         );
@@ -103,4 +112,17 @@ export default class IntentBulkInsert extends React.Component {
 IntentBulkInsert.propTypes = {
     intents: PropTypes.array.isRequired,
     onNewExamples: PropTypes.func.isRequired,
+    addIntent: PropTypes.func.isRequired,
 };
+
+export default props => (
+    <ProjectContext.Consumer>
+        {value => (
+            <IntentBulkInsert
+                {...props}
+                intents={value.intents}
+                addIntent={value.addIntent}
+            />
+        )}
+    </ProjectContext.Consumer>
+);

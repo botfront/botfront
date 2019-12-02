@@ -13,12 +13,16 @@ import {
     Placeholder, Header, Menu, Container, Button, Loader, Popup,
 } from 'semantic-ui-react';
 
+import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
-import { setProjectId } from '../store/actions/actions';
+import { setProjectId, setWorkingLanguage } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
+import { Instances } from '../../api/instances/instances.collection';
+import { Slots } from '../../api/slots/slots.collection';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
+import { ProjectContext } from './context';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
@@ -31,10 +35,14 @@ class Project extends React.Component {
             intercomId: '',
             showChatPane: false,
             resizingChatPane: false,
+            entities: [],
+            intents: [],
         };
     }
 
-    componentDidUpdate() {
+    componentDidUpdate = (prevProps) => {
+        const { projectId, workingLanguage: language } = this.props;
+        const { workingLanguage: prevLanguage } = prevProps;
         const { showIntercom } = this.state;
         if (window.Intercom && showIntercom) {
             window.Intercom('show');
@@ -45,12 +53,31 @@ class Project extends React.Component {
                 this.setState({ showIntercom: false });
             });
         }
+        if (language && prevLanguage !== language) {
+            Meteor.call(
+                'project.getEntitiesAndIntents',
+                projectId,
+                language,
+                wrapMeteorCallback((err, res) => {
+                    if (!err) {
+                        this.setState({ entities: res.entities });
+                        this.setState({ intents: Object.keys(res.intents) });
+                    }
+                }),
+            );
+        }
     }
 
-    handleChangeProject = (projectId) => {
-        const { router: { replace, location: { pathname } } = {} } = this.props;
-        replace(pathname.replace(/\/project\/.*?\//, `/project/${projectId}/`));
-    };
+    getResponse = (key, callback = () => {}) => {
+        const { projectId, workingLanguage } = this.props;
+        Meteor.call(
+            'project.findTemplate',
+            projectId,
+            key,
+            workingLanguage || 'en',
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
 
     getIntercomUser = () => {
         const { _id, emails, profile } = Meteor.user();
@@ -61,6 +88,18 @@ class Project extends React.Component {
         };
     };
 
+    getUtteranceFromPayload = (payload, callback = () => {}) => {
+        const { projectId, workingLanguage } = this.props;
+        Meteor.call(
+            'nlu.getUtteranceFromPayload',
+            projectId,
+            payload,
+            workingLanguage,
+            (err, res) => callback(err, res),
+        );
+    }
+
+
     handleTriggerIntercom = (id) => {
         this.setState({
             intercomId: id,
@@ -68,11 +107,67 @@ class Project extends React.Component {
         });
     };
 
+    handleChangeProject = (projectId) => {
+        const { router: { replace, location: { pathname } } = {} } = this.props;
+        replace(pathname.replace(/\/project\/.*?\//, `/project/${projectId}/`));
+    };
+
     triggerChatPane = () => {
         this.setState(state => ({
             showChatPane: !state.showChatPane,
         }));
     };
+
+    parseUtterance = (utterance) => {
+        const { instance, workingLanguage } = this.props;
+        return Meteor.callWithPromise(
+            'rasa.parse',
+            instance,
+            [{ text: utterance, lang: workingLanguage }],
+        );
+    }
+
+    addIntent = (newIntent) => {
+        const { intents } = this.state;
+        this.setState({ intents: [...new Set([...intents, newIntent])] });
+    }
+
+    addEntity = (newEntity) => {
+        const { entities } = this.state;
+        this.setState({ entities: [...new Set([...entities, newEntity])] });
+    }
+
+    updateResponse = (response, callback = () => {}) => {
+        const { projectId } = this.props;
+        Meteor.call(
+            'project.updateTemplate',
+            projectId,
+            response.key,
+            response,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
+    insertResponse = (response, callback = () => {}) => {
+        const { projectId } = this.props;
+        Meteor.call(
+            'project.insertTemplate',
+            projectId,
+            response,
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
+
+    addUtteranceToTrainingData = (utterance, callback = () => {}) => {
+        const { projectId, workingLanguage } = this.props;
+        Meteor.call(
+            'nlu.insertExamplesWithLanguage',
+            projectId,
+            workingLanguage,
+            [utterance],
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
+    }
 
     renderPlaceholder = (inverted, fluid) => (
         <Placeholder fluid={fluid} inverted={inverted} className='sidebar-placeholder'>
@@ -95,10 +190,17 @@ class Project extends React.Component {
 
     render() {
         const {
-            children, projectId, loading, channel, renderLegacyModels,
+            children,
+            projectId,
+            loading,
+            channel,
+            renderLegacyModels,
+            project,
+            workingLanguage,
+            slots,
         } = this.props;
         const {
-            showIntercom, intercomId, showChatPane, resizingChatPane,
+            showIntercom, intercomId, showChatPane, resizingChatPane, intents, entities,
         } = this.state;
 
         return (
@@ -140,15 +242,33 @@ class Project extends React.Component {
                             </div>
                         )}
                         {!loading && (
-                            <div data-cy='left-pane'>
-                                {children}
-                                {!showChatPane && channel && (
-                                    <Popup
-                                        trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
-                                        content='Try out your chatbot'
-                                    />
-                                )}
-                            </div>
+                            <ProjectContext.Provider
+                                value={{
+                                    templates: [...project.templates],
+                                    intents,
+                                    entities,
+                                    slots,
+                                    language: workingLanguage,
+                                    insertResponse: this.insertResponse,
+                                    updateResponse: this.updateResponse,
+                                    getResponse: this.getResponse,
+                                    addEntity: this.addEntity,
+                                    addIntent: this.addIntent,
+                                    getUtteranceFromPayload: this.getUtteranceFromPayload,
+                                    parseUtterance: this.parseUtterance,
+                                    addUtteranceToTrainingData: this.addUtteranceToTrainingData,
+                                }}
+                            >
+                                <div data-cy='left-pane'>
+                                    {children}
+                                    {!showChatPane && channel && (
+                                        <Popup
+                                            trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
+                                            content='Try out your chatbot'
+                                        />
+                                    )}
+                                </div>
+                            </ProjectContext.Provider>
                         )}
                         {!loading && showChatPane && (
                             <React.Suspense fallback={<Loader active />}>
@@ -166,13 +286,20 @@ class Project extends React.Component {
 Project.propTypes = {
     router: PropTypes.object.isRequired,
     windowHeight: PropTypes.number.isRequired,
+    project: PropTypes.object,
     projectId: PropTypes.string.isRequired,
+    instance: PropTypes.object,
+    workingLanguage: PropTypes.string,
+    slots: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
 };
 
 Project.defaultProps = {
     channel: null,
+    project: {},
+    instance: {},
+    workingLanguage: 'en',
 };
 
 const ProjectContainer = withTracker((props) => {
@@ -186,15 +313,21 @@ const ProjectContainer = withTracker((props) => {
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
+    const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
+    const slotsHandler = Meteor.subscribe('slots', projectId);
+    const instance = Instances.findOne({ projectId });
     const readyHandler = handler => (handler);
     const readyHandlerList = [
         Meteor.user(),
         credentialsHandler.ready(),
         projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready(),
         introStoryGroupIdHandler.ready(),
+        instanceHandler.ready(),
+        slotsHandler.ready(),
     ];
     const ready = readyHandlerList.every(readyHandler);
-    const project = Projects.findOne({ _id: projectId }, { fields: { _id: 1, nlu_models: 1 } });
+    const project = Projects.findOne({ _id: projectId });
+    const { defaultLanguage } = project || {};
 
     if (ready && !project) {
         return browserHistory.replace({ pathname: '/404' });
@@ -217,10 +350,19 @@ const ProjectContainer = withTracker((props) => {
         store.dispatch(setProjectId(projectId));
     }
 
+    // update working language
+    if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {
+        store.dispatch(setWorkingLanguage(defaultLanguage));
+    }
+
     return {
         loading: !ready,
+        project,
         projectId,
         channel,
+        instance,
+        workingLanguage: store.getState().settings.get('workingLanguage'),
+        slots: Slots.find({}).fetch(),
         renderLegacyModels,
     };
 })(windowSize(Project));

@@ -79,11 +79,6 @@ class NLUModel extends React.Component {
         return common_examples.map(e => _appendSynonymsToText(e, entity_synonyms));
     };
 
-    componentDidUpdate() {
-        const { workingLanguage, changeWorkingLanguage, projectDefaultLanguage } = this.props;
-        if (!workingLanguage && projectDefaultLanguage) changeWorkingLanguage(projectDefaultLanguage);
-    }
-
     validationRender = () => {
         const { activityLinkRender } = this.state;
         if (activityLinkRender === true) {
@@ -171,7 +166,7 @@ class NLUModel extends React.Component {
             { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
             { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
-            { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
+            { menuItem: 'Insert many', render: () => <IntentBulkInsert onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
         ];
         if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
         return tabs;
