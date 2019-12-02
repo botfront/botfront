@@ -15,29 +15,39 @@ export default function DataTable(props) {
         loadMore,
         columns,
         onChangeInVisibleItems,
+        gutterSize,
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
 
     const Row = React.forwardRef((row, ref) => {
         const { index, style } = row;
+        const editedStyle = {
+            ...style,
+            top: style.top + gutterSize,
+            paddingTop: gutterSize,
+        };
         if (!isDataLoaded(index)) {
             return (
-                <div ref={ref} className='row' style={style}>
-                    Loading...
+                <div ref={ref} style={editedStyle}>
+                    <div className='row inner-incoming-row'>
+                        Loading...
+                    </div>
                 </div>
             );
         }
         return (
-            <div ref={ref} className='row' style={style} data-index={index}>
-                {columns.map(c => (
-                    <div key={`${c.key}-${index}`} className='item' style={c.style}>
-                        {c.render
-                            ? c.render({ index, datum: data[index] })
-                            : data[index][c.key]
-                        }
-                    </div>
-                ))}
+            <div ref={ref} style={editedStyle} data-index={index}>
+                <div className='row inner-incoming-row'>
+                    {columns.map(c => (
+                        <div key={`${c.key}-${index}`} className='item' style={c.style}>
+                            {c.render
+                                ? c.render({ index, datum: data[index] })
+                                : data[index][c.key]
+                            }
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     });
@@ -48,6 +58,8 @@ export default function DataTable(props) {
         ? tableRef.current.offsetTop
         : 0;
 
+    const showHeader = columns.some(c => c.header);
+
     const handleScroll = debounce((start, end) => {
         if (!onChangeInVisibleItems) return;
         const visibleData = Array(end - start + 1).fill()
@@ -57,7 +69,7 @@ export default function DataTable(props) {
         onChangeInVisibleItems(visibleData);
     }, 500);
 
-    useEffect(() => setCorrection(tableOffsetTop + 40), [tableOffsetTop]);
+    useEffect(() => setCorrection(showHeader ? tableOffsetTop + 40 : tableOffsetTop), [tableOffsetTop]);
 
     return (
         <div
@@ -68,7 +80,7 @@ export default function DataTable(props) {
                 ...(width === 'auto' ? {} : { width }),
             }}
         >
-            {columns.some(c => c.header) && (
+            {showHeader && (
                 <div className='header row'>
                     {columns.map(c => (
                         <div key={`${c.key}-header`} className='item' style={c.style}>
@@ -78,15 +90,17 @@ export default function DataTable(props) {
                 </div>
             )}
             {fixedRows && fixedRows.length && fixedRows.map(r => (
-                <div className='row'>
-                    {columns.map((c, i) => (
-                        <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
-                            {c.render
-                                ? c.render({ datum: r })
-                                : r[c.key]
-                            }
-                        </div>
-                    ))}
+                <div style={{ paddingTop: gutterSize }}>
+                    <div className='row inner-incoming-row'>
+                        {columns.map((c, i) => (
+                            <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
+                                {c.render
+                                    ? c.render({ datum: r })
+                                    : r[c.key]
+                                }
+                            </div>
+                        ))}
+                    </div>
                 </div>
             ))}
             <AutoSizer>
@@ -126,6 +140,7 @@ DataTable.propTypes = {
     columns: PropTypes.array.isRequired,
     loadMore: PropTypes.func,
     onChangeInVisibleItems: PropTypes.func,
+    gutterSize: PropTypes.number,
 };
 
 DataTable.defaultProps = {
@@ -135,4 +150,5 @@ DataTable.defaultProps = {
     hasNextPage: false,
     loadMore: () => {},
     onChangeInVisibleItems: null,
+    gutterSize: 15,
 };

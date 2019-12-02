@@ -1,19 +1,48 @@
 .ui.borderless.menu.top-menu {
     height: @top-menu-height;
-}
-
-.top-menu.incoming {
-    background-color: #fafafa;
-    margin-bottom: 0;
+    &.incoming {
+        margin-bottom: 0;
+        background-color: #fafafa;
+    }
 }
 
 .incoming-background {
     padding-top: 15px;
     background-color: #fafafa;
-    // div.row {
-    //     border-radius: 4px;
-    //     box-shadow: 0 2px 20px 0 rgba(34, 36, 38, 0.06);
-    //     background-color: white;
-    //     margin-bottom: 8px;
-    // }
+    height: ~"calc(100vh - @{top-menu-height})";
+    .prefix-dropdown .ui.floating.dropdown.button {
+        background-color: white !important;
+        // The important tag is needed because its used in Semantic !!
+    }
+    div.row.inner-incoming-row {
+        background-color: white;
+        border-radius: 4px;
+        margin-right: 15px;
+        margin-left: 15px;
+        box-shadow: 0 1px 10px rgba(34, 36, 38, 0.1);
+        border: 1px solid transparent;
+        transition: transform 0.3s ease-in-out;
+        &:hover {
+            background-color: white;
+            border: 1px solid #2185d0;
+            transform: translateY(-1px);
+            box-shadow: 0 1px 15px rgba(34,36,38, 0.08);
+        }
+
+        .confidence-text {
+            font-size: 12px;
+            padding-top: 4px;
+            padding-left: 11px;
+        }
+
+        .intent-label {
+            margin-left: 9px;
+            padding-top: 3px;
+        }
+
+        .utterance-viewer {
+            margin-top: -2px;
+            margin-left: 15px;
+        }
+    }
 }
