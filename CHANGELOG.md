@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.5-ee.3](https://github.com/botfront/botfront/compare/v0.18.5-ee.2...v0.18.5-ee.3) (2019-12-02)
+
+
+### Features
+
+* **data table:** show header only if present, add fixedRows prop ([0d5dd34](https://github.com/botfront/botfront/commit/0d5dd343fdaf26726b6f420a8fe084bb986d2b10))
+* conversation popup for utterances ([157fbc8](https://github.com/botfront/botfront/commit/157fbc867fd0f1511e2203442913d5d90d3c2fac))
+* **actions:** rebuild action server on file change ([9724433](https://github.com/botfront/botfront/commit/972443325bac106d498af92c4b493a7c2528a20b))
+* **activity:** add filtering ([1f005d6](https://github.com/botfront/botfront/commit/1f005d6a20e7993ca58a7a32a873bff086f47be0))
+* **activity:** add sorting by confidence % ([87c18fe](https://github.com/botfront/botfront/commit/87c18fed19e6c552cb1580db90f28bc43c1d715e))
+* **activity:** attempt at optimistic rerendering ([7989b56](https://github.com/botfront/botfront/commit/7989b56aae2c65bcf8350bcf9ecc261a5c21bb11))
+* **activity:** attempt at optimistic rerendering ([323668f](https://github.com/botfront/botfront/commit/323668f93e249599d8ac08e10877402ac157bdd8))
+* **activity:** batch reinterpret only visible items ([efd548b](https://github.com/botfront/botfront/commit/efd548b183c68731d1d84f2a6651b48e734cc4a8))
+* **activity:** batch reinterpret only visible items ([5af9c85](https://github.com/botfront/botfront/commit/5af9c85708c90ba7e2646d5d0e7c519be3535187))
+* **activity:** use subscriptions instead of query ([1534c76](https://github.com/botfront/botfront/commit/1534c762cc178c553ee9cfa3b87325f548d6c607))
+* **activity:** use subscriptions instead of query ([9102c35](https://github.com/botfront/botfront/commit/9102c35779e958da56c362195acea0d6bf5f4c3f))
+* **cli:** show more relevant commands on botfront up ([b393e16](https://github.com/botfront/botfront/commit/b393e16dd011c329f6bd2365390e8c1153343e98))
+* **data table:** add props for fixed w&h ([a6eadc4](https://github.com/botfront/botfront/commit/a6eadc4c10967be93d6e5a6a253269252fb168c2))
+* add conversations mutations names ([913ade7](https://github.com/botfront/botfront/commit/913ade74fa5252e8f03bdf2b88c7cac3732db2f9))
+* add conversations mutations names ([00de829](https://github.com/botfront/botfront/commit/00de829d73c6d1004417bf0bc04a6ec4a2c4b9c4))
+* add graphQL schema for activity ([c846b6d](https://github.com/botfront/botfront/commit/c846b6d34edaf857c22986fa1c6a124e5fc6be1c))
+* add graphQL schema for activity ([4ca47e1](https://github.com/botfront/botfront/commit/4ca47e1b7d3655aad33f5e563d1905d0c882e424))
+* add resolver for activity ([e30d3e2](https://github.com/botfront/botfront/commit/e30d3e2700c1464887b1a1bed1dca202e5b3d7b6))
+* add resolver for activity ([d9cbb6a](https://github.com/botfront/botfront/commit/d9cbb6a843dc113bef1027915c48afaca7b62201))
+
+
+### Bug Fixes
+
+* before/after each in convo tests ([b026efb](https://github.com/botfront/botfront/commit/b026efb7b35d7386a8f7188f14a882b363cbfdaf))
+* before/after each in convo tests ([68bb7c6](https://github.com/botfront/botfront/commit/68bb7c67b98a6e544211e650b851db46986ca451))
+* canonical popup alignment and style ([7df72e1](https://github.com/botfront/botfront/commit/7df72e19ee7fe29601a1e9a1fe2b5399a12f9d3a))
+* conversation test needs to wait for rasa ([cf8f237](https://github.com/botfront/botfront/commit/cf8f237e082181ae67be6f58686b70df46b6861e))
+* deprecated parameter in context parse method ([b1969f4](https://github.com/botfront/botfront/commit/b1969f4adbcf353c982a5bb1b515c719691cf372))
+* exis title unit format ([fb18aa7](https://github.com/botfront/botfront/commit/fb18aa7c6c1fa04c9f87f96337780af2fb9a5e37))
+* **cli:** selecting logs in the main menu crashes the CLI ([777670c](https://github.com/botfront/botfront/commit/777670c57a3f45b4ba8d8e79b86280da1900e232))
+* import delayed refresh causes test to fail ([1e28f06](https://github.com/botfront/botfront/commit/1e28f060bd93acc2bcd9707aeae54f37d77b19d9))
+* merge conversation changes from master ([d24459e](https://github.com/botfront/botfront/commit/d24459e4fdca08eeb6de76ed820ab480b2eb3d09))
+* merge conversation changes from master ([8e6dd30](https://github.com/botfront/botfront/commit/8e6dd30ab3d59449f3491ff30037a0a982917448))
+* merge conversation pagination ([9a100b9](https://github.com/botfront/botfront/commit/9a100b93526b693589d835f9a758a8d3f8298230))
+* nlu training button permanatly disabled ([64b069b](https://github.com/botfront/botfront/commit/64b069b5ac67bcbff2e571de04ec37946a3916af))
+* removes a duplicate of insert many ([2712612](https://github.com/botfront/botfront/commit/2712612692c77091795485140044f0ba804a1317))
+* use importProject cypress command in tests ([4838424](https://github.com/botfront/botfront/commit/48384241fb60f9b67ad8303b908f63cee40542ac))
+* use importProject cypress command in tests ([4dd08aa](https://github.com/botfront/botfront/commit/4dd08aa72f8d69160e9fece5a9be1867df6c11d5))
+* use withRouter for routing, func for get url ([beed366](https://github.com/botfront/botfront/commit/beed366a799805e7eca166a913eb417299594f8b))
+* use withRouter for routing, func for get url ([203e342](https://github.com/botfront/botfront/commit/203e3426809e4610a5876f3e2bb5d648ef94f4ef))
+
 ### [0.18.5-ee.2](https://github.com/botfront/botfront/compare/v0.18.5-ee.1...v0.18.5-ee.2) (2019-11-29)
 
 ### [0.18.5-ee.1](https://github.com/botfront/botfront/compare/v0.18.5-ee.0...v0.18.5-ee.1) (2019-11-27)
