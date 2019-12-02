@@ -235,7 +235,7 @@ function UserUtteranceViewer(props) {
     const color = disabled ? { color: 'grey' } : {};
 
     return (
-        <div className='utterance-viewer'>
+        <div className='utterance-viewer' data-cy='utterance-text'>
             {textContent.map((element) => {
                 if (element.type === 'text') {
                     return (

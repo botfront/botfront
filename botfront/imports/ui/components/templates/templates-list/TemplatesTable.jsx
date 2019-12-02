@@ -29,35 +29,6 @@ class TemplatesTable extends React.Component {
         this.fixLanguage();
     }
 
-    getData = () => {
-        const { templates, filterText } = this.props;
-
-        const matchTemplate = (template) => {
-            // Remove all that do not have matching criteria
-            if (!template.match) {
-                return false;
-            } // If no filter text (e.g. '') do not check for match further
-            if (!filterText) {
-                return true;
-            }
-
-            return this.prepFilterableText(template.match.nlu).includes(filterText);
-        };
-
-        return templates.filter(matchTemplate);
-    };
-
-    // transform intent and entities as a string to help with filtering and sorting
-    prepFilterableText = (row) => {
-        let filterableText = ' ';
-        filterableText += row.map((criteria) => {
-            let text = criteria.intent || '';
-            text += criteria.entities.map(({ entity, value }) => ` ${entity} ${value || ''} `).join(' ');
-            return text;
-        });
-        return filterableText;
-    };
-
     getColumns = (lang) => {
         const { projectId } = this.props;
 
@@ -189,7 +160,7 @@ class TemplatesTable extends React.Component {
 
     renderTable = (lang) => {
         const {
-            changePage, pageNumber,
+            changePage, pageNumber, templates,
         } = this.props;
         return (
             <>
@@ -198,7 +169,7 @@ class TemplatesTable extends React.Component {
                 <br />
                 <ReactTable
                     style={{ background: '#fff' }}
-                    data={this.getData()}
+                    data={templates}
                     columns={this.getColumns(lang)}
                     minRows={1}
                     page={pageNumber}
@@ -254,12 +225,7 @@ TemplatesTable.propTypes = {
     pageNumber: PropTypes.number.isRequired,
     workingLanguage: PropTypes.string.isRequired,
     changePage: PropTypes.func.isRequired,
-    filterText: PropTypes.string,
     changeWorkingLanguage: PropTypes.func.isRequired,
-};
-
-TemplatesTable.defaultProps = {
-    filterText: '',
 };
 
 const mapStateToProps = state => ({

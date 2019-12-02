@@ -21,7 +21,7 @@ function Entity({
             deletable={deletable}
             length={value.start ? value.end - value.start : 0}
             trigger={(
-                <div className={`entity-container ${colorToRender}`}>
+                <div data-cy='entity-label' className={`entity-container ${colorToRender}`}>
                     <span className='float'>{value.entity}</span>
                     <div>{value.value}</div>
                 </div>

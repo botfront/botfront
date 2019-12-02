@@ -16,28 +16,13 @@ const entityValue = 'check';
 
 describe('Importing a project', function() {
     beforeEach(function() {
-        cy.deleteProject('test_project');
-        // ----remove above
         cy.createProject('test_project', 'My Project', 'fr');
         cy.login();
-        cy.visit('/project/test_project/settings');
-        cy.dataCy('project-settings-more')
-            .click();
-        cy.dataCy('admin-settings-menu')
-            .find('a')
-            .contains('Docker Compose')
-            .click();
-        cy.dataCy('docker-api-host')
-            .click();
-        cy.dataCy('docker-api-host')
-            .find('input')
-            .clear()
-            .type(`${Cypress.env('API_URL')}{enter}`);
     });
 
     afterEach(function() {
-        // cy.logout();
-        // cy.deleteProject('test_project');
+        cy.logout();
+        cy.deleteProject('test_project');
     });
 
     const importProject = () => {
@@ -232,6 +217,7 @@ describe('Importing a project', function() {
             cy.dataCy('template-intent')
                 .should('have.length', 8);
         });
+
         it('should include entities in the intent example imports', function() {
             importProject();
 
