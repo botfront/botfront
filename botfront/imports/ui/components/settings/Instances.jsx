@@ -6,10 +6,10 @@ import {
     AutoField, AutoForm, HiddenField, SubmitField,
 } from 'uniforms-semantic';
 import Alert from 'react-s-alert';
-import { InstanceSchema } from '../../../../api/instances/instances.schema';
-import { Instances as InstancesCollection } from '../../../../api/instances/instances.collection';
-import { wrapMeteorCallback } from '../../utils/Errors';
-import { can } from '../../../../lib/scopes';
+import { InstanceSchema } from '../../../api/instances/instances.schema';
+import { Instances as InstancesCollection } from '../../../api/instances/instances.collection';
+import { wrapMeteorCallback } from '../utils/Errors';
+import { can } from '../../../lib/scopes';
 
 class Instances extends React.Component {
     onValidate = (model, error, callback) => {

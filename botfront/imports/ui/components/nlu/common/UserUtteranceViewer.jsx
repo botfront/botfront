@@ -2,17 +2,18 @@ import React, { useState, useContext } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import EntityPopup from '../example_editor/EntityPopup';
-import { ConversationOptionsContext } from './Context';
+import EntityPopup from '../../example_editor/EntityPopup';
+import { ProjectContext } from '../../../layouts/context';
 import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 
-function UserUtteranceViewer({
-    value, size, onChange, disableEditing, projectId,
-}) {
+function UserUtteranceViewer(props) {
+    const {
+        value, onChange, disableEditing, projectId, showIntent, disabled,
+    } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
-    const { entities: contextEntities } = useContext(ConversationOptionsContext);
+    const { entities: contextEntities, addEntity } = useContext(ProjectContext);
     const textContent = []; // an ordered list of the utterance cut down into text and entities.
     // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
     const sortedEntities = entities
@@ -77,8 +78,15 @@ function UserUtteranceViewer({
         }
     }
 
+    const onChangeWrapped = (data) => {
+        data.entities.forEach((e) => {
+            if (!contextEntities.includes(e.entity)) addEntity(e.entity);
+        });
+        onChange(data);
+    };
+
     function handleEntityChange(newValue, entityIndex) {
-        return onChange({
+        return onChangeWrapped({
             ...value,
             entities: entities.map((e, index) => {
                 if (entityIndex === index) {
@@ -106,7 +114,7 @@ function UserUtteranceViewer({
         delete newEntity.type;
         delete newEntity.text;
         const entityToAdd = { ...newEntity, entity, value: element.text };
-        return onChange({
+        return onChangeWrapped({
             ...value,
             entities: entities instanceof Array ? [entityToAdd, ...entities] : [entityToAdd],
         });
@@ -224,8 +232,10 @@ function UserUtteranceViewer({
         });
     }
 
+    const color = disabled ? { color: 'grey' } : {};
+
     return (
-        <div className='utterance-viewer'>
+        <div className='utterance-viewer' data-cy='utterance-text'>
             {textContent.map((element) => {
                 if (element.type === 'text') {
                     return (
@@ -243,13 +253,13 @@ function UserUtteranceViewer({
                     return (
                         <Entity
                             value={element}
-                            size={size}
+                            size='mini'
+                            {...color}
                             key={element.start}
                             allowEditing={!disableEditing}
                             deletable={!disableEditing}
                             onDelete={() => handleEntityDeletion(element.index)}
-                            onChange={newValue => handleEntityChange(newValue, element.index)
-                            }
+                            onChange={(_e, { value: newValue }) => handleEntityChange(newValue, element.index)}
                         />
                     );
                 }
@@ -276,31 +286,37 @@ function UserUtteranceViewer({
                     />
                 );
             })}
-            <> &nbsp; </>
-            {intent && (
-                <Intent
-                    value={intent}
-                    size={size}
-                    allowEditing={!disableEditing}
-                    allowAdditions
-                    onChange={newIntent => onChange({ ...value, intent: newIntent })}
-                />
+            {showIntent && (
+                <> &nbsp;&nbsp;&nbsp;
+                    {intent && (
+                        <Intent
+                            value={intent}
+                            allowEditing={!disableEditing}
+                            allowAdditions
+                            onChange={newIntent => onChange({ ...value, intent: newIntent })}
+                            disabled={disabled}
+                        />
+                    )}
+                </>
             )}
+
         </div>
     );
 }
 
 UserUtteranceViewer.propTypes = {
     value: PropTypes.object.isRequired,
-    size: PropTypes.string,
     disableEditing: PropTypes.bool,
+    disabled: PropTypes.bool,
+    showIntent: PropTypes.bool,
     onChange: PropTypes.func,
     projectId: PropTypes.string.isRequired,
 };
 
 UserUtteranceViewer.defaultProps = {
-    size: 'mini',
     disableEditing: false,
+    showIntent: true,
+    disabled: false,
     onChange: () => {},
 };
 

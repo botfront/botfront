@@ -101,6 +101,7 @@ type Event {
   confidence: Float,
   parse_data: Message,
   data:Data,
+  message_id:String,
 }
 
 type Data {

@@ -70,6 +70,7 @@ query retreiveAConversation($projectId: String!, $conversationId: String!) {
               name
               policy
               confidence
+              message_id
               parse_data {
                   intent_ranking{
                       confidence

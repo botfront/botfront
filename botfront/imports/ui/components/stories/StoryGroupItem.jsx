@@ -4,7 +4,7 @@ import {
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import EllipsisMenu from '../common/EllipsisMenu';
-import { ConversationOptionsContext } from '../utils/Context';
+import { ConversationOptionsContext } from './Context';
 
 function StoryGroupItem(props) {
     const {

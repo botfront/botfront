@@ -109,7 +109,7 @@ export default class DataImport extends React.Component {
                         mode="json"
                         theme="github"
                         name="templates"
-                        fontSize={12}
+                        fontSize={16}
                         showPrintMargin={false}
                         showGutter={true}
                         onChange={this.onChange}

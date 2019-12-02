@@ -8,33 +8,46 @@ import { debounce } from 'lodash';
 export default function DataTable(props) {
     const {
         data,
+        height,
+        width,
+        fixedRows,
         hasNextPage,
         loadMore,
         columns,
         onChangeInVisibleItems,
+        gutterSize,
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
 
     const Row = React.forwardRef((row, ref) => {
         const { index, style } = row;
+        const editedStyle = {
+            ...style,
+            top: style.top + gutterSize,
+            paddingTop: gutterSize,
+        };
         if (!isDataLoaded(index)) {
             return (
-                <div ref={ref} className='row' style={style}>
-                    Loading...
+                <div ref={ref} style={editedStyle}>
+                    <div className='row inner-incoming-row'>
+                        Loading...
+                    </div>
                 </div>
             );
         }
         return (
-            <div ref={ref} className='row' style={style} data-index={index}>
-                {columns.map(c => (
-                    <div key={`${c.key}-${index}`} className='item' style={c.style}>
-                        {c.render
-                            ? c.render({ index, datum: data[index] })
-                            : data[index][c.key]
-                        }
-                    </div>
-                ))}
+            <div ref={ref} style={editedStyle} data-index={index} data-cy='utterance-row'>
+                <div className='row inner-incoming-row'>
+                    {columns.map(c => (
+                        <div key={`${c.key}-${index}`} className='item' style={c.style}>
+                            {c.render
+                                ? c.render({ index, datum: data[index] })
+                                : data[index][c.key]
+                            }
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     });
@@ -45,6 +58,8 @@ export default function DataTable(props) {
         ? tableRef.current.offsetTop
         : 0;
 
+    const showHeader = columns.some(c => c.header);
+
     const handleScroll = debounce((start, end) => {
         if (!onChangeInVisibleItems) return;
         const visibleData = Array(end - start + 1).fill()
@@ -54,23 +69,42 @@ export default function DataTable(props) {
         onChangeInVisibleItems(visibleData);
     }, 500);
 
-    useEffect(() => setCorrection(tableOffsetTop + 40), [tableOffsetTop]);
+    useEffect(() => setCorrection(showHeader ? tableOffsetTop + 40 : tableOffsetTop), [tableOffsetTop]);
 
     return (
         <div
             className='virtual-table'
             ref={tableRef}
-            style={{ height: `calc(100vh - ${correction}px)` }}
+            style={{
+                height: height === 'auto' ? `calc(100vh - ${correction}px)` : `${height}px`,
+                ...(width === 'auto' ? {} : { width }),
+            }}
         >
-            <div className='header row'>
-                {columns.map(c => (
-                    <div key={`${c.key}-header`} className='item' style={c.style}>
-                        {c.header}
+            {showHeader && (
+                <div className='header row'>
+                    {columns.map(c => (
+                        <div key={`${c.key}-header`} className='item' style={c.style}>
+                            {c.header}
+                        </div>
+                    ))}
+                </div>
+            )}
+            {fixedRows && fixedRows.length && fixedRows.map(r => (
+                <div style={{ paddingTop: gutterSize }}>
+                    <div className='row inner-incoming-row'>
+                        {columns.map((c, i) => (
+                            <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
+                                {c.render
+                                    ? c.render({ datum: r })
+                                    : r[c.key]
+                                }
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                </div>
+            ))}
             <AutoSizer>
-                {({ height, width }) => (
+                {({ height: h, width: w }) => (
                     <InfiniteLoader
                         isItemLoaded={isDataLoaded}
                         itemCount={dataCount}
@@ -78,14 +112,14 @@ export default function DataTable(props) {
                     >
                         {({ onItemsRendered, ref }) => (
                             <List
-                                height={height}
+                                height={h}
                                 itemCount={dataCount}
                                 onItemsRendered={(items) => {
                                     handleScroll(items.visibleStartIndex, items.visibleStopIndex);
                                     onItemsRendered(items);
                                 }}
                                 ref={ref}
-                                width={width}
+                                width={w}
                             >
                                 {Row}
                             </List>
@@ -98,15 +132,23 @@ export default function DataTable(props) {
 }
 
 DataTable.propTypes = {
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.exact('auto')]),
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.exact('auto')]),
+    fixedRows: PropTypes.array,
     hasNextPage: PropTypes.bool,
     data: PropTypes.array.isRequired,
     columns: PropTypes.array.isRequired,
     loadMore: PropTypes.func,
     onChangeInVisibleItems: PropTypes.func,
+    gutterSize: PropTypes.number,
 };
 
 DataTable.defaultProps = {
+    height: 'auto',
+    width: 'auto',
+    fixedRows: null,
     hasNextPage: false,
     loadMore: () => {},
     onChangeInVisibleItems: null,
+    gutterSize: 15,
 };

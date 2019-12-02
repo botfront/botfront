@@ -37,7 +37,7 @@ IntentDropdown.propTypes = {
     onChange: PropTypes.func.isRequired,
     onAddItem: PropTypes.func,
     options: PropTypes.array.isRequired,
-    intent: PropTypes.string.isRequired,
+    intent: PropTypes.string,
     autofocus: PropTypes.bool,
     isSearchable: PropTypes.bool,
     allowAdditions: PropTypes.bool,
@@ -47,5 +47,6 @@ IntentDropdown.defaultProps = {
     isSearchable: true,
     allowAdditions: true,
     onAddItem: () => {},
+    intent: null,
 };
 export default IntentDropdown;

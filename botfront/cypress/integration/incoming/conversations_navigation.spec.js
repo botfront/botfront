@@ -146,9 +146,9 @@ describe('incoming page conversation tab', function () {
             .click();
         cy.dataCy('conversation-item').eq(1).should('have.text', 'test1');
         cy.dataCy('conversation-item').eq(1).click({ force: true });
-        cy.dataCy('nlu-table-text').should('contains.text', '/get_started_test1');
+        cy.dataCy('utterance-text').contains('/get_started_test1').should('exist');
         cy.reload();
-        cy.dataCy('nlu-table-text').should('contains.text', '/get_started_test1');
+        cy.dataCy('utterance-text').contains('/get_started_test1').should('exist');
     });
 });
 

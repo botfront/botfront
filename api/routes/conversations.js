@@ -55,20 +55,24 @@ exports.insertConversation = function(req, res) {
 
 exports.updateConversation = async function(req, res) {
     const { project_id: projectId, sender_id: senderId } = req.params;
-    if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, req);
     checkApiKeyAgainstProject(projectId, req)
-        .then(() => {
+        .then(async () => {
+            const dialogues = db.get('conversations', {
+                castIds: false,
+            });
+            //in case the senderId would be different from the convId in the future
+            const { _id}= await dialogues.findOne({'tracker.sender_id': senderId},{ _id: 1});
+            if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, req, _id);
             const tracker = req.body;
             const setTracker = {};
+            
             Object.keys(tracker).forEach(key => {
                 if (key !== 'events') {
                     setTracker[`tracker.${key}`] = tracker[key];
                 }
             });
 
-            const dialogues = db.get('conversations', {
-                castIds: false,
-            });
+            
             dialogues
                 .update(
                     { _id: senderId },

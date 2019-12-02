@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Segment } from 'semantic-ui-react';
 import { debounce } from 'lodash';
-import NLUExampleText from './NLUExampleText';
+import UserUtteranceViewer from '../nlu/common/UserUtteranceViewer';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { can } from '../../../lib/scopes';
 
@@ -69,19 +69,15 @@ export default class NLUExampleTester extends React.Component {
 
     render() {
         const { clickable, example } = this.state;
-        const { entities, disablePopup } = this.props;
         const optionalProps = clickable ? { onClick: this.onDone } : {};
         return (
             <div className='tester' {...optionalProps} data-cy='nlu-example-tester'>
                 {example && (
                     <Segment>
-                        <NLUExampleText
+                        <UserUtteranceViewer
                             onEnter={this.onDone}
-                            example={example}
-                            entities={entities}
-                            showIntent
-                            showLabels
-                            disablePopup={disablePopup}
+                            value={example}
+                            disableEditing
                         />
                     </Segment>
                 )}
@@ -97,10 +93,8 @@ NLUExampleTester.propTypes = {
     instance: PropTypes.object.isRequired,
     entities: PropTypes.array.isRequired,
     onDone: PropTypes.func,
-    disablePopup: PropTypes.bool,
 };
 
 NLUExampleTester.defaultProps = {
     onDone: () => {},
-    disablePopup: false,
 };

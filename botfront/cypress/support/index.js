@@ -794,7 +794,7 @@ Cypress.Commands.add('addConversation', (projectId, id, conversation) => {
     if (Cypress.env('API_URL') !== '') {
         url = `${Cypress.env('API_URL')}/project/${projectId}/conversations/${id}/insert?api-key=`;
     }
-
+    
     cy.request({
         method: 'POST',
         url,
@@ -804,3 +804,17 @@ Cypress.Commands.add('addConversation', (projectId, id, conversation) => {
 });
 
 Cypress.Commands.overwrite('log', (subject, message) => cy.task('log', message));
+
+Cypress.Commands.add('updateConversation', (projectId, id, conversation) => {
+    let url = `http://localhost:8080/project/${projectId}/conversations/${id}/update?api-key=`;
+    if (Cypress.env('API_URL') !== '') {
+        url = `${Cypress.env('API_URL')}/project/${projectId}/conversations/${id}/update?api-key=`;
+    }
+    
+    cy.request({
+        method: 'POST',
+        url,
+        headers: { 'Content-Type': 'application/json' },
+        body: conversation,
+    });
+});

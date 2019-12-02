@@ -46,6 +46,8 @@ type Activity {
   createdAt: Date,
   updatedAt: Date,
   ooS: Boolean,
+  message_id: String,
+  conversation_id: String,
 }
 
 input ExampleFilterInput {

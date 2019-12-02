@@ -1,7 +1,3 @@
-.confidence-text {
-    font-size: 11px;
-}
-
 .viewOnHover {
     visibility: hidden;
 }
@@ -36,6 +32,14 @@
             background: rgba(0, 0, 0, 0.05);
             .viewOnHover {
                 visibility: visible;
+                
+            }
+        }
+
+        .action-icon{
+            color: rgba(0, 0, 0, 0.4);
+            &:hover{
+                color: rgba(0, 0, 0, 0.7);
             }
         }
     }
@@ -74,7 +78,8 @@
             border-bottom: 0;
         }
         .rt-td {
-            border-right: none !important;
+          border-right: none !important;
+          white-space: normal;
         }
     }
     .rt-thead.-header {
@@ -111,6 +116,7 @@
     border-style: none;
     box-shadow: none;
     margin-bottom: 0px;
+    background-color: #fafafa;
     .ui.segment.new-utterances-topbar-section{
         border-style: none;
         padding: 0px;
@@ -118,4 +124,10 @@
             background:rgba(0,0,0,0);
         }
     }
+}
+
+.ui.popup.dialogue-popup{
+    max-height: 30rem;
+    min-width: 20rem;
+    overflow-y: scroll;
 }

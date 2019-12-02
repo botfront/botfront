@@ -3,9 +3,12 @@ import PropTypes from 'prop-types';
 import {
     Button, Popup, Icon,
 } from 'semantic-ui-react';
-import SmartTip from './SmartTip';
 
-import FloatingIconButton from '../common/FloatingIconButton';
+
+import { useLazyQuery } from '@apollo/react-hooks';
+import SmartTip from './SmartTip';
+import { GET_CONVERSATION } from '../../conversations/queries';
+import ConversationDialogueViewer from '../../conversations/ConversationDialogueViewer';
 
 export default function ActivityActionsColumn(props) {
     const {
@@ -16,6 +19,7 @@ export default function ActivityActionsColumn(props) {
         onToggleValidation,
         onMarkOoS,
         onDelete,
+        projectId,
     } = props;
 
     const renderDeleteAllButton = utterances => mainAction => (
@@ -135,10 +139,23 @@ export default function ActivityActionsColumn(props) {
         );
     }
 
+    const [getConv, { loading, data: convData }] = useLazyQuery(GET_CONVERSATION, {
+        variables: { projectId, conversationId: datum.conversation_id },
+    });
     return (
         <div key={`${datum._id}-actions`}>
+            { datum.conversation_id ? (
+                <Popup
+                    className='dialogue-popup'
+                    on='click'
+                    trigger={<Icon data-cy='conversation-viewer' className='action-icon viewOnHover' name='comments' onClick={() => getConv()} />}
+                >
+        
+                    {!loading && convData && (<ConversationDialogueViewer tracker={convData.conversation.tracker} messageIdInView={datum.message_id} />)}
+                </Popup>
+            ) : <Icon />}
             {action}
-            {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && <FloatingIconButton icon='trash' onClick={() => onDelete([datum])} />}
+            {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && <Icon name='trash' className='action-icon viewOnHover' onClick={() => onDelete([datum])} />}
         </div>
     );
 }
@@ -151,6 +168,7 @@ ActivityActionsColumn.propTypes = {
     onMarkOoS: PropTypes.func.isRequired,
     onToggleValidation: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 ActivityActionsColumn.defaultProps = {

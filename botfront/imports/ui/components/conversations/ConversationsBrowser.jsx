@@ -244,7 +244,6 @@ const ConversationsBrowserContainer = (props) => {
         );
     }, []);
 
-
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {

@@ -4,9 +4,9 @@ import React, {
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
 import { OOS_LABEL } from '../../constants.json';
-import FloatingIconButton from '../../nlu/common/FloatingIconButton';
-import UserUtteranceViewer from '../../utils/UserUtteranceViewer';
-import { ConversationOptionsContext } from '../../utils/Context';
+import FloatingIconButton from '../../common/FloatingIconButton';
+import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
+import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
 import ExceptionWrapper from './ExceptionWrapper';
 
@@ -16,7 +16,7 @@ const UtteranceContainer = (props) => {
         value, onInput, onDelete, onAbort, deletable, exceptions,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
-    const { parseUtterance, getUtteranceFromPayload } = useContext(ConversationOptionsContext);
+    const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
     const [fetchedData, setFetchedData] = useState(value || null);
@@ -86,7 +86,6 @@ const UtteranceContainer = (props) => {
                 <>
                     <UserUtteranceViewer
                         value={stateValue}
-                        size='mini'
                         onChange={setStateValue}
                     />
                     <Button
@@ -104,7 +103,6 @@ const UtteranceContainer = (props) => {
             <UserUtteranceViewer
                 value={fetchedData || value}
                 disableEditing
-                size='mini'
                 // onChange={v => onChange(v)}
             />
         );

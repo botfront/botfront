@@ -77,7 +77,7 @@ class Endpoints extends React.Component {
                     return newModel;
                 }}
             >
-                <AceField name='endpoints' label='Endpoints' fontSize={12} mode='yaml' data-cy='ace-field' />
+                <AceField name='endpoints' label='Endpoints' mode='yaml' data-cy='ace-field' />
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved

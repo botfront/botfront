@@ -60,8 +60,8 @@ export default class NLUPipeline extends React.Component {
         const isDisabled = !(can('nlu-model:x', projectId));
         return (
             <Tab.Pane>
-                <AutoForm schema={new SimpleSchema(this.schema)} model={this.sparseModel()} onSubmit={this.handleSave}  disabled={isDisabled}>
-                    <AceField name='config' label='NLU Pipeline' fontSize={12} />
+                <AutoForm schema={new SimpleSchema(this.schema)} model={this.sparseModel()} onSubmit={this.handleSave} disabled={isDisabled}>
+                    <AceField name='config' label='NLU Pipeline' />
                     <ErrorsField />
                     {showConfirmation && (
                         <ChangesSaved

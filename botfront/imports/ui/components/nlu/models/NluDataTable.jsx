@@ -8,21 +8,19 @@ import 'react-s-alert/dist/s-alert-default.css';
 import _, { difference } from 'lodash';
 import ReactTable from 'react-table-v6';
 import matchSorter from 'match-sorter';
-import Entity from '../../utils/EntityLabel';
+import getColor from '../../../../lib/getColors';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
 import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
-import NLUExampleText from '../../example_editor/NLUExampleText';
 import EntityUtils from '../../utils/EntityUtils';
-import IntentNameEditor from './IntentViewer';
-import 'react-select/dist/react-select.css'; // Is it used somewhere?
+import IntentLabel from '../common/IntentLabel';
 import Filters from './Filters';
 import { can } from '../../../../lib/scopes';
-import FloatingIconButton from '../common/FloatingIconButton';
+import FloatingIconButton from '../../common/FloatingIconButton';
+import UserUtteranceViewer from '../common/UserUtteranceViewer';
 
 export default class NluDataTable extends React.Component {
     constructor(props) {
         super(props);
-        const { showLabels } = this.props;
         this.state = {
             waiting: new Set(),
             filter: {
@@ -30,15 +28,13 @@ export default class NluDataTable extends React.Component {
                 entities: [],
                 query: '',
             },
-            showLabels,
             onlyCanonical: false,
         };
     }
 
-    onEditExample = (example, callback) => {
+    onEditExample = (example) => {
         const { onEditExample } = this.props;
-        onEditExample(example, (err, res) => {
-            callback(err, res);
+        onEditExample(example, (err) => {
             if (!err) {
                 this.setState({ expanded: {} });
             }
@@ -86,33 +82,25 @@ export default class NluDataTable extends React.Component {
 
     getColumns() {
         const {
-            onRenameIntent, examples, projectId, entities, extraColumns, onDeleteExample, onSwitchCanonical,
+            extraColumns, onDeleteExample, onSwitchCanonical,
         } = this.props;
         let { intentColumns } = this.props;
-        const { showLabels, waiting } = this.state;
+        const { projectId } = this.props;
+        const { waiting } = this.state;
         intentColumns = intentColumns || [
             {
                 accessor: 'intent',
                 Header: 'Intent',
                 width: 200,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['intent'] }),
-                Cell: (props) => {
-                    const canonical = props.row && props.row.example.canonical ? props.row.example.canonical : false;
-                    return (
-                        <IntentNameEditor
-                            intent={props.value}
-                            onRenameIntent={onRenameIntent}
-                            examples={examples}
-                            intents={this.getIntentForDropdown(false)}
-                            onSave={this.onEditExample}
-                            example={props.original}
-                            enableRenaming={props.row && !canonical && can('nlu-data:w', projectId)}
-                            projectId={projectId}
-                            canonical={canonical}
-                        />
-                    );
-                },
-
+                Cell: props => (
+                    <IntentLabel
+                        value={props.value}
+                        allowEditing={!props.row.example.canonical && can('nlu-data:w', projectId)}
+                        allowAdditions
+                        onChange={intent => this.onEditExample({ ...props.row.example, intent })}
+                    />
+                ),
             },
         ];
         const expanderColumn = [{
@@ -147,15 +135,12 @@ export default class NluDataTable extends React.Component {
                 Cell: (props) => {
                     const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                     return (
-                        <NLUExampleText
-                            example={props.value}
-                            entities={entities}
-                            showLabels={showLabels}
-                            onSave={this.onEditExample}
-                            editable={!canonical}
-                            disablePopup={canonical}
-                            canonical={canonical}
-                            projectId={projectId}
+                        <UserUtteranceViewer
+                            value={props.value}
+                            onChange={this.onEditExample}
+                            projectId=''
+                            disableEditing={canonical}
+                            showIntent={false}
                         />
                     );
                 },
@@ -180,14 +165,14 @@ export default class NluDataTable extends React.Component {
                             <>
                                 <Popup.Header>Canonical Example</Popup.Header>
                                 <Popup.Content className='popup-canonical'>
-                                    This example is canonical for the intent
+                                This example is canonical for the intent
                                     <span className='intent-name'> {props.row.example.intent}</span>
 
                                     {props.row.example.entities && props.row.example.entities.length > 0
                                         ? (
                                             <>
-                                        and for the following entity - entity value combinations: <br />
-                                                {props.row.example.entities.map(entity => (<Entity size='tiny' value={entity} onChange={() => { }} />))}
+                                            and for the following entity - entity value combinations: <br />
+                                                {props.row.example.entities.map(entity => <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>)}
                                             </>
                                         )
                                         : ''}
@@ -224,9 +209,6 @@ export default class NluDataTable extends React.Component {
                 Header: '',
                 width: 30,
             });
-        }
-
-        if (can('nlu-data:w', projectId)) {
             firstColumns.push({
                 accessor: '_id',
                 filterable: false,
@@ -289,7 +271,7 @@ export default class NluDataTable extends React.Component {
         const {
             hideHeader, intents, entities, projectId,
         } = this.props;
-        const { showLabels, expanded } = this.state;
+        const { expanded } = this.state;
         return (
             <Tab.Pane as='div'>
                 {!hideHeader && (
@@ -328,22 +310,6 @@ export default class NluDataTable extends React.Component {
                                     inverted
                                 />
                                 
-                            </Grid.Column>
-                            <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
-                                {entities.length > 0
-                                    && showLabels === undefined && (
-                                    <Checkbox
-                                        checked={showLabels}
-                                        onChange={() => this.setState({
-                                            showLabels: !showLabels,
-                                        })
-                                        }
-                                        slider
-                                        label='Entity names'
-                                        style={{ marginBottom: '10px' }}
-                                        data-cy='trigger-entity-names'
-                                    />
-                                )}
                             </Grid.Column>
                         </Grid.Row>
                     </Grid>
@@ -420,17 +386,14 @@ NluDataTable.propTypes = {
     entities: PropTypes.array.isRequired,
     onEditExample: PropTypes.func.isRequired,
     onDeleteExample: PropTypes.func.isRequired,
-    onRenameIntent: PropTypes.func.isRequired,
-    showLabels: PropTypes.bool,
     hideHeader: PropTypes.bool,
     extraColumns: PropTypes.array,
     intentColumns: PropTypes.arrayOf(PropTypes.object),
-    projectId: PropTypes.string.isRequired,
     onSwitchCanonical: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 NluDataTable.defaultProps = {
-    showLabels: true,
     hideHeader: false,
     extraColumns: [],
     intentColumns: null,

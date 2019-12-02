@@ -1,4 +1,4 @@
-/* global cy:true */
+/* global cy expect:true */
 
 const qrGold = new RegExp(`
 buttons:

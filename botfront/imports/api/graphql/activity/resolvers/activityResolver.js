@@ -41,6 +41,10 @@ export default {
         validated: ({ validated }) => validated,
         createdAt: ({ createdAt }) => createdAt,
         updatedAt: ({ updatedAt }) => updatedAt,
+        // eslint-disable-next-line camelcase
+        conversation_id: ({ conversation_id }) => conversation_id,
+        // eslint-disable-next-line camelcase
+        message_id: ({ message_id }) => message_id,
     },
 
     Entity: {
