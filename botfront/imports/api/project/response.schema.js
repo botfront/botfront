@@ -138,6 +138,7 @@ export const FollowUpSchema = new SimpleSchema({
 
 export const TemplateSchema = new SimpleSchema(
     {
+        _id: { type: String, optional: true },
         key: {
             type: String,
             label: 'Template Key',

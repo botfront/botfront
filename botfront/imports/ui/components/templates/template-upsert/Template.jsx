@@ -13,7 +13,7 @@ import {
 import { connect } from 'react-redux';
 import shortId from 'shortid';
 import slugify from 'slugify';
-import { useLazyQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { TemplateSchema } from '../../../../api/project/response.schema';
 import { Projects } from '../../../../api/project/project.collection';
 import SequenceField from './SequenceField';
@@ -23,6 +23,7 @@ import TemplateValueItemField from './TemplateValueItemField';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import DisplayIf from '../../DisplayIf';
 import { GET_BOT_RESPONSE } from '../../stories/graphQL/queries';
+import { GET_BOT_RESPONSE_BY_ID } from './queries';
 import { GET_BOT_RESPONSES } from '../templates-list/queries';
 import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../../stories/graphQL/mutations';
 import { Loading } from '../../utils/Utils';
@@ -64,14 +65,14 @@ function Template(props) {
         }
         if (template && Object.keys(template).length > 0) {
             updateBotResponse({
-                variables: { projectId, response: clearTypenameField(newTemplate), key: template.key },
-                refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: template.key, lang: workingLanguage || 'en' } },
+                variables: { projectId, response: clearTypenameField(newTemplate), _id: template._id },
+                refetchQueries: [{ query: GET_BOT_RESPONSE_BY_ID, variables: { _id: template._id } },
                     { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); });
         } else {
             createBotResponse({
                 variables: { projectId, response: clearTypenameField(newTemplate) },
-                refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: newTemplate.key, lang: workingLanguage || 'en' } },
+                refetchQueries: [{ query: GET_BOT_RESPONSE_BY_ID, variables: { _id: template._id } },
                     { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); });
         }
@@ -175,9 +176,9 @@ const TemplateContainer = (props) => {
     if (!project) return router.replace('/404');
 
    
-    const [getBotResponse, { loading, data }] = useLazyQuery(GET_BOT_RESPONSE, {
+    const { loading, data } = useQuery(GET_BOT_RESPONSE, {
         variables: { projectId, key: templateId, lang: workingLanguage || 'en' },
-        onCompleted: () => setTemplate(data.botResponse),
+        onCompleted: () => { console.log(data); setTemplate(data.botResponse); },
     });
     
 
@@ -189,14 +190,12 @@ const TemplateContainer = (props) => {
         languages: getNluModelLanguages(project[0].nlu_models),
     });
 
-
-    function getTemplate() {
-        if (templateId) {
-            getBotResponse();
+    useEffect(() => {
+        if (templateId && !loading) {
+            setTemplate(data.botResponse);
         }
-        return template;
-    }
-    
+    }, [data]);
+
     
     return (
         <Loading loading={loading}>

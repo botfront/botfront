@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { languages } from '../../../lib/languages';
 
+const { ObjectId } = mongoose.Types;
+
 const { Schema } = mongoose;
 
 /*
@@ -29,7 +31,11 @@ const contentValidator = (content) => {
 
 
 const botResponses = new Schema({
-    _id: String,
+    _id:
+        {
+            type: String,
+            default: () => String(new ObjectId()),
+        },
     key: {
         type: String,
         label: 'Template Key',
@@ -50,5 +56,6 @@ const botResponses = new Schema({
 });
 
 botResponses.index({ key: 1, projectId: 1 }, { unique: true });
+
 
 module.exports = mongoose.model('BotResponses', botResponses, 'botResponses');

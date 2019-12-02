@@ -28,26 +28,24 @@ export const createResponses = async (projectId, responses) => {
     // eslint-disable-next-line array-callback-return
     newResponses.map((newResponse) => {
         const properResponse = newResponse;
-        properResponse._id = `${properResponse.key}-${projectId}`;
         properResponse.projectId = projectId;
         properResponse.values = formatTextOnSave(properResponse.values);
-        BotResponses.update({ _id: properResponse._id }, properResponse, { upsert: true });
+        BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
     });
 
     return { ok: 1 };
 };
 
-export const updateResponse = async (projectId, key, newResponse) => {
+export const updateResponse = async (projectId, _id, newResponse) => {
     const formatedResponse = {
         ...newResponse,
         values: formatTextOnSave(newResponse.values),
     };
-    return BotResponses.updateOne({ projectId, key }, formatedResponse).exec();
+    return BotResponses.updateOne({ _id }, formatedResponse).exec();
 };
 export const createResponse = async (projectId, newResponse) => BotResponses.create({
     ...newResponse,
     projectId,
-    _id: `${newResponse.key}-${projectId}`,
 });
 export const deleteResponse = async (projectId, key) => BotResponses.deleteOne({ projectId, key });
 
@@ -73,5 +71,13 @@ export const getBotResponse = async (projectId, key, lang = 'en') => {
         botResponse.values.push(newSeq);
         await updateResponse(projectId, key, botResponse);
     }
+    return botResponse;
+};
+
+
+export const getBotResponseById = async (_id) => {
+    const botResponse = await BotResponses.findOne({
+        _id,
+    }).lean();
     return botResponse;
 };

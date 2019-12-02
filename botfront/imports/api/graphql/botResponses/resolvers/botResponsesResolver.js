@@ -6,6 +6,7 @@ import {
     createResponse,
     createResponses,
     deleteResponse,
+    getBotResponseById,
 } from '../mongo/botResponses';
 
 const { PubSub, withFilter } = require('apollo-server-express');
@@ -40,6 +41,9 @@ export default {
         async botResponse(_, args, __) {
             return getBotResponse(args.projectId, args.key, args.lang);
         },
+        async botResponseById(_, args, __) {
+            return getBotResponseById(args._id);
+        },
     },
     Mutation: {
         async deleteResponse(_, args, __) {
@@ -54,7 +58,7 @@ export default {
         async updateResponse(_, args, __) {
             const response = await updateResponse(
                 args.projectId,
-                args.key,
+                args._id,
                 args.response,
             );
             pubsub.publish(RESPONSES_MODIFIED, {
