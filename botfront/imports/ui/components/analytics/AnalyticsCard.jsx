@@ -79,6 +79,7 @@ function AnalyticsCard(props) {
         ...(exclude ? { exclude } : {}),
         fallbacks: responses || [],
         nBuckets,
+        limit: chartType === 'table' ? 100000 : undefined,
     };
     const { loading, error, data } = query
         ? useQuery(query, { variables })
@@ -120,7 +121,7 @@ function AnalyticsCard(props) {
             values = exclude;
             setting = 'exclude';
         } else if (responses) {
-            text = 'Fallback templates';
+            text = 'Fallback actions';
             values = responses;
             setting = 'responses';
         }
