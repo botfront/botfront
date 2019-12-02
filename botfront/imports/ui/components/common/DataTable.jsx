@@ -48,8 +48,9 @@ export default function DataTable(props) {
                 role='button'
                 tabIndex={0}
                 onKeyDown={null}
+                className='row-wrapper'
             >
-                <div className={`row inner-incoming-row' ${clickable}`}>
+                <div className={`row inner-incoming-row ${clickable}`}>
                     {columns.map(c => (
                         <div key={`${c.key}-${index}`} className='item' style={c.style}>
                             {c.render
@@ -108,7 +109,7 @@ export default function DataTable(props) {
                     tabIndex={0}
                     onKeyDown={null}
                 >
-                    <div className={`row inner-incoming-row' ${clickable}`}>
+                    <div className={`row inner-incoming-row ${clickable}`}>
                         {columns.map((c, i) => (
                             <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
                                 {c.render
