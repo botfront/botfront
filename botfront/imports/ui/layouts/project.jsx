@@ -124,7 +124,6 @@ class Project extends React.Component {
             'rasa.parse',
             instance,
             [{ text: utterance, lang: workingLanguage }],
-            true,
         );
     }
 
