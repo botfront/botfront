@@ -22,8 +22,11 @@ import { flattenStory, extractDomain } from '../../lib/story.utils';
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
 
-    const getExamplesFromTrainingData = (trainingData, startIntents = [], startEntities = []) => {
-        const intents = Object.fromEntries(startIntents.map(i => [i, []]));
+    export const getExamplesFromTrainingData = (trainingData, startIntents = [], startEntities = []) => {
+        const entries = startIntents.map(i => [i, []]);
+        const intents = {};
+        entries.forEach((e) => { intents[e[0]] = e[1]; });
+
         let entities = startEntities;
 
         trainingData.forEach((ex) => {
