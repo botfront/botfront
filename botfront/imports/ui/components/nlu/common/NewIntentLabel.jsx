@@ -25,7 +25,7 @@ function Intent(props) {
     const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
 
     const handleChange = (intentName) => {
-        addIntent(intentName);
+        if (intentName) addIntent(intentName);
         onChange(intentName);
         setTypeInput('');
         setPopupOpen(false);
