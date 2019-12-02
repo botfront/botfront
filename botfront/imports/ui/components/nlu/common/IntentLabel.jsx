@@ -79,6 +79,7 @@ function Intent(props) {
                         width={300}
                         columns={columns}
                         data={dataToDisplay}
+                        gutterSize={0}
                         onClickRow={({ datum: { intent } }) => handleChange(intent)}
                     />
                 )
