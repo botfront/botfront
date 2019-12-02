@@ -12,7 +12,7 @@ import getColor from '../../../../lib/getColors';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
 import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import EntityUtils from '../../utils/EntityUtils';
-import IntentLabel from '../common/IntentLabel';
+import IntentLabel from '../common/NewIntentLabel';
 import Filters from './Filters';
 import FloatingIconButton from '../../common/FloatingIconButton';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
@@ -91,13 +91,14 @@ export default class NluDataTable extends React.Component {
                 Header: 'Intent',
                 width: 200,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['intent'] }),
-                Cell: props => (
+                Cell: props => this.canonicalTooltip(
                     <IntentLabel
                         value={props.value}
                         allowEditing={!props.row.example.canonical}
                         allowAdditions
                         onChange={intent => this.onEditExample({ ...props.row.example, intent })}
-                    />
+                    />,
+                    props.row.example.canonical,
                 ),
             },
         ];
@@ -132,14 +133,15 @@ export default class NluDataTable extends React.Component {
                 Header: 'Example',
                 Cell: (props) => {
                     const canonical = props.row.example.canonical ? props.row.example.canonical : false;
-                    return (
+                    return this.canonicalTooltip(
                         <UserUtteranceViewer
                             value={props.value}
                             onChange={this.onEditExample}
                             projectId=''
                             disableEditing={canonical}
                             showIntent={false}
-                        />
+                        />,
+                        canonical,
                     );
                 },
                 style: { overflow: 'visible' },
@@ -227,6 +229,17 @@ export default class NluDataTable extends React.Component {
         });
 
         return firstColumns;
+    }
+
+    canonicalTooltip = (jsx, canonical) => {
+        if (!canonical) return jsx;
+        return (
+            <Popup
+                trigger={<div>{jsx}</div>}
+                inverted
+                content='Cannot edit a canonical example'
+            />
+        );
     }
 
     collapseExpanded = () => this.setState({ expanded: {} });
