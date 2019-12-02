@@ -133,8 +133,8 @@ if (Meteor.isServer) {
 
         async 'project.getEntitiesAndIntents'(projectId, language) {
             check(projectId, String);
-            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
             check(language, String);
+            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
 
             try {
                 const stories = await Meteor.callWithPromise('stories.getStories', projectId);
