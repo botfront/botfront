@@ -153,7 +153,15 @@ export default function ActivityActionsColumn(props) {
         
                     {!loading && convData && (<ConversationDialogueViewer tracker={convData.conversation.tracker} messageIdInView={datum.message_id} />)}
                 </Popup>
-            ) : <Icon />}
+            ) : (
+                <Popup
+                    on='click'
+                    trigger={<Icon data-cy='conversation-viewer' className='action-icon viewOnHover' name='comments' onClick={() => getConv()} />}
+                >
+
+                    No conversation data
+                </Popup>
+            )}
             {action}
             {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && <Icon name='trash' className='action-icon viewOnHover' onClick={() => onDelete([datum])} />}
         </div>
