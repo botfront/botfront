@@ -8,6 +8,8 @@ import { debounce } from 'lodash';
 export default function DataTable(props) {
     const {
         data,
+        height,
+        width,
         hasNextPage,
         loadMore,
         columns,
@@ -60,7 +62,10 @@ export default function DataTable(props) {
         <div
             className='virtual-table'
             ref={tableRef}
-            style={{ height: `calc(100vh - ${correction}px)` }}
+            style={{
+                height: height === 'auto' ? `calc(100vh - ${correction}px)` : `${height}px`,
+                ...(width === 'auto' ? {} : { width }),
+            }}
         >
             <div className='header row'>
                 {columns.map(c => (
@@ -70,7 +75,7 @@ export default function DataTable(props) {
                 ))}
             </div>
             <AutoSizer>
-                {({ height, width }) => (
+                {({ height: h, width: w }) => (
                     <InfiniteLoader
                         isItemLoaded={isDataLoaded}
                         itemCount={dataCount}
@@ -78,14 +83,14 @@ export default function DataTable(props) {
                     >
                         {({ onItemsRendered, ref }) => (
                             <List
-                                height={height}
+                                height={h}
                                 itemCount={dataCount}
                                 onItemsRendered={(items) => {
                                     handleScroll(items.visibleStartIndex, items.visibleStopIndex);
                                     onItemsRendered(items);
                                 }}
                                 ref={ref}
-                                width={width}
+                                width={w}
                             >
                                 {Row}
                             </List>
@@ -98,6 +103,8 @@ export default function DataTable(props) {
 }
 
 DataTable.propTypes = {
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.exact('auto')]),
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.exact('auto')]),
     hasNextPage: PropTypes.bool,
     data: PropTypes.array.isRequired,
     columns: PropTypes.array.isRequired,
@@ -106,6 +113,8 @@ DataTable.propTypes = {
 };
 
 DataTable.defaultProps = {
+    height: 'auto',
+    width: 'auto',
     hasNextPage: false,
     loadMore: () => {},
     onChangeInVisibleItems: null,
