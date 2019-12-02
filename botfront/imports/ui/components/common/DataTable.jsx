@@ -10,6 +10,7 @@ export default function DataTable(props) {
         data,
         height,
         width,
+        fixedRows,
         hasNextPage,
         loadMore,
         columns,
@@ -67,13 +68,27 @@ export default function DataTable(props) {
                 ...(width === 'auto' ? {} : { width }),
             }}
         >
-            <div className='header row'>
-                {columns.map(c => (
-                    <div key={`${c.key}-header`} className='item' style={c.style}>
-                        {c.header}
-                    </div>
-                ))}
-            </div>
+            {columns.some(c => c.header) && (
+                <div className='header row'>
+                    {columns.map(c => (
+                        <div key={`${c.key}-header`} className='item' style={c.style}>
+                            {c.header}
+                        </div>
+                    ))}
+                </div>
+            )}
+            {fixedRows && fixedRows.length && fixedRows.map(r => (
+                <div className='row'>
+                    {columns.map((c, i) => (
+                        <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
+                            {c.render
+                                ? c.render({ datum: r })
+                                : r[c.key]
+                            }
+                        </div>
+                    ))}
+                </div>
+            ))}
             <AutoSizer>
                 {({ height: h, width: w }) => (
                     <InfiniteLoader
@@ -105,6 +120,7 @@ export default function DataTable(props) {
 DataTable.propTypes = {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.exact('auto')]),
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.exact('auto')]),
+    fixedRows: PropTypes.array,
     hasNextPage: PropTypes.bool,
     data: PropTypes.array.isRequired,
     columns: PropTypes.array.isRequired,
@@ -115,6 +131,7 @@ DataTable.propTypes = {
 DataTable.defaultProps = {
     height: 'auto',
     width: 'auto',
+    fixedRows: null,
     hasNextPage: false,
     loadMore: () => {},
     onChangeInVisibleItems: null,
