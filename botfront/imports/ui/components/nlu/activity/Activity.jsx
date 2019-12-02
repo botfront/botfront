@@ -203,13 +203,6 @@ function Activity(props) {
         <>
             <Segment.Group className='new-utterances-topbar' horizontal>
                 <Segment className='new-utterances-topbar-section' tertiary compact floated='left'>
-                    <Filters
-                        intents={intents}
-                        entities={entities}
-                        filter={filter}
-                        onChange={f => setFilter(f)}
-                    />
-                    <div style={{ height: '5px' }} />
                     <ActivityActions
                         onEvaluate={linkRender}
                         onDelete={() => handleDelete(validated.map(u => u._id))}
@@ -218,6 +211,14 @@ function Activity(props) {
                         numValidated={validated.length}
                         projectId={projectId}
                     />
+                    <div style={{ height: '5px' }} />
+                    <Filters
+                        intents={intents}
+                        entities={entities}
+                        filter={filter}
+                        onChange={f => setFilter(f)}
+                    />
+                    
                 </Segment>
                 <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
                     <PrefixDropdown
