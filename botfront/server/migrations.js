@@ -96,11 +96,11 @@ const migrateResponses = () => {
 };
 
 // migrateResponses();
-// Migrations.add({
-//     version: 3,
-//     // add default default domain to global settings, and update projects to have this default domain
-//     up: () => migrateResponses(),
-// });
+Migrations.add({
+    version: 3,
+    // add default default domain to global settings, and update projects to have this default domain
+    up: () => migrateResponses(),
+});
 
 Meteor.startup(() => {
     Migrations.migrateTo('latest');

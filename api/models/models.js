@@ -16,6 +16,7 @@ const entity = new Schema(
 );
 
 const projects = new Schema({ _id: String }, { strict: false, versionKey: false });
+const responses = new Schema({ _id: String }, { strict: false, versionKey: false });
 const credentials = new Schema({ _id: String }, { strict: false, versionKey: false });
 const endpoints = new Schema({ _id: String }, { strict: false, versionKey: false });
 const nlu_models = new Schema({ _id: String }, { strict: false, versionKey: false });
@@ -51,3 +52,4 @@ exports.NLUModels = mongoose.model('NLUModels', nlu_models, 'nlu_models');
 exports.Endpoints = mongoose.model('Endpoints', endpoints, 'endpoints');
 exports.Credentials = mongoose.model('Credentials', credentials, 'credentials');
 exports.Projects = mongoose.model('Projects', projects, 'projects');
+exports.Responses = mongoose.model('Responses', responses, 'botResponses');
