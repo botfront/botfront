@@ -55,8 +55,8 @@ const formatAxisTitles = (
     const unitTextX = unitX && matchOption(unitX, options);
     const unitTextY = unitY && matchOption(unitY, options);
     return {
-        x: { legend: `${titleTextX}${unitTextX || ''}` },
-        y: { legend: `${titleTextY}${unitTextY || ''}` },
+        x: { legend: `${titleTextX}${unitTextX ? ` (${unitTextX})` : ''}` },
+        y: { legend: `${titleTextY}${unitTextY ? ` (${unitTextY})` : ''}` },
     };
 };
 
