@@ -58,6 +58,8 @@ export default function DataTable(props) {
         ? tableRef.current.offsetTop
         : 0;
 
+    const showHeader = columns.some(c => c.header);
+
     const handleScroll = debounce((start, end) => {
         if (!onChangeInVisibleItems) return;
         const visibleData = Array(end - start + 1).fill()
@@ -67,7 +69,7 @@ export default function DataTable(props) {
         onChangeInVisibleItems(visibleData);
     }, 500);
 
-    useEffect(() => setCorrection(tableOffsetTop + 40), [tableOffsetTop]);
+    useEffect(() => setCorrection(showHeader ? tableOffsetTop + 40 : tableOffsetTop), [tableOffsetTop]);
 
     return (
         <div
@@ -78,7 +80,7 @@ export default function DataTable(props) {
                 ...(width === 'auto' ? {} : { width }),
             }}
         >
-            {columns.some(c => c.header) && (
+            {showHeader && (
                 <div className='header row'>
                     {columns.map(c => (
                         <div key={`${c.key}-header`} className='item' style={c.style}>
@@ -88,15 +90,17 @@ export default function DataTable(props) {
                 </div>
             )}
             {fixedRows && fixedRows.length && fixedRows.map(r => (
-                <div className='row'>
-                    {columns.map((c, i) => (
-                        <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
-                            {c.render
-                                ? c.render({ datum: r })
-                                : r[c.key]
-                            }
-                        </div>
-                    ))}
+                <div style={{ paddingTop: gutterSize }}>
+                    <div className='row inner-incoming-row'>
+                        {columns.map((c, i) => (
+                            <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
+                                {c.render
+                                    ? c.render({ datum: r })
+                                    : r[c.key]
+                                }
+                            </div>
+                        ))}
+                    </div>
                 </div>
             ))}
             <AutoSizer>
