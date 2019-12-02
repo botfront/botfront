@@ -12,7 +12,7 @@ import getColor from '../../../../lib/getColors';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
 import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import EntityUtils from '../../utils/EntityUtils';
-import IntentLabel from '../common/NewIntentLabel';
+import IntentLabel from '../common/IntentLabel';
 import Filters from './Filters';
 import FloatingIconButton from '../../common/FloatingIconButton';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';

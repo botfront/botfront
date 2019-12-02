@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { withBackground } from '../.storybook/decorators';
-import IntentLabel from '../imports/ui/components/nlu/common/NewIntentLabel';
+import IntentLabel from '../imports/ui/components/nlu/common/IntentLabel';
 
 function IntentLabelWrapped(props) {
     const [intent, setIntent] = useState('YAY2');

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import EntityPopup from '../../example_editor/EntityPopup';
 import { ProjectContext } from '../../../layouts/context';
-import Intent from './NewIntentLabel';
+import Intent from './IntentLabel';
 import Entity from './EntityLabel';
 
 function UserUtteranceViewer(props) {
