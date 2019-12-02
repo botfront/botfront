@@ -43,14 +43,13 @@ export default function DataTable(props) {
             <div
                 ref={ref}
                 style={editedStyle}
-                className={`row ${clickable}`}
                 data-index={index}
                 onClick={() => { if (onClickRow) onClickRow(rowInfo); }}
                 role='button'
                 tabIndex={0}
                 onKeyDown={null}
             >
-                <div className='row inner-incoming-row'>
+                <div className={`row inner-incoming-row' ${clickable}`}>
                     {columns.map(c => (
                         <div key={`${c.key}-${index}`} className='item' style={c.style}>
                             {c.render
@@ -104,13 +103,12 @@ export default function DataTable(props) {
             {fixedRows && fixedRows.length && fixedRows.map(r => (
                 <div
                     style={{ paddingTop: gutterSize }}
-                    className={`row ${clickable}`}
                     onClick={() => onClickRow({ datum: r })}
                     role='button'
                     tabIndex={0}
                     onKeyDown={null}
                 >
-                    <div className='row inner-incoming-row'>
+                    <div className={`row inner-incoming-row' ${clickable}`}>
                         {columns.map((c, i) => (
                             <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
                                 {c.render
