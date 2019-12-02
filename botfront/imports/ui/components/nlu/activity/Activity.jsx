@@ -62,10 +62,10 @@ function Activity(props) {
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, workingEnvironment, sortType, filter]);
 
     const [upsertActivity] = useUpsertActivity({
-        modelId, environment: workingEnvironment, filter, ...getSortFunction(),
+        modelId, env: workingEnvironment, filter, ...getSortFunction(),
     });
     const [deleteActivity] = useDeleteActivity({
-        modelId, environment: workingEnvironment, filter, ...getSortFunction(),
+        modelId, env: workingEnvironment, filter, ...getSortFunction(),
     });
 
     const isUtteranceOutdated = u => getSmartTips(model, project, u).code === 'outdated';
