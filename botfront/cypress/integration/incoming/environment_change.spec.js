@@ -34,7 +34,7 @@ describe('environments-change', function () {
 
     it('dropdown menu should only list selected environments', function () {
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab').click();
+        cy.dataCy('conversations').click();
         cy.dataCy('env-selector').should('not.exist');
         cy.visit('/project/bf/settings');
         cy.contains('Project Info').click();
@@ -44,7 +44,7 @@ describe('environments-change', function () {
             .click();
         cy.dataCy('save-changes').click();
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab').click();
+        cy.dataCy('conversations').click();
         cy.dataCy('env-selector').click();
         cy.dataCy('env-selector')
             .find('div.menu')
@@ -66,7 +66,7 @@ describe('environments-change', function () {
             .click();
         cy.dataCy('save-changes').click();
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab').click();
+        cy.dataCy('conversations').click();
         changeEnv('production');
         checkConversationEmpty();
         changeEnv('staging');
@@ -92,7 +92,7 @@ describe('environments-change', function () {
             .click();
         cy.dataCy('save-changes').click();
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab').click();
+        cy.dataCy('conversations').click();
         changeEnv('production');
         cy.get('.ui.vertical.menu')
             .should('not.contain.text', 'dev1')

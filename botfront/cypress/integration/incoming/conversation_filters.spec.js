@@ -16,7 +16,7 @@ describe('filters', function () {
     /*
     it('should keep the filter state between hide and reveal', function () {
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.wait(100);
         cy.dataCy('toggle-filters')
@@ -48,7 +48,7 @@ describe('filters', function () {
     
     it('should be resetable', function () {
         cy.visit('/project/bf/incoming');
-        cy.dataCy('incoming-conversations-tab')
+        cy.dataCy('conversations')
             .click();
         cy.wait(100);
         cy.get('.accordion.ui > .content').should('have.class', 'active');
@@ -74,7 +74,7 @@ describe('filters', function () {
             cy.addConversation('bf', 'len3', conversationData.len_3);
             cy.addConversation('bf', 'len1', conversationData.len_1);
             cy.visit('/project/bf/incoming');
-            cy.dataCy('incoming-conversations-tab')
+            cy.dataCy('conversations')
                 .click();
             cy.wait(100);
             cy.dataCy('length-filter')
@@ -124,7 +124,7 @@ describe('filters', function () {
             cy.addConversation('bf', 'conf90', conversationData.conf_90);
             cy.addConversation('bf', 'conf70', conversationData.conf_70);
             cy.visit('/project/bf/incoming');
-            cy.dataCy('incoming-conversations-tab')
+            cy.dataCy('conversations')
                 .click();
             cy.dataCy('confidence-filter')
                 .find('input')
@@ -142,7 +142,7 @@ describe('filters', function () {
             cy.addConversation('bf', 'test', conversationData.action_test);
             cy.addConversation('bf', 'autre', conversationData.action_autre);
             cy.visit('/project/bf/incoming');
-            cy.dataCy('incoming-conversations-tab')
+            cy.dataCy('conversations')
                 .click();
             cy.dataCy('action-filter')
                 .find('.filter-dropdown')
@@ -203,15 +203,15 @@ describe('filters', function () {
                 .click();
             cy.dataCy('project-import-success').should('exist');
             cy.visit('/project/bf/incoming');
-            cy.dataCy('incoming-conversations-tab')
+            cy.dataCy('conversations')
                 .click();
-            cy.dataCy('nlu-table-text').should('contains.text', 'nov');
+            cy.dataCy('utterance-text').should('contains.text', 'nov');
             cy.dataCy('conversation-item').eq(1).click();
-            cy.dataCy('nlu-table-text').should('contains.text', 'oct');
+            cy.dataCy('utterance-text').should('contains.text', 'oct');
             cy.pickDateRange(0, '1/11/2019', '30/11/2019');
             cy.dataCy('apply-filters').click();
             cy.wait(100);
-            cy.dataCy('nlu-table-text').should('contains.text', 'nov');
+            cy.dataCy('utterance-text').should('contains.text', 'nov');
             cy.dataCy('conversation-item').should('have.length', 1);
         });
     });
@@ -227,7 +227,7 @@ describe('filters', function () {
             cy.addConversation('bf', 'pass_all', conversationData.len_3_conf_70_action_test);
 
             cy.visit('/project/bf/incoming');
-            cy.dataCy('incoming-conversations-tab')
+            cy.dataCy('conversations')
                 .click();
             cy.dataCy('action-filter')
                 .find('.filter-dropdown')
