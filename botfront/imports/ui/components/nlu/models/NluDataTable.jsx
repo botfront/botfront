@@ -94,7 +94,7 @@ export default class NluDataTable extends React.Component {
                 Cell: props => (
                     <IntentLabel
                         value={props.value}
-                        allowEditing
+                        allowEditing={!props.row.example.canonical}
                         allowAdditions
                         onChange={intent => this.onEditExample({ ...props.row.example, intent })}
                     />
