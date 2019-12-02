@@ -158,10 +158,10 @@ function Activity(props) {
 
     const columns = [
         {
-            header: '%', key: 'confidence', style: { width: '40px' }, render: renderConfidence,
+            header: '%', key: 'confidence', style: { width: '51px', minWidth: '51px' }, render: renderConfidence,
         },
         {
-            header: 'Intent', key: 'intent', style: { width: '200px' }, render: renderIntent,
+            header: 'Intent', key: 'intent', style: { width: '180px', minWidth: '180px', overflow: 'hidden' }, render: renderIntent,
         },
         {
             header: 'Example', key: 'text', style: { width: '100%' }, render: renderExample,

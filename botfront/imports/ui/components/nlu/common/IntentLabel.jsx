@@ -92,7 +92,7 @@ function Intent({
                     </div>
                 )}
                 open={hover}
-                position='top right'
+                position='top center'
                 disabled={!allowEditing}
                 className='intent-popup'
             />

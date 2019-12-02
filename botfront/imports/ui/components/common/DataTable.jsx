@@ -15,29 +15,39 @@ export default function DataTable(props) {
         loadMore,
         columns,
         onChangeInVisibleItems,
+        gutterSize,
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
 
     const Row = React.forwardRef((row, ref) => {
         const { index, style } = row;
+        const editedStyle = {
+            ...style,
+            top: style.top + gutterSize,
+            paddingTop: gutterSize,
+        };
         if (!isDataLoaded(index)) {
             return (
-                <div ref={ref} className='row' style={style}>
-                    Loading...
+                <div ref={ref} style={editedStyle}>
+                    <div className='row inner-incoming-row'>
+                        Loading...
+                    </div>
                 </div>
             );
         }
         return (
-            <div ref={ref} className='row' style={style} data-index={index}>
-                {columns.map(c => (
-                    <div key={`${c.key}-${index}`} className='item' style={c.style}>
-                        {c.render
-                            ? c.render({ index, datum: data[index] })
-                            : data[index][c.key]
-                        }
-                    </div>
-                ))}
+            <div ref={ref} style={editedStyle} data-index={index}>
+                <div className='row inner-incoming-row'>
+                    {columns.map(c => (
+                        <div key={`${c.key}-${index}`} className='item' style={c.style}>
+                            {c.render
+                                ? c.render({ index, datum: data[index] })
+                                : data[index][c.key]
+                            }
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     });
@@ -126,6 +136,7 @@ DataTable.propTypes = {
     columns: PropTypes.array.isRequired,
     loadMore: PropTypes.func,
     onChangeInVisibleItems: PropTypes.func,
+    gutterSize: PropTypes.number,
 };
 
 DataTable.defaultProps = {
@@ -135,4 +146,5 @@ DataTable.defaultProps = {
     hasNextPage: false,
     loadMore: () => {},
     onChangeInVisibleItems: null,
+    gutterSize: 15,
 };
