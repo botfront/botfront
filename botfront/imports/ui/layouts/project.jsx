@@ -5,6 +5,7 @@ import windowSize from 'react-window-size';
 import SplitPane from 'react-split-pane';
 import { Meteor } from 'meteor/meteor';
 import Intercom from 'react-intercom';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Alert from 'react-s-alert';
 import yaml from 'js-yaml';
@@ -304,7 +305,7 @@ Project.defaultProps = {
 
 const ProjectContainer = withTracker((props) => {
     const {
-        params: { project_id: projectId },
+        params: { project_id: projectId }, projectId: storeProjectId, changeWorkingLanguage, changeProjectId,
     } = props;
     let projectHandler = null;
     let renderLegacyModels;
@@ -346,13 +347,13 @@ const ProjectContainer = withTracker((props) => {
     }
 
     // update store if new projectId
-    if (store.getState().settings.get('projectId') !== projectId) {
-        store.dispatch(setProjectId(projectId));
+    if (storeProjectId !== projectId) {
+        changeProjectId(projectId);
     }
 
     // update working language
     if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {
-        store.dispatch(setWorkingLanguage(defaultLanguage));
+        changeWorkingLanguage(defaultLanguage);
     }
 
     return {
@@ -361,10 +362,22 @@ const ProjectContainer = withTracker((props) => {
         projectId,
         channel,
         instance,
-        workingLanguage: store.getState().settings.get('workingLanguage'),
         slots: Slots.find({}).fetch(),
         renderLegacyModels,
     };
 })(windowSize(Project));
 
-export default ProjectContainer;
+const mapStateToProps = state => ({
+    workingLanguage: state.settings.get('workingLanguage'),
+    projectId: state.settings.get('projectId'),
+});
+
+const mapDispatchToProps = {
+    changeWorkingLanguage: setWorkingLanguage,
+    changeProjectId: setProjectId,
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(ProjectContainer);
