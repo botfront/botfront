@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { Message, Segment } from 'semantic-ui-react';
-import IntentLabel from '../common/IntentLabel';
+import IntentLabel from '../common/NewIntentLabel';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
 
