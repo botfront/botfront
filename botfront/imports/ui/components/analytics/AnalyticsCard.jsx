@@ -150,11 +150,6 @@ function AnalyticsCard(props) {
 
     const handleExportClick = async () => {
         const { nBuckets: nBucketsForExport } = calculateTemporalBuckets(startDate, endDate, 'table');
-        console.log({
-            variables: {
-                ...variables, ...exportQueryParams, nBuckets: nBucketsForExport,
-            },
-        });
         getExportData({
             variables: {
                 ...variables, ...exportQueryParams, nBuckets: nBucketsForExport,

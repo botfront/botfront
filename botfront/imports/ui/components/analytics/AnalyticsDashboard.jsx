@@ -43,8 +43,8 @@ function AnalyticsDashboard(props) {
                 columns: [
                     { header: 'Date', accessor: 'bucket', temporal: true },
                     { header: 'Visits', accessor: 'count' },
-                    { header: 'Hits', accessor: 'hits' },
-                    { header: 'Engagement', accessor: 'proportion' },
+                    { header: 'Engagements', accessor: 'hits' },
+                    { header: 'Engagement Ratio', accessor: 'proportion' },
                 ],
                 axisTitleY: { default: 'Visitor Engagement' },
                 axisTitleX: { day: 'Date', hour: 'Time' },
@@ -93,7 +93,7 @@ function AnalyticsDashboard(props) {
                 y: [{ abs: 'count', rel: 'frequency' }],
 
                 columns: [
-                    { header: 'Name', accessor: 'name' },
+                    { header: 'Intent Name', accessor: 'name' },
                     { header: 'Count', accessor: 'count' },
                     { header: 'Frequency', accessor: 'frequency' },
                 ],
@@ -150,7 +150,7 @@ function AnalyticsDashboard(props) {
                 },
                 columns: [
                     { header: 'Date', accessor: 'bucket', temporal: true },
-                    { header: 'Hits', accessor: 'hits' },
+                    { header: 'Count', accessor: 'hits' },
                     { header: 'Proportion', accessor: 'proportion' },
                 ],
                 rel: { y: [{ abs: 'proportion' }] },

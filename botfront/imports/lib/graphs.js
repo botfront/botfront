@@ -165,36 +165,41 @@ export const getDataToDisplayAndParamsToUse = ({
     return { dataToDisplay, paramsToUse };
 };
 
-export const generateCSV = (data, queryParams, bucketSize, projectTimezoneOffset) => {
+export const generateCSV = (data, queryParams, bucketSize, projectTimezoneOffset, columns) => {
     // create csv formatted data for export
+    const bucketColunmIndex = columns.findIndex(({ accessor }) => accessor === 'bucket');
+    const exportColumns = bucketSize === 'hour' && queryParams.temporal === true
+        ? [
+            ...columns.slice(0, bucketColunmIndex),
+            { accessor: 'timeBucket', header: 'Time' },
+            { accessor: 'dateBucket', header: 'Date' },
+            ...columns.slice(bucketColunmIndex + 1, columns.length),
+        ]
+        : columns;
     let formattedData = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
     formattedData = formatDataForTable(formattedData);
     formattedData = formattedData.map(((elem) => {
         const { __typename, bucket, ...rest } = elem; // __typename is not exported
-        let formattedElem = rest;
+        const formattedElem = rest;
         if (queryParams.temporal) { // bucket is a date
             if (bucketSize === 'day') {
-                formattedElem = {
-                    date: moment(bucket).format('DD/MM/YYYY'),
-                    ...rest,
-                };
+                formattedElem.bucket = moment(bucket).format('DD/MM/YYYY');
             }
             if (bucketSize === 'hour') {
-                formattedElem = {
-                    time: `${moment(bucket).format('HH:mm')} - ${moment(bucket).add(1, 'hour').subtract(1, 'millisecond').format('HH:mm')}`,
-                    date: moment(bucket).format('DD/MM/YYYY'),
-                    ...rest,
-                };
+                formattedElem.timeBucket = `${moment(bucket).format('HH:mm')} - ${moment(bucket).add(1, 'hour').subtract(1, 'millisecond').format('HH:mm')}`;
+                formattedElem.dateBucket = moment(bucket).format('DD/MM/YYYY');
             }
-            if (bucketSize === 'week') {
-                rest.date = moment(bucket).format('DD/MM/YYYY');
-            }
+            formattedElem.bucket = moment(bucket).format('DD/MM/YYYY');
         }
-        return formattedElem;
+        let list = [];
+        exportColumns.forEach(({ accessor }) => {
+            list = [...list, { value: formattedElem[accessor], accessor }];
+        });
+        return list;
     }));
-    const csvKeys = Object.keys(formattedData[0]).join();
+    formattedData.map(elem => elem.join()).join('\n');
+    const csvKeys = exportColumns.map(({ header }) => header).join();
     const csvValues = formattedData
-        .map(elem => Object.values(elem).join())
-        .join('\n');
+        .map(elem => elem.map(({ value }) => value).join()).join('\n');
     return `${csvKeys}\n${csvValues}`;
 };
