@@ -1,102 +1,118 @@
 import React, {
-    useContext, useRef, useState, useEffect,
+    useContext, useState,
 } from 'react';
-import { Icon, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import IntentDropdown from './IntentDropdown';
+import {
+    Icon, Popup, Input, Button,
+} from 'semantic-ui-react';
 import { ProjectContext } from '../../../layouts/context';
 import { OOS_LABEL } from '../../constants.json';
+import DataTable from '../../common/DataTable';
 
-function Intent({
-    value, allowEditing, allowAdditions, onChange, disabled, enableReset,
-}) {
-    const { intents, addIntent } = useContext(ProjectContext);
-    const popupTrigger = useRef(null);
-    const popupContent = useRef(null);
-    const [hover, setHover] = useState(false);
-    const [popupTimer, setPopupTimer] = useState(null);
+function Intent(props) {
+    const {
+        value, allowEditing, allowAdditions, onChange, disabled, enableReset,
+    } = props;
+    const {
+        addIntent, intents: contextIntents,
+    } = useContext(ProjectContext);
+    const [popupOpen, setPopupOpen] = useState(false);
+    const [typeInput, setTypeInput] = useState('');
 
-    useEffect(() => () => {
-        clearTimeout(popupTimer);
-    }, []);
+    const intents = contextIntents.map(i => ({ intent: i }));
 
-    function handleMouseEnter() {
-        clearTimeout(popupTimer);
-        setHover(true);
-    }
+    const textMatch = (s1, s2) => s1.replace(' ', '').toLowerCase().includes(s2.replace(' ', '').toLowerCase());
+    const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
 
-    function handleMouseLeave() {
-        const leaveTime = 35;
+    const handleChange = (intentName) => {
+        if (intentName) addIntent(intentName);
+        onChange(intentName);
+        setTypeInput('');
+        setPopupOpen(false);
+    };
 
-        setPopupTimer(
-            setTimeout(() => {
-                setHover(false);
-            }, leaveTime),
-        );
-    }
+    const handleKeyDown = (event) => {
+        if (event.key === 'Escape') {
+            setTypeInput('');
+            setPopupOpen(false);
+        }
+        if (event.key === 'Enter') handleChange(typeInput);
+    };
 
-    function renderTrigger() {
-        let extraClass = '';
-        if (disabled) extraClass = `${extraClass} disabled`;
-        if (value === OOS_LABEL || !value) extraClass = `${extraClass} null`;
-        if (!allowEditing) extraClass = `${extraClass} uneditable`;
-        return (
-            <div
-                className={`intent-label ${extraClass}`}
-                data-cy='intent-label'
-            >
-                <div className='content-on-label'><Icon name='tag' size='small' /><span>{value || '-'}</span></div>
-            </div>
-        );
-    }
+    const renderIntent = (row) => {
+        const { datum } = row;
+        if (React.isValidElement(datum.intent)) return datum.intent;
+        let classes = 'intent-label uneditable selectable';
+        if (datum.intent === value) classes = `${classes} selected`;
+        return <div className={classes}>{datum.intent}</div>;
+    };
 
-    let options = intents.map(intent => ({ key: intent, text: intent, value: intent }));
-    options = value !== OOS_LABEL ? options.concat([{ text: value, value }]) : options;
+    const renderInsertNewIntent = () => (
+        <Input
+            placeholder='Filter or create'
+            fluid
+            style={{ marginBottom: '10px' }}
+            onChange={(e, { value: newInput }) => setTypeInput(newInput)}
+            onKeyDown={handleKeyDown}
+            autoFocus
+        />
+    );
+
+    const columns = [
+        { key: 'intent', style: { width: '200px' }, render: renderIntent },
+    ];
+
+
+    const renderContent = () => (
+        <div
+            style={{
+                height: dataToDisplay.length ? (allowAdditions ? '250px' : '200px') : '100px',
+                width: '300px',
+            }}
+            className='intent-dropdown'
+        >
+            {allowAdditions && renderInsertNewIntent()}
+            {dataToDisplay.length
+                ? (
+                    <DataTable
+                        height={200}
+                        width={300}
+                        columns={columns}
+                        data={dataToDisplay}
+                        onClickRow={({ datum: { intent } }) => handleChange(intent)}
+                    />
+                )
+                : (
+                    <Button fluid color='purple' content='Create new intent' onClick={() => handleChange(typeInput)} />
+                )
+            }
+        </div>
+    );
+
+    let extraClass = '';
+    if (popupOpen) extraClass = `${extraClass} selected`;
+    if (disabled) extraClass = `${extraClass} disabled`;
+    if (value === OOS_LABEL || !value) extraClass = `${extraClass} null`;
+    if (!allowEditing) extraClass = `${extraClass} uneditable`;
 
     return (
-        <span
-            ref={popupTrigger}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+        <div
+            className={`intent-label ${extraClass}`}
+            data-cy='intent-label'
         >
             <Popup
-                trigger={renderTrigger()}
-                content={(
-                    <div
-                        ref={popupContent}
-                        onMouseEnter={handleMouseEnter}
-                        onMouseLeave={handleMouseLeave}
-                        className='intent-dropdown-container'
-                    >
-                        <IntentDropdown
-                            intent={value}
-                            options={options}
-                            onChange={(_e, data) => {
-                                onChange(data.value.replace(/ /g, ''));
-                            }}
-                            onAddItem={(_e, data) => {
-                                addIntent(data.value.replace(/ /g, ''));
-                                onChange(data.value.replace(/ /g, ''));
-                            }}
-                            allowAdditions={allowAdditions}
-                        />
-                        {enableReset && (
-                            <Icon
-                                data-cy='rename-intent'
-                                name='x'
-                                color='grey'
-                                link
-                                onClick={() => onChange(null)}
-                            />
-                        )}
-                    </div>
-                )}
-                open={hover}
-                position='top center'
+                trigger={<div className='content-on-label'><Icon name='tag' size='small' /><span>{value || '-'}</span></div>}
+                basic
+                content={renderContent()}
+                on='click'
+                open={popupOpen}
+                onOpen={() => setPopupOpen(true)}
+                onClose={() => { setTypeInput(''); setPopupOpen(false); }}
                 disabled={!allowEditing}
                 className='intent-popup'
             />
-        </span>
+            { enableReset && <Icon name='x' className='action-on-label' onClick={() => handleChange('')} />}
+        </div>
     );
 }
 
