@@ -47,15 +47,6 @@
     border-radius: 4px;
     cursor: default;
 
-    &:not(.disabled):not(.uneditable):hover {
-        border: 1px solid rgba(176, 176, 176, 0.4);
-        span {
-            color: @grey;
-        }
-    }
-    &.selected {
-        font-weight: bold;
-    }
     &.disabled {
         color: @grey;
     }
@@ -65,13 +56,34 @@
     .action-on-label {
         float: right;
         color: @grey;
+        position: relative;
+        bottom: 2px;
     }
     .content-on-label {
         min-width: 130px;
+        position: relative;
+        bottom: 1px;
+    }
+    &:not(.disabled):not(.uneditable):hover, &.selected {
+        border: 1px solid rgba(176, 176, 176, 0.4);
+        span {
+            color: @grey;
+        }
     }
 }
-.virtual-table {
+
+.intent-dropdown {
+    .intent-label {
+        &.selected {
+            font-weight: bold;
+        }
+        border: initial;
+        span {
+            color: initial;
+        }
+    }
     .row:hover {
+        cursor: pointer;
         .intent-label.selectable {
             font-weight: bold;
         }
