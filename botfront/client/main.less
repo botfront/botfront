@@ -1,20 +1,17 @@
-@import url('https://fonts.googleapis.com/css?family=Hind:600|Raleway:500');
+@import url('https://fonts.googleapis.com/css?family=Be+Vietnam:400,500,700|Hind:600|Raleway:500');
 @import 'variables.import.less';
 @import '../imports/ui/layouts/project.import.less';
 @import '../imports/ui/layouts/setup.import.less';
 @import '../imports/ui/components/admin/settings.import.less';
 @import '../imports/ui/components/nlu/models/style/NLUModel.import.less';
 @import '../imports/ui/components/nlu/models/style/style.import.less';
-@import '../imports/ui/components/templates/template-upsert/NLUCriteria/NLUCriteriaEditor.import.less';
-@import '../imports/ui/components/utils/style/ImageField.import.less';
-@import '../imports/ui/components/utils/style/style.import.less';
+@import '../imports/ui/components/utils/style.import.less';
 @import '../imports/ui/components/nlu/activity/style.import.less';
 @import '../imports/ui/components/templates/template-upsert/Template.import.less';
 @import '../imports/ui/components/templates/templates-list/style.import.less';
 @import '../imports/ui/components/common/style.import.less';
-@import '../imports/ui/components/nlu/common/EntityDropdown.import.less';
 @import '../imports/ui/components/stories/StoriesFooter.import.less';
-@import '../imports/ui/components/nlu/common/IntentDropdown.import.less';
+@import '../imports/ui/components/nlu/common/style.import.less';
 @import '../imports/ui/components/conversations/style.import.less';
 @import '../imports/ui/components/stories/style.import.less';
 @import '../imports/ui/components/account/style.import.less';
@@ -34,8 +31,8 @@
 
 :global {
     @import 'react-select/dist/react-select.css';
-   
 }
+
 @font-face {
     font-family: 'Icons';
     src: url("./fonts/icons.eot");
@@ -45,16 +42,24 @@
     font-variant: normal;
     text-decoration: inherit;
     text-transform: none;
-  }
+}
 
 
 html {
     overflow: hidden;
     height: 100%;
+    font-size: @emSize !important;
+    font-family: @fontFamily !important;
 }
 
 body {
     color: #212121;
+    font-size: inherit !important;
+    font-family: inherit !important;
+}
+
+.ui {
+    font-family: inherit !important;
 }
 
 #render-target {
@@ -95,30 +100,6 @@ body {
     padding: 0;
     width:13rem;
 }
-
-/* configure input padding */
-
-// .ui.label {
-//     display: inline-flex;
-//     width: max-content;
-//     max-width: 100%;
-//     overflow: hidden;
-
-//     .ui.input {
-//         color: inherit;
-//         font-weight: inherit;
-
-//         input {
-//             border: 0;
-//             color: inherit;
-//             font-weight: inherit;
-//         }
-//     }
-
-//     p {
-//         display: inline-block;
-//     }
-// }
 
 /* reduce top margin NLU examples */
 .ui.top.attached.label:first-child + :not(.attached), .ui.top.attached.label + [class*="right floated"] + * {
@@ -198,6 +179,8 @@ p.overflow {
     border-left: 0;
     border-right: 0;
     /*padding: 0.24em;*/
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
     background: transparent;
 }
 

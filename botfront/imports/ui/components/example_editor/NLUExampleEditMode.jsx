@@ -154,7 +154,7 @@ export default class NLUExampleEditMode extends React.Component {
             const entityNames = sortBy(this.state.example.entities, 'start').map(e => e.entity);
             // exclude entities not extracted by ner_crf
             return this.filterNonEditableEntities().map((e, index) => (
-                <div className={'entities-viewer'} key={index}><Button.Group size='mini' color={getColor(entityNames.indexOf(e.entity), true)}>
+                <div className={'entities-viewer'} key={index}><Button.Group size='mini' color={getColor(e.entity, true)}>
                     <Dropdown
                         searchInput={{ autoFocus: !e.entity}}
                         openOnFocus

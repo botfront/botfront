@@ -5,14 +5,16 @@ import {
     Dropdown, Button, Popup,
 } from 'semantic-ui-react';
 import { groupBy } from 'lodash';
-import { ConversationOptionsContext } from '../../utils/Context';
+import { ConversationOptionsContext } from '../Context';
+import { ProjectContext } from '../../../layouts/context';
 import { slotValueToLabel } from '../SlotLabel';
 
 const SlotPopupContent = (props) => {
     const {
         value: active, onSelect, trigger, trackOpenMenu,
     } = props;
-    const { slots, browseToSlots } = useContext(ConversationOptionsContext);
+    const { browseToSlots } = useContext(ConversationOptionsContext);
+    const { slots } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState();
     const [menuOpen, setMenuOpen] = useState();
 

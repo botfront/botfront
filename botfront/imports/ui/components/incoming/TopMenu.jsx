@@ -7,9 +7,16 @@ import LanguageDropdown from '../common/LanguageDropdown';
 import EnvSelector from '../common/EnvSelector';
 
 const TopMenu = ({
-    projectLanguages, selectedLanguage, handleLanguageChange, tab, selectedEnvironment, handleEnvChange, projectEnvironments,
+    projectLanguages,
+    selectedLanguage,
+    handleLanguageChange,
+    tab,
+    className,
+    selectedEnvironment,
+    handleEnvChange,
+    projectEnvironments,
 }) => (
-    <Menu borderless className='top-menu'>
+    <Menu borderless className={`top-menu ${className}`}>
         <Menu.Item header>
             {tab === 'conversations' ? (
                 <></>
@@ -43,11 +50,13 @@ TopMenu.propTypes = {
     handleEnvChange: PropTypes.func.isRequired,
     selectedEnvironment: PropTypes.string.isRequired,
     tab: PropTypes.string,
+    className: PropTypes.string,
 };
 
 TopMenu.defaultProps = {
     tab: '',
     selectedLanguage: '',
+    className: '',
 };
 
 export default TopMenu;

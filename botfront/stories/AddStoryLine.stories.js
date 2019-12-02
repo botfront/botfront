@@ -1,18 +1,9 @@
+/* eslint-disable no-alert */
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, select, boolean } from '@storybook/addon-knobs';
+import { size } from '../.storybook/knobs';
 import AddStoryLine from '../imports/ui/components/stories/common/AddStoryLine';
-import { ConversationOptionsContext } from '../imports/ui/components/utils/Context';
-import { intents, entities } from './PayloadEditor.stories';
-import { selectionThree as slots } from './SlotPopupContent.stories';
-
-export { intents, entities, slots };
-
-const responses = [
-    { name: 'YO' },
-    { name: 'blah' },
-    { name: 'doodoo' },
-];
 
 const availableActions = {
     selectionOne: {
@@ -33,31 +24,11 @@ const alertPayload = pl => alert(`
     ` : ''}
     `);
 
-const size = {
-    mini: 'mini',
-    tiny: 'tiny',
-    small: 'small',
-    medium: 'medium',
-    large: 'large',
-    big: 'big',
-    huge: 'huge',
-    massive: 'massive',
-};
-
 storiesOf('AddStoryLine', module)
     .addDecorator(withKnobs)
     .addDecorator(story => (
         <div className='story-visual-editor'>
-            <ConversationOptionsContext.Provider
-                value={{
-                    slots,
-                    responses,
-                    intents,
-                    entities,
-                }}
-            >
-                {story()}
-            </ConversationOptionsContext.Provider>
+            {story()}
         </div>
     ))
     .add('default', () => (

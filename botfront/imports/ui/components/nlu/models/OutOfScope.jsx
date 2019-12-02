@@ -6,8 +6,8 @@ import {
     Message, Segment, Popup, Button, Icon,
 } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
-import IntentViewer from './IntentViewer';
-import NLUExampleText from '../../example_editor/NLUExampleText';
+import IntentLabel from '../common/IntentLabel';
+import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity } from '../activity/hooks';
 import {
     upsertActivity as upsertActivityMutation,
@@ -15,9 +15,10 @@ import {
 } from '../activity/mutations';
 
 import DataTable from '../../common/DataTable';
+import { clearTypenameField } from '../../../../lib/utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
-import FloatingIconButton from '../common/FloatingIconButton';
+import FloatingIconButton from '../../common/FloatingIconButton';
 
 function OutOfScope(props) {
     const [sortType, setSortType] = useState('Newest');
@@ -34,7 +35,6 @@ function OutOfScope(props) {
 
     const {
         model: { _id: modelId },
-        entities,
         intents,
         projectId,
     } = props;
@@ -73,27 +73,25 @@ function OutOfScope(props) {
     };
 
     const renderIntent = row => (
-        <IntentViewer
-            intents={intents.map(i => ({ value: i, text: i }))}
-            example={row.datum}
-            intent={row.datum.intent || ''}
-            projectId={projectId}
+        <IntentLabel
+            value={row.datum.intent || ''}
             enableReset
-            onSave={({ _id, intent }) => handleUpdate([{ _id, intent, confidence: null }])}
+            allowAdditions
+            allowEditing
+            onChange={({ _id, intent }) => handleUpdate([{ _id, intent, confidence: null }])}
         />
     );
 
     const renderExample = row => (
-        <NLUExampleText
-            example={row.datum}
-            entities={entities}
-            showLabels
-            onSave={u => handleUpdate([{
+        <UserUtteranceViewer
+            value={row.datum}
+            onChange={u => handleUpdate([{
                 _id: u._id,
-                entities: u.entities.map((e) => { delete e.__typename; e.confidence = null; return e; }),
+                entities: u.entities.map(e => clearTypenameField(({ ...e, confidence: null }))),
             }])}
             editable
             projectId={projectId}
+            showIntent={false}
         />
     );
 
@@ -189,7 +187,6 @@ function OutOfScope(props) {
 OutOfScope.propTypes = {
     projectId: PropTypes.string.isRequired,
     model: PropTypes.object.isRequired,
-    entities: PropTypes.array.isRequired,
     intents: PropTypes.array.isRequired,
 };
 

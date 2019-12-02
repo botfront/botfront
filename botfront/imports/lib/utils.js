@@ -10,6 +10,7 @@ import { GlobalSettings } from '../api/globalSettings/globalSettings.collection'
 import { checkIfCan } from '../api/roles/roles';
 
 import { Projects } from '../api/project/project.collection';
+import { NLUModels } from '../api/nlu_model/nlu_model.collection';
 
 export const formatAxiosError = (method, error) => {
     const { status, statusText } = error.response;
@@ -176,6 +177,13 @@ if (Meteor.isServer) {
     });
 }
 export const getModelIdsFromProjectId = projectId => Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+
+export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
+    const nluModelIds = getModelIdsFromProjectId(projectId);
+    const models = NLUModels.find({ _id: { $in: nluModelIds }, language }, { fields: { training_data: 1 } }).fetch();
+    return models.map(model => model.training_data.common_examples)
+        .reduce((acc, x) => acc.concat(x), []);
+};
 
 export const validateYaml = function() {
     try {

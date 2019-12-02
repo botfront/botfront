@@ -1,16 +1,16 @@
 import React, {
     useContext, useRef, useState, useEffect,
 } from 'react';
-import { Label, Popup } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import IntentDropdown from '../nlu/common/IntentDropdown';
-import { ConversationOptionsContext } from './Context';
-import { OOS_LABEL } from '../constants.json';
+import IntentDropdown from './IntentDropdown';
+import { ProjectContext } from '../../../layouts/context';
+import { OOS_LABEL } from '../../constants.json';
 
 function Intent({
-    value, size, allowEditing, allowAdditions, onChange,
+    value, allowEditing, allowAdditions, onChange, disabled, enableReset,
 }) {
-    const { intents, addIntent } = useContext(ConversationOptionsContext);
+    const { intents, addIntent } = useContext(ProjectContext);
     const popupTrigger = useRef(null);
     const popupContent = useRef(null);
     const [hover, setHover] = useState(false);
@@ -35,6 +35,21 @@ function Intent({
         );
     }
 
+    function renderTrigger() {
+        let extraClass = '';
+        if (disabled) extraClass = `${extraClass} disabled`;
+        if (value === OOS_LABEL || !value) extraClass = `${extraClass} null`;
+        if (!allowEditing) extraClass = `${extraClass} uneditable`;
+        return (
+            <div
+                className={`intent-label ${extraClass}`}
+                data-cy='intent-label'
+            >
+                <div className='content-on-label'><Icon name='tag' size='small' /><span>{value || '-'}</span></div>
+            </div>
+        );
+    }
+
     let options = intents.map(intent => ({ key: intent, text: intent, value: intent }));
     options = value !== OOS_LABEL ? options.concat([{ text: value, value }]) : options;
 
@@ -45,22 +60,13 @@ function Intent({
             onMouseLeave={handleMouseLeave}
         >
             <Popup
-                trigger={(
-                    <Label
-                        id='intent'
-                        color={value !== OOS_LABEL ? 'purple' : 'grey'}
-                        basic={value === OOS_LABEL}
-                        data-cy='intent-label'
-                        size={size}
-                    >
-                        {value}
-                    </Label>
-                )}
+                trigger={renderTrigger()}
                 content={(
                     <div
                         ref={popupContent}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
+                        className='intent-dropdown-container'
                     >
                         <IntentDropdown
                             intent={value}
@@ -74,10 +80,19 @@ function Intent({
                             }}
                             allowAdditions={allowAdditions}
                         />
+                        {enableReset && (
+                            <Icon
+                                data-cy='rename-intent'
+                                name='x'
+                                color='grey'
+                                link
+                                onClick={() => onChange(null)}
+                            />
+                        )}
                     </div>
                 )}
                 open={hover}
-                position='top right'
+                position='top center'
                 disabled={!allowEditing}
                 className='intent-popup'
             />
@@ -87,17 +102,19 @@ function Intent({
 
 Intent.propTypes = {
     value: PropTypes.string.isRequired,
-    size: PropTypes.string,
     allowEditing: PropTypes.bool,
     allowAdditions: PropTypes.bool,
+    enableReset: PropTypes.bool,
     onChange: PropTypes.func,
+    disabled: PropTypes.bool,
 };
 
 Intent.defaultProps = {
-    size: 'small',
     allowEditing: false,
     allowAdditions: false,
     onChange: () => {},
+    disabled: false,
+    enableReset: false,
 };
 
 export default Intent;

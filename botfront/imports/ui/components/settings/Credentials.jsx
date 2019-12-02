@@ -78,7 +78,7 @@ class Credentials extends React.Component {
                 }}
             >
                 {environment}
-                <AceField name='credentials' label='Credentials' fontSize={12} mode='yaml' data-cy='ace-field' />
+                <AceField name='credentials' label='Credentials' mode='yaml' data-cy='ace-field' />
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved

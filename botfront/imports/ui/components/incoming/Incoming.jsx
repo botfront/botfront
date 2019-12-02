@@ -93,7 +93,7 @@ class Incoming extends React.Component {
 
     render () {
         const {
-            projectLanguages, ready, model, workingLanguage, workingEnvironment, projectEnvironments,
+            projectLanguages, ready, model, workingLanguage, workingEnvironment, projectEnvironments, router,
         } = this.props;
         const { activeTab } = this.state;
 
@@ -106,18 +106,21 @@ class Incoming extends React.Component {
                     projectEnvironments={projectEnvironments}
                     handleEnvChange={this.handleEnvChange}
                     selectedEnvironment={workingEnvironment}
-                    tab={activeTab}
+                    tab={router.params.tab}
+                    className='incoming'
                 />
-                <Container>
-                    <Loading loading={!ready || !model}>
-                        <Tab
-                            activeIndex={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
-                            menu={{ pointing: true, secondary: true }}
-                            panes={this.getPanes()}
-                            onTabChange={this.handleTabClick}
-                        />
-                    </Loading>
-                </Container>
+                <div className='incoming-background'>
+                    <Container>
+                        <Loading loading={!ready || !model}>
+                            <Tab
+                                activeIndex={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
+                                menu={{ pointing: true, secondary: true }}
+                                panes={this.getPanes()}
+                                onTabChange={this.handleTabClick}
+                            />
+                        </Loading>
+                    </Container>
+                </div>
             </>
         );
     }
