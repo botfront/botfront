@@ -5,7 +5,7 @@ import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import Activity from '../graphql/activity/activity.model';
-import { formatError } from '../../lib/utils';
+import { getAllTrainingDataGivenProjectIdAndLanguage, formatError } from '../../lib/utils';
 import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
@@ -22,46 +22,18 @@ import { flattenStory, extractDomain } from '../../lib/story.utils';
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
 
-    export const extractData = (models) => {
-        const trainingExamples = models.map(model => model.training_data.common_examples);
-        let intents = [];
-        let entities = [];
-        if (trainingExamples.length !== 0) {
-            const trainingData = trainingExamples.reduce((acc, x) => acc.concat(x));
-            // extract intents and entities from common examples of training data
-            intents = trainingData.map(example => example.intent);
-            entities = trainingData.map(example => example.entities);
-            if (entities.length !== 0) {
-                entities = entities.reduce((acc, x) => {
-                    if (x) return acc.concat(x);
-                    return acc; // in case training example had no entities key
-                });
-                entities = entities.map(entity => entity.entity);
-            }
-            return {
-                intents: new Set(intents),
-                entities: new Set(entities),
-            };
-        }
-        // return empty set if training data is empty
-        return {
-            intents: new Set(),
-            entities: new Set(),
-        };
-    };
+    const getExamplesFromTrainingData = (trainingData, startIntents = [], startEntities = []) => {
+        const intents = Object.fromEntries(startIntents.map(i => [i, []]));
+        let entities = startEntities;
 
-    export const getExamplesFromTrainingData = (projectId) => {
-        // Get all the Nlu model ids belonging to the project
-        const { nlu_models: nluModelIds } = Projects.findOne(
-            { _id: projectId },
-            { fields: { nlu_models: 1 } },
-        );
-        const models = NLUModels.find(
-            { _id: { $in: nluModelIds } },
-            { fields: { training_data: 1 } },
-        ).fetch();
-        // returns extracted entities and intents
-        return extractData(models);
+        trainingData.forEach((ex) => {
+            const exEntities = (ex.entities || []).map(en => en.entity);
+            entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
+            if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
+            if (ex.canonical) intents[ex.intent].push({ entities: exEntities, example: ex });
+        });
+        
+        return { intents, entities };
     };
 
     Meteor.methods({
@@ -146,8 +118,9 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'project.getEntitiesAndIntents'(projectId) {
+        async 'project.getEntitiesAndIntents'(projectId, language) {
             check(projectId, String);
+            check(language, String);
 
             try {
                 const stories = await Meteor.callWithPromise('stories.getStories', projectId);
@@ -161,17 +134,9 @@ if (Meteor.isServer) {
                         .map(story => story.story || ''),
                     slots,
                 ) : {};
-                const {
-                    intents: intentSetFromTraining,
-                    entities: entitiesSetFromTraining,
-                } = getExamplesFromTrainingData(projectId);
+                const trainingData = getAllTrainingDataGivenProjectIdAndLanguage(projectId, language);
 
-                const intents = Array.from(new Set([...intentSetFromDomain, ...intentSetFromTraining]));
-                const entities = Array.from(new Set([...entitiesSetFromDomain, ...entitiesSetFromTraining]));
-                return {
-                    intents,
-                    entities,
-                };
+                return getExamplesFromTrainingData(trainingData, intentSetFromDomain, entitiesSetFromDomain);
             } catch (error) {
                 throw error;
             }

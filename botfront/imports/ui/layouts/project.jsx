@@ -40,21 +40,9 @@ class Project extends React.Component {
         };
     }
 
-    componentDidMount = () => {
-        const { projectId } = this.props;
-        Meteor.call(
-            'project.getEntitiesAndIntents',
-            projectId,
-            wrapMeteorCallback((err, res) => {
-                if (!err) {
-                    this.setState({ entities: res.entities });
-                    this.setState({ intents: res.intents });
-                }
-            }),
-        );
-    }
-
-    componentDidUpdate = () => {
+    componentDidUpdate = (prevProps) => {
+        const { projectId, workingLanguage: language } = this.props;
+        const { workingLanguage: prevLanguage } = prevProps;
         const { showIntercom } = this.state;
         if (window.Intercom && showIntercom) {
             window.Intercom('show');
@@ -64,6 +52,19 @@ class Project extends React.Component {
             window.Intercom('onHide', () => {
                 this.setState({ showIntercom: false });
             });
+        }
+        if (language && prevLanguage !== language) {
+            Meteor.call(
+                'project.getEntitiesAndIntents',
+                projectId,
+                language,
+                wrapMeteorCallback((err, res) => {
+                    if (!err) {
+                        this.setState({ entities: res.entities });
+                        this.setState({ intents: Object.keys(res.intents) });
+                    }
+                }),
+            );
         }
     }
 

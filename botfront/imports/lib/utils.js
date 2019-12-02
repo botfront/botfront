@@ -6,6 +6,7 @@ import React from 'react';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { Projects } from '../api/project/project.collection';
+import { NLUModels } from '../api/nlu_model/nlu_model.collection';
 
 export const formatAxiosError = (method, error) => {
     const { status, statusText } = error.response;
@@ -81,6 +82,13 @@ export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProp
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
 
 export const getModelIdsFromProjectId = projectId => Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+
+export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
+    const nluModelIds = getModelIdsFromProjectId(projectId);
+    const models = NLUModels.find({ _id: { $in: nluModelIds }, language }, { fields: { training_data: 1 } }).fetch();
+    return models.map(model => model.training_data.common_examples)
+        .reduce((acc, x) => acc.concat(x), []);
+};
 
 export const validateYaml = function() {
     try {

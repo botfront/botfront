@@ -53,6 +53,9 @@
             color: @grey;
         }
     }
+    &.selected {
+        font-weight: bold;
+    }
     &.disabled {
         color: @grey;
     }
@@ -65,6 +68,13 @@
     }
     .content-on-label {
         min-width: 130px;
+    }
+}
+.virtual-table {
+    .row:hover {
+        .intent-label.selectable {
+            font-weight: bold;
+        }
     }
 }
 
