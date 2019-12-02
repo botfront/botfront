@@ -123,7 +123,7 @@ function Activity(props) {
                 value={datum.intent ? datum.intent : ''}
                 allowEditing={!isUtteranceOutdated(datum)}
                 allowAdditions
-                onChange={({ _id, intent, ...rest }) => handleUpdate([{ _id, intent, confidence: null }], rest)}
+                onChange={intent => handleUpdate([{ _id: datum._id, intent, confidence: null }], datum)}
                 enableReset
             />
         );
