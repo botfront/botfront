@@ -1,4 +1,5 @@
-/* global cy: true */
+/* global Cypress cy: true */
+import { changeAPIUrl } from './export-project.spec';
 
 const storyGroupName = 'Account';
 const slotName = 'test_slot';
@@ -61,9 +62,6 @@ describe('Importing a project', function() {
             cy.dataCy('export-with-conversations')
                 .click();
             cy.dataCy('backup-link').should('exist');
-            // cy.dataCy('backup-link')
-            //     .should('have.attr', 'href')
-            //     .and('equal', `${Cypress.env('API_URL')}/project/test_project/export?output=json&conversations=true`);
         });
         it('should display the correct API link after downloading a backup without conversations', function() {
             cy.visit('/project/test_project/settings');
@@ -85,35 +83,6 @@ describe('Importing a project', function() {
                 .click();
             cy.dataCy('skiped-backup-warning')
                 .should('exist');
-        });
-        it('should display an error message when the backup fails', function() {
-            cy.visit('/project/test_project/settings');
-            cy.dataCy('project-settings-more')
-                .click();
-            cy.dataCy('admin-settings-menu')
-                .find('a')
-                .contains('Docker Compose')
-                .click();
-            cy.dataCy('docker-api-host')
-                .click();
-            cy.dataCy('docker-api-host')
-                .find('input')
-                .clear()
-                .type('aaaa{enter}');
-            cy.visit('/project/test_project/settings');
-            cy.contains('Import/Export').click();
-            cy.dataCy('import-type-dropdown')
-                .click();
-            cy.dataCy('import-type-dropdown')
-                .find('span')
-                .contains('Botfront')
-                .click();
-            cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
-                cy.get('.file-dropzone').upload(content, 'data.json');
-            });
-            cy.dataCy('export-with-conversations')
-                .click();
-            cy.contains('Backup Failed').should('exist');
         });
 
         it('should import the right number and names of story groups', function() {
@@ -211,6 +180,26 @@ describe('Importing a project', function() {
                 .contains(entityValue)
                 .closest('[data-cy=entity-label]')
                 .contains(entityName);
+        });
+
+
+        it('should display an error message when the backup fails', function() {
+            changeAPIUrl('haha');
+            cy.visit('/project/test_project/settings');
+            cy.contains('Import/Export').click();
+            cy.dataCy('import-type-dropdown')
+                .click();
+            cy.dataCy('import-type-dropdown')
+                .find('span')
+                .contains('Botfront')
+                .click();
+            cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
+                cy.get('.file-dropzone').upload(content, 'data.json');
+            });
+            cy.dataCy('export-with-conversations')
+                .click();
+            cy.contains('Backup Failed').should('exist');
+            changeAPIUrl(Cypress.env('API_URL'));
         });
     });
 });
