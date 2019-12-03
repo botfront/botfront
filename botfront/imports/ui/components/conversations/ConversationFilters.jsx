@@ -38,9 +38,21 @@ const ConversationFilters = ({
     const [activeAccordion, setActiveAccordion] = useState(true);
 
     useEffect(() => setNewActionFilters(actionFilters), [actionFilters]);
+    useEffect(() => setNewStartDate(startDate), [startDate]);
+    useEffect(() => setNewEndDate(endDate), [endDate]);
+    useEffect(() => setNewConfidenceFilter({
+        compare: confidenceFilter * 100,
+        xThan: xThanConfidence,
+    }), [confidenceFilter, xThanConfidence]);
+    useEffect(() => setNewLengthFilter({
+        compare: lengthFilter,
+        xThan: xThanLength,
+    }), [lengthFilter, xThanLength]);
+
+
     const filterLengthOptions = [
-        { value: 'greaterThan', text: '>' },
-        { value: 'lessThan', text: '<' },
+        { value: 'greaterThan', text: '≥' },
+        { value: 'lessThan', text: '≤' },
         { value: 'equals', text: '=' },
     ];
     /*
@@ -66,9 +78,20 @@ const ConversationFilters = ({
 
     const resetFilters = (e) => {
         e.stopPropagation();
+        setNewActionFilters([]);
+        setNewStartDate(null);
+        setNewEndDate(null);
+        setNewConfidenceFilter({
+            compare: -1 * 100,
+            xThan: xThanConfidence,
+        });
+        setNewLengthFilter({
+            compare: -1,
+            xThan: 'greaterThan',
+        });
         changeFilters(
             { compare: -1, xThan: 'greaterThan' },
-            { compare: -1, xThan: 'greaterThan' },
+            { compare: -1, xThan: 'lessThan' },
             [],
             null,
             null,
@@ -167,7 +190,7 @@ const ConversationFilters = ({
                             className='conversation-filter'
                         >
                             <Segment className='x-than-filter'>
-                                <Label> Confidence &lt;</Label>
+                                <Label> Confidence &le;</Label>
                             </Segment>
                             <Segment className='number-filter'>
                                 <Input

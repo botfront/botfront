@@ -107,6 +107,24 @@
         "input_channel": "webchat",
         "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
         "metadata": null
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": null
       }
     ],
     "latest_input_channel": "webchat",
@@ -135,6 +153,24 @@
         "name": "action_listen",
         "policy": null,
         "confidence": null
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": null
       },
       {
         "event": "user",
@@ -534,6 +570,24 @@
           "intent": {
             "name": null,
             "confidence": 0.7
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "g34"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": null
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
           },
           "entities": [],
           "language": "en",

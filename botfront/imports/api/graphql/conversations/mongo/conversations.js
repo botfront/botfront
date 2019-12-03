@@ -24,9 +24,9 @@ const createSortObject = (sort) => {
 const getComparaisonSymbol = (comparaisonString) => {
     let compare = {};
     switch (comparaisonString) {
-    case 'greaterThan': compare = { mongo: '$gt', math: '>' };
+    case 'greaterThan': compare = { mongo: '$gte', math: '>=' };
         break;
-    case 'lessThan': compare = { mongo: '$lt', math: '<' };
+    case 'lessThan': compare = { mongo: '$lte', math: '<=' };
         break;
     case 'equals': compare = { mongo: '$eq', math: '===' };
         break;
@@ -133,15 +133,19 @@ export const getConversations = async (
             {
                 convLen:
                 {
-                    [compareSymbol.mongo]: [{
-                        $size: {
-                            $filter: {
-                                input: '$tracker.events',
-                                as: 'event',
-                                cond: { $eq: ['$$event.event', 'user'] },
-                            },
+                    [compareSymbol.mongo]: [
+                        {
+                            $subtract: [{
+                                $size: {
+                                    $filter: {
+                                        input: '$tracker.events',
+                                        as: 'event',
+                                        cond: { $eq: ['$$event.event', 'user'] },
+                                    },
+                                },
+                            }, 1],
                         },
-                    }, lengthFilter],
+                        lengthFilter],
                 },
             },
         },
