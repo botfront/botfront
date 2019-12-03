@@ -13,7 +13,7 @@ describe('filters', function () {
     afterEach(function () {
         cy.logout();
     });
-    /*
+    
     it('should keep the filter state between hide and reveal', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
@@ -170,7 +170,7 @@ describe('filters', function () {
             cy.dataCy('conversation-item').should('not.have.text', 'test');
         });
     });
-*/
+
     it('should filter by date', function () {
         cy.visit('/project/bf/settings');
         cy.dataCy('project-settings-more')
