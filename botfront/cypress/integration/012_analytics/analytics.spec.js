@@ -213,6 +213,9 @@ describe('analytics tables', function() {
         ExpectedCellData.conversationLength.forEach((cellData) => {
             verifyCellData(cellData);
         });
+        // export and check that the page does not crash
+        cy.dataCy('analytics-export-button').click();
+        cy.dataCy('analytics-chart').should('exist');
     });
 
     
@@ -223,12 +226,15 @@ describe('analytics tables', function() {
         ExpectedCellData.topIntents.forEach((cellData) => {
             verifyCellData(cellData);
         });
-    // RE-ENABLE THIS TEST WHEN NULL INTENT IS REMOVED
-    //     cy.dataCy('analytics-chart')
-    //         .find('.rt-td')
-    //         .each((element) => {
-    //                 cy.expect(element[0].childNodes[0].data.length).not.to.be.equal(0);
-    //         });
+        // RE-ENABLE THIS TEST WHEN NULL INTENT IS REMOVED
+        cy.dataCy('analytics-chart')
+            .find('.rt-td')
+            .each((element) => {
+                cy.expect(element[0].childNodes[0].data.length).not.to.be.equal(0);
+            });
+        // export and check that the page does not crash
+        cy.dataCy('analytics-export-button').click();
+        cy.dataCy('analytics-chart').should('exist');
     });
     it('should display the correct data in the conversation duration table', function() {
         cy.visit('/project/bf/analytics');
@@ -237,6 +243,9 @@ describe('analytics tables', function() {
         ExpectedCellData.conversationDuration.forEach((cellData) => {
             verifyCellData(cellData);
         });
+        // export and check that the page does not crash
+        cy.dataCy('analytics-export-button').click();
+        cy.dataCy('analytics-chart').should('exist');
     });
     
     it('should display the correct data in the fallback table', function() {
@@ -278,6 +287,9 @@ describe('analytics tables', function() {
             cy.log(`verifiedDataStep ${index} (90Day)`);
         });
         cy.log('verified table dat 90 day');
+        // export and check that the page does not crash
+        cy.dataCy('analytics-export-button').click();
+        cy.dataCy('analytics-chart').should('exist');
     });
 
     it('should display the correct data in the engagement table', function() {
@@ -291,5 +303,8 @@ describe('analytics tables', function() {
             cy.log(`verify cell data ${index} (engagement)`);
             verifyCellData(cellData);
         });
+        // export and check that the page does not crash
+        cy.dataCy('analytics-export-button').click();
+        cy.dataCy('analytics-chart').should('exist');
     });
 });
