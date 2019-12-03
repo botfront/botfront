@@ -71,7 +71,7 @@ const createFilterObject = (
         filters['tracker.events.event'] = 'action';
         filters['tracker.events.name'] = { $in: actionFilters };
     }
-    if (startDate && endDate && timeZoneHoursOffset) {
+    if (startDate && endDate) {
         filters.$and = [
             {
                 $or: [
@@ -152,8 +152,8 @@ export const getConversations = async (
     const aggregation = [
         {
             $addFields: {
-                createdAt: { $toDate: '$createdAt' },
-                updatedAt: { $toDate: '$updatedAt' },
+                createdAt: { $toString: '$createdAt' },
+                updatedAt: { $toString: '$updatedAt' },
             },
         },
         {
