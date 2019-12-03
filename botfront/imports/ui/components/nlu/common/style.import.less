@@ -51,13 +51,14 @@
         color: @grey;
     }
     &.null {
-        color: darken(@purple, 20%);
+        color: @grey;
     }
     .action-on-label {
         float: right;
         color: @grey;
         position: relative;
         bottom: 2px;
+        visibility: hidden;
     }
     .content-on-label {
         min-width: 130px;
@@ -68,6 +69,9 @@
         border: 1px solid rgba(176, 176, 176, 0.4);
         span {
             color: @grey;
+        }
+        .action-on-label {
+            visibility: visible;
         }
     }
 }
@@ -86,6 +90,7 @@
         cursor: pointer;
         .intent-label.selectable {
             font-weight: bold;
+            cursor: pointer;
         }
     }
 }
