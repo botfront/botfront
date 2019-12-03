@@ -15,6 +15,8 @@ import ConversationFilters from './ConversationFilters';
 import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
 import { wrapMeteorCallback } from '../utils/Errors';
+import { Projects } from '../../../api/project/project.collection';
+import { applyTimezoneOffset } from '../../../lib/graphs';
 
 
 function ConversationsBrowser(props) {
@@ -231,6 +233,14 @@ const ConversationsBrowserContainer = (props) => {
         timeZoneHoursOffset: null,
     });
     const [actionsOptions, setActionOptions] = useState([]);
+    const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
+
+    useEffect(() => {
+        const {
+            timezoneOffset,
+        } = Projects.findOne({ _id: projectId }, { fields: { timezoneOffset: 1 } });
+        setProjectTimezoneOffset(timezoneOffset || 0);
+    }, []);
 
     useEffect(() => {
         Meteor.call(
@@ -253,22 +263,11 @@ const ConversationsBrowserContainer = (props) => {
             pageSize: 20,
             env,
             ...activeFilters,
-            /* the moment dates are not set on midnight by the date picker,
-            and uses client timezone we force UTC as were using a set timezone
-            */
-            startDate: activeFilters.startDate ? activeFilters.startDate
-                .hours(0)
-                .utcOffset(0)
-                .toISOString() : null,
-            endDate: activeFilters.endDate ? activeFilters.endDate
-                .hours(0)
-                .utcOffset(0)
-                .toISOString() : null,
-            timeZoneHoursOffset: -4, // force the offset to canada (gmt-4) for now
+            startDate: applyTimezoneOffset(activeFilters.startDate, projectTimezoneOffset),
+            endDate: applyTimezoneOffset(activeFilters.endDate, projectTimezoneOffset),
         },
         pollInterval: 5000,
     });
-
 
     const componentProps = {
         page, projectId, router, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions,
