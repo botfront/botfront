@@ -19,7 +19,10 @@ const RESPONSE_DELETED = 'RESPONSE_DELETED';
 export default {
     Subscription: {
         botResponseAdded: {
-            subscribe: () => pubsub.asyncIterator([RESPONSE_ADDED]),
+            subscribe: withFilter(
+                () => pubsub.asyncIterator([RESPONSE_DELETED]),
+                (payload, variables) => payload.projectId === variables.projectId,
+            ),
         },
         botResponsesModified: {
             subscribe: withFilter(
@@ -73,7 +76,7 @@ export default {
                 projectId: args.projectId,
                 botResponsesModified: args.response,
             });
-            pubsub.publish(RESPONSE_ADDED, { botResponseAdded: args.response });
+            pubsub.publish(RESPONSE_ADDED, { projectId: args.projectId, botResponseAdded: args.response });
             return { success: !!response.id };
         },
         async createResponses(_, args, __) {

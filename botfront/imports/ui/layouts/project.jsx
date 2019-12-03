@@ -320,6 +320,7 @@ class Project extends React.Component {
                                                                     subscribeToNewBotResponses: () => {
                                                                         subscribeToMore({
                                                                             document: RESPONSE_ADDED,
+                                                                            variables: { projectId },
                                                                             updateQuery: (prev, { subscriptionData }) => {
                                                                                 if (!subscriptionData.data) return prev;
                                                                                 const newBotResponse = subscriptionData.data.botResponseAdded;

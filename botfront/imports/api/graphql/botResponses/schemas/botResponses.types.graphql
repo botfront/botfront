@@ -5,7 +5,7 @@ type Query {
 }
 
 type Subscription {
-    botResponseAdded: BotResponse
+    botResponseAdded(projectId: String!): BotResponse
     botResponsesModified(projectId: String!): BotResponse
     botResponseDeleted(projectId: String!): BotResponse
 }
