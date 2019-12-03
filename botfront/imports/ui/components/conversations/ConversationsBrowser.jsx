@@ -111,8 +111,8 @@ function ConversationsBrowser(props) {
     }
 
     function changeFilters(lengthFilter, confidenceFilter, actionFilters, startDate, endDate) {
-        const offsetStart = applyTimezoneOffset(startDate, projectTimezoneOffset);
-        const offsetEnd = applyTimezoneOffset(endDate, projectTimezoneOffset);
+        const offsetStart = startDate ? applyTimezoneOffset(startDate, projectTimezoneOffset) : null;
+        const offsetEnd = endDate ? applyTimezoneOffset(endDate, projectTimezoneOffset) : null;
         setActiveFilters({
             lengthFilter: parseInt(lengthFilter.compare, 10),
             xThanLength: lengthFilter.xThan,
