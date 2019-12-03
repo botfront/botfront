@@ -238,7 +238,8 @@ describe('incoming page', function() {
         cy.updateConversation('bf', 'test', JSON.stringify(conversationUpdate));
 
         cy.visit('/project/bf/incoming');
-        cy.wait(500); // wait for page to be ready before trying to hover the row
+        cy.dataCy('utterance-row').should('exist');
+        cy.wait(500);
         cy.dataCy('utterance-row').trigger('mouseover');
         cy.dataCy('conversation-viewer').first().click({ force: true });
         cy.get('.popup').should('exist');
