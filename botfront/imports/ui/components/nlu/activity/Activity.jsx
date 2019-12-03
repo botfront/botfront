@@ -17,11 +17,13 @@ import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
+import CanonicalPopup from '../common/CanonicalPopup';
 
 function Activity(props) {
     const [sortType, setSortType] = useState('Newest');
     const {
         intents,
+        intentsWithCanonicals,
         entities,
     } = useContext(ProjectContext);
     const getSortFunction = () => {
@@ -61,7 +63,7 @@ function Activity(props) {
         filter,
         ...getSortFunction(),
     });
-    
+
     // always refetch on first page load and sortType change
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, workingEnvironment, sortType, filter]);
 
@@ -128,11 +130,25 @@ function Activity(props) {
             || typeof datum.confidence !== 'number'
             || datum.confidence <= 0
         ) return null;
-        return (
-            <div className='confidence-text'>
-                {`${Math.floor(datum.confidence * 100)}%`}
-            </div>
-        );
+        const canonical = intentsWithCanonicals[datum.intent].filter(e => e.entities.length === 0);
+        if (canonical.length){
+            return (
+                <CanonicalPopup
+                    example={canonical[0].example}
+                    trigger={
+                    <div className='confidence-text'>
+                        {`${Math.floor(datum.confidence * 100)}%`}
+                    </div>
+                    }
+                />
+            );
+        } else {
+            return (
+                <div className='confidence-text'>
+                    {`${Math.floor(datum.confidence * 100)}%`}
+                </div>
+            );
+        }
     };
 
     const renderIntent = (row) => {
@@ -218,7 +234,7 @@ function Activity(props) {
                         filter={filter}
                         onChange={f => setFilter(f)}
                     />
-                    
+
                 </Segment>
                 <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
                     <PrefixDropdown
