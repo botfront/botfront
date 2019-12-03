@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.5-ee.4](https://github.com/botfront/botfront/compare/v0.18.5-ee.3...v0.18.5-ee.4) (2019-12-03)
+
+
+### Features
+
+* canonical example shown in new utterances ([424ad52](https://github.com/botfront/botfront/commit/424ad525d3e5bda01d84f36d135b162fd2409625))
+
+
+### Bug Fixes
+
+* invalid date in conversation filters ([99b8799](https://github.com/botfront/botfront/commit/99b87998f6d0d07ee4882649d179b1d4d01a24d2))
+
 ### [0.18.5-ee.3](https://github.com/botfront/botfront/compare/v0.18.5-ee.2...v0.18.5-ee.3) (2019-12-02)
 
 
