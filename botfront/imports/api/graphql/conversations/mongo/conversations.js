@@ -71,23 +71,18 @@ const createFilterObject = (
         filters['tracker.events.event'] = 'action';
         filters['tracker.events.name'] = { $in: actionFilters };
     }
-    if (startDate && endDate && timeZoneHoursOffset) {
-        const offsetedStart = new Date(startDate);
-        offsetedStart.setTime(offsetedStart.getTime() + (timeZoneHoursOffset * 60 * 60 * 1000));
-        const offsetedEnd = new Date(endDate);
-        offsetedEnd.setTime(offsetedEnd.getTime() + (timeZoneHoursOffset * 60 * 60 * 1000));
-        offsetedEnd.setDate(offsetedEnd.getDate() + 1); // add day as we want to include the whole day of end date
+    if (startDate && endDate) {
         filters.$and = [
             {
                 $or: [
-                    { createdAt: { $lte: offsetedStart } },
-                    { createdAt: { $lte: offsetedEnd } },
+                    { createdAt: { $lte: startDate } },
+                    { createdAt: { $lte: endDate } },
                 ],
             },
             {
                 $or: [
-                    { updatedAt: { $gte: offsetedStart } },
-                    { updatedAt: { $gte: offsetedEnd } },
+                    { updatedAt: { $gte: startDate } },
+                    { updatedAt: { $gte: endDate } },
                 ],
             },
         ];
@@ -157,8 +152,8 @@ export const getConversations = async (
     const aggregation = [
         {
             $addFields: {
-                createdAt: { $toDate: '$createdAt' },
-                updatedAt: { $toDate: '$updatedAt' },
+                createdAt: { $toString: '$createdAt' },
+                updatedAt: { $toString: '$updatedAt' },
             },
         },
         {

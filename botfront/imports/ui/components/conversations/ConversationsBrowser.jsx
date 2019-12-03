@@ -15,6 +15,8 @@ import ConversationFilters from './ConversationFilters';
 import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
 import { wrapMeteorCallback } from '../utils/Errors';
+import { Projects } from '../../../api/project/project.collection';
+import { applyTimezoneOffset } from '../../../lib/graphs';
 
 
 function ConversationsBrowser(props) {
@@ -30,10 +32,20 @@ function ConversationsBrowser(props) {
         actionsOptions,
         setActionOptions,
         loading,
+        projectId,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
     const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(new Set());
+
+    const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
+
+    useEffect(() => {
+        const {
+            timezoneOffset,
+        } = Projects.findOne({ _id: projectId }, { fields: { timezoneOffset: 1 } });
+        setProjectTimezoneOffset(timezoneOffset || 0);
+    }, []);
 
     useEffect(() => {
         if (data && !data.delete.success) {
@@ -99,14 +111,16 @@ function ConversationsBrowser(props) {
     }
 
     function changeFilters(lengthFilter, confidenceFilter, actionFilters, startDate, endDate) {
+        const offsetStart = applyTimezoneOffset(startDate, projectTimezoneOffset);
+        const offsetEnd = applyTimezoneOffset(endDate, projectTimezoneOffset);
         setActiveFilters({
             lengthFilter: parseInt(lengthFilter.compare, 10),
             xThanLength: lengthFilter.xThan,
             confidenceFilter: parseFloat(confidenceFilter.compare, 10) / 100,
             xThanConfidence: confidenceFilter.xThan,
             actionFilters,
-            startDate,
-            endDate,
+            startDate: offsetStart,
+            endDate: offsetEnd,
         });
         refetch();
     }
@@ -201,6 +215,7 @@ ConversationsBrowser.propTypes = {
     actionsOptions: PropTypes.array,
     setActionOptions: PropTypes.func.isRequired,
     loading: PropTypes.bool.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
@@ -231,6 +246,7 @@ const ConversationsBrowserContainer = (props) => {
         timeZoneHoursOffset: null,
     });
     const [actionsOptions, setActionOptions] = useState([]);
+    
 
     useEffect(() => {
         Meteor.call(
@@ -253,22 +269,11 @@ const ConversationsBrowserContainer = (props) => {
             pageSize: 20,
             env,
             ...activeFilters,
-            /* the moment dates are not set on midnight by the date picker,
-            and uses client timezone we force UTC as were using a set timezone
-            */
-            startDate: activeFilters.startDate ? activeFilters.startDate
-                .hours(0)
-                .utcOffset(0)
-                .toISOString() : null,
-            endDate: activeFilters.endDate ? activeFilters.endDate
-                .hours(0)
-                .utcOffset(0)
-                .toISOString() : null,
-            timeZoneHoursOffset: -4, // force the offset to canada (gmt-4) for now
+            startDate: activeFilters.startDate,
+            endDate: activeFilters.endDate,
         },
         pollInterval: 5000,
     });
-
 
     const componentProps = {
         page, projectId, router, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions,
@@ -314,7 +319,6 @@ ConversationsBrowserContainer.propTypes = {
     environment: PropTypes.string,
     actionsOptions: PropTypes.array,
     setActionOptions: PropTypes.func.isRequired,
-
 };
 
 ConversationsBrowserContainer.defaultProps = {
