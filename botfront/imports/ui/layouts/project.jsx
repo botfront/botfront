@@ -38,6 +38,7 @@ class Project extends React.Component {
             resizingChatPane: false,
             entities: [],
             intents: [],
+            intentsWithCanonicals: [],
         };
     }
 
@@ -63,6 +64,7 @@ class Project extends React.Component {
                     if (!err) {
                         this.setState({ entities: res.entities });
                         this.setState({ intents: Object.keys(res.intents) });
+                        this.setState({ intentsWithCanonicals: res.intents });
                     }
                 }),
             );
@@ -202,7 +204,7 @@ class Project extends React.Component {
             slots,
         } = this.props;
         const {
-            showIntercom, intercomId, showChatPane, resizingChatPane, intents, entities,
+            showIntercom, intercomId, showChatPane, resizingChatPane, intents, entities, intentsWithCanonicals,
         } = this.state;
 
         return (
@@ -261,6 +263,7 @@ class Project extends React.Component {
                                     templates: [...project.templates],
                                     intents,
                                     entities,
+                                    intentsWithCanonicals,
                                     slots,
                                     language: workingLanguage,
                                     insertResponse: this.insertResponse,
