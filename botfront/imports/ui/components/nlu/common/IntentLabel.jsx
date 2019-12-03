@@ -102,7 +102,7 @@ function Intent(props) {
             data-cy='intent-label'
         >
             <Popup
-                trigger={<div className='content-on-label'><Icon name='tag' size='small' /><span>{value || '-'}</span></div>}
+                trigger={<div className='content-on-label'><Icon name='tag' size='small' /><span>{value || 'no intent'}</span></div>}
                 basic
                 content={renderContent()}
                 on='click'
@@ -112,7 +112,7 @@ function Intent(props) {
                 disabled={!allowEditing}
                 className='intent-popup'
             />
-            { enableReset && <Icon name='x' className='action-on-label' onClick={() => handleChange('')} />}
+            { enableReset && value && value !== OOS_LABEL && <Icon name='x' className='action-on-label' onClick={() => handleChange('')} />}
         </div>
     );
 }
