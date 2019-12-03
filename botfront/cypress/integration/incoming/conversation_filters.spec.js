@@ -13,7 +13,7 @@ describe('filters', function () {
     afterEach(function () {
         cy.logout();
     });
-    /*
+    
     it('should keep the filter state between hide and reveal', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
@@ -43,7 +43,7 @@ describe('filters', function () {
         cy.get('.accordion.ui > .content').should('have.class', 'active');
         cy.dataCy('length-filter').find('input').should('have.value', '5');
         cy.dataCy('confidence-filter').find('input').should('have.value', '75');
-        cy.get('[data-cy=action-filter] > .segment > .fluid > .label').should('have.text', 'test');
+        cy.get('[data-cy=action-filter] > .fluid > .ui').should('have.text', 'test');
     });
     
     it('should be resetable', function () {
@@ -63,7 +63,7 @@ describe('filters', function () {
             .click()
             .find('input')
             .type('test{enter}{esc}');
-        cy.dataCy('reset-filters').click();
+        cy.dataCy('reset-filter').click();
         cy.dataCy('length-filter').find('input').should('have.value', '');
         cy.dataCy('confidence-filter').find('input').should('have.value', '');
         cy.get('[data-cy=action-filter] > .segment > .fluid > .label').should('not.exist');
@@ -88,7 +88,7 @@ describe('filters', function () {
                 .find('.filter-dropdown')
                 .click()
                 .find('div')
-                .contains('Less than')
+                .contains('≤')
                 .click();
             cy.dataCy('apply-filters').click();
             cy.wait(100);
@@ -104,7 +104,7 @@ describe('filters', function () {
                 .find('.filter-dropdown')
                 .click()
                 .find('div')
-                .contains('Equals')
+                .contains('=')
                 .click();
             cy.dataCy('apply-filters').click();
             cy.wait(100);
@@ -170,7 +170,7 @@ describe('filters', function () {
             cy.dataCy('conversation-item').should('not.have.text', 'test');
         });
     });
-*/
+
     it('should filter by date', function () {
         cy.visit('/project/bf/settings');
         cy.dataCy('project-settings-more')
@@ -215,7 +215,7 @@ describe('filters', function () {
             cy.dataCy('conversation-item').should('have.length', 1);
         });
     });
-    /*
+    
     it('should filter be possible to filter with multiple constraints at once', function () {
         cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
             cy.addConversation('bf', 'test', conversationData.action_test);
@@ -243,5 +243,5 @@ describe('filters', function () {
             cy.dataCy('apply-filters').click();
             cy.dataCy('conversation-item').should('have.text', 'pass_all');
         });
-    }); */
+    });
 });
