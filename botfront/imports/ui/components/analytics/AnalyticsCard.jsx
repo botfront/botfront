@@ -39,6 +39,7 @@ function AnalyticsCard(props) {
         size,
         onChangeSettings,
         onReorder,
+        projectName,
     } = props;
     
     const displayAbsoluteRelative = 'rel' in graphParams;
@@ -87,9 +88,14 @@ function AnalyticsCard(props) {
     
     const [getExportData, { error: exportError, data: exportData }] = useLazyQuery(query);
     const downloadCSV = () => {
-        const csvData = generateCSV(exportData, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset);
+        const csvData = generateCSV(exportData, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset, graphParams.columns);
         const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
-        saveAs(csvBlob, `${cardName}.csv`);
+        const start = applyTimezoneOffset(startDate, projectTimezoneOffset);
+        const end = applyTimezoneOffset(endDate, projectTimezoneOffset);
+        const fileName = `${projectName}-${title.replace(/ /g, '')}-(${start.toISOString()})-(${end.toISOString()})`;
+        if (!window.Cypress) { // prevent file from downloading during tests
+            saveAs(csvBlob, `${fileName}.csv`);
+        }
     };
     if (exportData !== undefined && activateDownload === true) {
         setActivateDownload(false);
@@ -249,6 +255,7 @@ AnalyticsCard.propTypes = {
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
     size: PropTypes.string,
+    projectName: PropTypes.string,
 };
 
 AnalyticsCard.defaultProps = {
@@ -259,6 +266,7 @@ AnalyticsCard.defaultProps = {
     exportQueryParams: {},
     onReorder: null,
     size: 'standard',
+    projectName: 'Botfront',
 };
 
 export default AnalyticsCard;

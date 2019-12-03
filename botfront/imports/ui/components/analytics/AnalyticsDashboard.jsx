@@ -1,4 +1,5 @@
 import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import { Container } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -11,10 +12,11 @@ import conversationDurations from '../../../api/graphql/conversations/queries/co
 import intentFrequencies from '../../../api/graphql/conversations/queries/intentFrequencies.graphql';
 import visitCounts from '../../../api/graphql/conversations/queries/visitCounts.graphql';
 import fallbackCounts from '../../../api/graphql/conversations/queries/fallbackCounts.graphql';
+import { Projects } from '../../../api/project/project.collection';
 
 function AnalyticsDashboard(props) {
     const {
-        projectId, environment, cardSettings, changeCardSettings, swapCards,
+        projectId, environment, cardSettings, changeCardSettings, swapCards, projectName,
     } = props;
 
     const envs = [environment];
@@ -178,6 +180,7 @@ function AnalyticsDashboard(props) {
                         settings={settings.toJS()}
                         onChangeSettings={(setting, value) => changeCardSettings(cardName, setting, value)}
                         onReorder={swapCards}
+                        projectName={projectName}
                     />
                 ))}
             </div>
@@ -191,9 +194,19 @@ AnalyticsDashboard.propTypes = {
     cardSettings: PropTypes.instanceOf(OrderedMap).isRequired,
     changeCardSettings: PropTypes.func.isRequired,
     swapCards: PropTypes.func.isRequired,
+    projectName: PropTypes.string,
 };
 
-AnalyticsDashboard.defaultProps = {};
+AnalyticsDashboard.defaultProps = {
+    projectName: 'Botfront',
+};
+
+const AnalyticsDashboardTracker = withTracker(({ projectId }) => {
+    const { name: projectName } = Projects.findOne({ _id: projectId }, { fields: { name: true } });
+    return {
+        projectName,
+    };
+})(AnalyticsDashboard);
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
@@ -206,4 +219,4 @@ const mapDispatchToProps = {
     swapCards: swapAnalyticsCards,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AnalyticsDashboard);
+export default connect(mapStateToProps, mapDispatchToProps)(AnalyticsDashboardTracker);
