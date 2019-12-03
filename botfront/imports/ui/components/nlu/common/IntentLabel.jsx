@@ -1,5 +1,5 @@
 import React, {
-    useContext, useState,
+    useContext, useState, useImperativeHandle,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -9,7 +9,7 @@ import { ProjectContext } from '../../../layouts/context';
 import { OOS_LABEL } from '../../constants.json';
 import DataTable from '../../common/DataTable';
 
-function Intent(props) {
+const Intent = React.forwardRef((props, ref) => {
     const {
         value, allowEditing, allowAdditions, onChange, disabled, enableReset,
     } = props;
@@ -21,7 +21,11 @@ function Intent(props) {
 
     const intents = contextIntents.map(i => ({ intent: i }));
 
-    const textMatch = (s1, s2) => s1.replace(' ', '').toLowerCase().includes(s2.replace(' ', '').toLowerCase());
+    useImperativeHandle(ref, () => ({
+        isPopupOpen: () => popupOpen,
+    }));
+
+    const textMatch = (s1, s2) => (s1 || '').replace(' ', '').toLowerCase().includes((s2 || '').replace(' ', '').toLowerCase());
     const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
 
     const handleChange = (intentName) => {
@@ -115,7 +119,7 @@ function Intent(props) {
             { enableReset && value && value !== OOS_LABEL && <Icon name='x' className='action-on-label' onClick={() => handleChange('')} />}
         </div>
     );
-}
+});
 
 Intent.propTypes = {
     value: PropTypes.string.isRequired,

@@ -5,7 +5,7 @@ import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import Activity from '../graphql/activity/activity.model';
-import { getAllTrainingDataGivenProjectIdAndLanguage, formatError } from '../../lib/utils';
+import { getAllTrainingDataGivenProjectIdAndLanguage, setsAreIdentical, formatError } from '../../lib/utils';
 import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
@@ -29,12 +29,16 @@ if (Meteor.isServer) {
 
         let entities = startEntities;
 
-        trainingData.forEach((ex) => {
-            const exEntities = (ex.entities || []).map(en => en.entity);
-            entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
-            if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
-            if (ex.canonical) intents[ex.intent].push({ entities: exEntities, example: ex });
-        });
+        trainingData
+            .sort((a, b) => b.canonical || false - a.canonical || false)
+            .forEach((ex) => {
+                const exEntities = (ex.entities || []).map(en => en.entity);
+                entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
+                if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
+                if (!intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))) {
+                    intents[ex.intent].push({ entities: exEntities, example: ex });
+                }
+            });
         
         return { intents, entities };
     };
