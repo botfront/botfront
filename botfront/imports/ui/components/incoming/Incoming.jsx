@@ -47,7 +47,7 @@ class Incoming extends React.Component {
         const { changeWorkingEnv, projectId, model: { _id: modelId } } = this.props;
         // browserHistory.push is required to clear the old page and id from the url
         changeWorkingEnv(value);
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}` });
+        // browserHistory.push({ pathname: `/project/${projectId}/incoming/${modelId}` });
     }
 
     handleTabClick = (_, d) => {
