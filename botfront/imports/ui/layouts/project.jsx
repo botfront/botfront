@@ -25,6 +25,7 @@ import { Slots } from '../../api/slots/slots.collection';
 import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { ProjectContext } from './context';
+import { setsAreIdentical } from '../../lib/utils';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import { GET_BOT_RESPONSES, GET_BOT_RESPONSE } from './graphQL/queries';
 import {
@@ -48,13 +49,14 @@ class Project extends React.Component {
             resizingChatPane: false,
             entities: [],
             intents: [],
+            exampleMap: {},
         };
     }
 
 
     componentDidUpdate = (prevProps) => {
         const { projectId, workingLanguage: language } = this.props;
-        const { workingLanguage: prevLanguage } = prevProps;
+        const { projectId: prevProjectId, workingLanguage: prevLanguage } = prevProps;
         const { showIntercom } = this.state;
         if (window.Intercom && showIntercom) {
             window.Intercom('show');
@@ -65,19 +67,56 @@ class Project extends React.Component {
                 this.setState({ showIntercom: false });
             });
         }
-        if (language && prevLanguage !== language) {
-            Meteor.call(
-                'project.getEntitiesAndIntents',
-                projectId,
-                language,
-                wrapMeteorCallback((err, res) => {
-                    if (!err) {
-                        this.setState({ entities: res.entities });
-                        this.setState({ intents: Object.keys(res.intents) });
-                    }
-                }),
-            );
+        if ((language && prevLanguage !== language)
+            || (projectId && prevProjectId !== projectId)) {
+            this.refreshEntitiesAndIntents(true);
         }
+    }
+
+    findExactMatch = (canonicals, entities) => {
+        const exactMatch = canonicals.filter(ex => setsAreIdentical(ex.entities, entities))[0];
+        return exactMatch ? exactMatch.example : null;
+    }
+
+    getCanonicalExamples = ({ intent, entities = [] }) => {
+        // both intent and entities are optional and serve to restrict the result
+        const { exampleMap } = this.state;
+        const filtered = intent
+            ? intent in exampleMap ? { [intent]: exampleMap[intent] } : {}
+            : exampleMap;
+        return Object.keys(filtered)
+            .map(i => this.findExactMatch(filtered[i], entities.map(e => e.entity)) || { intent: i });
+    }
+
+    refreshEntitiesAndIntents = (init = false) => {
+        const { projectId, workingLanguage: language } = this.props;
+        const { exampleMap } = this.state;
+
+        if (!projectId || !language) return; // don't call unless projectId and language are set
+        if (!init && !exampleMap) return; // unless called from this class, call only if already init
+        Meteor.call(
+            'project.getEntitiesAndIntents',
+            projectId,
+            language,
+            wrapMeteorCallback((err, res) => {
+                if (!err) {
+                    this.setState({ entities: res.entities });
+                    this.setState({ intents: Object.keys(res.intents) });
+                    this.setState({ exampleMap: res.intents });
+                }
+            }),
+        );
+    }
+
+    getResponse = (key, callback = () => {}) => {
+        const { projectId, workingLanguage } = this.props;
+        Meteor.call(
+            'project.findTemplate',
+            projectId,
+            key,
+            workingLanguage || 'en',
+            wrapMeteorCallback((err, res) => callback(err, res)),
+        );
     }
 
     getIntercomUser = () => {
@@ -129,8 +168,11 @@ class Project extends React.Component {
     }
 
     addIntent = (newIntent) => {
-        const { intents } = this.state;
+        const { intents, exampleMap } = this.state;
         this.setState({ intents: [...new Set([...intents, newIntent])] });
+        if (!Object.keys(exampleMap).includes(newIntent)) {
+            this.setState({ exampleMap: { ...exampleMap, [newIntent]: [] } });
+        }
     }
 
     addEntity = (newEntity) => {
@@ -305,6 +347,8 @@ class Project extends React.Component {
                                                                     getUtteranceFromPayload: this.getUtteranceFromPayload,
                                                                     parseUtterance: this.parseUtterance,
                                                                     addUtteranceToTrainingData: this.addUtteranceToTrainingData,
+                                                                    getCanonicalExamples: this.getCanonicalExamples,
+                                                                    refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
                                                                     subscribeToNewBotResponses: () => subscribeToMore({
                                                                         document: RESPONSE_ADDED,
                                                                         variables: { projectId },
@@ -447,3 +491,11 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps,
 )(ProjectContainer);
+
+export function WithRefreshOnLoad(Component) {
+    return props => (
+        <ProjectContext.Consumer>
+            {({ refreshEntitiesAndIntents }) => <Component {...props} onLoad={refreshEntitiesAndIntents} />}
+        </ProjectContext.Consumer>
+    );
+}
