@@ -1,6 +1,5 @@
 const yaml = require('js-yaml');
 const { body, validationResult, query } = require('express-validator/check');
-const { getVerifiedProject } = require('../utils');
 const { Responses } = require('../../models/models');
 
 const formatTemplates = templates => yaml.safeDump({
@@ -115,19 +114,16 @@ exports.getAllResponses = async function(req, res) {
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
     const { project_id: projectId } = req.params;
-    const { timestamp, output } = req.query;
+    const { output } = req.query;
     try {
-        const project = await getVerifiedProject(projectId, req, { templates: 1, responsesUpdatedAt: 1 });
-        if (project.responsesUpdatedAt === parseInt(timestamp)) {
-            return res.status(304).json();
-        }
+        const templates = await Responses.find({ projectId }).lean();
+
         if (output == 'yaml') {
-            return res.status(200).send(formatTemplates(project.templates))
+            return res.status(200).send(formatTemplates(templates))
         }
 
         return res.status(200).json({
-            responses: project.templates,
-            timestamp: project.responsesUpdatedAt,
+            responses: templates,
         });
     } catch (err) {
         return res.status(err.code || 500).json(err);
