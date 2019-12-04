@@ -19,8 +19,9 @@ describe('NLU Batch Insert', function() {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\ncoucou\nsalut');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intent1{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intent1{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.contains('hello')

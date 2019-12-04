@@ -2,9 +2,6 @@
 
 const qrGold = new RegExp(`
 buttons:
-  - title: postback option
-    type: postback
-    payload: /get_started
   - title: web_url option
     type: web_url
     payload: 'https://myurl.com/'
@@ -39,10 +36,10 @@ describe('story visual editor', function () {
         cy.dataCy('utterance-input')
             .find('input')
             .type('Hello{enter}');
-        cy.dataCy('intent-label').contains('chitchat.greet');
-        cy.dataCy('intent-label').trigger('mouseover');
-        cy.dataCy('intent-dropdown').click({ force: true })
-            .find('input')
+        cy.dataCy('intent-label').contains('chitchat.greet')
+            .click({ force: true });
+        cy.get('.intent-dropdown input')
+            .click({ force: true })
             .type('myTestIntent{enter}');
         cy.dataCy('save-new-user-input').click({ force: true });
 
@@ -76,19 +73,6 @@ describe('story visual editor', function () {
             .find('textarea')
             .clear()
             .type('I do too qr');
-
-        cy.dataCy('button_title').click({ force: true });
-
-        cy.dataCy('enter-button-title')
-            .find('input')
-            .clear()
-            .type('postback option');
-        cy.dataCy('intent-dropdown').click({ force: true })
-            .find('input')
-            .type('get_started');
-        cy.dataCy('save-button').click({ force: true });
-
-        cy.dataCy('add-quick-reply').click({ force: true });
 
         cy.dataCy('button_title').click({ force: true });
 
