@@ -32,9 +32,6 @@ describe('incoming page', function() {
         cy.wait(100);
         cy.dataCy('intent-label')
             .first()
-            .trigger('mouseover', { force: true });
-        cy.dataCy('intent-dropdown')
-            .find('input')
             .click({ force: true })
             .type('fruit{enter}');
     };
