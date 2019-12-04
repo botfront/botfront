@@ -13,7 +13,7 @@ import {
 import { connect } from 'react-redux';
 import shortId from 'shortid';
 import slugify from 'slugify';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { TemplateSchema } from '../../../../api/project/response.schema';
 import { Projects } from '../../../../api/project/project.collection';
 import SequenceField from './SequenceField';
@@ -72,7 +72,7 @@ function Template(props) {
         } else {
             createBotResponse({
                 variables: { projectId, response: clearTypenameField(newTemplate) },
-                refetchQueries: [{ query: GET_BOT_RESPONSE_BY_ID, variables: { _id: template._id } },
+                refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: newTemplate.key, lang: workingLanguage || 'en' } },
                     { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); });
         }
@@ -176,9 +176,8 @@ const TemplateContainer = (props) => {
     if (!project) return router.replace('/404');
 
    
-    const { loading, data } = useQuery(GET_BOT_RESPONSE, {
+    const [getResponse, { called, loading, data }] = useLazyQuery(GET_BOT_RESPONSE, {
         variables: { projectId, key: templateId, lang: workingLanguage || 'en' },
-        onCompleted: () => { setTemplate(data.botResponse); },
     });
     
 
@@ -191,7 +190,13 @@ const TemplateContainer = (props) => {
     });
 
     useEffect(() => {
-        if (templateId && !loading) {
+        if (templateId) {
+            getResponse();
+        }
+    }, []);
+
+    useEffect(() => {
+        if (templateId && called && !loading) {
             setTemplate(data.botResponse);
         }
     }, [data]);
