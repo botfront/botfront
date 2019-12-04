@@ -57,7 +57,6 @@ const Intent = React.forwardRef((props, ref) => {
         <Input
             placeholder='Filter or create'
             fluid
-            style={{ marginBottom: '10px' }}
             onChange={(e, { value: newInput }) => setTypeInput(newInput)}
             onKeyDown={handleKeyDown}
             autoFocus
@@ -72,7 +71,7 @@ const Intent = React.forwardRef((props, ref) => {
     const renderContent = () => (
         <div
             style={{
-                height: dataToDisplay.length ? (allowAdditions ? '250px' : '200px') : '100px',
+                height: dataToDisplay.length ? (allowAdditions ? '250px' : '200px') : '50px',
                 width: '300px',
             }}
             className='intent-dropdown'

@@ -76,10 +76,31 @@
     }
 }
 
+.ui.popup.intent-popup {
+    padding: 0;
+
+    .ui.fluid.input {
+        margin: 0;
+    }
+    input {
+        border: 0;
+        height: 50px;
+        background: rgba(0, 0, 0, 0.04) !important;
+    }
+    button {
+        border-radius: 0 0 4px 4px;
+        height: 100%;
+    }
+}
+
 .intent-dropdown {
     .intent-label {
         &.selected {
             font-weight: bold;
+            &::before {
+                margin-right: 5px;
+                content: '\25B6';
+            }
         }
         border: initial;
         span {
@@ -89,7 +110,6 @@
     .row:hover {
         cursor: pointer;
         .intent-label.selectable {
-            font-weight: bold;
             cursor: pointer;
         }
     }
