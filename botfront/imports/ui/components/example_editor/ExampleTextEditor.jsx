@@ -11,10 +11,8 @@ const emptyExample = () => ({ text: '', intent: '', entities: [] });
 export class ExampleTextEditor extends React.Component {
     constructor(props) {
         super(props);
-        this.selectionAnchorNode = null;
-        this.inputNode = null;
-        this.inputSelectionRef = null;
-        this.selectionAnchorRef = null;
+        this.inputSelectionRef = null; // reference to the parent of the example text input
+        this.selectionAnchorRef = null; // reference to the example text input
 
         const { example } = props;
         this.state = { example };
@@ -23,12 +21,13 @@ export class ExampleTextEditor extends React.Component {
     componentDidMount() {
         const { highlightEntities } = this.props;
         if (highlightEntities) {
+            // CREATE ENTITY LISTENER
             document.addEventListener('mouseup', () => {
                 if (this.inputSelectionRef === null) return;
                 const { example: { text } = {} } = this.state;
                 const { anchorNode } = window.getSelection() || {};
                 const { selectionStart: start, selectionEnd: end } = this.inputSelectionRef.ref.current || {};
-                if (anchorNode === this.selectionAnchorRef && this.isValidEntity() && start < end) {
+                if (anchorNode === this.selectionAnchorRef && this.isValidEntity(start, end) && start < end) {
                     const value = text.substring(start, end);
                     this.insertEntity({
                         value,
@@ -63,28 +62,24 @@ export class ExampleTextEditor extends React.Component {
         onChange(example);
     };
 
-    isValidEntity = () => (
-        (!this.getNextChar() || this.getNextChar().match(/\w/)) // null value means last char
-        && (!this.getPrevChar() || this.getPrevChar().match(/\w/)) // null value means first char
+    isValidEntity = (start, end) => (
+        (!this.getNextChar(end) || !this.getNextChar(end).match(/\w/)) // null value means last char
+        && (!this.getPrevChar(start) || !this.getPrevChar(start).match(/\w/)) // null value means first char
     );
 
-    getPrevChar = () => {
+    getPrevChar = (selectionStart) => {
         const { example: { text } = {} } = this.state;
-        const { inputNode: { selectionStart } = {} } = this.inputNode || {};
         if (selectionStart === 0) {
             return null;
         }
-        
         return text.substring(selectionStart - 1, selectionStart);
     };
 
-    getNextChar = () => {
+    getNextChar = (selectionEnd) => {
         const { example: { text } = {} } = this.state;
-        const { inputNode: { selectionEnd } = {} } = this.inputNode || {};
         if (selectionEnd === text.length - 1) {
             return null;
         }
-        
         return text.substring(selectionEnd, selectionEnd + 1);
     };
 
