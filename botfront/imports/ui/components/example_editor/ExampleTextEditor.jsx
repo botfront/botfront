@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { TextArea } from 'semantic-ui-react';
-import { findDOMNode } from 'react-dom';
 import _, { find, sortBy } from 'lodash';
 
 import { examplePropType } from '../utils/ExampleUtils';
@@ -14,6 +13,8 @@ export class ExampleTextEditor extends React.Component {
         super(props);
         this.selectionAnchorNode = null;
         this.inputNode = null;
+        this.inputSelectionRef = React.createRef();
+        this.selectionAnchorRef = React.createRef();
 
         const { example } = props;
         this.state = { example };
@@ -21,13 +22,12 @@ export class ExampleTextEditor extends React.Component {
 
     componentDidMount() {
         const { highlightEntities } = this.props;
-
         if (highlightEntities) {
             document.addEventListener('mouseup', () => {
                 const { example: { text } = {} } = this.state;
                 const { anchorNode } = window.getSelection() || {};
-                const { selectionStart: start, selectionEnd: end } = this.inputNode || {};
-                if (anchorNode === this.selectionAnchorNode && this.isValidEntity() && start < end) {
+                const { selectionStart: start, selectionEnd: end } = this.inputSelectionRef.current.ref.current || {};
+                if (anchorNode === this.selectionAnchorRef.current && this.isValidEntity() && start < end) {
                     const value = text.substring(start, end);
                     this.insertEntity({
                         value,
@@ -50,7 +50,9 @@ export class ExampleTextEditor extends React.Component {
         
         let entity = find(entities, { entity: '' });
         if (!entity) {
-            entities.push({ entity: '', value: '', start: 0, end: 0 });
+            entities.push({
+                entity: '', value: '', start: 0, end: 0,
+            });
             entity = find(entities, { entity: '' });
         }
         
@@ -192,9 +194,9 @@ export class ExampleTextEditor extends React.Component {
         const { highlightEntities } = this.props;
 
         return (
-            <div ref={node => this.selectionAnchorNode === node}>
+            <div ref={this.selectionAnchorRef}>
                 <TextArea
-                    ref={node => this.inputNode === node && findDOMNode(node)}
+                    ref={this.inputSelectionRef}
                     name='text'
                     placeholder='User says...'
                     autoheight='true'
