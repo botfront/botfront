@@ -53,7 +53,10 @@ export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
 
-export const getBotResponse = async (projectId, key, lang = 'en') => {
+/* considering this function does not only get the response we need to trigger the onAddReponse subscription
+when it does add a response the onAddResponse is used for that
+contratry to update, the list of response need to be constatly updated to properly check the exceptions */
+export const getBotResponse = async (projectId, key, lang = 'en', onAddResponse = () => {}) => {
     let botResponse = await BotResponses.findOne({
         projectId,
         key,
@@ -64,12 +67,13 @@ export const getBotResponse = async (projectId, key, lang = 'en') => {
     };
     if (!botResponse) {
         botResponse = { key, values: [newSeq] };
-        await createResponse(projectId, botResponse);
-        return botResponse;
+        const newResponse = await createResponse(projectId, botResponse);
+        onAddResponse(projectId, newResponse);
+        return newResponse;
     }
     if (!botResponse.values.some(v => v.lang === lang)) {
         botResponse.values.push(newSeq);
-        await updateResponse(projectId, key, botResponse);
+        await updateResponse(projectId, botResponse._id, botResponse);
     }
     return botResponse;
 };

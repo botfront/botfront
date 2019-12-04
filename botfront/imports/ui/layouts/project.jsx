@@ -156,7 +156,7 @@ class Project extends React.Component {
             const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
             const cleanedResponse = JSON.parse(JSON.stringify(newResponse), omitTypename);
             updateFunc({
-                variables: { projectId, response: cleanedResponse, key: newResponse.key },
+                variables: { projectId, response: cleanedResponse, _id: newResponse._id },
             }).then(
                 (result) => {
                     callback(undefined, result);

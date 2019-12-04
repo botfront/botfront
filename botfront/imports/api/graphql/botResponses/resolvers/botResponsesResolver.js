@@ -16,11 +16,15 @@ const RESPONSE_ADDED = 'RESPONSE_ADDED';
 const RESPONSES_MODIFIED = 'RESPONSES_MODIFIED';
 const RESPONSE_DELETED = 'RESPONSE_DELETED';
 
+function onAddResponse (projectId, resp) {
+    pubsub.publish(RESPONSE_ADDED, { projectId, botResponseAdded: resp });
+}
+
 export default {
     Subscription: {
         botResponseAdded: {
             subscribe: withFilter(
-                () => pubsub.asyncIterator([RESPONSE_DELETED]),
+                () => pubsub.asyncIterator([RESPONSE_ADDED]),
                 (payload, variables) => payload.projectId === variables.projectId,
             ),
         },
@@ -42,7 +46,7 @@ export default {
             return getBotResponses(args.projectId);
         },
         async botResponse(_, args, __) {
-            return getBotResponse(args.projectId, args.key, args.lang);
+            return getBotResponse(args.projectId, args.key, args.lang, onAddResponse);
         },
         async botResponseById(_, args, __) {
             return getBotResponseById(args._id);

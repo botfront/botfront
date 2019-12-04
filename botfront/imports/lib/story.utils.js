@@ -322,7 +322,7 @@ export const accumulateExceptions = (
 ) => {
     const exceptions = {};
     const newStoryControllers = {};
-
+    
     const traverseBranch = (currentStory, currentPath, isABranch = false) => {
         const currentPathAsString = currentPath.join();
         let currentController = null;

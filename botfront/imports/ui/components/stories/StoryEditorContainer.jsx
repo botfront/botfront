@@ -53,7 +53,7 @@ const StoryEditorContainer = ({
     collapsed,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
-    const { slots, templates } = useContext(ProjectContext);
+    const { slots, templates, subscribeToNewBotResponses } = useContext(ProjectContext);
     // The next path to go to when a change is made, we wait for the story prop to be updated to go that path
     // useful when we add branch for instance, we have to wait for the branches to actually be in the db
     // set to null when we don't want to go anywhere
@@ -89,6 +89,8 @@ const StoryEditorContainer = ({
             story.checkpoints && story.checkpoints.length > 0,
         ),
     });
+
+    useEffect(() => { subscribeToNewBotResponses(); }, []);
 
     // This effect is used to update errors when templates or slots are updated
     useEffect(() => {
