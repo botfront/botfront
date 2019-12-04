@@ -56,4 +56,5 @@ new SubscriptionServer({
 }, {
     server: WebApp.httpServer,
     path: '/subscriptions',
+    port: 3001,
 });

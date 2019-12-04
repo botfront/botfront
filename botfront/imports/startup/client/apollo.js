@@ -50,9 +50,9 @@ const httpLink = new HttpLink({
     credentials: 'same-origin',
 });
 
-//Create a WebSocket link:
+// Create a WebSocket link:
 const wsLink = new WebSocketLink({
-    uri: 'ws://localhost:3000/subscriptions',
+    uri: 'ws://localhost:3001/subscriptions',
     options: {
         reconnect: true,
     },
@@ -70,6 +70,5 @@ const client = new ApolloClient({
     link: ApolloLink.from([errorLink, requestLink, link]),
     cache: new InMemoryCache(),
 });
-
 
 export default client;
