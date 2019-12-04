@@ -19,7 +19,9 @@ const Intent = React.forwardRef((props, ref) => {
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
 
-    const intents = contextIntents.map(i => ({ intent: i }));
+    const intents = contextIntents
+        .sort((i1, i2) => (i2 === value) - (i1 === value))
+        .map(i => ({ intent: i }));
 
     useImperativeHandle(ref, () => ({
         isPopupOpen: () => popupOpen,
