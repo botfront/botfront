@@ -13,8 +13,8 @@ export class ExampleTextEditor extends React.Component {
         super(props);
         this.selectionAnchorNode = null;
         this.inputNode = null;
-        this.inputSelectionRef = React.createRef();
-        this.selectionAnchorRef = React.createRef();
+        this.inputSelectionRef = null;
+        this.selectionAnchorRef = null;
 
         const { example } = props;
         this.state = { example };
@@ -24,10 +24,11 @@ export class ExampleTextEditor extends React.Component {
         const { highlightEntities } = this.props;
         if (highlightEntities) {
             document.addEventListener('mouseup', () => {
+                if (this.inputSelectionRef === null) return;
                 const { example: { text } = {} } = this.state;
                 const { anchorNode } = window.getSelection() || {};
-                const { selectionStart: start, selectionEnd: end } = this.inputSelectionRef.current.ref.current || {};
-                if (anchorNode === this.selectionAnchorRef.current && this.isValidEntity() && start < end) {
+                const { selectionStart: start, selectionEnd: end } = this.inputSelectionRef.ref.current || {};
+                if (anchorNode === this.selectionAnchorRef && this.isValidEntity() && start < end) {
                     const value = text.substring(start, end);
                     this.insertEntity({
                         value,
@@ -171,10 +172,10 @@ export class ExampleTextEditor extends React.Component {
         const sortedEntities = sortBy(entities.filter(e => !e.extractor || e.extractor === 'ner_crf'), 'start');
         const spans = [];
         sortedEntities.forEach((e, i) => {
-            if (i === 0 && e.start > 0) spans.push(<span>{text.substr(0, e.start)}</span>);
-            spans.push(<span style={{ ...getColor(e.entity) }}>{text.substr(e.start, e.end - e.start)}</span>);
-            if (i < sortedEntities.length - 1) spans.push(<span>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
-            if (i === sortedEntities.length - 1) spans.push(<span>{text.substr(e.end, e.value.length - e.end)}</span>);
+            if (i === 0 && e.start > 0) spans.push(<span key='initial-entity-spacer'>{text.substr(0, e.start)}</span>);
+            spans.push(<span key={`${e.entity}-${i}`} style={{ ...getColor(e.entity) }}>{text.substr(e.start, e.end - e.start)}</span>);
+            if (i < sortedEntities.length - 1) spans.push(<span key={`${e.entity}-${i}-spacer`}>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
+            if (i === sortedEntities.length - 1) spans.push(<span key='final-entity-spacer'>{text.substr(e.end, e.value.length - e.end)}</span>);
         });
         return (
             <div className='highlight'>
@@ -194,9 +195,9 @@ export class ExampleTextEditor extends React.Component {
         const { highlightEntities } = this.props;
 
         return (
-            <div ref={this.selectionAnchorRef}>
+            <div ref={(node) => { this.selectionAnchorRef = node; }}>
                 <TextArea
-                    ref={this.inputSelectionRef}
+                    ref={(node) => { this.inputSelectionRef = node; }}
                     name='text'
                     placeholder='User says...'
                     autoheight='true'
