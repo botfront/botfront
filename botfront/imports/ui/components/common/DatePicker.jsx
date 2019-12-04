@@ -38,10 +38,17 @@ function DatePicker({
     /* the value field should is the array index of the object
      it is used to get the data field after a selection in the dropdown
      the dropdown does not support objects in its value so this a workaround */
+
+    const getCustomRangeText = () => {
+        if ((customRange.startDate || startDate) || (customRange.endDate || endDate)) {
+            return `Custom: ${getDateString(customRange.startDate || startDate, customRange.endDate || endDate)}`;
+        }
+        return 'Pick a range';
+    };
     const DateOptions = [
         {
             key: 'custom',
-            text: `Custom: ${getDateString(customRange.startDate || startDate, customRange.endDate || endDate)}`,
+            text: getCustomRangeText(),
             value: 0,
             data: { startDate: customRange.startDate || startDate, endDate: customRange.endDate || endDate },
         },
