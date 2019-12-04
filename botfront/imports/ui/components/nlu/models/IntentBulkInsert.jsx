@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Form, TextArea, Tab, Message, Button,
+    Form, TextArea, Tab, Message,
 } from 'semantic-ui-react';
 
-import IntentDropdown from '../common/IntentDropdown';
-import { ProjectContext } from '../../../layouts/context';
+import IntentLabel from '../common/IntentLabel';
 import SaveButton from '../../utils/SaveButton';
 
 class IntentBulkInsert extends React.Component {
@@ -64,17 +63,10 @@ class IntentBulkInsert extends React.Component {
         });
     }
 
-    handleAddOrChangeItem = (_e, { value: intent }) => {
-        const { addIntent } = this.props;
-        addIntent(intent);
-        this.setState({ intent });
-    }
-
     render() {
         const {
             text, saving, intent, saved,
         } = this.state;
-        const { intents } = this.props;
 
         return (
             <Tab.Pane id='intent-bulk-insert'>
@@ -91,11 +83,11 @@ class IntentBulkInsert extends React.Component {
                     />
                     <Message info content='Select an existing intent or type to create a new one' />
                     <div className='side-by-side'>
-                        <IntentDropdown
-                            options={intents.map(o => ({ value: o, text: o }))}
-                            intent={intent}
-                            onChange={this.handleAddOrChangeItem}
-                            onAddItem={this.handleAddOrChangeItem}
+                        <IntentLabel
+                            value={intent}
+                            allowEditing
+                            allowAdditions
+                            onChange={i => this.setState({ intent: i })}
                         />
                         <SaveButton
                             onSave={this.onSaveExamples}
@@ -110,19 +102,7 @@ class IntentBulkInsert extends React.Component {
 }
 
 IntentBulkInsert.propTypes = {
-    intents: PropTypes.array.isRequired,
     onNewExamples: PropTypes.func.isRequired,
-    addIntent: PropTypes.func.isRequired,
 };
 
-export default props => (
-    <ProjectContext.Consumer>
-        {value => (
-            <IntentBulkInsert
-                {...props}
-                intents={value.intents}
-                addIntent={value.addIntent}
-            />
-        )}
-    </ProjectContext.Consumer>
-);
+export default IntentBulkInsert;
