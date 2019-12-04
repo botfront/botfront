@@ -64,7 +64,6 @@ const migrateResponses = () => {
                     delete t.match;
                     delete t.followUp;
                     t.projectId = p._id;
-                    t._id = `${t.key}-${p._id}`;
                     // Put duplicates in a separate list
                     if ((index < templates.length - 1 && t.key === templates[index + 1].key) || (index > 0 && t.key === templates[index - 1].key)) {
                         duplicates.push(t);
