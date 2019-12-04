@@ -44,6 +44,7 @@ import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.co
 import { Projects } from '../../../../api/project/project.collection';
 import { extractEntities } from './nluModel.utils';
 import { setWorkingLanguage } from '../../../store/actions/actions';
+import { WithRefreshOnLoad } from '../../../layouts/project';
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -71,6 +72,11 @@ class NLUModel extends React.Component {
             entities,
             ready,
         };
+    }
+
+    componentDidMount() {
+        const { onLoad } = this.props;
+        onLoad();
     }
 
     static getExamplesWithExtraSynonyms = (props) => {
@@ -355,6 +361,7 @@ NLUModel.propTypes = {
     location: PropTypes.object.isRequired,
     workingLanguage: PropTypes.string,
     changeWorkingLanguage: PropTypes.func.isRequired,
+    onLoad: PropTypes.func.isRequired,
 };
 
 NLUModel.defaultProps = {
@@ -443,7 +450,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         instance,
         project,
     };
-})(NLUModel);
+})(WithRefreshOnLoad(NLUModel));
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),
