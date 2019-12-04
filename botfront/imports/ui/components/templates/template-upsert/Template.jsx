@@ -3,7 +3,7 @@ import {
     Container, Icon, Menu,
 } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
 import { cloneDeep } from 'lodash';
 import { browserHistory } from 'react-router';
@@ -22,10 +22,10 @@ import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils'
 import TemplateValueItemField from './TemplateValueItemField';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import DisplayIf from '../../DisplayIf';
-import { GET_BOT_RESPONSE } from '../../stories/graphQL/queries';
+import { GET_BOT_RESPONSE } from '../../../layouts/graphQL/queries';
 import { GET_BOT_RESPONSE_BY_ID } from './queries';
 import { GET_BOT_RESPONSES } from '../templates-list/queries';
-import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../../stories/graphQL/mutations';
+import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../../../layouts/graphQL/mutations';
 import { Loading } from '../../utils/Utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
@@ -178,7 +178,7 @@ const TemplateContainer = (props) => {
    
     const { loading, data } = useQuery(GET_BOT_RESPONSE, {
         variables: { projectId, key: templateId, lang: workingLanguage || 'en' },
-        onCompleted: () => { console.log(data); setTemplate(data.botResponse); },
+        onCompleted: () => { setTemplate(data.botResponse); },
     });
     
 
@@ -199,7 +199,7 @@ const TemplateContainer = (props) => {
     
     return (
         <Loading loading={loading}>
-            <Template {...componentsProps} template={getTemplate()} />
+            <Template {...componentsProps} template={template} />
         </Loading>
     );
 };
@@ -207,7 +207,7 @@ const TemplateContainer = (props) => {
 
 TemplateContainer.propTypes = {
     params: PropTypes.object.isRequired,
-    router: PropTypes.string.isRequired,
+    router: PropTypes.object.isRequired,
     workingLanguage: PropTypes.string,
     changeWorkingLanguage: PropTypes.func.isRequired,
 };

@@ -4,7 +4,7 @@ import {
     Icon, Label, Tab, Message,
 } from 'semantic-ui-react';
 import React from 'react';
-import { find } from 'lodash';
+import { find, sortBy } from 'lodash';
 import { connect } from 'react-redux';
 import 'react-s-alert/dist/s-alert-default.css';
 import { browserHistory } from 'react-router';
@@ -24,6 +24,9 @@ class TemplatesTable extends React.Component {
     componentDidUpdate() {
         this.fixLanguage();
     }
+
+    // eslint-disable-next-line react/destructuring-assignment
+    getTemplateLanguages = () => sortBy(this.props.nluLanguages);
 
     getColumns = (lang) => {
         const { projectId } = this.props;
