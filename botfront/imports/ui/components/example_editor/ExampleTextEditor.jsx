@@ -167,10 +167,10 @@ export class ExampleTextEditor extends React.Component {
         const sortedEntities = sortBy(entities.filter(e => !e.extractor || e.extractor === 'ner_crf'), 'start');
         const spans = [];
         sortedEntities.forEach((e, i) => {
-            if (i === 0 && e.start > 0) spans.push(<span key='initial-entity-spacer'>{text.substr(0, e.start)}</span>);
+            if (i === 0 && e.start > 0) spans.push(<span key='before-entities'>{text.substr(0, e.start)}</span>);
             spans.push(<span key={`${e.entity}-${i}`} style={{ ...getColor(e.entity) }}>{text.substr(e.start, e.end - e.start)}</span>);
-            if (i < sortedEntities.length - 1) spans.push(<span key={`${e.entity}-${i}-spacer`}>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
-            if (i === sortedEntities.length - 1) spans.push(<span key='final-entity-spacer'>{text.substr(e.end, e.value.length - e.end)}</span>);
+            if (i < sortedEntities.length - 1) spans.push(<span key={`between-${e.entity}-${i}`}>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
+            if (i === sortedEntities.length - 1) spans.push(<span key='after-entities'>{text.substr(e.end, e.value.length - e.end)}</span>);
         });
         return (
             <div className='highlight'>
