@@ -55,6 +55,25 @@ function Template(props) {
         return slugify(['utter', key, shortId.generate()].join(' '), '_');
     };
 
+const displayError = (error) => {
+    if(error.graphQLErrors[0] 
+        && error.graphQLErrors[0].extensions
+        && error.graphQLErrors[0].extensions.exception
+        && error.graphQLErrors[0].extensions.exception.code
+        && error.graphQLErrors[0].extensions.exception.code === 11000){
+            Alert.error(`Error: the key: ${newTemplate.key} already exist in this project`, {
+                position: 'bottom',
+                timeout: 5 * 1000,
+            });
+    } else {
+        Alert.error(error, {
+            position: 'bottom',
+            timeout: 5 * 1000,
+        });
+    }
+   
+}
+
     const updateTemplate = (formData) => {
         let newTemplate = { ...formData };
         // Remove empty sequences (they were added for each possible languages by AutoForm)
@@ -70,38 +89,18 @@ function Template(props) {
                 refetchQueries: [{ query: GET_BOT_RESPONSE_BY_ID, variables: { _id: template._id } },
                     { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); },
-            (error) => {
-                if(error.graphQLErrors[0] 
-                    && error.graphQLErrors[0].extensions
-                    && error.graphQLErrors[0].extensions.exception
-                    && error.graphQLErrors[0].extensions.exception.code
-                    && error.graphQLErrors[0].extensions.exception.code === 11000){
-                        Alert.error(`Error: the key: ${newTemplate.key} already exist in this project`, {
-                            position: 'bottom',
-                            timeout: 5 * 1000,
-                        });
-                }
-            });
+            (error) => { displayError(error)});
         } else {
             createBotResponse({
                 variables: { projectId, response: clearTypenameField(newTemplate) },
                 refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: newTemplate.key, lang: workingLanguage || 'en' } },
                     { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); },
-            (error) => {
-                if(error.graphQLErrors[0] 
-                    && error.graphQLErrors[0].extensions
-                    && error.graphQLErrors[0].extensions.exception
-                    && error.graphQLErrors[0].extensions.exception.code
-                    && error.graphQLErrors[0].extensions.exception.code === 11000){
-                        Alert.error(`Error: the key: ${newTemplate.key} already exist in this project`, {
-                            position: 'bottom',
-                            timeout: 5 * 1000,
-                        });
-                }
-            });
+            (error) => { displayError(error)});
         }
     };
+
+    
 
     const renderMenu = aTemplate => (
         <Menu pointing secondary style={{ background: '#fff' }}>
