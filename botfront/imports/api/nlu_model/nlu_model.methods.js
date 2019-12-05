@@ -4,7 +4,9 @@ import shortid from 'shortid';
 import {
     uniq, uniqBy, sortBy, intersectionBy, find,
 } from 'lodash';
-import { formatError, getProjectIdFromModelId, getModelIdsFromProjectId } from '../../lib/utils';
+import {
+    formatError, getProjectIdFromModelId, getModelIdsFromProjectId,
+} from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
@@ -12,6 +14,7 @@ import {
     checkNoEmojisInExamples,
     renameIntentsInTemplates,
     getNluModelLanguages,
+    getEntityCountDictionary,
 } from './nlu_model.utils';
 import { Projects } from '../project/project.collection';
 
@@ -32,16 +35,20 @@ Meteor.methods({
         const nluModel = await NLUModels.findOne({ _id: modelId }, { fields: { training_data: true } });
         let { training_data: { common_examples: commonExamples } } = nluModel || { training_data: {} };
         const canonicalizedItems = items.map((item) => {
-            const canonicalizedItem = item;
+            const itemEntities = getEntityCountDictionary(item.entities); // total occurances of each entity
             const match = commonExamples.find((example) => {
-                const intentMatch = example.intent === item.intent;
-                return intentMatch;
+                if (item.intent !== example.intent) return false; // check intent name it the same
+                if (item.entities.length !== example.entities.length) return false; // check they have the same number of entities
+                const exampleEntities = getEntityCountDictionary(example.entities);
+                const entityMatches = Object
+                    .keys(itemEntities)
+                    .filter(key => exampleEntities[key] === itemEntities[key]);
+                return entityMatches.length === Object.keys(itemEntities).length; // check they have the same entities
             });
             if (!match) {
-                canonicalizedItem.canonical = true;
-                commonExamples = [...commonExamples, canonicalizedItem];
+                commonExamples = [...commonExamples, item];
             }
-            return canonicalizedItem;
+            return { ...item, canonical: !match }; // if theres is no matching example, the example is canonical
         });
         return canonicalizedItems;
     },

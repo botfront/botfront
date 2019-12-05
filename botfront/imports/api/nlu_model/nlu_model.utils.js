@@ -76,3 +76,11 @@ export const renameIntentsInTemplates = (templates, oldIntent, newIntent) => {
     });
     return newTemplate;
 };
+
+export const getEntityCountDictionary = (entities) => {
+    const entitiesCount = {}; // total occurances of each entity
+    entities.forEach(({ entity }) => {
+        entitiesCount[entity] = entitiesCount[entity] ? entitiesCount[entity] + 1 : 1;
+    });
+    return entitiesCount;
+};
