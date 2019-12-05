@@ -13,7 +13,6 @@ if (Meteor.isServer) {
             check(projectFile, Object);
             check(apiHost, String);
             check(projectId, String);
-
             const importRequest = axios.put(
                 `${apiHost}/project/${projectId}/import`,
                 projectFile,

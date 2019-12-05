@@ -53,7 +53,7 @@ const botResponses = new Schema({
         max: 5,
         min: 0,
     },
-});
+}, { versionKey: false });
 
 botResponses.index({ key: 1, projectId: 1 }, { unique: true });
 

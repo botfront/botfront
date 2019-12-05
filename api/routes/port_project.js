@@ -11,6 +11,7 @@ const {
     Endpoints,
     Credentials,
     Projects,
+    Responses,
 } = require('../models/models');
 const { validationResult } = require('express-validator/check');
 const { getVerifiedProject } = require('../server/utils');
@@ -30,6 +31,7 @@ const collectionsWithProjectId = {
     credentials: Credentials,
     corePolicies: CorePolicies,
     conversations: Conversations,
+    botResponses: Responses,
 };
 
 const collections = { ...collectionsWithModelId, ...collectionsWithProjectId };
@@ -199,7 +201,7 @@ const importProjectValidator = [
         'Project is required',
         ({ project }) =>
             project &&
-            ['_id', 'name', 'defaultLanguage', 'nlu_models', 'templates'].every(prop =>
+            ['_id', 'name', 'defaultLanguage', 'nlu_models'].every(prop =>
                 Object.keys(project).includes(prop),
             ),
     ],
