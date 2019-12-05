@@ -94,10 +94,6 @@ class NLUModel extends React.Component {
         return false;
     };
 
-    onNewExample = (example) => {
-        this.onNewExamples([example]);
-    };
-
     onNewExamples = (examples, callback) => {
         const { model: { _id: modelId } = {} } = this.props;
         Meteor.call('nlu.insertExamples', modelId, examples.map(ExampleUtils.prepareExample), wrapMeteorCallback(callback));
@@ -327,7 +323,7 @@ class NLUModel extends React.Component {
                                 floated='right'
                                 entities={entities}
                                 intents={this.getIntentForDropdown(false)}
-                                onSave={this.onNewExample}
+                                onSave={example => this.onNewExamples([example])}
                                 postSaveAction='clear'
                             />
                         </div>
