@@ -32,11 +32,13 @@ Meteor.methods({
     async 'nlu.canonicalizeExamples'(items, modelId) {
         check(items, Array);
         check(modelId, String);
+
         const nluModel = await NLUModels.findOne({ _id: modelId }, { fields: { training_data: true } });
         let { training_data: { common_examples: commonExamples } } = nluModel || { training_data: {} };
-        const canonicalizedItems = items.map((item) => {
+
+        const canonicalizedItems = items.map((item) => { // ##1##
             const itemEntities = getEntityCountDictionary(item.entities); // total occurances of each entity
-            const match = commonExamples.find((example) => {
+            const match = commonExamples.find((example) => { // ##2##
                 if (item.intent !== example.intent) return false; // check intent name it the same
                 if (item.entities.length !== example.entities.length) return false; // check they have the same number of entities
                 const exampleEntities = getEntityCountDictionary(example.entities);
@@ -45,11 +47,14 @@ Meteor.methods({
                     .filter(key => exampleEntities[key] === itemEntities[key]);
                 return entityMatches.length === Object.keys(itemEntities).length; // check they have the same entities
             });
+
             if (!match) {
+                // prevent a multi-insert from creating multiple canonical examples for the same intent
                 commonExamples = [...commonExamples, item];
             }
             return { ...item, canonical: !match }; // if theres is no matching example, the example is canonical
         });
+
         return canonicalizedItems;
     },
     async 'nlu.insertExamplesWithLanguage'(projectId, language, items) {
