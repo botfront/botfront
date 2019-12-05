@@ -17,6 +17,7 @@ if (Meteor.isServer) {
             const importRequest = axios.put(
                 `${apiHost}/project/${projectId}/import`,
                 projectFile,
+                { maxContentLength: 100000000 },
             )
                 .then(res => (generateImportResponse(res.status)))
                 .catch(err => (

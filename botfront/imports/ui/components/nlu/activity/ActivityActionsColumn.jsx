@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    Button, Popup, Icon,
-} from 'semantic-ui-react';
-
+import { Button, Popup, Icon } from 'semantic-ui-react';
 
 import { useLazyQuery } from '@apollo/react-hooks';
 import SmartTip from './SmartTip';
@@ -35,8 +32,7 @@ export default function ActivityActionsColumn(props) {
             <Icon name='trash' />
             {utterances.length === 1
                 ? 'Delete this utterance'
-                : `Delete ${utterances.length} utterances like this`
-            }
+                : `Delete ${utterances.length} utterances like this`}
         </Button>
     );
 
@@ -52,7 +48,8 @@ export default function ActivityActionsColumn(props) {
             onClick={() => onDelete([utterance])}
             key={`${utterance._id}-delete`}
         >
-            <Icon name='trash' /> {mainAction ? 'Delete this utterance' : 'Delete this one only'}
+            <Icon name='trash' />{' '}
+            {mainAction ? 'Delete this utterance' : 'Delete this one only'}
         </Button>
     );
 
@@ -73,9 +70,25 @@ export default function ActivityActionsColumn(props) {
     const { code, tip, message } = getSmartTips(datum);
     let action;
     if (code === 'outdated') {
-        action = <Button size={size} disabled basic icon='redo' loading={isUtteranceReinterpreting(datum)} />;
+        action = (
+            <Button
+                size={size}
+                disabled
+                basic
+                icon='redo'
+                loading={isUtteranceReinterpreting(datum)}
+            />
+        );
     } else if (!!datum.validated) {
-        action = <Button size={size} onClick={() => onToggleValidation(datum)} color='green' icon='check' data-cy='valid-utterance-button' />;
+        action = (
+            <Button
+                size={size}
+                onClick={() => onToggleValidation(datum)}
+                color='green'
+                icon='check'
+                data-cy='valid-utterance-button'
+            />
+        );
     } else if (code === 'aboveTh') {
         action = (
             <SmartTip
@@ -86,9 +99,7 @@ export default function ActivityActionsColumn(props) {
                     renderValidateButton(datum),
                     ...(deleteable.length > 1 ? [renderDeleteButton(datum)] : []),
                 ]}
-                button={(
-                    <Button size={size} icon='trash' color='teal' basic />
-                )}
+                button={<Button size={size} icon='trash' color='teal' basic />}
             />
         );
     } else if (code === 'entitiesInTD') {
@@ -144,26 +155,52 @@ export default function ActivityActionsColumn(props) {
     });
     return (
         <div key={`${datum._id}-actions`}>
-            { datum.conversation_id ? (
+            {datum.conversation_id ? (
                 <Popup
                     className='dialogue-popup'
                     on='click'
-                    trigger={<Icon data-cy='conversation-viewer' className='action-icon viewOnHover' name='comments' onClick={() => getConv()} />}
+                    trigger={(
+                        <Icon
+                            data-cy='conversation-viewer'
+                            className='action-icon viewOnHover'
+                            name='comments'
+                            onClick={() => getConv()}
+                        />
+                    )}
                 >
-        
-                    {!loading && convData && (<ConversationDialogueViewer tracker={convData.conversation.tracker} messageIdInView={datum.message_id} />)}
+                    {!loading && convData && (
+                        <ConversationDialogueViewer
+                            tracker={convData.conversation.tracker}
+                            messageIdInView={datum.message_id}
+                        />
+                    )}
                 </Popup>
             ) : (
                 <Popup
                     on='click'
-                    trigger={<Icon data-cy='conversation-viewer' className='action-icon viewOnHover' name='comments' onClick={() => getConv()} />}
+                    trigger={(
+                        <Icon
+                            data-cy='conversation-viewer'
+                            className='action-icon viewOnHover'
+                            name='comments'
+                            onClick={() => getConv()}
+                        />
+                    )}
                 >
-
                     No conversation data
                 </Popup>
             )}
             {action}
-            {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && <Icon name='trash' className='action-icon viewOnHover' onClick={() => onDelete([datum])} />}
+            {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && (
+                <Button
+                    basic
+                    size={size}
+                    onClick={() => onDelete([datum])}
+                    color='grey'
+                    icon='trash'
+                    data-cy='trash icon-trash'
+                />
+            )}
         </div>
     );
 }
@@ -179,5 +216,4 @@ ActivityActionsColumn.propTypes = {
     projectId: PropTypes.string.isRequired,
 };
 
-ActivityActionsColumn.defaultProps = {
-};
+ActivityActionsColumn.defaultProps = {};

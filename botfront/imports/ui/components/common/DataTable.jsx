@@ -16,6 +16,7 @@ export default function DataTable(props) {
         columns,
         onChangeInVisibleItems,
         gutterSize,
+        className,
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
@@ -73,7 +74,7 @@ export default function DataTable(props) {
 
     return (
         <div
-            className='virtual-table'
+            className={`virtual-table ${className}`}
             ref={tableRef}
             style={{
                 height: height === 'auto' ? `calc(100vh - ${correction}px)` : `${height}px`,
@@ -141,6 +142,7 @@ DataTable.propTypes = {
     loadMore: PropTypes.func,
     onChangeInVisibleItems: PropTypes.func,
     gutterSize: PropTypes.number,
+    className: PropTypes.string,
 };
 
 DataTable.defaultProps = {
@@ -151,4 +153,5 @@ DataTable.defaultProps = {
     loadMore: () => {},
     onChangeInVisibleItems: null,
     gutterSize: 15,
+    className: '',
 };
