@@ -1,6 +1,4 @@
-import React, {
-    useContext, useState, useImperativeHandle,
-} from 'react';
+import React, { useContext, useState, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import {
     Icon, Popup, Input, Button,
@@ -11,11 +9,14 @@ import DataTable from '../../common/DataTable';
 
 const Intent = React.forwardRef((props, ref) => {
     const {
-        value, allowEditing, allowAdditions, onChange, disabled, enableReset,
+        value,
+        allowEditing,
+        allowAdditions,
+        onChange,
+        disabled,
+        enableReset,
     } = props;
-    const {
-        addIntent, intents: contextIntents,
-    } = useContext(ProjectContext);
+    const { addIntent, intents: contextIntents } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
 
@@ -27,10 +28,16 @@ const Intent = React.forwardRef((props, ref) => {
         isPopupOpen: () => popupOpen,
     }));
 
-    const textMatch = (s1, s2) => (s1 || '').replace(' ', '').toLowerCase().includes((s2 || '').replace(' ', '').toLowerCase());
+    const textMatch = (s1, s2) => (s1 || '')
+        .replace(' ', '')
+        .toLowerCase()
+        .includes((s2 || '').replace(' ', '').toLowerCase());
     const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
 
+    const hasInvalidChars = intentName => intentName.match(/[ +/{}/]/);
+
     const handleChange = (intentName) => {
+        if (hasInvalidChars(intentName)) return;
         if (intentName) addIntent(intentName);
         onChange(intentName);
         setTypeInput('');
@@ -63,35 +70,39 @@ const Intent = React.forwardRef((props, ref) => {
         />
     );
 
-    const columns = [
-        { key: 'intent', style: { width: '200px' }, render: renderIntent },
-    ];
-
+    const columns = [{ key: 'intent', style: { width: '200px' }, render: renderIntent }];
 
     const renderContent = () => (
         <div
             style={{
-                height: dataToDisplay.length ? (allowAdditions ? '250px' : '200px') : '50px',
+                height: dataToDisplay.length
+                    ? allowAdditions
+                        ? '250px'
+                        : '200px'
+                    : '50px',
                 width: '300px',
             }}
             className='intent-dropdown'
         >
             {allowAdditions && renderInsertNewIntent()}
-            {dataToDisplay.length
-                ? (
-                    <DataTable
-                        height={200}
-                        width={300}
-                        columns={columns}
-                        data={dataToDisplay}
-                        gutterSize={0}
-                        onClickRow={({ datum: { intent } }) => handleChange(intent)}
-                    />
-                )
-                : (
-                    <Button fluid color='purple' content='Create new intent' onClick={() => handleChange(typeInput)} />
-                )
-            }
+            {dataToDisplay.length ? (
+                <DataTable
+                    height={200}
+                    width={300}
+                    columns={columns}
+                    data={dataToDisplay}
+                    gutterSize={0}
+                    onClickRow={({ datum: { intent } }) => handleChange(intent)}
+                />
+            ) : (
+                <Button
+                    fluid
+                    color='purple'
+                    content='Create new intent'
+                    disabled={hasInvalidChars(typeInput)}
+                    onClick={() => handleChange(typeInput)}
+                />
+            )}
         </div>
     );
 
@@ -102,22 +113,33 @@ const Intent = React.forwardRef((props, ref) => {
     if (!allowEditing) extraClass = `${extraClass} uneditable`;
 
     return (
-        <div
-            className={`intent-label ${extraClass}`}
-            data-cy='intent-label'
-        >
+        <div className={`intent-label ${extraClass}`} data-cy='intent-label'>
             <Popup
-                trigger={<div className='content-on-label'><Icon name='tag' size='small' /><span>{value || 'no intent'}</span></div>}
+                trigger={(
+                    <div className='content-on-label'>
+                        <Icon name='tag' size='small' />
+                        <span>{value || 'no intent'}</span>
+                    </div>
+                )}
                 basic
                 content={renderContent()}
                 on='click'
                 open={popupOpen}
                 onOpen={() => setPopupOpen(true)}
-                onClose={() => { setTypeInput(''); setPopupOpen(false); }}
+                onClose={() => {
+                    setTypeInput('');
+                    setPopupOpen(false);
+                }}
                 disabled={!allowEditing}
                 className='intent-popup'
             />
-            { enableReset && value && value !== OOS_LABEL && <Icon name='x' className='action-on-label' onClick={() => handleChange('')} />}
+            {enableReset && value && value !== OOS_LABEL && (
+                <Icon
+                    name='x'
+                    className='action-on-label'
+                    onClick={() => handleChange('')}
+                />
+            )}
         </div>
     );
 });
