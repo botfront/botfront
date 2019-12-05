@@ -23,6 +23,7 @@ import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 import PrefixDropdown from '../../common/PrefixDropdown';
 import { GET_CONVERSATION } from '../../conversations/queries';
 import ConversationDialogueViewer from '../../conversations/ConversationDialogueViewer';
+import CanonicalPopup from '../common/CanonicalPopup';
 
 function Activity(props) {
     const [sortType, setSortType] = useState('Newest');
@@ -144,13 +145,18 @@ function Activity(props) {
     const renderIntent = (row) => {
         const { datum } = row;
         return (
-            <IntentLabel
-                disabled={isUtteranceOutdated(datum)}
-                value={datum.intent ? datum.intent : ''}
-                allowEditing={!isUtteranceOutdated(datum)}
-                allowAdditions
-                onChange={intent => handleUpdate([{ _id: datum._id, intent, confidence: null }], datum)}
-                enableReset
+            <CanonicalPopup
+                example={datum}
+                trigger={(
+                    <IntentLabel
+                        disabled={isUtteranceOutdated(datum)}
+                        value={datum.intent ? datum.intent : ''}
+                        allowEditing={!isUtteranceOutdated(datum)}
+                        allowAdditions
+                        onChange={intent => handleUpdate([{ _id: datum._id, intent, confidence: null }], datum)}
+                        enableReset
+                    />
+                )}
             />
         );
     };

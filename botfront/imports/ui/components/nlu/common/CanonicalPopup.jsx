@@ -1,56 +1,62 @@
-
-import React, { useContext } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Icon } from 'semantic-ui-react';
 import UserUtteranceViewer from './UserUtteranceViewer';
-import { Context } from '../../../../../stories/CanonicalPopup.stories';
+import { ProjectContext } from '../../../layouts/context';
 
 const CanonicalPopup = (props) => {
     const {
         trigger,
         example,
+        example: { intent },
     } = props;
 
-    const { getCanonicalExample } = useContext(Context);
+    const { getCanonicalExamples } = useContext(ProjectContext);
+    const [tooltipOpen, setTooltipOpen] = useState(false);
 
-    const canonicalExample = getCanonicalExample(example);
+    const canonicalExample = getCanonicalExamples({ intent })[0];
+    const intentLabelRef = useRef();
     
-    const renderPopupContent = () => {
-        if (!canonicalExample) {
-            return (
-                <span className='canonical-popup-content'>
-                    <p>There are no examples associated with this intent.</p>
-                </span>
-            );
-        }
-        return (
-            <span className='canonical-popup-content'>
-                <Icon
-                    name={canonicalExample.canonical === true ? 'gem' : 'tag'}
-                />
-                <UserUtteranceViewer
-                    value={canonicalExample}
-                    disableEditing
-                    showIntent={false}
-                />
-            </span>
-        );
-    };
+    const renderPopupContent = () => (
+        <div className='side-by-side middle'>
+            {(!canonicalExample || !canonicalExample.text)
+                ? <p>There are no examples associated with this intent.</p>
+                : (
+                    <>
+                        <Icon
+                            name={canonicalExample.canonical ? 'gem' : 'tag'}
+                        />
+                        <UserUtteranceViewer
+                            value={canonicalExample}
+                            disableEditing
+                            showIntent={false}
+                            projectId=''
+                        />
+                    </>
+                )
+            }
+        </div>
+    );
+
     const renderCanonicalPopup = () => (
         <Popup
             content={renderPopupContent}
-            /* if the root element of the trigger has custom hover behaviour it
-               prevents the popup from opening. Wrapping the trigger in a div ensures
-               the popup will open
-            */
-            trigger={<div className='canonical-popup-trigger'>{trigger}</div>}
+            trigger={(
+                <div role='button' tabIndex={0} onKeyDown={null} onClick={() => setTooltipOpen(false)}>
+                    <trigger.type
+                        {...trigger.props}
+                        ref={intentLabelRef}
+                    />
+                </div>
+            )}
             inverted
-            flowing
-            hoverable
-            open
-            className='canonical-popup'
+            on='hover'
+            onOpen={() => { if (!intentLabelRef.current.isPopupOpen()) setTooltipOpen(true); }}
+            onClose={() => setTooltipOpen(false)}
+            open={tooltipOpen}
         />
     );
+    if (!example.intent) return trigger;
     return renderCanonicalPopup();
 };
 

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
     Icon, Popup, Input, Button,
 } from 'semantic-ui-react';
+import UserUtteranceViewer from './UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import { OOS_LABEL } from '../../constants.json';
 import DataTable from '../../common/DataTable';
@@ -16,13 +17,14 @@ const Intent = React.forwardRef((props, ref) => {
         disabled,
         enableReset,
     } = props;
-    const { addIntent, intents: contextIntents } = useContext(ProjectContext);
+    const {
+        addIntent, getCanonicalExamples,
+    } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
 
-    const intents = contextIntents
-        .sort((i1, i2) => (i2 === value) - (i1 === value))
-        .map(i => ({ intent: i }));
+    const intents = getCanonicalExamples({})
+        .sort((i1, i2) => (i2.intent === value) - (i1.intent === value));
 
     useImperativeHandle(ref, () => ({
         isPopupOpen: () => popupOpen,
@@ -32,7 +34,7 @@ const Intent = React.forwardRef((props, ref) => {
         .replace(' ', '')
         .toLowerCase()
         .includes((s2 || '').replace(' ', '').toLowerCase());
-    const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
+    const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput) || textMatch(i.text, typeInput));
 
     const hasInvalidChars = intentName => intentName.match(/[ +/{}/]/);
 
@@ -74,25 +76,45 @@ const Intent = React.forwardRef((props, ref) => {
         />
     );
 
-    const columns = [{ key: 'intent', style: { width: '200px' }, render: renderIntent }];
+    const renderExample = (row) => {
+        const { datum } = row;
+        return (
+            <div className='side-by-side middle'>
+                <UserUtteranceViewer
+                    value={datum}
+                    projectId=''
+                    disableEditing
+                    showIntent={false}
+                />
+                <Icon
+                    name={datum.canonical ? 'gem' : 'tag'}
+                />
+            </div>
+        );
+    };
+
+    const columns = [
+        { key: 'intent', style: { width: '200px' }, render: renderIntent },
+        { key: 'text', style: { width: '100%' }, render: renderExample },
+    ];
 
     const renderContent = () => (
         <div
             style={{
                 height: dataToDisplay.length
                     ? allowAdditions
-                        ? '250px'
-                        : '200px'
-                    : '50px',
-                width: '300px',
+                        ? '350px'
+                        : '300px'
+                    : '100px',
+                width: '500px',
             }}
             className='intent-dropdown'
         >
             {allowAdditions && renderInsertNewIntent()}
             {dataToDisplay.length ? (
                 <DataTable
-                    height={200}
-                    width={300}
+                    height={300}
+                    width={500}
                     columns={columns}
                     data={dataToDisplay}
                     gutterSize={0}
