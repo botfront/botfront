@@ -17,6 +17,7 @@ const { validationResult } = require('express-validator/check');
 const { getVerifiedProject } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
+const {sortBy} = require('lodash');
 
 const collectionsWithModelId = {
     activity: Activity,
@@ -211,6 +212,48 @@ const importProjectValidator = [
     // ],
 ]
 
+const countUtterMatches = (templateValues) => {
+    const re = /utter_/g;
+    return ((JSON.stringify(templateValues) || '').match(re) || []).length;
+};
+
+const createResponsesFromOldFormat = (oldTemplates, projectId) => {
+    const templates = sortBy(oldTemplates, 'key');
+    const botResponses = [];
+    const duplicates = [];
+    templates.forEach((t, index) => {
+        // Delete irrelevant fields and set new _id
+        delete t.match;
+        delete t.followUp;
+        t.projectId = projectId
+        // Put duplicates in a separate list
+        if ((index < templates.length - 1 && t.key === templates[index + 1].key) || (index > 0 && t.key === templates[index - 1].key)) {
+            duplicates.push(t);
+        } else {
+            botResponses.push(t);
+        }
+    });
+    for (let i = 0; i < duplicates.length; i += 2) {
+        // Create an array containing two duplicates with the same key
+        const duplicateValues = duplicates.slice(i, i + 2);
+        if (!Array.from(new Set(duplicateValues.map(t => t.key))).length === 1)
+            throw ('Error when deduplicating botResponses, a non duplicate was picked as duplicate'); // Make sure duplicates are real
+        // Count times /utter_/ is a match
+        const utters = duplicateValues.map(t => countUtterMatches(t.values));
+        // Find the index of the template with less /utter_/ in it. This is the value we'll keep
+        const index = utters.indexOf(Math.min(...utters));
+        // Push the template we keep in the array of valid bot esponses
+        botResponses.push(duplicateValues[index]);
+    }
+
+    // Integrity check
+    if (!botResponses.length === templates.length - duplicates.length / 2) throw ('Error when deduplicating botResponses, some duplicates left');
+    if (!Array.from(new Set(botResponses)).length === botResponses.length) throw ('Error when deduplicating botResponses, some duplicates left');
+    // Insert bot responses in new collection
+    return botResponses
+    
+}
+
 exports.importProject = async function(req, res) {
     const { project_id: projectId } = req.params;
     const body = req.body instanceof Buffer
@@ -223,6 +266,10 @@ exports.importProject = async function(req, res) {
             if (!validator(body)) throw { code: 422, error: message };
         })
         const backup = nativizeProject(projectId, project.name, body);
+        if (backup.project.templates){
+            backup.botResponses = createResponsesFromOldFormat(backup.project.templates, projectId);
+            delete backup.project.templates
+        }
         delete backup.project.training
         for (let col in collections) {
             await overwriteCollection(projectId, project.nlu_models, col, backup);
