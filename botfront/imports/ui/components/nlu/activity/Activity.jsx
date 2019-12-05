@@ -213,6 +213,7 @@ function Activity(props) {
                         hasNextPage={hasNextPage}
                         loadMore={loading ? () => {} : loadMore}
                         onChangeInVisibleItems={handleChangeInVisibleItems}
+                        className='new-utterances-table'
                     />
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />

@@ -117,3 +117,55 @@
         }
     }
 }
+
+.new-utterances-table {
+    div.row.inner-incoming-row {
+        background-color: white;
+        border-radius: 4px;
+        margin-right: 15px;
+        margin-left: 15px;
+        box-shadow: 0 1px 10px rgba(34, 36, 38, 0.1);
+        border: 1px solid transparent;
+        transition: transform 0.3s ease-in-out;
+        &:hover {
+            background-color: white;
+            border: 1px solid #2185d0;
+            transform: translateY(-1px);
+            box-shadow: 0 1px 15px rgba(34,36,38, 0.08);
+        }
+
+        .confidence-text {
+            font-size: 12px;
+            padding-top: 4px;
+            padding-left: 11px;
+        }
+
+        .intent-label {
+            margin-left: 9px;
+            padding-top: 3px;
+        }
+
+        .utterance-viewer {
+            margin-top: -2px;
+            margin-left: 15px;
+        }
+        
+        button.icon.mini {
+            font-size: 14px;
+            padding: 5px;
+            margin-right: 11px;
+            margin-top: 3px;
+            &.grey {
+                margin: 0;
+                border: 1px solid #eceff1;
+                background-color: #eceff1 !important;
+                box-shadow: none !important;
+                color: #acbac4 !important;
+                &:hover {
+                    color: #8d99a2 !important;
+                }
+            }
+        }
+
+    }
+}
