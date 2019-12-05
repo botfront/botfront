@@ -42,6 +42,7 @@ function Template(props) {
     if (!languages.includes(workingLanguage)) changeWorkingLanguage(languages[0]);
     const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
     const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
+    const [submitAllowed, setSubmitAllowed] = useState(true);
 
     const generateKey = (aTemplate) => {
         const criteria = aTemplate.match.nlu[0];
@@ -55,24 +56,24 @@ function Template(props) {
         return slugify(['utter', key, shortId.generate()].join(' '), '_');
     };
 
-const displayError = (error) => {
-    if(error.graphQLErrors[0] 
-        && error.graphQLErrors[0].extensions
-        && error.graphQLErrors[0].extensions.exception
-        && error.graphQLErrors[0].extensions.exception.code
-        && error.graphQLErrors[0].extensions.exception.code === 11000){
+    const displayError = (error) => {
+        if (error.graphQLErrors[0]
+            && error.graphQLErrors[0].extensions
+            && error.graphQLErrors[0].extensions.exception
+            && error.graphQLErrors[0].extensions.exception.code
+            && error.graphQLErrors[0].extensions.exception.code === 11000) {
             Alert.error(`Error: the key: ${newTemplate.key} already exist in this project`, {
                 position: 'bottom',
                 timeout: 5 * 1000,
             });
-    } else {
-        Alert.error(error, {
-            position: 'bottom',
-            timeout: 5 * 1000,
-        });
+        } else {
+            Alert.error(error, {
+                position: 'bottom',
+                timeout: 5 * 1000,
+            });
+        }
+
     }
-   
-}
 
     const updateTemplate = (formData) => {
         let newTemplate = { ...formData };
@@ -87,20 +88,20 @@ const displayError = (error) => {
             updateBotResponse({
                 variables: { projectId, response: clearTypenameField(newTemplate), _id: template._id },
                 refetchQueries: [{ query: GET_BOT_RESPONSE_BY_ID, variables: { _id: template._id } },
-                    { query: GET_BOT_RESPONSES, variables: { projectId } }],
+                { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); },
-            (error) => { displayError(error)});
+                (error) => { displayError(error) });
         } else {
             createBotResponse({
                 variables: { projectId, response: clearTypenameField(newTemplate) },
                 refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: newTemplate.key, lang: workingLanguage || 'en' } },
-                    { query: GET_BOT_RESPONSES, variables: { projectId } }],
+                { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); },
-            (error) => { displayError(error)});
+                (error) => { displayError(error) });
         }
     };
 
-    
+
 
     const renderMenu = aTemplate => (
         <Menu pointing secondary style={{ background: '#fff' }}>
@@ -131,16 +132,19 @@ const displayError = (error) => {
         return newModel;
     };
 
+    const enableSubmit = (allow) => {
+        setSubmitAllowed(allow);
+    }
     const renderContentFields = l => (
         <TemplateValuesField name='values' languages={l}>
             <TemplateValueItemField name='$'>
                 <HiddenField name='lang' />
-                <SequenceField name='sequence' />
+                <SequenceField enableSubmit={enableSubmit} name='sequence' />
             </TemplateValueItemField>
         </TemplateValuesField>
     );
 
-    
+
     return (
         <>
             {renderMenu(template)}
@@ -163,7 +167,7 @@ const displayError = (error) => {
                             </>
                         </DisplayIf>
                         <ErrorsField />
-                        <SubmitField className='primary response-save-button' value='Save response' />
+                        <SubmitField className='primary response-save-button' value='Save response' disabled={!submitAllowed} />
                     </AutoForm>
                 </Container>
             )}
@@ -195,15 +199,15 @@ const TemplateContainer = (props) => {
 
     const [template, setTemplate] = useState({});
 
-    
+
     const project = Projects.find({ _id: projectId }, { fields: { nlu_models: 1 } }).fetch();
     if (!project) return router.replace('/404');
 
-   
+
     const [getResponse, { called, loading, data }] = useLazyQuery(GET_BOT_RESPONSE, {
         variables: { projectId, key: templateId, lang: workingLanguage || 'en' },
     });
-    
+
 
     const componentsProps = ({
         workingLanguage,
@@ -225,7 +229,7 @@ const TemplateContainer = (props) => {
         }
     }, [data]);
 
-    
+
     return (
         <Loading loading={loading}>
             <Template {...componentsProps} template={template} />
