@@ -26,6 +26,25 @@ const gazetteDefaults = {
 };
 
 Meteor.methods({
+    async 'nlu.canonicalizeExamples'(items, modelId) {
+        check(items, Array);
+        check(modelId, String);
+        const nluModel = await NLUModels.findOne({ _id: modelId }, { fields: { training_data: true } });
+        let { training_data: { common_examples: commonExamples } } = nluModel || { training_data: {} };
+        const canonicalizedItems = items.map((item) => {
+            const canonicalizedItem = item;
+            const match = commonExamples.find((example) => {
+                const intentMatch = example.intent === item.intent;
+                return intentMatch;
+            });
+            if (!match) {
+                canonicalizedItem.canonical = true;
+                commonExamples = [...commonExamples, canonicalizedItem];
+            }
+            return canonicalizedItem;
+        });
+        return canonicalizedItems;
+    },
     async 'nlu.insertExamplesWithLanguage'(projectId, language, items) {
         check(projectId, String);
         check(language, String);
@@ -42,7 +61,7 @@ Meteor.methods({
         }
     },
 
-    'nlu.insertExamples'(modelId, items) {
+    async 'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
         check(items, Array);
 
@@ -52,7 +71,8 @@ Meteor.methods({
         checkNoEmojisInExamples(JSON.stringify(items));
 
         try {
-            const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample), 'text');
+            const canonicalizedItems = await Meteor.callWithPromise('nlu.canonicalizeExamples', items, modelId);
+            const normalizedItems = uniqBy(canonicalizedItems.map(ExampleUtils.prepareExample), 'text');
             const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
             const pullItemsText = intersectionBy(examples, normalizedItems, 'text').map(({ text }) => text);
@@ -162,8 +182,6 @@ Meteor.methods({
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
-
-
 });
 
 if (Meteor.isServer) {
