@@ -74,6 +74,19 @@ describe('story visual editor', function () {
             .clear()
             .type('I do too qr');
 
+        // cy.dataCy('button_title').click({ force: true });
+
+        // cy.dataCy('enter-button-title')
+        //     .find('input')
+        //     .clear()
+        //     .type('postback option');
+        // cy.get('[data-cy=intent-label].null').click({ force: true })
+        //     .find('input')
+        //     .type('get_started');
+        // cy.dataCy('save-button').click({ force: true });
+
+        // cy.dataCy('add-quick-reply').click({ force: true });
+
         cy.dataCy('button_title').click({ force: true });
 
         cy.dataCy('enter-button-title')
