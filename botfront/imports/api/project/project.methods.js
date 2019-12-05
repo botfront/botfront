@@ -23,9 +23,28 @@ if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
 
     export const getExamplesFromTrainingData = (trainingData, startIntents = [], startEntities = []) => {
+        /*  input: training data and optional initial arrays of intents and entities
+            output: {
+                entities: [entityName, ...]
+                intents: {
+                    intentName: [
+                        {
+                            entities: [entityName, ...]
+                            example: <FULL_EXAMPLE>
+                        },
+                        ...
+                    ],
+                    ...
+                }
+            }
+        */
+
         const entries = startIntents.map(i => [i, []]);
         const intents = {};
-        entries.forEach((e) => { intents[e[0]] = e[1]; });
+        entries.forEach((entry) => {
+            const [key, value] = entry;
+            intents[key] = value;
+        });
 
         let entities = startEntities;
 
