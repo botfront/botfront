@@ -39,13 +39,13 @@ Meteor.methods({
         const canonicalizedItems = items.map((item) => { // ##1##
             const itemEntities = getEntityCountDictionary(item.entities); // total occurances of each entity
             const match = commonExamples.find((example) => { // ##2##
-                if (item.intent !== example.intent) return false; // check intent name it the same
-                if (item.entities.length !== example.entities.length) return false; // check they have the same number of entities
+                if (item.intent !== example.intent) return false; // check examples have the same intent name
+                if (item.entities.length !== example.entities.length) return false; // check examples have the same number of entities
                 const exampleEntities = getEntityCountDictionary(example.entities);
                 const entityMatches = Object
                     .keys(itemEntities)
                     .filter(key => exampleEntities[key] === itemEntities[key]);
-                return entityMatches.length === Object.keys(itemEntities).length; // check they have the same entities
+                return entityMatches.length === Object.keys(itemEntities).length; // check examples have the same entities
             });
 
             if (!match) {
