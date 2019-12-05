@@ -186,7 +186,7 @@ export class ExampleTextEditor extends React.Component {
     };
 
     render() {
-        const { example: { text = '', entities = [] } = {} } = this.state;
+        const { example: { text = '' } = {} } = this.state;
         const { highlightEntities } = this.props;
 
         return (
