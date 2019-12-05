@@ -118,8 +118,8 @@ describe('story visual editor', function () {
             cy.log(response)
             cy.get('[role=row]')
                 .contains('[role=row]', response.replace('-', '').trim())
-                .should('exist'); // there's a row with our text and response hash
-            cy.dataCy('edit-response-2')
+                .should('exist') // there's a row with our text and response hash
+                .find('.icon.edit')
                 .click();
             cy.get('.response-message-0:not(.button)')
                 .invoke('text')
@@ -133,7 +133,7 @@ describe('story visual editor', function () {
             .contains('myTestIntent')
             .should('exist'); // there nlu example is there too
     });
-/*
+
     it('should use the canonical example if one is available', function () {
         cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
             {
@@ -175,5 +175,5 @@ describe('story visual editor', function () {
             .contains('Default stories')
             .click({ force: true });
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
-    });*/
+    });
 });
