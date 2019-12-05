@@ -4,6 +4,7 @@ import {
 } from 'semantic-ui-react';
 import AutoForm from 'uniforms-semantic/AutoForm';
 import React, { useState, useEffect } from 'react';
+import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import { cloneDeep } from 'lodash';
 import { browserHistory } from 'react-router';
@@ -68,13 +69,37 @@ function Template(props) {
                 variables: { projectId, response: clearTypenameField(newTemplate), _id: template._id },
                 refetchQueries: [{ query: GET_BOT_RESPONSE_BY_ID, variables: { _id: template._id } },
                     { query: GET_BOT_RESPONSES, variables: { projectId } }],
-            }).then(() => { browserHistory.goBack(); });
+            }).then(() => { browserHistory.goBack(); },
+            (error) => {
+                if(error.graphQLErrors[0] 
+                    && error.graphQLErrors[0].extensions
+                    && error.graphQLErrors[0].extensions.exception
+                    && error.graphQLErrors[0].extensions.exception.code
+                    && error.graphQLErrors[0].extensions.exception.code === 11000){
+                        Alert.error(`Error: the key: ${newTemplate.key} already exist in this project`, {
+                            position: 'bottom',
+                            timeout: 5 * 1000,
+                        });
+                }
+            });
         } else {
             createBotResponse({
                 variables: { projectId, response: clearTypenameField(newTemplate) },
                 refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: newTemplate.key, lang: workingLanguage || 'en' } },
                     { query: GET_BOT_RESPONSES, variables: { projectId } }],
-            }).then(() => { browserHistory.goBack(); });
+            }).then(() => { browserHistory.goBack(); },
+            (error) => {
+                if(error.graphQLErrors[0] 
+                    && error.graphQLErrors[0].extensions
+                    && error.graphQLErrors[0].extensions.exception
+                    && error.graphQLErrors[0].extensions.exception.code
+                    && error.graphQLErrors[0].extensions.exception.code === 11000){
+                        Alert.error(`Error: the key: ${newTemplate.key} already exist in this project`, {
+                            position: 'bottom',
+                            timeout: 5 * 1000,
+                        });
+                }
+            });
         }
     };
 
