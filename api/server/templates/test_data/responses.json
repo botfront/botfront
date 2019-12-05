@@ -61,20 +61,6 @@
     "projectId": "bf",
     "values": [
       {
-        "sequence": [],
-        "lang": "en"
-      },
-      {
-        "sequence": [],
-        "lang": "fr"
-      }
-    ],
-    "key": "utter_empty_sequence"
-  },
-  {
-    "projectId": "bf",
-    "values": [
-      {
         "sequence": [
           {
             "content": "text: intent1"
