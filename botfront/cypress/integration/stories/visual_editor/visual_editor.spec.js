@@ -2,6 +2,9 @@
 
 const qrGold = new RegExp(`
 buttons:
+  - title: postback option
+    type: postback
+    payload: /get_started
   - title: web_url option
     type: web_url
     payload: 'https://myurl.com/'
@@ -74,18 +77,19 @@ describe('story visual editor', function () {
             .clear()
             .type('I do too qr');
 
-        // cy.dataCy('button_title').click({ force: true });
+        cy.dataCy('button_title').click({ force: true });
 
-        // cy.dataCy('enter-button-title')
-        //     .find('input')
-        //     .clear()
-        //     .type('postback option');
-        // cy.get('[data-cy=intent-label].null').click({ force: true })
-        //     .find('input')
-        //     .type('get_started');
-        // cy.dataCy('save-button').click({ force: true });
+        cy.dataCy('enter-button-title')
+            .find('input')
+            .clear()
+            .type('postback option');
+        cy.dataCy('intent-label').contains('intent')
+            .click({ force: true });
+        cy.get('.intent-dropdown input')
+            .type('get_started{enter}');
+        cy.dataCy('save-button').click({ force: true });
 
-        // cy.dataCy('add-quick-reply').click({ force: true });
+        cy.dataCy('add-quick-reply').click({ force: true });
 
         cy.dataCy('button_title').click({ force: true });
 
