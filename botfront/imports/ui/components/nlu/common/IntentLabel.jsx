@@ -36,8 +36,11 @@ const Intent = React.forwardRef((props, ref) => {
 
     const hasInvalidChars = intentName => intentName.match(/[ +/{}/]/);
 
+    const handleTypeInput = (_e, { value: newInput }) => {
+        if (!hasInvalidChars(newInput)) setTypeInput(newInput);
+    };
+
     const handleChange = (intentName) => {
-        if (hasInvalidChars(intentName)) return;
         if (intentName) addIntent(intentName);
         onChange(intentName);
         setTypeInput('');
@@ -64,9 +67,10 @@ const Intent = React.forwardRef((props, ref) => {
         <Input
             placeholder='Filter or create'
             fluid
-            onChange={(e, { value: newInput }) => setTypeInput(newInput)}
+            onChange={handleTypeInput}
             onKeyDown={handleKeyDown}
             autoFocus
+            value={typeInput}
         />
     );
 
@@ -99,7 +103,6 @@ const Intent = React.forwardRef((props, ref) => {
                     fluid
                     color='purple'
                     content='Create new intent'
-                    disabled={hasInvalidChars(typeInput)}
                     onClick={() => handleChange(typeInput)}
                 />
             )}
