@@ -194,7 +194,7 @@ function ConversationsBrowser(props) {
                         </>
                     ) : (
                         <Grid.Column width={16}>
-                            <Message data-cy='no-conv' info>No conversation to load</Message>
+                            <Message data-cy='no-conv' info>No conversations to load.</Message>
                         </Grid.Column>
                     )}
                 </Loading>
