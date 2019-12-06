@@ -12,6 +12,7 @@ import DataTable from '../../common/DataTable';
 import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/utils';
+import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 
@@ -92,7 +93,7 @@ function Activity(props) {
     };
 
     const handleChangeInVisibleItems = (visibleData) => {
-        if (project.training.status === 'training') return;
+        if (isTraining(project)) return;
         if (reinterpreting.length > 49) return;
         const reinterpretable = visibleData
             .filter(isUtteranceOutdated)

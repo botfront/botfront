@@ -9,11 +9,10 @@ import {
 } from 'semantic-ui-react';
 import { upsertActivity as upsertActivityMutation } from './mutations';
 import apolloClient from '../../../../startup/client/apollo';
-import { wrapMeteorCallback } from '../../utils/Errors';
 
 export async function populateActivity(instance, examples, modelId, callback) {
-    return Meteor.call('rasa.parse', instance, examples, wrapMeteorCallback(async (err, activity) => {
-        if (err) throw new Error(err);
+    return Meteor.call('rasa.parse', instance, examples, async (err, activity) => {
+        if (err) return;
         const data = (Array.isArray(activity) ? activity : [activity]).map(a => ({
             text: a.text,
             intent: a.intent.name,
@@ -23,7 +22,7 @@ export async function populateActivity(instance, examples, modelId, callback) {
 
         await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { modelId, data } });
         if (callback) callback();
-    }));
+    });
 }
 
 export default function ActivityInsertions(props) {
