@@ -285,7 +285,9 @@ const ConversationsBrowserContainer = (props) => {
         // If for some reason the conversation is not in the current page, discard it.
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
         if (!activeConversationId && conversations.length > 0) {
-            const url = updateIncomingPath({ ...router.params, page: page || 1, selected_id: conversations[0]._id });
+            const url = updateIncomingPath({
+                ...router.params, tab: 'conversations', page: page || 1, selected_id: conversations[0]._id,
+            }); // tab will always be conversations if set on the converesations tab
             browserHistory.replace({ pathname: url });
         } else {
             Object.assign(componentProps, {

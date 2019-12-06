@@ -27,13 +27,13 @@ class ProjectSidebar extends React.Component {
                     </Menu.Item>
                     <Can I='stories:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/stories`}>
-                            <Menu.Item name='Stories' icon='book' />
+                            <Menu.Item name='Stories' icon='book' data-cy='stories-sidebar-link' />
                         </Link>
                     </Can>
                     <Can I='nlu-data:r' projectId={projectId}>
                         <>
                             <Link to={`/project/${projectId}/nlu/models`}>
-                                <Menu.Item name='NLU' icon='grid layout' />
+                                <Menu.Item name='NLU' icon='grid layout' data-cy='nlu-sidebar-link' />
                             </Link>
                             {renderLegacyModels && (
                                 <Link to={`/project/${projectId}/nlu/legacy-models`}>

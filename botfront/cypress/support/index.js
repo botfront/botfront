@@ -654,8 +654,8 @@ Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(
 
 Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, langName = 'English') => {
     cy.visit(`/project/${projectId}/nlu/models`);
-    cy.get('[data-cy=model-selector]').click();
-    cy.get('[data-cy=model-selector] input').type(`${langName}{enter}`);
+    cy.get('[data-cy=language-selector]').click();
+    cy.get('[data-cy=language-selector] input').type(`${langName}{enter}`);
     cy.dataCy('nlu-menu-settings').click();
     cy.contains('Import').click({ force: true });
     cy.fixture(fixture, 'utf8').then((content) => {
