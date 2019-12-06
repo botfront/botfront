@@ -56,13 +56,13 @@ function Template(props) {
         return slugify(['utter', key, shortId.generate()].join(' '), '_');
     };
 
-    const displayError = (error) => {
+    const displayError = (error, key) => {
         if (error.graphQLErrors[0]
             && error.graphQLErrors[0].extensions
             && error.graphQLErrors[0].extensions.exception
             && error.graphQLErrors[0].extensions.exception.code
             && error.graphQLErrors[0].extensions.exception.code === 11000) {
-            Alert.error(`Error: the key: ${newTemplate.key} already exist in this project`, {
+            Alert.error(`Error: the key: ${key} already exist in this project`, {
                 position: 'bottom',
                 timeout: 5 * 1000,
             });
@@ -72,8 +72,7 @@ function Template(props) {
                 timeout: 5 * 1000,
             });
         }
-
-    }
+    };
 
     const updateTemplate = (formData) => {
         let newTemplate = { ...formData };
@@ -88,19 +87,18 @@ function Template(props) {
             updateBotResponse({
                 variables: { projectId, response: clearTypenameField(newTemplate), _id: template._id },
                 refetchQueries: [{ query: GET_BOT_RESPONSE_BY_ID, variables: { _id: template._id } },
-                { query: GET_BOT_RESPONSES, variables: { projectId } }],
+                    { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); },
-                (error) => { displayError(error) });
+                (error) => { displayError(error, newTemplate.key); });
         } else {
             createBotResponse({
                 variables: { projectId, response: clearTypenameField(newTemplate) },
                 refetchQueries: [{ query: GET_BOT_RESPONSE, variables: { projectId, key: newTemplate.key, lang: workingLanguage || 'en' } },
-                { query: GET_BOT_RESPONSES, variables: { projectId } }],
+                    { query: GET_BOT_RESPONSES, variables: { projectId } }],
             }).then(() => { browserHistory.goBack(); },
-                (error) => { displayError(error) });
+                (error) => { displayError(error, newTemplate.key); });
         }
     };
-
 
 
     const renderMenu = aTemplate => (
@@ -134,7 +132,7 @@ function Template(props) {
 
     const enableSubmit = (allow) => {
         setSubmitAllowed(allow);
-    }
+    };
     const renderContentFields = l => (
         <TemplateValuesField name='values' languages={l}>
             <TemplateValueItemField name='$'>
