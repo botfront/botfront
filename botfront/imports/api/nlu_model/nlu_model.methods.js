@@ -36,9 +36,9 @@ Meteor.methods({
         const nluModel = await NLUModels.findOne({ _id: modelId }, { fields: { training_data: true } });
         let { training_data: { common_examples: commonExamples } } = nluModel || { training_data: {} };
 
-        const canonicalizedItems = items.map((item) => { // ##1##
+        const canonicalizedItems = items.map((item) => {
             const itemEntities = getEntityCountDictionary(item.entities); // total occurances of each entity
-            const match = commonExamples.find((example) => { // ##2##
+            const match = commonExamples.find((example) => {
                 if (item.intent !== example.intent) return false; // check examples have the same intent name
                 if (item.entities.length !== example.entities.length) return false; // check examples have the same number of entities
                 const exampleEntities = getEntityCountDictionary(example.entities);
@@ -83,13 +83,13 @@ Meteor.methods({
         checkNoEmojisInExamples(JSON.stringify(items));
 
         try {
-            const canonicalizedItems = await Meteor.callWithPromise('nlu.canonicalizeExamples', items, modelId);
-            const normalizedItems = uniqBy(canonicalizedItems.map(ExampleUtils.prepareExample), 'text');
+            const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample), 'text');
+            const canonicalizedItems = await Meteor.callWithPromise('nlu.canonicalizeExamples', normalizedItems, modelId);
             const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
-            const pullItemsText = intersectionBy(examples, normalizedItems, 'text').map(({ text }) => text);
+            const pullItemsText = intersectionBy(examples, canonicalizedItems, 'text').map(({ text }) => text);
             NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItemsText } } } });
-            return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: normalizedItems, $position: 0 } } });
+            return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: canonicalizedItems, $position: 0 } } });
         } catch (e) {
             throw formatError(e);
         }

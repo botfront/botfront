@@ -165,6 +165,9 @@ describe('story visual editor', function () {
                 intent: 'chitchat.greet',
             },
         ]]);
+        cy.visit('/project/bf/nlu/models');
+        cy.get('.black.gem').click({ force: true });
+        cy.get('.black.gem').should('not.exist');
         cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
             {
                 text: 'bonjour not canonical recent',
