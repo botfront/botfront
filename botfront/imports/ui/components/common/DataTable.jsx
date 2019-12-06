@@ -132,8 +132,8 @@ export default function DataTable(props) {
 }
 
 DataTable.propTypes = {
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.exact('auto')]),
-    width: PropTypes.oneOfType([PropTypes.number, PropTypes.exact('auto')]),
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
     fixedRows: PropTypes.array,
     hasNextPage: PropTypes.bool,
     data: PropTypes.array.isRequired,
