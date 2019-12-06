@@ -7,12 +7,14 @@ import { Comment, Label, Message } from 'semantic-ui-react';
 import UserUtteredEventViewer from '../example_editor/UserUtteredEventViewer';
 import ExampleUtils from '../utils/ExampleUtils';
 
-function BotResponse({ type, text, data, key }) {
+function BotResponse({
+    type, text, data, key,
+}) {
     if (!text && !data) {
         return null;
     }
     // remove empty attributes
-    if (data) Object.keys(data).forEach((key) => (data[key] == null) && delete data[key]);
+    if (data) Object.keys(data).forEach(key => (data[key] == null) && delete data[key]);
 
     const dataEmpty = !data || !Object.keys(data).length;
     return (
@@ -102,6 +104,7 @@ function ConversationDialogueViewer({ tracker, mode }) {
             const userSays = {
                 example,
                 timestamp: moment.unix(event.timestamp),
+                confidence: ExampleUtils.getConfidence(event.parse_data),
             };
 
             if (!currentTurn.userSays && currentTurn.botResponses.length === 0) {

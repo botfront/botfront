@@ -55,9 +55,13 @@ export default class ExampleUtils {
     }
 
     static prepareExample(example) {
-        const { entities = [], text = '', intent = '', ...exampleFields } = example;
+        const {
+            entities = [], text = '', intent = '', ...exampleFields
+        } = example;
         const newEntities = entities.filter(EntityUtils.filterDuckling)
-            .map(({ value, start, end, ...entityFields }) => ({
+            .map(({
+                value, start, end, ...entityFields
+            }) => ({
                 value: text.substring(start, end),
                 start,
                 end,
@@ -93,5 +97,10 @@ export default class ExampleUtils {
             intent: intent || 'none',
             entities: entities.filter(({ extractor }) => extractor === 'ner_crf'),
         };
+    }
+
+    static getConfidence(parseData) {
+        const { intent: { confidence } = {} } = parseData;
+        return confidence;
     }
 }
