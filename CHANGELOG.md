@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.5-ee.5](https://github.com/botfront/botfront/compare/v0.18.5-ee.4...v0.18.5-ee.5) (2019-12-06)
+
+
+### Bug Fixes
+
+* add entities in the NLU Playground ([9f5d2e3](https://github.com/botfront/botfront/commit/9f5d2e36c729a57bb1817cbd4fcb7bce5ca2efca))
+* change training status determination method ([9aa6e15](https://github.com/botfront/botfront/commit/9aa6e15b4159a8ec30101e9af3196c20431639c7))
+* crash in incoming ([af33948](https://github.com/botfront/botfront/commit/af33948a9d2cd775fc8d259da1325008d495f577))
+* instantaneous chat answers ([3ed1695](https://github.com/botfront/botfront/commit/3ed16952dfd55fa059a6532f712477e87d47b11f))
+* keep only allowed fields in activity insertion/reparse ([8704cd3](https://github.com/botfront/botfront/commit/8704cd3bf296e799e2b6da85f3ecae66d5af1a67))
+
 ### [0.18.5-ee.4](https://github.com/botfront/botfront/compare/v0.18.5-ee.3...v0.18.5-ee.4) (2019-12-03)
 
 
