@@ -19,6 +19,7 @@ describe('NLU Models ', function() {
         cy.get('[data-cy=language-selector] input').type('French{enter}');
         cy.get('.project-settings-menu-info').click();
         cy.get('[data-cy=save-changes]').click();
+        cy.get('.s-alert-success').should('be.visible');
         cy.visit('/project/bf/nlu/models');
         // Instance should also be added to the model that is created.
         cy.get('[data-cy=example-text-editor-input]').should('exist');
