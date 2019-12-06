@@ -24,10 +24,10 @@ class ProjectSidebar extends React.Component {
                         <ProjectsDropdown currentProjectId={projectId} onProjectChange={handleChangeProject} />
                     </Menu.Item>
                     <Link to={`/project/${projectId}/stories`}>
-                        <Menu.Item name='Stories' icon='book' />
+                        <Menu.Item name='Stories' icon='book' data-cy='stories-sidebar-link' />
                     </Link>
                     <Link to={`/project/${projectId}/nlu/models`}>
-                        <Menu.Item name='NLU' icon='grid layout' />
+                        <Menu.Item name='NLU' icon='grid layout' data-cy='nlu-sidebar-link' />
                     </Link>
                     {renderLegacyModels && (
                         <Link to={`/project/${projectId}/nlu/legacy-models`}>
@@ -35,7 +35,7 @@ class ProjectSidebar extends React.Component {
                         </Link>
                     )}
                     <Link to={`/project/${projectId}/incoming`}>
-                        <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-page' />
+                        <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-sidebar-link' />
                     </Link>
                     <Link to={`/project/${projectId}/dialogue/templates`}>
                         <Menu.Item name='Responses' icon='comment' />
