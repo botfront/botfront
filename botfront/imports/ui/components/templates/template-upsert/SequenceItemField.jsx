@@ -35,7 +35,7 @@ const getExamples = i => (
 registerLanguage('yaml', yamlsyntax);
 
 const labels = (value, enableSubmit) => {
-    const errors = [];
+    let errors = [];
     let yamlError = null;
     const messageTypes = ['Text', 'Quick Replies', 'Image', 'Button template', 'Generic template', 'List template', 'Carousel (deprecated)', 'Messenger Handoff'];
     const schemas = [TextSchema, QuickRepliesSchema, ImageSchema, FBMButtonTemplateSchema, FBMGenericTemplateSchema, FBMListTemplateSchema, LegacyCarouselSchema, FBMHandoffTemplateSchema];
@@ -50,7 +50,10 @@ const labels = (value, enableSubmit) => {
     try {
         let payload = yaml.safeLoad(value);
         if (typeof payload === 'string') payload = { text: payload };
-
+        if (!value.includes(':')) {
+            errors = Array(8).fill(['the response does not includes ":", use : for key/pair association']);
+        }
+        
         contexts.map(c => c.validate(payload));
         valid = contexts.map(c => (c.isValid() ? 1 : 0));
         hasError = valid.reduce((a, b) => a + b, 0) === 0;
@@ -109,6 +112,7 @@ const labels = (value, enableSubmit) => {
             ),
         }));
     }
+    
     if (errors.length === 0 && !yamlError) {
         enableSubmit(true);
 
@@ -133,32 +137,32 @@ const getHeight = value => `${Math.max(20, (value.split('\n').length) * 20)}px`;
 const SequenceItemField = ({
     className, disabled, error, errorMessage, id, inputRef, label, name, onChange, placeholder, required, showInlineError, value, enableSubmit, ...props
 }) => (
-        <div className={classnames(className, { disabled, error, required }, 'field')} {...filterDOMProps(props)}>
-            {label && <label>{label}</label>}
-            <AceEditor
-                width='100%'
-                mode='yaml'
-                theme='github'
-                fontSize={16}
-                id={id}
-                wrapEnabled
-                name={name}
-                onChange={v => onChange(v)}
-                placeholder={placeholder}
-                height={getHeight(value)}
-                highlightActiveLine
-                ref={inputRef}
-                value={value}
-                setOptions={{
-                    showPrintMargin: false,
-                    showGutter: false,
-                    showLineNumbers: false,
-                    tabSize: 2,
-                }}
-            />
+    <div className={classnames(className, { disabled, error, required }, 'field')} {...filterDOMProps(props)}>
+        {label && <label>{label}</label>}
+        <AceEditor
+            width='100%'
+            mode='yaml'
+            theme='github'
+            fontSize={16}
+            id={id}
+            wrapEnabled
+            name={name}
+            onChange={v => onChange(v)}
+            placeholder={placeholder}
+            height={getHeight(value)}
+            highlightActiveLine
+            ref={inputRef}
+            value={value}
+            setOptions={{
+                showPrintMargin: false,
+                showGutter: false,
+                showLineNumbers: false,
+                tabSize: 2,
+            }}
+        />
 
-            {!!error && <div className='ui red basic pointing label'>{errorMessage}</div>}
-            {labels(value, enableSubmit)}
-        </div>
-    );
+        {!!error && <div className='ui red basic pointing label'>{errorMessage}</div>}
+        {labels(value, enableSubmit)}
+    </div>
+);
 export default connectField(SequenceItemField);
