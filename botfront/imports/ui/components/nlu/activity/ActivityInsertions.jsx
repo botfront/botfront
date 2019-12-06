@@ -14,17 +14,12 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 export async function populateActivity(instance, examples, modelId, callback) {
     return Meteor.call('rasa.parse', instance, examples, wrapMeteorCallback(async (err, activity) => {
         if (err) throw new Error(err);
-        const data = (Array.isArray(activity) ? activity : [activity]).map((a) => {
-            const cleanA = a;
-            if (cleanA.intent_ranking) delete cleanA.intent_ranking;
-            if (cleanA.language) delete cleanA.language;
-            if (cleanA.intent && 'name' in cleanA.intent) {
-                cleanA.confidence = cleanA.intent.confidence;
-                cleanA.intent = cleanA.intent.name;
-            }
-            if (cleanA.entities) cleanA.entities = cleanA.entities.filter(e => e.extractor !== 'ner_duckling_http');
-            return cleanA;
-        });
+        const data = (Array.isArray(activity) ? activity : [activity]).map(a => ({
+            text: a.text,
+            intent: a.intent.name,
+            confidence: a.intent.confidence,
+            entities: a.entities.filter(e => e.extractor !== 'ner_duckling_http'),
+        }));
 
         await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { modelId, data } });
         if (callback) callback();
