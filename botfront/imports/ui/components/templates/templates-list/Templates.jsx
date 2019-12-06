@@ -90,7 +90,7 @@ const TemplatesContainer = ({ params }) => {
     }
 
     const {
-        loading, error, data,
+        loading, error, data, refetch,
     } = useQuery(GET_BOT_RESPONSES, { variables: { projectId: params.project_id } });
 
     useEffect(() => {
@@ -98,6 +98,10 @@ const TemplatesContainer = ({ params }) => {
             setTemplates(data.botResponses);
         }
     }, [data]);
+
+    useEffect(() => {
+        refetch();
+    }, []);
 
 
     useSubscription(RESPONSES_MODIFIED, {
