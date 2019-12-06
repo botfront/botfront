@@ -50,9 +50,9 @@ const httpLink = new HttpLink({
     credentials: 'same-origin',
 });
 
-// Create a WebSocket link:
+// Create a WebSocket link:n
 const wsLink = new WebSocketLink({
-    uri: 'ws://localhost:3001/subscriptions',
+    uri: `ws://localhost:${window.location.port}/subscriptions`,
     options: {
         reconnect: true,
     },
