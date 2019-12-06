@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
 import { browserHistory, withRouter } from 'react-router';
 import {
-    Container, Grid, Icon, Menu, Message, Segment, Pagination,
+    Container, Grid, Icon, Menu, Message, Pagination,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { GET_CONVERSATIONS } from './queries';
@@ -198,7 +198,9 @@ const ConversationsBrowserContainer = (props) => {
         // If for some reason the conversation is not in the current page, discard it.
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
         if (!activeConversationId) {
-            const url = updateIncomingPath({ ...router.params, page: page || 1, selected_id: conversations[0]._id });
+            const url = updateIncomingPath({
+                ...router.params, tab: 'conversations', page: page || 1, selected_id: conversations[0]._id,
+            }); // tab will always be conversations if set on the converesations tab
             browserHistory.replace({ pathname: url });
         } else {
             Object.assign(componentProps, {
@@ -218,9 +220,9 @@ const ConversationsBrowserContainer = (props) => {
         <div>
             <Loading loading={loading}>
                 <Container>
-                        <ConversationsBrowser
-                            {...componentProps}
-                        />
+                    <ConversationsBrowser
+                        {...componentProps}
+                    />
 
                 </Container>
             </Loading>
