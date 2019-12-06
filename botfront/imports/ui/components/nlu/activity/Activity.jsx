@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Message, Segment } from 'semantic-ui-react';
+import {
+    Message, Segment, Popup, Button,
+} from 'semantic-ui-react';
+import { useLazyQuery } from '@apollo/react-hooks';
 import IntentLabel from '../common/IntentLabel';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
@@ -18,6 +21,8 @@ import { clearTypenameField } from '../../../../lib/utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 import CanonicalPopup from '../common/CanonicalPopup';
+import { GET_CONVERSATION } from '../../conversations/queries';
+import ConversationDialogueViewer from '../../conversations/ConversationDialogueViewer';
 
 function Activity(props) {
     const [sortType, setSortType] = useState('Newest');
@@ -131,24 +136,23 @@ function Activity(props) {
             || datum.confidence <= 0
         ) return null;
         const canonical = intentsWithCanonicals[datum.intent].filter(e => e.entities.length === 0);
-        if (canonical.length){
+        if (canonical.length) {
             return (
                 <CanonicalPopup
                     example={canonical[0].example}
-                    trigger={
-                    <div className='confidence-text'>
-                        {`${Math.floor(datum.confidence * 100)}%`}
-                    </div>
-                    }
+                    trigger={(
+                        <div className='confidence-text'>
+                            {`${Math.floor(datum.confidence * 100)}%`}
+                        </div>
+                    )}
                 />
             );
-        } else {
-            return (
-                <div className='confidence-text'>
-                    {`${Math.floor(datum.confidence * 100)}%`}
-                </div>
-            );
         }
+        return (
+            <div className='confidence-text'>
+                {`${Math.floor(datum.confidence * 100)}%`}
+            </div>
+        );
     };
 
     const renderIntent = (row) => {
@@ -200,12 +204,49 @@ function Activity(props) {
         />
     );
 
+    const renderConvPopup = (row) => {
+        const convId = row.datum.conversation_id;
+        const [getConv, { loading: convLoading, data: convData }] = useLazyQuery(GET_CONVERSATION, {
+            variables: { projectId, conversationId: row.datum.conversation_id },
+        });
+        return (
+            <Popup
+                className={convId ? 'dialogue-popup' : ''}
+                on={convId ? 'click' : 'hover'}
+                inverted
+                trigger={(
+                    <Button
+                        basic
+                        icon='comments'
+                        color='grey'
+                        data-cy='conversation-viewer'
+                        className={`action-icon ${!convId && 'inactive'}`}
+                        name='comments'
+                        size='mini'
+                        onClick={convId ? () => getConv() : null}
+                    />
+                )}
+            >
+                {!convLoading && convData && convId(
+                    <ConversationDialogueViewer
+                        tracker={convData.conversation.tracker}
+                        messageIdInView={row.datum.message_id}
+                    />,
+                )}
+                {!convId && 'No conversation data'}
+            </Popup>
+        );
+    };
+        
     const columns = [
         {
             key: 'confidence', style: { width: '51px', minWidth: '51px' }, render: renderConfidence,
         },
         {
             key: 'intent', style: { width: '180px', minWidth: '180px', overflow: 'hidden' }, render: renderIntent,
+        },
+        {
+            key: 'conversation-popup', style: { width: '30px', minWidth: '30px' }, render: renderConvPopup,
         },
         {
             key: 'text', style: { width: '100%' }, render: renderExample,

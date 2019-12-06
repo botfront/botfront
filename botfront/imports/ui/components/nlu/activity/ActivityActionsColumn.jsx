@@ -2,10 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Popup, Icon } from 'semantic-ui-react';
 
-import { useLazyQuery } from '@apollo/react-hooks';
 import SmartTip from './SmartTip';
-import { GET_CONVERSATION } from '../../conversations/queries';
-import ConversationDialogueViewer from '../../conversations/ConversationDialogueViewer';
 
 export default function ActivityActionsColumn(props) {
     const {
@@ -16,14 +13,13 @@ export default function ActivityActionsColumn(props) {
         onToggleValidation,
         onMarkOoS,
         onDelete,
-        projectId,
     } = props;
 
     const renderDeleteAllButton = utterances => mainAction => (
         <Button
             className='icon'
             color='teal'
-            size={mainAction ? 'small' : 'mini'}
+            size='mini'
             icon
             fluid={mainAction}
             labelPosition='left'
@@ -40,7 +36,7 @@ export default function ActivityActionsColumn(props) {
         <Button
             className='icon'
             color={mainAction ? 'teal' : 'grey'}
-            size={mainAction ? 'small' : 'mini'}
+            size='mini'
             icon
             fluid={mainAction}
             basic={!mainAction && true}
@@ -56,7 +52,7 @@ export default function ActivityActionsColumn(props) {
     const renderValidateButton = u => mainAction => (
         <Button
             color='orange'
-            size={mainAction ? 'small' : 'mini'}
+            size='mini'
             basic
             fluid={mainAction}
             content='Validate anyway'
@@ -115,7 +111,6 @@ export default function ActivityActionsColumn(props) {
     } else if (!datum.intent) {
         action = (
             <Popup
-                size={size}
                 inverted
                 content='Mark this utterance OoS'
                 trigger={(
@@ -132,7 +127,6 @@ export default function ActivityActionsColumn(props) {
     } else {
         action = (
             <Popup
-                size={size}
                 inverted
                 content='Mark this utterance valid'
                 trigger={(
@@ -150,46 +144,8 @@ export default function ActivityActionsColumn(props) {
         );
     }
 
-    const [getConv, { loading, data: convData }] = useLazyQuery(GET_CONVERSATION, {
-        variables: { projectId, conversationId: datum.conversation_id },
-    });
     return (
         <div key={`${datum._id}-actions`}>
-            {datum.conversation_id ? (
-                <Popup
-                    className='dialogue-popup'
-                    on='click'
-                    trigger={(
-                        <Icon
-                            data-cy='conversation-viewer'
-                            className='action-icon viewOnHover'
-                            name='comments'
-                            onClick={() => getConv()}
-                        />
-                    )}
-                >
-                    {!loading && convData && (
-                        <ConversationDialogueViewer
-                            tracker={convData.conversation.tracker}
-                            messageIdInView={datum.message_id}
-                        />
-                    )}
-                </Popup>
-            ) : (
-                <Popup
-                    on='click'
-                    trigger={(
-                        <Icon
-                            data-cy='conversation-viewer'
-                            className='action-icon viewOnHover'
-                            name='comments'
-                            onClick={() => getConv()}
-                        />
-                    )}
-                >
-                    No conversation data
-                </Popup>
-            )}
             {action}
             {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && (
                 <Button
@@ -213,7 +169,6 @@ ActivityActionsColumn.propTypes = {
     onMarkOoS: PropTypes.func.isRequired,
     onToggleValidation: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
-    projectId: PropTypes.string.isRequired,
 };
 
 ActivityActionsColumn.defaultProps = {};
