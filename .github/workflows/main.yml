@@ -1,4 +1,4 @@
-name: Botfront
+name: build
 
 on:
   pull_request:
