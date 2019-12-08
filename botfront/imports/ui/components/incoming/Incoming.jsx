@@ -97,17 +97,20 @@ class Incoming extends React.Component {
                     selectedLanguage={workingLanguage}
                     handleLanguageChange={this.handleLanguageChange}
                     tab={router.params.tab}
+                    className='incoming'
                 />
-                <Container>
-                    <Loading loading={!ready || !model}>
-                        <Tab
-                            activeIndex={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
-                            menu={{ pointing: true, secondary: true }}
-                            panes={this.getPanes()}
-                            onTabChange={this.handleTabClick}
-                        />
-                    </Loading>
-                </Container>
+                <div className='incoming-background'>
+                    <Container>
+                        <Loading loading={!ready || !model}>
+                            <Tab
+                                activeIndex={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
+                                menu={{ pointing: true, secondary: true }}
+                                panes={this.getPanes()}
+                                onTabChange={this.handleTabClick}
+                            />
+                        </Loading>
+                    </Container>
+                </div>
             </>
         );
     }

@@ -1,3 +1,17 @@
 .ui.borderless.menu.top-menu {
     height: @top-menu-height;
+    &.incoming {
+        margin-bottom: 0;
+        background-color: #fafafa;
+    }
+}
+
+.incoming-background {
+    padding-top: 15px;
+    background-color: #fafafa;
+    height: ~"calc(100vh - @{top-menu-height})";
+    .prefix-dropdown .ui.floating.dropdown.button {
+        background-color: white !important;
+        // The important tag is needed because its used in Semantic !!
+    }
 }

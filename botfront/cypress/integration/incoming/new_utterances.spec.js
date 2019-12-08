@@ -30,7 +30,7 @@ describe('incoming page', function() {
         cy.dataCy('newutterances')
             .click();
         cy.wait(100);
-        cy.get('.ui.grey.basic.label')
+        cy.dataCy('intent-label')
             .first()
             .trigger('mouseover', { force: true });
         cy.dataCy('intent-dropdown')
@@ -116,7 +116,7 @@ describe('incoming page', function() {
         // add utterances with populate
         addNewUtterances();
         // validate utterances and run evaluation
-        cy.dataCy('nlu-example-text')
+        cy.dataCy('utterance-text')
             .should('have.length', 3);
         cy.dataCy('invalid-utterance-button')
             .first()
@@ -132,14 +132,14 @@ describe('incoming page', function() {
             .find('button')
             .contains('OK')
             .click();
-        cy.dataCy('nlu-example-text')
-            .should('have.length', 3);
+        cy.dataCy('utterance-text')
+            .should('have.length', 2);
         // check utterances were added to nlu data
         cy.get('.project-sidebar')
             .find('.item')
             .contains('NLU')
             .click({ force: true });
-        cy.dataCy('nlu-example-text')
+        cy.dataCy('utterance-text')
             .should('have.length', 1);
         cy.dataCy('intent-label')
             .contains('fruit')
@@ -163,7 +163,7 @@ describe('incoming page', function() {
             .click()
             .find('.item')
             .contains('Invalidate')
-            .click({ force: true }); 
+            .click({ force: true });
         cy.get('.dimmer')
             .find('button')
             .contains('OK')

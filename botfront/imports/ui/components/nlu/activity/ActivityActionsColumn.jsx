@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    Button, Popup,
-} from 'semantic-ui-react';
+import { Button, Popup } from 'semantic-ui-react';
 
-import FloatingIconButton from '../common/FloatingIconButton';
+// import FloatingIconButton from '../../common/FloatingIconButton';
 
 export default function ActivityActionsColumn(props) {
     const {
@@ -18,9 +16,25 @@ export default function ActivityActionsColumn(props) {
     const size = 'mini';
     let action;
     if (isUtteranceOutdated(datum)) {
-        action = <Button size={size} disabled basic icon='redo' loading={isUtteranceReinterpreting(datum)} />;
+        action = (
+            <Button
+                size={size}
+                disabled
+                basic
+                icon='redo'
+                loading={isUtteranceReinterpreting(datum)}
+            />
+        );
     } else if (!!datum.validated) {
-        action = <Button size={size} onClick={() => onToggleValidation(datum)} color='green' icon='check' data-cy='valid-utterance-button' />;
+        action = (
+            <Button
+                size={size}
+                onClick={() => onToggleValidation(datum)}
+                color='green'
+                icon='check'
+                data-cy='valid-utterance-button'
+            />
+        );
     } else {
         action = (
             <Popup
@@ -45,7 +59,16 @@ export default function ActivityActionsColumn(props) {
     return (
         <div key={`${datum._id}-actions`}>
             {action}
-            {!isUtteranceReinterpreting(datum) && <FloatingIconButton icon='trash' onClick={() => onDelete([datum])} />}
+            {!isUtteranceReinterpreting(datum) && (
+                <Button
+                    basic
+                    size={size}
+                    onClick={() => onDelete([datum])}
+                    color='grey'
+                    icon='trash'
+                    data-cy='trash icon-trash'
+                />
+            )}
         </div>
     );
 }
@@ -58,5 +81,4 @@ ActivityActionsColumn.propTypes = {
     onDelete: PropTypes.func.isRequired,
 };
 
-ActivityActionsColumn.defaultProps = {
-};
+ActivityActionsColumn.defaultProps = {};

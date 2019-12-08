@@ -6,7 +6,7 @@ import {
 import UtteranceInput from '../imports/ui/components/utils/UtteranceInput';
 
 function UtteranceInputWrapped(props) {
-    const [utterance, setUtterance] = useState('test');
+    const [utterance, setUtterance] = useState('');
     return (
         <UtteranceInput {...props} value={utterance} onChange={setUtterance} />
     );
@@ -14,17 +14,13 @@ function UtteranceInputWrapped(props) {
 
 storiesOf('UtteranceInput', module)
     .addDecorator(withKnobs)
-    .add('default', () => (
-        <UtteranceInputWrapped />
-    ))
-    .add('with value', () => <UtteranceInputWrapped value='a test value' />)
     .add('with props', () => (
         <UtteranceInputWrapped
             placeholder={text('placeholder', 'User says')}
             size={select(
                 'size',
                 ['mini', 'small', 'medium', 'large', 'big', 'huge', 'massive'],
-                'mini',
+                'small',
             )}
             fluid={boolean('fluid', false)}
         />

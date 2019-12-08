@@ -15,7 +15,6 @@ import {
     Tab,
     Popup,
     Placeholder,
-    Dropdown,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
@@ -37,6 +36,7 @@ import TrainButton from '../../utils/TrainButton';
 import Statistics from './Statistics';
 import DeleteModel from '../import-export/DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
+import LanguageDropdown from '../../common/LanguageDropdown';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import API from './API';
@@ -78,11 +78,6 @@ class NLUModel extends React.Component {
         if (!common_examples) return [];
         return common_examples.map(e => _appendSynonymsToText(e, entity_synonyms));
     };
-
-    componentDidUpdate() {
-        const { workingLanguage, changeWorkingLanguage, projectDefaultLanguage } = this.props;
-        if (!workingLanguage && projectDefaultLanguage) changeWorkingLanguage(projectDefaultLanguage);
-    }
 
     validationRender = () => {
         const { activityLinkRender } = this.state;
@@ -171,7 +166,7 @@ class NLUModel extends React.Component {
             { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
             { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
             { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
-            { menuItem: 'Insert many', render: () => <IntentBulkInsert intents={intents} onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
+            { menuItem: 'Insert many', render: () => <IntentBulkInsert onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
         ];
         if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
         return tabs;
@@ -195,28 +190,23 @@ class NLUModel extends React.Component {
         ];
     };
 
-    handleLanguageChange = (e, data) => {
+    handleLanguageChange = (value) => {
         const { models, projectId, changeWorkingLanguage } = this.props;
-        // Fetch the model Id for data.value
-        const modelToRender = models.find(model => (model.language === data.value));
-        changeWorkingLanguage(data.value);
-        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelToRender._id}` });
+        const modelMatch = models.find(({ language }) => language === value);
+        changeWorkingLanguage(value);
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelMatch._id}` });
     }
 
     getHeader = () => {
         const { nluModelLanguages, workingLanguage } = this.props;
         return (
-            <Dropdown
-                placeholder='Select Model'
-                search
-                selection
-                value={workingLanguage}
-                options={nluModelLanguages}
-                onChange={this.handleLanguageChange}
-                data-cy='model-selector'
+            <LanguageDropdown
+                languageOptions={nluModelLanguages}
+                selectedLanguage={workingLanguage}
+                handleLanguageChange={this.handleLanguageChange}
             />
         );
-    };
+    }
 
     handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
 
@@ -375,20 +365,19 @@ NLUModel.defaultProps = {
     workingLanguage: null,
 };
 
-const handleDefaultRoute = (projectId) => {
-    const { nlu_models: modelIds = [], defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1, defaultLanguage: 1 } }) || {};
-    const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
-
+const handleDefaultRoute = (projectId, models, workingLanguage) => {
+    // const { nlu_models: modelIds = [] } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {};
+    // const models = NLUModels.find({ _id: { $in: modelIds } }, { sort: { language: 1 } }).fetch();
     try {
-        const defaultModelId = models.find(model => model.language === defaultLanguage)._id;
-        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${defaultModelId}` });
+        const reduxModel = models.find(model => model.language === workingLanguage);
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${reduxModel._id}` });
     } catch (e) {
-        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelIds[0]}` });
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${models[0]._id}` });
     }
 };
 
 const NLUDataLoaderContainer = withTracker((props) => {
-    const { params: { model_id: modelId, project_id: projectId } = {} } = props;
+    const { params: { model_id: modelId, project_id: projectId } = {}, workingLanguage } = props;
 
     const {
         name,
@@ -401,8 +390,9 @@ const NLUDataLoaderContainer = withTracker((props) => {
         },
     });
     // For handling '/project/:project_id/nlu/models'
+    const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     if (!modelId || !nlu_models.includes(modelId)) {
-        handleDefaultRoute(projectId);
+        handleDefaultRoute(projectId, models, workingLanguage);
     }
     // for handling '/project/:project_id/nlu/model/:model_id'
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
@@ -429,7 +419,6 @@ const NLUDataLoaderContainer = withTracker((props) => {
 
     if (!name) return browserHistory.replace({ pathname: '/404' });
     const nluModelLanguages = getPublishedNluModelLanguages(nlu_models, true);
-    const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     const projectDefaultLanguage = defaultLanguage;
     const project = {
         _id: projectId,

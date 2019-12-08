@@ -137,6 +137,7 @@ const SequenceItemField = ({
             width='100%'
             mode='yaml'
             theme='github'
+            fontSize={16}
             id={id}
             wrapEnabled
             name={name}

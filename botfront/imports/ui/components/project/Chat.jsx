@@ -29,6 +29,7 @@ class Chat extends React.Component {
                 hideWhenNotConnected={false}
                 customData={{ language }}
                 embedded
+                customMessageDelay={() => 0}
             />
         );
     }
