@@ -36,9 +36,7 @@
 <br/>
 <h2 align="center">What is it</h2>
 
-
-[Botfront](https://botfront.io) is an open source chatbot platform aiming to accelerate the development of complex and context-aware virtual assistants. Botfront runs on your machine and/or can be deployed on the cloud of your choice.
-
+Conversational projects require easy prototyping, fast implementation and continuous iteration. With **[Botfront](https://botfront.io)** you can build context-aware conversation flows in minutes and accelerate time to market by an exponential factor.
 <br/>
 <h2 name="highlights" align="center">Highlights</h2>
 
@@ -50,9 +48,9 @@
     <th><h2>💻️</h2><h3>Developer friendly</h3></th>
   </tr>
     <tr>
-    <td width="33%">Conversational projects require easy prototyping, fast implementation and continous iteration. With Botfront, implementing context-aware conversation flows takes minutes and you can accelerate your time to market by an exponential factor.</td>
-    <td width="33%">Botfront is built on top of  <a href="https://github.com/rasaHQ/rasa" target="_blank">Rasa</a>, one of the most popular and powerful conversational AI library. Botfront exposes all Rasa functionalities while astracting its complexity. Botfront projects can be exported for an existing Rasa installation.</td>
-    <td width="33%">Botfront's intuitive CLI orchestrates all Botfront's services on your development machine.<br/><br/>Authoring, training, auto reloading actions code, it just works!</td>
+    <td width="33%">Our main goal is to lower the technical barrier to entry in conversational AI. Implementing context-aware conversations should be as easy as chatting.</td>
+    <td width="33%">Botfront uses <strong><a href="https://github.com/rasaHQ/rasa" target="_blank">Rasa</a></strong>, a powerful and production ready conversational AI library. Botfront exposes all Rasa functionalities and astracts its complexity.</td>
+    <td width="33%">Botfront's intuitive CLI orchestrates all Botfront's services on your development machine.<br/>Authoring, training, auto reloading actions code, it just works!</td>
   </tr>
   
 </table>
@@ -69,15 +67,15 @@
 
 <tr>
     <td width="33%"><h4>Train & evaluate NLU models</h4></td>
-    <td width="67%">Botfront comes with a complete NLU annotation suite. You can tag vast amounts of data efficiently, train models and evaluate them. <a href="https://botfront.io/docs/rasa/nlu/evaluation/#evaluation-methods">Several evaluation methods</a> are available depending on the development state of your model</td>
+    <td width="67%">Botfront comes with a complete NLU toolbox. You can tag vast amounts of data efficiently, train and evaluate models. <a href="https://botfront.io/docs/rasa/nlu/evaluation/#evaluation-methods">Several evaluation methods</a> are available depending on the development stage of your model</td>
 </tr>
 <tr>
     <td width="33%"><h4>Annotate incoming data</h4></td>
-    <td width="67%">Botfront is always connected to your agents and conversation data keeps flowing in. You can annotate this data and even use it as an evaluation set to monitor your model and see how this new data can improve it</td>
+    <td width="67%">Botfront is always connected to your agent and conversation data keeps flowing in. You can annotate this data and even use it as an evaluation set and check how this new data improves your model.</td>
 </tr>
 <tr>
     <td width="33%"><h4>Rasa integration</h4></td>
-    <td width="67%">We were using Rasa before writing Botfront's first line of code. Botfront exposes all Rasa features and concepts and and just make them accessible at a higher level for faster development. You can <a href="https://botfront.io/docs/import-export/">export Botfront projects and use them with Rasa</a> at any time.</td>
+    <td width="67%">We were using Rasa before writing Botfront's first line of code. Botfront exposes all Rasa features and concepts and and makes them accessible at a higher level for faster development. You can <a href="https://botfront.io/docs/import-export/">export a Botfront project and use it with Rasa</a> at any time.</td>
 </tr>
 
 </table>
