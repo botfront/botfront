@@ -149,7 +149,7 @@ Well done! Once a PR gets merged, here are the things happened next:
 - all Docker images tagged with `branch-master` will be automatically updated in an hour. You may check the status on the [Actions](https://github.com/botfront/botfront/actions) tab.
 - your contribution and commits will be included in [our weekly release note](https://github.com/gnes-ai/gnes/blob/master/CHANGELOG.md). 🍻
 
-<h3 name="naming-convention" align="center">Commits naming convention</h3>
+### Commit messages naming convention
 
 To help everyone with understanding the commit history of Botfront, we employ [`commitlint`](https://commitlint.js.org/#/) to enforce the commit styles:
 
