@@ -25,18 +25,21 @@
   <a href="#features">Features</a> •
   <a href="#quick-start">Quick start</a> •
   <a href="#documentation">Documentation</a> •
-  <a href="#contributing">Development</a> 
+  <a href="#development">Development</a>
 </p>
 <p align="center">
   <a href="./CHANGELOG.md">Release Notes</a> •
   <a href="https://spectrum.chat/botfront">Get help</a> •
   <a href="https://botfront.io">Botfront.io</a>
 </p>
+
+<br/>
 <h2 align="center">What is it</h2>
 
 
 [Botfront](https://botfront.io) is an open source chatbot platform aiming to accelerate the development of complex and context-aware virtual assistants. Botfront runs on your machine and/or can be deployed on the cloud of your choice.
 
+<br/>
 <h2 name="highlights" align="center">Highlights</h2>
 
 <center>
@@ -55,6 +58,7 @@
 </table>
 </center>
 
+<br/>
 <h2 name="features" align="center">Features</h2>
 <table>
 
@@ -77,6 +81,7 @@
 </tr>
 
 </table>
+<br/>
 <h2 name="quick-start" align="center">Quick Start</h2>
 
 Botfront only requires a recent version of Docker. You can install the CLI with the following:
@@ -88,7 +93,7 @@ npm install -g botfront
 Then just run `botfront`to get started.
 
 <img src="/botfront/docs/terminalizer/botfront-setup.gif?raw=true" width="100%">
-
+<br/>
 <h2 name="documentation" align="center">Documentation</h2>
 
 The [official documentation](https://botfront.io/docs) of Botfront is hosted on [botfront.io](https://botfront.io/docs). It is automatically built and updated on every new release.
@@ -103,7 +108,7 @@ To serve the docs on port 8080 (e.g. `https://localhost:8080`):
 ```bash
 docker run -p 8080:80 botfront/botfront-docs
 ```
-
+<br/>
 <h2 name="development" align="center">Development</h2>
 
 ### Installation
@@ -174,7 +179,7 @@ As an example, a commit that improved the documentation:
 ```text
 docs(conversation builder): update slots manager screenshot.
 ```
-
+<br/>
 <h2 align="center">License</h2>
 
 Botfront is [AGPLv3](https://github.com/botfront/botfront/blob/master/LICENSE) licensed. You can read the licence [here](https://github.com/botfront/botfront/blob/master/LICENSE).
