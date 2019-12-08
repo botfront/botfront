@@ -18,12 +18,12 @@ config:
   # Explicitly set the number of columns
   # or use `auto` to take the current
   # number of columns of your shell
-  cols: 100
+  cols: 75
   
   # Explicitly set the number of rows
   # or use `auto` to take the current
   # number of rows of your shell
-  rows: 25
+  rows: 21
   
   # Amount of times to repeat GIF
   # If value is -1, play once
@@ -203,11 +203,4 @@ records:
     content: "┌────────────────────────────────────────────────────────────┐\r\n│                                                            │\r\n│   \e[32m\e[1mYour project has been created.\e[22m\e[39m                           │\r\n│                                                            │\r\n│   Run \e[36m\e[1mcd conventional_salmon && botfront up\e[22m\e[39m to start it.   │\r\n│                                                            │\r\n└────────────────────────────────────────────────────────────┘\r\n\r\n"
   - delay: 30
     content: "\e[?25h"
-  - delay: 30
-    content: "\e[1m\e[7m%\e[27m\e[1m\e[0m                                                                     \r \r\e]2;nathanzylbersztejn@MacBook-Pro: ~/botfront\a\e]1;~/botfront\a"
-  - delay: 30
-    content: "\r\e[0m\e[27m\e[24m\e[J\e[01;32m➜  \e[36m$\e[00m \e[K"
-  - delay: 5
-    content: "\e[?1h\e=\e[?2004h"
-  - delay: 5802
-    content: "\e[?2004l\r\r\n"
+

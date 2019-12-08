@@ -22,48 +22,61 @@
 
 <p align="center">
   <a href="#highlights">Highlights</a> •
-  <a href="#quicstart">Quick start</a> •
-  <a href="https://spectrum.chat/botfront">Get help</a> •
+  <a href="#features">Features</a> •
+  <a href="#quick-start">Quick start</a> •
   <a href="#documentation">Documentation</a> •
-  <a href="#contributing">Contributing</a> •
+  <a href="#contributing">Development</a> 
+</p>
+<p align="center">
   <a href="./CHANGELOG.md">Release Notes</a> •
+  <a href="https://spectrum.chat/botfront">Get help</a> •
   <a href="https://botfront.io">Botfront.io</a>
 </p>
-
 <h2 align="center">What is it</h2>
 
 
-[Botfront](https://botfront.io) is an open source chatbot platform aiming to accelerate the development of complex and context-aware virtual assistants. Botfront runs on your machine and can be deployed on the cloud of your choice.
+[Botfront](https://botfront.io) is an open source chatbot platform aiming to accelerate the development of complex and context-aware virtual assistants. Botfront runs on your machine and/or can be deployed on the cloud of your choice.
 
 <h2 name="highlights" align="center">Highlights</h2>
-
 
 <center>
 <table>
   <tr>
-    <th><h1>😎</h1><h3>Easy to use</h3></th>
-    <th><h1>🎓</h1><h3>State of the Art</h3></th>
-    <th><h1>💻️</h1><h3>Developer friendly</h3></th>
+    <th><h2>😎</h2><h3>Easy to use</h3></th>
+    <th><h2>🎓</h2><h3>Powerful</h3></th>
+    <th><h2>💻️</h2><h3>Developer friendly</h3></th>
   </tr>
     <tr>
     <td width="33%">Conversational projects require easy prototyping, fast implementation and continous iteration. With Botfront, implementing context-aware conversation flows takes minutes and you can accelerate your time to market by an exponential factor.</td>
-    <td width="33%">Botfront is built on top of  <a href="https://github.com/rasaHQ/rasa" target="_blank">Rasa</a>, one of the most popular and production ready conversational AI library. Botfront exposes all Rasa functionalities while astracting its complexity. Botfront projects can be exported for an existing Rasa installation.</td>
-    <td width="33%">Botfront's intuitive CLI wraps docker-compose commands and abstracts the micro-services orchestration on your development machine. Authoring, training, auto reloading actions code, it just works!</td>
+    <td width="33%">Botfront is built on top of  <a href="https://github.com/rasaHQ/rasa" target="_blank">Rasa</a>, one of the most popular and powerful conversational AI library. Botfront exposes all Rasa functionalities while astracting its complexity. Botfront projects can be exported for an existing Rasa installation.</td>
+    <td width="33%">Botfront's intuitive CLI orchestrates all Botfront's services on your development machine.<br/><br/>Authoring, training, auto reloading actions code, it just works!</td>
   </tr>
-  <tr>
-      <th><h1>🌌</h1><h3>Micro services</h3></th>
-      <th><h1>🌐</h1><h3>Multilingual</h3></th>
-      <th><h1>📚</h1><h3>Documented</h3></th>
-    </tr>
-    <tr>
-      <td width="33%">Botfront comes as containerized micro services that can be deployed on any orchestration system.</td>
-      <td width="33%">Build virtual assistants capable of understanding and speaking multiple languages. Implement the conversation flow once and translate your NLU model and bot responses.</td>
-      <td width="33%">Botfront is <a href="https://botfront.io/docs/getting-started/setup/" target="_blank">thoroughly documented</a> and <a href="https://botfront.io/docs/getting-started/setup/" target="_blank"> <a href="https://spectrum.chat/botfront" target="_blank">community support </a>is available on <a href="https://spectrum.chat/botfront" target="_blank">Spectrum</a></td>
-    </tr>
+  
 </table>
 </center>
 
+<h2 name="features" align="center">Features</h2>
+<table>
 
+<tr>
+    <td width="33%"><h4>Build conversation as chatting</h4></td>
+    <td width="67%">Botfront provides a <a href="https://botfront.io/docs/rasa/conversation-builder">unique and natural conversation authoring experience</a>. You can create complex dialog flows in minutes</td>
+</tr>
+
+<tr>
+    <td width="33%"><h4>Train & evaluate NLU models</h4></td>
+    <td width="67%">Botfront comes with a complete NLU annotation suite. You can tag vast amounts of data efficiently, train models and evaluate them. <a href="https://botfront.io/docs/rasa/nlu/evaluation/#evaluation-methods">Several evaluation methods</a> are available depending on the development state of your model</td>
+</tr>
+<tr>
+    <td width="33%"><h4>Annotate incoming data</h4></td>
+    <td width="67%">Botfront is always connected to your agents and conversation data keeps flowing in. You can annotate this data and even use it as an evaluation set to monitor your model and see how this new data can improve it</td>
+</tr>
+<tr>
+    <td width="33%"><h4>Rasa integration</h4></td>
+    <td width="67%">We were using Rasa before writing Botfront's first line of code. Botfront exposes all Rasa features and concepts and and just make them accessible at a higher level for faster development. You can <a href="https://botfront.io/docs/import-export/">export Botfront projects and use them with Rasa</a> at any time.</td>
+</tr>
+
+</table>
 <h2 name="quick-start" align="center">Quick Start</h2>
 
 Botfront only requires a recent version of Docker. You can install the CLI with the following:
@@ -78,7 +91,7 @@ Then just run `botfront`to get started.
 
 <h2 name="documentation" align="center">Documentation</h2>
 
-The official documentation of Botfront is hosted on [botfront.io](https://botfront.io/docs)and is automatically built and updated on every new release.
+The [official documentation](https://botfront.io/docs) of Botfront is hosted on [botfront.io](https://botfront.io/docs). It is automatically built and updated on every new release.
 
 If you need run the documentation elsewhere you can build a Docker container as follows:
 ```bash
@@ -91,7 +104,31 @@ To serve the docs on port 8080 (e.g. `https://localhost:8080`):
 docker run -p 8080:80 botfront/botfront-docs
 ```
 
-<h2 name="contributing" align="center">Contributing</h2>
+<h2 name="development" align="center">Development</h2>
+
+### Installation
+
+1. Botfront is a Meteor app, so the first step is to [install Meteor](https://www.meteor.com/install)
+2. Then clone this repo and install the dependencies:
+```bash
+git clone https://github.com/botfront/botfront
+cd botfront/botfront
+meteor npm install
+```
+3. Install the CLI from the source code:
+```bash
+# if you installed Botfront from npm uninstall it.
+npm uninstall -g botfront
+# Install the cli from the source code
+cd cli && npm link
+```
+Botfront needs to be connected to other services, especially Rasa. To do this, you need to create a regular project, and start Botfront with a dedicated configuration:
+
+1. Create a Botfront project with `botfront init` (somewhere else, not in the repo)
+2. Start your project with `botfront up -e botfront`. This will run all services except the Botfront app, since you are going to run it with Meteor locally
+3. Run Botfront with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
+
+### Contribute
 
 We ❤️ contributions of all size and sorts. If you find a typo, if you want to improve a section of the documentation or if you want to help with a bug or a feature, here are the steps:
 
