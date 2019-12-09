@@ -7,6 +7,7 @@ import { saveAs } from 'file-saver';
 import {
     Dropdown, Button, Message, Icon, Checkbox, List,
 } from 'semantic-ui-react';
+import moment from 'moment';
 
 import { Projects } from '../../../api/project/project.collection';
 
@@ -14,7 +15,7 @@ import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
 
 const ExportProject = ({
-    projectId, projectLanguages, setLoading, apiHost,
+    projectId, projectLanguages, setLoading, apiHost, projectName,
 }) => {
     const [exportType, setExportType] = useState({});
     const [exportLanguage, setExportLanguage] = useState('');
@@ -38,20 +39,6 @@ const ExportProject = ({
             },
         ]
     );
-
-    const getSuccessMessageContent = () => {
-        if (exportType.value === 'botfront') {
-            return (
-                <p>
-                    If your download does not start within 5 seconds click{' '}
-                    <a href={`${apiHost}/project/${projectId}/export?output=json&conversations=${includeConversations}`} data-cy='export-link'>here </a>
-                    to retry.
-                </p>
-            );
-        }
-        return <></>;
-    };
-
 
     const getLanguageOptions = () => (
         projectLanguages.map(({ value, text }) => ({
@@ -78,7 +65,7 @@ const ExportProject = ({
         Meteor.call('exportProject', apiHost, projectId, exportOptions, (err, { data, error }) => {
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-                const filename = `BotfrontProject_${projectId}.json`;
+                const filename = `${projectName}_${moment().toISOString()}.json`;
                 if (window.Cypress) {
                     setExportSuccessful(true);
                     setLoading(false);
@@ -148,7 +135,6 @@ const ExportProject = ({
                 positive
                 icon='check circle'
                 header={exportType.successText}
-                content={getSuccessMessageContent()}
             />
         );
     }
@@ -254,14 +240,20 @@ ExportProject.propTypes = {
     projectLanguages: PropTypes.array.isRequired,
     setLoading: PropTypes.func.isRequired,
     apiHost: PropTypes.string.isRequired,
+    projectName: PropTypes.string,
+};
+
+ExportProject.defaultProps = {
+    projectName: 'BotfrontProject',
 };
 
 const ExportProjectContainer = withTracker(({ projectId }) => {
-    const project = Projects.findOne({ _id: projectId });
-    const projectLanguages = getNluModelLanguages(project.nlu_models, true)
+    const { nlu_models: nluModels, name: projectName } = Projects.findOne({ _id: projectId });
+    const projectLanguages = getNluModelLanguages(nluModels, true)
         .map(({ value, text }) => ({ key: value, text, value }));
     return {
         projectLanguages,
+        projectName,
     };
 })(ExportProject);
 
