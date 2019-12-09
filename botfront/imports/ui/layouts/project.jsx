@@ -311,7 +311,8 @@ class Project extends React.Component {
                                                                         updateQuery: (prev, { subscriptionData }) => {
                                                                             if (!subscriptionData.data) return prev;
                                                                             const newBotResponse = subscriptionData.data.botResponseAdded;
-                                                                            return prev.botResponses.push(newBotResponse);
+                                                                            prev.botResponses.push(newBotResponse);
+                                                                            return prev;
                                                                         },
                                                                     }),
                                                                 }}
