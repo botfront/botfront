@@ -161,8 +161,9 @@ describe('Importing a project', function() {
         it('should import all responses', function() {
             importProject();
 
-            cy.wait(5000); // wait for the db to be fully populated
+            cy.wait(10000); // wait for the db to be fully populated
             cy.visit('/project/test_project/dialogue/templates');
+            cy.dataCy('template-intent').should('exist');
             cy.contains(responseIntent)
                 .closest('.rt-tr')
                 .contains(responseText)
