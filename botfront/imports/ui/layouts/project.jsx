@@ -317,17 +317,15 @@ class Project extends React.Component {
                                                                     getUtteranceFromPayload: this.getUtteranceFromPayload,
                                                                     parseUtterance: this.parseUtterance,
                                                                     addUtteranceToTrainingData: this.addUtteranceToTrainingData,
-                                                                    subscribeToNewBotResponses: () => {
-                                                                        subscribeToMore({
-                                                                            document: RESPONSE_ADDED,
-                                                                            variables: { projectId },
-                                                                            updateQuery: (prev, { subscriptionData }) => {
-                                                                                if (!subscriptionData.data) return prev;
-                                                                                const newBotResponse = subscriptionData.data.botResponseAdded;
-                                                                                return prev.botResponses.push(newBotResponse);
-                                                                            },
-                                                                        });
-                                                                    },
+                                                                    subscribeToNewBotResponses: () => subscribeToMore({
+                                                                        document: RESPONSE_ADDED,
+                                                                        variables: { projectId },
+                                                                        updateQuery: (prev, { subscriptionData }) => {
+                                                                            if (!subscriptionData.data) return prev;
+                                                                            const newBotResponse = subscriptionData.data.botResponseAdded;
+                                                                            return prev.botResponses.push(newBotResponse);
+                                                                        },
+                                                                    }),
                                                                 }}
                                                             >
                                                                 <div data-cy='left-pane'>

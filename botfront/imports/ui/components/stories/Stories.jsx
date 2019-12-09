@@ -29,12 +29,18 @@ function Stories(props) {
         ready,
     } = props;
 
-    const { slots } = useContext(ProjectContext);
+    const { slots, subscribeToNewBotResponses } = useContext(ProjectContext);
 
     const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
 
+    useEffect(() => {
+        const unSubscribe = subscribeToNewBotResponses();
+        return function cleanup() {
+            unSubscribe();
+        };
+    }, []);
 
     const closeModals = () => {
         setSlotsModal(false);
