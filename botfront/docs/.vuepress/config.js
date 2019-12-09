@@ -31,7 +31,7 @@ module.exports = {
             { text: 'Guide', link: '/guide/getting-started/setup' },
             { text: 'Get help', link: 'https://spectrum.chat/botfront' },
             { text: 'Github', link: 'https://github.com/botfront/botfront' },
-            { text: 'Botfront.io', link: '/' },
+            { text: 'Botfront.io', link: 'https://botfront.io' },
         ],
 
         sidebar: [
