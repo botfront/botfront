@@ -94,7 +94,7 @@ export default {
         projectId: (parent, _, __) => parent.projectId,
         values: (parent, _, __) => parent.values,
     },
-    Value: {
+    BotResponseValue: {
         lang: (parent, _, __) => parent.lang,
         sequence: (parent, _, __) => parent.sequence,
     },

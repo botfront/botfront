@@ -29,10 +29,10 @@ type BotResponse {
     key: String
     _id: String
     projectId: String
-    values: [Value]
+    values: [BotResponseValue]
 }
 
-type Value {
+type BotResponseValue {
     lang: String
     sequence: [ContentContainer]
 }
@@ -52,19 +52,14 @@ input BotResponseInput {
     key: String
     _id: String
     projectId: String
-    values: [ValueInput]
+    values: [BotResponseValueInput]
 }
 
-input ValueInput {
+input BotResponseValueInput {
     lang: String
     sequence: [ContentContainerInput]
 }
 
 input ContentContainerInput {
     content: String
-}
-
-input FollowUpInput {
-    action: String
-    delay: Float
 }
