@@ -2,10 +2,10 @@ import { Accounts } from 'meteor/accounts-base';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
-import { WebSocketLink } from 'apollo-link-ws';
-import { getMainDefinition } from 'apollo-utilities';
+
 import { onError } from 'apollo-link-error';
 import { ApolloLink, Observable, split } from 'apollo-link';
+import { DDPSubscriptionLink, isSubscription } from 'apollo-link-ddp';
 
 
 const request = async (operation) => {
@@ -50,22 +50,16 @@ const httpLink = new HttpLink({
     credentials: 'same-origin',
 });
 
-// Create a WebSocket link:n
-const wsLink = new WebSocketLink({
-    uri: `ws://localhost:${window.location.port}/subscriptions`,
-    options: {
-        reconnect: true,
-    },
-});
+
+const subscriptionLink = new DDPSubscriptionLink();
 
 const link = split(
-    ({ query }) => {
-        const { kind, operation } = getMainDefinition(query);
-        return kind === 'OperationDefinition' && operation === 'subscription';
-    },
-    wsLink,
+    isSubscription,
+    subscriptionLink,
     httpLink,
 );
+
+
 const client = new ApolloClient({
     link: ApolloLink.from([errorLink, requestLink, link]),
     cache: new InMemoryCache(),

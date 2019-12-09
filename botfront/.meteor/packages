@@ -34,3 +34,4 @@ audit-argument-checks@1.0.7
 ddp-rate-limiter@1.0.7
 apollo
 swydo:graphql
+swydo:ddp-apollo
