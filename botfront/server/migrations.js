@@ -71,9 +71,13 @@ const migrateResponses = () => {
                         newTemplates.push(t);
                     }
                 });
-                for (let i = 0; i < duplicates.length; i += 2) {
-                    // Create an array containing two duplicates with the same key
-                    const duplicateValues = duplicates.slice(i, i + 2);
+                let i = 0;
+                while (i < duplicates.length) {
+                    let numberOfOccurence = 1;
+                    while (i + numberOfOccurence < duplicates.length && duplicates[i].key === duplicates[i + numberOfOccurence].key) {
+                        numberOfOccurence += 1;
+                    }
+                    const duplicateValues = duplicates.slice(i, i + numberOfOccurence);
                     assert(Array.from(new Set(duplicateValues.map(t => t.key))).length === 1); // Make sure duplicates are real
                     // Count times /utter_/ is a match
                     const utters = duplicateValues.map(t => countUtterMatches(t.values));
@@ -81,10 +85,13 @@ const migrateResponses = () => {
                     const index = utters.indexOf(Math.min(...utters));
                     // Push the template we keep in the array of valid bot responses
                     newTemplates.push(duplicateValues[index]);
+                    i += numberOfOccurence;
                 }
 
                 // Integrity check
-                assert(newTemplates.length === templates.length - duplicates.length / 2);
+                const distinctInDuplicates = [...new Set(duplicates.map(d => d.key))].length;
+                // duplicates.length - distinctInDuplicates: give back the number of occurence of a value minus one
+                assert(newTemplates.length === templates.length - (duplicates.length - distinctInDuplicates));
                 assert(Array.from(new Set(newTemplates)).length === newTemplates.length);
                 // Insert bot responses in new collection
                 BotResponses.insertMany(newTemplates);

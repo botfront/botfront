@@ -233,23 +233,30 @@ const createResponsesFromOldFormat = (oldTemplates, projectId) => {
             botResponses.push(t);
         }
     });
-    for (let i = 0; i < duplicates.length; i += 2) {
-        // Create an array containing two duplicates with the same key
-        const duplicateValues = duplicates.slice(i, i + 2);
+    let i = 0;
+    while (i < duplicates.length) {
+        let numberOfOccurence = 1;
+        while (i + numberOfOccurence < duplicates.length && duplicates[i].key === duplicates[i + numberOfOccurence].key) {
+            numberOfOccurence += 1;
+        }
+        const duplicateValues = duplicates.slice(i, i + numberOfOccurence);
         if (!Array.from(new Set(duplicateValues.map(t => t.key))).length === 1)
-            throw ('Error when deduplicating botResponses, a non duplicate was picked as duplicate'); // Make sure duplicates are real
+            throw ('Error when deduplicating botResponses, a non duplicate was picked as duplicate'); //  // Make sure duplicates are real
         // Count times /utter_/ is a match
         const utters = duplicateValues.map(t => countUtterMatches(t.values));
         // Find the index of the template with less /utter_/ in it. This is the value we'll keep
         const index = utters.indexOf(Math.min(...utters));
-        // Push the template we keep in the array of valid bot esponses
+        // Push the template we keep in the array of valid bot responses
         botResponses.push(duplicateValues[index]);
+        i += numberOfOccurence;
     }
 
     // Integrity check
-    if (!botResponses.length === templates.length - duplicates.length / 2) throw ('Error when deduplicating botResponses, some duplicates left');
+    const distinctInDuplicates = [...new Set(duplicates.map(d => d.key))].length;
+    // duplicates.length - distinctInDuplicates: give back the number of occurence of a value minus one
+    // Integrity check
+    if (!(botResponses.length === templates.length - (duplicates.length - distinctInDuplicates))) throw ('Error when deduplicating botResponses, some duplicates left');
     if (!Array.from(new Set(botResponses)).length === botResponses.length) throw ('Error when deduplicating botResponses, some duplicates left');
-    // Insert bot responses in new collection
     return botResponses
     
 }
