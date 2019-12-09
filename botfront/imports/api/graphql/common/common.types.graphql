@@ -1,5 +1,7 @@
 scalar Date
 
+scalar Any
+
 type PageInfo {
     endCursor: String!,
     hasNextPage: Boolean!
