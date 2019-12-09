@@ -350,3 +350,37 @@ export const accumulateExceptions = (
     });
     return exceptions;
 };
+
+export const aggregateResponses = (parentStory, updatedMd, updatedStoryId) => {
+    let events = [];
+    const getStoryEvents = (md) => {
+        try {
+            const lines = md.split('\n');
+            lines.forEach((line) => {
+                const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
+                if (prefix.trim() === '-'
+                    && !events.includes(content)
+                    && (content.startsWith('utter') || content.startsWith('action'))
+                ) {
+                    events = [...events, content];
+                }
+            });
+        } catch (err) {
+            // if there is an error, skip the story.
+            // this should only happen when the story is empty with the error:
+            // "md.split is not a function"
+        }
+    };
+    const traverseBranches = (story) => {
+        if (story._id === updatedStoryId) {
+            getStoryEvents(updatedMd);
+        } else {
+            getStoryEvents(story.story);
+        }
+        if (story.branches) {
+            story.branches.forEach(branch => traverseBranches(branch));
+        }
+    };
+    traverseBranches(parentStory);
+    return events;
+};

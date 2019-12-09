@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { traverseStory } from '../../lib/story.utils';
+import { traverseStory, aggregateResponses } from '../../lib/story.utils';
 
 import { Stories } from './stories.collection';
 
@@ -14,10 +14,15 @@ Meteor.methods({
 
     'stories.update'(story) {
         check(story, Object);
-        const { _id, path, ...rest } = story;
+        const {
+            _id, path, events: oldEvents, ...rest
+        } = story;
+
         if (!path) {
             return Stories.update({ _id }, { $set: { ...rest } });
         }
+        const storyData = Stories.findOne({ _id });
+        const newEvents = aggregateResponses(storyData, story.story, path[path.length - 1]);
         const { indices } = traverseStory(Stories.findOne({ _id: story._id }), path);
         const update = indices.length
             ? Object.assign(
@@ -27,7 +32,7 @@ Meteor.methods({
                 )),
             )
             : rest;
-        return Stories.update({ _id }, { $set: update });
+        return Stories.update({ _id }, { $set: { ...update, events: newEvents } });
     },
 
     'stories.delete'(story) {
