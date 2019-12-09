@@ -80,18 +80,6 @@ class Project extends React.Component {
         }
     }
 
-
-    getResponse = (key, callback = () => { }) => {
-        const { projectId, workingLanguage } = this.props;
-        Meteor.call(
-            'project.findTemplate',
-            projectId,
-            key,
-            workingLanguage || 'en',
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
-    }
-
     getIntercomUser = () => {
         const { _id, emails, profile } = Meteor.user();
         return {
