@@ -44,16 +44,3 @@ WebApp.connectHandlers.use('/graphql', (req, res) => {
         res.end();
     }
 });
-
-
-// enable subscriptions
-// https://www.apollographql.com/docs/graphql-subscriptions/meteor/
-// eslint-disable-next-line no-new
-new SubscriptionServer({
-    schema,
-    execute,
-    subscribe,
-}, {
-    server: WebApp.httpServer,
-    path: '/subscriptions',
-});
