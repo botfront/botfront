@@ -1,4 +1,4 @@
-const languages = {
+exports.languages = {
     en: { name: 'English' },
     fr: { name: 'French' },
     de: { name: 'German' },
