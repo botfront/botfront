@@ -156,7 +156,7 @@ export async function generateDockerCompose(exclude = [], dir) {
     })
     const config = getProjectConfig(dir);
     const dcCopy = JSON.parse(JSON.stringify(dc));
-    Object.keys(dc.services).filter(service => service !== 'actions').forEach(service => {
+    Object.keys(dc.services).filter(service => ['actions', 'rasa'].indexOf(service) < 0).forEach(service => {
         dcCopy.services[service].image = config.images.current[service]
     })
     // for (let key in dcCopy.services) {

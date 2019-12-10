@@ -138,6 +138,11 @@ export async function dockerComposeRestart(service, { verbose }, workingDir) {
         .catch(consoleError)
 }
 
+export async function dockerComposeBuildAndRestart(service, { verbose }, workingDir) {
+    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d --build ${service}`;
+    await shellAsync(command, { silent: !verbose }).catch((consoleError));
+}
+
 export async function dockerComposeCommand(service, {name, action}, verbose, workingDir, message = '') {
     if (workingDir) shell.cd(workingDir)
     if (!isProjectDir()) {
@@ -175,8 +180,9 @@ export async function dockerComposeCommand(service, {name, action}, verbose, wor
     const spinner = ora(`${capitalize(action)} ${services.join(', ')}...`)
     spinner.start();
     const command = regeneratedDockerCompose // if docker-compose file has been regenerated, run 'up -d' instead of 'start', to create container
-        ? `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d`
+        ? `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d --force-recreate`
         : `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} ${name} ${services.join(' ')}`;
+    console.log(command)
     await shellAsync(command, { silent: !verbose })
     spinner.succeed(`Done. ${message}`);
 }
@@ -238,19 +244,34 @@ export async function stopRunningProjects(
 
 export async function watchFolder({ verbose }, workingDir) {
     const spinner = ora();
-    const watchedPath = path.join(fixDir(), 'actions');
-    const service = 'actions';
-    startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
-    watch(watchedPath, {
-        ignored: /(^|[\/\\])\..|pyc/,
+    const actionsPath = path.join(fixDir(), 'actions');
+    const rasaPath = path.join(fixDir(), 'rasa');
+    const actionsService = 'actions';
+    const watchingMessage = 'Watching for file system changes...';
+    const rasaService = 'rasa';
+
+    watch(actionsPath, {
+        ignored: /(^|[\/\\])\..|pyc|ignore/,
         ignoreInitial: true,
         interval: 1000,
     })
         .on('all', async (event, path) => {
             stopSpinner(spinner);
-            console.log(`Detected ${event} on ${path}.`);
-            await dockerComposeRestart(service, { verbose }, workingDir);
-            startSpinner(spinner, `Watching for file system changes in ${watchedPath}...`);
+            await dockerComposeBuildAndRestart(actionsService, { verbose }, workingDir);
+            startSpinner(spinner, watchingMessage);
         });
+
+    watch(rasaPath, {
+        ignored: /(^|[\/\\])\..|pyc|ignore/,
+        ignoreInitial: true,
+        interval: 1000,
+    })
+        .on('all', async (event, path) => {
+            stopSpinner(spinner);
+            await dockerComposeBuildAndRestart(rasaService, { verbose }, workingDir);
+            startSpinner(spinner, watchingMessage);
+        });
+
+    startSpinner(spinner, 'Watching for file system changes...');
 }
 
