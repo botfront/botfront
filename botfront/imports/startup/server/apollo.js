@@ -2,10 +2,7 @@ import mongoose from 'mongoose';
 import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import { WebApp } from 'meteor/webapp';
 import { getUser } from 'meteor/apollo';
-import { execute, subscribe } from 'graphql';
-import { SubscriptionServer } from 'subscriptions-transport-ws';
-import { makeExecutableSchema } from 'graphql-tools';
-import { typeDefs, resolvers } from '../../api/graphql/index';
+import { typeDefs, resolvers, schemaDirectives } from '../../api/graphql/index';
 
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:3001/meteor';
 
@@ -20,11 +17,6 @@ mongoose.connection.on('error', () => {
 });
 
 
-const schema = makeExecutableSchema({
-    typeDefs,
-    resolvers,
-});
-
 const server = new ApolloServer({
     typeDefs,
     resolvers,
@@ -36,6 +28,7 @@ const server = new ApolloServer({
         if (!user) throw new AuthenticationError('Unauthorized');
         return ({ user });
     },
+    schemaDirectives,
 });
 
 server.applyMiddleware({

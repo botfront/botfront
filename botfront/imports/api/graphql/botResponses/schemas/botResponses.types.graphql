@@ -2,6 +2,12 @@ type Query {
     botResponses(projectId: String!): [BotResponse!]
     botResponse(projectId: String!, key: String!, lang: String): BotResponse
     botResponseById(_id: String): BotResponse
+    getResponse(
+        template: String!
+        arguments: NlgRequestArguments
+        tracker: ConversationInput
+        channel: NlgRequestChannel
+    ): BotResponsePayload,
 }
 
 type Subscription {
@@ -41,13 +47,6 @@ type ContentContainer {
     content: String
 }
 
-
-type Entity {
-    entity: String
-    value: String
-}
-
-#Input types
 input BotResponseInput {
     key: String
     _id: String
@@ -63,3 +62,80 @@ input BotResponseValueInput {
 input ContentContainerInput {
     content: String
 }
+
+input NlgRequestArguments {
+    projectId: String!
+    language: String!
+}
+
+input NlgRequestChannel {
+    name: String!
+}
+
+type FutureBotResponse {
+    _id: String!
+    key: String!
+    projectId: String!
+    variants: [BotResponseVariant!]!
+}
+
+type BotResponseVariant {
+    language: String!
+    channels: [String]
+    payload: BotResponsePayload!
+}
+
+interface BotResponsePayload {
+    metadata: Any
+    text: String
+}
+
+type TextPayload implements BotResponsePayload {
+    text: String!
+    metadata: Any
+}
+
+type QuickReplyPayload implements BotResponsePayload {
+    text: String
+    buttons: [Button!]
+    metadata: Any
+}
+
+type ImagePayload implements BotResponsePayload {
+    text: String
+    image: String
+    metadata: Any
+}
+
+type CustomPayload implements BotResponsePayload {
+    text: String
+    buttons: [Button!]
+    elements: [Any!]
+    attachment: Any
+    image: String
+    custom: Any
+    metadata: Any
+}
+
+interface Button {
+    title: String!
+    type: ButtonType!
+}
+
+type PostbackButton implements Button {
+    title: String!
+    type: ButtonType!
+    payload: String
+}
+
+type WebUrlButton implements Button {
+    title: String!
+    type: ButtonType!
+    url: String
+}
+
+enum ButtonType {
+    postback
+    web_url
+}
+
