@@ -91,6 +91,15 @@ module.exports = {
                     '/guide/deployment/frontend',
                 ]
             },
+            {
+                title: 'Misc',   // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/misc/migration',
+                ]
+            },
         ],
     },
 };
