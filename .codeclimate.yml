@@ -10,15 +10,15 @@ checks:
         enabled: false
     identical-code:
         enabled: true
+    file-lines:
+        config:
+        threshold: 500
 #   argument-count:
 #     config:
 #       threshold: 4
 #   complex-logic:
 #     config:
-#       threshold: 6
-#   file-lines:
-#     config:
-#       threshold: 250
+    #   threshold: 6
 #   method-complexity:
 #     config:
 #       threshold: 6
