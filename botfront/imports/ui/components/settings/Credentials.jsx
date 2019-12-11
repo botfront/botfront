@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
 import { CredentialsSchema, Credentials as CredentialsCollection } from '../../../api/credentials';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -46,7 +47,7 @@ class Credentials extends React.Component {
         return (
             <AutoForm
                 disabled={saving}
-                schema={CredentialsSchema}
+                schema={new SimpleSchema2Bridge(CredentialsSchema)}
                 model={credentials}
                 onSubmit={this.onSave}
                 modelTransform={(mode, model) => {

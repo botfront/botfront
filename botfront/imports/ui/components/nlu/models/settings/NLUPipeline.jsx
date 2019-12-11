@@ -6,6 +6,7 @@ import { Tab } from 'semantic-ui-react';
 import SimpleSchema from 'simpl-schema';
 import PropTypes from 'prop-types';
 import React from 'react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
 import { wrapMeteorCallback } from '../../../utils/Errors';
 import ChangesSaved from '../../../utils/ChangesSaved';
@@ -57,7 +58,7 @@ export default class NLUPipeline extends React.Component {
         const { saved, showConfirmation } = this.state;
         return (
             <Tab.Pane>
-                <AutoForm schema={new SimpleSchema(this.schema)} model={this.sparseModel()} onSubmit={this.handleSave}>
+                <AutoForm schema={new SimpleSchema2Bridge(new SimpleSchema(this.schema))} model={this.sparseModel()} onSubmit={this.handleSave}>
                     <AceField name='config' label='NLU Pipeline' />
                     <ErrorsField />
                     {showConfirmation && (

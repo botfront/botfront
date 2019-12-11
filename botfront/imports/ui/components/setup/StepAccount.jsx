@@ -4,14 +4,16 @@ import {
     AutoForm, AutoField, ErrorsField, SubmitField,
 } from 'uniforms-semantic';
 import PropTypes from 'prop-types';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { accountSetupSchema } from '../../../api/setup';
 
 // eslint-disable-next-line react/prefer-stateless-function
 class StepAccountComponent extends React.Component {
     render() {
         const { onSubmit, data } = this.props;
+        const bridge = new SimpleSchema2Bridge(accountSetupSchema);
         return (
-            <AutoForm model={data} schema={accountSetupSchema} onSubmit={onSubmit}>
+            <AutoForm model={data} schema={bridge} onSubmit={onSubmit}>
                 <AutoField name='firstName' placeholder='Your first name' label={null} />
                 <AutoField name='lastName' placeholder='Your last name' label={null} />
                 <AutoField name='email' placeholder='Your email' label={null} />
