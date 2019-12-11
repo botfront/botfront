@@ -5,7 +5,7 @@
   "description": "Botfront is an open source chatbot platform based on Rasa.",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test npx mocha --require @babel/register",
+    "test": "NODE_ENV=test npx mocha --require @babel/register --exit",
     "postinstall": "echo Botfront succesfully installed. Run 'botfront' to get started."
   },
   "bin": {
