@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { traverseStory, aggregateResponses } from '../../lib/story.utils';
+import { traverseStory, aggregateEvents } from '../../lib/story.utils';
 
 import { Stories } from './stories.collection';
 
@@ -22,7 +22,7 @@ Meteor.methods({
             return Stories.update({ _id }, { $set: { ...rest } });
         }
         const storyData = Stories.findOne({ _id });
-        const newEvents = aggregateResponses(storyData, story.story, path[path.length - 1]);
+        const newEvents = aggregateEvents(storyData, story.story, path[path.length - 1]); // path[(last index)] is the id of the updated branch
         const { indices } = traverseStory(Stories.findOne({ _id: story._id }), path);
         const update = indices.length
             ? Object.assign(

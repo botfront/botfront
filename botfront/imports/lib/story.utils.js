@@ -351,31 +351,42 @@ export const accumulateExceptions = (
     return exceptions;
 };
 
-export const aggregateResponses = (parentStory, updatedMd, updatedStoryId) => {
+export const getStoryEvents = (md, excludeEvents) => {
     let events = [];
-    const getStoryEvents = (md) => {
-        try {
-            const lines = md.split('\n');
-            lines.forEach((line) => {
-                const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
-                if (prefix.trim() === '-'
-                    && !events.includes(content)
-                    && (content.startsWith('utter') || content.startsWith('action'))
-                ) {
-                    events = [...events, content];
-                }
-            });
-        } catch (err) {
-            // if there is an error, skip the story.
-            // this should only happen when the story is empty with the error:
-            // "md.split is not a function"
-        }
-    };
+    try {
+        const lines = md.split('\n');
+        lines.forEach((line) => {
+            const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
+            if (prefix.trim() === '-'
+                && !excludeEvents.includes(content)
+                && !events.includes(content)
+                && (content.match(/^utter_/) || content.match(/^action_/))
+            ) {
+                events = [...events, content];
+            }
+        });
+    } catch (err) {
+        /*
+        if there is an error, skip the story. this should only happen
+        when the story is empty with the error: "md.split is not a function"
+        */
+    }
+    return events;
+};
+
+export const aggregateEvents = (parentStory, updatedMd, updatedStoryId) => {
+    /*
+    create an array of "utter_" and "action_" events in a story and it's child branches
+
+    if the story has been updated, the updatedMd will replace the md in the parentStory
+    when the branch id equals the updatedStoryId
+    */
+    let events = [];
     const traverseBranches = (story) => {
         if (story._id === updatedStoryId) {
-            getStoryEvents(updatedMd);
+            events = [...events, ...getStoryEvents(updatedMd, events)];
         } else {
-            getStoryEvents(story.story);
+            events = [...events, ...getStoryEvents(story.story, events)];
         }
         if (story.branches) {
             story.branches.forEach(branch => traverseBranches(branch));
