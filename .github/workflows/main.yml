@@ -19,6 +19,26 @@ jobs:
   #         GH_CONTEXT: ${{ toJson(github) }}
   #       run: echo "$GH_CONTEXT"
 
+  unit-cli:
+    runs-on: ubuntu-latest
+    # if: contains(github.event.head_commit.modified, 'api/')
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+      - uses: actions/cache@v1
+        id: cache
+        with:
+          path: ./cli/node_modules
+          key: cli-${{ hashFiles('**/package-lock.json') }}
+      - working-directory: ./cli
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: tests
+        working-directory: ./cli
+        run: npm run test
+
   unit-api:
     runs-on: ubuntu-latest
     # if: contains(github.event.head_commit.modified, 'api/')
@@ -37,26 +57,6 @@ jobs:
         run: npm ci
       - name: tests
         working-directory: ./api
-        run: npm run test
-
-  unit-cli:
-    runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.modified, 'api/')
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-      - uses: actions/cache@v1
-        id: cache
-        with:
-          path: ./cli/node_modules
-          key: cli-${{ hashFiles('**/package-lock.json') }}
-      - working-directory: ./api
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-      - name: tests
-        working-directory: ./cli
         run: npm run test
 
   unit-bf:
