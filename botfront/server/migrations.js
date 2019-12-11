@@ -88,53 +88,59 @@ const migrateResponses = () => {
         const re = /utter_/g;
         return ((JSON.stringify(templateValues) || '').match(re) || []).length;
     };
-    Projects.find()
-        .fetch()
-        .forEach((p) => {
-            if (p.templates) {
-                const templates = sortBy(p.templates, 'key');
-                const newTemplates = [];
-                const duplicates = [];
-                templates.forEach((t, index) => {
+    try {
+        Projects.find()
+            .fetch()
+            .forEach((p) => {
+                if (p.templates) {
+                    const templates = sortBy(p.templates, 'key');
+                    const newTemplates = [];
+                    const duplicates = [];
+                    templates.forEach((t, index) => {
                     // Delete irrelevant fields and set new _id
-                    delete t.match;
-                    delete t.followUp;
-                    t.projectId = p._id;
-                    // Put duplicates in a separate list
-                    if ((index < templates.length - 1 && t.key === templates[index + 1].key) || (index > 0 && t.key === templates[index - 1].key)) {
-                        duplicates.push(t);
-                    } else {
-                        newTemplates.push(t);
+                        delete t.match;
+                        delete t.followUp;
+                        t.projectId = p._id;
+                        // Put duplicates in a separate list
+                        if ((index < templates.length - 1 && t.key === templates[index + 1].key) || (index > 0 && t.key === templates[index - 1].key)) {
+                            duplicates.push(t);
+                        } else {
+                            newTemplates.push(t);
+                        }
+                    });
+                    let i = 0;
+                    while (i < duplicates.length) {
+                        let numberOfOccurence = 1;
+                        while (i + numberOfOccurence < duplicates.length && duplicates[i].key === duplicates[i + numberOfOccurence].key) {
+                            numberOfOccurence += 1;
+                        }
+                        const duplicateValues = duplicates.slice(i, i + numberOfOccurence);
+                        assert(Array.from(new Set(duplicateValues.map(t => t.key))).length === 1); // Make sure duplicates are real
+                        // Count times /utter_/ is a match
+                        const utters = duplicateValues.map(t => countUtterMatches(t.values));
+                        // Find the index of the template with less /utter_/ in it. This is the value we'll keep
+                        const index = utters.indexOf(Math.min(...utters));
+                        // Push the template we keep in the array of valid bot responses
+                        newTemplates.push(duplicateValues[index]);
+                        i += numberOfOccurence;
                     }
-                });
-                let i = 0;
-                while (i < duplicates.length) {
-                    let numberOfOccurence = 1;
-                    while (i + numberOfOccurence < duplicates.length && duplicates[i].key === duplicates[i + numberOfOccurence].key) {
-                        numberOfOccurence += 1;
-                    }
-                    const duplicateValues = duplicates.slice(i, i + numberOfOccurence);
-                    assert(Array.from(new Set(duplicateValues.map(t => t.key))).length === 1); // Make sure duplicates are real
-                    // Count times /utter_/ is a match
-                    const utters = duplicateValues.map(t => countUtterMatches(t.values));
-                    // Find the index of the template with less /utter_/ in it. This is the value we'll keep
-                    const index = utters.indexOf(Math.min(...utters));
-                    // Push the template we keep in the array of valid bot responses
-                    newTemplates.push(duplicateValues[index]);
-                    i += numberOfOccurence;
-                }
 
-                // Integrity check
-                const distinctInDuplicates = [...new Set(duplicates.map(d => d.key))].length;
-                // duplicates.length - distinctInDuplicates: give back the number of occurence of a value minus one
-                assert(newTemplates.length === templates.length - (duplicates.length - distinctInDuplicates));
-                assert(Array.from(new Set(newTemplates)).length === newTemplates.length);
-                // Insert bot responses in new collection
-                BotResponses.insertMany(newTemplates);
-                // Remote bot responses from project
-                Projects.update({ _id: p._id }, { $unset: { templates: '' } });
-            }
-        });
+                    // Integrity check
+                    const distinctInDuplicates = [...new Set(duplicates.map(d => d.key))].length;
+                    // duplicates.length - distinctInDuplicates: give back the number of occurence of a value minus one
+                    assert(newTemplates.length === templates.length - (duplicates.length - distinctInDuplicates));
+                    assert(Array.from(new Set(newTemplates)).length === newTemplates.length);
+                    // Insert bot responses in new collection
+                    newTemplates.forEach((response) => {
+                        BotResponses.updateOne({ key: response.key, projectId: response.projectId }, response, { upsert: true, setDefaultsOnInsert: true });
+                    });
+                    // Remote bot responses from project
+                    Projects.update({ _id: p._id }, { $unset: { templates: '' } });
+                }
+            });
+    } catch (err) {
+        console.log(`The bot responses migration encountered an error: ${err}`);
+    }
 };
 
 // migrateResponses();
