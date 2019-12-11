@@ -19,3 +19,4 @@ bf_model_id.txt
 .pytest_cache
 botfront/cypress/mounted/models
 dev_project
+scripts/db

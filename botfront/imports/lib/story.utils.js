@@ -4,6 +4,7 @@ import { Stories } from '../api/story/stories.collection';
 import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
+import { getBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
 export const traverseStory = (story, path) => path
     .slice(1)
@@ -99,13 +100,13 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
 
 export const findBranchById = (branchesN0, branchId) => {
     // recursive search of a branchId in the branches of a story
-    
+
     // check if one of the child branch correspond to branchId
     const index = branchesN0.findIndex(branchesN1 => branchesN1._id === branchId);
     if (index !== -1) {
         return branchesN0[index];
     }
-    
+
     // pass the child branches to itself to continue the search
     for (let i = 0; i < branchesN0.length; i += 1) {
         if (branchesN0[i].branches && branchesN0[i].branches.length > 0) {
@@ -255,12 +256,9 @@ const filterTemplatesByLanguage = (templates, language) => {
     return filteredTemplates;
 };
 
-export const getAllTemplates = (projectId, language = '') => {
+export const getAllTemplates = async (projectId, language = '') => {
     // fetches templates and turns them into nested key-value format
-    let { templates } = Projects.findOne(
-        { _id: projectId },
-        { fields: { templates: 1 } },
-    );
+    let templates = await getBotResponses(projectId);
     templates = templates.reduce((ks, k) => ({
         ...ks,
         [k.key]: k.values.reduce((vs, v) => ({
@@ -274,7 +272,7 @@ export const getAllTemplates = (projectId, language = '') => {
     return templates;
 };
 
-export const getStoriesAndDomain = (projectId, language) => {
+export const getStoriesAndDomain = async (projectId, language) => {
     let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
     defaultDomain = yaml.safeLoad(defaultDomain.content);
 
@@ -306,7 +304,7 @@ export const getStoriesAndDomain = (projectId, language) => {
         .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
 
-    const templates = getAllTemplates(projectId, language);
+    const templates = await getAllTemplates(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     return {
         stories: storiesForRasa.join('\n'),
@@ -324,7 +322,7 @@ export const accumulateExceptions = (
 ) => {
     const exceptions = {};
     const newStoryControllers = {};
-
+    
     const traverseBranch = (currentStory, currentPath, isABranch = false) => {
         const currentPathAsString = currentPath.join();
         let currentController = null;

@@ -122,11 +122,11 @@ describe('story visual editor', function () {
 
         cy.visit('/project/bf/dialogue/templates/');
         cy.get('@response').then((response) => {
+            cy.log(response)
             cy.get('[role=row]')
-                .contains('[role=row]', 'I do too qr')
                 .contains('[role=row]', response.replace('-', '').trim())
                 .should('exist') // there's a row with our text and response hash
-                .find('[data-cy=edit-response-2]')
+                .find('.icon.edit')
                 .click();
             cy.get('.response-message-0:not(.button)')
                 .invoke('text')

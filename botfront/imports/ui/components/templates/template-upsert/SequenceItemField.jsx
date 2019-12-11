@@ -34,8 +34,8 @@ const getExamples = i => (
 
 registerLanguage('yaml', yamlsyntax);
 
-const labels = (value) => {
-    const errors = [];
+const labels = (value, enableSubmit) => {
+    let errors = [];
     let yamlError = null;
     const messageTypes = ['Text', 'Quick Replies', 'Image', 'Button template', 'Generic template', 'List template', 'Carousel (deprecated)', 'Messenger Handoff'];
     const schemas = [TextSchema, QuickRepliesSchema, ImageSchema, FBMButtonTemplateSchema, FBMGenericTemplateSchema, FBMListTemplateSchema, LegacyCarouselSchema, FBMHandoffTemplateSchema];
@@ -50,7 +50,10 @@ const labels = (value) => {
     try {
         let payload = yaml.safeLoad(value);
         if (typeof payload === 'string') payload = { text: payload };
-
+        if (!value.includes(':')) {
+            errors = Array(8).fill(['the response does not includes ":", use : for key/pair association']);
+        }
+        
         contexts.map(c => c.validate(payload));
         valid = contexts.map(c => (c.isValid() ? 1 : 0));
         hasError = valid.reduce((a, b) => a + b, 0) === 0;
@@ -109,8 +112,10 @@ const labels = (value) => {
             ),
         }));
     }
-
+    
     if (errors.length === 0 && !yamlError) {
+        enableSubmit(true);
+
         const labelItems = messageTypes
             .filter((name, i) => valid[i])
             .map((name, i) => <Label className='message-format-confirm' key={i} basic size='mini' color='green' icon='check' pointing content={name} />);
@@ -118,6 +123,7 @@ const labels = (value) => {
         return <div style={{ marginTop }}>{labelItems}</div>;
     }
     const message = 'Invalid message. Select a message type below to get help';
+    enableSubmit(false);
     return (
         <div style={{ marginLeft: '33px', marginTop: '10px' }}>
             <Label className='message-format-error' size='large' basic color='orange' icon='warning sign' pointing='below' content={message} />
@@ -129,7 +135,7 @@ const labels = (value) => {
 const getHeight = value => `${Math.max(20, (value.split('\n').length) * 20)}px`;
 
 const SequenceItemField = ({
-    className, disabled, error, errorMessage, id, inputRef, label, name, onChange, placeholder, required, showInlineError, value, ...props
+    className, disabled, error, errorMessage, id, inputRef, label, name, onChange, placeholder, required, showInlineError, value, enableSubmit, ...props
 }) => (
     <div className={classnames(className, { disabled, error, required }, 'field')} {...filterDOMProps(props)}>
         {label && <label>{label}</label>}
@@ -156,7 +162,7 @@ const SequenceItemField = ({
         />
 
         {!!error && <div className='ui red basic pointing label'>{errorMessage}</div>}
-        {labels(value)}
+        {labels(value, enableSubmit)}
     </div>
 );
 export default connectField(SequenceItemField);

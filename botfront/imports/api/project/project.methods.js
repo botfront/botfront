@@ -161,7 +161,7 @@ if (Meteor.isServer) {
             checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
             let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
             defaultDomain = yamlLoad(defaultDomain.content);
-            const templates = getAllTemplates(projectId);
+            const templates = await getAllTemplates(projectId);
 
             try {
                 const stories = await Meteor.callWithPromise('stories.getStories', projectId);

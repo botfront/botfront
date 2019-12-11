@@ -185,7 +185,8 @@ export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language)
         .reduce((acc, x) => acc.concat(x), []);
 };
 
-export const validateYaml = function() {
+
+export const validateYaml = function () {
     try {
         yaml.safeLoad(this.value);
         return null;

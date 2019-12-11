@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const shortid = require('shortid');
+const { ObjectId } = mongoose.Types;
+const { languages } = require('./languages')
 
 const entity = new Schema(
     {
@@ -16,6 +18,33 @@ const entity = new Schema(
 );
 
 const projects = new Schema({ _id: String }, { strict: false, versionKey: false });
+
+const responses = new Schema({
+    _id:
+        {
+            type: String,
+            default: () => String(new ObjectId()),
+        },
+    key: {
+        type: String,
+        label: 'Template Key',
+        match: /^(utter_)/,
+    },
+    projectId: String,
+    values: {
+        type: [
+            {
+                _id: false,
+                lang: { type: String, enum: Object.keys(languages) },
+                sequence: [{ _id: false, content: { type: String } }],
+            },
+        ],
+        max: 5,
+        min: 0,
+    },
+}, {versionKey: false });
+
+responses.index({ key: 1, projectId: 1 }, { unique: true });
 const credentials = new Schema({ _id: String }, { strict: false, versionKey: false });
 const endpoints = new Schema({ _id: String }, { strict: false, versionKey: false });
 const nlu_models = new Schema({ _id: String }, { strict: false, versionKey: false });
@@ -54,3 +83,4 @@ exports.NLUModels = mongoose.model('NLUModels', nlu_models, 'nlu_models');
 exports.Endpoints = mongoose.model('Endpoints', endpoints, 'endpoints');
 exports.Credentials = mongoose.model('Credentials', credentials, 'credentials');
 exports.Projects = mongoose.model('Projects', projects, 'projects');
+exports.Responses = mongoose.model('Responses', responses, 'botResponses');

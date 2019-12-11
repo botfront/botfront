@@ -73,10 +73,15 @@ ImportExportProject.defaultProps = {
 };
 
 export default withTracker(() => {
-    const apiHost = GlobalSettings
-        .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': true } })
-        .settings.private.bfApiHost;
+    const settingsHandler = Meteor.subscribe('settings');
+    const settings = GlobalSettings
+        .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': true } });
+    let api = 'dummy';
+    if (settings && settings.settings && settings.settings.private && settings.settings.private.bfApiHost) {
+        api = settings.settings.private.bfApiHost;
+    }
     return {
-        apiHost,
+        ready: settingsHandler.ready(),
+        apiHost: api,
     };
 })(ImportExportProject);

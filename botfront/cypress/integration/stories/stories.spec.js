@@ -450,6 +450,7 @@ describe('stories', function() {
         cy.dataCy('browser-item')
             .contains('Default stories')
             .click();
+        cy.dataCy('connected-to').should('exist');
         cy.dataCy('story-top-menu')
             .last()
             .find('.trash.disabled.icon')

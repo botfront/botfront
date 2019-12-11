@@ -19,8 +19,8 @@ type Query {
 }
 
 enum order {
-  updatedAt_ASC
-  updatedAt_DESC
+    updatedAt_ASC
+    updatedAt_DESC
 }
 
 enum compare {
@@ -30,32 +30,32 @@ enum compare {
 }
 
 type Mutation {
-  markAsRead(id: String!): updateResponse!
-  updateStatus(id: String!, status: String): updateResponse!
-  delete(id: String!): updateResponse!
+    markAsRead(id: String!): updateResponse!
+    updateStatus(id: String!, status: String): updateResponse!
+    delete(id: String!): updateResponse!
 }
 
 type updateResponse {
-  success: Boolean!
+    success: Boolean!
 }
 
 type Pagination {
-  conversations: [ConversationContainer!]!
-  pages: Int
+    conversations: [ConversationContainer!]!
+    pages: Int
 }
 
 type ConversationContainer {
-  tracker: Conversation,
-  projectId: String,
-  status: String,
-  _id: String,
-  updatedAt: String,
+    tracker: Conversation
+    projectId: String
+    status: String
+    _id: String
+    updatedAt: String
 }
 
 type Conversation {
-  latest_message: Message,
-  events: [Event]!,
-  sender_id: String,
+    latest_message: Message
+    events: [Event]!
+    sender_id: String
 }
 
 type Message {
@@ -68,8 +68,8 @@ type Message {
 }
 
 type Entity {
-  entity: String!,
-  value: String!,
+  entity: String,
+  value: String,
   start: Int!,
   end: Int!,
   confidence: Float,
@@ -78,8 +78,8 @@ type Entity {
 }
 
 input EntityInput {
-  entity: String!,
-  value: String!,
+  entity: String,
+  value: String,
   start: Int!,
   end: Int!,
   confidence: Float,
@@ -88,8 +88,8 @@ input EntityInput {
 }
 
 type Intent {
-  confidence: Float,
-  name: String,
+    confidence: Float
+    name: String
 }
 
 type Event {
@@ -105,10 +105,10 @@ type Event {
 }
 
 type Data {
-  elements: String,
-  quick_replies: String,
-  buttons: String,
-  attachment: String,
-  image: String,
-  custom: String,
+    elements: String
+    quick_replies: String
+    buttons: String
+    attachment: String
+    image: String
+    custom: String
 }

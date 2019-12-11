@@ -20,6 +20,7 @@ const SequenceField = ({
     required,
     showInlineError,
     value,
+    enableSubmit,
     // eslint-disable-next-line no-unused-vars
     ...props
 }) => (
@@ -42,6 +43,7 @@ const SequenceField = ({
                                     style={{ marginTop: '2px' }}
                                     label={null}
                                     name={`${joinName(name, index)}.content`}
+                                    enableSubmit={enableSubmit}
                                     {...itemProps}
                                 />
                             </Grid.Column>

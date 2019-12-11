@@ -201,12 +201,6 @@ Cypress.Commands.add('createResponse', (projectId, responseName) => {
     cy.get('.response-save-button').click();
 });
 
-Cypress.Commands.add('createResponseFast', (projectId, responseName) => {
-    cy.window().then(({ Meteor }) => Meteor.call('project.insertTemplate', projectId, {
-        key: responseName,
-        values: [{ sequence: [], lang: 'en' }, { sequence: [], lang: 'fr' }],
-    }));
-});
 
 Cypress.Commands.add('openResponse', (projectId, responseName) => {
     cy.visit(`/project/${projectId}/dialogue/templates`);
@@ -222,10 +216,6 @@ Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);
     cy.get('[data-cy=remove-response-0]').click();
-});
-
-Cypress.Commands.add('deleteResponseFast', (projectId, key) => {
-    cy.window().then(({ Meteor }) => Meteor.call('project.deleteTemplate', projectId, key));
 });
 
 Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
@@ -336,27 +326,6 @@ Cypress.Commands.add('deleteUser', (email) => {
 
 Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = 'Aaaaaaaa00') => {
     // cy.visit('/');
-    cy.window()
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                // eslint-disable-next-line consistent-return
-                Meteor.logout((err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            }),
-        )
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-            }),
-        );
-});
-
-Cypress.Commands.add('loginAdmin', (email = 'admin@test.com', password = 'Aaaaaaaa00') => {
-    cy.visit('/');
     cy.window()
         .then(
             ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
@@ -614,21 +583,6 @@ Cypress.Commands.add('removeSlot', () => {
     cy.exec(commandToRemoveStory);
 });
 
-Cypress.Commands.add('addIntent', () => {
-    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.slots.remove({ _id: \'DELETESLOT\'});"';
-    cy.exec(commandToRemoveStory);
-});
-
-Cypress.Commands.add('addTrainingData', (modelId, language) => {
-    cy.MeteorCall(
-        'nlu.addChitChatToTrainingData',
-        [
-            modelId,
-            language,
-            ['basics.no'],
-        ],
-    );
-});
 Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Promise(async function (resolve, reject) {
     for (let i = 1; i < Number.MAX_VALUE; i += 1) {
         try {

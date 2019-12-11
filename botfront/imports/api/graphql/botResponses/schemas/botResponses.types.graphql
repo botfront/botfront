@@ -1,0 +1,65 @@
+type Query {
+    botResponses(projectId: String!): [BotResponse!]
+    botResponse(projectId: String!, key: String!, lang: String): BotResponse
+    botResponseById(_id: String): BotResponse
+}
+
+type Subscription {
+    botResponseAdded(projectId: String!): BotResponse
+    botResponsesModified(projectId: String!): BotResponse
+    botResponseDeleted(projectId: String!): BotResponse
+}
+
+type Mutation {
+    deleteResponse(projectId: String!, key: String!): updateResponse!
+    updateResponse(
+        projectId: String!
+        _id: String!
+        response: BotResponseInput
+    ): updateResponse!
+    createResponse(projectId: String!, response: BotResponseInput): updateResponse!
+    createResponses(projectId: String!, responses: String): updateResponse!
+}
+
+type updateResponse {
+    success: Boolean!
+}
+
+type BotResponse {
+    key: String
+    _id: String
+    projectId: String
+    values: [BotResponseValue]
+}
+
+type BotResponseValue {
+    lang: String
+    sequence: [ContentContainer]
+}
+
+type ContentContainer {
+    content: String
+}
+
+
+type Entity {
+    entity: String
+    value: String
+}
+
+#Input types
+input BotResponseInput {
+    key: String
+    _id: String
+    projectId: String
+    values: [BotResponseValueInput]
+}
+
+input BotResponseValueInput {
+    lang: String
+    sequence: [ContentContainerInput]
+}
+
+input ContentContainerInput {
+    content: String
+}
