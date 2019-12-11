@@ -5,6 +5,7 @@ import {
     flattenStory,
     addlinkCheckpoints,
     getAllTemplates,
+    aggregateEvents,
 } from './story.utils';
 import { createResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
@@ -514,6 +515,58 @@ if (Meteor.isServer) {
         await createResponses('test', responseFixture);
     });
 }
+const branchedStoryFixture = {
+    _id: '9b8ea7ba-038c-4329-89f5-1db32c47e1e2',
+    title: 'Intro stories 1',
+    projectId: 'bf',
+    storyGroupId: 'a4a5fd21-79ca-469c-8261-4f11ba376fb7',
+    branches: [
+        {
+            title: 'branch1a',
+            branches: [],
+            _id: 'TMossB1L',
+            story: '* B\n  - utter_Ra_O_Jip',
+        },
+        {
+            title: 'branch1b',
+            branches: [
+                {
+                    title: 'branch2a',
+                    branches: [],
+                    _id: 'YS2vF4ex',
+                    story: '* C\n  - utter_KfPfXwd3',
+                },
+                {
+                    title: 'branch2b',
+                    branches: [],
+                    _id: 'gBGmAF8lk',
+                    story: '* c1\n  - utter_initial\n  - action_initial',
+                },
+            ],
+            _id: 'TOl028Tm0',
+            story: '* b1\n  - utter_pityGPSO',
+        },
+    ],
+    story: '* A\n  - utter_K3y-deii\n  - utter_Ra_O_Jip\n* B1\n  - utter_Ra_O_Jip',
+    events: [],
+};
+
+const expectedEvents = [
+    'utter_K3y-deii',
+    'utter_Ra_O_Jip',
+    'utter_pityGPSO',
+    'utter_KfPfXwd3',
+    'utter_initial',
+    'action_initial',
+];
+const expectedUpdatedEvents = [
+    'utter_K3y-deii',
+    'utter_Ra_O_Jip',
+    'utter_pityGPSO',
+    'utter_KfPfXwd3',
+    'utter_updated',
+    'action_updated',
+];
 
 describe('proper traversal of story', function() {
     it('should resolve an existing path', function() {
@@ -585,3 +638,13 @@ if (Meteor.isServer) {
         });
     });
 }
+describe('proper aggregation of events', function() {
+    it('should create a list of events for an existing story', function() {
+        const events = aggregateEvents(branchedStoryFixture);
+        expect(events).to.have.members(expectedEvents);
+    });
+    it('should create a list of events for an updated story', function() {
+        const events = aggregateEvents(branchedStoryFixture, '* c1\n  - utter_updated\n  - action_updated', 'gBGmAF8lk');
+        expect(events).to.have.members(expectedUpdatedEvents);
+    });
+});
