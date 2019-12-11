@@ -19,6 +19,7 @@ import {
     stopRunningProjects,
     getRunningDockerResources,
     watchFolder,
+    doMinorUpdate,
 } from './commands/services';
 import {
     wait,
@@ -30,6 +31,8 @@ import {
     getContainerAndImageNames,
     succeedSpinner,
     consoleError,
+    displayNpmUpdateMessage,
+    displayProjectUpdateMessage,
 } from './utils';
 
 const program = require('commander');
@@ -105,6 +108,11 @@ program
     .description('Open the online documentation in your browser')
     .action(openDocs);
 
+program
+    .command('update')
+    .description('Update a project if the current Botfront version as a higher minor version but not a different major version')
+    .action(doMinorUpdate);
+
 async function openDocs() {
     const spinner = ora()
     spinner.start(`Opening ${chalk.green.bold('https://botfront.io/docs')} in your browser...`)
@@ -147,6 +155,7 @@ async function general() {
     const choices = [];
     try {
         await verifySystem()
+        await displayNpmUpdateMessage();
         const { containers } = await getRunningDockerResources()
         if (isProjectDir()){
             if (containers && containers.length){
@@ -165,6 +174,7 @@ async function general() {
         choices.push({ title: 'More options (display the --help)', cmd: () => shell.exec('botfront -h') });
         choices.push({ title: 'Exit', cmd:  () => process.exit(0) });
         console.log(boxen(`Welcome to ${chalk.green.bold('Botfront')}!\nversion: ${getBotfrontVersion()}`,  { padding: 1,  margin: 1 }));
+        displayProjectUpdateMessage(); console.log('\n')
         const { action } = await inquirer.prompt({
             type: 'list',
             name: 'action',

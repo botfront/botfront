@@ -18,7 +18,7 @@ import {
     verifySystem,
     consoleError,
     stopSpinner,
-    displayUpdateMessage,
+    displayNpmUpdateMessage,
 } from '../utils';
 
 const access = promisify(fs.access);
@@ -27,7 +27,7 @@ const copy = promisify(ncp);
 export async function initCommand(
     { path, imgBotfront, imgBotfrontApi, imgRasa, ci } = {},
 ) {
-    await displayUpdateMessage();
+    await displayNpmUpdateMessage();
     try {
         await verifySystem();
         let images = {};

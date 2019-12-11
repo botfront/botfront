@@ -30,9 +30,13 @@ import {
     setSpinnerText,
     setSpinnerInfo,
     updateEnvFile,
-    shouldUpdateProject,
-    displayUpdateMessage,
+    displayNpmUpdateMessage as displayNpmUpdateMessage,
     getDefaultServiceNames,
+    isMajorUpdateWithVersion,
+    isMinorUpdateWithVersion,
+    getBotfrontVersion,
+    getProjectVersion,
+    displayProjectUpdateMessage,
 } from '../utils';
 
 async function postUpLaunch(spinner) {
@@ -44,29 +48,33 @@ async function postUpLaunch(spinner) {
     console.log('\n');
 }
 
+export async function doMinorUpdate() {
+    const botfrontVersion = getBotfrontVersion();
+    const projectVersion = getProjectVersion();
+    if (isMajorUpdateWithVersion(projectVersion, botfrontVersion)){
+        return console.log(boxen(`Project was made with Botfront ${chalk.blueBright(projectVersion)} and the currently installed version is ${chalk.green(botfrontVersion)}, which is a major update.\nPlease follow the instructions in the migration guide: ${chalk.cyan.bold('https://botfront.io/docs/migration')}.`));
+    }
+    if (isMinorUpdateWithVersion(projectVersion, botfrontVersion)) {
+        await copyTemplateFilesToProjectDir(fixDir(), {}, true);
+        return console.log(boxen(`Your project was migrated but ${chalk.magenta.bold('you still have ONE step do do manually')}.\nPlease see the ${chalk.cyan.bold('Minor versions')} section of the migration guide:\n${chalk.cyan.bold('https://botfront.io/docs/migration#minor-versions')}.`));
+    }
+    return console.log(boxen('Everything is up to date 👌.'));
+}
 export async function dockerComposeUp({ verbose = false, exclude = [], ci = false }, workingDir, spinner) {
     spinner = spinner
         ? spinner
         : ci
             ? null
             : ora();
-    await displayUpdateMessage();
+    await displayNpmUpdateMessage();
     const projectAbsPath = fixDir(workingDir);
     shell.cd(projectAbsPath);
     if (!isProjectDir()) {
         const noProjectMessage = `${chalk.yellow.bold('No project found.')} ${chalk.cyan.bold('botfront up')} must be executed from your project\'s directory`;
         return console.log(noProjectMessage);
     }
-    if (shouldUpdateProject()) {
-        const { upgrade } = await inquirer.prompt({
-            type: 'confirm',
-            name: 'upgrade',
-            message: 'Your project was created with an older version of Botfront. Would you like to upgrade it?',
-        });
-        if (upgrade) {
-            await copyTemplateFilesToProjectDir(projectAbsPath, {}, true);
-        }
-    }
+    displayProjectUpdateMessage();
+
     updateEnvFile(process.cwd());
     await generateDockerCompose(exclude);
     startSpinner(spinner, 'Starting Botfront...');
@@ -83,11 +91,12 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
         stopSpinner();
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
         const message = 'Useful commands:\n\n' + (
-            `\u2022 Run ${chalk.cyan.bold('botfront logs')} to see logs and debug \n` +
-            `\u2022 Run ${chalk.cyan.bold('botfront watch')} to rebuild and restart the action server when actions change\n` +
-            `\u2022 Run ${chalk.cyan.bold('botfront --help')} to get help with the CLI\n` +
-            `\u2022 Run ${chalk.cyan.bold('botfront docs')} to browse the online documentation\n` +
-            `\u2022 Run ${chalk.cyan.bold('botfront down')} to stop Botfront\n`
+
+            `\u2022 Run ${chalk.cyan.bold('botfront logs')} to follow logs \n` +
+            `\u2022 Run ${chalk.cyan.bold('botfront watch')} to watch ${chalk.yellow.bold('actions')} and ${chalk.yellow.bold('rasa')} folders (see ` +
+                    `${chalk.cyan.bold('https://botfront.io/docs/rasa/custom-actions')} )\n` +
+            `\u2022 Run ${chalk.cyan.bold('botfront down')} to stop Botfront\n`  +
+            `\u2022 Run ${chalk.cyan.bold('botfront --help')} to get help with the CLI\n`
         );
         console.log(boxen(message) + '\n');
 
