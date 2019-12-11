@@ -44,8 +44,8 @@ type Conversation {
 }
 
 type Message {
-    intent_ranking: [Intent!]
-    intent: Intent!
+    intent_ranking: [Intent]
+    intent: Intent
     text: String
     language: String
     project: String
