@@ -4,7 +4,7 @@ import { Stories } from '../api/story/stories.collection';
 import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
-import { getBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
+import { newGetBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
 export const traverseStory = (story, path) => path
     .slice(1)
@@ -246,28 +246,15 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
     return domains;
 };
 
-const filterTemplatesByLanguage = (templates, language) => {
-    const filteredTemplates = templates;
-    Object.keys(filteredTemplates).forEach((key) => {
-        filteredTemplates[key] = templates[key][language];
-    });
-    return filteredTemplates;
-};
-
 const getAllTemplates = async (projectId, language = '') => {
     // fetches templates and turns them into nested key-value format
-    let templates = await getBotResponses(projectId);
-    templates = templates.reduce((ks, k) => ({
-        ...ks,
-        [k.key]: k.values.reduce((vs, v) => ({
-            ...vs,
-            [v.lang]: v.sequence.map(seq => yaml.safeLoad(seq.content)),
-        }), {}),
-    }), {});
-    if (language && language.length > 0) {
-        templates = filterTemplatesByLanguage(templates, language);
-    }
-    return templates;
+    const templates = await newGetBotResponses({ projectId, language });
+    return templates.reduce((acc, curr) => {
+        const { key, payload, ...rest } = curr;
+        const content = { ...yaml.safeLoad(payload), ...rest };
+        if (!(key in acc)) return { ...acc, [key]: [content] };
+        return { ...acc, [key]: [...acc[key], content] };
+    }, {});
 };
 
 export const getStoriesAndDomain = async (projectId, language) => {

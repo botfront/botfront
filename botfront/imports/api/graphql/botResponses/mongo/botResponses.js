@@ -53,6 +53,31 @@ export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
 
+export const newGetBotResponses = async ({ projectId, template, language }) => {
+    // template (optional): str || array
+    // language (optional): str || array
+    let templateKey = {}; let languageKey = {};
+    if (template && Array.isArray(template)) templateKey = { key: { $in: template } };
+    if (template && typeof template === 'string') templateKey = { key: template };
+    if (language && Array.isArray(language)) languageKey = { 'values.lang': { $in: language } };
+    if (language && typeof language === 'string') languageKey = { 'values.lang': language };
+    return BotResponses.aggregate([
+        { $match: { projectId, ...templateKey, ...languageKey } },
+        { $unwind: '$values' },
+        { $unwind: '$values.sequence' },
+        {
+            $project: {
+                _id: false,
+                key: '$key',
+                language: '$values.lang',
+                channels: '$values.channels',
+                payload: '$values.sequence.content',
+                metadata: '$metadata',
+            },
+        },
+    ]);
+};
+
 /* considering this function does not only get the response we need to trigger the onAddReponse subscription
 when it does add a response the onAddResponse is used for that
 contratry to update, the list of response need to be constatly updated to properly check the exceptions */

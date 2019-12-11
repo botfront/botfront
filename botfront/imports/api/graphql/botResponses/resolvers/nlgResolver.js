@@ -1,6 +1,6 @@
 import { safeLoad } from 'js-yaml';
 import { sample } from 'lodash';
-import BotResponses from '../botResponses.model';
+import { newGetBotResponses } from '../mongo/botResponses';
 
 const subText = (text, slots) => {
     // fills in {slotname} in templates
@@ -22,23 +22,11 @@ const chooseTemplateSource = (responses, channel) => {
 const resolveTemplate = async ({
     template, projectId, language, slots = {}, channel = null,
 }) => {
-    const responses = await BotResponses.aggregate([
-        { $match: { projectId, key: template, 'values.lang': language } },
-        { $unwind: '$values' },
-        { $unwind: '$values.sequence' },
-        {
-            $project: {
-                _id: false,
-                language: '$values.lang',
-                channels: '$values.channels',
-                payload: '$values.sequence.content',
-                metadata: 'metadata',
-            },
-        },
-    ]);
+    const responses = await newGetBotResponses({ projectId, template, language });
     const source = chooseTemplateSource(responses, channel);
     if (!source) throw new Error('No response given criteria');
     const payload = safeLoad(sample(source).payload);
+    if (payload.key) delete payload.key;
     if (payload.text) payload.text = subText(payload.text, slots);
     return payload;
 };
