@@ -43,6 +43,10 @@ type Conversation {
   sender_id: String,
   slots: Any,
   latest_event_time: Float,
+  latest_action_name: String,
+  latest_input_channel: String,
+  followup_action: String,
+  active_form: Any,
   paused: Boolean,
 }
 
@@ -52,6 +56,10 @@ input ConversationInput {
   sender_id: String,
   slots: Any,
   latest_event_time: Float,
+  latest_action_name: String,
+  latest_input_channel: String,
+  followup_action: String,
+  active_form: Any,
   paused: Boolean,
 }
 
@@ -111,7 +119,11 @@ type Event {
   policy: String,
   confidence: Float,
   parse_data: Message,
+  input_channel: String,
+  message_id: String,
+  metadata: Any,
   data: Any,
+  value: Any,
 }
 
 input EventInput {
@@ -122,5 +134,9 @@ input EventInput {
   policy: String,
   confidence: Float,
   parse_data: MessageInput,
+  input_channel: String,
+  message_id: String,
+  metadata: Any,
   data: Any,
+  value: Any,
 }
