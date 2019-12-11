@@ -14,7 +14,7 @@ const {
     Responses,
 } = require('../models/models');
 const { validationResult } = require('express-validator/check');
-const { getVerifiedProject } = require('../server/utils');
+const { getVerifiedProject, aggregateEvents } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
 const {sortBy} = require('lodash');
@@ -97,6 +97,11 @@ const nativizeProject = function(projectId, projectName, backup) {
                 checkpoints: s.checkpoints.map(checkpoint => [storyMapping[checkpoint[0]], ...checkpoint.slice(1)]),
             }),
         })); // apply to stories
+    }
+
+    if ('stories' in nativizedBackup) {
+        // At the top level of the story object, create an array of events in a story and its branches
+        nativizedBackup.stories = nativizedBackup.stories.map(aggregateEvents);
     }
 
     nativizedBackup.project = { ...project, _id: projectId, name: projectName, nlu_models }; // change id of project
