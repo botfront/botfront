@@ -32,6 +32,7 @@ const resolveTemplate = async ({
                 language: '$values.lang',
                 channels: '$values.channels',
                 payload: '$values.sequence.content',
+                metadata: 'metadata',
             },
         },
     ]);
