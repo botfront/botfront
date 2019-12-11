@@ -17,6 +17,7 @@ projects.forEach((project, index) => {
     exportPayloads.push({ project });
     Object.keys(db).forEach(col => {
         const numberOfDocsEach = db[col].length / 2;
+        //there two project in the db file so an uneven number of docs in each collection is not possible
         if (!Number.isInteger(numberOfDocsEach)) throw Error(
             `Uneven number of docs in collection ${col}`,
         );

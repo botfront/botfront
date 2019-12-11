@@ -1,10 +1,12 @@
-
 import { Accounts } from 'meteor/accounts-base';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
+
 import { onError } from 'apollo-link-error';
-import { ApolloLink, Observable } from 'apollo-link';
+import { ApolloLink, Observable, split } from 'apollo-link';
+import { DDPSubscriptionLink, isSubscription } from 'apollo-link-ddp';
+
 
 const request = async (operation) => {
     operation.setContext({
@@ -48,8 +50,18 @@ const httpLink = new HttpLink({
     credentials: 'same-origin',
 });
 
+
+const subscriptionLink = new DDPSubscriptionLink();
+
+const link = split(
+    isSubscription,
+    subscriptionLink,
+    httpLink,
+);
+
+
 const client = new ApolloClient({
-    link: ApolloLink.from([errorLink, requestLink, httpLink]),
+    link: ApolloLink.from([errorLink, requestLink, link]),
     cache: new InMemoryCache(),
 });
 

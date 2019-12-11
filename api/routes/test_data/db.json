@@ -5,24 +5,8 @@
             "name": "one",
             "defaultLanguage": "one",
             "disabled": false,
-            "nlu_models": [
-                "one"
-            ],
-            "templates": [
-                {
-                    "key": "one",
-                    "values": [
-                        {
-                            "sequence": [
-                                {
-                                    "content": "one"
-                                }
-                            ],
-                            "lang": "one"
-                        }
-                    ]
-                }
-            ],
+            "nlu_models": ["one"],
+            
             "updatedAt": "2019-09-10T18:10:08.431Z",
             "instance": "one",
             "responsesUpdatedAt": 1568139008431,
@@ -36,24 +20,8 @@
             "name": "two",
             "defaultLanguage": "two",
             "disabled": false,
-            "nlu_models": [
-                "two"
-            ],
-            "templates": [
-                {
-                    "key": "two",
-                    "values": [
-                        {
-                            "sequence": [
-                                {
-                                    "content": "two"
-                                }
-                            ],
-                            "lang": "two"
-                        }
-                    ]
-                }
-            ],
+            "nlu_models": ["two"],
+            
             "updatedAt": "2019-09-10T18:10:08.432Z",
             "instance": "two",
             "responsesUpdatedAt": 1568139008432,
@@ -93,9 +61,7 @@
                 "entity_synonyms": [
                     {
                         "value": "one",
-                        "synonyms": [
-                            "one"
-                        ],
+                        "synonyms": ["one"],
                         "_id": "one"
                     }
                 ],
@@ -133,9 +99,7 @@
                 "entity_synonyms": [
                     {
                         "value": "two",
-                        "synonyms": [
-                            "two"
-                        ],
+                        "synonyms": ["two"],
                         "_id": "two"
                     }
                 ],
@@ -154,9 +118,7 @@
             "createdAt": "2019-09-10T18:10:08.431Z",
             "entities": [
                 {
-                    "processors": [
-                        "one"
-                    ],
+                    "processors": ["one"],
                     "start": 0,
                     "end": 1,
                     "value": "one",
@@ -176,9 +138,7 @@
             "createdAt": "2019-09-10T18:10:08.432Z",
             "entities": [
                 {
-                    "processors": [
-                        "two"
-                    ],
+                    "processors": ["two"],
                     "start": 0,
                     "end": 1,
                     "value": "two",
@@ -217,9 +177,7 @@
                                     "entity": "one",
                                     "confidence": 1,
                                     "extractor": "one",
-                                    "processors": [
-                                        "one"
-                                    ]
+                                    "processors": ["one"]
                                 }
                             ],
                             "confidence": 1
@@ -260,9 +218,7 @@
                                     "entity": "two",
                                     "confidence": 1,
                                     "extractor": "two",
-                                    "processors": [
-                                        "two"
-                                    ]
+                                    "processors": ["two"]
                                 }
                             ],
                             "confidence": 1
@@ -589,6 +545,46 @@
             "projectId": "two",
             "createdAt": "2019-09-10T18:10:08.432Z",
             "updatedAt": "2019-09-10T18:10:08.432Z"
+        }
+    ],
+    "botResponses": [
+        {
+            "_id": "5de93136f5ae1b474dfd6331",
+            "key": "utter_get_started",
+            "values": [
+                { "sequence": [{ "content": "text: utter_get_started\n" }], "lang": "en" }
+            ],
+            "projectId": "one"
+        },
+        {
+            "_id": "5de93143f5ae1b474dfd6332",
+            "key": "utter_which_class",
+            "values": [
+                {
+                    "lang": "en",
+                    "sequence": [{ "content": "text: simple text message\n" }]
+                }
+            ],
+            "projectId": "one"
+        },
+        {
+            "_id": "5de93136f5ae1b474dfd6331",
+            "key": "utter_get_stoped",
+            "values": [
+                { "sequence": [{ "content": "text: utter_get_started\n" }], "lang": "en" }
+            ],
+            "projectId": "two"
+        },
+        {
+            "_id": "5de93143f5ae1b474dfd6332",
+            "key": "utter_which",
+            "values": [
+                {
+                    "lang": "en",
+                    "sequence": [{ "content": "text: simple text message\n" }]
+                }
+            ],
+            "projectId": "two"
         }
     ]
 }

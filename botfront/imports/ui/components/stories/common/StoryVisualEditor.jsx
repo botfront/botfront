@@ -43,6 +43,7 @@ class StoryVisualEditor extends React.Component {
 
     addStoryCursor = React.createRef();
 
+
     componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
         if (
@@ -52,6 +53,7 @@ class StoryVisualEditor extends React.Component {
             this.addStoryCursor.current.focus();
         }
     }
+
 
     trackOpenMenu = func => this.setState({ menuCloser: func });
 
@@ -265,7 +267,9 @@ class StoryVisualEditor extends React.Component {
     )
 
     render() {
-        const { story, language } = this.props;
+        const {
+            story, language,
+        } = this.props;
         const { menuCloser } = this.state;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {

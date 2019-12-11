@@ -61,6 +61,7 @@ describe('incoming page', function() {
             .click({ force: true });
         cy.dataCy('save-changes')
             .click({ force: true });
+        cy.get('.s-alert-success').should('be.visible');
         // check both languages are available
         cy.visit('/project/bf/incoming');
         cy.dataCy('language-selector')
