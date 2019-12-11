@@ -82,7 +82,7 @@ type FutureBotResponse {
 
 type BotResponseVariant {
     language: String!
-    channels: [String]
+    channel: String
     payload: BotResponsePayload!
 }
 

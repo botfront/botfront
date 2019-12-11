@@ -70,7 +70,7 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
                 _id: false,
                 key: '$key',
                 language: '$values.lang',
-                channels: '$values.channels',
+                channel: '$values.channel',
                 payload: '$values.sequence.content',
                 metadata: '$metadata',
             },

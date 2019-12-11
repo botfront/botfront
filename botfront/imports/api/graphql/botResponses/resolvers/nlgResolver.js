@@ -12,7 +12,7 @@ const subText = (text, slots) => {
 
 const chooseTemplateSource = (responses, channel) => {
     // chooses between array of channel-specific responses, or channel-agnostic responses
-    const variantsForChannel = responses.filter(r => r.channels && r.channels.includes(channel));
+    const variantsForChannel = responses.filter(r => r.channel === channel);
     const variantsWithoutChannel = responses.filter(r => !r.channel || !r.channel.length);
     return variantsForChannel.length
         ? variantsForChannel : variantsWithoutChannel.length
