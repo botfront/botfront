@@ -96,7 +96,7 @@ const migrateResponses = () => {
                     assert(Array.from(new Set(newTemplates)).length === newTemplates.length);
                     // Insert bot responses in new collection
                     newTemplates.forEach((response) => {
-                        BotResponses.updateOne({ key: response.key, projectId: response.projectId }, response, { upsert: true, setDefaultsOnInsert: true });
+                        BotResponses.updateOne({ key: response.key, projectId: response.projectId }, response, { upsert: true, setDefaultsOnInsert: true }).exec();
                     });
                     // Remote bot responses from project
                     Projects.update({ _id: p._id }, { $unset: { templates: '' } });
