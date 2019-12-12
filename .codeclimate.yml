@@ -12,7 +12,7 @@ checks:
         enabled: true
     file-lines:
         config:
-        threshold: 500
+            threshold: 500
 #   argument-count:
 #     config:
 #       threshold: 4
