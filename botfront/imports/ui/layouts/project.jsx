@@ -49,7 +49,6 @@ class Project extends React.Component {
             resizingChatPane: false,
             entities: [],
             intents: [],
-            intentsWithCanonicals: [],
             exampleMap: {},
         };
     }
@@ -282,7 +281,7 @@ class Project extends React.Component {
             slots,
         } = this.props;
         const {
-            showIntercom, intercomId, showChatPane, resizingChatPane, intents, entities, intentsWithCanonicals,
+            showIntercom, intercomId, showChatPane, resizingChatPane, intents, entities,
         } = this.state;
 
         return (
@@ -351,7 +350,6 @@ class Project extends React.Component {
                                                                     templates: data && !loadingResponses ? data.botResponses : [],
                                                                     intents,
                                                                     entities,
-                                                                    intentsWithCanonicals,
                                                                     slots,
                                                                     language: workingLanguage,
                                                                     insertResponse: this.insertResponse(createBotResponse),

@@ -9,5 +9,4 @@ export const ProjectContext = React.createContext({
     getResponse: () => {},
     templates: [],
     storyGroups: [],
-    intentsWithCanonicals: [],
 });

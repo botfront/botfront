@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Icon } from 'semantic-ui-react';
 import UserUtteranceViewer from './UserUtteranceViewer';
-import { ProjectContext } from '../../../layouts/context';
+import { Context } from '../../../../../stories/CanonicalPopup.stories';
 
 const CanonicalPopup = (props) => {
     const {
@@ -11,9 +11,10 @@ const CanonicalPopup = (props) => {
         example,
     } = props;
 
-    const { intents } = useContext(ProjectContext);
-    const canonicalExample = example;
+    const { getCanonicalExample } = useContext(Context);
 
+    const canonicalExample = getCanonicalExample(example);
+    
     const renderPopupContent = () => {
         if (!canonicalExample) {
             return (
@@ -39,13 +40,14 @@ const CanonicalPopup = (props) => {
         <Popup
             content={renderPopupContent}
             /* if the root element of the trigger has custom hover behaviour it
-            prevents the popup from opening. Wrapping the trigger in a div ensures
-            the popup will open
+               prevents the popup from opening. Wrapping the trigger in a div ensures
+               the popup will open
             */
             trigger={<div className='canonical-popup-trigger'>{trigger}</div>}
             inverted
             flowing
-            // hoverable
+            hoverable
+            open
             className='canonical-popup'
         />
     );

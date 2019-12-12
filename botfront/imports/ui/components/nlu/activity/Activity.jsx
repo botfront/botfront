@@ -21,7 +21,6 @@ import { clearTypenameField } from '../../../../lib/utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
-import CanonicalPopup from '../common/CanonicalPopup';
 import { GET_CONVERSATION } from '../../conversations/queries';
 import ConversationDialogueViewer from '../../conversations/ConversationDialogueViewer';
 
@@ -29,7 +28,6 @@ function Activity(props) {
     const [sortType, setSortType] = useState('Newest');
     const {
         intents,
-        intentsWithCanonicals,
         entities,
     } = useContext(ProjectContext);
     const getSortFunction = () => {
@@ -69,7 +67,7 @@ function Activity(props) {
         filter,
         ...getSortFunction(),
     });
-
+    
     // always refetch on first page load and sortType change
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, workingEnvironment, sortType, filter]);
 
@@ -136,19 +134,6 @@ function Activity(props) {
             || typeof datum.confidence !== 'number'
             || datum.confidence <= 0
         ) return null;
-        const canonical = intentsWithCanonicals[datum.intent].filter(e => e.entities.length === 0);
-        if (canonical.length) {
-            return (
-                <CanonicalPopup
-                    example={canonical[0].example}
-                    trigger={(
-                        <div className='confidence-text'>
-                            {`${Math.floor(datum.confidence * 100)}%`}
-                        </div>
-                    )}
-                />
-            );
-        }
         return (
             <div className='confidence-text'>
                 {`${Math.floor(datum.confidence * 100)}%`}
@@ -276,7 +261,7 @@ function Activity(props) {
                         filter={filter}
                         onChange={f => setFilter(f)}
                     />
-
+                    
                 </Segment>
                 <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
                     <PrefixDropdown
