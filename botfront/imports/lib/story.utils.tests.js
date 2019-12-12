@@ -551,6 +551,21 @@ const branchedStoryFixture = {
     events: [],
 };
 
+const branchesUpdateFixture = [
+    {
+        title: 'branch2a',
+        branches: [],
+        _id: 'newid1',
+        story: '* C\n  - utter_KfPfXwd3',
+    },
+    {
+        title: 'branch2b',
+        branches: [],
+        _id: 'newid2',
+        story: '* c1',
+    },
+];
+
 const expectedEvents = [
     'utter_K3y-deii',
     'utter_Ra_O_Jip',
@@ -559,13 +574,19 @@ const expectedEvents = [
     'utter_initial',
     'action_initial',
 ];
-const expectedUpdatedEvents = [
+const expectedUpdatedStoryEvents = [
     'utter_K3y-deii',
     'utter_Ra_O_Jip',
     'utter_pityGPSO',
     'utter_KfPfXwd3',
     'utter_updated',
     'action_updated',
+];
+const expectedUpdatedBranchesEvents = [
+    'utter_K3y-deii',
+    'utter_Ra_O_Jip',
+    'utter_pityGPSO',
+    'utter_KfPfXwd3',
 ];
 
 describe('proper traversal of story', function() {
@@ -645,6 +666,10 @@ describe('proper aggregation of events', function() {
     });
     it('should create a list of events for an updated story', function() {
         const events = aggregateEvents(branchedStoryFixture, { story: '* c1\n  - utter_updated\n  - action_updated', _id: 'gBGmAF8lk' });
-        expect(events).to.have.members(expectedUpdatedEvents);
+        expect(events).to.have.members(expectedUpdatedStoryEvents);
+    });
+    it('should create a list of events for updated story branches', function() {
+        const events = aggregateEvents(branchedStoryFixture, { branches: branchesUpdateFixture, _id: 'TOl028Tm0' });
+        expect(events).to.have.members(expectedUpdatedBranchesEvents);
     });
 });
