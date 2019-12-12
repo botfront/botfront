@@ -3,6 +3,7 @@ import { check } from 'meteor/check';
 
 import { StoryGroups } from './storyGroups.collection';
 import { Stories } from '../story/stories.collection';
+import { currateResponses } from '../graphql/botResponses/mongo/botResponses';
 
 export const createIntroStoryGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -67,9 +68,15 @@ function handleError(e) {
 }
 
 Meteor.methods({
-    'storyGroups.delete'(storyGroup) {
+    async 'storyGroups.delete'(storyGroup) {
         check(storyGroup, Object);
-        return StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id });
+        let eventstoRemove = [];
+        Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
+            .fetch()
+            .forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
+        const result = await StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id });
+        currateResponses(eventstoRemove);
+        return result;
     },
 
     'storyGroups.insert'(storyGroup) {
