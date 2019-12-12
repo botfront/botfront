@@ -110,33 +110,12 @@ const BotResponsesContainer = (props) => {
         );
     };
 
-    const isSequence = () => {
-        // eslint-disable-next-line curly
-        if (
-            template
-            && template.values
-            && template.values[0]
-            && template.values[0].sequence
-        ) return template.values[0].sequence.length > 1;
-        return false;
-    };
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
         <ExceptionWrapper
-            exceptions={
-                isSequence()
-                    ? [
-                        ...exceptions,
-                        {
-                            type: 'warning',
-                            message:
-                                'Support for message sequences will be removed in the next version, please create a new bot utterance for each item of your sequence.',
-                        },
-                    ]
-                    : exceptions
-            }
+            exceptions={exceptions}
         >
-            <div className={`responses-container exception-wrapper ${isSequence() ? 'multiple' : ''}`}>
+            <div className='responses-container exception-wrapper'>
                 {!template && (
                     <Placeholder>
                         <Placeholder.Line />
@@ -144,7 +123,7 @@ const BotResponsesContainer = (props) => {
                     </Placeholder>
                 )}
                 {getSequence().map(renderResponse)}
-                {deletable && isSequence() && (
+                {deletable && (
                     <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
                 )}
             </div>
