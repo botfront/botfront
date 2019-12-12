@@ -19,8 +19,20 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
+    & > *:not(:first-child) {
+        margin-left: 0px !important;
+    }
     & > *:not(:last-child) {
         margin-right: 20px !important;
+    }
+    &.narrow > *:not(:last-child) {
+        margin-right: 7px !important;
+    }
+    &.middle {
+        align-items: center;
+    }
+    &.left {
+        justify-content: flex-start;
     }
 }
 

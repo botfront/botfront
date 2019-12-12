@@ -93,25 +93,63 @@ export function getProjectVersion() {
     return getProjectConfig(fixDir(null)).version;
 }
 
-export function shouldUpdateProject() {
+export function isMinorUpdateWithVersion(projectVersion, botfrontVersion){
+    const projectMajorVersion = projectVersion.split('.')[1];
+    const projectMinorVersion = projectVersion.split('.')[2];
+    const botfrontMajorVersion = botfrontVersion.split('.')[1];
+    const botfrontMinorVersion = botfrontVersion.split('.')[2];
+    return projectMajorVersion === botfrontMajorVersion && botfrontMinorVersion !== projectMinorVersion;
+}
+
+export function isMajorUpdateWithVersion(projectVersion, botfrontVersion){
+    const projectMajorVersion = projectVersion.split('.')[1];
+    const botfrontMajorVersion = botfrontVersion.split('.')[1];
+    return compareVersions(botfrontMajorVersion, projectMajorVersion) == 1;
+}
+
+export function isMinorUpdate() {
     const botfrontVersion = getBotfrontVersion();
     const projectVersion = getProjectVersion();
-    return botfrontVersion !== projectVersion;
+    return isMinorUpdateWithVersion(projectVersion, botfrontVersion);
+}
+
+export function isMajorUpdate() {
+    const botfrontVersion = getBotfrontVersion();
+    const projectVersion = getProjectVersion();
+    return isMajorUpdateWithVersion(projectVersion, botfrontVersion);
+}
+
+export function shouldUpdateNpmPackageWithVersions(currentVersion, latestVersion) {
+    return compareVersions(latestVersion, currentVersion) == 1;
 }
 
 export async function shouldUpdateNpmPackage() {
     if (isPrivate()) return false;
     const currentVersion = getBotfrontVersion();
     const latestVersion = await getLatestVersion();
-    return compareVersions(latestVersion, currentVersion) == 1;
+    return shouldUpdateNpmPackageWithVersions(currentVersion, latestVersion);
 }
 
-export async function displayUpdateMessage() {
+export async function displayNpmUpdateMessage() {
     const shouldUpdate = await shouldUpdateNpmPackage();
     if (shouldUpdate) {
-        console.log(boxen(`A new version of Botfront is available. Run ${chalk.cyan.bold('npm install -g botfront')} to update.`,  { padding: 1,  margin: 1 }))
+        const currentVersion = getBotfrontVersion();
+        const latestVersion = await getLatestVersion();
+        console.log(boxen(`A new version of Botfront is available: ${chalk.blueBright(currentVersion)} -> ${chalk.green(latestVersion)}\nRun ${chalk.cyan.bold('npm install -g botfront')} to update.`,  { padding: 1,  margin: 1 }))
     }
     return shouldUpdate;
+}
+
+export async function displayProjectUpdateMessage() {
+    const botfrontVersion = getBotfrontVersion();
+    const projectVersion = getProjectVersion();
+
+    if (isMinorUpdateWithVersion(projectVersion, botfrontVersion)) {
+        console.log(boxen(`Project was made with Botfront ${chalk.blueBright(projectVersion)} and the currently installed version is ${chalk.green(botfrontVersion)}\nRun ${chalk.cyan.bold('botfront update')} to update your project.`));
+    }
+    if (isMajorUpdateWithVersion(projectVersion, botfrontVersion)) {
+        console.log(boxen(`Project was made with Botfront ${chalk.blueBright(projectVersion)} and the currently installed version is ${chalk.green(botfrontVersion)}, which is a major update.\nPlease follow the instructions in the migration guide: ${chalk.cyan.bold('https://botfront.io/docs/migration')}.`));
+    }
 }
 
 /*
@@ -157,7 +195,7 @@ export async function generateDockerCompose(exclude = [], dir) {
     })
     const config = getProjectConfig(dir);
     const dcCopy = JSON.parse(JSON.stringify(dc));
-    Object.keys(dc.services).filter(service => service !== 'actions').forEach(service => {
+    Object.keys(dc.services).filter(service => ['actions', 'rasa'].indexOf(service) < 0).forEach(service => {
         dcCopy.services[service].image = config.images.current[service]
     })
     // for (let key in dcCopy.services) {

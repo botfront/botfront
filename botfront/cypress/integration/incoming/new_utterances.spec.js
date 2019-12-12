@@ -93,9 +93,6 @@ describe('incoming page', function() {
         cy.wait(100);
         cy.dataCy('intent-label')
             .first()
-            .trigger('mouseover', { force: true });
-        cy.dataCy('intent-dropdown')
-            .find('input')
             .click({ force: true })
             .type('fruit{enter}');
     };
@@ -239,9 +236,9 @@ describe('incoming page', function() {
         cy.updateConversation('bf', 'test', JSON.stringify(conversationUpdate));
 
         cy.visit('/project/bf/incoming');
-        cy.dataCy('utterance-row').should('exist');
+        cy.dataCy('row-wrapper').should('exist');
         cy.wait(500);
-        cy.dataCy('utterance-row').trigger('mouseover');
+        cy.dataCy('row-wrapper').trigger('mouseover');
         cy.dataCy('conversation-viewer').first().click({ force: true });
         cy.get('.popup').should('exist');
         cy.get('.popup').should('contains.text', 'test conv link');

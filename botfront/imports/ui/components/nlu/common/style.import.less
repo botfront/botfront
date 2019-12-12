@@ -47,33 +47,70 @@
     border-radius: 4px;
     cursor: default;
 
-    &:not(.disabled):not(.uneditable):hover {
-        border: 1px solid rgba(176, 176, 176, 0.4);
-        span {
-            color: @grey;
-        }
-    }
-    &.selected {
-        font-weight: bold;
-    }
     &.disabled {
         color: @grey;
     }
     &.null {
-        color: darken(@purple, 20%);
+        color: @grey;
     }
     .action-on-label {
         float: right;
         color: @grey;
+        position: relative;
+        bottom: 2px;
+        visibility: hidden;
     }
     .content-on-label {
         min-width: 130px;
+        position: relative;
+        bottom: 1px;
+    }
+    &:not(.disabled):not(.uneditable):hover, &.selected {
+        border: 1px solid rgba(176, 176, 176, 0.4);
+        span {
+            color: @grey;
+        }
+        .action-on-label {
+            visibility: visible;
+        }
     }
 }
-.virtual-table {
-    .row:hover {
-        .intent-label.selectable {
+
+.ui.popup.intent-popup {
+    padding: 0;
+
+    .ui.fluid.input {
+        margin: 0;
+    }
+    input {
+        border: 0;
+        height: 50px;
+        background: rgba(0, 0, 0, 0.04) !important;
+    }
+    button {
+        border-radius: 0 0 4px 4px;
+        height: 100%;
+    }
+}
+
+.intent-dropdown {
+    .intent-label {
+        &.selected {
             font-weight: bold;
+            &::before {
+                margin-right: 5px;
+                content: '\25B6';
+            }
+        }
+        border: initial;
+        span {
+            color: initial;
+        }
+    }
+    .row:hover {
+        cursor: pointer;
+        .intent-label.selectable {
+            cursor: pointer;
         }
     }
 }
@@ -119,23 +156,3 @@
     }
     line-height: 2.25;
 }
-
-.ui.popup.canonical-popup{
-    max-width: 600px;
-    /* padding is moved from canonical-popup to canonical-popup-content so that
-      the arrow that points to the popup trigger is not removed by overflow: hidden;
-    */
-    padding: 0px; // remove the default padding on the popup
-    .canonical-popup-content {
-      padding: 13.3px 16px 13.3px 16px; // mimic the default padding of the popup
-      display: flex;
-      overflow: hidden;
-    }
-    .icon{
-      margin-right: 0.5em;
-      margin-top: 6px;
-    }
-  }
-  .canonical-popup-trigger{
-    display: inline-block; // match the size of it's children
-  }

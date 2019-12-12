@@ -25,8 +25,9 @@ describe('NLU Intent warning message displays', function() {
         // create first intent
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('cya\nlater');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('newintent{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('newintent{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.get('[data-cy=save-button]').should('not.have.property', 'disabled');
 
@@ -34,8 +35,9 @@ describe('NLU Intent warning message displays', function() {
         cy.contains('Examples').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\nhi guys');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intent1{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intent1{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.get('[data-cy=save-button]').should('not.have.property', 'disabled');
 

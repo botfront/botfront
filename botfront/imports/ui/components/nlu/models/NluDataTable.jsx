@@ -93,13 +93,14 @@ export default class NluDataTable extends React.Component {
                 Header: 'Intent',
                 width: 200,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['intent'] }),
-                Cell: props => (
+                Cell: props => this.canonicalTooltip(
                     <IntentLabel
                         value={props.value}
                         allowEditing={!props.row.example.canonical && can('nlu-data:w', projectId)}
                         allowAdditions
                         onChange={intent => this.onEditExample({ ...props.row.example, intent })}
-                    />
+                    />,
+                    props.row.example.canonical,
                 ),
             },
         ];
@@ -134,14 +135,15 @@ export default class NluDataTable extends React.Component {
                 Header: 'Example',
                 Cell: (props) => {
                     const canonical = props.row.example.canonical ? props.row.example.canonical : false;
-                    return (
+                    return this.canonicalTooltip(
                         <UserUtteranceViewer
                             value={props.value}
                             onChange={this.onEditExample}
                             projectId=''
                             disableEditing={canonical}
                             showIntent={false}
-                        />
+                        />,
+                        canonical,
                     );
                 },
                 style: { overflow: 'visible' },
@@ -172,7 +174,9 @@ export default class NluDataTable extends React.Component {
                                         ? (
                                             <>
                                             and for the following entity - entity value combinations: <br />
-                                                {props.row.example.entities.map(entity => <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>)}
+                                                {props.row.example.entities.map(entity => (
+                                                    <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>
+                                                ))}
                                             </>
                                         )
                                         : ''}
@@ -233,6 +237,17 @@ export default class NluDataTable extends React.Component {
         return firstColumns;
     }
 
+    canonicalTooltip = (jsx, canonical) => {
+        if (!canonical) return jsx;
+        return (
+            <Popup
+                trigger={<div>{jsx}</div>}
+                inverted
+                content='Cannot edit a canonical example'
+            />
+        );
+    }
+
     collapseExpanded = () => this.setState({ expanded: {} });
 
     scrapFilter() {
@@ -271,7 +286,7 @@ export default class NluDataTable extends React.Component {
         const {
             hideHeader, intents, entities, projectId,
         } = this.props;
-        const { expanded } = this.state;
+        const { expanded, onlyCanonical } = this.state;
         return (
             <Tab.Pane as='div'>
                 {!hideHeader && (
@@ -288,10 +303,7 @@ export default class NluDataTable extends React.Component {
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 <Checkbox
                                     onChange={() => {
-                                        const { onlyCanonical } = this.state;
-                                        this.setState({
-                                            onlyCanonical: !onlyCanonical,
-                                        });
+                                        this.setState({ onlyCanonical: !onlyCanonical });
                                     }
                                     }
                                     hidden={false}
@@ -302,10 +314,9 @@ export default class NluDataTable extends React.Component {
                                 />
                                 <Popup
                                     trigger={
-                                        <Icon name='gem' color={this.state.onlyCanonical ? 'black' : 'grey'} />
+                                        <Icon name='gem' color={onlyCanonical ? 'black' : 'grey'} />
                                     }
                                     content='Only show canonicals examples'
-                                    pinned
                                     position='top center'
                                     inverted
                                 />

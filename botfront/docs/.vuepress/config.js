@@ -64,8 +64,8 @@ module.exports = {
                 children: [
                     '/guide/rasa/stories/conversation_builder',
                     '/guide/rasa/stories/conversation_flows',
+                    '/guide/rasa/stories/disambiguation',
                     '/guide/rasa/stories/optimization',
-                    '/guide/rasa/stories/custom_actions',
                 ],
             },
             {
@@ -81,6 +81,17 @@ module.exports = {
                 ],
             },
             {
+                title: 'Development',   // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 5,
+                children: [
+                    '/guide/developers-guide/custom_actions',
+                    '/guide/developers-guide/extending-rasa',
+                    '/guide/developers-guide/contributing',
+                ]
+            },
+            {
                 title: 'Deployment',   // required
                 // path: '/guide',
                 collapsable: false,
@@ -91,12 +102,12 @@ module.exports = {
                 ]
             },
             {
-                title: 'Developer\'s Guide',   // required
+                title: 'Misc',   // required
                 // path: '/guide',
                 collapsable: false,
                 sidebarDepth: 5,
                 children: [
-                    '/guide/developers-guide/',
+                    '/guide/misc/migration',
                 ]
             },
         ],

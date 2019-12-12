@@ -17,8 +17,10 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .first()
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -35,8 +37,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -57,8 +60,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -67,9 +71,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('icon-trash')
             .should('have.class', 'disabled-delete');
         cy.dataCy('intent-label').trigger('mouseover');
-        cy.get('.popup').should('not.exist');
+        cy.get('.popup').should('contain', 'Cannot edit');
         cy.dataCy('utterance-text').trigger('mouseover');
-        cy.get('.popup').should('not.exist');
+        cy.get('.popup').should('contain', 'Cannot edit');
     });
 
     it('should be possible switch canonical examples ', function () {
@@ -77,8 +81,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\nwelcome');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -110,8 +115,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\nwelcome');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')

@@ -11,6 +11,7 @@ export default function DataTable(props) {
         height,
         width,
         fixedRows,
+        onClickRow,
         hasNextPage,
         loadMore,
         columns,
@@ -20,6 +21,7 @@ export default function DataTable(props) {
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
+    const clickable = onClickRow ? 'clickable' : '';
 
     const Row = React.forwardRef((row, ref) => {
         const { index, style } = row;
@@ -37,13 +39,23 @@ export default function DataTable(props) {
                 </div>
             );
         }
+        const rowInfo = { index, datum: data[index] };
         return (
-            <div ref={ref} style={editedStyle} data-index={index} data-cy='utterance-row'>
-                <div className='row inner-incoming-row'>
+            <div
+                ref={ref}
+                style={editedStyle}
+                data-index={index}
+                onClick={() => { if (onClickRow) onClickRow(rowInfo); }}
+                role='button'
+                tabIndex={0}
+                onKeyDown={null}
+                className='row-wrapper'
+            >
+                <div className={`row inner-incoming-row ${clickable}`}>
                     {columns.map(c => (
                         <div key={`${c.key}-${index}`} className='item' style={c.style}>
                             {c.render
-                                ? c.render({ index, datum: data[index] })
+                                ? c.render(rowInfo)
                                 : data[index][c.key]
                             }
                         </div>
@@ -91,8 +103,14 @@ export default function DataTable(props) {
                 </div>
             )}
             {fixedRows && fixedRows.length && fixedRows.map(r => (
-                <div style={{ paddingTop: gutterSize }}>
-                    <div className='row inner-incoming-row'>
+                <div
+                    style={{ paddingTop: gutterSize }}
+                    onClick={() => onClickRow({ datum: r })}
+                    role='button'
+                    tabIndex={0}
+                    onKeyDown={null}
+                >
+                    <div className={`row inner-incoming-row ${clickable}`}>
                         {columns.map((c, i) => (
                             <div key={`${c.key}-fixed-${i}`} className='item' style={c.style}>
                                 {c.render
@@ -136,6 +154,7 @@ DataTable.propTypes = {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
     fixedRows: PropTypes.array,
+    onClickRow: PropTypes.func,
     hasNextPage: PropTypes.bool,
     data: PropTypes.array.isRequired,
     columns: PropTypes.array.isRequired,
@@ -148,6 +167,7 @@ DataTable.propTypes = {
 DataTable.defaultProps = {
     height: 'auto',
     width: 'auto',
+    onClickRow: null,
     fixedRows: null,
     hasNextPage: false,
     loadMore: () => {},
