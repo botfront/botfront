@@ -76,11 +76,6 @@ const BotResponsesContainer = (props) => {
         setFocus(null);
         const sequence = [...getSequence()];
         const oldContent = yamlLoad(sequence[index].content);
-        if (
-            newContent.text !== undefined
-            && newContent.text.trim() === ''
-            && (!oldContent.buttons || !oldContent.buttons.length)
-        ) return handleDeleteResponse(index);
         sequence[index].content = yamlDump({ ...oldContent, ...newContent });
         setSequence(sequence);
         if (enter) addNewResponse();
