@@ -5,7 +5,7 @@
   "description": "Botfront is an open source chatbot platform based on Rasa.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_ENV=test ./node_modules/.bin/mocha --ui bdd --reporter spec --colors --exit --require @babel/register",
     "postinstall": "echo Botfront succesfully installed. Run 'botfront' to get started."
   },
   "bin": {
@@ -45,12 +45,18 @@
     "unique-names-generator": "^3.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
+    "@babel/register": "^7.7.4",
     "@commitlint/cli": "8.1.0",
     "@commitlint/config-conventional": "8.1.0",
-    "husky": "2.7.0",
     "babel-eslint": "^10.0.2",
+    "chai": "^4.2.0",
+    "cross-env": "^6.0.3",
     "eslint": "^6.1.0",
-    "eslint-plugin-import": "^2.18.2"
+    "eslint-plugin-import": "^2.18.2",
+    "husky": "2.7.0",
+    "mocha": "^6.2.2"
   },
   "husky": {
     "hooks": {

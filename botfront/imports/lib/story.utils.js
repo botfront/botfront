@@ -71,7 +71,7 @@ export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
     /*  this adds trailing and leading checkpoints to a story with a branch structure of arbitrary shape.
         {Parent body} turns into {Parent body\n> Parent title__branches} and {Child body} turns into
         {> Parent title__branches\nChild body}.
-        
+
         Nested titles are also renamed to avoid name conflicts: {Child title} turns into
         {Parent title__Child title}. The process is recursive, depth-first. The second argument
         'remainder' is used to keep track of title prefix. In this example, remainder = 'Parent title'.
@@ -100,13 +100,11 @@ export const flattenStory = story => (story.branches || []).reduce((acc, val) =>
 
 export const findBranchById = (branchesN0, branchId) => {
     // recursive search of a branchId in the branches of a story
-
     // check if one of the child branch correspond to branchId
     const index = branchesN0.findIndex(branchesN1 => branchesN1._id === branchId);
     if (index !== -1) {
         return branchesN0[index];
     }
-
     // pass the child branches to itself to continue the search
     for (let i = 0; i < branchesN0.length; i += 1) {
         if (branchesN0[i].branches && branchesN0[i].branches.length > 0) {
