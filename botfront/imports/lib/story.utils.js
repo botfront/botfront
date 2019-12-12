@@ -378,11 +378,11 @@ export const aggregateEvents = (parentStory, update = {}) => {
     /*
     create an array of "utter_" and "action_" events in a story and it's child branches
 
-    the update will merge with the object in the parentStory at update._id.
-    update._id should be a branch _id or story _id
+    the update will merge with the parentStory when branch._id or story._id is equal to update._id.
+    update._id should be a branchId or storyId
 
-    for example if the update objet has a branches property
-    it will replace the branches of the story or branch at the given _id with the branches in the update object
+    for example if the update object has a branches property
+    it will replace the branches of the story at the given _id with the branches in the update object
     */
     let events = [];
     const traverseBranches = (incommingStory) => {

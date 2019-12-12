@@ -644,7 +644,7 @@ describe('proper aggregation of events', function() {
         expect(events).to.have.members(expectedEvents);
     });
     it('should create a list of events for an updated story', function() {
-        const events = aggregateEvents(branchedStoryFixture, '* c1\n  - utter_updated\n  - action_updated', 'gBGmAF8lk');
+        const events = aggregateEvents(branchedStoryFixture, { story: '* c1\n  - utter_updated\n  - action_updated', _id: 'gBGmAF8lk' });
         expect(events).to.have.members(expectedUpdatedEvents);
     });
 });
