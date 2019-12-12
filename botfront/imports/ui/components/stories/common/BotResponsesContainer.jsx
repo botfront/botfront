@@ -6,7 +6,6 @@ import { Placeholder } from 'semantic-ui-react';
 import FloatingIconButton from '../../common/FloatingIconButton';
 import { ProjectContext } from '../../../layouts/context';
 import BotResponseContainer from './BotResponseContainer';
-import { defaultTemplate } from './StoryVisualEditor';
 import ExceptionWrapper from './ExceptionWrapper';
 
 const BotResponsesContainer = (props) => {
@@ -18,7 +17,6 @@ const BotResponsesContainer = (props) => {
         isNew,
         removeNewState,
         language,
-        addNewResponse,
     } = props;
     const { getResponse, updateResponse } = useContext(ProjectContext);
     const [template, setTemplate] = useState(null);
@@ -34,6 +32,8 @@ const BotResponsesContainer = (props) => {
         if (!sequence) return [];
         return sequence;
     };
+
+    const newText = { content: yamlDump({ text: '' }) };
 
     const setSequence = (newSequence) => {
         const newTemplate = {
@@ -64,11 +64,9 @@ const BotResponsesContainer = (props) => {
         });
     }, [language]);
 
-    const handleCreateReponse = (index, responseType) => {
+    const handleCreateReponse = (index) => {
         const newSequence = [...getSequence()];
-        newSequence.splice(index + 1, 0, {
-            content: yamlDump(defaultTemplate(responseType)),
-        });
+        newSequence.splice(index + 1, 0, newText);
         setFocus(index + 1);
         setSequence(newSequence);
     };
@@ -89,13 +87,13 @@ const BotResponsesContainer = (props) => {
         const oldContent = yamlLoad(sequence[index].content);
         sequence[index].content = yamlDump({ ...oldContent, ...newContent });
         setSequence(sequence);
-        if (enter) addNewResponse();
+        if (enter) setToBeCreated(index);
         return true;
     };
 
     useEffect(() => {
         if (toBeCreated || toBeCreated === 0) {
-            handleCreateReponse(toBeCreated, 'text');
+            handleCreateReponse(toBeCreated);
             setToBeCreated(null);
         }
     }, [toBeCreated]);
@@ -110,7 +108,7 @@ const BotResponsesContainer = (props) => {
                         deletable={deletable || sequenceArray.length > 1}
                         value={content}
                         onDelete={() => handleDeleteResponse(index)}
-                        onAbort={() => { }}
+                        onAbort={() => {}}
                         onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)
                         }
                         focus={focus === index}
@@ -119,7 +117,6 @@ const BotResponsesContainer = (props) => {
                     {index === sequenceArray.length - 1 && (
                         <div className='response-name'>{name}</div>)}
                 </div>
-
             </React.Fragment>
         );
     };
@@ -153,7 +150,6 @@ BotResponsesContainer.propTypes = {
     isNew: PropTypes.bool.isRequired,
     removeNewState: PropTypes.func.isRequired,
     language: PropTypes.string.isRequired,
-    addNewResponse: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {

@@ -38,7 +38,7 @@ export const defaultTemplate = (template) => {
 class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
-        menuCloser: () => { },
+        menuCloser: () => {},
     };
 
     addStoryCursor = React.createRef();
@@ -191,20 +191,14 @@ class StoryVisualEditor extends React.Component {
                     ref={this.addStoryCursor}
                     trackOpenMenu={this.trackOpenMenu}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)
-                    }
-                    onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)
-                    }
-                    onSelectResponse={() => { }} // not needed for now since disableExisting is on
-                    onCreateResponse={template => this.handleCreateSequence(index, template)
-                    }
+                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)}
+                    onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)}
+                    onCreateResponse={template => this.handleCreateSequence(index, template)}
                     onSelectAction={action => this.handleCreateSlotOrAction(index, {
                         type: 'action',
                         data: { name: action },
-                    })
-                    }
-                    onSelectSlot={slot => this.handleCreateSlotOrAction(index, { type: 'slot', data: slot })
-                    }
+                    })}
+                    onSelectSlot={slot => this.handleCreateSlotOrAction(index, { type: 'slot', data: slot })}
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
                         const popups = Array.from(document.querySelectorAll('.popup'));
@@ -274,7 +268,7 @@ class StoryVisualEditor extends React.Component {
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(exception => exception.line === index + 1);
-
+            
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
@@ -283,7 +277,6 @@ class StoryVisualEditor extends React.Component {
                         <BotResponsesContainer
                             language={language}
                             deletable
-                            addNewResponse={() => this.handleCreateSequence(index, 'text')}
                             exceptions={exceptions}
                             name={line.gui.data.name}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
