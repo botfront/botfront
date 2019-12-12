@@ -78,6 +78,7 @@ const BotResponsesContainer = (props) => {
             onDeleteAllResponses();
             return;
         }
+        setFocus(index - 1 < 0 ? index + 1 : index - 1);
         setSequence(newSequence);
     };
 
@@ -105,7 +106,7 @@ const BotResponsesContainer = (props) => {
             <React.Fragment key={index}>
                 <div className='flex-right'>
                     <BotResponseContainer
-                        deletable={deletable || sequenceArray.length > 1}
+                        deletable={deletable && sequenceArray.length > 1}
                         value={content}
                         onDelete={() => handleDeleteResponse(index)}
                         onAbort={() => {}}

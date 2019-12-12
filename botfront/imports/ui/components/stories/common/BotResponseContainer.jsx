@@ -42,6 +42,10 @@ const BotResponseContainer = (props) => {
         if (e.key === 'Shift') {
             setshiftPressed(true);
         }
+        if (e.key === 'Backspace' && !input && deletable) {
+            e.preventDefault();
+            onDelete();
+        }
         if (e.key === 'Enter' && isTextResponse) {
             if (shiftPressed) {
                 return;
