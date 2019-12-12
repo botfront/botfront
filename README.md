@@ -49,10 +49,10 @@ Conversational projects require easy prototyping, fast implementation and contin
   </tr>
     <tr>
     <td width="33%">Our main goal is to lower the technical barrier to entry in conversational AI. Implementing context-aware conversations should be as easy as chatting.</td>
-    <td width="33%">Botfront uses <strong><a href="https://github.com/rasaHQ/rasa" target="_blank">Rasa</a></strong>, a powerful and production ready conversational AI library. Botfront exposes all Rasa functionalities and astracts its complexity.</td>
+    <td width="33%">Botfront uses <strong><a href="https://github.com/rasaHQ/rasa" target="_blank">Rasa</a></strong>, a powerful and production ready conversational AI library. Botfront exposes all Rasa functionalities and abstracts its complexity.</td>
     <td width="33%">Botfront's intuitive CLI orchestrates all Botfront's services on your development machine.<br/>Authoring, training, auto reloading actions code, it just works!</td>
   </tr>
-  
+
 </table>
 </center>
 
@@ -61,7 +61,7 @@ Conversational projects require easy prototyping, fast implementation and contin
 <table>
 
 <tr>
-    <td width="33%"><h4>Build conversation as chatting</h4></td>
+    <td width="33%"><h4>Builds conversations as if you were chatting</h4></td>
     <td width="67%">Botfront provides a <a href="https://botfront.io/docs/rasa/conversation-builder">unique and natural conversation authoring experience</a>. You can create complex dialog flows in minutes</td>
 </tr>
 
@@ -75,7 +75,7 @@ Conversational projects require easy prototyping, fast implementation and contin
 </tr>
 <tr>
     <td width="33%"><h4>Rasa integration</h4></td>
-    <td width="67%">We were using Rasa before writing Botfront's first line of code. Botfront exposes all Rasa features and concepts and and makes them accessible at a higher level for faster development. You can <a href="https://botfront.io/docs/import-export/">export a Botfront project and use it with Rasa</a> at any time.</td>
+    <td width="67%">Botfront exposes all Rasa features and concepts and and makes them accessible at a higher level for faster development. You can <a href="https://botfront.io/docs/import-export/">export a Botfront project and use it with Rasa</a> at any time.</td>
 </tr>
 
 </table>
@@ -94,7 +94,7 @@ Then just run `botfront`to get started.
 <br/>
 <h2 name="documentation" align="center">Documentation</h2>
 
-The [official documentation](https://botfront.io/docs) of Botfront is hosted on [botfront.io](https://botfront.io/docs). It is automatically built and updated on every new release.
+The [official documentation](https://botfront.io/docs/getting-started/setup) of Botfront is hosted on [botfront.io](https://botfront.io/docs/getting-started/setup). It is automatically built and updated on every new release.
 
 If you need run the documentation elsewhere you can build a Docker container as follows:
 ```bash
@@ -137,15 +137,15 @@ We ❤️ contributions of all size and sorts. If you find a typo, if you want t
 
 1. Fork the repo and create a new branch, say `fix-botfront-typo-1`
 2. Fix/improve the codebase
-3. Commit the changes. **Commit message must follow [the naming convention](#naming-convention)**, say `fix(conversation builder): display story groups in alphabetical order`
-4. Make a pull request. **Pull request name must follow [the naming convention](#naming-convention)**. It can simply be one of your commit messages, just copy paste it, e.g. `fix(readme): improve the readability and move sections`
+3. Commit the changes. **Commit message must follow [the naming convention](#commit-messages-naming-convention)**, say `fix(conversation builder): display story groups in alphabetical order`
+4. Make a pull request. **Pull request name must follow [the naming convention](#commit-messages-naming-convention)**. It can simply be one of your commit messages, just copy paste it, e.g. `fix(readme): improve the readability and move sections`
 5. Submit your pull request and wait for all checks passed (up to an hour)
 6. Request reviews from one of the developers from our core team.
 7. Get a 👍 and PR gets merged.
 
 Well done! Once a PR gets merged, here are the things happened next:
 - all Docker images tagged with `branch-master` will be automatically updated in an hour. You may check the status on the [Actions](https://github.com/botfront/botfront/actions) tab.
-- your contribution and commits will be included in [our weekly release note](https://github.com/gnes-ai/gnes/blob/master/CHANGELOG.md). 🍻
+- your contribution and commits will be included in [our release note](https://github.com/botfront/botfront/blob/master/CHANGELOG.md).
 
 ### Commit messages naming convention
 
