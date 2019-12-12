@@ -16,6 +16,6 @@ env:
   actions_url: http://actions:5055/webhook
   bf_url: http://botfront-api:8080
   orchestrator: docker-compose
-  root_url: http://localhost:8888
+  root_url: http://botfront:3000
   socket_path: /socket.io/
   mongo_initdb_database: bf
