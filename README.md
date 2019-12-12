@@ -61,7 +61,7 @@ Conversational projects require easy prototyping, fast implementation and contin
 <table>
 
 <tr>
-    <td width="33%"><h4>Builds conversations as if you were chatting</h4></td>
+    <td width="33%"><h4>Builds conversation as if you were chatting</h4></td>
     <td width="67%">Botfront provides a <a href="https://botfront.io/docs/rasa/conversation-builder">unique and natural conversation authoring experience</a>. You can create complex dialog flows in minutes</td>
 </tr>
 
