@@ -21,7 +21,6 @@ describe('NLU canonical examples', function () {
             .first()
             .click({ force: true })
             .type('intenttest{enter}');
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -161,7 +160,7 @@ describe('NLU canonical examples', function () {
         cy.dataCy('utterance-input')
             .find('input')
             .type('this example should be canonical{enter}');
-        cy.dataCy('intent-label').last().trigger('mouseover');
+        cy.dataCy('intent-label').last().click();
         cy.dataCy('intent-dropdown').find('input').first().type('intenttest{enter}');
         cy.dataCy('intent-label').contains('intenttest').should('exist');
         cy.dataCy('save-new-user-input').click();
