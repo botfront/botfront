@@ -19,7 +19,7 @@
         }
 
         .responses-container {
-            
+            border-color: #eee;
             .viewOnHover {
                 opacity: 0.8;
                 visibility: visible;
@@ -158,6 +158,7 @@
     margin: 0 30px 0 0;
     color: #212121;
     min-height: 40px;
+    padding: 5px 0;
 
     &>.floating-icon-button.trash {
         position: absolute;
@@ -172,9 +173,6 @@
         .inner{
             width: 100%;
         }
-        // &:hover {
-        //     width: ~"calc(100% + 20px)";
-        // }
 
         textarea {
             width: 100%;
@@ -206,7 +204,11 @@
     .flex-right {
         display: inline-flex;
         justify-content: space-between;
-        padding-right: 3rem;
+        align-items: baseline;
+        
+        .utterance-container {
+            width: 100%;
+        }
 
         .viewOnHover {
             opacity: 1;
@@ -224,13 +226,11 @@
         visibility: hidden;
         transition: opacity 0.1s ease-in-out;
         padding-left: 5px;
-        position: absolute;
         width: 135px;
         text-overflow: ellipsis;
         overflow: hidden;
-        height: 2em;
-        bottom: 0px;
-        right: 4px;
+        position: relative;
+        bottom: -10px;
     }
 
     .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border
