@@ -41,8 +41,10 @@ describe('redux working language', function() {
         cy.visit('/project/bf/nlu/models');
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('cya\nlater');
-        cy.dataCy('intent-dropdown').click();
-        cy.dataCy('intent-dropdown').find('input').type('newintent{enter}');
+        cy.dataCy('intent-label')
+            .first()
+            .click({ force: true })
+            .type('newintent{enter}');
         cy.get('[data-cy=save-button]').click();
         // the active language in NLU should match the active language in stories
         cy.visit('/project/bf/stories');

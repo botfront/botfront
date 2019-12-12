@@ -17,8 +17,10 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .first()
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -30,28 +32,28 @@ describe('NLU canonical examples', function () {
             .should('have.class', 'black');
     });
 
-    // it('should display a popup for canonical example', function () {
-    //     cy.visit('/project/bf/nlu/models');
-    //     cy.dataCy('nlu-menu-training-data').click();
-    //     cy.contains('Insert many').click();
-    //     cy.get('.batch-insert-input').type('hello');
-    //     cy.dataCy('intent-label')
-    //         .click({ force: true })
-    //         .type('intenttest{enter}');
-    //     cy.get('[data-cy=save-button]').click();
-    //     cy.contains('Examples').click();
-    //     cy.dataCy('icon-gem')
-    //         .should('have.class', 'grey');
-    //     cy.dataCy('icon-gem')
-    //         .click({ force: true });
-    //     cy.wait(100);
-    //     cy.dataCy('icon-gem')
-    //         .should('have.class', 'black');
-    //     cy.dataCy('icon-gem')
-    //         .trigger('mouseover');
-    //     cy.get('.popup').should('exist');
-    //     cy.get('.popup .content').should('have.text', 'This example is canonical for the intent intenttest');
-    // });
+    it('should display a popup for canonical example', function () {
+        cy.visit('/project/bf/nlu/models');
+        cy.dataCy('nlu-menu-training-data').click();
+        cy.contains('Insert many').click();
+        cy.get('.batch-insert-input').type('hello');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
+        cy.get('[data-cy=save-button]').click();
+        cy.contains('Examples').click();
+        cy.dataCy('icon-gem')
+            .should('have.class', 'grey');
+        cy.dataCy('icon-gem')
+            .click({ force: true });
+        cy.wait(100);
+        cy.dataCy('icon-gem')
+            .should('have.class', 'black');
+        cy.dataCy('icon-gem')
+            .trigger('mouseover');
+        cy.get('.popup').should('exist');
+        cy.get('.popup .content').should('have.text', 'This example is canonical for the intent intenttest');
+    });
 
     it('should not be possible to delete or edit a canonical example', function () {
         cy.visit('/project/bf/nlu/models');
