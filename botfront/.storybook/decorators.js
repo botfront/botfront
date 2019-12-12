@@ -40,6 +40,7 @@ const intentsFixture = ['intent1', 'intent2', 'intent3', 'intent4'];
 const entitiesFixture = ['entity1', 'entity2', 'entity3', 'entity4'];
 
 const utteranceOne = {
+    canonical: true,
     intent: 'I_come_from',
     entities: [
         {
@@ -54,6 +55,7 @@ sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
 };
 
 const utteranceTwo = {
+    canonical: true,
     intent: 'I_want_peanuts_on_my_sundae',
     entities: [
         {
@@ -73,6 +75,7 @@ const utteranceTwo = {
 };
 
 const utteranceThree = {
+    canonical: true,
     intent: 'Im_summarizing_Moby_Dick',
     entities: [],
     text: `On the first day of the chase, Ahab smells the whale, climbs the mast, and sights Moby Dick. He claims the doubloon for himself, and orders all
@@ -83,6 +86,26 @@ Starbuck begs Ahab to desist, but Ahab vows to slay the white whale, even if he 
 
 const responseFixtures = [responseOne, responseTwo];
 const utterances = { utteranceOne, utteranceTwo, utteranceThree };
+
+const getCanonicalExamples = ({ intent, entities }) => ([
+    { intent: 'YAY', text: 'HUHUHU HUHUHUUH UUHUUH AHUAHS', entities: [] },
+    { intent: 'YAY2', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY3', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY4', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY5', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY6', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY7', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY8', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY9', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY10', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY11', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY12', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY13', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY14', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY15', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY16', text: 'HAHAHA', entities: [] },
+    { intent: 'YAY17', text: 'HAHAHA', entities: [] },
+]);
 
 const parseUtterance = u => ({
     intent: OOS_LABEL,
@@ -133,6 +156,7 @@ export const withProjectContext = (story) => {
                 getUtteranceFromPayload,
                 updateResponses,
                 language: 'en',
+                getCanonicalExamples,
             }}
         >
             {story()}

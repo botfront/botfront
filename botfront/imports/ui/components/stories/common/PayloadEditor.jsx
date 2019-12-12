@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Icon, Input } from 'semantic-ui-react';
-import IntentDropdown from '../../nlu/common/IntentDropdown';
+import IntentLabel from '../../nlu/common/IntentLabel';
 import EntityDropdown from '../../nlu/common/EntityDropdown';
 import FloatingIconButton from '../../common/FloatingIconButton';
 import DashedButton from './DashedButton';
@@ -9,24 +9,17 @@ import { ProjectContext } from '../../../layouts/context';
 
 const PayloadEditor = (props) => {
     const {
-        intents: availableIntents,
         entities: availableEntities,
-        addIntent,
         addEntity,
     } = useContext(ProjectContext);
     const {
         value: { intent, entities: originalEntities },
-        autofocusOnIntent,
         onChange,
     } = props;
     const entities = originalEntities.map(oe => ({
         entity: oe.entity,
         value: oe.entity,
         entityValue: oe.value,
-    }));
-    const intentOptions = [...new Set([...availableIntents, intent])].map(i => ({
-        text: i,
-        value: i,
     }));
 
     const getEntitiesInRasaFormat = ents => ents.map(({ entity, entityValue }) => ({
@@ -56,18 +49,11 @@ const PayloadEditor = (props) => {
             <Grid columns={2} className='story-payload-editor'>
                 <Grid.Row>
                     <Grid.Column>
-                        <IntentDropdown
-                            options={intentOptions}
+                        <IntentLabel
+                            value={intent}
+                            allowEditing
                             allowAdditions
-                            onChange={(_event, { value }) => {
-                                handleAddOrChangeIntent(value);
-                            }}
-                            onAddItem={(_event, { value }) => {
-                                addIntent(value);
-                                handleAddOrChangeIntent(value);
-                            }}
-                            intent={intent}
-                            autofocus={autofocusOnIntent && !intent}
+                            onChange={i => handleAddOrChangeIntent(i)}
                         />
                     </Grid.Column>
                 </Grid.Row>
@@ -152,13 +138,11 @@ const PayloadEditor = (props) => {
 PayloadEditor.propTypes = {
     onChange: PropTypes.func,
     value: PropTypes.object,
-    autofocusOnIntent: PropTypes.bool,
 };
 
 PayloadEditor.defaultProps = {
     onChange: () => {},
     value: { intent: '', entities: [] },
-    autofocusOnIntent: true,
 };
 
 export default PayloadEditor;

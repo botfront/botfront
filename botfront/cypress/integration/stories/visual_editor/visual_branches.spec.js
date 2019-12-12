@@ -36,11 +36,8 @@ const addBlock = (depth) => {
         .find('input')
         .type('I love typing into boxes.{enter}');
     getBranchEditor(depth)
-        .find('[data-cy=intent-label]')
-        .trigger('mouseover');
-    cy.dataCy('intent-dropdown')
+        .findCy('intent-label')
         .click({ force: true })
-        .find('input')
         .type('myTestIntent{enter}');
     getBranchEditor(depth)
         .findCy('save-new-user-input')
