@@ -121,7 +121,7 @@ export const getBotResponseById = async (_id) => {
     return botResponse;
 };
 
-export const currateResponses = (removedResponses, projectId) => {
+export const deletedRemovedResponses = (removedResponses, projectId) => {
     // run after an update to a story is saved to the database
     // console.log(removedResponses);
     const sharedResponses = Stories.find({ events: { $in: removedResponses } }, { fields: { events: true } }).fetch();

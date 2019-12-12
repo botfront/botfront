@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import { traverseStory, aggregateEvents } from '../../lib/story.utils';
 
 import { Stories } from './stories.collection';
-import { deleteResponse, currateResponses } from '../graphql/botResponses/mongo/botResponses';
+import { deleteResponse, deletedRemovedResponses } from '../graphql/botResponses/mongo/botResponses';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
@@ -40,28 +40,15 @@ Meteor.methods({
 
         // check if a response was removed
         const removedEvents = (oldEvents || []).filter(event => event.match(/^utter_/) && !newEvents.includes(event));
-        currateResponses(removedEvents, projectId);
+        deletedRemovedResponses(removedEvents, projectId);
         return result;
-    },
-
-    'stories.currateResponses'(removeEvents, fromStoryId) {
-        check(removeEvents, Array);
-        check(fromStoryId, String);
-        const sharedResponses = Stories.find({ events: { $in: removeEvents }, _id: { $ne: fromStoryId } }, { fields: { events: true } }).fetch();
-        if (removeEvents.length > 0) {
-            const deleteResponses = removeEvents.filter((event) => {
-                if (!sharedResponses) return true;
-                return !sharedResponses.find(({ events }) => events.includes(event));
-            });
-            deleteResponses.forEach(event => deleteResponse('bf', event));
-        }
     },
 
     async 'stories.delete'(story, projectId) {
         check(story, Object);
         check(projectId, String);
         const result = await Stories.remove(story);
-        currateResponses(story.events, projectId);
+        deletedRemovedResponses(story.events, projectId);
         return result;
     },
 
