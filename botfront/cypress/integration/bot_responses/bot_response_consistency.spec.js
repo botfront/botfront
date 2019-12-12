@@ -40,7 +40,7 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input').should('not.exist');
 
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('template-text').contains('test delete response default').should('not.exist');
+        cy.dataCy('response-text').contains('test delete response default').should('not.exist');
     });
 
     it('Should delete an existing response from the project when it is deleted in a story', function() {
@@ -66,7 +66,7 @@ describe('Bot responses', function() {
         cy.dataCy('confirm-yes').click({ force: true });
         
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('template-text').contains('test delete response delete story').should('not.exist');
+        cy.dataCy('response-text').contains('test delete response delete story').should('not.exist');
     });
 
     it('Should delete an existing response from the project when it is deleted in a story', function() {
@@ -96,7 +96,7 @@ describe('Bot responses', function() {
         cy.get('.ui.primary.button').contains('Delete').click();
      
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('template-text').contains('delete storyGroup test response').should('not.exist');
+        cy.dataCy('response-text').contains('delete storyGroup test response').should('not.exist');
     });
     
     it('Should delete an existing response from the project when it is deleted in a story', function() {
@@ -172,8 +172,8 @@ describe('Bot responses', function() {
         cy.dataCy('confirm-yes')
             .click({ force: true });
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('template-text').contains('first response should not exist').should('not.exist');
-        cy.dataCy('template-text').contains('second response should not exist').should('not.exist');
-        cy.dataCy('template-text').contains('third response should exist').should('exist');
+        cy.dataCy('response-text').contains('first response should not exist').should('not.exist');
+        cy.dataCy('response-text').contains('second response should not exist').should('not.exist');
+        cy.dataCy('response-text').contains('third response should exist').should('exist');
     });
 });

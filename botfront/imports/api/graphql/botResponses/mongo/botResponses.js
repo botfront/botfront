@@ -125,7 +125,7 @@ export const deletedRemovedResponses = (removedResponses, projectId) => {
     // run after an update to a story is saved to the database
     // console.log(removedResponses);
     const sharedResponses = Stories.find({ events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
-    if (removedResponses.length > 0) {
+    if (removedResponses && removedResponses.length > 0) {
         const deleteResponses = removedResponses.filter((event) => {
             if (!sharedResponses) return true;
             return !sharedResponses.find(({ events }) => events.includes(event));
