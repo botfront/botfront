@@ -26,14 +26,14 @@ export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
 
     // eslint-disable-next-line array-callback-return
-    newResponses.map((newResponse) => {
+    const answer = newResponses.map((newResponse) => {
         const properResponse = newResponse;
         properResponse.projectId = projectId;
         properResponse.values = formatTextOnSave(properResponse.values);
-        BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
+        return BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
     });
 
-    return { ok: 1 };
+    return Promise.all(answer);
 };
 
 export const updateResponse = async (projectId, _id, newResponse) => {
@@ -56,13 +56,22 @@ export const getBotResponses = async projectId => BotResponses.find({
 export const newGetBotResponses = async ({ projectId, template, language }) => {
     // template (optional): str || array
     // language (optional): str || array
-    let templateKey = {}; let languageKey = {};
-    if (template && Array.isArray(template)) templateKey = { key: { $in: template } };
-    if (template && typeof template === 'string') templateKey = { key: template };
-    if (language && Array.isArray(language)) languageKey = { 'values.lang': { $in: language } };
-    if (language && typeof language === 'string') languageKey = { 'values.lang': language };
+    let templateKey = {}; let languageKey = {}; let languageFilter = [];
+    if (template) {
+        const templateArray = typeof template === 'string' ? [template] : template;
+        templateKey = { key: { $in: templateArray } };
+    }
+    if (language) {
+        const languageArray = typeof language === 'string' ? [language] : language;
+        languageKey = { 'values.lang': { $in: languageArray } };
+        languageFilter = [{
+            $addFields: { values: { $filter: { input: '$values', as: 'value', cond: { $in: ['$$value.lang', languageArray] } } } },
+        }];
+    }
+    
     return BotResponses.aggregate([
         { $match: { projectId, ...templateKey, ...languageKey } },
+        ...languageFilter,
         { $unwind: '$values' },
         { $unwind: '$values.sequence' },
         {

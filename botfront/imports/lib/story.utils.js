@@ -246,7 +246,7 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
     return domains;
 };
 
-const getAllTemplates = async (projectId, language = '') => {
+export const getAllTemplates = async (projectId, language = '') => {
     // fetches templates and turns them into nested key-value format
     const templates = await newGetBotResponses({ projectId, language });
     return templates.reduce((acc, curr) => {

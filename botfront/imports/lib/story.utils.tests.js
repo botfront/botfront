@@ -4,7 +4,174 @@ import {
     appendBranchCheckpoints,
     flattenStory,
     addlinkCheckpoints,
+    getAllTemplates,
 } from './story.utils';
+import { createResponses } from '../api/graphql/botResponses/mongo/botResponses';
+
+
+/* to do:
+extractDomain
+getStoriesAndDomain
+accumulateExceptions
+*/
+
+const responseFixture = [
+    {
+        _id: '5deeb6e7bfecbd207f6f73ea',
+        key: 'utter_do_you_like_beans',
+        values: [
+            {
+                lang: 'en',
+                sequence: [
+                    {
+                        content: 'text: Do you like beans?\n',
+                        __typename: 'ContentContainer',
+                    },
+                ],
+                __typename: 'BotResponseValue',
+            },
+            {
+                lang: 'zz',
+                sequence: [
+                    {
+                        content: 'text: Do you like beans?\n',
+                        __typename: 'ContentContainer',
+                    },
+                ],
+                __typename: 'BotResponseValue',
+            },
+        ],
+        __typename: 'BotResponse',
+    },
+    {
+        _id: '5df13744e8036c83aa1aa745',
+        key: 'utter_XHEzYD8j',
+        values: [
+            {
+                lang: 'en',
+                sequence: [
+                    {
+                        content: 'text: choose\nbuttons:\n  - title: \'Yes\'\n    type: postback\n    payload: \'/I_want_a_shirt{"color":"red"}\'\n  - title: \'No\'\n    type: web_url\n    payload: \'http://google.com\'',
+                        __typename: 'ContentContainer',
+                    },
+                ],
+                __typename: 'BotResponseValue',
+            },
+            {
+                lang: 'zz',
+                sequence: [
+                    {
+                        content: 'text: choose\nbuttons:\n  - title: \'Yes\'\n    type: postback\n    payload: \'/I_want_a_shirt{"color":"red"}\'\n  - title: \'No\'\n    type: web_url\n    payload: \'http://google.com\'',
+                        __typename: 'ContentContainer',
+                    },
+                ],
+                __typename: 'BotResponseValue',
+            },
+        ],
+        __typename: 'BotResponse',
+    },
+];
+
+const responsesExported = {
+    en: {
+        utter_XHEzYD8j: [
+            {
+                text: 'choose',
+                buttons: [
+                    {
+                        title: 'Yes',
+                        type: 'postback',
+                        payload: '/I_want_a_shirt{"color":"red"}',
+                    },
+                    {
+                        title: 'No',
+                        type: 'web_url',
+                        payload: 'http://google.com',
+                    },
+                ],
+                language: 'en',
+            },
+        ],
+        utter_do_you_like_beans: [
+            {
+                text: 'Do you like beans?',
+                language: 'en',
+            },
+        ],
+    },
+    zz: {
+        utter_XHEzYD8j: [
+            {
+                text: 'choose',
+                buttons: [
+                    {
+                        title: 'Yes',
+                        type: 'postback',
+                        payload: '/I_want_a_shirt{"color":"red"}',
+                    },
+                    {
+                        title: 'No',
+                        type: 'web_url',
+                        payload: 'http://google.com',
+                    },
+                ],
+                language: 'zz',
+            },
+        ],
+        utter_do_you_like_beans: [
+            {
+                text: 'Do you like beans?',
+                language: 'zz',
+            },
+        ],
+    },
+    'en-zz': {
+        utter_XHEzYD8j: [
+            {
+                text: 'choose',
+                buttons: [
+                    {
+                        title: 'Yes',
+                        type: 'postback',
+                        payload: '/I_want_a_shirt{"color":"red"}',
+                    },
+                    {
+                        title: 'No',
+                        type: 'web_url',
+                        payload: 'http://google.com',
+                    },
+                ],
+                language: 'en',
+            },
+            {
+                text: 'choose',
+                buttons: [
+                    {
+                        title: 'Yes',
+                        type: 'postback',
+                        payload: '/I_want_a_shirt{"color":"red"}',
+                    },
+                    {
+                        title: 'No',
+                        type: 'web_url',
+                        payload: 'http://google.com',
+                    },
+                ],
+                language: 'zz',
+            },
+        ],
+        utter_do_you_like_beans: [
+            {
+                text: 'Do you like beans?',
+                language: 'en',
+            },
+            {
+                text: 'Do you like beans?',
+                language: 'zz',
+            },
+        ],
+    },
+};
 
 const storyFixture = {
     _id: 'n6ArDvmf7PEBrZ4ph',
@@ -339,6 +506,15 @@ const flattenedStory = [
     { story: '> MyRootStory__branches\nI\'m at level one', title: 'MyRootStory__MyLevel1Branch3' },
 ];
 
+if (Meteor.isServer) {
+    before(async () => {
+        import { connectToDb } from '../startup/server/apollo.js';
+
+        connectToDb();
+        await createResponses('test', responseFixture);
+    });
+}
+
 describe('proper traversal of story', function() {
     it('should resolve an existing path', function() {
         const {
@@ -376,3 +552,36 @@ describe('proper flattening of stories', function() {
         expect(flattenStory(checkpointedStory)).to.be.deep.equal(flattenedStory);
     });
 });
+
+if (Meteor.isServer) {
+    describe('getAllTemplates', () => {
+        it('fetch English responses', async () => {
+            const response = await getAllTemplates('test', 'en');
+            expect(response).to.be.deep.equal(
+                responsesExported.en,
+            );
+        });
+        it('fetch ZZ responses', async () => {
+            const response = await getAllTemplates('test', 'zz');
+            expect(response).to.be.deep.equal(
+                responsesExported.zz,
+            );
+        });
+        it('fetch English and ZZ responses', async () => {
+            const response = await getAllTemplates('test', ['en', 'zz']);
+            expect(response).to.be.deep.equal(
+                responsesExported['en-zz'],
+            );
+        });
+        it('fetch all responses', async () => {
+            const response = await getAllTemplates('test');
+            expect(response).to.be.deep.equal(
+                responsesExported['en-zz'],
+            );
+        });
+        it('fetch no responses', async () => {
+            const response = await getAllTemplates('test', 'nonexisting');
+            expect(response).to.be.deep.equal({});
+        });
+    });
+}
