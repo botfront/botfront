@@ -75,7 +75,7 @@ Meteor.methods({
             .fetch()
             .forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
         const result = await StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id });
-        currateResponses(eventstoRemove);
+        currateResponses(eventstoRemove, storyGroup.projectId);
         return result;
     },
 

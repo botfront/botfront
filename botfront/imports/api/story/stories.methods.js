@@ -13,12 +13,12 @@ Meteor.methods({
         return Stories.insert(story);
     },
 
-    async 'stories.update'(story) {
+    async 'stories.update'(story, projectId) {
         check(story, Object);
+        check(projectId, String);
         const {
             _id, path, ...rest
         } = story;
-        console.log(story.branches);
         if (!path) {
             return Stories.update({ _id }, { $set: { ...rest } });
         }
@@ -40,9 +40,7 @@ Meteor.methods({
 
         // check if a response was removed
         const removedEvents = (oldEvents || []).filter(event => event.match(/^utter_/) && !newEvents.includes(event));
-        console.log('removed: ', removedEvents.length);
-        console.log('----------------------------------');
-        currateResponses(removedEvents);
+        currateResponses(removedEvents, projectId);
         return result;
     },
 
@@ -59,10 +57,11 @@ Meteor.methods({
         }
     },
 
-    async 'stories.delete'(story) {
+    async 'stories.delete'(story, projectId) {
         check(story, Object);
+        check(projectId, String);
         const result = await Stories.remove(story);
-        currateResponses(story.events);
+        currateResponses(story.events, projectId);
         return result;
     },
 

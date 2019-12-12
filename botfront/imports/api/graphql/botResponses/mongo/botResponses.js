@@ -121,7 +121,7 @@ export const getBotResponseById = async (_id) => {
     return botResponse;
 };
 
-export const currateResponses = (removedResponses) => {
+export const currateResponses = (removedResponses, projectId) => {
     // run after an update to a story is saved to the database
     // console.log(removedResponses);
     const sharedResponses = Stories.find({ events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
@@ -130,6 +130,6 @@ export const currateResponses = (removedResponses) => {
             if (!sharedResponses) return true;
             return !sharedResponses.find(({ events }) => events.includes(event));
         });
-        deleteResponses.forEach(event => deleteResponse('bf', event));
+        deleteResponses.forEach(event => deleteResponse(projectId, event));
     }
 };

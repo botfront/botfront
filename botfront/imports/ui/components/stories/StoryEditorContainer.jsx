@@ -51,6 +51,7 @@ const StoryEditorContainer = ({
     branchPath,
     changeStoryPath,
     collapsed,
+    projectId,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots, templates } = useContext(ProjectContext);
@@ -75,6 +76,7 @@ const StoryEditorContainer = ({
                 ...content,
                 path: typeof path === 'string' ? [path] : path,
             },
+            projectId,
             wrapMeteorCallback(() => { onSaved(); }),
         );
     };
@@ -491,6 +493,7 @@ StoryEditorContainer.propTypes = {
     branchPath: PropTypes.array,
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
+    projectId: PropTypes.string,
 };
 
 StoryEditorContainer.defaultProps = {
@@ -498,6 +501,7 @@ StoryEditorContainer.defaultProps = {
     story: '',
     storyMode: 'markdown',
     branchPath: null,
+    projectId: '',
 };
 
 const mapStateToProps = (state, ownProps) => ({
@@ -509,6 +513,7 @@ const mapStateToProps = (state, ownProps) => ({
         .toJS(),
     collapsed: state.stories.getIn(['storiesCollapsed', ownProps.story._id], false),
     storyMode: state.stories.get('storyMode'),
+    projectId: state.settings.get('projectId'),
 });
 
 const mapDispatchToProps = {
