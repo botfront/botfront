@@ -55,6 +55,7 @@ module.exports = {
                 children: [
                     '/guide/rasa/stories/conversation_builder',
                     '/guide/rasa/stories/conversation_flows',
+                    '/guide/rasa/stories/disambiguation',
                     '/guide/rasa/stories/optimization',
                 ],
             },
