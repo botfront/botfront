@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.5-ee.6](https://github.com/botfront/botfront/compare/v0.18.5-ee.5...v0.18.5-ee.6) (2019-12-12)
+
+
+### Features
+
+* **intent dropdown:** show canonical example ([129f9eb](https://github.com/botfront/botfront/commit/129f9ebb581be6628e91928431238043362ac679))
+* **intent dropdown:** sort selected first ([d8f4f4b](https://github.com/botfront/botfront/commit/d8f4f4bb665c245b0a24688d9a573cf69a6b3121))
+* **intent label:** new intent label wip ([2c16be8](https://github.com/botfront/botfront/commit/2c16be8c0ed92be3be6dc0f9e72b81b83cc56ca0))
+* **project context:** refresh intents and entities on mount ([#354](https://github.com/botfront/botfront/issues/354)) ([bc36c91](https://github.com/botfront/botfront/commit/bc36c9174a6e2b0617ed0eb2d8d518684f644d1c))
+
+
+### Bug Fixes
+
+* wrong default API host in default-settings.docker-compose.dev.json ([5f932d6](https://github.com/botfront/botfront/commit/5f932d602f8c4d2cf9ee2058407de5456408e685))
+
 ### [0.18.5-ee.5](https://github.com/botfront/botfront/compare/v0.18.5-ee.4...v0.18.5-ee.5) (2019-12-06)
 
 
