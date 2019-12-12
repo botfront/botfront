@@ -374,20 +374,20 @@ export const getStoryEvents = (md, excludeEvents) => {
     return events;
 };
 
-export const aggregateEvents = (parentStory, updatedMd, updatedStoryId) => {
+export const aggregateEvents = (parentStory, update = {}) => {
     /*
     create an array of "utter_" and "action_" events in a story and it's child branches
 
-    if the story has been updated, the updatedMd will replace the md in the parentStory
-    when the branch id equals the updatedStoryId
+    the update will merge with the object in the parentStory at update._id.
+    update._id should be a branch _id or story _id
+
+    for example if the update objet has a branches property
+    it will replace the branches of the story or branch at the given _id with the branches in the update object
     */
     let events = [];
-    const traverseBranches = (story) => {
-        if (story._id === updatedStoryId) {
-            events = [...events, ...getStoryEvents(updatedMd, events)];
-        } else {
-            events = [...events, ...getStoryEvents(story.story, events)];
-        }
+    const traverseBranches = (incommingStory) => {
+        const story = incommingStory._id === update._id ? { ...incommingStory, ...update } : incommingStory;
+        events = [...events, ...getStoryEvents(story.story, events)];
         if (story.branches) {
             story.branches.forEach(branch => traverseBranches(branch));
         }

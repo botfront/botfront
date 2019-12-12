@@ -1,5 +1,6 @@
 import { dump as yamlDump, safeLoad as yamlLoad, safeDump } from 'js-yaml';
 import BotResponses from '../botResponses.model';
+import { Stories } from '../../../story/stories.collection';
 
 const formatNewlines = (sequence) => {
     const regexSpacedNewline = / {2}\n/g;
@@ -118,4 +119,17 @@ export const getBotResponseById = async (_id) => {
         _id,
     }).lean();
     return botResponse;
+};
+
+export const currateResponses = (removedResponses) => {
+    // run after an update to a story is saved to the database
+    // console.log(removedResponses);
+    const sharedResponses = Stories.find({ events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
+    if (removedResponses.length > 0) {
+        const deleteResponses = removedResponses.filter((event) => {
+            if (!sharedResponses) return true;
+            return !sharedResponses.find(({ events }) => events.includes(event));
+        });
+        deleteResponses.forEach(event => deleteResponse('bf', event));
+    }
 };
