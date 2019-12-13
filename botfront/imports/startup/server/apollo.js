@@ -21,6 +21,7 @@ export const connectToDb = () => {
 
 export const runAppolloServer = () => {
     const server = new ApolloServer({
+        uploads: false,
         typeDefs,
         resolvers,
         context: async ({ req }) => {
