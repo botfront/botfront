@@ -1,4 +1,4 @@
-import { dump as yamlDump, safeLoad as yamlLoad, safeDump } from 'js-yaml';
+import { safeDump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import BotResponses from '../botResponses.model';
 
 const formatNewlines = (sequence) => {
@@ -43,15 +43,29 @@ export const updateResponse = async (projectId, _id, newResponse) => {
     };
     return BotResponses.updateOne({ _id }, formatedResponse).exec();
 };
+
 export const createResponse = async (projectId, newResponse) => BotResponses.create({
     ...newResponse,
     projectId,
 });
-export const deleteResponse = async (projectId, key) => BotResponses.deleteOne({ projectId, key });
 
 export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
+
+export const deleteResponse = async (projectId, key) => BotResponses.findOneAndDelete({ projectId, key });
+
+export const getBotResponse = async (projectId, key) => BotResponses.findOne({
+    projectId,
+    key,
+}).lean();
+
+export const getBotResponseById = async (_id) => {
+    const botResponse = await BotResponses.findOne({
+        _id,
+    }).lean();
+    return botResponse;
+};
 
 export const newGetBotResponses = async ({ projectId, template, language }) => {
     // template (optional): str || array
@@ -85,37 +99,4 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
             },
         },
     ]);
-};
-
-/* considering this function does not only get the response we need to trigger the onAddReponse subscription
-when it does add a response the onAddResponse is used for that
-contratry to update, the list of response need to be constatly updated to properly check the exceptions */
-export const getBotResponse = async (projectId, key, lang = 'en', onAddResponse = () => {}) => {
-    let botResponse = await BotResponses.findOne({
-        projectId,
-        key,
-    }).lean();
-    const newSeq = {
-        sequence: [{ content: safeDump({ text: key }) }],
-        lang,
-    };
-    if (!botResponse) {
-        botResponse = { key, values: [newSeq] };
-        const newResponse = await createResponse(projectId, botResponse);
-        onAddResponse(projectId, newResponse);
-        return newResponse;
-    }
-    if (!botResponse.values.some(v => v.lang === lang)) {
-        botResponse.values.push(newSeq);
-        await updateResponse(projectId, botResponse._id, botResponse);
-    }
-    return botResponse;
-};
-
-
-export const getBotResponseById = async (_id) => {
-    const botResponse = await BotResponses.findOne({
-        _id,
-    }).lean();
-    return botResponse;
 };
