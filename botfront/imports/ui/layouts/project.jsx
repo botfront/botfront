@@ -13,8 +13,7 @@ import React from 'react';
 import {
     Placeholder, Header, Menu, Container, Button, Loader, Popup,
 } from 'semantic-ui-react';
-import { Mutation, Query } from '@apollo/react-components';
-import { ApolloConsumer } from '@apollo/react-common';
+import { Query } from '@apollo/react-components';
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
@@ -35,6 +34,7 @@ import {
 import {
     RESPONSE_ADDED,
 } from './graphQL/subscriptions';
+import apolloClient from '../../startup/client/apollo';
 
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
@@ -108,17 +108,6 @@ class Project extends React.Component {
         );
     }
 
-    getResponse = (key, callback = () => {}) => {
-        const { projectId, workingLanguage } = this.props;
-        Meteor.call(
-            'project.findTemplate',
-            projectId,
-            key,
-            workingLanguage || 'en',
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
-    }
-
     getIntercomUser = () => {
         const { _id, emails, profile } = Meteor.user();
         return {
@@ -180,12 +169,13 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    updateResponse = (updateFunc) => {
+    updateResponse = () => {
         const { projectId } = this.props;
         return (newResponse, callback = () => { }) => {
             const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
             const cleanedResponse = JSON.parse(JSON.stringify(newResponse), omitTypename);
-            updateFunc({
+            apolloClient.mutate({
+                mutation: UPDATE_BOT_RESPONSE,
                 variables: { projectId, response: cleanedResponse, _id: newResponse._id },
             }).then(
                 (result) => {
@@ -199,11 +189,12 @@ class Project extends React.Component {
     }
 
 
-    insertResponse = (insertFunc) => {
+    insertResponse = () => {
         const { projectId } = this.props;
         return (newResponse, callback = () => { }) => {
             // onCompleted and onError seems to have issues currently https://github.com/apollographql/react-apollo/issues/2293
-            insertFunc({
+            apolloClient.mutate({
+                mutation: CREATE_BOT_RESPONSE,
                 variables: { projectId, response: newResponse },
             }).then(
                 (result) => {
@@ -217,10 +208,10 @@ class Project extends React.Component {
     }
 
 
-    getResponse = (client) => {
+    getResponse = () => {
         const { projectId, workingLanguage } = this.props;
         return (key, callback = () => { }) => {
-            client.query({
+            apolloClient.query({
                 query: GET_BOT_RESPONSE,
                 variables: {
                     projectId,
@@ -324,59 +315,44 @@ class Project extends React.Component {
                         {!loading && (
                             <Query query={GET_BOT_RESPONSES} variables={{ projectId }}>
                                 {({ loadingResponses, data, subscribeToMore }) => (
-
-                                    <Mutation mutation={CREATE_BOT_RESPONSE}>
-                                        {createBotResponse => (
-                                            <Mutation mutation={UPDATE_BOT_RESPONSE}>
-                                                {updateBotResponse => (
-                                                    <ApolloConsumer>
-                                                        {client => (
-
-                                                            <ProjectContext.Provider
-                                                                value={{
-                                                                    templates: data && !loadingResponses ? data.botResponses : [],
-                                                                    intents,
-                                                                    entities,
-                                                                    slots,
-                                                                    language: workingLanguage,
-                                                                    insertResponse: this.insertResponse(createBotResponse),
-                                                                    updateResponse: this.updateResponse(updateBotResponse),
-                                                                    getResponse: this.getResponse(client),
-                                                                    addEntity: this.addEntity,
-                                                                    addIntent: this.addIntent,
-                                                                    getUtteranceFromPayload: this.getUtteranceFromPayload,
-                                                                    parseUtterance: this.parseUtterance,
-                                                                    addUtteranceToTrainingData: this.addUtteranceToTrainingData,
-                                                                    getCanonicalExamples: this.getCanonicalExamples,
-                                                                    refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
-                                                                    subscribeToNewBotResponses: () => subscribeToMore({
-                                                                        document: RESPONSE_ADDED,
-                                                                        variables: { projectId },
-                                                                        updateQuery: (prev, { subscriptionData }) => {
-                                                                            if (!subscriptionData.data) return prev;
-                                                                            const newBotResponse = subscriptionData.data.botResponseAdded;
-                                                                            return { prev, botResponses: [...prev.botResponses, newBotResponse] };
-                                                                        },
-                                                                    }),
-                                                                }}
-                                                            >
-                                                                <div data-cy='left-pane'>
-                                                                    {children}
-                                                                    {!showChatPane && channel && (
-                                                                        <Popup
-                                                                            trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
-                                                                            content='Try out your chatbot'
-                                                                        />
-                                                                    )}
-                                                                </div>
-                                                            </ProjectContext.Provider>
-                                                        )}
-                                                    </ApolloConsumer>
-                                                )}
-                                            </Mutation>
-                                        )}
-                                    </Mutation>
-
+                                    <ProjectContext.Provider
+                                        value={{
+                                            templates: data && !loadingResponses ? data.botResponses : [],
+                                            intents,
+                                            entities,
+                                            slots,
+                                            language: workingLanguage,
+                                            insertResponse: this.insertResponse(),
+                                            updateResponse: this.updateResponse(),
+                                            getResponse: this.getResponse(),
+                                            addEntity: this.addEntity,
+                                            addIntent: this.addIntent,
+                                            getUtteranceFromPayload: this.getUtteranceFromPayload,
+                                            parseUtterance: this.parseUtterance,
+                                            addUtteranceToTrainingData: this.addUtteranceToTrainingData,
+                                            getCanonicalExamples: this.getCanonicalExamples,
+                                            refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
+                                            subscribeToNewBotResponses: () => subscribeToMore({
+                                                document: RESPONSE_ADDED,
+                                                variables: { projectId },
+                                                updateQuery: (prev, { subscriptionData }) => {
+                                                    if (!subscriptionData.data) return prev;
+                                                    const newBotResponse = subscriptionData.data.botResponseAdded;
+                                                    return { prev, botResponses: [...prev.botResponses, newBotResponse] };
+                                                },
+                                            }),
+                                        }}
+                                    >
+                                        <div data-cy='left-pane'>
+                                            {children}
+                                            {!showChatPane && channel && (
+                                                <Popup
+                                                    trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
+                                                    content='Try out your chatbot'
+                                                />
+                                            )}
+                                        </div>
+                                    </ProjectContext.Provider>
                                 )}
                             </Query>
                         )}

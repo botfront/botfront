@@ -24,12 +24,14 @@ const BotResponsesContainer = (props) => {
     const [focus, setFocus] = useState(isNew ? 0 : null);
 
     const getSequence = () => {
+        console.log(template);
         if (!template) return [];
         const response = template.values
             .find(({ lang }) => lang === language);
         if (!response) return [];
         const { sequence } = response;
         if (!sequence) return [];
+        console.log(sequence);
         return sequence;
     };
 
