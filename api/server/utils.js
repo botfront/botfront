@@ -48,12 +48,9 @@ exports.checkApiKeyAgainstProject = (projectId, req) => {
 
 exports.isRequestTrusted = isRequestTrusted;
 
-const getStoryEvents = (md, excludeEvents) => {
+const getStoryEvents = (md) => {
     /*
-    return an array of the "utter_" and "action_" events in the given md
-    
-    excludedEvents is an array of event names ["utter_example", "action_ExhibitA"]
-    that will not be included in the returned array of events
+    return an array of the "utter_" and "action_" events in the md
     */
     let events = [];
     try {
@@ -61,7 +58,6 @@ const getStoryEvents = (md, excludeEvents) => {
         lines.forEach((line) => {
             const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
             if (prefix.trim() === '-'
-                && !excludeEvents.includes(content)
                 && !events.includes(content)
                 && (content.match(/^utter_/) || content.match(/^action_/))
             ) {
@@ -80,7 +76,7 @@ const getStoryEvents = (md, excludeEvents) => {
 exports.aggregateEvents = (parentStory) => {
     let events = [];
     const traverseBranches = (story) => {
-        events = [...events, ...getStoryEvents(story.story, events)];
+        events = Array.from(new Set([...events, ...getStoryEvents(story.story)]))
         if (story.branches) {
             story.branches.forEach(branch => traverseBranches(branch));
         }

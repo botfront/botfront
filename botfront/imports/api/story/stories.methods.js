@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import { traverseStory, aggregateEvents } from '../../lib/story.utils';
 
 import { Stories } from './stories.collection';
-import { deleteResponse, deletedRemovedResponses } from '../graphql/botResponses/mongo/botResponses';
+import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
@@ -40,7 +40,7 @@ Meteor.methods({
 
         // check if a response was removed
         const removedEvents = (oldEvents || []).filter(event => event.match(/^utter_/) && !newEvents.includes(event));
-        deletedRemovedResponses(removedEvents, projectId);
+        deleteResponsesRemovedFromStories(removedEvents, projectId);
         return result;
     },
 
@@ -48,7 +48,7 @@ Meteor.methods({
         check(story, Object);
         check(projectId, String);
         const result = await Stories.remove(story);
-        deletedRemovedResponses(story.events, projectId);
+        deleteResponsesRemovedFromStories(story.events, projectId);
         return result;
     },
 
