@@ -53,7 +53,7 @@ export default function DataTable(props) {
             >
                 <div className={`row inner-incoming-row ${clickable}`}>
                     {columns.map(c => (
-                        <div key={`${c.key}-${index}`} className='item' style={c.style}>
+                        <div key={`${c.key}-${index}`} className={`item ${c.class || ''}`} style={c.style}>
                             {c.render
                                 ? c.render(rowInfo)
                                 : data[index][c.key]
