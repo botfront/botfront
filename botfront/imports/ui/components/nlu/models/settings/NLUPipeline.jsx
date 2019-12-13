@@ -58,7 +58,7 @@ export default class NLUPipeline extends React.Component {
         return (
             <Tab.Pane>
                 <AutoForm schema={new SimpleSchema(this.schema)} model={this.sparseModel()} onSubmit={this.handleSave}>
-                    <AceField name='config' label='NLU Pipeline' fontSize={12} />
+                    <AceField name='config' label='NLU Pipeline' />
                     <ErrorsField />
                     {showConfirmation && (
                         <ChangesSaved

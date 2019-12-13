@@ -101,15 +101,15 @@
     .action-name-prefix {
         position: absolute;
         z-index: 100;
-        left: 0.67857143em;
-        top: ~"calc(calc(100% - 2em) - 0.55px)";
+        left: 1ch;
+        top: ~"calc(calc(100% - 2em) - 2px)";
     }
     .action-name-prefix + .input input {
         color: @grey;
         &:focus {
             color: @grey;
         }
-        padding-left: 6.5ch;
+        padding-left: 7.5ch;
     }
 }
 
@@ -288,7 +288,7 @@
     border: 1.5px dotted;
     vertical-align: baseline;
     margin: 0em 0.75em 0em 0em;
-    padding: 0.78571429em 1.5em 0.78571429em;
+    padding: 0.628571432em 1.5em 0.78571429em;
     text-transform: none;
     line-height: 1em;
     font-style: normal;
@@ -296,6 +296,7 @@
     text-decoration: none;
     border-radius: 0.28571429rem;
     font-weight: normal;
+    font-family: @fontFamily;
 }
 
 .dashed:focus {
@@ -360,6 +361,7 @@ div.add-entity-wrap {
         display: inline-block;
         line-height: 1.2;
         margin: auto 4px;
+        padding: 5px;
 
         .ui.primary.button {
             padding-left: 0.8em;

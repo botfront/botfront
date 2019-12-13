@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { TextArea } from 'semantic-ui-react';
-import { findDOMNode } from 'react-dom';
 import _, { find, sortBy } from 'lodash';
 
 import { examplePropType } from '../utils/ExampleUtils';
@@ -12,8 +11,8 @@ const emptyExample = () => ({ text: '', intent: '', entities: [] });
 export class ExampleTextEditor extends React.Component {
     constructor(props) {
         super(props);
-        this.selectionAnchorNode = null;
-        this.inputNode = null;
+        this.inputSelectionRef = null; // reference to the parent of the example text input
+        this.selectionAnchorRef = null; // reference to the example text input
 
         const { example } = props;
         this.state = { example };
@@ -21,13 +20,14 @@ export class ExampleTextEditor extends React.Component {
 
     componentDidMount() {
         const { highlightEntities } = this.props;
-
         if (highlightEntities) {
+            // CREATE ENTITY LISTENER
             document.addEventListener('mouseup', () => {
+                if (this.inputSelectionRef === null) return;
                 const { example: { text } = {} } = this.state;
                 const { anchorNode } = window.getSelection() || {};
-                const { selectionStart: start, selectionEnd: end } = this.inputNode || {};
-                if (anchorNode === this.selectionAnchorNode && this.isValidEntity() && start < end) {
+                const { selectionStart: start, selectionEnd: end } = this.inputSelectionRef.ref.current || {};
+                if (anchorNode === this.selectionAnchorRef && this.isValidEntity(start, end) && start < end) {
                     const value = text.substring(start, end);
                     this.insertEntity({
                         value,
@@ -50,7 +50,9 @@ export class ExampleTextEditor extends React.Component {
         
         let entity = find(entities, { entity: '' });
         if (!entity) {
-            entities.push({ entity: '', value: '', start: 0, end: 0 });
+            entities.push({
+                entity: '', value: '', start: 0, end: 0,
+            });
             entity = find(entities, { entity: '' });
         }
         
@@ -60,28 +62,24 @@ export class ExampleTextEditor extends React.Component {
         onChange(example);
     };
 
-    isValidEntity = () => (
-        (!this.getNextChar() || this.getNextChar().match(/\w/)) // null value means last char
-        && (!this.getPrevChar() || this.getPrevChar().match(/\w/)) // null value means first char
+    isValidEntity = (start, end) => (
+        (!this.getNextChar(end) || !this.getNextChar(end).match(/\w/)) // null value means last char
+        && (!this.getPrevChar(start) || !this.getPrevChar(start).match(/\w/)) // null value means first char
     );
 
-    getPrevChar = () => {
+    getPrevChar = (selectionStart) => {
         const { example: { text } = {} } = this.state;
-        const { inputNode: { selectionStart } = {} } = this.inputNode || {};
         if (selectionStart === 0) {
             return null;
         }
-        
         return text.substring(selectionStart - 1, selectionStart);
     };
 
-    getNextChar = () => {
+    getNextChar = (selectionEnd) => {
         const { example: { text } = {} } = this.state;
-        const { inputNode: { selectionEnd } = {} } = this.inputNode || {};
         if (selectionEnd === text.length - 1) {
             return null;
         }
-        
         return text.substring(selectionEnd, selectionEnd + 1);
     };
 
@@ -167,13 +165,12 @@ export class ExampleTextEditor extends React.Component {
     highLightEntitiesInText = () => {
         const { example: { entities, text } = {} } = this.state;
         const sortedEntities = sortBy(entities.filter(e => !e.extractor || e.extractor === 'ner_crf'), 'start');
-        const entityNames = sortedEntities.map(e => e.entity);
         const spans = [];
         sortedEntities.forEach((e, i) => {
-            if (i === 0 && e.start > 0) spans.push(<span>{text.substr(0, e.start)}</span>);
-            spans.push(<span style={{ ...getColor(entityNames.indexOf(e.entity)) }}>{text.substr(e.start, e.end - e.start)}</span>);
-            if (i < sortedEntities.length - 1) spans.push(<span>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
-            if (i === sortedEntities.length - 1) spans.push(<span>{text.substr(e.end, e.value.length - e.end)}</span>);
+            if (i === 0 && e.start > 0) spans.push(<span key='before-entities'>{text.substr(0, e.start)}</span>);
+            spans.push(<span key={`${e.entity}-${i}`} style={{ ...getColor(e.entity) }}>{text.substr(e.start, e.end - e.start)}</span>);
+            if (i < sortedEntities.length - 1) spans.push(<span key={`between-${e.entity}-${i}`}>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
+            if (i === sortedEntities.length - 1) spans.push(<span key='after-entities'>{text.substr(e.end, e.value.length - e.end)}</span>);
         });
         return (
             <div className='highlight'>
@@ -189,13 +186,13 @@ export class ExampleTextEditor extends React.Component {
     };
 
     render() {
-        const { example: { text = '', entities = [] } = {} } = this.state;
+        const { example: { text = '' } = {} } = this.state;
         const { highlightEntities } = this.props;
 
         return (
-            <div ref={node => this.selectionAnchorNode === node}>
+            <div ref={(node) => { this.selectionAnchorRef = node; }}>
                 <TextArea
-                    ref={node => this.inputNode === node && findDOMNode(node)}
+                    ref={(node) => { this.inputSelectionRef = node; }}
                     name='text'
                     placeholder='User says...'
                     autoheight='true'

@@ -11,7 +11,7 @@ import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
 import { setStoryCollapsed } from '../../store/actions/actions';
 
-import { ConversationOptionsContext } from '../utils/Context';
+import { ConversationOptionsContext } from './Context';
 
 const StoryTopMenu = ({
     onDelete,

@@ -58,7 +58,7 @@ class Credentials extends React.Component {
                     return newModel;
                 }}
             >
-                <AceField name='credentials' label='Credentials' fontSize={12} mode='yaml' />
+                <AceField name='credentials' label='Credentials' mode='yaml' />
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved

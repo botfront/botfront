@@ -10,24 +10,24 @@ const colors = [
     { name: 'red', bg: '#DB2828' },
     { name: 'yellow', bg: '#FBBD08' },
     { name: 'teal', bg: '#00B5AD' },
+    { name: 'pink', bg: '#E03997' },
+    { name: 'brown', bg: '#A5673F' },
     { name: 'olive', bg: '#B5CC18' },
 ];
 
-
-const unknownColor = { name: 'grey', bg: '#aaaaaa' };
+const hashCode = input => Math.abs(Array.from(`${input}`)
+    .reduce((s, c) => Math.imul(31, s) + c.charCodeAt(0) || 0, 0));
 
 /**
  * Get a color
- * @param an index
+ * @param index: an index, or string
  * @param name: return the color name if true, the color code if false
  * @returns {*}
  */
 export default function getColor(index, name = false) {
     const rand = randomSeed.create(TODAY);
     const startIndex = rand(colors.length);
-    const color = index < 0
-        ? unknownColor
-        : colors[(startIndex + index) % colors.length];
+    const color = colors[(startIndex + hashCode(index)) % colors.length];
 
     if (name) {
         return color.name;

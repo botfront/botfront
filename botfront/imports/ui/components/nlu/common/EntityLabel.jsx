@@ -1,19 +1,18 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import EntityPopup from '../example_editor/EntityPopup';
-import { ConversationOptionsContext } from './Context';
+import EntityPopup from '../../example_editor/EntityPopup';
+import { ProjectContext } from '../../../layouts/context';
+import getColor from '../../../../lib/getColors';
 
 function Entity({
-    value, onChange, onDelete, size, allowEditing, deletable,
+    value, onChange, onDelete, allowEditing, deletable, color,
 }) {
-    const { entities, addEntity } = useContext(ConversationOptionsContext);
+    const { entities } = useContext(ProjectContext);
+    const colorToRender = color || getColor(value.entity, true);
     return (
         <EntityPopup
             entity={value}
-            onAddOrChange={(_event, data) => {
-                addEntity(data.value);
-                onChange(data.value);
-            }}
+            onAddOrChange={onChange}
             onDelete={() => onDelete()}
             options={[...new Set([...entities, value.entity])].map(e => ({
                 text: e,
@@ -22,9 +21,9 @@ function Entity({
             deletable={deletable}
             length={value.start ? value.end - value.start : 0}
             trigger={(
-                <div className='entity-container'>
-                    <div className={`${size}-entity-text entity`}>{value.entity}</div>
-                    <div className={`${size}-entity-value entity`}>{value.value}</div>
+                <div data-cy='entity-label' className={`entity-container ${colorToRender}`}>
+                    <span className='float'>{value.entity}</span>
+                    <div>{value.value}</div>
                 </div>
             )}
             key={`${value.start || value.entity}${value.end || ''}`}
@@ -35,8 +34,8 @@ function Entity({
 
 Entity.propTypes = {
     onChange: PropTypes.func.isRequired,
+    color: PropTypes.string,
     onDelete: PropTypes.func,
-    size: PropTypes.string,
     deletable: PropTypes.bool,
     value: PropTypes.object.isRequired,
     allowEditing: PropTypes.bool,
@@ -44,9 +43,9 @@ Entity.propTypes = {
 
 Entity.defaultProps = {
     onDelete: () => {},
-    size: 'mini',
     deletable: false,
     allowEditing: false,
+    color: null,
 };
 
 export default Entity;

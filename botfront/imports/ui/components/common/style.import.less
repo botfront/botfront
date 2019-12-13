@@ -15,7 +15,17 @@
     }
 }
 
+.side-by-side {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    & > *:not(:last-child) {
+        margin-right: 20px !important;
+    }
+}
+
 .ui.menu.vertical {
+    border-radius: .28571429rem;
     .active.item.selected-blue {
     background-color: rgba(33,133,208,0.08);
     font-weight: bold;
@@ -26,27 +36,21 @@
 }
 
 .ui.vertical.menu {
-  .item:hover #ellipsis-icon {
+    .item:hover #ellipsis-icon {
     color: #999999;
     opacity: 1;
     }
 
-  .item > #ellipsis-icon {
+.item > #ellipsis-icon {
     opacity: 0;
     float: right;
     right: -8px;
     &:hover {
-      color: #828282;
+        color: #828282;
     }
     }
 }
-.ui.vertical.menu{
-    .item{
-        .story-group-menu-item{
-            height: 15px;
-        }
-    }
-}
+
 .ui.popup.tool-tip-popup{
     padding: 13px 17px;
     text-align: left;
@@ -56,7 +60,7 @@
     background-color: #d02121;
     &:hover {
         background-color:#c21616;
-      }
+    }
 }
 
 
@@ -66,7 +70,7 @@
     background-color: #f2f2f2 !important; //important is used by semantic-ui, making the usage of important the only way to overide it
     &:hover {
         background-color:#f2f2f2; //important is used by semantic-ui, making the usage of important the only way to overide it
-      } 
+    } 
 }
 
 

@@ -86,6 +86,7 @@ export default class ChitChat extends React.Component {
                             placeholder='Select chit chat intents'
                             multiple
                             selection
+                            fluid
                             value={selectedIntents}
                             search
                             onChange={this.handleIntentSelectorChange}

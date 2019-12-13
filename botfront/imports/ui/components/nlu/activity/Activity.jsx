@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import { Message, Segment, Label } from 'semantic-ui-react';
-import IntentViewer from '../models/IntentViewer';
-import NLUExampleText from '../../example_editor/NLUExampleText';
+import { Message, Segment } from 'semantic-ui-react';
+import IntentLabel from '../common/IntentLabel';
+import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
 
 import { populateActivity } from './ActivityInsertions';
@@ -12,6 +12,7 @@ import DataTable from '../../common/DataTable';
 import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/utils';
+import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 
@@ -35,8 +36,6 @@ function Activity(props) {
     const {
         model: { _id: modelId, language: lang },
         instance,
-        entities,
-        intents,
         project,
         project: { training: { endTime } = {} },
         projectId,
@@ -94,7 +93,7 @@ function Activity(props) {
     };
 
     const handleChangeInVisibleItems = (visibleData) => {
-        if (project.training.status === 'training') return;
+        if (isTraining(project)) return;
         if (reinterpreting.length > 49) return;
         const reinterpretable = visibleData
             .filter(isUtteranceOutdated)
@@ -119,21 +118,14 @@ function Activity(props) {
 
     const renderIntent = (row) => {
         const { datum } = row;
-        if (isUtteranceOutdated(datum)) {
-            return (
-                <Label color='grey' basic data-cy='intent-label'>
-                    {datum.intent || '-'}
-                </Label>
-            );
-        }
         return (
-            <IntentViewer
-                intents={intents.map(i => ({ value: i, text: i }))}
-                example={datum}
-                intent={datum.intent || ''}
-                projectId={projectId}
+            <IntentLabel
+                disabled={isUtteranceOutdated(datum)}
+                value={datum.intent ? datum.intent : ''}
+                allowEditing={!isUtteranceOutdated(datum)}
+                allowAdditions
+                onChange={intent => handleUpdate([{ _id: datum._id, intent, confidence: null }], datum)}
                 enableReset
-                onSave={({ _id, intent, ...rest }) => handleUpdate([{ _id, intent, confidence: null }], rest)}
             />
         );
     };
@@ -141,17 +133,16 @@ function Activity(props) {
     const renderExample = (row) => {
         const { datum } = row;
         return (
-            <NLUExampleText
-                example={datum}
-                entities={entities}
-                showLabels
-                onSave={({ _id, entities: ents, ...rest }) => handleUpdate([{
+            <UserUtteranceViewer
+                value={datum}
+                onChange={({ _id, entities: ents, ...rest }) => handleUpdate([{
                     _id,
                     entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
-                }], ...rest)}
-                editable={!isUtteranceOutdated(datum)}
-                disablePopup={isUtteranceOutdated(datum)}
+                }], rest)}
                 projectId={projectId}
+                disabled={isUtteranceOutdated(datum)}
+                disableEditing={isUtteranceOutdated(datum)}
+                showIntent={false}
             />
         );
     };
@@ -168,16 +159,16 @@ function Activity(props) {
 
     const columns = [
         {
-            header: '%', key: 'confidence', style: { width: '40px' }, render: renderConfidence,
+            key: 'confidence', style: { width: '51px', minWidth: '51px' }, render: renderConfidence,
         },
         {
-            header: 'Intent', key: 'intent', style: { width: '200px' }, render: renderIntent,
+            key: 'intent', style: { width: '180px', minWidth: '180px', overflow: 'hidden' }, render: renderIntent,
         },
         {
-            header: 'Example', key: 'text', style: { width: '100%' }, render: renderExample,
+            key: 'text', style: { width: '100%' }, render: renderExample,
         },
         {
-            header: 'Actions', key: 'actions', style: { width: '110px' }, render: renderActions,
+            key: 'actions', style: { width: '110px' }, render: renderActions,
         },
     ];
 
@@ -223,6 +214,7 @@ function Activity(props) {
                         hasNextPage={hasNextPage}
                         loadMore={loading ? () => {} : loadMore}
                         onChangeInVisibleItems={handleChangeInVisibleItems}
+                        className='new-utterances-table'
                     />
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
@@ -236,8 +228,6 @@ Activity.propTypes = {
     model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
     project: PropTypes.object.isRequired,
-    entities: PropTypes.array.isRequired,
-    intents: PropTypes.array.isRequired,
     linkRender: PropTypes.func.isRequired,
 };
 
