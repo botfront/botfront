@@ -100,7 +100,7 @@ describe('NLU canonical examples', function () {
             .first()
             .should('have.class', 'grey');
         cy.dataCy('icon-gem')
-            .last(1)
+            .last()
             .should('have.class', 'black');
     });
 
