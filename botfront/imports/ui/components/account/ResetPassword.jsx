@@ -3,6 +3,7 @@ import { browserHistory } from 'react-router';
 import { Segment } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import {
     AutoForm, ErrorsField, SubmitField, TextField,
 } from 'uniforms-semantic';
@@ -31,6 +32,8 @@ const resetPasswordSchema = new SimpleSchema(
     },
     { tracker: Tracker },
 );
+
+const resetPasswordSchemaBridge = new SimpleSchema2Bridge(resetPasswordSchema);
 
 resetPasswordSchema.messageBox.messages({
     en: {
@@ -93,7 +96,7 @@ class ResetPassword extends React.Component {
         const { settings: { settings: { public: { reCatpchaSiteKey } = { reCatpchaSiteKey: null } } = {} } = {} } = this.props;
         return (
             <Segment>
-                <AutoForm model={{}} schema={resetPasswordSchema} onSubmit={this.handleResetPassword} className='ui large' disabled={loading}>
+                <AutoForm model={{}} schema={resetPasswordSchemaBridge} onSubmit={this.handleResetPassword} className='ui large' disabled={loading}>
                     <ErrorsField />
                     <TextField name='password' iconLeft='lock' placeholder='Password' type='password' label={null} />
                     <TextField name='passwordVerify' iconLeft='lock' placeholder='Repeat password' type='password' label={null} />

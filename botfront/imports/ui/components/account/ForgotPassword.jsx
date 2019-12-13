@@ -9,6 +9,7 @@ import {
 } from 'uniforms-semantic';
 import { Meteor } from 'meteor/meteor';
 import ReCAPTCHA from 'react-google-recaptcha';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import PropTypes from 'prop-types';
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -20,6 +21,8 @@ class ForgotPassword extends React.Component {
         },
         { tracker: Tracker },
     );
+
+    forgotPasswordFormSchemaBridge = new SimpleSchema2Bridge(this.forgotPasswordFormSchema)
 
     constructor(props) {
         super(props);
@@ -41,7 +44,7 @@ class ForgotPassword extends React.Component {
         };
         return (
             <Segment>
-                <AutoForm model={{}} schema={this.forgotPasswordFormSchema} onSubmit={this.handlePasswordLost} className='ui large' disabled={loading}>
+                <AutoForm model={{}} schema={this.forgotPasswordFormSchemaBridge} onSubmit={this.handlePasswordLost} className='ui large' disabled={loading}>
                     <TextField name='email' iconLeft='user' placeholder='Email' label={null} />
                     <ErrorsField />
                     {reCatpchaSiteKey && (

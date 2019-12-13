@@ -35,9 +35,6 @@ describe('intial setup', function() {
         cy.get('[data-cy=account-step]').click();
         cy.contains('Continue').click();
 
-        cy.get('input:first').type('Duedix');
-        cy.get('[data-cy=project-create-button]').click();
-
         cy.contains('Select the default language').click();
         cy.get('[role=listbox]')
             .contains('English')
@@ -56,7 +53,7 @@ describe('intial setup', function() {
 
         cy.wait(10000);
         cy.url().should('include', '/stories');
-        
+
         // cy.url().then((url) => {
         // This gets the project id
         //     const id = url.match(/project\/(.*?)\/nlu/i)[1];
