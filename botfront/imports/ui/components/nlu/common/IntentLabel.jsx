@@ -94,7 +94,12 @@ const Intent = React.forwardRef((props, ref) => {
     };
 
     const columns = [
-        { key: 'intent', style: { width: '200px' }, render: renderIntent },
+        {
+            key: 'intent',
+            style: { width: '170px', maxWidth: '170px', minWidth: '170px' },
+            render: renderIntent,
+            class: 'intent',
+        },
         { key: 'text', style: { width: '100%' }, render: renderExample },
     ];
 
@@ -119,6 +124,7 @@ const Intent = React.forwardRef((props, ref) => {
                     data={dataToDisplay}
                     gutterSize={0}
                     onClickRow={({ datum: { intent } }) => handleChange(intent)}
+                    className='intent-dropdown'
                 />
             ) : (
                 <Button
