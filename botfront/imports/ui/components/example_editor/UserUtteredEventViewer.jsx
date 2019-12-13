@@ -11,8 +11,11 @@ export default function UserUtteredEventViewer({ event }) {
             <Comment.Metadata>
                 <span>{event.timestamp.format('ddd, MMM Do, h:mm:ss a')}</span>
             </Comment.Metadata>
-            <Comment.Text>
+            <Comment.Text className='conversation-user-utterance'>
                 <UserUtteranceViewer value={event.example} disableEditing />
+                <Comment.Metadata className='conversation-utterance-confidence'>
+                    ({event.confidence === 1 ? '100%' : `${(event.confidence * 100).toFixed(2)}%`})
+                </Comment.Metadata>
             </Comment.Text>
             <Comment.Actions>
             </Comment.Actions>

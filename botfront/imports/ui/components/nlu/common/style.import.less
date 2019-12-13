@@ -60,10 +60,12 @@
         bottom: 2px;
         visibility: hidden;
     }
-    .content-on-label {
+    &:not(.uneditable){
+        .content-on-label {
         min-width: 130px;
         position: relative;
         bottom: 1px;
+        }
     }
     &:not(.disabled):not(.uneditable):hover, &.selected {
         border: 1px solid rgba(176, 176, 176, 0.4);
