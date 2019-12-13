@@ -111,6 +111,7 @@ function ConversationDialogueViewer({ tracker, mode, messageIdInView }) {
             const userSays = {
                 example,
                 timestamp: moment.unix(event.timestamp),
+                confidence: ExampleUtils.getConfidence(event.parse_data),
             };
 
             if (!currentTurn.userSays && currentTurn.botResponses.length === 0) {
