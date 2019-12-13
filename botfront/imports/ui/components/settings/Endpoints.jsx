@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { cloneDeep } from 'lodash';
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
 import { Endpoints as EndpointsCollection } from '../../../api/endpoints/endpoints.collection';
 import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
@@ -65,7 +66,7 @@ class Endpoints extends React.Component {
             <AutoForm
                 key={selectedEnvironment}
                 disabled={!!saving || !can('project-settings:w', projectId)}
-                schema={EndpointsSchema}
+                schema={new SimpleSchema2Bridge(EndpointsSchema)}
                 model={endpoints}
                 onSubmit={this.onSave}
                 modelTransform={(mode, model) => {

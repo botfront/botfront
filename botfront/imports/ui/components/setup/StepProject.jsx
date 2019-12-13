@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-    AutoForm, AutoField, ErrorsField, SubmitField,
+    AutoForm, HiddenField, ErrorsField, SubmitField,
 } from 'uniforms-semantic';
 import PropTypes from 'prop-types';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import SelectField from '../nlu/common/SelectLanguage';
 import { newProjectSchema } from '../../../api/setup';
 
@@ -10,15 +11,24 @@ import { newProjectSchema } from '../../../api/setup';
 class StepProjectComponent extends React.Component {
     render() {
         const { onSubmit, data } = this.props;
+        const bridge = new SimpleSchema2Bridge(newProjectSchema);
         return (
-            <AutoForm model={data} schema={newProjectSchema} onSubmit={onSubmit}>
+            <AutoForm model={data} schema={bridge} onSubmit={onSubmit}>
                 <br />
-                <AutoField
+                <span className='step-text'>
+                    What is the default language of your project?
+                </span>
+                <br />
+                <br />
+                <HiddenField
                     name='project'
-                    placeholder='Choose a name for your first project (you can change it later)'
-                    label={null}
+                    value='My Project'
                 />
-                <SelectField name='language' label={null} placeholder='Select the default language of your project' />
+                <SelectField
+                    label={null}
+                    name='language'
+                    placeholder='Select the default language of your project'
+                />
                 <br />
                 <ErrorsField />
                 <div style={{ textAlign: 'center' }}>

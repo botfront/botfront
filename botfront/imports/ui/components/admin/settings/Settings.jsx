@@ -10,6 +10,7 @@ import 'react-s-alert/dist/s-alert-default.css';
 import {
     AutoForm, ErrorsField, SubmitField, AutoField,
 } from 'uniforms-semantic';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
@@ -49,7 +50,7 @@ class Settings extends React.Component {
             <Message
                 info
                 icon='question circle'
-                content={
+                content={(
                     <>
                         If you want to secure your login page with a Catpcha. &nbsp;
                         <a target='_blank' rel='noopener noreferrer' href='https://developers.google.com/recaptcha'>
@@ -57,7 +58,7 @@ class Settings extends React.Component {
                         </a>
                         . Only v2 is supported.
                     </>
-                }
+                )}
             />
             <AutoField name='settings.public.reCatpchaSiteKey' />
             <AutoField name='settings.private.reCatpchaSecretServerKey' />
@@ -180,7 +181,7 @@ class Settings extends React.Component {
         <>
             <PageMenu icon='setting' title='Global Settings' />
             <Container id='admin-settings' data-cy='admin-settings-menu'>
-                <AutoForm schema={schema} model={settings} onSubmit={this.onSave} disabled={saving}>
+                <AutoForm schema={new SimpleSchema2Bridge(schema)} model={settings} onSubmit={this.onSave} disabled={saving}>
                     <Tab menu={{ vertical: true }} grid={{ paneWidth: 13, tabWidth: 3 }} panes={this.getSettingsPanes()} />
                     <br />
                     <Grid>

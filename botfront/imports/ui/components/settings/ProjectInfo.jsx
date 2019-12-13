@@ -7,6 +7,7 @@ import { browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 import { AutoForm, SubmitField, ErrorsField } from 'uniforms-semantic';
 import { Dropdown, Form, Message } from 'semantic-ui-react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { ProjectsSchema as projectsSchemaDefault } from '../../../api/project/project.schema.default';
 import { Projects } from '../../../api/project/project.collection';
 import InfoField from '../utils/InfoField';
@@ -129,11 +130,12 @@ class ProjectInfo extends React.Component {
         const { saving, value } = this.state;
         const projectsSchema = Projects.simpleSchema();
         const hasProjectWritePermission = !can('project-settings:w', project._id);
+        const bridge = projectsSchema ? new SimpleSchema2Bridge(projectsSchema) : new SimpleSchema2Bridge(projectsSchemaDefault);
         return (
             <>
                 {ready && (
                     <AutoForm
-                        schema={projectsSchema || projectsSchemaDefault}
+                        schema={bridge}
                         model={project}
                         onSubmit={updateProject => this.onSave(updateProject, modelLanguages)}
                         disabled={!!saving || hasProjectWritePermission}

@@ -1,8 +1,8 @@
 import { AutoForm, AutoField, ErrorsField } from 'uniforms-semantic';
 import { Segment, Popup, Icon } from 'semantic-ui-react';
 import React, { useEffect, useState } from 'react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import PropTypes from 'prop-types';
-
 import { slotSchemas } from '../../../api/slots/slots.schema';
 import ConfirmPopup from '../common/ConfirmPopup';
 import SaveButton from '../utils/SaveButton';
@@ -35,7 +35,7 @@ function SlotEditor(props) {
         >
             <AutoForm
                 model={slot}
-                schema={slotSchemas[type]}
+                schema={new SimpleSchema2Bridge(slotSchemas[type])}
                 onSubmit={doc => onSave(doc, () => {
                     setSaved(true);
                     if (!newSlot) {

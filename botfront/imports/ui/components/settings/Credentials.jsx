@@ -6,6 +6,7 @@ import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
 import { CredentialsSchema, Credentials as CredentialsCollection } from '../../../api/credentials';
 import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
@@ -65,7 +66,7 @@ class Credentials extends React.Component {
             <AutoForm
                 key={selectedEnvironment}
                 disabled={!!saving || !can('project-settings:w', projectId)}
-                schema={CredentialsSchema}
+                schema={new SimpleSchema2Bridge(CredentialsSchema)}
                 model={credentials}
                 onSubmit={this.onSave}
                 modelTransform={(mode, model) => {

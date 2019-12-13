@@ -107,6 +107,7 @@ The following table shows the environment variables required by each service. Be
 | `MAIL_URL`  |  An SMTP url if you want to use the password reset feature  | `botfront` |
 | `BF_PROJECT_ID` | The Botfront project ID (typically `bf`) | `rasa` |
 | `BF_URL` | The `botfront-api` root url | `rasa`  `actions`|
+| `API_KEY` | GraphQL API key. You can then set the `authorization` header to the `API_KEY` value to perform GraphQL operations | `botfront`|
 | `MODELS_LOCAL_PATH` |  Where the trained model returned by Rasa is stored locally. Defaults to `/app/models/` and should not be changed in a containerized environment. The Botfront Dockerfile exposes a volume with that path | `botfront` (optional) |
 
 ## Volumes

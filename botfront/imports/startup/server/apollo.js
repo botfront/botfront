@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import { WebApp } from 'meteor/webapp';
 import { getUser } from 'meteor/apollo';
 import { execute, subscribe } from 'graphql';
@@ -28,16 +28,20 @@ const schema = makeExecutableSchema({
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: async ({ req }) => ({
-        user: await getUser(req.headers.authorization),
-    }),
+    context: async ({ req }) => {
+        const { headers: { authorization } } = req;
+        if (!authorization) throw new AuthenticationError('Missing authorization header');
+        if (process.env.API_KEY && process.env.API_KEY === authorization) return ({});
+        const user = await getUser(req.headers.authorization);
+        if (!user) throw new AuthenticationError('Unauthorized');
+        return ({ user });
+    },
 });
 
 server.applyMiddleware({
     app: WebApp.connectHandlers,
     path: '/graphql',
 });
-
 
 WebApp.connectHandlers.use('/graphql', (req, res) => {
     if (req.method === 'GET') {
