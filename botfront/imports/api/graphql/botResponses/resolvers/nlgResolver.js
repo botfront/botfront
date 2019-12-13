@@ -2,7 +2,7 @@ import { safeLoad } from 'js-yaml';
 import { sample } from 'lodash';
 import { newGetBotResponses } from '../mongo/botResponses';
 
-const subText = (text, slots) => {
+const interpolateSlots = (text, slots) => {
     // fills in {slotname} in templates
     const slotSubs = Object.entries(slots).map(s => [`{${s[0]}}`, s[1] || '']);
     let subbedText = text;
@@ -27,7 +27,7 @@ const resolveTemplate = async ({
     if (!source) throw new Error('No response given criteria');
     const payload = safeLoad(sample(source).payload);
     if (payload.key) delete payload.key;
-    if (payload.text) payload.text = subText(payload.text, slots);
+    if (payload.text) payload.text = interpolateSlots(payload.text, slots);
     return payload;
 };
 
