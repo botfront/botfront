@@ -53,9 +53,29 @@ type ConversationContainer {
 }
 
 type Conversation {
-    latest_message: Message
-    events: [Event]!
-    sender_id: String
+  latest_message: Message,
+  events: [Event],
+  sender_id: String,
+  slots: Any,
+  latest_event_time: Float,
+  latest_action_name: String,
+  latest_input_channel: String,
+  followup_action: String,
+  active_form: Any,
+  paused: Boolean,
+}
+
+input ConversationInput {
+  latest_message: MessageInput,
+  events: [EventInput],
+  sender_id: String,
+  slots: Any,
+  latest_event_time: Float,
+  latest_action_name: String,
+  latest_input_channel: String,
+  followup_action: String,
+  active_form: Any,
+  paused: Boolean,
 }
 
 type Message {
@@ -67,11 +87,20 @@ type Message {
     entities: [Entity]
 }
 
+input MessageInput {
+  intent_ranking: [IntentInput!],
+  intent: IntentInput!,
+  text: String,
+  language: String,
+  project: String,
+  entities: [EntityInput] ,
+}
+
 type Entity {
   entity: String,
   value: String,
-  start: Int!,
-  end: Int!,
+  start: Int,
+  end: Int,
   confidence: Float,
   extractor: String,
   processors: [String],
@@ -80,8 +109,8 @@ type Entity {
 input EntityInput {
   entity: String,
   value: String,
-  start: Int!,
-  end: Int!,
+  start: Int,
+  end: Int,
   confidence: Float,
   extractor: String,
   processors: [String],
@@ -92,6 +121,11 @@ type Intent {
     name: String
 }
 
+input IntentInput {
+  confidence: Float,
+  name: String,
+}
+
 type Event {
   event: String,
   text:  String,
@@ -100,15 +134,24 @@ type Event {
   policy: String,
   confidence: Float,
   parse_data: Message,
-  data:Data,
-  message_id:String,
+  input_channel: String,
+  message_id: String,
+  metadata: Any,
+  data: Any,
+  value: Any,
 }
 
-type Data {
-    elements: String
-    quick_replies: String
-    buttons: String
-    attachment: String
-    image: String
-    custom: String
+input EventInput {
+  event: String,
+  text:  String,
+  timestamp: Float,
+  name: String,
+  policy: String,
+  confidence: Float,
+  parse_data: MessageInput,
+  input_channel: String,
+  message_id: String,
+  metadata: Any,
+  data: Any,
+  value: Any,
 }

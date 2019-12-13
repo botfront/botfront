@@ -452,7 +452,6 @@ describe('stories', function() {
             .click();
         cy.dataCy('connected-to').should('exist');
         cy.dataCy('story-top-menu')
-            .last()
             .find('.trash.disabled.icon')
             .should('exist');
     });

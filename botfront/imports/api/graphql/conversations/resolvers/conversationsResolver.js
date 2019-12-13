@@ -86,15 +86,7 @@ export default {
         policy: (parent, _, __) => parent.policy,
         confidence: (parent, _, __) => parent.confidence,
         parse_data: (parent, _, __) => parent.parse_data,
-        data: (parent, _, __) => parent.event,
+        data: (parent, _, __) => parent.data,
         message_id: (parent, _, __) => parent.message_id,
-    },
-    Data: {
-        elements: (parent, _, __) => parent.elements,
-        quick_replies: (parent, _, __) => parent.quick_replies,
-        buttons: (parent, _, __) => parent.buttons,
-        attachment: (parent, _, __) => parent.attachment,
-        image: (parent, _, __) => parent.image,
-        custom: (parent, _, __) => parent.custom,
     },
 };

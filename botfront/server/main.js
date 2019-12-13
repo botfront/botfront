@@ -37,6 +37,7 @@ import '../imports/lib/scopes';
 import '../imports/api/importExport/import.methods';
 import '../imports/api/importExport/export.methods';
 import '../imports/startup/server/apollo';
+import '../imports/api/graphql/botResponses/botResponses.model';
 
 
 import './migrations';

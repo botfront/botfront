@@ -202,7 +202,6 @@ const ExportProject = ({
                                     Consider removing Botfront specific NLU components, such as:
                                     <List as='ul'>
                                         <List.Item as='li'>rasa_addons.nlu.components.gazette.Gazette</List.Item>
-                                        <List.Item as='li'>rasa_addons.nlu.components.language_setter.LanguageSetter</List.Item>
                                     </List>
                                 </p>
                                 <h5>Responses</h5>

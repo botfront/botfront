@@ -1,0 +1,13 @@
+type Query {
+    getConfig(
+        projectId: String!,
+        output: String,
+        environment: String,
+    ): Config
+}
+
+type Config {
+    credentials: Any,
+    endpoints: Any,
+}
+

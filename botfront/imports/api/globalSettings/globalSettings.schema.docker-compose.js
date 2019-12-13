@@ -4,6 +4,7 @@ import { validateYaml } from '../../lib/utils';
 
 export const privateSettingsSchema = basePrivateSettingsSchema.extend({
     bfApiHost: { type: String, optional: true },
+    rootUrl: { type: String, optional: true },
     actionsServerUrl: { type: String, optional: true },
     rasaUrl: { type: String, optional: true },
     defaultDefaultDomain: { type: String, optional: true, custom: validateYaml },
