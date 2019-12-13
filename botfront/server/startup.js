@@ -2,8 +2,21 @@ import { DDPRateLimiter } from 'meteor/ddp-rate-limiter';
 import { Accounts } from 'meteor/accounts-base';
 import dotenv from 'dotenv';
 
+import { createGraphQLPublication } from 'meteor/swydo:ddp-apollo';
+import { makeExecutableSchema } from 'graphql-tools';
+import { typeDefs, resolvers } from '../imports/api/graphql/index';
+
+
 Meteor.startup(function() {
     if (Meteor.isServer) {
+        const schema = makeExecutableSchema({
+            typeDefs,
+            resolvers,
+        });
+
+        createGraphQLPublication({
+            schema,
+        });
         dotenv.config({
             path: `${process.env.PWD}/.env`,
         });
