@@ -75,40 +75,47 @@ function ResponseMetadataForm({
         // Remove enabled fields
         if (newModel.domHighlight && newModel.domHighlight.enabled) delete newModel.domHighlight.enabled;
         if (newModel.customCss && newModel.customCss.enabled) delete newModel.customCss.enabled;
-        if (newModel.customCss && newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks.enabled;
+        if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks.enabled;
 
         return newModel;
     };
 
-    const validator = (model) => {
+    const getPageChangeErrors = ({ pageChangeCallbacks }) => {
         const errors = [];
-        if (model.pageChangeCallbacks && model.pageChangeCallbacks.enabled) {
-            if (!model.pageChangeCallbacks.pageChanges || model.pageChangeCallbacks.pageChanges.length < 1) {
+        if (pageChangeCallbacks && pageChangeCallbacks.enabled) {
+            if (!pageChangeCallbacks.pageChanges || pageChangeCallbacks.pageChanges.length < 1) {
                 errors.push({ name: 'pageChangeCallback.pageChanges', message: 'If you enable page changes you should at least have one' });
             }
+        }
 
-            if (model.pageChangeCallbacks.pageChanges && model.pageChangeCallbacks.pageChanges.length) {
-                const missing = [];
-                model.pageChangeCallbacks.pageChanges.forEach((i) => {
-                    if (!i.url || !i.url.length < 0 || !i.callbackIntent || !i.callbackIntent.length < 0) { missing.push(i); }
-                });
-                if (missing.length) {
-                    errors.push({ name: 'pageChangeCallback.pageChanges', message: 'One of your Page Changes listener has a URL or an Intent Callback missing' });
-                }
-
-                if (!model.pageChangeCallbacks.errorIntent || model.pageChangeCallbacks.length < 1) {
-                    errors.push({ name: 'pageChangeCallback.pageChanges.errorIntent', message: 'You are listening to page changes but the Error Intent is missing.' });
-                }
+        if (pageChangeCallbacks.pageChanges && pageChangeCallbacks.pageChanges.length) {
+            const missing = [];
+            pageChangeCallbacks.pageChanges.forEach((i) => {
+                if (!i.url || !i.url.length < 0 || !i.callbackIntent || !i.callbackIntent.length < 0) { missing.push(i); }
+            });
+            if (missing.length) {
+                errors.push({ name: 'pageChangeCallback.pageChanges', message: 'One of your Page Changes listener has a URL or an Intent Callback missing' });
             }
 
-            if (model.customCss.enabled && !model.customCss.text && !model.customCssContainer) {
-                errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you set neither text nor message container properties' });
-            }
-
-            if (model.domHighlight.enabled && ((!model.domHighlight.selector || !model.domHighlight.selector.length) || (!model.domHighlight.css || !model.domHighlight.css.length))) {
-                errors.push({ name: 'domHighlight', message: 'When enabling DOM highlighting both selector and css must be set.' });
+            if (!pageChangeCallbacks.errorIntent || pageChangeCallbacks.length < 1) {
+                errors.push({ name: 'pageChangeCallback.pageChanges.errorIntent', message: 'You are listening to page changes but the Error Intent is missing.' });
             }
         }
+
+        return errors;
+    };
+
+    const validator = (model) => {
+        const errors = [...getPageChangeErrors(model)];
+
+        if (model.customCss.enabled && !model.customCss.text && !model.customCssContainer) {
+            errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you set neither text nor message container properties' });
+        }
+
+        if (model.domHighlight.enabled && ((!model.domHighlight.selector || !model.domHighlight.selector.length) || (!model.domHighlight.css || !model.domHighlight.css.length))) {
+            errors.push({ name: 'domHighlight', message: 'When enabling DOM highlighting both selector and css must be set.' });
+        }
+
         if (errors.length) {
             // eslint-disable-next-line no-throw-literal
             throw { details: errors };
