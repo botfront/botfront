@@ -150,32 +150,21 @@ describe('Bot responses', function() {
             .type('third response should exist');
 
 
-        cy.dataCy('branch-menu')
-            .first()
-            .findCy('branch-label')
-            .last()
-            .click();
-        cy.dataCy('branch-menu')
-            .first()
-            .findCy('branch-label')
-            .last()
-            .should('have.class', 'active');
-        cy.dataCy('branch-menu')
-            .first()
-            .findCy('branch-label')
-            .last()
-            .click({ force: true });
-        cy.dataCy('branch-menu')
-            .first()
-            .findCy('branch-label')
-            .last()
+        cy.dataCy('branch-label')
+            .eq(2)
+            .click({ click: true });
+        // delete branch is unclickable in cypress for ~100ms
+        cy.wait(250);
+        cy.dataCy('branch-label')
+            .eq(2)
             .trigger('mouseover');
-        // cy.wait(250);
+        cy.wait(250);
         cy.dataCy('delete-branch')
             .eq(2)
             .click({ force: true })
             .dataCy('confirm-yes')
             .click({ force: true });
+        // check the correct bot responses were deleted from the project
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('response-text').contains('first response should not exist').should('not.exist');
         cy.dataCy('response-text').contains('second response should not exist').should('not.exist');
