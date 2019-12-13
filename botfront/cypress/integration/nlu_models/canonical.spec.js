@@ -11,14 +11,16 @@ describe('NLU canonical examples', function () {
     after(function () {
         cy.deleteProject('bf');
     });
-
+    
     it('should be possible to mark an example as canonical', function () {
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .first()
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -35,8 +37,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -57,8 +60,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -67,9 +71,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('icon-trash')
             .should('have.class', 'disabled-delete');
         cy.dataCy('intent-label').trigger('mouseover');
-        cy.get('.popup').should('not.exist');
+        cy.get('.popup').should('contain', 'Cannot edit');
         cy.dataCy('utterance-text').trigger('mouseover');
-        cy.get('.popup').should('not.exist');
+        cy.get('.popup').should('contain', 'Cannot edit');
     });
 
     it('should be possible switch canonical examples ', function () {
@@ -77,8 +81,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\nwelcome');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -110,8 +115,9 @@ describe('NLU canonical examples', function () {
         cy.dataCy('nlu-menu-training-data').click();
         cy.contains('Insert many').click();
         cy.get('.batch-insert-input').type('hello\nwelcome');
-        cy.dataCy('intent-dropdown').click();
-        cy.get('[data-cy=intent-dropdown] > .search').type('intenttest{enter}');
+        cy.dataCy('intent-label')
+            .click({ force: true })
+            .type('intenttest{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
@@ -124,6 +130,7 @@ describe('NLU canonical examples', function () {
         cy.contains('hello').should('exist');
         cy.contains('welcome').should('not.exist');
     });
+    
     it('canonical should be unique per intent, entity and entity value', function () {
         // firstly import all the testing data
         cy.visit('/project/bf/nlu/models');
@@ -140,17 +147,17 @@ describe('NLU canonical examples', function () {
         /* .each may cause the test to not pass as its detach the
         element from the DOM */
         cy.dataCy('icon-gem').eq(0).click({ force: true });
-        cy.wait(100);
+        cy.wait(200);
         cy.dataCy('icon-gem').eq(1).click({ force: true });
-        cy.wait(100);
+        cy.wait(200);
         cy.dataCy('icon-gem').eq(2).click({ force: true });
-        cy.wait(100);
+        cy.wait(200);
         cy.dataCy('icon-gem').eq(3).click({ force: true });
-        cy.wait(100);
+        cy.wait(200);
         cy.dataCy('icon-gem').eq(4).click({ force: true });
-        cy.wait(100);
+        cy.wait(200);
         cy.dataCy('icon-gem').eq(5).click({ force: true });
-        cy.wait(100);
+        cy.wait(200);
         cy.get('.black[data-cy=icon-gem]').should('have.length', 6);
     });
 });

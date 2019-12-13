@@ -44,6 +44,7 @@ import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.co
 import { Projects } from '../../../../api/project/project.collection';
 import { extractEntities } from './nluModel.utils';
 import { setWorkingLanguage } from '../../../store/actions/actions';
+import { WithRefreshOnLoad } from '../../../layouts/project';
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -73,6 +74,11 @@ class NLUModel extends React.Component {
         };
     }
 
+    componentDidMount() {
+        const { onLoad } = this.props;
+        onLoad();
+    }
+
     static getExamplesWithExtraSynonyms = (props) => {
         const { model: { training_data: { common_examples, entity_synonyms } = {} } = {} } = props;
         if (!common_examples) return [];
@@ -86,10 +92,6 @@ class NLUModel extends React.Component {
             return true;
         }
         return false;
-    };
-
-    onNewExample = (example) => {
-        this.onNewExamples([example]);
     };
 
     onNewExamples = (examples, callback) => {
@@ -321,7 +323,7 @@ class NLUModel extends React.Component {
                                 floated='right'
                                 entities={entities}
                                 intents={this.getIntentForDropdown(false)}
-                                onSave={this.onNewExample}
+                                onSave={example => this.onNewExamples([example])}
                                 postSaveAction='clear'
                             />
                         </div>
@@ -350,6 +352,7 @@ NLUModel.propTypes = {
     location: PropTypes.object.isRequired,
     workingLanguage: PropTypes.string,
     changeWorkingLanguage: PropTypes.func.isRequired,
+    onLoad: PropTypes.func.isRequired,
 };
 
 NLUModel.defaultProps = {
@@ -437,7 +440,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         instance,
         project,
     };
-})(NLUModel);
+})(WithRefreshOnLoad(NLUModel));
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),

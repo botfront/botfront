@@ -1,5 +1,4 @@
 import SimpleSchema from 'simpl-schema';
-import yaml from 'js-yaml';
 import { languages } from '../../lib/languages';
 
 const sequenceSchema = new SimpleSchema({
@@ -139,6 +138,7 @@ export const FollowUpSchema = new SimpleSchema({
 
 export const TemplateSchema = new SimpleSchema(
     {
+        _id: { type: String, optional: true },
         key: {
             type: String,
             label: 'Template Key',
@@ -162,33 +162,3 @@ export const TemplateSchema = new SimpleSchema(
     },
     { tracker: Tracker },
 );
-
-TemplateSchema.addDocValidator((obj) => {
-    const errors = [];
-    obj.values.map((v, vi) => v.sequence.forEach((sequence, seqIndex) => {
-        try {
-            let payload = yaml.safeLoad(sequence.content);
-            if (typeof payload === 'string') payload = { text: payload };
-            const schemas = [LegacyCarouselSchema, ImageSchema, QuickRepliesSchema, TextSchema, FBMButtonTemplateSchema, FBMGenericTemplateSchema, FBMListTemplateSchema, FBMHandoffTemplateSchema];
-            const contexts = schemas.map(s => s.newContext());
-            contexts.map(c => c.validate(payload));
-            // An array like [0,1,0,0] means it's a QuickRepliesSchema
-            const valid = contexts.map(c => (c.isValid() ? 1 : 0));
-            // Sum over [0,0,0,0] = 0 means entry not validated against any schema
-            const hasError = valid.reduce((a, b) => a + b, 0) === 0;
-            if (hasError) {
-                contexts.forEach((context) => {
-                    if (context.validationErrors()) {
-                        context.validationErrors().forEach((e) => {
-                            e.name = `values.${vi}.sequence.${seqIndex}.${e.name}`;
-                            errors.push(e);
-                        });
-                    }
-                });
-            }
-        } catch (e) {
-            errors.push('unknown');
-        }
-    }));
-    return errors;
-});

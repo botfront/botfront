@@ -1,5 +1,5 @@
+
 import SimpleSchema from 'simpl-schema';
-import { TemplateSchema } from './response.schema';
 import { languages } from '../../lib/languages';
 import { validateYaml } from '../../lib/utils';
 
@@ -27,8 +27,6 @@ export const ProjectsSchema = new SimpleSchema({
     disabled: { type: Boolean, defaultValue: false, index: 1 },
     nlu_models: { type: Array, defaultValue: [] },
     'nlu_models.$': { type: String },
-    templates: { type: Array, defaultValue: [] },
-    'templates.$': { type: TemplateSchema },
     responsesUpdatedAt: { type: SimpleSchema.Integer, optional: true },
     updatedAt: {
         type: Date,

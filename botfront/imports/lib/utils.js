@@ -13,6 +13,11 @@ export const formatAxiosError = (method, error) => {
     return new Meteor.Error('status-code', `${method} request returned status code ${status} with message ${statusText}`);
 };
 
+export const setsAreIdentical = (arr1, arr2) => (
+    arr1.every(en => arr2.includes(en))
+    && arr2.every(en => arr1.includes(en))
+);
+
 Meteor.callWithPromise = (method, ...myParameters) => new Promise((resolve, reject) => {
     Meteor.call(method, ...myParameters, (err, res) => {
         if (err) reject(err);
@@ -90,7 +95,8 @@ export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language)
         .reduce((acc, x) => acc.concat(x), []);
 };
 
-export const validateYaml = function() {
+
+export const validateYaml = function () {
     try {
         yaml.safeLoad(this.value);
         return null;

@@ -1,5 +1,6 @@
 import { AutoForm, AutoField, ErrorsField } from 'uniforms-semantic';
 import SimpleSchema from 'simpl-schema';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {
@@ -28,12 +29,15 @@ const changePasswordSchema = new SimpleSchema(
     { tracker: Tracker },
 );
 
+
 changePasswordSchema.messageBox.messages({
     en: {
         passwordMismatch: 'The passwords are not matching. Make sure you enter the same password in both fields',
         passwordTooSimple: 'Your password should contain at least 9 characters and have uppercase, lowercase, digit and special characters',
     },
 });
+
+const changePasswordSchemaBridge = new SimpleSchema2Bridge(this.resetPasswordSchema);
 
 export default class ChangePassword extends React.Component {
     constructor(props) {
@@ -82,7 +86,7 @@ export default class ChangePassword extends React.Component {
 
     render () {
         return (
-            <AutoForm schema={changePasswordSchema} onSubmit={this.handleChangePassword}>
+            <AutoForm schema={changePasswordSchemaBridge} onSubmit={this.handleChangePassword}>
                 <Header>Change Password</Header>
                 <AutoField name='password' placeholder='password' type='password' label={null} />
                 <AutoField name='passwordVerify' placeholder='password' type='password' label={null} />

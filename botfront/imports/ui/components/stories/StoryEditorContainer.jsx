@@ -89,6 +89,7 @@ const StoryEditorContainer = ({
             story.checkpoints && story.checkpoints.length > 0,
         ),
     });
+    
 
     // This effect is used to update errors when templates or slots are updated
     useEffect(() => {

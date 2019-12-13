@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
 import { CorePolicySchema, CorePolicies as CorePolicyCollection } from '../../../api/core_policies';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -46,7 +47,7 @@ class CorePolicy extends React.Component {
         return (
             <AutoForm
                 disabled={saving}
-                schema={CorePolicySchema}
+                schema={new SimpleSchema2Bridge(CorePolicySchema)}
                 model={policies}
                 onSubmit={this.onSave}
                 modelTransform={(mode, model) => {

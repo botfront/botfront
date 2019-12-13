@@ -4,6 +4,9 @@ describe('intial setup', function() {
     before(function() {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
             cy.exec('mongo bf --host localhost:27017 --eval "db.dropDatabase();"');
+            // wipping the db also wipe the indexes we need to recreate thoses
+            cy.exec('mongo bf --host localhost:27017 --eval "db.botResponses.createIndex({key:1, projectId:1}, {unique: true});"');
+            cy.wait(1000);
         }
         cy.waitForResolve(Cypress.env('baseUrl'));
     });
@@ -32,9 +35,6 @@ describe('intial setup', function() {
         cy.get('[data-cy=account-step]').click();
         cy.contains('Continue').click();
 
-        cy.get('input:first').type('Duedix');
-        cy.get('[data-cy=project-create-button]').click();
-
         cy.contains('Select the default language').click();
         cy.get('[role=listbox]')
             .contains('English')
@@ -53,7 +53,7 @@ describe('intial setup', function() {
 
         cy.wait(10000);
         cy.url().should('include', '/stories');
-        
+
         // cy.url().then((url) => {
         // This gets the project id
         //     const id = url.match(/project\/(.*?)\/nlu/i)[1];

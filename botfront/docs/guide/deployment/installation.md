@@ -82,7 +82,7 @@ The table below lists all the services that can be used with Botfront.
 | botfront-api  |  `botfront/botfront-api`  |
 | rasa  |  `botfront/rasa-for-botfront`  |
 | duckling  |  `botfront/duckling`  |
-| actions | Build your own | 
+| actions | Build your own |
 | mongo | `mongo` or hosted service (mLab, Mongo Atlas, Compose, ...)  |
 
 ::: tip Image tags
@@ -105,8 +105,9 @@ The following table shows the environment variables required by each service. Be
 | `MONGO_URL`  |  The mongoDB connection string (e.g. `mongodb://user:pass@server:port/database`)  | `botfront` `botfront-api` |
 | `MONGO_OPLOG_URL`  |  The mongoDB Oplog connection string  | `botfront` (optional)|
 | `MAIL_URL`  |  An SMTP url if you want to use the password reset feature  | `botfront` |
-| `BF_PROJECT_ID` | The Botfront project ID (typically `my-first-project`) | `rasa` |
+| `BF_PROJECT_ID` | The Botfront project ID (typically `bf`) | `rasa` |
 | `BF_URL` | The `botfront-api` root url | `rasa`  `actions`|
+| `API_KEY` | GraphQL API key. You can then set the `authorization` header to the `API_KEY` value to perform GraphQL operations | `botfront`|
 | `MODELS_LOCAL_PATH` |  Where the trained model returned by Rasa is stored locally. Defaults to `/app/models/` and should not be changed in a containerized environment. The Botfront Dockerfile exposes a volume with that path | `botfront` (optional) |
 
 ## Volumes

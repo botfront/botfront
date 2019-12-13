@@ -11,11 +11,13 @@ const {
     Endpoints,
     Credentials,
     Projects,
+    Responses,
 } = require('../models/models');
 const { validationResult } = require('express-validator/check');
 const { getVerifiedProject } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
+const {sortBy} = require('lodash');
 
 const collectionsWithModelId = {
     activity: Activity,
@@ -30,6 +32,7 @@ const collectionsWithProjectId = {
     credentials: Credentials,
     corePolicies: CorePolicies,
     conversations: Conversations,
+    botResponses: Responses,
 };
 
 const collections = { ...collectionsWithModelId, ...collectionsWithProjectId };
@@ -199,7 +202,7 @@ const importProjectValidator = [
         'Project is required',
         ({ project }) =>
             project &&
-            ['_id', 'name', 'defaultLanguage', 'nlu_models', 'templates'].every(prop =>
+            ['_id', 'name', 'defaultLanguage', 'nlu_models'].every(prop =>
                 Object.keys(project).includes(prop),
             ),
     ],
@@ -208,6 +211,55 @@ const importProjectValidator = [
     //     body => body && Object.keys(allCollections).every(col => Object.keys(body).includes(col)),
     // ],
 ]
+
+const countUtterMatches = (templateValues) => {
+    const re = /utter_/g;
+    return ((JSON.stringify(templateValues) || '').match(re) || []).length;
+};
+
+const createResponsesFromOldFormat = (oldTemplates, projectId) => {
+    const templates = sortBy(oldTemplates, 'key');
+    const botResponses = [];
+    const duplicates = [];
+    templates.forEach((t, index) => {
+        // Delete irrelevant fields and set new _id
+        delete t.match;
+        delete t.followUp;
+        t.projectId = projectId
+        // Put duplicates in a separate list
+        if ((index < templates.length - 1 && t.key === templates[index + 1].key) || (index > 0 && t.key === templates[index - 1].key)) {
+            duplicates.push(t);
+        } else {
+            botResponses.push(t);
+        }
+    });
+    let i = 0;
+    while (i < duplicates.length) {
+        let numberOfOccurence = 1;
+        while (i + numberOfOccurence < duplicates.length && duplicates[i].key === duplicates[i + numberOfOccurence].key) {
+            numberOfOccurence += 1;
+        }
+        const duplicateValues = duplicates.slice(i, i + numberOfOccurence);
+        if (!Array.from(new Set(duplicateValues.map(t => t.key))).length === 1)
+            throw ('Error when deduplicating botResponses, a non duplicate was picked as duplicate'); //  // Make sure duplicates are real
+        // Count times /utter_/ is a match
+        const utters = duplicateValues.map(t => countUtterMatches(t.values));
+        // Find the index of the template with less /utter_/ in it. This is the value we'll keep
+        const index = utters.indexOf(Math.min(...utters));
+        // Push the template we keep in the array of valid bot responses
+        botResponses.push(duplicateValues[index]);
+        i += numberOfOccurence;
+    }
+
+    // Integrity check
+    const distinctInDuplicates = [...new Set(duplicates.map(d => d.key))].length;
+    // duplicates.length - distinctInDuplicates: give back the number of occurence of a value minus one
+    // Integrity check
+    if (!(botResponses.length === templates.length - (duplicates.length - distinctInDuplicates))) throw ('Error when deduplicating botResponses, some duplicates left');
+    if (!Array.from(new Set(botResponses)).length === botResponses.length) throw ('Error when deduplicating botResponses, some duplicates left');
+    return botResponses
+    
+}
 
 exports.importProject = async function(req, res) {
     const { project_id: projectId } = req.params;
@@ -221,6 +273,10 @@ exports.importProject = async function(req, res) {
             if (!validator(body)) throw { code: 422, error: message };
         })
         const backup = nativizeProject(projectId, project.name, body);
+        if (backup.project.templates){
+            backup.botResponses = createResponsesFromOldFormat(backup.project.templates, projectId);
+            delete backup.project.templates
+        }
         delete backup.project.training
         for (let col in collections) {
             await overwriteCollection(projectId, project.nlu_models, col, backup);

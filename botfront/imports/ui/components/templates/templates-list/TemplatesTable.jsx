@@ -1,11 +1,10 @@
-import { Meteor } from 'meteor/meteor';
 import ReactTable from 'react-table-v6';
 import PropTypes from 'prop-types';
 import {
     Icon, Label, Tab, Message,
 } from 'semantic-ui-react';
 import React from 'react';
-import { find } from 'lodash';
+import { find, sortBy } from 'lodash';
 import { connect } from 'react-redux';
 import 'react-s-alert/dist/s-alert-default.css';
 import { browserHistory } from 'react-router';
@@ -14,8 +13,6 @@ import TemplatesTableItem from './TemplatesTableItem';
 import {
     changePageTemplatesTable, setWorkingLanguage, changeFilterTemplatesTable, toggleMatchingTemplatesTable,
 } from '../../../store/actions/actions';
-import { wrapMeteorCallback } from '../../utils/Errors';
-import { getTemplateLanguages } from '../../../../api/project/response.methods';
 import { languages } from '../../../../lib/languages';
 
 class TemplatesTable extends React.Component {
@@ -24,10 +21,12 @@ class TemplatesTable extends React.Component {
         this.fixLanguage();
     }
 
-    componentWillReceiveProps(props) {
-        this.props = props;
+    componentDidUpdate() {
         this.fixLanguage();
     }
+
+    // eslint-disable-next-line react/destructuring-assignment
+    getTemplateLanguages = () => sortBy(this.props.nluLanguages);
 
     getColumns = (lang) => {
         const { projectId } = this.props;
@@ -118,8 +117,8 @@ class TemplatesTable extends React.Component {
     };
 
     deleteTemplate = (key) => {
-        const { projectId } = this.props;
-        Meteor.call('project.deleteTemplate', projectId, key, wrapMeteorCallback());
+        const { projectId, deleteBotResponse } = this.props;
+        deleteBotResponse({ variables: { projectId, key } });
     };
 
     fixLanguage = () => {
@@ -127,7 +126,7 @@ class TemplatesTable extends React.Component {
         // If on a template page a user selects a language for which there is not template yet, leaves it empty
         // and comes back here, the working language will be set to a language for which there is no template.
         // That's why we need to reset the workingLanguage except if there are no templates yet
-        const templateLanguages = getTemplateLanguages(templates);
+        const templateLanguages = this.getTemplateLanguages(templates);
         if (templates.length > 0 && templateLanguages.indexOf(workingLanguage) < 0) {
             changeWorkingLanguage(templateLanguages[0]);
         }
@@ -186,19 +185,19 @@ class TemplatesTable extends React.Component {
         );
     };
 
-    getPanes = templates => getTemplateLanguages(templates).map(lang => ({
+    getPanes = templates => this.getTemplateLanguages(templates).map(lang => ({
         menuItem: languages[lang].name,
         render: () => this.renderTable(lang),
     }));
 
     onTabChange = (e, { activeIndex }) => {
         const { changeWorkingLanguage, templates } = this.props;
-        changeWorkingLanguage(getTemplateLanguages(templates)[activeIndex]);
+        changeWorkingLanguage(this.getTemplateLanguages(templates)[activeIndex]);
     };
 
     render() {
         const { nluLanguages, templates, workingLanguage } = this.props;
-        const activeIndex = getTemplateLanguages(templates).indexOf(workingLanguage);
+        const activeIndex = this.getTemplateLanguages(templates).indexOf(workingLanguage);
         return (
             <div>
                 <br />
@@ -226,7 +225,9 @@ TemplatesTable.propTypes = {
     workingLanguage: PropTypes.string.isRequired,
     changePage: PropTypes.func.isRequired,
     changeWorkingLanguage: PropTypes.func.isRequired,
+    deleteBotResponse: PropTypes.func.isRequired,
 };
+
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

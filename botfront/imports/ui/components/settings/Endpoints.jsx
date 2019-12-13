@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { cloneDeep } from 'lodash';
 import React from 'react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
 import { Endpoints as EndpointsCollection } from '../../../api/endpoints/endpoints.collection';
 import { EndpointsSchema } from '../../../api/endpoints/endpoints.schema';
@@ -46,7 +47,7 @@ class Endpoints extends React.Component {
         return (
             <AutoForm
                 disabled={saving}
-                schema={EndpointsSchema}
+                schema={new SimpleSchema2Bridge(EndpointsSchema)}
                 model={endpoints}
                 onSubmit={this.onSave}
                 modelTransform={(mode, model) => {

@@ -2,6 +2,7 @@ import { AutoForm, AutoField, ErrorsField } from 'uniforms-semantic';
 import { Tab } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
 import { NLUModelSchema } from '../../../../../api/nlu_model/nlu_model.schema';
 import { wrapMeteorCallback } from '../../../utils/Errors';
@@ -43,7 +44,7 @@ class NLUParams extends React.Component {
         const { saved, showConfirmation } = this.state;
         return (
             <Tab.Pane>
-                <AutoForm schema={NLUModelSchema} model={model} onSubmit={m => this.handleSave(m)}>
+                <AutoForm schema={new SimpleSchema2Bridge(NLUModelSchema)} model={model} onSubmit={m => this.handleSave(m)}>
                     <AutoField name='name' />
                     <SelectLanguage name='language' />
                     <AutoField name='description' />

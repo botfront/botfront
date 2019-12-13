@@ -22,6 +22,7 @@ In your project you should have the following folders:
 | `actions` |  Custom actions for the actions server |
 | `botfront-db`      |  MongoDB persisted files |
 | `models`  |  Persisted models |
+| `rasa`  |  Rasa image material |
 
 You probably figured it out: `actions` is our folder of interest.
 
@@ -42,5 +43,5 @@ INFO:rasa_sdk.executor:Registered function for 'action_guests'.` for each action
 From the [conversation builder guide](/rasa/conversation-builder/#actions), add your action to the conversation.
 
 ## Deployment
-You can build your action server Docker image with the `Dockerfile.production` found in your project folder.
+You can build your action server Docker image with the `Dockerfile.production` in the `actions` folder of your project.
 

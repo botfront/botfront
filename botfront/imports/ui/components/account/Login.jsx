@@ -6,6 +6,7 @@ import windowSize from 'react-window-size';
 import { Link, browserHistory } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import ReCAPTCHA from 'react-google-recaptcha';
 import {
     AutoForm, ErrorsField, SubmitField, TextField,
@@ -24,6 +25,9 @@ class LoginComponent extends React.Component {
         },
         { tracker: Tracker },
     );
+
+
+    loginFormSchemaBridge = new SimpleSchema2Bridge(this.loginFormSchema)
 
     constructor(props) {
         super(props);
@@ -78,7 +82,7 @@ class LoginComponent extends React.Component {
             <>
                 {loggedOut && (
                     <Segment className='account-block'>
-                        <AutoForm model={{}} schema={this.loginFormSchema} onSubmit={this.handleLogin} className='ui large account-form' disabled={loggingIn}>
+                        <AutoForm model={{}} schema={this.loginFormSchemaBridge} onSubmit={this.handleLogin} className='ui large account-form' disabled={loggingIn}>
                             <ErrorsField />
                             <TextField name='email' iconLeft='user' placeholder='Email' type='email' label={null} data-cy='login-field' />
                             <TextField name='password' iconLeft='lock' placeholder='Password' type='password' label={null} data-cy='password-field' />

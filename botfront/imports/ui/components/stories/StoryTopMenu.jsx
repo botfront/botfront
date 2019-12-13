@@ -285,6 +285,7 @@ const StoryTopMenu = ({
                             attached
                             warning
                             size='tiny'
+                            data-cy='connected-to'
                         >
                             <Icon name='info circle' />
                             There are one or more stories linked to this story. You can

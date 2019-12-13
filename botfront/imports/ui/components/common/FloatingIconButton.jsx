@@ -15,7 +15,6 @@ export default function FloatingIconButton(props) {
             data-cy={icon}
         >
             <Popup
-                pinned
                 position='top center'
                 disabled={toolTip === null}
                 trigger={(

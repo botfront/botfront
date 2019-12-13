@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { AutoField } from 'uniforms-semantic';
-
-import { Info } from './Utils';
+import { Info } from '../common/Info';
 
 export default function InfoField({
     name, label, info, required, Component, ...props

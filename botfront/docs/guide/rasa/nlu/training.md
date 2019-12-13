@@ -34,6 +34,23 @@ After you train, you can verify if it works as expected or not by typing a sente
 You don't see an intent here because our dataset only has one intent. You need at least two intents to train an intent classifier.
 :::
 
+
+## Filtering entities
+
+Sometimes the NLU can catch en entity that you're next expecting in your stories, and that might affect predictions and dialogue management in general.
+You can add the following component to your NLU pipeline to have more control on your payloads.
+
+In the example below:
+- If the `buy_shirt` intent is recognized, the payload will only keep the entities `color` and `size` and get rid of any other.
+- If the `chitchat.greet` intent is recognized, any entity extracted will be disregarded and removed from the payload.
+
+```yaml
+- name: "rasa_addons.components.entities_filter.EntitiesFilter"
+  entities:
+    buy_shirt: ["color", "size"]
+    chitchat.greet: []
+```
+
 ## Entity synonyms
 
 In the example above, if we really want to pass it to a booking engine or a price comparator, we may need airport codes. Entity synonyms could be used for that. In the example below, we mapped _the city of light_ to CDG and _The big apple_ to JFK in the synonyms, retrained, and the values returned for the entities were **CDG** and **JFK**.
@@ -85,20 +102,21 @@ Then add the following component in the pipeline **after** the `CRFEntityExtract
   url: http://duckling
   dimensions:
   - "number"
-  
+
 - name: rasa_addons.nlu.components.duckling_crf_merger.DucklingCrfMerger
   entities:
     beers_count: ["number"]
     cokes_count: ["number"]
 ```
 
-Now, the `beers_count` and `cokes_count` entities are guaranteed to return a value of type number, and your custom actions can safely rely on it. If the `CRFEntityExtractor` extracts an entity that does not contain a `number` it is going to be removed.  
+Now, the `beers_count` and `cokes_count` entities are guaranteed to return a value of type number, and your custom actions can safely rely on it. If the `CRFEntityExtractor` extracts an entity that does not contain a `number` it is going to be removed.
 
 ::: tip The order is important
-- The entities are first extracted by the `ner_crf` component. 
+- The entities are first extracted by the `ner_crf` component.
 - Duckling extracts numbers
 - `DucklingCrfMerger` merges them. The value of `beers_count` will be 2
 :::
+
 
 ## Configuring the pipeline
 

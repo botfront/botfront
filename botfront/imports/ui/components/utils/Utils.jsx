@@ -4,16 +4,9 @@ import Dropzone from 'react-dropzone';
 import Alert from 'react-s-alert';
 import { Meteor } from 'meteor/meteor';
 import {
-    Icon, Loader, Popup, Menu, Button, Message, Segment, Dimmer, Container,
+    Icon, Loader, Menu, Message, Segment, Dimmer, Container,
 } from 'semantic-ui-react';
 
-export function Info({ info }) {
-    return <Popup trigger={<Icon name='question circle' color='grey' />} content={info} />;
-}
-
-Info.propTypes = {
-    info: PropTypes.string.isRequired,
-};
 
 export function Loading({ loading, children }) {
     return !loading ? children : <Loader active inline='centered' />;
