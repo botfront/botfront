@@ -26,14 +26,14 @@ export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
 
     // eslint-disable-next-line array-callback-return
-    newResponses.map((newResponse) => {
+    const answer = newResponses.map((newResponse) => {
         const properResponse = newResponse;
         properResponse.projectId = projectId;
         properResponse.values = formatTextOnSave(properResponse.values);
-        BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
+        return BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
     });
 
-    return { ok: 1 };
+    return Promise.all(answer);
 };
 
 export const updateResponse = async (projectId, _id, newResponse) => {
@@ -52,6 +52,40 @@ export const deleteResponse = async (projectId, key) => BotResponses.deleteOne({
 export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
+
+export const newGetBotResponses = async ({ projectId, template, language }) => {
+    // template (optional): str || array
+    // language (optional): str || array
+    let templateKey = {}; let languageKey = {}; let languageFilter = [];
+    if (template) {
+        const templateArray = typeof template === 'string' ? [template] : template;
+        templateKey = { key: { $in: templateArray } };
+    }
+    if (language) {
+        const languageArray = typeof language === 'string' ? [language] : language;
+        languageKey = { 'values.lang': { $in: languageArray } };
+        languageFilter = [{
+            $addFields: { values: { $filter: { input: '$values', as: 'value', cond: { $in: ['$$value.lang', languageArray] } } } },
+        }];
+    }
+    
+    return BotResponses.aggregate([
+        { $match: { projectId, ...templateKey, ...languageKey } },
+        ...languageFilter,
+        { $unwind: '$values' },
+        { $unwind: '$values.sequence' },
+        {
+            $project: {
+                _id: false,
+                key: '$key',
+                language: '$values.lang',
+                channel: '$values.channel',
+                payload: '$values.sequence.content',
+                metadata: '$metadata',
+            },
+        },
+    ]);
+};
 
 /* considering this function does not only get the response we need to trigger the onAddReponse subscription
 when it does add a response the onAddResponse is used for that

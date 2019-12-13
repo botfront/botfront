@@ -40,8 +40,12 @@ const botResponses = new Schema({
         type: String,
         label: 'Template Key',
         match: /^(utter_)/,
+        index: true,
     },
-    projectId: String,
+    projectId: {
+        type: String,
+        index: true,
+    },
     values: {
         type: [
             {
@@ -54,8 +58,5 @@ const botResponses = new Schema({
         min: 0,
     },
 }, { versionKey: false });
-
-botResponses.index({ key: 1, projectId: 1 }, { unique: true });
-
 
 module.exports = mongoose.model('BotResponses', botResponses, 'botResponses');

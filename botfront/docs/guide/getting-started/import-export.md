@@ -20,7 +20,7 @@ A few things to keep in mind:
 
 #### NLU
 
-Consider removing Botfront specific NLU components, such as `rasa_addons.nlu.components.gazette.Gazette` and `rasa_addons.nlu.components.language_setter.LanguageSetter`
+Consider removing Botfront specific NLU components, such as `rasa_addons.nlu.components.gazette.Gazette`.
 
 #### Credentials and endpoints
 

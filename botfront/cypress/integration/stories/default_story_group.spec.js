@@ -28,17 +28,16 @@ describe('default story creation ', () => {
         cy.contains('chitchat.bye').should('exist');
         cy.contains('- utter_bye').should('exist');
 
-        // deletes the greetings story
-        cy.contains('Greetings').should('exist')
-            .closest('[data-cy=story-editor]')
+        // deletes one story
+        cy.dataCy('story-editor')
+            .first()
             .find('[data-cy=delete-story]')
             .click({ force: true });
         cy.get('[data-cy=confirm-popup]')
             .get('[data-cy=confirm-yes]')
             .click({ force: true });
-        // deletes the farewells story
+        // deletes the other
         cy.dataCy('story-editor').should('have.length', 1);
-        cy.contains('Farewells').should('exist');
         cy.get('[data-cy=story-editor]')
             .find('[data-cy=delete-story]')
             .click({ force: true });

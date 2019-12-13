@@ -6,12 +6,17 @@ export const getDefaultEndpoints = ({ _id }) => {
     const fields = {
         'settings.private.defaultEndpoints': 1,
         'settings.private.bfApiHost': 1,
+        'settings.private.rootUrl': 1,
         'settings.private.actionsServerUrl': 1,
     };
-    const { settings: { private: { defaultEndpoints = '', bfApiHost, actionsServerUrl } = {} } = {} } = GlobalSettings.findOne({}, { fields });
+    const { settings: { private: privateVars = {} } = {} } = GlobalSettings.findOne({}, { fields });
+    const {
+        defaultEndpoints = '', bfApiHost, rootUrl, actionsServerUrl,
+    } = privateVars;
     
     return defaultEndpoints
         .replace(/{BF_API_HOST}/g, bfApiHost)
         .replace(/{BF_PROJECT_ID}/g, _id)
+        .replace(/{ROOT_URL}/g, process.env.ROOT_URL || rootUrl)
         .replace(/{ACTIONS_URL}/g, process.env.ACTIONS_URL || actionsServerUrl);
 };
