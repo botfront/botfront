@@ -84,3 +84,31 @@ export const getEntityCountDictionary = (entities) => {
     });
     return entitiesCount;
 };
+
+export const findExampleMatch = (example, item, itemEntities) => {
+    if (item.intent !== example.intent) return false; // check examples have the same intent name
+    if (item.entities.length !== example.entities.length) return false; // check examples have the same number of entities
+    const exampleEntities = getEntityCountDictionary(example.entities);
+    const entityMatches = Object
+        .keys(itemEntities)
+        .filter(key => exampleEntities[key] === itemEntities[key]);
+    return entityMatches.length === Object.keys(itemEntities).length; // check examples have the same entities
+};
+
+export const canonicalizeExamples = async (items, modelId) => {
+    const nluModel = await NLUModels.findOne({ _id: modelId }, { fields: { training_data: true } });
+    let { training_data: { common_examples: commonExamples } } = nluModel || { training_data: {} };
+
+    const canonicalizedItems = items.map((item) => {
+        const itemEntities = getEntityCountDictionary(item.entities); // total occurances of each entity in this example
+        const match = commonExamples.find(example => findExampleMatch(example, item, itemEntities));
+
+        if (!match) {
+            // prevent a multi-insert from creating multiple canonical examples for the same intent
+            commonExamples = [...commonExamples, item];
+        }
+        return { ...item, canonical: !match }; // if theres is no matching example, the example is canonical
+    });
+
+    return canonicalizedItems;
+};

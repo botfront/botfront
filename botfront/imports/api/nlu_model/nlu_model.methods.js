@@ -5,7 +5,7 @@ import {
     uniq, uniqBy, sortBy, intersectionBy, find,
 } from 'lodash';
 import {
-    formatError, getProjectIdFromModelId, getModelIdsFromProjectId,
+    formatError, getModelIdsFromProjectId,
 } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
@@ -14,7 +14,7 @@ import {
     checkNoEmojisInExamples,
     renameIntentsInTemplates,
     getNluModelLanguages,
-    getEntityCountDictionary,
+    canonicalizeExamples,
 } from './nlu_model.utils';
 import { Projects } from '../project/project.collection';
 
@@ -29,34 +29,6 @@ const gazetteDefaults = {
 };
 
 Meteor.methods({
-    async 'nlu.canonicalizeExamples'(items, modelId) {
-        check(items, Array);
-        check(modelId, String);
-
-        const nluModel = await NLUModels.findOne({ _id: modelId }, { fields: { training_data: true } });
-        let { training_data: { common_examples: commonExamples } } = nluModel || { training_data: {} };
-
-        const canonicalizedItems = items.map((item) => {
-            const itemEntities = getEntityCountDictionary(item.entities); // total occurances of each entity
-            const match = commonExamples.find((example) => {
-                if (item.intent !== example.intent) return false; // check examples have the same intent name
-                if (item.entities.length !== example.entities.length) return false; // check examples have the same number of entities
-                const exampleEntities = getEntityCountDictionary(example.entities);
-                const entityMatches = Object
-                    .keys(itemEntities)
-                    .filter(key => exampleEntities[key] === itemEntities[key]);
-                return entityMatches.length === Object.keys(itemEntities).length; // check examples have the same entities
-            });
-
-            if (!match) {
-                // prevent a multi-insert from creating multiple canonical examples for the same intent
-                commonExamples = [...commonExamples, item];
-            }
-            return { ...item, canonical: !match }; // if theres is no matching example, the example is canonical
-        });
-
-        return canonicalizedItems;
-    },
     async 'nlu.insertExamplesWithLanguage'(projectId, language, items) {
         check(projectId, String);
         check(language, String);
@@ -84,7 +56,7 @@ Meteor.methods({
 
         try {
             const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample), 'text');
-            const canonicalizedItems = await Meteor.callWithPromise('nlu.canonicalizeExamples', normalizedItems, modelId);
+            const canonicalizedItems = await canonicalizeExamples(normalizedItems, modelId);
             const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
             const pullItemsText = intersectionBy(examples, canonicalizedItems, 'text').map(({ text }) => text);
