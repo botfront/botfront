@@ -140,6 +140,8 @@ export async function displayNpmUpdateMessage() {
 }
 
 export async function displayProjectUpdateMessage() {
+    if (!isProjectDir()) return;
+
     const botfrontVersion = getBotfrontVersion();
     const projectVersion = getProjectVersion();
 
