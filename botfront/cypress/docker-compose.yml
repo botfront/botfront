@@ -62,7 +62,7 @@ services:
       - CORS=*
 
   rasa:
-    image: botfront/rasa-for-botfront:branch-master
+    image: botfront/rasa-for-botfront:${RASA_TAG}
     container_name: botfront-test-rasa
     restart: always
     command:

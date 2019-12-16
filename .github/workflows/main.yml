@@ -128,12 +128,20 @@ jobs:
           path: .
       - run: docker load < botfront-api-local.tar
       - run: docker load < botfront-local.tar
+      - name: get versions
+        id: versions
+        run: |
+          config=cli/project-template/.botfront/botfront.yml
+          rasa=$(sed -n 's/\S*rasa: \(.*\)$/\1/p' $config | sed 's/.*://')
+          echo ::set-output name=rasa::$rasa
       - name: cypress tests
         working-directory: ./botfront/cypress
         run: |
           docker-compose up \
           --abort-on-container-exit \
           --exit-code-from e2e
+        env:
+          RASA_TAG: ${{ steps.versions.outputs.rasa }}
       - name: persist screenshots as artifact
         if: failure()
         uses: actions/upload-artifact@v1
