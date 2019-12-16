@@ -216,7 +216,11 @@ jobs:
         working-directory: ./cli
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-          npm publish
+          if [[ "${{ github.ref }}" =~ rc|alpha|beta ]]; then
+            npm publish --tag next
+          else
+            npm publish
+          fi
         env:
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
