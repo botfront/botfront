@@ -135,9 +135,9 @@ jobs:
       - name: cypress tests
         working-directory: ./botfront/cypress
         run: |
-          docker-compose up \
-          --abort-on-container-exit \
-          --exit-code-from e2e
+          chmod +x docker-compose.sh
+          ./docker-compose.sh up
+          --abort-on-container-exit
       - name: persist screenshots as artifact
         if: failure()
         uses: actions/upload-artifact@v1
