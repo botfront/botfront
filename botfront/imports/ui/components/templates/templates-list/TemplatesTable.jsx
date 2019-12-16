@@ -1,7 +1,7 @@
 import ReactTable from 'react-table-v6';
 import PropTypes from 'prop-types';
 import {
-    Icon, Label, Tab, Message,
+    Icon, Label, Tab, Message, Modal,
 } from 'semantic-ui-react';
 import React from 'react';
 import { find, sortBy } from 'lodash';
@@ -14,11 +14,16 @@ import {
     changePageTemplatesTable, setWorkingLanguage, changeFilterTemplatesTable, toggleMatchingTemplatesTable,
 } from '../../../store/actions/actions';
 import { languages } from '../../../../lib/languages';
+import ResponseEditor from './ResponseEditor';
 
 class TemplatesTable extends React.Component {
     constructor(props) {
         super(props);
         this.fixLanguage();
+        this.state = {
+            responseEditorOpen: false,
+            activeResponse: null,
+        };
     }
 
     componentDidUpdate() {
@@ -50,16 +55,27 @@ class TemplatesTable extends React.Component {
                 id: 'edit',
                 accessor: 'key',
                 className: 'center',
-                Cell: ({ value: key, viewIndex: index }) => (
-                    <Icon
-                        link
-                        data-cy={`edit-response-${index}`}
-                        name='edit'
-                        color='grey'
-                        size='small'
-                        onClick={() => this.redirect(`/project/${projectId}/dialogue/template/${key}`)}
-                    />
-                ),
+                Cell: ({ value: key, viewIndex: index }) => {
+                    const { activeResponse } = this.state;
+                    const { templates } = this.props;
+                    return (
+                        <ResponseEditor
+                            trigger={(
+                                <Icon
+                                    link
+                                    data-cy={`edit-response-${index}`}
+                                    name='edit'
+                                    color='grey'
+                                    size='small'
+                                    onClick={() => { this.setState({ activeResponse: key }); }}
+                                />
+                            )}
+                            open={activeResponse === key}
+                            botResponse={activeResponse === key ? templates.find(({ key: templateKey }) => templateKey === activeResponse) : null}
+                            closeModal={() => { this.setState({ activeResponse: null }); }}
+                        />
+                    );
+                },
                 width: 25,
             },
             {
@@ -201,7 +217,9 @@ class TemplatesTable extends React.Component {
 
     render() {
         const { nluLanguages, templates, workingLanguage } = this.props;
+        const { responseEditorOpen, activeResponse } = this.state;
         const activeIndex = this.getTemplateLanguages(templates).indexOf(workingLanguage);
+        console.log(activeResponse);
         return (
             <div>
                 <br />
