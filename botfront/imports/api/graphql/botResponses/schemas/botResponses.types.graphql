@@ -3,7 +3,7 @@ type Query {
     botResponse(projectId: String!, key: String!, lang: String): BotResponse
     botResponseById(_id: String): BotResponse
     getResponse(
-        template: String!
+        template: StringOrListOfStrings!
         arguments: NlgRequestArguments
         tracker: ConversationInput
         channel: NlgRequestChannel
@@ -65,11 +65,11 @@ input ContentContainerInput {
 
 input NlgRequestArguments {
     projectId: String!
-    language: String!
+    language: StringOrListOfStrings!
 }
 
 input NlgRequestChannel {
-    name: String!
+    name: String
 }
 
 type FutureBotResponse {

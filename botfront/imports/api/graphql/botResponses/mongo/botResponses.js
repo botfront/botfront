@@ -41,7 +41,7 @@ export const updateResponse = async (projectId, _id, newResponse) => {
         ...newResponse,
         values: formatTextOnSave(newResponse.values),
     };
-    return BotResponses.updateOne({ _id }, formatedResponse).exec();
+    return BotResponses.updateOne({ projectId, _id }, formatedResponse).exec();
 };
 
 export const createResponse = async (projectId, newResponse) => BotResponses.create({

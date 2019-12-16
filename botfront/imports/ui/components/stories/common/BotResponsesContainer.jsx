@@ -24,45 +24,25 @@ const BotResponsesContainer = (props) => {
     const [focus, setFocus] = useState(isNew ? 0 : null);
 
     const getSequence = () => {
-        console.log(template);
         if (!template) return [];
-        const response = template.values
-            .find(({ lang }) => lang === language);
-        if (!response) return [];
-        const { sequence } = response;
-        if (!sequence) return [];
-        console.log(sequence);
-        return sequence;
+        if (template.__typename !== 'TextPayload') return [template];
+        return template.text.split('\n\n').map(text => ({ __typename: 'TextPayload', text }));
     };
 
-    const newText = { content: yamlDump({ text: '' }) };
+    const newText = { __typename: 'TextPayload', text: '' };
 
     const setSequence = (newSequence) => {
-        const newTemplate = {
-            ...template,
-            values: [
-                ...template.values.map((value, index) => {
-                    if (value.lang === language) {
-                        return {
-                            ...template.values[index],
-                            sequence: [...newSequence],
-                        };
-                    }
-                    return value;
-                }),
-            ],
-        };
-        setTemplate(newTemplate);
-        updateResponse(newTemplate);
+        if (template.__typename !== 'TextPayload') return setTemplate(newSequence[0]);
+        return setTemplate({ __typename: 'TextPayload', text: newSequence.map(seq => seq.text).join('\n\n') });
+        // updateResponse(newTemplate);
     };
 
     useEffect(() => {
         removeNewState();
         if (!/^(utter_)/.test(name)) return;
-        getResponse(name, (err, res) => {
-            if (!err) {
-                setTemplate(res);
-            }
+        getResponse(name).then((response) => {
+            if (response) setTemplate(response);
+            // create
         });
     }, [language]);
 
@@ -76,19 +56,16 @@ const BotResponsesContainer = (props) => {
     const handleDeleteResponse = (index) => {
         const newSequence = [...getSequence()];
         newSequence.splice(index, 1);
-        if (!newSequence.length) {
-            onDeleteAllResponses();
-            return;
-        }
-        setFocus(index - 1 < 0 ? index + 1 : index - 1);
+        // setFocus(index - 1 < 0 ? index + 1 : index - 1);
+        setFocus(Math.min(newSequence.length - 1, index - 1));
         setSequence(newSequence);
     };
 
     const handleChangeResponse = (newContent, index, enter) => {
         setFocus(null);
         const sequence = [...getSequence()];
-        const oldContent = yamlLoad(sequence[index].content);
-        sequence[index].content = yamlDump({ ...oldContent, ...newContent });
+        const oldContent = sequence[index];
+        sequence[index] = { ...oldContent, ...newContent };
         setSequence(sequence);
         if (enter) setToBeCreated(index);
         return true;
@@ -102,27 +79,24 @@ const BotResponsesContainer = (props) => {
     }, [toBeCreated]);
 
 
-    const renderResponse = (response, index, sequenceArray) => {
-        const content = yamlLoad(response.content);
-        return (
-            <React.Fragment key={index}>
-                <div className='flex-right'>
-                    <BotResponseContainer
-                        deletable={deletable && sequenceArray.length > 1}
-                        value={content}
-                        onDelete={() => handleDeleteResponse(index)}
-                        onAbort={() => {}}
-                        onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)
-                        }
-                        focus={focus === index}
-                        onFocus={() => setFocus(index)}
-                    />
-                    {index === sequenceArray.length - 1 && (
-                        <div className='response-name'>{name}</div>)}
-                </div>
-            </React.Fragment>
-        );
-    };
+    const renderResponse = (response, index, sequenceArray) => (
+        <React.Fragment key={index}>
+            <div className='flex-right'>
+                <BotResponseContainer
+                    deletable={deletable && sequenceArray.length > 1}
+                    value={response}
+                    onDelete={() => handleDeleteResponse(index)}
+                    onAbort={() => {}}
+                    onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)
+                    }
+                    focus={focus === index}
+                    onFocus={() => setFocus(index)}
+                />
+                {index === sequenceArray.length - 1 && (
+                    <div className='response-name'>{name}</div>)}
+            </div>
+        </React.Fragment>
+    );
 
     // if (sequence && !sequence.length) onDeleteAllResponses();
     return (

@@ -8,15 +8,15 @@ query retreiveBotResponses($projectId: String!) {
 }`;
 
 export const GET_BOT_RESPONSE = gql`
-query retreiveABotResponses($projectId: String!, $key: String!, $lang: String) {
-    botResponse(projectId: $projectId, key: $key, lang: $lang) {
-        _id
-        key
-        values{
-            lang
-            sequence {
-                content
-            }
-        }
+query getResponse($template: StringOrListOfStrings!, $projectId: String!, $language: StringOrListOfStrings!) {
+    getResponse(
+        template: $template
+        arguments: { projectId: $projectId, language: $language }
+    ) {
+        __typename
+        text
+        ...on QuickReplyPayload { buttons { title, type, ...on WebUrlButton { url } ...on PostbackButton { payload } } }
+        ...on ImagePayload { image }
+        ...on CustomPayload { buttons { title, type, ...on WebUrlButton { url } ...on PostbackButton { payload } }, elements, attachment, image, custom }
     }
 }`;

@@ -23,9 +23,7 @@ import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils'
 import TemplateValueItemField from './TemplateValueItemField';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import DisplayIf from '../../DisplayIf';
-import { GET_BOT_RESPONSE } from '../../../layouts/graphQL/queries';
-import { GET_BOT_RESPONSE_BY_ID } from './queries';
-import { GET_BOT_RESPONSES } from '../templates-list/queries';
+import { GET_BOT_RESPONSE, GET_BOT_RESPONSES, GET_BOT_RESPONSE_BY_ID } from '../templates-list/queries';
 import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../../../layouts/graphQL/mutations';
 import { Loading } from '../../utils/Utils';
 import { clearTypenameField } from '../../../../lib/utils';

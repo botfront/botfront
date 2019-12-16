@@ -13,7 +13,7 @@ const BotResponseContainer = (props) => {
     const [input, setInput] = useState();
     const [shiftPressed, setshiftPressed] = useState(false);
     const focusGrabber = useRef();
-    const isTextResponse = Object.keys(value).length === 1 && Object.keys(value)[0] === 'text';
+    const isTextResponse = value.__typename === 'TextPayload';
     const hasText = Object.keys(value).includes('text');
     const hasButtons = Object.keys(value).includes('buttons');
 

@@ -169,64 +169,55 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    updateResponse = () => {
+    updateResponse = (newResponse, callback = () => {}) => {
         const { projectId } = this.props;
-        return (newResponse, callback = () => { }) => {
-            const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
-            const cleanedResponse = JSON.parse(JSON.stringify(newResponse), omitTypename);
-            apolloClient.mutate({
-                mutation: UPDATE_BOT_RESPONSE,
-                variables: { projectId, response: cleanedResponse, _id: newResponse._id },
-            }).then(
-                (result) => {
-                    callback(undefined, result);
-                },
-                (error) => {
-                    callback(error);
-                },
-            );
-        };
+        const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
+        const cleanedResponse = JSON.parse(JSON.stringify(newResponse), omitTypename);
+        apolloClient.mutate({
+            mutation: UPDATE_BOT_RESPONSE,
+            variables: { projectId, response: cleanedResponse, _id: newResponse._id },
+        }).then(
+            (result) => {
+                callback(undefined, result);
+            },
+            (error) => {
+                callback(error);
+            },
+        );
     }
 
 
-    insertResponse = () => {
+    insertResponse = (newResponse, callback = () => {}) => {
         const { projectId } = this.props;
-        return (newResponse, callback = () => { }) => {
-            // onCompleted and onError seems to have issues currently https://github.com/apollographql/react-apollo/issues/2293
-            apolloClient.mutate({
-                mutation: CREATE_BOT_RESPONSE,
-                variables: { projectId, response: newResponse },
-            }).then(
-                (result) => {
-                    callback(undefined, result);
-                },
-                (error) => {
-                    callback(error);
-                },
-            );
-        };
+        // onCompleted and onError seems to have issues currently https://github.com/apollographql/react-apollo/issues/2293
+        apolloClient.mutate({
+            mutation: CREATE_BOT_RESPONSE,
+            variables: { projectId, response: newResponse },
+        }).then(
+            (result) => {
+                callback(undefined, result);
+            },
+            (error) => {
+                callback(error);
+            },
+        );
     }
 
 
-    getResponse = () => {
+    getResponse = async (template) => {
+        const channel = null;
         const { projectId, workingLanguage } = this.props;
-        return (key, callback = () => { }) => {
-            apolloClient.query({
-                query: GET_BOT_RESPONSE,
-                variables: {
-                    projectId,
-                    key,
-                    lang: workingLanguage || 'en',
-                },
-            }).then(
-                (result) => {
-                    callback(undefined, result.data.botResponse);
-                },
-                (error) => {
-                    callback(error);
-                },
-            );
-        };
+        const result = await apolloClient.query({
+            query: GET_BOT_RESPONSE,
+            variables: {
+                projectId,
+                template,
+                language: workingLanguage || 'en',
+                ...(channel ? { channel } : {}),
+            },
+        });
+        if (!result.data) return null;
+        return result.data.getResponse;
     }
 
     addUtteranceToTrainingData = (utterance, callback = () => { }) => {
@@ -322,9 +313,9 @@ class Project extends React.Component {
                                             entities,
                                             slots,
                                             language: workingLanguage,
-                                            insertResponse: this.insertResponse(),
-                                            updateResponse: this.updateResponse(),
-                                            getResponse: this.getResponse(),
+                                            insertResponse: this.insertResponse,
+                                            updateResponse: this.updateResponse,
+                                            getResponse: this.getResponse,
                                             addEntity: this.addEntity,
                                             addIntent: this.addIntent,
                                             getUtteranceFromPayload: this.getUtteranceFromPayload,
