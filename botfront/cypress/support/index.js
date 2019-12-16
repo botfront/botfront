@@ -247,7 +247,6 @@ Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Pro
         } catch (error) {
             if (
                 !error.toString().includes('ERR_EMPTY_RESPONSE')
-                && !error.toString().includes('REFUSED')
             ) { cy.wait(5000); resolve(); break; }
             if (i > maxTries) reject(`Can't connect to ${url}`);
         }
