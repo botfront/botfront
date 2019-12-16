@@ -112,17 +112,48 @@ const parseUtterance = u => ({
     text: u,
 });
 
-const getResponse = key => ({
-    key,
-    values: [{
-        lang: 'en',
-        sequence: [
-            { content: 'text: fetched response!!' },
-            { content: 'text: fetched response!!' },
-            { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-        ],
-    }],
-});
+const responses = [
+    {
+        key: 'utter_default_response',
+        _id:'testId',
+        values: [{
+            lang: 'en',
+            sequence: [
+                { content: 'text: fetched response!!' },
+                { content: 'text: fetched response!!' },
+                { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+            ],
+        }],
+    }
+]
+
+const getResponse = key => {
+    const responseMatch = responses.find(({ key: resKey }) => resKey === key) || {
+        key,
+        _id:'testId',
+        values: [{
+            lang: 'en',
+            sequence: [
+                { content: 'text: fetched response!!' },
+                { content: 'text: fetched response!!' },
+                { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+            ],
+        }],
+    }
+    return responseMatch;
+};
+
+const insertResponse = (newResponse) => {
+    responses.push(response)
+}
+
+const updateResponse = () => {
+    return (updatedResponse, callback = () => {}) => {
+        const indexMatch = responses.findIndex(({ _id: resId}) => resId === updatedResponse._id)
+        console.log(indexMatch)
+        responses[indexMatch] = updatedResponse
+    }
+}
 
 const getUtteranceFromPayload = (intent, callback) => {
     callback(
@@ -153,6 +184,8 @@ export const withProjectContext = (story) => {
                 addEntity,
                 addIntent,
                 getResponse,
+                insertResponse,
+                updateResponse,
                 getUtteranceFromPayload,
                 updateResponses,
                 projectLanguages: [
