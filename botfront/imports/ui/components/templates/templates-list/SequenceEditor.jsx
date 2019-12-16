@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 
 
@@ -14,7 +13,7 @@ const SequenceEditor = (props) => {
 
     const activeResponse = botResponse.values.find(({ lang }) => lang === language);
     const content = activeResponse
-        ? activeResponse.sequence.map((variation, index) => (
+        ? activeResponse.sequence.map(() => (
             <BotResponsesContainer
                 deletable
                 name={botResponse.key}
