@@ -241,10 +241,14 @@ Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Pro
     for (let i = 1; i < Number.MAX_VALUE; i += 1) {
         try {
             await axios(url);
+            cy.wait(5000);
             resolve();
             break;
         } catch (error) {
-            if (!error.toString().includes('ERR_EMPTY_RESPONSE')) { resolve(); break; }
+            if (
+                !error.toString().includes('ERR_EMPTY_RESPONSE')
+                && !error.toString().includes('REFUSED')
+            ) { cy.wait(5000); resolve(); break; }
             if (i > maxTries) reject(`Can't connect to ${url}`);
         }
     }
