@@ -2,7 +2,7 @@ images:
   default:
     botfront: gcr.io/botfront-project/botfront:v0.18.5-ee.6
     botfront-api: botfront/botfront-api:v0.18.5-ee.6
-    rasa: botfront/rasa-for-botfront:v1.3.9-bf.4
+    rasa: botfront/rasa-for-botfront:v1.5.1-bf.3
     duckling: botfront/duckling:latest
     mongo: mongo:latest
     actions: rasa/rasa-sdk:1.3.2
@@ -14,7 +14,7 @@ env:
   bf_project_id: bf
   mongo_url: mongodb://mongo:27017/bf
   actions_url: http://actions:5055/webhook
-  bf_url: http://botfront-api:8080
+  bf_url: http://botfront:3000/graphql
   orchestrator: docker-compose
   root_url: http://localhost:8888
   socket_path: /socket.io/

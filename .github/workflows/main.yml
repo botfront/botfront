@@ -21,7 +21,6 @@ jobs:
 
   unit-cli:
     runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.modified, 'api/')
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -61,7 +60,6 @@ jobs:
 
   unit-bf:
     runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.modified, 'botfront/')
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
@@ -80,14 +78,13 @@ jobs:
         key: cypress-${{ hashFiles('**/package.json') }}
     - working-directory: ./botfront
       if: steps.cache.outputs.cache-hit != 'true'
-      run: npm ci # to do: remove cypress from installation
+      run: npm ci
     - name: mocha tests
       working-directory: ./botfront
       run: npm run test-once
 
   build-api:
     runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.modified, 'api/') || contains(github.event.head_commit.modified, 'botfront/')
     steps:
       - uses: actions/checkout@v1
       - name: build api image
@@ -103,7 +100,6 @@ jobs:
 
   build-bf: # to do: run meteor build in previous step and build from simplified dockerfile
     runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.modified, 'botfront/')
     steps:
       - uses: actions/checkout@v1
       - name: build bf image
@@ -132,12 +128,20 @@ jobs:
           path: .
       - run: docker load < botfront-api-local.tar
       - run: docker load < botfront-local.tar
+      - name: get versions
+        id: versions
+        run: |
+          config=cli/project-template/.botfront/botfront.yml
+          rasa=$(sed -n 's/\S*rasa: \(.*\)$/\1/p' $config | sed 's/.*://')
+          echo ::set-output name=rasa::$rasa
       - name: cypress tests
         working-directory: ./botfront/cypress
         run: |
           docker-compose up \
           --abort-on-container-exit \
           --exit-code-from e2e
+        env:
+          RASA_TAG: ${{ steps.versions.outputs.rasa }}
       - name: persist screenshots as artifact
         if: failure()
         uses: actions/upload-artifact@v1
@@ -202,14 +206,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
-      # - uses: actions/checkout@v1
-      # - name: npm publish
-      #   run: |
-      #     npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-      #     npm run trypublish
-      #   env:
-      #     CI: true
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
   create-npm-release:
     runs-on: ubuntu-latest
@@ -220,7 +216,11 @@ jobs:
         working-directory: ./cli
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-          npm publish
+          if [[ "${{ github.ref }}" =~ rc|alpha|beta ]]; then
+            npm publish --tag next
+          else
+            npm publish
+          fi
         env:
           CI: true
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -3,7 +3,7 @@
 ######################################################################
 
 # Botfront requires this image. Botfront won't work with Rasa vanilla images.
-FROM botfront/rasa-for-botfront:v1.5.1-bf.1
+FROM botfront/rasa-for-botfront:v1.5.1-bf.3
 
 COPY . /custom/extensions/.
 

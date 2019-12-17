@@ -3,11 +3,13 @@
     "prettier.jsxBracketSameLine": true,
     "prettier.jsxSingleQuote": true,
     "eslint.enable": true,
-    "eslint.autoFixOnSave": true,
     "cSpell.ignoreWords": [
         "nlu"
     ],
     "cSpell.words": [
         "nlu"
-    ]
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
 }
