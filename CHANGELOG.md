@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.5-ee.7](https://github.com/botfront/botfront/compare/v0.18.5-ee.6...v0.18.5-ee.7) (2019-12-17)
+
+
+### Features
+
+* add security layer to GraphQL API ([#368](https://github.com/botfront/botfront/issues/368)) ([b79684d](https://github.com/botfront/botfront/commit/b79684dac5a2d53b95939a3f489dd297c9f67f59))
+* include intent confidence score in conversations viewer ([#358](https://github.com/botfront/botfront/issues/358)) ([5ffe46d](https://github.com/botfront/botfront/commit/5ffe46de41324795dcde8211a336810e925552ec))
+
+
+### Bug Fixes
+
+* import project error message not displayed ([#348](https://github.com/botfront/botfront/issues/348)) ([0a049ce](https://github.com/botfront/botfront/commit/0a049ce5e889f8887e437f5cec0f072fc0340b42))
+* meteor server setup up for graphQL subscriptions ([e2bb30e](https://github.com/botfront/botfront/commit/e2bb30e79bbae36fae2d93289b9f7f6be74e463f))
+
 ### [0.18.5-ee.6](https://github.com/botfront/botfront/compare/v0.18.5-ee.5...v0.18.5-ee.6) (2019-12-12)
 
 
