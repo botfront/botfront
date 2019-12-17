@@ -24,7 +24,10 @@ const resolveTemplate = async ({
 }) => {
     const responses = await newGetBotResponses({ projectId, template, language });
     const source = chooseTemplateSource(responses, channel);
-    if (!source) throw new Error('No response given criteria');
+    if (!source) {
+        // No response found, return template name
+        return { text: template };
+    }
     const payload = safeLoad(sample(source).payload);
     if (payload.key) delete payload.key;
     if (payload.text) payload.text = interpolateSlots(payload.text, slots);

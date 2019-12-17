@@ -62,7 +62,7 @@ services:
       - CORS=*
 
   rasa:
-    image: botfront/rasa-for-botfront:v1.5.1-bf.1
+    image: botfront/rasa-for-botfront:${RASA_TAG}
     container_name: botfront-test-rasa
     restart: always
     command:
@@ -75,7 +75,7 @@ services:
     volumes:
       - './mounted/models/:/app/models'
     environment:
-      - BF_URL=http://botfront-api:8080
+      - BF_URL=http://botfront:3000/graphql
       - BF_PROJECT_ID=bf
 
   # actions:
