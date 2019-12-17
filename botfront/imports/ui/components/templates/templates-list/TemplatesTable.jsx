@@ -1,7 +1,7 @@
 import ReactTable from 'react-table-v6';
 import PropTypes from 'prop-types';
 import {
-    Icon, Label, Tab, Message, Modal,
+    Icon, Label, Tab, Message,
 } from 'semantic-ui-react';
 import React from 'react';
 import { find, sortBy } from 'lodash';
@@ -14,16 +14,12 @@ import {
     changePageTemplatesTable, setWorkingLanguage, changeFilterTemplatesTable, toggleMatchingTemplatesTable,
 } from '../../../store/actions/actions';
 import { languages } from '../../../../lib/languages';
-import ResponseEditor from './ResponseEditor';
+import BotResponseEditor from './BotResponseEditor';
 
 class TemplatesTable extends React.Component {
     constructor(props) {
         super(props);
         this.fixLanguage();
-        this.state = {
-            responseEditorOpen: false,
-            activeResponse: null,
-        };
     }
 
     componentDidUpdate() {
@@ -56,10 +52,9 @@ class TemplatesTable extends React.Component {
                 accessor: 'key',
                 className: 'center',
                 Cell: ({ value: key, viewIndex: index }) => {
-                    const { activeResponse } = this.state;
-                    const { templates } = this.props;
+                    const { templates, activeEditor, setActiveEditor } = this.props;
                     return (
-                        <ResponseEditor
+                        <BotResponseEditor
                             trigger={(
                                 <Icon
                                     link
@@ -67,12 +62,13 @@ class TemplatesTable extends React.Component {
                                     name='edit'
                                     color='grey'
                                     size='small'
-                                    onClick={() => { this.setState({ activeResponse: key }); }}
+                                    onClick={() => setActiveEditor(key)}
                                 />
                             )}
-                            open={activeResponse === key}
-                            botResponse={activeResponse === key ? templates.find(({ key: templateKey }) => templateKey === activeResponse) : null}
-                            closeModal={() => { this.setState({ activeResponse: null }); }}
+                            open={activeEditor === key}
+                            botResponse={activeEditor === key ? templates.find(({ key: templateKey }) => templateKey === activeEditor) : null}
+                            closeModal={() => setActiveEditor('')}
+                            renameable // replace with logic that checks if the response is contained in a story
                         />
                     );
                 },
@@ -216,10 +212,10 @@ class TemplatesTable extends React.Component {
     };
 
     render() {
-        const { nluLanguages, templates, workingLanguage } = this.props;
-        const { responseEditorOpen, activeResponse } = this.state;
+        const {
+            nluLanguages, templates, workingLanguage,
+        } = this.props;
         const activeIndex = this.getTemplateLanguages(templates).indexOf(workingLanguage);
-        console.log(activeResponse);
         return (
             <div>
                 <br />
@@ -249,8 +245,13 @@ TemplatesTable.propTypes = {
     changeWorkingLanguage: PropTypes.func.isRequired,
     deleteBotResponse: PropTypes.func.isRequired,
     events: PropTypes.array.isRequired,
+    activeEditor: PropTypes.string,
+    setActiveEditor: PropTypes.func.isRequired,
 };
 
+TemplatesTable.defaultProps = {
+    activeEditor: '',
+};
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

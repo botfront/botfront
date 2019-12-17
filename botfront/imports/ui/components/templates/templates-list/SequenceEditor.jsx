@@ -12,8 +12,22 @@ const SequenceEditor = (props) => {
     } = props;
 
     const activeResponse = botResponse.values.find(({ lang }) => lang === language);
-    const content = activeResponse
-        ? activeResponse.sequence.map(() => (
+
+    const renderContent = () => {
+        if (!activeResponse) return <></>;
+        if (!activeResponse.sequence) {
+            return (
+                <BotResponsesContainer
+                    deletable
+                    name={botResponse.key}
+                    onDeleteAllResponses={() => {}}
+                    isNew={false}
+                    removeNewState={() => {}}
+                    language={language}
+                />
+            );
+        }
+        return (
             <BotResponsesContainer
                 deletable
                 name={botResponse.key}
@@ -22,9 +36,9 @@ const SequenceEditor = (props) => {
                 removeNewState={() => {}}
                 language={language}
             />
-        ))
-        : <></>;
-    return content;
+        );
+    };
+    return renderContent();
 };
 
 SequenceEditor.PropTypes = {
