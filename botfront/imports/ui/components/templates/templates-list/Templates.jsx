@@ -11,9 +11,9 @@ import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
 import ImportExport from '../import-export/ImportExport';
 import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
-import { GET_BOT_RESPONSES } from './queries';
+import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
-import { DELETE_BOT_RESPONSE } from './mutations';
+import { DELETE_BOT_RESPONSE } from '../mutations';
 
 
 class Templates extends React.Component {

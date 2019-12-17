@@ -26,14 +26,13 @@ import store from '../store/store';
 import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
-import { GET_BOT_RESPONSES, GET_BOT_RESPONSE } from './graphQL/queries';
 import {
+    GET_BOT_RESPONSES,
+    GET_BOT_RESPONSE,
     CREATE_BOT_RESPONSE,
     UPDATE_BOT_RESPONSE,
-} from './graphQL/mutations';
-import {
     RESPONSE_ADDED,
-} from './graphQL/subscriptions';
+} from './graphql';
 import apolloClient from '../../startup/client/apollo';
 
 
@@ -169,6 +168,24 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
+    // updateResponse = (templateName, channel, newResponsePayload) => {
+    //     const { projectId, workingLanguage: language } = this.props;
+    //     const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
+    //     const cleanedResponse = JSON.parse(JSON.stringify(newResponsePayload), omitTypename);
+
+    //     apolloClient.mutate({
+    //         mutation: UPDATE_BOT_RESPONSE,
+    //         variables: { projectId, response: cleanedResponse, _id: newResponse._id },
+    //     }).then(
+    //         (result) => {
+    //             callback(undefined, result);
+    //         },
+    //         (error) => {
+    //             callback(error);
+    //         },
+    //     );
+    // }
+
     updateResponse = (newResponse, callback = () => {}) => {
         const { projectId } = this.props;
         const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
@@ -185,7 +202,6 @@ class Project extends React.Component {
             },
         );
     }
-
 
     insertResponse = (newResponse, callback = () => {}) => {
         const { projectId } = this.props;
@@ -213,6 +229,7 @@ class Project extends React.Component {
                 projectId,
                 template,
                 language: workingLanguage || 'en',
+
                 ...(channel ? { channel } : {}),
             },
         });

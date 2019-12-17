@@ -1,4 +1,3 @@
-import { dump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Placeholder } from 'semantic-ui-react';
@@ -33,7 +32,8 @@ const BotResponsesContainer = (props) => {
 
     const setSequence = (newSequence) => {
         if (template.__typename !== 'TextPayload') return setTemplate(newSequence[0]);
-        return setTemplate({ __typename: 'TextPayload', text: newSequence.map(seq => seq.text).join('\n\n') });
+        const newTemplate = { __typename: 'TextPayload', text: newSequence.map(seq => seq.text).join('\n\n') };
+        return setTemplate(newTemplate);
         // updateResponse(newTemplate);
     };
 

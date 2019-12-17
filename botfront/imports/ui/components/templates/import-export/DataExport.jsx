@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import React from 'react';
 import { useLazyQuery } from '@apollo/react-hooks';
-import { GET_BOT_RESPONSES } from '../templates-list/queries';
+import { GET_BOT_RESPONSES } from '../queries';
 
 function DataExport({ projectId }) {
     const [getBotResonses] = useLazyQuery(GET_BOT_RESPONSES, {
