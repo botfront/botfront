@@ -81,7 +81,7 @@ const BotResponsesContainer = (props) => {
                     focus={focus === index}
                     onFocus={() => setFocus(index)}
                 />
-                {index === sequenceArray.length - 1 && (
+                {index === sequenceArray.length - 1 && name && (
                     <div className='response-name'>{name}</div>)}
             </div>
         </React.Fragment>
@@ -109,7 +109,7 @@ const BotResponsesContainer = (props) => {
 
 BotResponsesContainer.propTypes = {
     deletable: PropTypes.bool,
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     initialValue: PropTypes.object,
     onChange: PropTypes.func,
     onDeleteAllResponses: PropTypes.func,
@@ -119,6 +119,7 @@ BotResponsesContainer.propTypes = {
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
+    name: null,
     initialValue: null,
     onChange: () => {},
     onDeleteAllResponses: null,
