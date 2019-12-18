@@ -19,7 +19,7 @@ export const updateResponse = async (projectId, _id, newResponse) => BotResponse
     .updateOne({ projectId, _id }, newResponse).exec();
 
 export const createResponse = async (projectId, newResponse) => BotResponses.create({
-    ...newResponse,
+    ...clearTypenameField(newResponse),
     projectId,
 });
 

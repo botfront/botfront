@@ -26,7 +26,7 @@ const BotResponseContainer = (props) => {
 
     useEffect(() => {
         setInput(unformatNewlines(value.text));
-        if (focus) focusGrabber.current.focus();
+        if (focus && focusGrabber.current) focusGrabber.current.focus();
     }, [value, focus]);
 
 

@@ -16,10 +16,11 @@ import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
 
-const defaultTemplate = (template) => {
-    if (template === 'text') return { text: '' };
-    if (template === 'qr') {
+const defaultTemplate = (templateType) => {
+    if (templateType === 'text') return { __typename: 'TextPayload', text: '' };
+    if (templateType === 'qr') {
         return {
+            __typename: 'QuickReplyPayload',
             text: '',
             buttons: [{ title: '', type: 'postback', payload: '' }],
         };
@@ -85,7 +86,7 @@ export default class StoryVisualEditor extends React.Component {
         story.insertLine(index, data);
     };
 
-    handleCreateSequence = (index, template) => {
+    handleCreateSequence = (index, templateType) => {
         this.setState({ lineInsertIndex: null });
         const { story } = this.props;
         const { language, insertResponse } = this.context;
@@ -94,17 +95,15 @@ export default class StoryVisualEditor extends React.Component {
             key,
             values: [
                 {
-                    sequence: [{ content: safeDump(defaultTemplate(template)) }],
+                    sequence: [{ content: safeDump(defaultTemplate(templateType)) }],
                     lang: language,
                 },
             ],
         };
         story.addTemplate(newTemplate);
+        this.responses[key] = { ...defaultTemplate(templateType), isNew: true };
         insertResponse(newTemplate, (err) => {
-            if (!err) {
-                const newLine = { type: 'bot', data: { name: key, new: true } };
-                story.insertLine(index, newLine);
-            }
+            if (!err) story.insertLine(index, { type: 'bot', data: { name: key } });
         });
     };
 
@@ -187,7 +186,7 @@ export default class StoryVisualEditor extends React.Component {
                     availableActions={options}
                     onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)}
                     onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)}
-                    onCreateResponse={template => this.handleCreateSequence(index, template)}
+                    onCreateResponse={templateType => this.handleCreateSequence(index, templateType)}
                     onSelectAction={action => this.handleCreateSlotOrAction(index, {
                         type: 'action', data: { name: action },
                     })}
@@ -253,14 +252,10 @@ export default class StoryVisualEditor extends React.Component {
         </React.Fragment>
     );
 
-    getInitialValue = (name, index) => {
-        const { story } = this.props;
+    getInitialValue = (name) => {
         const { getResponse } = this.context;
         getResponse(name).then((response) => {
             // if (!response) create();
-            story.replaceLine(index, {
-                type: 'bot', data: { name },
-            });
             this.responses = { ...this.responses, [name]: response };
         });
     }
@@ -292,7 +287,7 @@ export default class StoryVisualEditor extends React.Component {
                             initialValue={this.responses[name] || this.getInitialValue(name, index)}
                             onChange={newResponse => updateResponse(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                            isNew={!!line.gui.data.new}
+                            isNew={(this.responses[name] || {}).isNew}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
