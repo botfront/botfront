@@ -1,4 +1,6 @@
+import { safeDump } from 'js-yaml/lib/js-yaml';
 import BotResponses from '../botResponses.model';
+import { clearTypenameField } from '../../../../lib/utils';
 
 export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
@@ -38,6 +40,14 @@ export const getBotResponseById = async (_id) => {
     }).lean();
     return botResponse;
 };
+
+export const updateResponsePayload = async ({
+    projectId, language, key, newPayload,
+}) => BotResponses.findOneAndUpdate(
+    { projectId, key, 'values.lang': language },
+    { $set: { 'values.$.sequence': [{ content: safeDump(clearTypenameField(newPayload)) }] } },
+    { new: true, lean: true },
+).exec();
 
 export const newGetBotResponses = async ({ projectId, template, language }) => {
     // template (optional): str || array

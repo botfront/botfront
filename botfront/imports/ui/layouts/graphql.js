@@ -36,8 +36,20 @@ mutation createResponse($projectId: String!, $response: BotResponseInput) {
 }`;
 
 export const UPDATE_BOT_RESPONSE = gql`
-mutation updateResponse($projectId: String!, $_id: String!, $response: BotResponseInput) {
-    updateResponse(projectId: $projectId, _id: $_id, response: $response){
-        success
+mutation updateResponsePayload($projectId: String!, $key: String!, $language: String!, $newPayload: Any) {
+    updateResponsePayload(projectId: $projectId, key: $key, language: $language, newPayload: $newPayload) {
+        key
     }
 }`;
+
+export const UPDATE_BOT_RESPONSE_CACHE = variables => (cache, { data: { updateResponsePayload: updated } }) => {
+    if (updated.key !== variables.key) return; // check if update returned key ie. was succesful
+    const {
+        projectId, key: template, language, newPayload,
+    } = variables;
+    cache.writeQuery({
+        query: GET_BOT_RESPONSE,
+        variables: { projectId, template, language },
+        data: { getResponse: newPayload },
+    });
+};

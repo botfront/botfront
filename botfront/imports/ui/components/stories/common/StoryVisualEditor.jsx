@@ -290,7 +290,7 @@ export default class StoryVisualEditor extends React.Component {
                             exceptions={exceptions}
                             name={name}
                             initialValue={this.responses[name] || this.getInitialValue(name, index)}
-                            // onChange={updateResponse}
+                            onChange={newResponse => updateResponse(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
                             isNew={!!line.gui.data.new}
                         />
