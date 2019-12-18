@@ -1,26 +1,4 @@
-import { safeDump as yamlDump, safeLoad as yamlLoad } from 'js-yaml';
 import BotResponses from '../botResponses.model';
-
-const formatNewlines = (sequence) => {
-    const regexSpacedNewline = / {2}\n/g;
-    const regexNewline = /\n/g;
-    const updatedSequence = sequence.map(({ content: contentYaml }) => {
-        const content = yamlLoad(contentYaml);
-        if (content.text) {
-            content.text = content.text
-                .replace(regexSpacedNewline, '\n')
-                .replace(regexNewline, '  \n');
-        }
-        return { content: yamlDump({ ...content }) };
-    });
-    return updatedSequence;
-};
-
-const formatTextOnSave = values => values.map((item) => {
-    const updatedItem = item;
-    updatedItem.sequence = formatNewlines(item.sequence);
-    return updatedItem;
-});
 
 export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
@@ -29,20 +7,14 @@ export const createResponses = async (projectId, responses) => {
     const answer = newResponses.map((newResponse) => {
         const properResponse = newResponse;
         properResponse.projectId = projectId;
-        properResponse.values = formatTextOnSave(properResponse.values);
         return BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
     });
 
     return Promise.all(answer);
 };
 
-export const updateResponse = async (projectId, _id, newResponse) => {
-    const formatedResponse = {
-        ...newResponse,
-        values: formatTextOnSave(newResponse.values),
-    };
-    return BotResponses.updateOne({ projectId, _id }, formatedResponse).exec();
-};
+export const updateResponse = async (projectId, _id, newResponse) => BotResponses
+    .updateOne({ projectId, _id }, newResponse).exec();
 
 export const createResponse = async (projectId, newResponse) => BotResponses.create({
     ...newResponse,

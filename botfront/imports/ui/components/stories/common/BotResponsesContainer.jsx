@@ -45,9 +45,10 @@ const BotResponsesContainer = (props) => {
     const handleDeleteResponse = (index) => {
         const newSequence = [...getSequence()];
         newSequence.splice(index, 1);
-        // setFocus(index - 1 < 0 ? index + 1 : index - 1);
-        setFocus(Math.min(newSequence.length - 1, index - 1));
+        const oneUp = Math.min(index, newSequence.length - 1);
+        const oneDown = Math.max(0, index - 1);
         setSequence(newSequence);
+        setFocus(Math.min(oneDown, oneUp));
     };
 
     const handleChangeResponse = (newContent, index, enter) => {
@@ -67,17 +68,15 @@ const BotResponsesContainer = (props) => {
         }
     }, [toBeCreated]);
 
-
     const renderResponse = (response, index, sequenceArray) => (
-        <React.Fragment key={index}>
+        <React.Fragment key={`${response.text}-${(sequenceArray[index + 1] || {}).text}-${index}`}>
             <div className='flex-right'>
                 <BotResponseContainer
                     deletable={deletable && sequenceArray.length > 1}
                     value={response}
                     onDelete={() => handleDeleteResponse(index)}
                     onAbort={() => {}}
-                    onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)
-                    }
+                    onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)}
                     focus={focus === index}
                     onFocus={() => setFocus(index)}
                 />

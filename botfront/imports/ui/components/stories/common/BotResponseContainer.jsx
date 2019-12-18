@@ -18,14 +18,11 @@ const BotResponseContainer = (props) => {
     const hasButtons = Object.keys(value).includes('buttons');
 
     const unformatNewlines = (response) => {
-        if (!response) {
-            return response;
-        }
-        let unformattedResponse = response;
-        const regex = / {2}\n/g;
-        unformattedResponse = unformattedResponse.replace(regex, '\n');
-        return unformattedResponse;
+        if (!response) return response;
+        return response.replace(/ {2}\n/g, '\n');
     };
+
+    const formatNewlines = text => text.replace(/\n/g, '  \n');
 
     useEffect(() => {
         setInput(unformatNewlines(value.text));
@@ -34,8 +31,8 @@ const BotResponseContainer = (props) => {
 
 
     function handleTextBlur() {
-        if (isTextResponse) onChange({ text: input }, false);
-        if (hasButtons) onChange({ text: input, buttons: value.buttons }, false);
+        if (isTextResponse) onChange({ text: formatNewlines(input) }, false);
+        if (hasButtons) onChange({ text: formatNewlines(input), buttons: value.buttons }, false);
     }
 
     const handleKeyDown = (e) => {
@@ -51,7 +48,7 @@ const BotResponseContainer = (props) => {
                 return;
             }
             e.preventDefault();
-            onChange({ text: input }, true);
+            onChange({ text: formatNewlines(input) }, true);
         }
     };
 

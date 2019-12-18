@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { safeDump } from 'js-yaml';
-import { isEqual } from 'lodash';
 
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController } from '../../../../lib/story_controller';
@@ -287,7 +286,6 @@ export default class StoryVisualEditor extends React.Component {
                         {/* having language in key here makes BotResponsesContainer rerender and therefore
                          response is refetched on language change */}
                         <BotResponsesContainer
-                            key={`bot-${name}-${language}-${!!this.responses[name]}`}
                             deletable
                             exceptions={exceptions}
                             name={name}
