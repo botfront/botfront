@@ -9,27 +9,33 @@ import SequenceEditor from './SequenceEditor';
 import MetadataForm from '../MetadataForm';
 import { ProjectContext } from '../../../layouts/context';
 
+import { createResponseFromTemplate, checkResponseEmpty } from '../botResponse.utils';
+
 const BotResponseEditor = (props) => {
     const {
-        botResponse,
+        incomingBotResponse,
         open,
         trigger,
         closeModal,
         renameable,
+        isNew,
+        responseType,
     } = props;
-
     if (!open) return trigger;
+    const botResponse = isNew ? createResponseFromTemplate(responseType) : incomingBotResponse;
 
     const [activeTab, setActiveTab] = useState(0);
     const [responseKey, setResponseKey] = useState(botResponse.key);
     const [renameError, setRenameError] = useState();
 
-    const { updateResponse } = useContext(ProjectContext);
+    const { updateResponse, insertResponse } = useContext(ProjectContext);
     const handleChangeMetadata = (updatedMetadata) => {
+        if (isNew) return;
         updateResponse({ ...botResponse, metadata: updatedMetadata }, () => {});
     };
 
     const handleChangeKey = async () => {
+        if (isNew) return;
         if (!responseKey.match(/^utter_/)) return;
         updateResponse({ ...botResponse, key: responseKey }, (error) => {
             if (error) {
@@ -96,29 +102,45 @@ const BotResponseEditor = (props) => {
                 </Segment> */}
         </Segment.Group>
     );
+
+    const handleModalClose = () => {
+        if (!open) return;
+        if (isNew && !checkResponseEmpty(botResponse)) {
+            insertResponse(botResponse, (err) => {
+                if (!err) {
+                    console.log('created');
+                }
+            });
+        }
+        closeModal();
+    };
     return (
         <Modal
             className='response-editor-dimmer'
             trigger={trigger}
             content={renderContent()}
             open
-            onClose={() => { if (open) closeModal(); }}
+            onClose={handleModalClose}
             centered={false}
         />
     );
 };
 
 BotResponseEditor.propTypes = {
-    botResponse: PropTypes.object,
+    incomingBotResponse: PropTypes.object,
     open: PropTypes.bool.isRequired,
     trigger: PropTypes.element.isRequired,
     closeModal: PropTypes.func.isRequired,
     renameable: PropTypes.bool,
+    isNew: PropTypes.bool,
+    responseType: PropTypes.string,
 };
 
 BotResponseEditor.defaultProps = {
-    botResponse: {},
+    incomingBotResponse: {},
     renameable: true,
+    isNew: false,
+    responseType: '',
 };
 
 export default BotResponseEditor;

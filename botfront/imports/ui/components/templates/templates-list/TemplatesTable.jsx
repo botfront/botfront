@@ -30,8 +30,7 @@ class TemplatesTable extends React.Component {
     getTemplateLanguages = () => sortBy(this.props.nluLanguages);
 
     getColumns = (lang) => {
-        const { projectId, events } = this.props;
-
+        const { events } = this.props;
         const columns = [
             {
                 id: lang,
@@ -66,7 +65,7 @@ class TemplatesTable extends React.Component {
                                 />
                             )}
                             open={activeEditor === key}
-                            botResponse={activeEditor === key ? templates.find(({ key: templateKey }) => templateKey === activeEditor) : null}
+                            incomingBotResponse={activeEditor === key ? templates.find(({ key: templateKey }) => templateKey === activeEditor) : null}
                             closeModal={() => setActiveEditor('')}
                             renameable // replace with logic that checks if the response is contained in a story
                         />
@@ -213,7 +212,7 @@ class TemplatesTable extends React.Component {
 
     render() {
         const {
-            nluLanguages, templates, workingLanguage,
+            nluLanguages, templates, workingLanguage, newResponse, closeNewResponse,
         } = this.props;
         const activeIndex = this.getTemplateLanguages(templates).indexOf(workingLanguage);
         return (
@@ -228,6 +227,16 @@ class TemplatesTable extends React.Component {
                         menu={{ pointing: true, secondary: true }}
                         panes={this.getPanes(templates)}
                         onTabChange={this.onTabChange}
+                    />
+                )}
+                {newResponse.open && (
+                    <BotResponseEditor
+                        trigger={<div />}
+                        open={newResponse.open}
+                        closeModal={closeNewResponse}
+                        renameable
+                        responseType={newResponse.type}
+                        isNew
                     />
                 )}
             </div>
@@ -247,10 +256,12 @@ TemplatesTable.propTypes = {
     events: PropTypes.array.isRequired,
     activeEditor: PropTypes.string,
     setActiveEditor: PropTypes.func.isRequired,
+    newResponse: PropTypes.object,
+    closeNewResponse: PropTypes.func.isRequired,
 };
 
 TemplatesTable.defaultProps = {
-    activeEditor: '',
+    activeEditor: '', newResponse: { open: false, type: '' },
 };
 
 const mapStateToProps = state => ({

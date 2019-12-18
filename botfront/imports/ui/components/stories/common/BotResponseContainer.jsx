@@ -135,6 +135,7 @@ const BotResponseContainer = (props) => {
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && renderImage()}
                 {isQRResponse && renderButtons()}
+                {/* hasButtons && value.buttons !== null && renderButtons() */}
             </div>
             {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
         </div>
