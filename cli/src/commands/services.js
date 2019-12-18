@@ -191,7 +191,6 @@ export async function dockerComposeCommand(service, {name, action}, verbose, wor
     const command = regeneratedDockerCompose // if docker-compose file has been regenerated, run 'up -d' instead of 'start', to create container
         ? `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d --force-recreate`
         : `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} ${name} ${services.join(' ')}`;
-    console.log(command)
     await shellAsync(command, { silent: !verbose })
     spinner.succeed(`Done. ${message}`);
 }
