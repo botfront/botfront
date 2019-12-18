@@ -24,7 +24,7 @@ type Mutation {
         response: BotResponseInput
     ): updateResponse!
 
-    updateResponsePayload(
+    upsertResponse(
         projectId: String!
         language: String!
         newPayload: Any

@@ -29,9 +29,8 @@ import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import {
     GET_BOT_RESPONSES,
     GET_BOT_RESPONSE,
-    UPDATE_BOT_RESPONSE_CACHE,
-    CREATE_BOT_RESPONSE,
-    UPDATE_BOT_RESPONSE,
+    UPSERT_BOT_RESPONSE_CACHE,
+    UPSERT_BOT_RESPONSE,
     RESPONSE_ADDED,
 } from './graphql';
 import apolloClient from '../../startup/client/apollo';
@@ -169,34 +168,17 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    updateResponse = (key, newPayload) => {
+    upsertResponse = (key, newPayload) => {
         const { projectId, workingLanguage: language } = this.props;
         const variables = {
             projectId, language, newPayload, key,
         };
-        apolloClient.mutate({
-            mutation: UPDATE_BOT_RESPONSE,
+        return apolloClient.mutate({
+            mutation: UPSERT_BOT_RESPONSE,
             variables,
-            update: UPDATE_BOT_RESPONSE_CACHE(variables),
+            update: UPSERT_BOT_RESPONSE_CACHE(variables),
         });
     }
-
-    insertResponse = (newResponse, callback = () => {}) => {
-        const { projectId } = this.props;
-        // onCompleted and onError seems to have issues currently https://github.com/apollographql/react-apollo/issues/2293
-        apolloClient.mutate({
-            mutation: CREATE_BOT_RESPONSE,
-            variables: { projectId, response: newResponse },
-        }).then(
-            (result) => {
-                callback(undefined, result);
-            },
-            (error) => {
-                callback(error);
-            },
-        );
-    }
-
 
     getResponse = async (template) => {
         const channel = null;
@@ -307,8 +289,7 @@ class Project extends React.Component {
                                             entities,
                                             slots,
                                             language: workingLanguage,
-                                            insertResponse: this.insertResponse,
-                                            updateResponse: this.updateResponse,
+                                            upsertResponse: this.upsertResponse,
                                             getResponse: this.getResponse,
                                             addEntity: this.addEntity,
                                             addIntent: this.addIntent,

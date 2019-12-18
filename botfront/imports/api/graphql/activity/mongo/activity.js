@@ -25,7 +25,7 @@ export const upsertActivity = async ({ modelId, data }) => {
         return Activity.findOneAndUpdate(
             { modelId, ...TEXT, ...ID },
             { $set: { ...utterance, ...TEXT, updatedAt: new Date() }, $setOnInsert: { _id: shortid.generate(), createdAt: new Date() } },
-            { upsert: true, new: true },
+            { upsert: true, new: true, lean: true },
         ).exec();
     });
     return Promise.all(updates);

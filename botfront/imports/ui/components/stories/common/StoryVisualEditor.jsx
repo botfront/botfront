@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
-import { safeDump } from 'js-yaml';
 
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController } from '../../../../lib/story_controller';
@@ -86,24 +85,16 @@ export default class StoryVisualEditor extends React.Component {
         story.insertLine(index, data);
     };
 
-    handleCreateSequence = (index, templateType) => {
+    handleCreateSequence = (index, templateType, suppliedKey) => {
         this.setState({ lineInsertIndex: null });
         const { story } = this.props;
-        const { language, insertResponse } = this.context;
-        const key = `utter_${shortid.generate()}`;
-        const newTemplate = {
-            key,
-            values: [
-                {
-                    sequence: [{ content: safeDump(defaultTemplate(templateType)) }],
-                    lang: language,
-                },
-            ],
-        };
-        story.addTemplate(newTemplate);
-        this.responses[key] = { ...defaultTemplate(templateType), isNew: true };
-        insertResponse(newTemplate, (err) => {
-            if (!err) story.insertLine(index, { type: 'bot', data: { name: key } });
+        const { upsertResponse } = this.context;
+        const key = suppliedKey || `utter_${shortid.generate()}`;
+        const newTemplate = defaultTemplate(templateType);
+        story.addTemplate({ key });
+        this.responses[key] = { ...newTemplate, isNew: true };
+        upsertResponse(key, newTemplate).then((full) => {
+            if (full) story.insertLine(index, { type: 'bot', data: { name: key } });
         });
     };
 
@@ -265,7 +256,7 @@ export default class StoryVisualEditor extends React.Component {
     render() {
         const { story } = this.props;
         const { menuCloser } = this.state;
-        const { language, updateResponse } = this.context;
+        const { language, upsertResponse } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(
@@ -285,9 +276,9 @@ export default class StoryVisualEditor extends React.Component {
                             exceptions={exceptions}
                             name={name}
                             initialValue={this.responses[name] || this.getInitialValue(name, index)}
-                            onChange={newResponse => updateResponse(name, newResponse)}
+                            onChange={newResponse => upsertResponse(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                            isNew={(this.responses[name] || {}).isNew}
+                            isNew={!!(this.responses[name] || {}).isNew}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>

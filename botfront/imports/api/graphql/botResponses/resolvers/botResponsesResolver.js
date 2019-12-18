@@ -7,7 +7,7 @@ import {
     createResponses,
     deleteResponse,
     getBotResponseById,
-    updateResponsePayload,
+    upsertResponse,
 } from '../mongo/botResponses';
 
 const { PubSub, withFilter } = require('apollo-server-express');
@@ -70,7 +70,7 @@ export default {
             });
             return { success: response.ok === 1 };
         },
-        updateResponsePayload: async (_, args) => updateResponsePayload(args),
+        upsertResponse: async (_, args) => upsertResponse(args),
         async createResponse(_, args, __) {
             const response = await createResponse(args.projectId, args.response);
             pubsub.publish(RESPONSES_MODIFIED, {

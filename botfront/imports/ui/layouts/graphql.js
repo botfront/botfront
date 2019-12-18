@@ -28,21 +28,14 @@ query getResponse($template: StringOrListOfStrings!, $projectId: String!, $langu
     }
 }`;
 
-export const CREATE_BOT_RESPONSE = gql`
-mutation createResponse($projectId: String!, $response: BotResponseInput) {
-    createResponse(projectId: $projectId, response: $response){
-        success
-    }
-}`;
-
-export const UPDATE_BOT_RESPONSE = gql`
-mutation updateResponsePayload($projectId: String!, $key: String!, $language: String!, $newPayload: Any) {
-    updateResponsePayload(projectId: $projectId, key: $key, language: $language, newPayload: $newPayload) {
+export const UPSERT_BOT_RESPONSE = gql`
+mutation upsertResponse($projectId: String!, $key: String!, $language: String!, $newPayload: Any) {
+    upsertResponse(projectId: $projectId, key: $key, language: $language, newPayload: $newPayload) {
         key
     }
 }`;
 
-export const UPDATE_BOT_RESPONSE_CACHE = variables => (cache, { data: { updateResponsePayload: updated } }) => {
+export const UPSERT_BOT_RESPONSE_CACHE = variables => (cache, { data: { upsertResponse: updated } }) => {
     if (updated.key !== variables.key) return; // check if update returned key ie. was succesful
     const {
         projectId, key: template, language, newPayload,
