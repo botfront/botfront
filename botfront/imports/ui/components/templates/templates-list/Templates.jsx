@@ -1,15 +1,12 @@
 import PropTypes from 'prop-types';
 import {
-    Button, Container, Icon, Menu, Segment, Dropdown,
+    Container, Icon, Menu, Segment, Dropdown,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
-import { browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 import { useQuery, useSubscription, useMutation } from '@apollo/react-hooks';
-import { safeDump } from 'js-yaml';
-import shortid from 'shortid';
 import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
 import ImportExport from '../import-export/ImportExport';
@@ -49,7 +46,7 @@ class Templates extends React.Component {
                     />
                     <Dropdown.Item
                         text='Quick replies'
-                        onClick={() => this.setState({ newResponse: { open: true, type: 'text' } })}
+                        onClick={() => this.setState({ newResponse: { open: true, type: 'qr' } })}
                     />
                     <Dropdown.Item
                         text='Image'
@@ -177,7 +174,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
                 const newTemplates = [...templates];
                 const resp = { ...subscriptionData.data.botResponsesModified };
                 const respIdx = templates.findIndex(
-                    template => template.key === resp.key,
+                    template => template._id === resp._id,
                 );
                 if (respIdx !== -1) {
                     newTemplates[respIdx] = resp;
@@ -196,7 +193,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
                 const newTemplates = [...templates];
                 const resp = { ...subscriptionData.data.botResponseDeleted };
                 const respIdx = templates.findIndex(
-                    template => template.key === resp.key,
+                    template => template._id === resp._id || template._id === null,
                 );
                 if (respIdx !== -1) {
                     newTemplates.splice(1, 1);

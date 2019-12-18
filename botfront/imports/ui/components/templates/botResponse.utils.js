@@ -2,7 +2,7 @@ import { safeLoad, safeDump } from 'js-yaml';
 import shortid from 'shortid';
 
 const checkContentEmpty = content => ((content.text.length > 0
-    && content.buttons && content.buttons.filter(button => button.title.length > 0).length === content.buttons.length)
+    && content.buttons && content.buttons.length && content.buttons[0].title)
     || (content.text && content.text.length > 0 && !content.buttons));
 
 export const checkResponseEmpty = (response) => {

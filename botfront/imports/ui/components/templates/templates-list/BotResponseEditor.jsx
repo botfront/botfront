@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { safeDump } from 'js-yaml';
 
 import {
     Segment, Input, Menu, MenuItem, Modal, Popup, Icon,
@@ -20,23 +22,31 @@ const BotResponseEditor = (props) => {
         renameable,
         isNew,
         responseType,
+        language,
     } = props;
     if (!open) return trigger;
     const botResponse = isNew ? createResponseFromTemplate(responseType) : incomingBotResponse;
-
+    
+    const [newBotResponse, setNewBotResponse] = useState();
     const [activeTab, setActiveTab] = useState(0);
     const [responseKey, setResponseKey] = useState(botResponse.key);
     const [renameError, setRenameError] = useState();
 
     const { updateResponse, insertResponse } = useContext(ProjectContext);
     const handleChangeMetadata = (updatedMetadata) => {
-        if (isNew) return;
+        if (isNew) {
+            setNewBotResponse({ ...(newBotResponse || botResponse), metadata: updatedMetadata });
+            return;
+        }
         updateResponse({ ...botResponse, metadata: updatedMetadata }, () => {});
     };
 
     const handleChangeKey = async () => {
-        if (isNew) return;
         if (!responseKey.match(/^utter_/)) return;
+        if (isNew) {
+            setNewBotResponse({ ...(newBotResponse || botResponse), key: responseKey });
+            return;
+        }
         updateResponse({ ...botResponse, key: responseKey }, (error) => {
             if (error) {
                 if (error.message.match(/E11000/)) {
@@ -49,10 +59,49 @@ const BotResponseEditor = (props) => {
         });
     };
 
+    const updateSequence = (oldResponse, content) => {
+        const updatedResponse = oldResponse;
+        const activeIndex = oldResponse.values.findIndex(({ lang }) => lang === language);
+        updatedResponse.values[activeIndex].sequence[0].content = content;
+        return updatedResponse;
+    };
+
+    const handleSequenceChange = (updatedSequence) => {
+        const content = safeDump(updatedSequence);
+        if (isNew) {
+            setNewBotResponse(updateSequence(newBotResponse || botResponse, content));
+            return;
+        }
+        updateResponse(updateSequence(botResponse, content), (error) => {
+            if (error) {
+                console.log(error);
+            }
+        });
+    };
+
+    const handleModalClose = () => {
+        const validResponse = newBotResponse || botResponse;
+        if (!open) return;
+        if (isNew && !checkResponseEmpty(validResponse)) {
+            insertResponse(validResponse, (err) => {
+                if (err) {
+                    console.log(err);
+                }
+            });
+        }
+        closeModal();
+    };
    
     const tabs = [
-        <Segment attached='middle'><SequenceEditor botResponse={botResponse} /></Segment>,
-        <Segment attached='middle'><MetadataForm responseMetadata={botResponse.metadata} onChange={handleChangeMetadata} /></Segment>,
+        (
+            <Segment attached>
+                <SequenceEditor
+                    sequence={botResponse.values.find(({ lang }) => lang === language).sequence}
+                    onChange={handleSequenceChange}
+                />
+            </Segment>
+        ),
+        <Segment attached><MetadataForm responseMetadata={botResponse.metadata} onChange={handleChangeMetadata} /></Segment>,
     ];
 
     const renderContent = () => (
@@ -89,7 +138,7 @@ const BotResponseEditor = (props) => {
                     />
                 </div>
                 <div className='response-editor-topbar-section'>
-                    <Menu basic pointing secondary activeIndex={activeTab}>
+                    <Menu pointing secondary activeIndex={activeTab}>
                         <MenuItem onClick={() => { setActiveTab(0); }} active={activeTab === 0} className='response-variations'>Response</MenuItem>
                         <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata'>Metadata</MenuItem>
                     </Menu>
@@ -103,17 +152,7 @@ const BotResponseEditor = (props) => {
         </Segment.Group>
     );
 
-    const handleModalClose = () => {
-        if (!open) return;
-        if (isNew && !checkResponseEmpty(botResponse)) {
-            insertResponse(botResponse, (err) => {
-                if (!err) {
-                    console.log('created');
-                }
-            });
-        }
-        closeModal();
-    };
+
     return (
         <Modal
             className='response-editor-dimmer'
@@ -134,6 +173,7 @@ BotResponseEditor.propTypes = {
     renameable: PropTypes.bool,
     isNew: PropTypes.bool,
     responseType: PropTypes.string,
+    language: PropTypes.string.isRequired,
 };
 
 BotResponseEditor.defaultProps = {
@@ -143,4 +183,8 @@ BotResponseEditor.defaultProps = {
     responseType: '',
 };
 
-export default BotResponseEditor;
+const mapStateToProps = state => ({
+    language: state.settings.get('workingLanguage'),
+});
+
+export default connect(mapStateToProps)(BotResponseEditor);
