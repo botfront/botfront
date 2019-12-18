@@ -1,26 +1,26 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Placeholder } from 'semantic-ui-react';
 
 import FloatingIconButton from '../../common/FloatingIconButton';
-import { ProjectContext } from '../../../layouts/context';
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
 
 const BotResponsesContainer = (props) => {
     const {
         name,
+        initialValue,
+        onChange,
         onDeleteAllResponses,
         deletable,
         exceptions,
         isNew,
-        removeNewState,
-        language,
     } = props;
-    const { getResponse, updateResponse } = useContext(ProjectContext);
-    const [template, setTemplate] = useState(null);
+    const [template, setTemplate] = useState(initialValue || null);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
+
+    const newText = { __typename: 'TextPayload', text: '' };
 
     const getSequence = () => {
         if (!template) return [];
@@ -28,23 +28,12 @@ const BotResponsesContainer = (props) => {
         return template.text.split('\n\n').map(text => ({ __typename: 'TextPayload', text }));
     };
 
-    const newText = { __typename: 'TextPayload', text: '' };
-
     const setSequence = (newSequence) => {
         if (template.__typename !== 'TextPayload') return setTemplate(newSequence[0]);
         const newTemplate = { __typename: 'TextPayload', text: newSequence.map(seq => seq.text).join('\n\n') };
+        onChange(newTemplate);
         return setTemplate(newTemplate);
-        // updateResponse(newTemplate);
     };
-
-    useEffect(() => {
-        removeNewState();
-        if (!/^(utter_)/.test(name)) return;
-        getResponse(name).then((response) => {
-            if (response) setTemplate(response);
-            // create
-        });
-    }, [language]);
 
     const handleCreateReponse = (index) => {
         const newSequence = [...getSequence()];
@@ -98,7 +87,6 @@ const BotResponsesContainer = (props) => {
         </React.Fragment>
     );
 
-    // if (sequence && !sequence.length) onDeleteAllResponses();
     return (
         <ExceptionWrapper
             exceptions={exceptions}
@@ -111,7 +99,7 @@ const BotResponsesContainer = (props) => {
                     </Placeholder>
                 )}
                 {getSequence().map(renderResponse)}
-                {deletable && (
+                {deletable && onDeleteAllResponses && (
                     <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
                 )}
             </div>
@@ -122,15 +110,18 @@ const BotResponsesContainer = (props) => {
 BotResponsesContainer.propTypes = {
     deletable: PropTypes.bool,
     name: PropTypes.string.isRequired,
-    onDeleteAllResponses: PropTypes.func.isRequired,
+    initialValue: PropTypes.object,
+    onChange: PropTypes.func,
+    onDeleteAllResponses: PropTypes.func,
     exceptions: PropTypes.array,
     isNew: PropTypes.bool.isRequired,
-    removeNewState: PropTypes.func.isRequired,
-    language: PropTypes.string.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
+    initialValue: null,
+    onChange: () => {},
+    onDeleteAllResponses: null,
     exceptions: [{ type: null }],
 };
 
