@@ -40,11 +40,11 @@ const botResponses = new Schema({
         type: String,
         label: 'Template Key',
         match: /^(utter_)/,
-        index: true,
+        index: { unique: true },
     },
     projectId: {
         type: String,
-        index: true,
+        index: { unique: true },
     },
     values: {
         type: [
