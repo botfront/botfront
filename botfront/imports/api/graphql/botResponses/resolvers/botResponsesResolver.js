@@ -70,7 +70,12 @@ export default {
             });
             return { success: response.ok === 1 };
         },
-        upsertResponse: async (_, args) => upsertResponse(args),
+        upsertResponse: async (_, args) => {
+            const response = await upsertResponse(args);
+            const { projectId, ...botResponsesModified } = response;
+            pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
+            return response;
+        },
         async createResponse(_, args, __) {
             const response = await createResponse(args.projectId, args.response);
             pubsub.publish(RESPONSES_MODIFIED, {
