@@ -248,8 +248,21 @@ export default class StoryVisualEditor extends React.Component {
         const { getResponse } = this.context;
         const { responses } = this.state;
         getResponse(name).then((response) => {
+            if (!response) return;
             responses[name] = response;
             this.setState({ responses });
+        });
+    }
+
+    handleBotResponseChange = async (name, newResponse) => {
+        const { upsertResponse } = this.context;
+        const { story } = this.props;
+        const { responses } = this.state;
+        upsertResponse(name, newResponse).then((response) => {
+            if (!response) return;
+            story.addTemplate({ key: name });
+            responses[name] = newResponse;
+            this.setState({ responses }); // to update exceptions
         });
     }
 
@@ -258,7 +271,7 @@ export default class StoryVisualEditor extends React.Component {
     render() {
         const { story } = this.props;
         const { menuCloser, responses } = this.state;
-        const { language, upsertResponse } = this.context;
+        const { language } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(
@@ -278,7 +291,7 @@ export default class StoryVisualEditor extends React.Component {
                             exceptions={exceptions}
                             name={name}
                             initialValue={responses[name] || this.getBotResponseInitialValue(name, index)}
-                            onChange={newResponse => upsertResponse(name, newResponse)}
+                            onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
                             isNew={!!(responses[name] || {}).isNew}
                         />
