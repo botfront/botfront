@@ -29,10 +29,13 @@ const BotResponsesContainer = (props) => {
     };
 
     const setSequence = (newSequence) => {
-        if (template.__typename !== 'TextPayload') return setTemplate(newSequence[0]);
-        const newTemplate = { __typename: 'TextPayload', text: newSequence.map(seq => seq.text).join('\n\n') };
-        onChange(newTemplate);
-        return setTemplate(newTemplate);
+        if (template.__typename === 'TextPayload') {
+            const newTemplate = { __typename: 'TextPayload', text: newSequence.map(seq => seq.text).join('\n\n') };
+            onChange(newTemplate);
+            return setTemplate(newTemplate);
+        }
+        onChange(newSequence[0]);
+        return setTemplate(newSequence[0]);
     };
 
     const handleCreateReponse = (index) => {
