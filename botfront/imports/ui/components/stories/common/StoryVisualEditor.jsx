@@ -31,11 +31,10 @@ export default class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
         menuCloser: () => {},
+        responses: {},
     };
 
     addStoryCursor = React.createRef();
-
-    responses = {};
 
     componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
@@ -86,13 +85,15 @@ export default class StoryVisualEditor extends React.Component {
     };
 
     handleCreateSequence = (index, templateType, suppliedKey) => {
+        const { responses } = this.state;
         this.setState({ lineInsertIndex: null });
         const { story } = this.props;
         const { upsertResponse } = this.context;
         const key = suppliedKey || `utter_${shortid.generate()}`;
         const newTemplate = defaultTemplate(templateType);
         story.addTemplate({ key });
-        this.responses[key] = { ...newTemplate, isNew: true };
+        responses[key] = { ...newTemplate, isNew: true };
+        this.setState({ responses });
         upsertResponse(key, newTemplate).then((full) => {
             if (full) story.insertLine(index, { type: 'bot', data: { name: key } });
         });
@@ -243,11 +244,12 @@ export default class StoryVisualEditor extends React.Component {
         </React.Fragment>
     );
 
-    getInitialValue = (name) => {
+    getBotResponseInitialValue = (name) => {
         const { getResponse } = this.context;
+        const { responses } = this.state;
         getResponse(name).then((response) => {
-            // if (!response) create();
-            this.responses = { ...this.responses, [name]: response };
+            responses[name] = response;
+            this.setState({ responses });
         });
     }
 
@@ -255,7 +257,7 @@ export default class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
-        const { menuCloser } = this.state;
+        const { menuCloser, responses } = this.state;
         const { language, upsertResponse } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
@@ -268,17 +270,17 @@ export default class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'bot') {
                 const { name } = line.gui.data;
                 return (
-                    <React.Fragment key={`bot-${name}-${language}-${!!this.responses[name]}`}>
+                    <React.Fragment key={`bot-${name}-${language}-${!!responses[name]}`}>
                         {/* having language in key here makes BotResponsesContainer rerender and therefore
                          response is refetched on language change */}
                         <BotResponsesContainer
                             deletable
                             exceptions={exceptions}
                             name={name}
-                            initialValue={this.responses[name] || this.getInitialValue(name, index)}
+                            initialValue={responses[name] || this.getBotResponseInitialValue(name, index)}
                             onChange={newResponse => upsertResponse(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                            isNew={!!(this.responses[name] || {}).isNew}
+                            isNew={!!(responses[name] || {}).isNew}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
