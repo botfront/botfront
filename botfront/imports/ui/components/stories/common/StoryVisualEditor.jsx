@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
+import { isEqual } from 'lodash';
 
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController } from '../../../../lib/story_controller';
@@ -258,6 +259,7 @@ export default class StoryVisualEditor extends React.Component {
         const { upsertResponse } = this.context;
         const { story } = this.props;
         const { responses } = this.state;
+        if (isEqual(responses[name], newResponse)) return;
         upsertResponse(name, newResponse).then((response) => {
             if (!response) return;
             story.addTemplate({ key: name });
