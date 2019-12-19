@@ -174,7 +174,9 @@ const StoryEditorContainer = ({
     const GetExceptionsLengthByType = exceptionType => (
         // valid types are "errors" and "warnings"
         exceptions[story._id] && exceptions[story._id][exceptionType]
-            ? exceptions[story._id][exceptionType].length
+            ? exceptions[story._id][exceptionType]
+                .filter(storyMode === 'markdown' ? e => e : e => e.code !== 'no_such_response') // don't show missing template warning in visual mode
+                .length
             : 0
     );
 
