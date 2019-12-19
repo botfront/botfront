@@ -65,7 +65,7 @@ exports.updateConversation = async function(req, res) {
                     setTracker[`tracker.${key}`] = tracker[key];
                 }
             });
-
+            const intents = tracker.events.filter( event => event.event === 'user').map((event => event.parse_data.intent.name))
             const dialogues = db.get('conversations', {
                 castIds: false,
             });
@@ -79,6 +79,9 @@ exports.updateConversation = async function(req, res) {
                         $set: {
                             ...setTracker,
                             updatedAt: new Date(),
+                        },
+                        $addToSet: {
+                            intents: { $each: intents },
                         },
                     },
                 )
