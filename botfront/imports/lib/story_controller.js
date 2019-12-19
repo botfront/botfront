@@ -215,11 +215,11 @@ export class StoryController {
         }
     };
 
-    validateStory = () => {
+    validateStory = (saveUpdate = true) => {
         this.reset();
         // if (!this.md.replace(/\s/g, '').length) this.raiseStoryException('no_empty');
         this.validateLines();
-        this.saveUpdate();
+        if (saveUpdate) this.saveUpdate();
     };
 
     validateLines = () => {
@@ -301,7 +301,7 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i + 1), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.validateStory();
+        if (content.data && content.data !== [null]) this.saveUpdate();
     };
 
     replaceLine = (i, content) => {
@@ -309,7 +309,8 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.validateStory();
+        const saveUpdate = content.data && content.data !== [null];
+        this.validateStory(saveUpdate);
     };
 
     setMd = (content) => {
