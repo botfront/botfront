@@ -4,10 +4,10 @@ import { Comment } from 'semantic-ui-react';
 
 import UserUtteranceViewer from '../nlu/common/UserUtteranceViewer';
 
-export default function UserUtteredEventViewer({ event }) {
+export default function UserUtteredEventViewer({ event, author }) {
     return (
         <Comment.Content>
-            <Comment.Author as='a'>User</Comment.Author>
+            <Comment.Author as='a'>{author || 'User'}</Comment.Author>
             <Comment.Metadata>
                 <span>{event.timestamp.format('ddd, MMM Do, h:mm:ss a')}</span>
             </Comment.Metadata>
@@ -25,4 +25,9 @@ export default function UserUtteredEventViewer({ event }) {
 
 UserUtteredEventViewer.propTypes = {
     event: PropTypes.object.isRequired,
+    author: PropTypes.string,
+};
+
+UserUtteredEventViewer.defaultProps = {
+    author: null,
 };

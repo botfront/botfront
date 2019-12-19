@@ -69,11 +69,10 @@ function ConversationViewer (props) {
                 </Segment>
             );
         }
-            
         return (
             <Segment style={style} attached>
-                {active === 'Text' && <ConversationDialogueViewer tracker={tracker.tracker} mode='text' />}
-                {active === 'Debug' && <ConversationDialogueViewer tracker={tracker.tracker} mode='debug' />}
+                {active === 'Text' && <ConversationDialogueViewer conversation={tracker} mode='text' />}
+                {active === 'Debug' && <ConversationDialogueViewer conversation={tracker} mode='debug' />}
                 {active === 'JSON' && <ConversationJsonViewer tracker={tracker.tracker} />}
             </Segment>
         );
