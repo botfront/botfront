@@ -53,12 +53,19 @@ exports.insertConversation = function(req, res) {
         .catch(error => res.status(error.code || 500).json(error));
 };
 
+const extractUserIdFromTracker = (tracker) => {
+    if (!tracker || !tracker.events) return null;
+    const { metadata: { userId } } = tracker.events.filter(e => e.event === 'user')[0] || { metadata: {} };
+    return userId || null;
+}
+
 exports.updateConversation = async function(req, res) {
     const { project_id: projectId, sender_id: senderId } = req.params;
     if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, req);
     checkApiKeyAgainstProject(projectId, req)
         .then(() => {
             const tracker = req.body;
+            const userId = extractUserIdFromTracker(tracker);
             const setTracker = {};
             Object.keys(tracker).forEach(key => {
                 if (key !== 'events') {
@@ -79,6 +86,7 @@ exports.updateConversation = async function(req, res) {
                         $set: {
                             ...setTracker,
                             updatedAt: new Date(),
+                            ...({ userId } || {}),
                         },
                     },
                 )

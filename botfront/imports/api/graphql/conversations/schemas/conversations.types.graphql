@@ -31,6 +31,7 @@ type Pagination {
 
 type ConversationContainer {
     tracker: Conversation
+    userId: String
     projectId: String
     status: String
     _id: String
