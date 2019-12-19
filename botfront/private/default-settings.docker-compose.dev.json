@@ -11,7 +11,7 @@
             "rasaUrl": "http://localhost:5005",
             "bfApiHost": "http://localhost:8080",
             "rootUrl": "http://host.docker.internal:3000",
-            "actionsServerUrl": "http://localhost:5055/webhook",
+            "actionsServerUrl": "http://actions:5055/webhook",
             "defaultEndpoints": "nlg:\n  type: 'rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator'\n  url: 'http://host.docker.internal:3000/graphql'\naction_endpoint:\n  url: 'http://host.docker.internal:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: http://host.docker.internal:8080\n  project_id: '{BF_PROJECT_ID}'",
             "defaultCredentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
             "defaultPolicies": "policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy",
