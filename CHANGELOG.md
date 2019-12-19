@@ -2,6 +2,67 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.0](https://github.com/botfront/botfront/compare/v0.18.5...v0.19.0-alpha.0) (2019-12-19)
+
+
+### Bug Fixes
+
+* add entities in the NLU Playground ([9f5d2e3](https://github.com/botfront/botfront/commit/9f5d2e3))
+* canonical popup alignment and style ([7df72e1](https://github.com/botfront/botfront/commit/7df72e1))
+* change training status determination method ([9aa6e15](https://github.com/botfront/botfront/commit/9aa6e15))
+* crash in incoming ([af33948](https://github.com/botfront/botfront/commit/af33948))
+* default settings for development setup are incorrect ([#373](https://github.com/botfront/botfront/issues/373)) ([7a6add8](https://github.com/botfront/botfront/commit/7a6add8))
+* deprecated parameter in context parse method ([b1969f4](https://github.com/botfront/botfront/commit/b1969f4))
+* import project error message not displayed ([#348](https://github.com/botfront/botfront/issues/348)) ([0a049ce](https://github.com/botfront/botfront/commit/0a049ce))
+* instantaneous chat answers ([3ed1695](https://github.com/botfront/botfront/commit/3ed1695))
+* keep only allowed fields in activity insertion/reparse ([8704cd3](https://github.com/botfront/botfront/commit/8704cd3))
+* meteor server setup up for graphQL subscriptions ([e2bb30e](https://github.com/botfront/botfront/commit/e2bb30e))
+* mongo connection failure message ([f045af3](https://github.com/botfront/botfront/commit/f045af3))
+* remember story group selection ([febf6ef](https://github.com/botfront/botfront/commit/febf6ef))
+* **cli:** error when running the CLI outside a project folder ([#374](https://github.com/botfront/botfront/issues/374)) ([1f6a3f8](https://github.com/botfront/botfront/commit/1f6a3f8))
+* wrong default API host in default-settings.docker-compose.dev.json ([5f932d6](https://github.com/botfront/botfront/commit/5f932d6))
+* **cli:** selecting logs in the main menu crashes the CLI ([777670c](https://github.com/botfront/botfront/commit/777670c))
+
+
+### Features
+
+* add conversations mutations names ([913ade7](https://github.com/botfront/botfront/commit/913ade7))
+* **cli:** show more relevant commands on botfront up ([b393e16](https://github.com/botfront/botfront/commit/b393e16))
+* add graphQL schema for activity ([c846b6d](https://github.com/botfront/botfront/commit/c846b6d))
+* add resolver for activity ([e30d3e2](https://github.com/botfront/botfront/commit/e30d3e2))
+* add security layer to GraphQL API ([#368](https://github.com/botfront/botfront/issues/368)) ([b79684d](https://github.com/botfront/botfront/commit/b79684d))
+* include intent confidence score in conversations viewer ([#358](https://github.com/botfront/botfront/issues/358)) ([5ffe46d](https://github.com/botfront/botfront/commit/5ffe46d))
+* **activity:** batch reinterpret only visible items ([efd548b](https://github.com/botfront/botfront/commit/efd548b))
+* mark any first example for an intent & entity combination canonical ([#356](https://github.com/botfront/botfront/issues/356)) ([5152d13](https://github.com/botfront/botfront/commit/5152d13))
+* **actions:** rebuild action server on file change ([9724433](https://github.com/botfront/botfront/commit/9724433))
+* **activity:** add sorting by confidence % ([87c18fe](https://github.com/botfront/botfront/commit/87c18fe))
+* **activity:** attempt at optimistic rerendering ([7989b56](https://github.com/botfront/botfront/commit/7989b56))
+* **activity:** use subscriptions instead of query ([1534c76](https://github.com/botfront/botfront/commit/1534c76))
+* **data table:** add props for fixed w&h ([a6eadc4](https://github.com/botfront/botfront/commit/a6eadc4))
+* **data table:** show header only if present, add fixedRows prop ([0d5dd34](https://github.com/botfront/botfront/commit/0d5dd34))
+* **intent dropdown:** sort selected first ([d8f4f4b](https://github.com/botfront/botfront/commit/d8f4f4b))
+* **intent label:** new intent label wip ([2c16be8](https://github.com/botfront/botfront/commit/2c16be8))
+* **project context:** refresh intents and entities on mount ([#354](https://github.com/botfront/botfront/issues/354)) ([bc36c91](https://github.com/botfront/botfront/commit/bc36c91))
+
+
+### Tests
+
+* enable eslint no-undef ([858a8ce](https://github.com/botfront/botfront/commit/858a8ce))
+* fix cypress tests ([5345fa6](https://github.com/botfront/botfront/commit/5345fa6))
+* fix cypress tests ([9d980c7](https://github.com/botfront/botfront/commit/9d980c7))
+* fix incoming tests ([e326e4c](https://github.com/botfront/botfront/commit/e326e4c))
+* fix test, polyfill fromEntries ([621ea41](https://github.com/botfront/botfront/commit/621ea41))
+* fix tests ([d837348](https://github.com/botfront/botfront/commit/d837348))
+* fix the fix ([92b0176](https://github.com/botfront/botfront/commit/92b0176))
+* persist working language ([b7cba07](https://github.com/botfront/botfront/commit/b7cba07))
+* reintroduce qr postback button test ([c62817b](https://github.com/botfront/botfront/commit/c62817b))
+* **activity:** update tests ([016a2c7](https://github.com/botfront/botfront/commit/016a2c7))
+* remove incoming from redux language tests ([58b0544](https://github.com/botfront/botfront/commit/58b0544))
+* removes callback might fix random bug ([65ea143](https://github.com/botfront/botfront/commit/65ea143))
+* update selectors to new dataCy selectors ([a49073d](https://github.com/botfront/botfront/commit/a49073d))
+
+
+
 ### [0.18.5](https://github.com/botfront/botfront/compare/v0.18.4...v0.18.5) (2019-11-22)
 
 
