@@ -149,7 +149,7 @@ const Intent = React.forwardRef((props, ref) => {
 });
 
 Intent.propTypes = {
-    value: PropTypes.string.isRequired,
+    value: PropTypes.string,
     allowEditing: PropTypes.bool,
     allowAdditions: PropTypes.bool,
     enableReset: PropTypes.bool,
@@ -158,6 +158,7 @@ Intent.propTypes = {
 };
 
 Intent.defaultProps = {
+    value: null,
     allowEditing: false,
     allowAdditions: false,
     onChange: () => {},
