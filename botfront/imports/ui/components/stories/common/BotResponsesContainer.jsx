@@ -123,7 +123,7 @@ const BotResponsesContainer = (props) => {
                     <div className='response-edit-menu'>
                         <BotResponseEditor
                             trigger={(
-                                <Button className='delete-responses' icon={{ name: 'ellipsis vertical', size: 'small' }} onClick={() => setEditorOpen(true)} data-cy='delete-responses' />
+                                <Button className='delete-responses' icon={{ name: 'ellipsis vertical', size: 'small' }} onClick={() => setEditorOpen(true)} data-cy='edit-responses' />
                             )}
                             open={editorOpen}
                             name={name}
@@ -131,7 +131,7 @@ const BotResponsesContainer = (props) => {
                             renameable={false}
                             refreshBotResponse={refreshBotResponse}
                         />
-                        <Button className='open-edit-responses' icon={{ name: 'trash', size: 'small' }} onClick={onDeleteAllResponses} data-cy='edit-responses' />
+                        <Button className='open-edit-responses' icon={{ name: 'trash', size: 'small' }} onClick={onDeleteAllResponses} data-cy='delete-responses' />
                     </div>
                 )}
             </div>

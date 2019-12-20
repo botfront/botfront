@@ -45,23 +45,28 @@ class Templates extends React.Component {
                 labeled
                 button
                 className='icon'
+                data-cy='create-response'
             >
                 <Dropdown.Menu>
                     <Dropdown.Item
                         text='Text'
                         onClick={() => this.setState({ newResponse: { open: true, type: 'text' } })}
+                        data-cy='add-text-response'
                     />
                     <Dropdown.Item
                         text='Quick replies'
                         onClick={() => this.setState({ newResponse: { open: true, type: 'qr' } })}
+                        data-cy='add-quick-reply-response'
                     />
                     <Dropdown.Item
                         text='Image'
                         onClick={() => console.log('text click')}
+                        data-cy='add-image-response'
                     />
                     <Dropdown.Item
                         text='Custom'
                         onClick={() => console.log('quick click')}
+                        data-cy='add-custom-response'
                     />
                 </Dropdown.Menu>
             </Dropdown>

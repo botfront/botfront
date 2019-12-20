@@ -111,7 +111,6 @@ const BotResponseEditor = (props) => {
             return;
         }
         upsertResponse(name || responseKey, updatedSequence).then((error, result) => {
-            refreshBotResponse(name)
             if (error) {
                 console.log(error);
             }
@@ -128,6 +127,7 @@ const BotResponseEditor = (props) => {
                 }
             });
         }
+        refreshBotResponse(name);
         closeModal();
     };
 
@@ -152,7 +152,7 @@ const BotResponseEditor = (props) => {
     ];
 
     const renderContent = () => (
-        <Segment.Group className='response-editor'>
+        <Segment.Group className='response-editor' data-cy='response-editor'>
             <Segment attached='top' className='resonse-editor-topbar'>
                 <div className='response-editor-topbar-section'>
                     <Popup
@@ -170,6 +170,7 @@ const BotResponseEditor = (props) => {
                                     onBlur={handleChangeKey}
                                     disabled={!renameable}
                                     error={renameError}
+                                    data-cy='response-name-input'
                                 />
                                 {renameError && (
                                     <Popup
@@ -186,8 +187,8 @@ const BotResponseEditor = (props) => {
                 </div>
                 <div className='response-editor-topbar-section'>
                     <Menu pointing secondary activeIndex={activeTab}>
-                        <MenuItem onClick={() => { setActiveTab(0); }} active={activeTab === 0} className='response-variations'>Response</MenuItem>
-                        <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata'>Metadata</MenuItem>
+                        <MenuItem onClick={() => { setActiveTab(0); }} active={activeTab === 0} className='response-variations' data-cy='variations-tab'>Response</MenuItem>
+                        <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata' data-cy='metadata-tab'>Metadata</MenuItem>
                     </Menu>
                 </div>
                 <div className='response-editor-topbar-section' />
@@ -237,9 +238,9 @@ BotResponseEditor.defaultProps = {
 
 const BotResponseEditorWrapper = (props) => {
     const {
-        incomingBotResponse, open, trigger, projectId, name,
+        incomingBotResponse, open, trigger, projectId, name, isNew,
     } = props;
-    if (!open) return trigger;
+    
 
     const [botResponse, setBotResponse] = useState();
     const [loading, setLoading] = useState(true);
@@ -266,8 +267,7 @@ const BotResponseEditorWrapper = (props) => {
             },
         });
     }
-
-    if (!botResponse && !incomingBotResponse) return trigger;
+    if (!botResponse && !incomingBotResponse && !isNew) return trigger;
     return (
         <BotResponseEditor
             {...props}

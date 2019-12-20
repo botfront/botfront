@@ -165,7 +165,7 @@ function ResponseMetadataForm({
             menuItem: 'General',
             render: () => (
                 <>
-                    <AutoField name='linksTarget' />
+                    <AutoField name='linksTarget' data-cy='links-target' />
                     <AutoField name='userInput' />
                     <AutoField name='messageTarget' />
                 </>
@@ -216,8 +216,8 @@ function ResponseMetadataForm({
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
-                            <LongTextField name='customCss.text' label='Message text CSS' />
-                            <LongTextField name='customCss.messageContainer' label='Message container CSS' />
+                            <LongTextField name='customCss.text' label='Message text CSS' data-cy='custom-message-css'/>
+                            <LongTextField name='customCss.messageContainer' label='Message container CSS' data-cy='custom-container-css' />
                         </>
                     </DisplayIf>
                 </>
@@ -233,7 +233,7 @@ function ResponseMetadataForm({
                 <br />
                 <ErrorsField />
                 <br />
-                <SubmitField name='Save' />
+                <SubmitField name='Save' data-cy='submit-metadata'/>
             </AutoForm>
         </div>
     );
