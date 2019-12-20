@@ -38,7 +38,14 @@ class Templates extends React.Component {
     renderAddResponse = () => {
         const { nluLanguages } = this.props;
         return (
-            <Dropdown text='Add bot response'>
+            <Dropdown
+                text='Add bot response'
+                icon='plus'
+                floating
+                labeled
+                button
+                className='icon'
+            >
                 <Dropdown.Menu>
                     <Dropdown.Item
                         text='Text'
