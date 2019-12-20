@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 const email = 'nludatar@test.ia';
-const projectId = 'bf'
+const projectId = 'bf';
 describe('nlu-data:r role permissions', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
@@ -33,8 +33,7 @@ describe('nlu-data:r role permissions', function() {
 
     it('should not be able to change intent, validate or expand entries', function () {
         cy.visit(`/project/${projectId}/nlu/models`);
-        cy.get('[data-cy=model-selector]').click();
-        cy.get('[data-cy=model-selector] input').type('French{enter}');
+        cy.get('[data-cy=language-selector] input').type('French{enter}');
         cy.get('[data-cy=process-in-bulk]').should('not.exist');
         cy.get('[data-cy=validate-button]').should('not.exist');
         cy.get('.nlu-delete-example').should('not.exist');
