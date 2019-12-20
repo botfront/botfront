@@ -94,7 +94,7 @@ export default {
             const response = await createResponse(args.projectId, args.response);
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
-                botResponsesModified: args.response,
+                botResponsesModified: response,
             });
             pubsub.publish(RESPONSE_ADDED, { projectId: args.projectId, botResponseAdded: args.response });
             return { success: !!response.id };
