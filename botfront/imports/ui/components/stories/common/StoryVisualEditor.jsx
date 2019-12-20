@@ -249,6 +249,12 @@ export default class StoryVisualEditor extends React.Component {
         });
     }
 
+    refreshBotResponse = (name) => {
+        const { responses } = this.state;
+        const { [name]: removedResponse, ...rest } = responses;
+        this.setState({ responses: rest });
+    }
+
     handleBotResponseChange = async (name, newResponse) => {
         const { upsertResponse, language } = this.context;
         const { story } = this.props;
@@ -289,6 +295,7 @@ export default class StoryVisualEditor extends React.Component {
                             onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
                             isNew={!!(responses[`${language}-${name}`] || {}).isNew}
+                            refreshBotResponse={this.refreshBotResponse}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>

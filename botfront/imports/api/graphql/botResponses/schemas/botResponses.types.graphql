@@ -24,6 +24,13 @@ type Mutation {
         response: BotResponseInput
     ): updateResponse!
 
+    updateResponseFlex(
+        projectId: String!
+        _id: String
+        key: String
+        response: BotResponseInput
+    ): updateResponse!
+
     upsertResponse(
         projectId: String!
         language: String!
@@ -36,6 +43,10 @@ type Mutation {
 }
 
 type updateResponse {
+    success: Boolean!
+}
+
+type updateResponseFlex {
     success: Boolean!
 }
 

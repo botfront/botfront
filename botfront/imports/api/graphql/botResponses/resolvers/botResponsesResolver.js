@@ -3,6 +3,7 @@ import {
     getBotResponses,
     getBotResponse,
     updateResponse,
+    updateResponseFlex,
     createResponse,
     createResponses,
     deleteResponse,
@@ -75,6 +76,19 @@ export default {
             const { projectId, ...botResponsesModified } = response;
             pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
+        },
+        async updateResponseFlex(_, args, __) {
+            const response = await updateResponseFlex(
+                args.projectId,
+                args._id,
+                args.key,
+                args.response,
+            );
+            pubsub.publish(RESPONSES_MODIFIED, {
+                projectId: args.projectId,
+                botResponsesModified: args.response,
+            });
+            return { success: response.ok === 1 };
         },
         async createResponse(_, args, __) {
             const response = await createResponse(args.projectId, args.response);

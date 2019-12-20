@@ -15,8 +15,8 @@ mutation createResponse($projectId: String!, $response: BotResponseInput) {
 }`;
 
 export const UPDATE_BOT_RESPONSE = gql`
-mutation updateResponse($projectId: String!, $_id: String!, $response: BotResponseInput) {
-    updateResponse(projectId: $projectId, _id: $_id, response: $response){
+mutation updateResponseFlex($projectId: String!, $_id: String, $key: String, $response: BotResponseInput) {
+    updateResponseFlex(projectId: $projectId, _id: $_id, key: $key, response: $response){
       success
     }
 }`;

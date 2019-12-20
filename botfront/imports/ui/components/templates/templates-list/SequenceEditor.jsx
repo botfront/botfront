@@ -3,6 +3,7 @@ import React from 'react';
 
 import { safeLoad } from 'js-yaml';
 import PropTypes from 'prop-types';
+import { addContentType } from '../botResponse.utils';
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 
 
@@ -11,15 +12,19 @@ const SequenceEditor = (props) => {
         sequence,
         onChange,
     } = props;
-
+    const getContent = (variation) => {
+        const content = safeLoad(variation.content);
+        return content.__typename ? content : addContentType(content);
+    };
     const renderContent = () => {
         if (!sequence) return <></>;
         return (
             <BotResponsesContainer
                 deleteable
-                initialValue={safeLoad(sequence[0].content)}
+                initialValue={getContent(sequence[0])}
                 onChange={onChange}
                 isNew={false}
+                enableEditPopup={false}
             />
         );
     };
@@ -28,10 +33,7 @@ const SequenceEditor = (props) => {
 
 SequenceEditor.propTypes = {
     sequence: PropTypes.array.isRequired,
-    onChange: PropTypes.func,
-};
-SequenceEditor.defaultProps = {
-    onChange: undefined,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default SequenceEditor;

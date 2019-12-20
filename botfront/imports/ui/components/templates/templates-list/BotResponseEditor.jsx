@@ -1,17 +1,22 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { safeDump } from 'js-yaml';
-
+import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks';
 import {
     Segment, Input, Menu, MenuItem, Modal, Popup, Icon,
 } from 'semantic-ui-react';
-
+// connections
+import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../mutations';
+import { RESPONSES_MODIFIED } from './subscriptions';
+import { GET_BOT_RESPONSE } from '../queries';
+// components
+import { ProjectContext } from '../../../layouts/context';
 import SequenceEditor from './SequenceEditor';
 import MetadataForm from '../MetadataForm';
-import { ProjectContext } from '../../../layouts/context';
-
+// utils
 import { createResponseFromTemplate, checkResponseEmpty } from '../botResponse.utils';
+import { clearTypenameField } from '../../../../lib/utils';
 
 const BotResponseEditor = (props) => {
     const {
@@ -23,16 +28,49 @@ const BotResponseEditor = (props) => {
         isNew,
         responseType,
         language,
+        projectId,
+        refreshBotResponse,
+        name,
     } = props;
     if (!open) return trigger;
     const botResponse = isNew ? createResponseFromTemplate(responseType) : incomingBotResponse;
+
+    const { upsertResponse } = useContext(ProjectContext);
     
     const [newBotResponse, setNewBotResponse] = useState();
     const [activeTab, setActiveTab] = useState(0);
     const [responseKey, setResponseKey] = useState(botResponse.key);
     const [renameError, setRenameError] = useState();
 
-    const { updateResponse, insertResponse } = useContext(ProjectContext);
+    const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
+    const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
+
+    const insertResponse = (newResponse, callback) => {
+        createBotResponse({ variables: { projectId, response: clearTypenameField(newResponse) } }).then(
+            (result) => {
+                callback(undefined, result);
+            },
+            (error) => {
+                callback(error);
+            },
+        );
+    };
+
+    const updateResponse = (updatedResponse, callback) => {
+        updateBotResponse({
+            variables: {
+                projectId, _id: updatedResponse._id, key: updatedResponse.key, response: clearTypenameField(updatedResponse),
+            },
+        }).then(
+            (result) => {
+                callback(undefined, result);
+            },
+            (error) => {
+                callback(error);
+            },
+        );
+    };
+
     const handleChangeMetadata = (updatedMetadata) => {
         if (isNew) {
             setNewBotResponse({ ...(newBotResponse || botResponse), metadata: updatedMetadata });
@@ -72,7 +110,8 @@ const BotResponseEditor = (props) => {
             setNewBotResponse(updateSequence(newBotResponse || botResponse, content));
             return;
         }
-        updateResponse(updateSequence(botResponse, content), (error) => {
+        upsertResponse(name || responseKey, updatedSequence).then((error, result) => {
+            refreshBotResponse(name)
             if (error) {
                 console.log(error);
             }
@@ -91,12 +130,20 @@ const BotResponseEditor = (props) => {
         }
         closeModal();
     };
+
+    const getActiveValue = () => {
+        const activeValue = botResponse.values && botResponse.values.find(({ lang }) => lang === language);
+        if (!activeValue) {
+            createResponseFromTemplate();
+        }
+        return activeValue.sequence;
+    };
    
     const tabs = [
         (
             <Segment attached>
                 <SequenceEditor
-                    sequence={botResponse.values.find(({ lang }) => lang === language).sequence}
+                    sequence={getActiveValue()}
                     onChange={handleSequenceChange}
                 />
             </Segment>
@@ -174,6 +221,9 @@ BotResponseEditor.propTypes = {
     isNew: PropTypes.bool,
     responseType: PropTypes.string,
     language: PropTypes.string.isRequired,
+    projectId: PropTypes.string.isRequired,
+    refreshBotResponse: PropTypes.func,
+    name: PropTypes.string,
 };
 
 BotResponseEditor.defaultProps = {
@@ -181,10 +231,77 @@ BotResponseEditor.defaultProps = {
     renameable: true,
     isNew: false,
     responseType: '',
+    refreshBotResponse: () => {},
+    name: null,
+};
+
+const BotResponseEditorWrapper = (props) => {
+    const {
+        incomingBotResponse, open, trigger, projectId, name,
+    } = props;
+    if (!open) return trigger;
+
+    const [botResponse, setBotResponse] = useState();
+    const [loading, setLoading] = useState(true);
+
+    if (name) {
+        const {
+            loading: queryLoading, error, data, refetch,
+        } = useQuery(GET_BOT_RESPONSE, {
+            variables: { projectId, key: name },
+        });
+        useEffect(() => {
+            if (data && data.botResponse) {
+                setBotResponse(data.botResponse);
+            }
+        }, [data]);
+        useSubscription(RESPONSES_MODIFIED, {
+            variables: { projectId },
+            onSubscriptionData: ({ subscriptionData }) => {
+                if (!loading) {
+                    // const newBotResponse = { ...botResponse };
+                    const resp = { ...subscriptionData.data.botResponsesModified };
+                    if (resp.name === name) { setBotResponse(resp); }
+                }
+            },
+        });
+    }
+
+    if (!botResponse && !incomingBotResponse) return trigger;
+    return (
+        <BotResponseEditor
+            {...props}
+            incomingBotResponse={botResponse || incomingBotResponse}
+        />
+    );
+};
+
+BotResponseEditorWrapper.propTypes = {
+    incomingBotResponse: PropTypes.object,
+    open: PropTypes.bool.isRequired,
+    trigger: PropTypes.element.isRequired,
+    closeModal: PropTypes.func.isRequired,
+    renameable: PropTypes.bool,
+    isNew: PropTypes.bool,
+    responseType: PropTypes.string,
+    language: PropTypes.string.isRequired,
+    projectId: PropTypes.string.isRequired,
+    refreshBotResponse: PropTypes.func,
+    name: PropTypes.string,
+};
+
+BotResponseEditorWrapper.defaultProps = {
+    incomingBotResponse: null,
+    renameable: true,
+    isNew: false,
+    responseType: '',
+    refreshBotResponse: () => {},
+    name: null,
 };
 
 const mapStateToProps = state => ({
     language: state.settings.get('workingLanguage'),
+    projectId: state.settings.get('projectId'),
 });
 
-export default connect(mapStateToProps)(BotResponseEditor);
+export default connect(mapStateToProps)(BotResponseEditorWrapper);

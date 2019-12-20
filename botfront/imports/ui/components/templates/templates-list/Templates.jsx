@@ -174,7 +174,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
                 const newTemplates = [...templates];
                 const resp = { ...subscriptionData.data.botResponsesModified };
                 const respIdx = templates.findIndex(
-                    template => template._id === resp._id,
+                    template => (template._id === resp._id && template.id) || template.key === resp.key,
                 );
                 if (respIdx !== -1) {
                     newTemplates[respIdx] = resp;
@@ -193,7 +193,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
                 const newTemplates = [...templates];
                 const resp = { ...subscriptionData.data.botResponseDeleted };
                 const respIdx = templates.findIndex(
-                    template => template._id === resp._id || template._id === null,
+                    template => template._id === resp._id || template.key === resp.key,
                 );
                 if (respIdx !== -1) {
                     newTemplates.splice(1, 1);
