@@ -69,6 +69,7 @@ const UserUtterancePopupContent = (props) => {
 };
 
 UserUtterancePopupContent.propTypes = {
+    trigger: PropTypes.element.isRequired,
     onCreateFromPayload: PropTypes.func,
     onCreateFromInput: PropTypes.func,
     trackOpenMenu: PropTypes.func,
