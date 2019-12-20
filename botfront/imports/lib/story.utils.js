@@ -351,14 +351,13 @@ export const accumulateExceptions = (
     return exceptions;
 };
 
-export const getStoryEvents = (md, excludeEvents) => {
+export const getStoryEvents = (md) => {
     let events = [];
     try {
         const lines = md.split('\n');
         lines.forEach((line) => {
             const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
             if (prefix.trim() === '-'
-                && !excludeEvents.includes(content)
                 && !events.includes(content)
                 && (content.match(/^utter_/) || content.match(/^action_/))
             ) {
@@ -387,7 +386,8 @@ export const aggregateEvents = (parentStory, update = {}) => {
     let events = [];
     const traverseBranches = (incommingStory) => {
         const story = incommingStory._id === update._id ? { ...incommingStory, ...update } : incommingStory;
-        events = [...events, ...getStoryEvents(story.story, events)];
+        events = Array.from(new Set([...events, ...getStoryEvents(story.story)]))
+        // events = [...events, ...getStoryEvents(story.story, events)];
         if (story.branches) {
             story.branches.forEach(branch => traverseBranches(branch));
         }
