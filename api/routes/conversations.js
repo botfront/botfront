@@ -66,6 +66,7 @@ exports.updateConversation = async function(req, res) {
                 }
             });
             const intents = tracker.events.filter( event => event.event === 'user').map((event => event.parse_data.intent.name))
+            const actions = tracker.events.filter( event => event.event === 'action').map((event => event.name))
             const dialogues = db.get('conversations', {
                 castIds: false,
             });
@@ -82,6 +83,7 @@ exports.updateConversation = async function(req, res) {
                         },
                         $addToSet: {
                             intents: { $each: intents },
+                            actions: { $each: actions },
                         },
                     },
                 )
