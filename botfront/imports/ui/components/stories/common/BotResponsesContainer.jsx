@@ -26,12 +26,17 @@ const BotResponsesContainer = (props) => {
     const getSequence = () => {
         if (!template) return [];
         if (template.__typename !== 'TextPayload') return [template];
-        return template.text.split('\n\n').map(text => ({ __typename: 'TextPayload', text }));
+        return template.text
+            .split('\n\n')
+            .map(text => ({ __typename: 'TextPayload', text }));
     };
 
     const setSequence = (newSequence) => {
         if (template.__typename === 'TextPayload') {
-            const newTemplate = { __typename: 'TextPayload', text: newSequence.map(seq => seq.text).join('\n\n') };
+            const newTemplate = {
+                __typename: 'TextPayload',
+                text: newSequence.map(seq => seq.text).join('\n\n'),
+            };
             onChange(newTemplate);
             return setTemplate(newTemplate);
         }
@@ -73,7 +78,9 @@ const BotResponsesContainer = (props) => {
     }, [toBeCreated]);
 
     const renderResponse = (response, index, sequenceArray) => (
-        <React.Fragment key={`${response.text}-${(sequenceArray[index + 1] || {}).text}-${index}`}>
+        <React.Fragment
+            key={`${response.text}-${(sequenceArray[index + 1] || {}).text}-${index}`}
+        >
             <div className='flex-right'>
                 <BotResponseContainer
                     deletable={deletable && sequenceArray.length > 1}
@@ -85,15 +92,14 @@ const BotResponsesContainer = (props) => {
                     onFocus={() => setFocus(index)}
                 />
                 {index === sequenceArray.length - 1 && name && (
-                    <div className='response-name'>{name}</div>)}
+                    <div className='response-name'>{name}</div>
+                )}
             </div>
         </React.Fragment>
     );
 
     return (
-        <ExceptionWrapper
-            exceptions={exceptions}
-        >
+        <ExceptionWrapper exceptions={exceptions}>
             <div className='responses-container exception-wrapper'>
                 {!template && (
                     <Placeholder>
