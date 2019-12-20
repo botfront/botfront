@@ -23,6 +23,14 @@ type Mutation {
         _id: String!
         response: BotResponseInput
     ): updateResponse!
+
+    upsertResponse(
+        projectId: String!
+        language: String!
+        newPayload: Any
+        key: String!
+    ): BotResponse
+    
     createResponse(projectId: String!, response: BotResponseInput): updateResponse!
     createResponses(projectId: String!, responses: String): updateResponse!
 }
@@ -65,11 +73,11 @@ input ContentContainerInput {
 
 input NlgRequestArguments {
     projectId: String!
-    language: String!
+    language: StringOrListOfStrings!
 }
 
 input NlgRequestChannel {
-    name: String!
+    name: String
 }
 
 type FutureBotResponse {

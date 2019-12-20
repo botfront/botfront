@@ -7,6 +7,7 @@ import {
     createResponses,
     deleteResponse,
     getBotResponseById,
+    upsertResponse,
 } from '../mongo/botResponses';
 
 const { PubSub, withFilter } = require('apollo-server-express');
@@ -15,10 +16,6 @@ const pubsub = new PubSub();
 const RESPONSE_ADDED = 'RESPONSE_ADDED';
 const RESPONSES_MODIFIED = 'RESPONSES_MODIFIED';
 const RESPONSE_DELETED = 'RESPONSE_DELETED';
-
-function onAddResponse (projectId, resp) {
-    pubsub.publish(RESPONSE_ADDED, { projectId, botResponseAdded: resp });
-}
 
 export default {
     Subscription: {
@@ -46,7 +43,7 @@ export default {
             return getBotResponses(args.projectId);
         },
         async botResponse(_, args, __) {
-            return getBotResponse(args.projectId, args.key, args.lang, onAddResponse);
+            return getBotResponse(args.projectId, args.key);
         },
         async botResponseById(_, args, __) {
             return getBotResponseById(args._id);
@@ -54,13 +51,12 @@ export default {
     },
     Mutation: {
         async deleteResponse(_, args, __) {
-            const toBeDeleted = await getBotResponse(args.projectId, args.key);
-            const response = await deleteResponse(args.projectId, args.key);
+            const botResponseDeleted = await deleteResponse(args.projectId, args.key);
             pubsub.publish(RESPONSE_DELETED, {
                 projectId: args.projectId,
-                botResponseDeleted: toBeDeleted,
+                botResponseDeleted,
             });
-            return { success: response.ok === 1 };
+            return { success: !!botResponseDeleted };
         },
         async updateResponse(_, args, __) {
             const response = await updateResponse(
@@ -73,6 +69,12 @@ export default {
                 botResponsesModified: args.response,
             });
             return { success: response.ok === 1 };
+        },
+        upsertResponse: async (_, args) => {
+            const response = await upsertResponse(args);
+            const { projectId, ...botResponsesModified } = response;
+            pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
+            return response;
         },
         async createResponse(_, args, __) {
             const response = await createResponse(args.projectId, args.response);

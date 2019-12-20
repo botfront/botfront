@@ -169,7 +169,7 @@ if (Meteor.isServer) {
         });
         it('should output exceptions matching the gold', function() {
             const storiesTwo = fs.readFileSync('./assets/app/fixtures/stories_02.md', 'utf8');
-            const val = new StoryController(storiesTwo, slots, templates);
+            const val = new StoryController({ story: storiesTwo, slots, templates });
             const exceptions = val.exceptions.map(exception => ({
                 line: exception.line,
                 code: exception.code,

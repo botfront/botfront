@@ -13,41 +13,42 @@ const BotResponseContainer = (props) => {
     const [input, setInput] = useState();
     const [shiftPressed, setshiftPressed] = useState(false);
     const focusGrabber = useRef();
-    const isTextResponse = Object.keys(value).length === 1 && Object.keys(value)[0] === 'text';
+    const isTextResponse = value.__typename === 'TextPayload';
     const hasText = Object.keys(value).includes('text');
     const hasButtons = Object.keys(value).includes('buttons');
 
     const unformatNewlines = (response) => {
-        if (!response) {
-            return response;
-        }
-        let unformattedResponse = response;
-        const regex = / {2}\n/g;
-        unformattedResponse = unformattedResponse.replace(regex, '\n');
-        return unformattedResponse;
+        if (!response) return response;
+        return response.replace(/ {2}\n/g, '\n');
     };
+
+    const formatNewlines = text => text.replace(/\n/g, '  \n');
 
     useEffect(() => {
         setInput(unformatNewlines(value.text));
-        if (focus) focusGrabber.current.focus();
+        if (focus && focusGrabber.current) focusGrabber.current.focus();
     }, [value, focus]);
 
 
     function handleTextBlur() {
-        if (isTextResponse) onChange({ text: input }, false);
-        if (hasButtons) onChange({ text: input, buttons: value.buttons }, false);
+        if (isTextResponse) onChange({ text: formatNewlines(input) }, false);
+        if (hasButtons) onChange({ text: formatNewlines(input), buttons: value.buttons }, false);
     }
 
     const handleKeyDown = (e) => {
         if (e.key === 'Shift') {
             setshiftPressed(true);
         }
+        if (e.key === 'Backspace' && !input && deletable) {
+            e.preventDefault();
+            onDelete();
+        }
         if (e.key === 'Enter' && isTextResponse) {
             if (shiftPressed) {
                 return;
             }
             e.preventDefault();
-            onChange({ text: input }, true);
+            onChange({ text: formatNewlines(input) }, true);
         }
     };
 

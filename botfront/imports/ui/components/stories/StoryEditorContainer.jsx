@@ -80,14 +80,13 @@ const StoryEditorContainer = ({
     };
 
     const [storyControllers, setStoryControllers] = useState({
-        [story._id]: new StoryController( // the root story
-            story.story || '',
+        [story._id]: new StoryController({ // the root story
+            story: story.story || '',
             slots,
-            () => {},
-            content => saveStory(story._id, { story: content }),
+            onUpdate: content => saveStory(story._id, { story: content }),
             templates,
-            story.checkpoints && story.checkpoints.length > 0,
-        ),
+            isABranch: story.checkpoints && story.checkpoints.length > 0,
+        }),
     });
     
 
@@ -157,15 +156,13 @@ const StoryEditorContainer = ({
             const currentPath = branchPath.slice(0, index + 1);
             if (!storyControllers[currentPath.join()]) {
                 const newStory = traverseStory(story, branchPath.slice(0, index + 1));
-                newStoryControllers[currentPath.join()] = new StoryController(
-                    newStory.story || '',
+                newStoryControllers[currentPath.join()] = new StoryController({
+                    story: newStory.story || '',
                     slots,
-                    () => {},
-                    content => saveStory(currentPath, { story: content }),
+                    onUpdate: content => saveStory(currentPath, { story: content }),
                     templates,
-                    // define if it's in a branch or not
-                    currentPath.length > 1,
-                );
+                    isABranch: currentPath.length > 1,
+                });
             }
         });
         setStoryControllers({
@@ -177,7 +174,9 @@ const StoryEditorContainer = ({
     const GetExceptionsLengthByType = exceptionType => (
         // valid types are "errors" and "warnings"
         exceptions[story._id] && exceptions[story._id][exceptionType]
-            ? exceptions[story._id][exceptionType].length
+            ? exceptions[story._id][exceptionType]
+                .filter(storyMode === 'markdown' ? e => e : e => e.code !== 'no_such_response') // don't show missing template warning in visual mode
+                .length
             : 0
     );
 
@@ -287,15 +286,13 @@ const StoryEditorContainer = ({
         ) {
             setStoryControllers({
                 ...storyControllers,
-                [pathAsString]: new StoryController(
-                    newBranch.story || '',
+                [pathAsString]: new StoryController({
+                    story: newBranch.story || '',
                     slots,
-                    () => {},
-                    content => saveStory(path, { story: content }),
+                    onUpdate: content => saveStory(path, { story: content }),
                     templates,
-                    // define if it's in a branch or not
-                    path.length > 1,
-                ),
+                    isABranch: path.length > 1,
+                }),
             });
         }
         changeStoryPath(story._id, path);

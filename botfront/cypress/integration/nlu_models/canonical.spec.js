@@ -154,14 +154,14 @@ describe('NLU canonical examples', function () {
     
     it('should tag the first example for an intent created in the visual editor as canonical', function () {
         cy.visit('/project/bf/stories');
-        cy.dataCy('add-user-line').trigger('mouseover');
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').click({ force: true });
         cy.dataCy('utterance-input')
             .find('input')
             .type('this example should be canonical{enter}');
         cy.dataCy('intent-label').last().click();
-        cy.dataCy('intent-dropdown').find('input').first().type('intenttest{enter}');
+        cy.dataCy('intent-dropdown').find('input')
+            .type('intenttest{enter}');
         cy.dataCy('intent-label').contains('intenttest').should('exist');
         cy.dataCy('save-new-user-input').click();
         cy.visit('/project/bf/nlu/models');

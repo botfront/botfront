@@ -78,6 +78,7 @@ describe('story visual editor', function () {
             .type('I do too qr');
 
         cy.dataCy('button_title').click({ force: true });
+        cy.dataCy('button_title').click({ force: true });
 
         cy.dataCy('enter-button-title')
             .find('input')
@@ -116,7 +117,7 @@ describe('story visual editor', function () {
 
         cy.visit('/project/bf/dialogue/templates/');
         cy.get('@response').then((response) => {
-            cy.log(response)
+            cy.log(response);
             cy.get('[role=row]')
                 .contains('[role=row]', response.replace('-', '').trim())
                 .should('exist') // there's a row with our text and response hash

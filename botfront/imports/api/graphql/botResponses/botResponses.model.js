@@ -29,34 +29,38 @@ const contentValidator = (content) => {
 }
 */
 
-
-const botResponses = new Schema({
-    _id:
-        {
-            type: String,
-            default: () => String(new ObjectId()),
-        },
-    key: {
-        type: String,
-        label: 'Template Key',
-        match: /^(utter_)/,
-        index: true,
-    },
-    projectId: {
-        type: String,
-        index: true,
-    },
-    values: {
-        type: [
+if (Meteor.isServer) {
+    const botResponses = new Schema({
+        _id:
             {
-                _id: false,
-                lang: { type: String, enum: Object.keys(languages) },
-                sequence: [{ _id: false, content: { type: String } }],
+                type: String,
+                default: () => String(new ObjectId()),
             },
-        ],
-        max: 5,
-        min: 0,
-    },
-}, { versionKey: false });
-
-module.exports = mongoose.model('BotResponses', botResponses, 'botResponses');
+        key: {
+            type: String,
+            label: 'Template Key',
+            match: /^(utter_)/,
+        },
+        projectId: {
+            type: String,
+        },
+        values: {
+            type: [
+                {
+                    _id: false,
+                    lang: { type: String, enum: Object.keys(languages) },
+                    sequence: [{ _id: false, content: { type: String } }],
+                },
+            ],
+            max: 5,
+            min: 0,
+        },
+    }, { versionKey: false });
+    
+    botResponses.index({ key: 1, projectId: 1 }, { unique: true });
+    
+    module.exports = mongoose.model('BotResponses', botResponses, 'botResponses');
+    
+    // BotResponses.on('index', err => console.log('erreur index', err));
+    // module.exports = BotResponses;
+}

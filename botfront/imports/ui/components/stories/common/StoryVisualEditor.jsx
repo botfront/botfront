@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
-import { safeDump } from 'js-yaml';
+import { isEqual } from 'lodash';
 
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController } from '../../../../lib/story_controller';
@@ -16,33 +16,26 @@ import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
 
-export const defaultTemplate = (template) => {
-    if (template === 'text') {
-        return { text: '' };
-    }
-    if (template === 'qr') {
+const defaultTemplate = (templateType) => {
+    if (templateType === 'text') return { __typename: 'TextPayload', text: '' };
+    if (templateType === 'qr') {
         return {
+            __typename: 'QuickReplyPayload',
             text: '',
-            buttons: [
-                {
-                    title: '',
-                    type: 'postback',
-                    payload: '',
-                },
-            ],
+            buttons: [{ title: '', type: 'postback', payload: '' }],
         };
     }
     return false;
 };
 
-class StoryVisualEditor extends React.Component {
+export default class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
-        menuCloser: () => { },
+        menuCloser: () => {},
+        responses: {},
     };
 
     addStoryCursor = React.createRef();
-
 
     componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
@@ -54,7 +47,6 @@ class StoryVisualEditor extends React.Component {
         }
     }
 
-
     trackOpenMenu = func => this.setState({ menuCloser: func });
 
     handleDeleteLine = (index) => {
@@ -65,7 +57,8 @@ class StoryVisualEditor extends React.Component {
     };
 
     handleSaveUserUtterance = (index, value) => {
-        const { story, addUtteranceToTrainingData } = this.props;
+        const { story } = this.props;
+        const { addUtteranceToTrainingData } = this.context;
         addUtteranceToTrainingData(value, (err) => {
             if (!err) {
                 const updatedLine = { type: 'user', data: [value] };
@@ -92,30 +85,23 @@ class StoryVisualEditor extends React.Component {
         story.insertLine(index, data);
     };
 
-    handleCreateSequence = (index, template) => {
+    handleCreateSequence = (index, templateType, suppliedKey) => {
+        const { responses } = this.state;
         this.setState({ lineInsertIndex: null });
-        const { story, language, insertResponse } = this.props;
-        const key = `utter_${shortid.generate()}`;
-        const newTemplate = {
-            key,
-            values: [
-                {
-                    sequence: [{ content: safeDump(defaultTemplate(template)) }],
-                    lang: language,
-                },
-            ],
-        };
-        story.addTemplate(newTemplate);
-        insertResponse(newTemplate, (err) => {
-            if (!err) {
-                const newLine = { type: 'bot', data: { name: key, new: true } };
-                story.insertLine(index, newLine);
-            }
+        const { story } = this.props;
+        const { upsertResponse } = this.context;
+        const key = suppliedKey || `utter_${shortid.generate()}`;
+        const newTemplate = defaultTemplate(templateType);
+        story.addTemplate({ key });
+        responses[key] = { ...newTemplate, isNew: true };
+        this.setState({ responses });
+        upsertResponse(key, newTemplate).then((full) => {
+            if (full) story.insertLine(index, { type: 'bot', data: { name: key } });
         });
     };
 
     parseUtterance = async (utterance) => {
-        const { parseUtterance: rasaParse } = this.props;
+        const { parseUtterance: rasaParse } = this.context;
         try {
             const { intent, entities, text } = await rasaParse(utterance);
             return { intent: intent.name || OOS_LABEL, entities, text };
@@ -154,7 +140,7 @@ class StoryVisualEditor extends React.Component {
             </div>
             {this.renderAddLine(i)}
         </React.Fragment>
-    )
+    );
 
     renderSlotLine = (i, l, exceptions) => (
         <React.Fragment key={`slot${i + l.data.name}`}>
@@ -191,20 +177,13 @@ class StoryVisualEditor extends React.Component {
                     ref={this.addStoryCursor}
                     trackOpenMenu={this.trackOpenMenu}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)
-                    }
-                    onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)
-                    }
-                    onSelectResponse={() => { }} // not needed for now since disableExisting is on
-                    onCreateResponse={template => this.handleCreateSequence(index, template)
-                    }
+                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)}
+                    onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)}
+                    onCreateResponse={templateType => this.handleCreateSequence(index, templateType)}
                     onSelectAction={action => this.handleCreateSlotOrAction(index, {
-                        type: 'action',
-                        data: { name: action },
-                    })
-                    }
-                    onSelectSlot={slot => this.handleCreateSlotOrAction(index, { type: 'slot', data: slot })
-                    }
+                        type: 'action', data: { name: action },
+                    })}
+                    onSelectSlot={slot => this.handleCreateSlotOrAction(index, { type: 'slot', data: slot })}
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
                         const popups = Array.from(document.querySelectorAll('.popup'));
@@ -245,7 +224,7 @@ class StoryVisualEditor extends React.Component {
             </div>
             {this.renderAddLine(index)}
         </React.Fragment>
-    )
+    );
 
     renderFormLine = (index, line, exceptions) => (
         <React.Fragment key={`FormLine-${index}`}>
@@ -264,35 +243,60 @@ class StoryVisualEditor extends React.Component {
             </div>
             {this.renderAddLine(index)}
         </React.Fragment>
-    )
+    );
+
+    getBotResponseInitialValue = (name) => {
+        const { getResponse } = this.context;
+        const { responses } = this.state;
+        getResponse(name).then((response) => {
+            if (!response) return;
+            responses[name] = response;
+            this.setState({ responses });
+        });
+    }
+
+    handleBotResponseChange = async (name, newResponse) => {
+        const { upsertResponse } = this.context;
+        const { story } = this.props;
+        const { responses } = this.state;
+        if (isEqual(responses[name], newResponse)) return;
+        upsertResponse(name, newResponse).then((response) => {
+            if (!response) return;
+            story.addTemplate({ key: name });
+            responses[name] = newResponse;
+            this.setState({ responses }); // to update exceptions
+        });
+    }
+
+    static contextType = ProjectContext;
 
     render() {
-        const {
-            story, language,
-        } = this.props;
-        const { menuCloser } = this.state;
+        const { story } = this.props;
+        const { menuCloser, responses } = this.state;
+        const { language } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
-            const exceptions = story.exceptions.filter(exception => exception.line === index + 1);
+            const exceptions = story.exceptions.filter(
+                exception => exception.line === index + 1
+                && exception.code !== 'no_such_response', // don't show missing template warning in visual mode
+            );
 
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
+                const { name } = line.gui.data;
                 return (
-                    <React.Fragment key={`bot${line.gui.data.name}-${index}`}>
+                    <React.Fragment key={`bot-${name}-${language}-${!!responses[name]}`}>
+                        {/* having language in key here makes BotResponsesContainer rerender and therefore
+                         response is refetched on language change */}
                         <BotResponsesContainer
-                            language={language}
                             deletable
-                            addNewResponse={() => this.handleCreateSequence(index, 'text')}
                             exceptions={exceptions}
-                            name={line.gui.data.name}
+                            name={name}
+                            initialValue={responses[name] || this.getBotResponseInitialValue(name, index)}
+                            onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                            isNew={!!line.gui.data.new}
-                            removeNewState={() => story.replaceLine(index, {
-                                type: 'bot',
-                                data: { name: line.gui.data.name },
-                            })
-                            }
+                            isNew={!!(responses[name] || {}).isNew}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
@@ -300,9 +304,7 @@ class StoryVisualEditor extends React.Component {
             }
             if (line.gui.type === 'user') {
                 return (
-                    <React.Fragment
-                        key={`user${line.md || ''}-${index}`}
-                    >
+                    <React.Fragment key={`user${line.md || ''}-${index}`}>
                         <UserUtteranceContainer
                             exceptions={exceptions}
                             value={line.gui.data[0]} // for now, data is a singleton
@@ -330,61 +332,10 @@ class StoryVisualEditor extends React.Component {
 }
 
 StoryVisualEditor.propTypes = {
-    /* story: PropTypes.arrayOf(
-        PropTypes.oneOfType([
-            PropTypes.shape({
-                type: 'bot',
-                data: PropTypes.shape({
-                    name: PropTypes.string,
-                }),
-            }),
-            PropTypes.shape({
-                type: 'action',
-                data: PropTypes.shape({
-                    name: PropTypes.string,
-                }),
-            }),
-            PropTypes.shape({
-                type: 'slot',
-                data: PropTypes.shape({
-                    name: PropTypes.string,
-                    value: PropTypes.string,
-                }),
-            }),
-            PropTypes.shape({
-                type: 'user',
-                data: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        intent: PropTypes.string,
-                        entities: PropTypes.arrayOf(
-                            PropTypes.object,
-                        ),
-                    }),
-                ),
-            }),
-        ]),
-    ), */
     story: PropTypes.instanceOf(StoryController),
-    insertResponse: PropTypes.func.isRequired,
-    language: PropTypes.string.isRequired,
-    parseUtterance: PropTypes.func.isRequired,
-    addUtteranceToTrainingData: PropTypes.func.isRequired,
+    
 };
 
 StoryVisualEditor.defaultProps = {
     story: [],
 };
-
-export default props => (
-    <ProjectContext.Consumer>
-        {value => (
-            <StoryVisualEditor
-                {...props}
-                insertResponse={value.insertResponse}
-                language={value.language}
-                parseUtterance={value.parseUtterance}
-                addUtteranceToTrainingData={value.addUtteranceToTrainingData}
-            />
-        )}
-    </ProjectContext.Consumer>
-);
