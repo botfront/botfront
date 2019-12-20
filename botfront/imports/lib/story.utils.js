@@ -358,8 +358,7 @@ export const getStoryEvents = (md) => {
         lines.forEach((line) => {
             const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
             if (prefix.trim() === '-'
-                && !events.includes(content)
-                && (content.match(/^utter_/) || content.match(/^action_/))
+            && (content.match(/^utter_/) || content.match(/^action_/))
             ) {
                 events = [...events, content];
             }
