@@ -129,7 +129,7 @@ const BotResponsesContainer = (props) => {
                             name={name}
                             closeModal={() => setEditorOpen(false)}
                             renameable={false}
-                            refreshBotResponse={refreshBotResponse}
+                            refreshBotResponse={refreshBotResponse} // required to update the response in the visual story editor
                         />
                         <Button className='open-edit-responses' icon={{ name: 'trash', size: 'small' }} onClick={onDeleteAllResponses} data-cy='delete-responses' />
                     </div>

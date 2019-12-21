@@ -19,6 +19,14 @@ import ResponseNameInput from '../common/ResponseNameInput';
 import { createResponseFromTemplate, checkResponseEmpty } from '../botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
+
+/*
+Bot response Editor requireds one of: botResponse, name, or isNew.
+botResponse is a full bot response object passed from its parent
+name is the response key which bot response editor will use to fetch the response
+isNew will create a new response that is saved on modal close
+*/
+
 const BotResponseEditor = (props) => {
     const {
         botResponse,
@@ -95,6 +103,7 @@ const BotResponseEditor = (props) => {
                     return;
                 }
                 setRenameError('There was an error saving your response');
+                return;
             }
             setRenameError();
         });
