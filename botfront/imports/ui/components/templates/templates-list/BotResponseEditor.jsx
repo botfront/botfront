@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { safeDump } from 'js-yaml';
 import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks';
 import {
-    Segment, Input, Menu, MenuItem, Modal, Popup, Icon,
+    Segment, Menu, MenuItem, Modal, Popup, Icon,
 } from 'semantic-ui-react';
 // connections
 import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../mutations';
@@ -14,52 +14,50 @@ import { GET_BOT_RESPONSE } from '../queries';
 import { ProjectContext } from '../../../layouts/context';
 import SequenceEditor from './SequenceEditor';
 import MetadataForm from '../MetadataForm';
+import ResponseNameInput from '../common/ResponseNameInput';
 // utils
 import { createResponseFromTemplate, checkResponseEmpty } from '../botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
 const BotResponseEditor = (props) => {
     const {
-        incomingBotResponse,
+        botResponse,
         open,
         trigger,
         closeModal,
         renameable,
         isNew,
-        responseType,
         language,
         projectId,
         refreshBotResponse,
         name,
     } = props;
-    if (!open) return trigger;
-    const botResponse = isNew ? createResponseFromTemplate(responseType) : incomingBotResponse;
 
-    const { upsertResponse } = useContext(ProjectContext);
+    const { upsertResponse } = useContext(ProjectContext); // using the upsert function from the project context ensures the visual story is updated
+    const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
+    const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
     
     const [newBotResponse, setNewBotResponse] = useState();
     const [activeTab, setActiveTab] = useState(0);
     const [responseKey, setResponseKey] = useState(botResponse.key);
     const [renameError, setRenameError] = useState();
 
-    const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
-    const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
-
     const insertResponse = (newResponse, callback) => {
-        createBotResponse({ variables: { projectId, response: clearTypenameField(newResponse) } }).then(
-            (result) => {
-                callback(undefined, result);
-            },
-            (error) => {
-                callback(error);
-            },
+        createBotResponse({
+            variables: {
+                projectId,
+                response: clearTypenameField(newResponse)
+            }
+        }).then(
+            (result) => { callback(undefined, result); },
+            (error) => { callback(error); },
         );
     };
 
     const updateResponse = (updatedResponse, callback) => {
         updateBotResponse({
             variables: {
-                projectId, _id: updatedResponse._id, key: updatedResponse.key, response: clearTypenameField(updatedResponse),
+                projectId, _id: updatedResponse._id, response: clearTypenameField(updatedResponse),
             },
         }).then(
             (result) => {
@@ -73,14 +71,18 @@ const BotResponseEditor = (props) => {
 
     const handleChangeMetadata = (updatedMetadata) => {
         if (isNew) {
-            setNewBotResponse({ ...(newBotResponse || botResponse), metadata: updatedMetadata });
+            setNewBotResponse(
+                { ...(newBotResponse || botResponse), metadata: updatedMetadata });
             return;
         }
         updateResponse({ ...botResponse, metadata: updatedMetadata }, () => {});
     };
 
     const handleChangeKey = async () => {
-        if (!responseKey.match(/^utter_/)) return;
+        if (!responseKey.match(/^utter_/)) {
+            setRenameError('Response names must start with "utter_"');
+            return;
+        }
         if (isNew) {
             setNewBotResponse({ ...(newBotResponse || botResponse), key: responseKey });
             return;
@@ -89,6 +91,7 @@ const BotResponseEditor = (props) => {
             if (error) {
                 if (error.message.match(/E11000/)) {
                     setRenameError('Response names must be unique');
+                    setResponseKey(botResponse.key);
                     return;
                 }
                 setRenameError('There was an error saving your response');
@@ -110,7 +113,7 @@ const BotResponseEditor = (props) => {
             setNewBotResponse(updateSequence(newBotResponse || botResponse, content));
             return;
         }
-        upsertResponse(name || responseKey, updatedSequence).then((error, result) => {
+        upsertResponse(name || botResponse.key, updatedSequence).then((error, result) => {
             if (error) {
                 console.log(error);
             }
@@ -120,15 +123,28 @@ const BotResponseEditor = (props) => {
     const handleModalClose = () => {
         const validResponse = newBotResponse || botResponse;
         if (!open) return;
+        if (!isNew || checkResponseEmpty(validResponse)) {
+            refreshBotResponse(name); // refresh the content of the response in the visual story editor
+            closeModal();
+            return;
+        }
         if (isNew && !checkResponseEmpty(validResponse)) {
+            if (!responseKey.match(/^utter_/)) {
+                setRenameError('Response names must start with "utter_"')
+                return;
+            }
             insertResponse(validResponse, (err) => {
+                if (!err) closeModal();
                 if (err) {
                     console.log(err);
+                    if (err.message.match(/E11000/)) {
+                        setRenameError('Response names must be unique');
+                        setResponseKey(botResponse.key);
+                        return;
+                    }
                 }
             });
         }
-        refreshBotResponse(name);
-        closeModal();
     };
 
     const getActiveValue = () => {
@@ -155,34 +171,17 @@ const BotResponseEditor = (props) => {
         <Segment.Group className='response-editor' data-cy='response-editor'>
             <Segment attached='top' className='resonse-editor-topbar'>
                 <div className='response-editor-topbar-section'>
-                    <Popup
-                        inverted
-                        disabled={renameable}
-                        trigger={(
-                            // disabling the trigger of a popup prevents it from appearing,
-                            // wrapping the trigger in a div allows it to show while the input is disabled
-                            <div>
-                                <Input
-                                    className='response-name'
-                                    placeholder='utter_response_name'
-                                    value={responseKey}
-                                    onChange={(e, target) => setResponseKey(target.value)}
-                                    onBlur={handleChangeKey}
-                                    disabled={!renameable}
-                                    error={renameError}
-                                    data-cy='response-name-input'
-                                />
-                                {renameError && (
-                                    <Popup
-                                        trigger={<Icon name='exclamation circle' color='red' />}
-                                        // inverted
-                                        content={renameError}
-                                        // content='Response names must be unique.'
-                                    />
-                                )}
-                            </div>
-                        )}
-                        content='Responses used in a story cannot be renamed.'
+                    <ResponseNameInput
+                        renameable={renameable}
+                        onChange={(e, target) => {
+                            console.log(e)
+                            console.log(target)
+                            setResponseKey(target.value)
+                        }}
+                        saveResponseName={handleChangeKey}
+                        errorMessage={renameError}
+                        responseName={responseKey}
+                        disabledMessage='Responses used in a story cannot be renamed.'
                     />
                 </div>
                 <div className='response-editor-topbar-section'>
@@ -194,12 +193,8 @@ const BotResponseEditor = (props) => {
                 <div className='response-editor-topbar-section' />
             </Segment>
             {tabs[activeTab]}
-            {/* <Segment attached='bottom'>
-                    <Button icon='plus' />
-                </Segment> */}
         </Segment.Group>
     );
-
 
     return (
         <Modal
@@ -214,13 +209,12 @@ const BotResponseEditor = (props) => {
 };
 
 BotResponseEditor.propTypes = {
-    incomingBotResponse: PropTypes.object,
+    botResponse: PropTypes.object,
     open: PropTypes.bool.isRequired,
     trigger: PropTypes.element.isRequired,
     closeModal: PropTypes.func.isRequired,
     renameable: PropTypes.bool,
     isNew: PropTypes.bool,
-    responseType: PropTypes.string,
     language: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
     refreshBotResponse: PropTypes.func,
@@ -228,56 +222,72 @@ BotResponseEditor.propTypes = {
 };
 
 BotResponseEditor.defaultProps = {
-    incomingBotResponse: {},
+    botResponse: {},
     renameable: true,
     isNew: false,
-    responseType: '',
     refreshBotResponse: () => {},
-    name: null,
+    name: null
 };
 
 const BotResponseEditorWrapper = (props) => {
     const {
-        incomingBotResponse, open, trigger, projectId, name, isNew,
+        botResponse: incomingBotResponse,
+        trigger,
+        projectId,
+        name,
+        isNew,
+        open,
+        responseType,
     } = props;
-    
 
     const [botResponse, setBotResponse] = useState();
-    const [loading, setLoading] = useState(true);
 
-    if (name) {
+    if (name && !incomingBotResponse) {
         const {
-            loading: queryLoading, error, data, refetch,
+            loading,
+            error,
+            data,
+            refetch,
         } = useQuery(GET_BOT_RESPONSE, {
             variables: { projectId, key: name },
         });
+
         useEffect(() => {
             if (data && data.botResponse) {
                 setBotResponse(data.botResponse);
             }
         }, [data]);
+
+        useEffect(() => {
+            refetch();
+        }, []);
+
         useSubscription(RESPONSES_MODIFIED, {
             variables: { projectId },
             onSubscriptionData: ({ subscriptionData }) => {
-                if (!loading) {
-                    // const newBotResponse = { ...botResponse };
-                    const resp = { ...subscriptionData.data.botResponsesModified };
-                    if (resp.name === name) { setBotResponse(resp); }
-                }
+                const resp = {
+                    ...subscriptionData.data.botResponsesModified
+                };
+                if (resp.name === name) { setBotResponse(resp); }
             },
         });
     }
-    if (!botResponse && !incomingBotResponse && !isNew) return trigger;
+
+    if (isNew && !incomingBotResponse && !botResponse) {
+        setBotResponse(createResponseFromTemplate(responseType))
+    }
+
+    if (!botResponse && !incomingBotResponse && !isNew || !open) return trigger;
     return (
         <BotResponseEditor
             {...props}
-            incomingBotResponse={botResponse || incomingBotResponse}
+            botResponse={botResponse || incomingBotResponse}
         />
     );
 };
 
 BotResponseEditorWrapper.propTypes = {
-    incomingBotResponse: PropTypes.object,
+    botResponse: PropTypes.object,
     open: PropTypes.bool.isRequired,
     trigger: PropTypes.element.isRequired,
     closeModal: PropTypes.func.isRequired,
@@ -291,7 +301,7 @@ BotResponseEditorWrapper.propTypes = {
 };
 
 BotResponseEditorWrapper.defaultProps = {
-    incomingBotResponse: null,
+    botResponse: null,
     renameable: true,
     isNew: false,
     responseType: '',

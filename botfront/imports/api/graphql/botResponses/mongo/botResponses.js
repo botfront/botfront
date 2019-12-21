@@ -38,25 +38,11 @@ export const createResponses = async (projectId, responses) => {
     return Promise.all(answer);
 };
 
-export const updateResponse = async (projectId, _id, key, newResponse) => BotResponses
+export const updateResponse = async (projectId, _id, newResponse) => BotResponses
     .updateOne({ projectId, _id }, newResponse).exec();
 
-export const updateResponseFlex = async (projectId, _id, key, newResponse) => {
-    if (_id) {
-        return BotResponses
-            .updateOne({ projectId, _id }, newResponse).exec();
-    }
-    if (key) {
-        const { _id: removeId, ...rest } = newResponse;
-        return BotResponses
-            .updateOne({ projectId, key }, rest).exec();
-    }
-    return ('_id or key is required');
-};
 
 export const createResponse = async (projectId, newResponse) => {
-    console.log(newResponse);
-    
     return BotResponses.create({
         ...clearTypenameField(newResponse),
         projectId,

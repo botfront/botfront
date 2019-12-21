@@ -65,7 +65,7 @@ class TemplatesTable extends React.Component {
                                 />
                             )}
                             open={activeEditor === key}
-                            incomingBotResponse={activeEditor === key ? templates.find(({ key: templateKey }) => templateKey === activeEditor) : null}
+                            botResponse={activeEditor === key ? templates.find(({ key: templateKey }) => templateKey === activeEditor) : null}
                             closeModal={() => setActiveEditor('')}
                             renameable // replace with logic that checks if the response is contained in a story
                         />
