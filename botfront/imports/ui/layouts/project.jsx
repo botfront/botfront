@@ -18,6 +18,7 @@ import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { setProjectId, setWorkingLanguage } from '../store/actions/actions';
+import { getPublishedNluModelLanguages, getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
@@ -25,7 +26,6 @@ import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';
-import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import {
     GET_BOT_RESPONSES,
     GET_BOT_RESPONSE,
@@ -234,7 +234,9 @@ class Project extends React.Component {
             channel,
             renderLegacyModels,
             project,
+            instance,
             workingLanguage,
+            projectLanguages,
             slots,
         } = this.props;
         const {
@@ -284,6 +286,9 @@ class Project extends React.Component {
                                 {({ loadingResponses, data, subscribeToMore }) => (
                                     <ProjectContext.Provider
                                         value={{
+                                            project,
+                                            instance,
+                                            projectLanguages,
                                             templates: data && !loadingResponses ? data.botResponses : [],
                                             intents,
                                             entities,
@@ -342,6 +347,7 @@ Project.propTypes = {
     projectId: PropTypes.string.isRequired,
     instance: PropTypes.object,
     workingLanguage: PropTypes.string,
+    projectLanguages: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
@@ -358,10 +364,9 @@ const ProjectContainer = withTracker((props) => {
     const {
         params: { project_id: projectId }, projectId: storeProjectId, changeWorkingLanguage, changeProjectId,
     } = props;
-    let projectHandler = null;
     let renderLegacyModels;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
-    projectHandler = Meteor.subscribe('projects', projectId);
+    const projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
@@ -372,7 +377,8 @@ const ProjectContainer = withTracker((props) => {
     const readyHandlerList = [
         Meteor.user(),
         credentialsHandler.ready(),
-        projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready(),
+        projectHandler.ready(),
+        nluModelsHandler.ready(),
         introStoryGroupIdHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
@@ -414,6 +420,7 @@ const ProjectContainer = withTracker((props) => {
         channel,
         instance,
         slots: Slots.find({}).fetch(),
+        projectLanguages: ready ? getPublishedNluModelLanguages(project.nlu_models, true) : [],
         renderLegacyModels,
     };
 })(windowSize(Project));

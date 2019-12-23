@@ -1,32 +1,68 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'semantic-ui-react';
+import { connect } from 'react-redux';
+import { setWorkingLanguage } from '../../store/actions/actions';
+import { ProjectContext } from '../../layouts/context';
 
 const LanguageDropdown = ({
-    languageOptions,
-    selectedLanguage,
-    handleLanguageChange,
-}) => (
-    <Dropdown
-        className='language-dropdown'
-        placeholder='Select Langugage'
-        search
-        selection
-        value={selectedLanguage}
-        options={languageOptions}
-        onChange={(e, lang) => { handleLanguageChange(lang.value); }}
-        data-cy='language-selector'
-    />
-);
+    selectedLanguage: oldSelectedLanguage,
+    handleLanguageChange: oldHandleLanguageChange,
+    languageOptions: oldLanguageOptions,
+    newSelectedLanguage,
+    newHandleLanguageChange,
+    multiple,
+}) => {
+    const {
+        projectLanguages: newLanguageOptions,
+    } = useContext(ProjectContext);
+
+    const selectedLanguage = oldSelectedLanguage || newSelectedLanguage;
+    const handleLanguageChange = oldHandleLanguageChange || newHandleLanguageChange;
+    const languageOptions = oldLanguageOptions || newLanguageOptions;
+
+    if (languageOptions.length < 2) return null;
+    return (
+        <Dropdown
+            className='language-dropdown'
+            placeholder='Select Langugage'
+            search
+            selection
+            multiple={multiple}
+            value={selectedLanguage}
+            options={languageOptions}
+            onChange={(_e, { value }) => handleLanguageChange(value)}
+            data-cy='language-selector'
+        />
+    );
+};
 
 LanguageDropdown.propTypes = {
-    languageOptions: PropTypes.array.isRequired,
-    selectedLanguage: PropTypes.string,
-    handleLanguageChange: PropTypes.func.isRequired,
+    selectedLanguage: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    languageOptions: PropTypes.array,
+    multiple: PropTypes.bool,
+    handleLanguageChange: PropTypes.func,
+    newSelectedLanguage: PropTypes.string,
+    newHandleLanguageChange: PropTypes.func.isRequired,
 };
 
 LanguageDropdown.defaultProps = {
-    selectedLanguage: '',
+    selectedLanguage: null,
+    newSelectedLanguage: '',
+    languageOptions: null,
+    handleLanguageChange: null,
+    multiple: false,
 };
 
-export default LanguageDropdown;
+const mapStateToProps = state => ({
+    newSelectedLanguage: state.settings.get('workingLanguage'),
+});
+
+const mapDispatchToProps = {
+    newHandleLanguageChange: setWorkingLanguage,
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(LanguageDropdown);
