@@ -232,16 +232,16 @@ describe('incoming page', function() {
             .should('not.exist');
     });
 
-    // it('should be possible to view the conversation from the utterance', function() {
-    //     cy.addConversation('bf', 'test', JSON.stringify(conversationToAdd));
-    //     cy.updateConversation('bf', 'test', JSON.stringify(conversationUpdate));
+    it('should be possible to view the conversation from the utterance', function() {
+        cy.addConversation('bf', 'test', JSON.stringify(conversationToAdd));
+        cy.updateConversation('bf', 'test', JSON.stringify(conversationUpdate));
 
-    //     cy.visit('/project/bf/incoming');
-    //     cy.dataCy('row-wrapper').should('exist');
-    //     cy.wait(500);
-    //     cy.dataCy('row-wrapper').trigger('mouseover');
-    //     cy.dataCy('conversation-viewer').first().click({ force: true });
-    //     cy.get('.popup').should('exist');
-    //     cy.get('.popup').should('contains.text', 'test conv link');
-    // });
+        cy.visit('/project/bf/incoming');
+        cy.dataCy('row-wrapper').should('exist');
+        cy.wait(500);
+        cy.dataCy('row-wrapper').trigger('mouseover');
+        cy.dataCy('conversation-viewer').first().click({ force: true });
+        cy.get('.popup').should('exist');
+        cy.get('.popup').should('contains.text', 'test conv link');
+    });
 });
