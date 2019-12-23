@@ -39,7 +39,7 @@ BotResponse.defaultProps = {
 };
 
 function Turn({
-    userSays, botResponses, key, userRef,
+    userSays, userId, botResponses, key, userRef,
 }) {
     if (!userSays && botResponses.length === 0) {
         return null;
@@ -52,6 +52,7 @@ function Turn({
                 <Comment.Avatar src='/images/avatars/matt.jpg' />,
                 <UserUtteredEventViewer
                     event={userSays}
+                    author={userId}
                 />,
                 
             ])}
@@ -78,6 +79,7 @@ function Turn({
 
 Turn.propTypes = {
     userSays: PropTypes.object,
+    userId: PropTypes.string,
     botResponses: PropTypes.arrayOf(PropTypes.object).isRequired,
     key: PropTypes.string,
     userRef: PropTypes.object,
@@ -85,11 +87,16 @@ Turn.propTypes = {
 
 Turn.defaultProps = {
     userSays: null,
+    userId: null,
     key: 'dialogue-turn',
     userRef: null,
 };
 
-function ConversationDialogueViewer({ tracker, mode, messageIdInView }) {
+function ConversationDialogueViewer({
+    conversation: { tracker, userId },
+    mode,
+    messageIdInView,
+}) {
     const toScrollTo = React.createRef();
     const turns = [];
     let currentTurn = {
@@ -160,6 +167,7 @@ function ConversationDialogueViewer({ tracker, mode, messageIdInView }) {
                 turns.map(({ userSays, botResponses, messageId }, index) => (
                     <Turn
                         userSays={userSays}
+                        userId={userId}
                         botResponses={botResponses}
                         // eslint-disable-next-line camelcase
                         userRef={messageId === messageIdInView ? toScrollTo : null}
@@ -185,7 +193,7 @@ function ConversationDialogueViewer({ tracker, mode, messageIdInView }) {
 }
 
 ConversationDialogueViewer.propTypes = {
-    tracker: PropTypes.object.isRequired,
+    conversation: PropTypes.object.isRequired,
     mode: PropTypes.string,
     messageIdInView: PropTypes.string,
 };

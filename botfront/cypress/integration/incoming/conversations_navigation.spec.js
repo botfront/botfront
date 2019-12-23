@@ -2,10 +2,7 @@
 /* global cy Cypress:true */
 
 function addConversation(id) {
-    let url = `http://localhost:8080/project/bf/conversations/${id}/insert?api-key=`;
-    if (Cypress.env('API_URL') !== '') {
-        url = `${Cypress.env('API_URL')}/project/bf/conversations/${id}/insert?api-key=`;
-    }
+    const url = `${Cypress.env('API_URL')}/project/bf/conversations/${id}/insert?api-key=`;
 
     const body = {
         sender_id: 'test',

@@ -4,7 +4,9 @@ import shortid from 'shortid';
 import {
     uniq, uniqBy, sortBy, intersectionBy, find,
 } from 'lodash';
-import { formatError, getProjectIdFromModelId, getModelIdsFromProjectId } from '../../lib/utils';
+import {
+    formatError, getModelIdsFromProjectId,
+} from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
@@ -12,6 +14,7 @@ import {
     checkNoEmojisInExamples,
     renameIntentsInTemplates,
     getNluModelLanguages,
+    canonicalizeExamples,
 } from './nlu_model.utils';
 import { Projects } from '../project/project.collection';
 import { checkIfCan } from '../../lib/scopes';
@@ -44,7 +47,7 @@ Meteor.methods({
         }
     },
 
-    'nlu.insertExamples'(modelId, items) {
+    async 'nlu.insertExamples'(modelId, items) {
         check(modelId, String);
         check(items, Array);
         checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
@@ -56,11 +59,12 @@ Meteor.methods({
 
         try {
             const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample), 'text');
+            const canonicalizedItems = await canonicalizeExamples(normalizedItems, modelId);
             const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
-            const pullItemsText = intersectionBy(examples, normalizedItems, 'text').map(({ text }) => text);
+            const pullItemsText = intersectionBy(examples, canonicalizedItems, 'text').map(({ text }) => text);
             NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItemsText } } } });
-            return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: normalizedItems, $position: 0 } } });
+            return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: canonicalizedItems, $position: 0 } } });
         } catch (e) {
             throw formatError(e);
         }
@@ -172,8 +176,6 @@ Meteor.methods({
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
-
-
 });
 
 if (Meteor.isServer) {

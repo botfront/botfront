@@ -16,13 +16,11 @@ const storyOne = `    - action_bebe
 
 const StoryVisualEditorWrapped = ({ story: s }) => {
     const [story, setStory] = useState(
-        new StoryController(
-            s,
+        new StoryController({
+            story: s,
             slots,
-            () => {
-                setStory(Object.assign(Object.create(story), story));
-            },
-        ),
+            onUpdate: () => setStory(Object.assign(Object.create(story), story)),
+        }),
     );
 
     return (

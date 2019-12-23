@@ -140,14 +140,32 @@ jobs:
           docker-compose up \
           --abort-on-container-exit \
           --exit-code-from e2e
+        continue-on-error: true
         env:
           RASA_TAG: ${{ steps.versions.outputs.rasa }}
-      - name: persist screenshots as artifact
+      - name: check if tests failed
+        id: integration-results
         if: failure()
+        run: echo ::set-output name=failure::1
+      - name: persist screenshots as artifact on failure
+        if: steps.integration-results.outputs.failure
         uses: actions/upload-artifact@v1
         with:
           name: screenshots
           path: ./botfront/cypress/screenshots
+      - run: touch empty
+      - name: overwrite api artifact with empty file
+        if: steps.integration-results.outputs.failure || !github.event_name == 'push' || !contains(github.ref, 'master') || !contains(github.ref, 'tags')
+        uses: actions/upload-artifact@v1
+        with:
+          name: botfront-api-local
+          path: empty
+      - name: overwrite bf artifact with empty file
+        if: steps.integration-results.outputs.failure || !github.event_name == 'push' || !contains(github.ref, 'master') || !contains(github.ref, 'tags')
+        uses: actions/upload-artifact@v1
+        with:
+          name: botfront-local
+          path: empty
 
   push-api:
     runs-on: ubuntu-latest
@@ -175,6 +193,12 @@ jobs:
           echo VERSION=$VERSION
           docker tag botfront-api-local gcr.io/botfront-project/botfront-api:$VERSION
           docker push gcr.io/botfront-project/botfront-api:$VERSION
+      - run: touch empty
+      - name: overwrite api artifact with empty file
+        uses: actions/upload-artifact@v1
+        with:
+          name: botfront-api-local
+          path: empty
 
   push-bf:
     runs-on: ubuntu-latest
@@ -202,6 +226,12 @@ jobs:
           echo VERSION=$VERSION
           docker tag botfront-local gcr.io/botfront-project/botfront:$VERSION
           docker push gcr.io/botfront-project/botfront:$VERSION
+      - run: touch empty
+      - name: overwrite bf artifact with empty file
+        uses: actions/upload-artifact@v1
+        with:
+          name: botfront-local
+          path: empty
 
   create-github-release:
     runs-on: ubuntu-latest

@@ -1,12 +1,25 @@
 import { Accounts } from 'meteor/accounts-base';
 import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
 import { HttpLink } from 'apollo-link-http';
 
 import { onError } from 'apollo-link-error';
 import { ApolloLink, Observable, split } from 'apollo-link';
 import { DDPSubscriptionLink, isSubscription } from 'apollo-link-ddp';
 
+import botResponseFragmentTypes from '../../api/graphql/botResponses/schemas/botResponseFragmentTypes.json';
+
+const introspectionQueryResultData = {
+    __schema: {
+        types: [
+            ...botResponseFragmentTypes,
+        ],
+    },
+};
+
+const fragmentMatcher = new IntrospectionFragmentMatcher({
+    introspectionQueryResultData,
+});
 
 const request = async (operation) => {
     operation.setContext({
@@ -62,7 +75,7 @@ const link = split(
 
 const client = new ApolloClient({
     link: ApolloLink.from([errorLink, requestLink, link]),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({ fragmentMatcher }),
 });
 
 export default client;

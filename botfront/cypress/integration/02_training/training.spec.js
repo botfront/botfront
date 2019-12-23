@@ -20,7 +20,7 @@ describe('Training', function() {
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
-            .type('{backSpace}{backSpace}* chitchat.greet\n  - utter_hi', { force: true });
+            .type('{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true });
     }
 
     before(function() {
@@ -51,7 +51,7 @@ describe('Training', function() {
         cy.train();
         cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('en');
-        cy.testChatInput('hi', 'utter_hi');
+        cy.testChatInput('hi', 'utter_hi'); // nlg returns template name if not defined
     });
 
     it('Should train and serve a model containing stories + NLU in one language and adding a second language should work too', function() {

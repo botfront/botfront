@@ -36,6 +36,7 @@ query retreiveConversations(
             updatedAt
             status
             projectId
+            userId
         }
         pages
     }
@@ -94,5 +95,6 @@ query retreiveAConversation($projectId: String!, $conversationId: String!) {
       }
       status
       _id
+      userId
     }
 }`;

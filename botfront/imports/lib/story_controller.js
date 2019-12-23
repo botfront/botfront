@@ -8,16 +8,16 @@ class StoryException {
 }
 
 export class StoryController {
-    constructor(story, slots, notifyUpdate = () => {}, saveUpdate = null, templates = null, isABranch = false) {
+    constructor({
+        story, slots, onUpdate = () => {}, templates = null, isABranch = false,
+    }) {
         this.domain = {
             slots: this.getSlots(slots),
         };
-        this.unsafeMd = story;
         this.md = story;
         this.isABranch = isABranch;
         this.templates = this.loadTemplates(templates || []) || [];
-        this.notifyUpdate = notifyUpdate;
-        this.saveUpdate = saveUpdate;
+        this.saveUpdate = () => onUpdate(this.md);
         this.validateStory();
     }
     
@@ -30,6 +30,7 @@ export class StoryController {
     addTemplate = (template) => {
         if (template && template.key) {
             this.templates = [...this.templates, template.key];
+            this.validateStory();
         }
     }
 
@@ -214,10 +215,11 @@ export class StoryController {
         }
     };
 
-    validateStory = () => {
+    validateStory = (saveUpdate = true) => {
         this.reset();
         // if (!this.md.replace(/\s/g, '').length) this.raiseStoryException('no_empty');
         this.validateLines();
+        if (saveUpdate) this.saveUpdate();
     };
 
     validateLines = () => {
@@ -291,10 +293,7 @@ export class StoryController {
     deleteLine = (i) => {
         this.lines = [...this.lines.slice(0, i), ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.unsafeMd = this.md;
         this.validateStory();
-        if (this.saveUpdate) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
-        else this.notifyUpdate();
     };
 
     insertLine = (i, content) => {
@@ -302,8 +301,7 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i + 1), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
-        else this.notifyUpdate();
+        if (content.data && content.data !== [null]) this.saveUpdate();
     };
 
     replaceLine = (i, content) => {
@@ -311,21 +309,13 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        this.unsafeMd = this.md;
-        this.validateStory();
-        if (this.saveUpdate && content.data && content.data !== [null]) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
-        else this.notifyUpdate();
+        const saveUpdate = content.data && content.data !== [null];
+        this.validateStory(saveUpdate);
     };
-
-    setUnsafeMd = (content) => {
-        this.unsafeMd = content;
-    }
 
     setMd = (content) => {
         this.md = content;
-        this.unsafeMd = content;
         this.validateStory();
-        if (this.saveUpdate) this.saveUpdate(this.md, this.getErrors(), this.getWarnings());
     }
 
     getErrors = () => this.exceptions.filter(exception => exception.type === 'error');

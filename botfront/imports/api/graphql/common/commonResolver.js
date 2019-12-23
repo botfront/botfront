@@ -1,4 +1,4 @@
-import { GraphQLScalarType } from 'graphql';
+import { GraphQLScalarType, GraphQLString } from 'graphql';
 import { Kind } from 'graphql/language';
 
 export default {
@@ -24,5 +24,18 @@ export default {
         parseValue: v => v,
         serialize: v => v,
         parseLiteral: v => v,
+    }),
+    StringOrListOfStrings: new GraphQLScalarType({
+        name: 'StringOrListOfStrings',
+        description: 'String | [String]',
+        parseValue: v => (v.kind === 'ListValue'
+            ? v.values.map(el => GraphQLString.parseValue(el))
+            : GraphQLString.parseValue(v)),
+        serialize: v => (v.kind === 'ListValue'
+            ? v.values.map(el => GraphQLString.serialize(el))
+            : GraphQLString.serialize(v)),
+        parseLiteral: v => (v.kind === 'ListValue'
+            ? v.values.map(el => GraphQLString.parseLiteral(el))
+            : GraphQLString.parseLiteral(v)),
     }),
 };

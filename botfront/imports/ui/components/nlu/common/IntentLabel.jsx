@@ -114,6 +114,7 @@ const Intent = React.forwardRef((props, ref) => {
                 width: '500px',
             }}
             className='intent-dropdown'
+            data-cy='intent-dropdown'
         >
             {allowAdditions && renderInsertNewIntent()}
             {dataToDisplay.length ? (

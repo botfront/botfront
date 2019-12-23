@@ -53,6 +53,12 @@ exports.insertConversation = function(req, res) {
         .catch(error => res.status(error.code || 500).json(error));
 };
 
+const extractMetadataFromTracker = (tracker) => {
+    if (!tracker || !tracker.events) return null;
+    const { metadata } = tracker.events.filter(e => e.event === 'user')[0] || { metadata: {} };
+    return metadata;
+}
+
 exports.updateConversation = async function(req, res) {
     const { project_id: projectId, sender_id: senderId } = req.params;
     checkApiKeyAgainstProject(projectId, req)
@@ -64,6 +70,7 @@ exports.updateConversation = async function(req, res) {
             const { _id}= await dialogues.findOne({'tracker.sender_id': senderId},{ _id: 1});
             if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, req, _id);
             const tracker = req.body;
+            const { userId, language } = extractMetadataFromTracker(tracker);
             const setTracker = {};
             
             Object.keys(tracker).forEach(key => {
@@ -71,8 +78,8 @@ exports.updateConversation = async function(req, res) {
                     setTracker[`tracker.${key}`] = tracker[key];
                 }
             });
-
-            
+            const intents = tracker.events.filter( event => event.event === 'user').map((event => event.parse_data.intent.name))
+            const actions = tracker.events.filter( event => event.event === 'action').map((event => event.name))
             dialogues
                 .update(
                     { _id: senderId },
@@ -83,6 +90,12 @@ exports.updateConversation = async function(req, res) {
                         $set: {
                             ...setTracker,
                             updatedAt: new Date(),
+                            ...({ userId } || {}),
+                            ...({ language } || {}),
+                        },
+                        $addToSet: {
+                            intents: { $each: intents },
+                            actions: { $each: actions },
                         },
                     },
                 )

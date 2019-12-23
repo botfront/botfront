@@ -1,5 +1,6 @@
 import { Roles } from 'meteor/modweb:roles';
-import { sortBy } from 'lodash';
+import { sortBy, isEqual } from 'lodash';
+import { safeDump, safeLoad } from 'js-yaml';
 import { Instances } from '../imports/api/instances/instances.collection';
 import { Credentials } from '../imports/api/credentials';
 import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
@@ -148,6 +149,37 @@ Migrations.add({
     version: 4,
     // add default default domain to global settings, and update projects to have this default domain
     up: () => migrateResponses(),
+});
+
+const processSequence = sequence => sequence
+    .map(s => safeLoad(s.content))
+    .reduce((acc, curr) => {
+        const newSequent = {};
+        if (curr.text && !acc.text) newSequent.text = curr.text;
+        if (curr.text && acc.text) newSequent.text = `${acc.text}\n\n${curr.text}`;
+        if (curr.buttons) newSequent.buttons = [...(acc.buttons || []), ...curr.buttons];
+        return newSequent;
+    }, {});
+
+Migrations.add({
+    version: 5,
+    // join sequences of text in responsesa
+    up: () => {
+        BotResponses.find().lean().then(responses => responses.forEach((response) => {
+            const updatedResponse = {
+                ...response,
+                values: response.values.map(value => ({
+                    ...value,
+                    sequence: [{ content: safeDump(processSequence(value.sequence)) }], //
+                })),
+            };
+            delete updatedResponse._id;
+            if (!isEqual(response, updatedResponse)) {
+                const { projectId, key } = response;
+                BotResponses.updateOne({ projectId, key }, updatedResponse).exec();
+            }
+        }));
+    },
 });
 
 Meteor.startup(() => {
