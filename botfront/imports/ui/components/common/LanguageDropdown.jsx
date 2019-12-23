@@ -21,7 +21,7 @@ const LanguageDropdown = ({
     const handleLanguageChange = oldHandleLanguageChange || newHandleLanguageChange;
     const languageOptions = oldLanguageOptions || newLanguageOptions;
 
-    if (languageOptions.length < 2) return null;
+    // if (languageOptions.length < 2) return null;
     return (
         <Dropdown
             className='language-dropdown'
