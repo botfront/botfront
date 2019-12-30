@@ -22,7 +22,7 @@ class Statistics extends React.Component {
         ];
 
         return data.map((d, index) => (
-            <div className='glow-box'>
+            <div className='glow-box' style={{ width: `calc(100% / ${data.length})` }}>
                 <Statistic key={index}>
                     <Statistic.Label>{d.label}</Statistic.Label>
                     <Statistic.Value>{d.value}</Statistic.Value>
