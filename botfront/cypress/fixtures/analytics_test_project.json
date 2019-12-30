@@ -342,60 +342,6 @@
       "name": "test_slot"
     }
   ],
-  "instances": [
-    {
-      "_id": "f746955b-23b3-448a-8c2e-3dde975dfd30",
-      "name": "Default Instance",
-      "host": "http://localhost:5005",
-      "projectId": "bf"
-    }
-  ],
-  "endpoints": [
-    {
-      "_id": "e1ee0281-d4d3-4fac-b544-c9de2ea0704f",
-      "endpoints": "nlg:\n  url: 'http://botfront-api:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://actions:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://botfront-api:8080'\n  project_id: 'bf'",
-      "projectId": "bf",
-      "environment": "development",
-      "updatedAt": "2019-10-09T15:23:02.233Z"
-    },
-    {
-      "_id": "2dd8de6c-de83-4844-99f8-988ef379cac6",
-      "endpoints": "nlg:\n  url: 'http://localhost:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://localhost:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://localhost:8080'\n  project_id: 'bf'",
-      "projectId": "bf",
-      "environment": "production",
-      "updatedAt": "2019-10-09T15:06:34.650Z"
-    },
-    {
-      "_id": "a0f8cfc2-dab7-425a-a83c-3db1ce1ba66d",
-      "endpoints": "nlg:\n  url: 'http://localhost:8080/project/bf/nlg'\naction_endpoint:\n  url: 'http://localhost:5055/webhook'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: 'http://localhost:8080'\n  project_id: 'bf'",
-      "projectId": "bf",
-      "environment": "staging",
-      "updatedAt": "2019-10-09T15:06:34.642Z"
-    }
-  ],
-  "credentials": [
-    {
-      "_id": "f2540c7c-5196-496d-b5f7-51273edb392e",
-      "projectId": "bf",
-      "environment": "production",
-      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
-      "updatedAt": "2019-10-09T15:06:34.631Z"
-    },
-    {
-      "_id": "e0ffcc2e-63dd-44c6-b4ea-4d786be129d3",
-      "projectId": "bf",
-      "environment": "staging",
-      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
-      "updatedAt": "2019-10-09T15:06:34.620Z"
-    },
-    {
-      "_id": "73818205-5003-45d0-a6bb-5c906e00dd02",
-      "projectId": "bf",
-      "environment": "development",
-      "credentials": "rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: '/socket.io/'",
-      "updatedAt": "2019-10-09T15:06:34.581Z"
-    }
-  ],
   "corePolicies": [
     {
       "_id": "be6f8f74-37b1-4576-9d5c-6a1cb62de95f",

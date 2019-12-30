@@ -39,16 +39,14 @@ describe('project writer role permissions', function() {
         cy.visit(`/project/${this.bf_project_id}/nlu/models`);
         // Instance should also be added to the model that is created.
         cy.get('[data-cy=example-text-editor-input]').should('exist');
-        cy.get('[data-cy=model-selector]').click();
-        cy.get('[data-cy=model-selector] input').type('German{enter}');
+        cy.get('[data-cy=language-selector] input').type('German{enter}');
         cy.get('.nlu-menu-settings').click();
         cy.contains('Delete').click();
         cy.get('.dowload-model-backup-button').click();
         cy.get('.delete-model-button').click();
         cy.get('.ui.page.modals .primary').click();
-        cy.get('[data-cy=model-selector]').click();
-        cy.get('[data-cy=model-selector] input').type('Gre');
-        cy.get('[data-cy=model-selector]').contains('German').should('not.exist');
+        cy.get('[data-cy=language-selector] input').type('Gre');
+        cy.get('[data-cy=language-selector]').contains('German').should('not.exist');
 
         // For meteor call
         cy.MeteorCall('project.update', [

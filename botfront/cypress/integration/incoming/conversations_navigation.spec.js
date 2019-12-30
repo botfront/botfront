@@ -122,7 +122,7 @@ describe('incoming page conversation tab', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
             .click();
-        cy.dataCy('no-conv').should('contains.text', 'No conversation to load');
+        cy.dataCy('no-conv').should('exist');
     });
 
 

@@ -21,8 +21,7 @@ describe('Project Creation', function() {
         cy.dataCy('submit-field').click();
         // Checking if the project is created correctly
         cy.contains('Test Project').click();
-        cy.get('[data-cy=model-selector]').click();
-        cy.get('[data-cy=model-selector] input').type('English{enter}');
+        cy.get('[data-cy=language-selector] input').type('English{enter}');
         cy.contains('English');
         // Deleting the Test project, First Disable the project, then delete it
         cy.visit('/admin/projects');
