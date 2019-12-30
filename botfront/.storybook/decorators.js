@@ -155,6 +155,11 @@ export const withProjectContext = (story) => {
                 getResponse,
                 getUtteranceFromPayload,
                 updateResponses,
+                projectLanguages: [
+                    { text: 'English', value: 'en' },
+                    { text: 'Tibetan Standard, Tibetan, Central', value: 'bo' },
+                    { text: 'Divehi, Dhivehi, Maldivian', value: 'dv' },
+                ],
                 language: 'en',
                 getCanonicalExamples,
             }}
@@ -191,7 +196,7 @@ export const withBackground = (story) => (
         <div
             style={{
                 borderRadius: '5px',
-                padding: '5px',
+                padding: '10px',
                 margin: '0 auto',
                 width: '90%',
                 background: '#fff',
