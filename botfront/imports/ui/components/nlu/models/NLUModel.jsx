@@ -315,24 +315,28 @@ class NLUModel extends React.Component {
                     </Menu.Menu>
                 </Menu>
                 <Container>
-                    <>{this.renderWarningMessageIntents()}</>
-                    <br />
-                    {instance && (
-                        <div id='playground'>
-                            <NLUPlayground
-                                testMode
-                                model={model}
-                                projectId={projectId}
-                                instance={instance}
-                                floated='right'
-                                entities={entities}
-                                intents={this.getIntentForDropdown(false)}
-                                onSave={example => this.onNewExamples([example])}
-                                postSaveAction='clear'
-                            />
-                        </div>
+                    {['data', 'evaluation'].includes(activeItem) && (
+                        <>
+                            {this.renderWarningMessageIntents()}
+                            <br />
+                            {instance && (
+                                <div id='playground'>
+                                    <NLUPlayground
+                                        testMode
+                                        model={model}
+                                        projectId={projectId}
+                                        instance={instance}
+                                        floated='right'
+                                        entities={entities}
+                                        intents={this.getIntentForDropdown(false)}
+                                        onSave={example => this.onNewExamples([example])}
+                                        postSaveAction='clear'
+                                    />
+                                </div>
+                            )}
+                            <br />
+                        </>
                     )}
-                    <br />
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} initialState={subPageInitialState} />}
