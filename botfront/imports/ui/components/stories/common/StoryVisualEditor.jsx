@@ -246,24 +246,24 @@ export default class StoryVisualEditor extends React.Component {
     );
 
     getBotResponseInitialValue = (name) => {
-        const { getResponse } = this.context;
+        const { getResponse, language } = this.context;
         const { responses } = this.state;
         getResponse(name).then((response) => {
             if (!response) return;
-            responses[name] = response;
+            responses[`${language}-${name}`] = response;
             this.setState({ responses });
         });
     }
 
     handleBotResponseChange = async (name, newResponse) => {
-        const { upsertResponse } = this.context;
+        const { upsertResponse, language } = this.context;
         const { story } = this.props;
         const { responses } = this.state;
-        if (isEqual(responses[name], newResponse)) return;
+        if (isEqual(responses[`${language}-${name}`], newResponse)) return;
         upsertResponse(name, newResponse).then((response) => {
             if (!response) return;
             story.addTemplate({ key: name });
-            responses[name] = newResponse;
+            responses[`${language}-${name}`] = newResponse;
             this.setState({ responses }); // to update exceptions
         });
     }
@@ -286,17 +286,15 @@ export default class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'bot') {
                 const { name } = line.gui.data;
                 return (
-                    <React.Fragment key={`bot-${name}-${language}-${!!responses[name]}`}>
-                        {/* having language in key here makes BotResponsesContainer rerender and therefore
-                         response is refetched on language change */}
+                    <React.Fragment key={`bot-${name}-${language}-${!!responses[`${language}-${name}`]}`}>
                         <BotResponsesContainer
                             deletable
                             exceptions={exceptions}
                             name={name}
-                            initialValue={responses[name] || this.getBotResponseInitialValue(name, index)}
+                            initialValue={responses[`${language}-${name}`] || this.getBotResponseInitialValue(name, index)}
                             onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                            isNew={!!(responses[name] || {}).isNew}
+                            isNew={!!(responses[`${language}-${name}`] || {}).isNew}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
@@ -304,7 +302,8 @@ export default class StoryVisualEditor extends React.Component {
             }
             if (line.gui.type === 'user') {
                 return (
-                    <React.Fragment key={`user${line.md || ''}-${index}`}>
+                    <React.Fragment key={`user-${line.md || ''}-${index}-${language}`}>
+                        {/* having language in key here makes component renrender on language change */}
                         <UserUtteranceContainer
                             exceptions={exceptions}
                             value={line.gui.data[0]} // for now, data is a singleton
