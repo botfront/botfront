@@ -6,20 +6,24 @@ import { setWorkingLanguage } from '../../store/actions/actions';
 import { ProjectContext } from '../../layouts/context';
 
 const LanguageDropdown = ({
-    selectedLanguage: oldSelectedLanguage,
-    handleLanguageChange: oldHandleLanguageChange,
-    languageOptions: oldLanguageOptions,
-    newSelectedLanguage,
-    newHandleLanguageChange,
+    /*
+        This component accepts a selectedLanguage, handleLanguageChange and languageOptions prop,
+        but falls back to context default if not provided
+    */
+    selectedLanguage: specifiedSelectedLanguage,
+    handleLanguageChange: specifiedHandleLanguageChange,
+    languageOptions: specifiedLanguageOptions,
+    defaultSelectedLanguage,
+    defaultHandleLanguageChange,
     multiple,
 }) => {
     const {
-        projectLanguages: newLanguageOptions,
+        projectLanguages: defaultLanguageOptions,
     } = useContext(ProjectContext);
 
-    const selectedLanguage = oldSelectedLanguage || newSelectedLanguage;
-    const handleLanguageChange = oldHandleLanguageChange || newHandleLanguageChange;
-    const languageOptions = oldLanguageOptions || newLanguageOptions;
+    const selectedLanguage = defaultSelectedLanguage || specifiedSelectedLanguage;
+    const handleLanguageChange = defaultHandleLanguageChange || specifiedHandleLanguageChange;
+    const languageOptions = defaultLanguageOptions || specifiedLanguageOptions;
 
     // if (languageOptions.length < 2) return null;
     return (
@@ -42,24 +46,24 @@ LanguageDropdown.propTypes = {
     languageOptions: PropTypes.array,
     multiple: PropTypes.bool,
     handleLanguageChange: PropTypes.func,
-    newSelectedLanguage: PropTypes.string,
-    newHandleLanguageChange: PropTypes.func.isRequired,
+    defaultSelectedLanguage: PropTypes.string,
+    defaultHandleLanguageChange: PropTypes.func.isRequired,
 };
 
 LanguageDropdown.defaultProps = {
     selectedLanguage: null,
-    newSelectedLanguage: '',
+    defaultSelectedLanguage: '',
     languageOptions: null,
     handleLanguageChange: null,
     multiple: false,
 };
 
 const mapStateToProps = state => ({
-    newSelectedLanguage: state.settings.get('workingLanguage'),
+    defaultSelectedLanguage: state.settings.get('workingLanguage'),
 });
 
 const mapDispatchToProps = {
-    newHandleLanguageChange: setWorkingLanguage,
+    defaultHandleLanguageChange: setWorkingLanguage,
 };
 
 export default connect(
