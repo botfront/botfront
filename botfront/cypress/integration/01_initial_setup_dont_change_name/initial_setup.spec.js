@@ -33,41 +33,10 @@ describe('intial setup', function() {
         cy.get('#uniforms-0000-0009').type('{selectall}{del}Aaaaaaaa00{enter}');
 
         cy.get('[data-cy=account-step]').click();
-        cy.contains('Continue').click();
+        cy.contains('Create').click();
 
-        cy.contains('Select the default language').click();
-        cy.get('[role=listbox]')
-            .contains('English')
-            .click();
-
-        cy.get('[data-cy=project-create-button]').click();
-
-        cy.get('[data-cy=project-step]').click();
-
-        cy.get('[data-cy=consent-step]').click();
-        // Nothing should happen
-
-        cy.get('[data-cy=project-create-button]').click();
-
-        cy.get('[data-cy=email-consent]').click();
 
         cy.wait(10000);
-        cy.url().should('include', '/stories');
-
-        // cy.url().then((url) => {
-        // This gets the project id
-        //     const id = url.match(/project\/(.*?)\/nlu/i)[1];
-        //     cy.writeFile('cypress/fixtures/bf_project_id.txt', id);
-        // });
-
-        // cy.url().then((url) => {
-        //     // This gets the model id
-        //     const id = url.split('/')[7];
-        //     cy.writeFile('cypress/fixtures/bf_model_id.txt', id);
-        // });
-        // cy.get('[data-cy=example-text-editor-input]').should('exist'); // Test if a default instance is added
-        // cy.get('[data-cy=nlu-menu-settings]').click();
-        // cy.contains('Pipeline').click();
-        // cy.get(':checkbox').should('be.checked');
+        cy.url().should('include', '/admin/projects');
     });
 });

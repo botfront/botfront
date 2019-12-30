@@ -34,7 +34,7 @@ class StepAccountComponent extends React.Component {
                 <div style={{ textAlign: 'center' }}>
                     <SubmitField
                         data-cy='account-create-button'
-                        value='Continue'
+                        value='Create'
                         className='primary'
                     />
                 </div>

@@ -83,9 +83,8 @@ const requestMailSubscription = async (email, firstName, lastName) => {
 
 if (Meteor.isServer) {
     Meteor.methods({
-        async 'initialSetup.firstStep'(accountData, consent) {
+        async 'initialSetup'(accountData) {
             check(accountData, Object);
-            check(consent, Boolean);
 
             const empty = await Meteor.callWithPromise('users.checkEmpty');
             if (!empty) {
@@ -105,7 +104,7 @@ if (Meteor.isServer) {
             } catch (e) {
                 globalSettings = JSON.parse(Assets.getText('default-settings.json'));
             }
-            
+
             GlobalSettings.insert({ _id: 'SETTINGS', ...globalSettings });
 
             const {
@@ -127,38 +126,6 @@ if (Meteor.isServer) {
             Roles.createRole('global-admin', { unlessExists: true });
             Roles.addUsersToRoles(userId, ['global-admin'], null);
             // ee-end //
-
-            if (consent) {
-                await requestMailSubscription(accountData.email, accountData.firstName, accountData.lastName);
-            }
-        },
-
-        async 'initialSetup.secondStep'(projectData) {
-            check(projectData, Object);
-
-            checkIfCan('global-admin');
-
-            const project = {
-                name: projectData.project,
-                namespace: slugify(`bf-${projectData.project}`, { lower: true }),
-                defaultLanguage: projectData.language,
-            };
-
-            if (process.env.BF_PROJECT_ID) project._id = process.env.BF_PROJECT_ID;
-            
-            const projectId = await Meteor.callWithPromise('project.insert', project);
-
-            await Meteor.callWithPromise(
-                'nlu.insert',
-                {
-                    name: 'My First Model',
-                    language: projectData.language,
-                    published: true,
-                },
-                projectId,
-            );
-
-            return projectId;
         },
     });
 }
