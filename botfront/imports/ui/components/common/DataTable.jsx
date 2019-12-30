@@ -22,6 +22,7 @@ export default function DataTable(props) {
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
     const clickable = onClickRow ? 'clickable' : '';
+    const rowStyle = gutterSize > 0 ? 'glow-box' : '';
 
     const Row = React.forwardRef((row, ref) => {
         const { index, style } = row;
@@ -33,7 +34,7 @@ export default function DataTable(props) {
         if (!isDataLoaded(index)) {
             return (
                 <div ref={ref} style={editedStyle}>
-                    <div className='row glow-box'>
+                    <div className={`row ${rowStyle}`}>
                         Loading...
                     </div>
                 </div>
@@ -51,7 +52,7 @@ export default function DataTable(props) {
                 onKeyDown={null}
                 className='row-wrapper'
             >
-                <div className={`row glow-box ${clickable}`}>
+                <div className={`row ${rowStyle} ${clickable}`}>
                     {columns.map(c => (
                         <div key={`${c.key}-${index}`} className={`item ${c.class || ''}`} style={c.style}>
                             {c.render
@@ -110,7 +111,7 @@ export default function DataTable(props) {
                     tabIndex={0}
                     onKeyDown={null}
                 >
-                    <div className={`row glow-box ${clickable}`}>
+                    <div className={`row ${rowStyle} ${clickable}`}>
                         {columns.map((c, i) => (
                             <div key={`${c.key}-fixed-${i}`} className={`item ${c.class || ''}`} style={c.style}>
                                 {c.render
