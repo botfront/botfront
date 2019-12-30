@@ -43,11 +43,14 @@
     margin-left: 15px;
     box-shadow: 0 1px 10px rgba(34, 36, 38, 0.1);
     border: 1px solid transparent;
-    transition: transform 0.3s ease-in-out;
-    &:hover {
-        border: 1px solid #2185d0;
-        transform: translateY(-1px);
-        box-shadow: 0 1px 15px rgba(34,36,38, 0.08);
+
+    &.hoverable {
+        transition: transform 0.3s ease-in-out;
+        &:hover {
+            border: 1px solid #2185d0;
+            transform: translateY(-1px);
+            box-shadow: 0 1px 15px rgba(34,36,38, 0.08);
+        }
     }
 
     .statistic {

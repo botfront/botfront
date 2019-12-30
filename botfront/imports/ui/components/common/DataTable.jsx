@@ -22,7 +22,7 @@ export default function DataTable(props) {
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
     const clickable = onClickRow ? 'clickable' : '';
-    const rowStyle = gutterSize > 0 ? 'glow-box' : '';
+    const rowStyle = gutterSize > 0 ? 'glow-box hoverable' : '';
 
     const Row = React.forwardRef((row, ref) => {
         const { index, style } = row;

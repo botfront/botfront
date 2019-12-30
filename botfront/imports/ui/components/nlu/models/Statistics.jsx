@@ -5,14 +5,27 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import { Stories as StoriesCollection } from '../../../../api/story/stories.collection';
 import { Loading } from '../../utils/Utils';
+import IntentLabel from '../common/IntentLabel';
+import DataTable from '../../common/DataTable';
 
 
-class Statistics extends React.Component {
-    renderStatistics() {
-        const {
-            model, intents, entities, storyCount,
-        } = this.props;
-        const data = [
+const Statistics = (props) => {
+    const {
+        model, intents, entities, storyCount, ready,
+    } = props;
+
+    const data = [
+        { intent: 'ha', text: 'wack', count: 4 },
+        { intent: 'ho', text: 'wack wack', count: 100 },
+        { intent: 'hasas', text: 'wack tack dack', count: 99 },
+    ];
+    const hasNextPage = false;
+    const loading = false;
+    const loadMore = () => {};
+
+
+    const renderCards = () => {
+        const cards = [
             { label: 'Examples', value: model.training_data.common_examples.length },
             { label: 'Intents', value: intents.length },
             { label: 'Entities', value: entities.length },
@@ -21,27 +34,60 @@ class Statistics extends React.Component {
             { label: 'Stories', value: storyCount },
         ];
 
-        return data.map(d => (
-            <div className='glow-box' style={{ width: `calc(100% / ${data.length})` }} key={d.label}>
+        return cards.map(d => (
+            <div className='glow-box hoverable' style={{ width: `calc(100% / ${cards.length})` }} key={d.label}>
                 <Statistic>
                     <Statistic.Label>{d.label}</Statistic.Label>
                     <Statistic.Value>{d.value}</Statistic.Value>
                 </Statistic>
             </div>
         ));
-    }
+    };
 
-    render() {
-        const { ready } = this.props;
+    const renderIntent = (row) => {
+        const { datum } = row;
         return (
-            <Loading loading={!ready}>
-                <div className='side-by-side'>
-                    {this.renderStatistics()}
-                </div>
-            </Loading>
+            <IntentLabel
+                value={datum.intent ? datum.intent : ''}
+                allowEditing={false}
+            />
         );
-    }
-}
+    };
+
+    const columns = [
+        {
+            key: 'intent', header: 'Intent', style: { width: '180px', minWidth: '180px', overflow: 'hidden' }, render: renderIntent,
+        },
+        {
+            key: 'text', header: 'Example', style: { width: '100%' },
+        },
+        {
+            key: 'count', header: 'Count', style: { width: '110px' },
+        },
+    ];
+
+    return (
+        <Loading loading={!ready}>
+            <div className='side-by-side'>{renderCards()}</div>
+            <br />
+            {data && data.length
+                ? (
+                    <div className='glow-box'>
+                        <DataTable
+                            columns={columns}
+                            data={data}
+                            hasNextPage={hasNextPage}
+                            loadMore={loading ? () => {} : loadMore}
+                            gutterSize={0}
+                        />
+                    </div>
+                )
+                : null
+            }
+        </Loading>
+    );
+};
+
 Statistics.propTypes = {
     model: PropTypes.object.isRequired,
     intents: PropTypes.array.isRequired,
