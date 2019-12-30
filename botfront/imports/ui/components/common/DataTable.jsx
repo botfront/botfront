@@ -33,7 +33,7 @@ export default function DataTable(props) {
         if (!isDataLoaded(index)) {
             return (
                 <div ref={ref} style={editedStyle}>
-                    <div className='row inner-incoming-row'>
+                    <div className='row glow-box'>
                         Loading...
                     </div>
                 </div>
@@ -51,7 +51,7 @@ export default function DataTable(props) {
                 onKeyDown={null}
                 className='row-wrapper'
             >
-                <div className={`row inner-incoming-row ${clickable}`}>
+                <div className={`row glow-box ${clickable}`}>
                     {columns.map(c => (
                         <div key={`${c.key}-${index}`} className={`item ${c.class || ''}`} style={c.style}>
                             {c.render
@@ -110,7 +110,7 @@ export default function DataTable(props) {
                     tabIndex={0}
                     onKeyDown={null}
                 >
-                    <div className={`row inner-incoming-row ${clickable}`}>
+                    <div className={`row glow-box ${clickable}`}>
                         {columns.map((c, i) => (
                             <div key={`${c.key}-fixed-${i}`} className={`item ${c.class || ''}`} style={c.style}>
                                 {c.render

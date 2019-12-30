@@ -36,6 +36,39 @@
     }
 }
 
+.glow-box {
+    background-color: white;
+    border-radius: 4px;
+    margin-right: 15px;
+    margin-left: 15px;
+    box-shadow: 0 1px 10px rgba(34, 36, 38, 0.1);
+    border: 1px solid transparent;
+    transition: transform 0.3s ease-in-out;
+    &:hover {
+        border: 1px solid #2185d0;
+        transform: translateY(-1px);
+        box-shadow: 0 1px 15px rgba(34,36,38, 0.08);
+    }
+
+    .statistic {
+        padding: 30px;
+
+        .label {
+            font-size: 1.5rem !important;
+            font-family: @fontFamily;
+            font-weight: normal;
+            color: #555;
+            text-transform: none;
+            margin-bottom: 16px;
+        }
+        .value {
+            font-size: 3rem !important;
+            font-weight: bold;
+            align-self: start;
+        }
+    }
+}
+
 .ui.menu.vertical {
     border-radius: .28571429rem;
     .active.item.selected-blue {
