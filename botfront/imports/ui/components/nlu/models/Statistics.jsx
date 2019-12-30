@@ -10,7 +10,7 @@ import { Loading } from '../../utils/Utils';
 class Statistics extends React.Component {
     renderStatistics() {
         const {
-            model, intents, entities, stories,
+            model, intents, entities, storyCount,
         } = this.props;
         const data = [
             { label: 'Examples', value: model.training_data.common_examples.length },
@@ -18,12 +18,12 @@ class Statistics extends React.Component {
             { label: 'Entities', value: entities.length },
             { label: 'Synonyms', value: model.training_data.entity_synonyms.length },
             { label: 'Gazettes', value: model.training_data.fuzzy_gazette.length },
-            { label: 'Stories', value: stories.length },
+            { label: 'Stories', value: storyCount },
         ];
 
-        return data.map((d, index) => (
-            <div className='glow-box' style={{ width: `calc(100% / ${data.length})` }}>
-                <Statistic key={index}>
+        return data.map(d => (
+            <div className='glow-box' style={{ width: `calc(100% / ${data.length})` }} key={d.label}>
+                <Statistic>
                     <Statistic.Label>{d.label}</Statistic.Label>
                     <Statistic.Value>{d.value}</Statistic.Value>
                 </Statistic>
@@ -47,7 +47,7 @@ Statistics.propTypes = {
     intents: PropTypes.array.isRequired,
     entities: PropTypes.array.isRequired,
     ready: PropTypes.bool.isRequired,
-    stories: PropTypes.array.isRequired,
+    storyCount: PropTypes.number.isRequired,
 };
 
 const StatisticsWithStoryCount = withTracker((props) => {
@@ -56,7 +56,7 @@ const StatisticsWithStoryCount = withTracker((props) => {
 
     return {
         ready: storiesHandler.ready(),
-        stories: StoriesCollection.find({}).fetch(),
+        storyCount: StoriesCollection.find().count(),
     };
 })(Statistics);
 
