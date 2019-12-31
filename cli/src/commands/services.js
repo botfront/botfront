@@ -71,7 +71,7 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
     shell.cd(projectAbsPath);
     if (!isProjectDir()) {
         const noProjectMessage = `${chalk.yellow.bold('No project found.')} ${chalk.cyan.bold('botfront up')} must be executed from your project\'s directory`;
-        return console.log(noProjectMessage);
+        return console.log(boxen(noProjectMessage));
     }
     displayProjectUpdateMessage();
 
@@ -81,20 +81,24 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
     const missingImgs = await getMissingImgs();
     await pullDockerImages(missingImgs, spinner, 'Downloading Docker images...');
     await stopRunningProjects('Shutting down running project first...', null, null, spinner);
-    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d`;
+    let command = 'docker-compose up -d';
     try {
         startSpinner(spinner, 'Starting Botfront...')
+        console.log('1')
         await shellAsync(command, { silent: !verbose });
+        console.log('2')
         if (ci) process.exit(0); // exit now if ci
 
         if (!exclude.includes('botfront')) await waitForService('botfront');
+        console.log('3')
         stopSpinner();
+        console.log('4')
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
         const message = 'Useful commands:\n\n' + (
 
             `\u2022 Run ${chalk.cyan.bold('botfront logs')} to follow logs \n` +
             `\u2022 Run ${chalk.cyan.bold('botfront watch')} to watch ${chalk.yellow.bold('actions')} and ${chalk.yellow.bold('rasa')} folders (see ` +
-                    `${chalk.cyan.bold('https://botfront.io/docs/rasa/custom-actions')} )\n` +
+                    `${chalk.cyan.bold('https://botfront.io/docs/rasa/custom-actions')})\n` +
             `\u2022 Run ${chalk.cyan.bold('botfront down')} to stop Botfront\n`  +
             `\u2022 Run ${chalk.cyan.bold('botfront --help')} to get help with the CLI\n`
         );
@@ -106,6 +110,7 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
     } catch (e) {
         if (verbose) {
             failSpinner(spinner, `${chalk.red.bold('ERROR:')} Something went wrong. Check the logs above for more information ☝️, or try inspecting the logs with ${chalk.red.cyan('botfront logs')}.`);
+            console.log(e);
         } else {
             stopSpinner(spinner);
             failSpinner(spinner, 'Couldn\'t start Botfront. Retrying in verbose mode...', { exit: false });
@@ -127,7 +132,7 @@ export async function dockerComposeDown({ verbose }, workingDir) {
     }
     const spinner = ora('Stopping Botfront...')
     spinner.start();
-    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} down`;
+    let command = 'docker-compose down';
     await shellAsync(command, { silent: !verbose })
     spinner.succeed('All services are stopped. Come back soon... 🤗');
 }
@@ -148,7 +153,7 @@ export async function dockerComposeRestart(service, { verbose }, workingDir) {
 }
 
 export async function dockerComposeBuildAndRestart(service, { verbose }, workingDir) {
-    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d --build ${service}`;
+    let command = `docker-compose up -d --build ${service}`;
     await shellAsync(command, { silent: !verbose }).catch((consoleError));
 }
 
@@ -189,8 +194,8 @@ export async function dockerComposeCommand(service, {name, action}, verbose, wor
     const spinner = ora(`${capitalize(action)} ${services.join(', ')}...`)
     spinner.start();
     const command = regeneratedDockerCompose // if docker-compose file has been regenerated, run 'up -d' instead of 'start', to create container
-        ? `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} up -d --force-recreate`
-        : `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} ${name} ${services.join(' ')}`;
+        ? 'docker-compose up -d --force-recreate'
+        : `docker-compose ${name} ${services.join(' ')}`;
     await shellAsync(command, { silent: !verbose })
     spinner.succeed(`Done. ${message}`);
 }
@@ -202,7 +207,7 @@ export function dockerComposeFollow({ ci = false }, workingDir) {
         `${chalk.green.bold('TIP: ')}if you just created your project, you probably just have to do ${chalk.cyan.bold('cd <your-project-folder>')} and then retry`;
         return console.log(boxen(noProjectMessage));
     }
-    let command = `docker-compose -f ${getComposeFilePath()} --project-directory ${getComposeWorkingDir(workingDir)} logs${!ci ? ' -f' : ''}`;
+    let command = `docker-compose logs${!ci ? ' -f' : ''}`;
     shell.exec(command)
 }
 
