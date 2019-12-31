@@ -1,28 +1,40 @@
-import React from 'react';
+import React, { useContext, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Statistic } from 'semantic-ui-react';
+import { Statistic, Icon } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
+import { useQuery } from '@apollo/react-hooks';
 import { Stories as StoriesCollection } from '../../../../api/story/stories.collection';
 import { Loading } from '../../utils/Utils';
 import IntentLabel from '../common/IntentLabel';
 import DataTable from '../../common/DataTable';
+import { ProjectContext } from '../../../layouts/context';
+import { GET_INTENT_STATISTICS } from './graphql';
 
 
 const Statistics = (props) => {
     const {
-        model, intents, entities, storyCount, ready,
+        model, intents, entities, storyCount, ready, projectId, workingLanguage,
     } = props;
 
-    const data = [
-        { intent: 'ha', text: 'wack', count: 4 },
-        { intent: 'ho', text: 'wack wack', count: 100 },
-        { intent: 'hasas', text: 'wack tack dack', count: 99 },
-    ];
-    const hasNextPage = false;
-    const loading = false;
-    const loadMore = () => {};
+    const { projectLanguages } = useContext(ProjectContext);
+    const { data, loading, refetch } = useQuery(
+        GET_INTENT_STATISTICS, { variables: { projectId, language: workingLanguage } },
+    );
 
+    // always refetch on first page load
+    useEffect(() => { if (refetch) refetch(); }, [refetch, workingLanguage]);
+
+    const getDataToDisplay = () => !loading
+        && data.getIntentStatistics.map(({ intent, example, counts }) => {
+            const row = { intent, example };
+            counts.forEach(({ language, count }) => {
+                row[language] = count;
+            });
+            return row;
+        });
+
+    const dataToDisplay = useMemo(() => getDataToDisplay());
 
     const renderCards = () => {
         const cards = [
@@ -54,30 +66,40 @@ const Statistics = (props) => {
         );
     };
 
+
+    const renderExample = (row) => {
+        const { datum } = row;
+        if (!datum.example) return <i>No example defined.</i>;
+        const { text } = datum.example;
+        return text;
+    };
+
+    const countColumns = projectLanguages.map(({ text, value }) => ({
+        key: value,
+        header: text,
+        style: { width: '110px', ...(value === workingLanguage ? { fontWeight: 'bold' } : {}) },
+    }));
+
     const columns = [
         {
             key: 'intent', header: 'Intent', style: { width: '180px', minWidth: '180px', overflow: 'hidden' }, render: renderIntent,
         },
         {
-            key: 'text', header: 'Example', style: { width: '100%' },
+            key: 'example', header: 'Example', style: { width: '100%' }, render: renderExample,
         },
-        {
-            key: 'count', header: 'Count', style: { width: '110px' },
-        },
+        ...countColumns,
     ];
 
     return (
-        <Loading loading={!ready}>
+        <Loading loading={!ready || loading}>
             <div className='side-by-side'>{renderCards()}</div>
             <br />
-            {data && data.length
+            {dataToDisplay && dataToDisplay.length
                 ? (
                     <div className='glow-box'>
                         <DataTable
                             columns={columns}
-                            data={data}
-                            hasNextPage={hasNextPage}
-                            loadMore={loading ? () => {} : loadMore}
+                            data={dataToDisplay}
                             gutterSize={0}
                         />
                     </div>
@@ -94,6 +116,8 @@ Statistics.propTypes = {
     entities: PropTypes.array.isRequired,
     ready: PropTypes.bool.isRequired,
     storyCount: PropTypes.number.isRequired,
+    projectId: PropTypes.string.isRequired,
+    workingLanguage: PropTypes.string.isRequired,
 };
 
 const StatisticsWithStoryCount = withTracker((props) => {
@@ -108,6 +132,7 @@ const StatisticsWithStoryCount = withTracker((props) => {
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 export default connect(mapStateToProps)(StatisticsWithStoryCount);
