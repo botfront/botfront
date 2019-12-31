@@ -15,6 +15,15 @@
     }
 }
 
+.floated {
+    &.right {
+        text-align: right;
+    }
+    &.left {
+        text-align: left;
+    }
+}
+
 .side-by-side {
     display: flex;
     justify-content: space-between;
@@ -55,6 +64,9 @@
 
     &.extra-padding {
         padding: 20px;
+        .virtual-table {
+            padding-bottom: 30px;
+        }
     }
 
     .statistic {
