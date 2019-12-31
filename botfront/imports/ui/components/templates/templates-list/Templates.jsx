@@ -25,7 +25,7 @@ class Templates extends React.Component {
     handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
 
     renderMenu = (projectId, activeItem, nluLanguages) => (
-        <Menu pointing secondary style={{ background: '#fff' }}>
+        <Menu borderless className='top-menu'>
             <Menu.Item>
                 <Menu.Header as='h3'>
                     <Icon name='comment alternate' />

@@ -272,7 +272,7 @@ class NLUModel extends React.Component {
         }
         return (
             <div id='nlu-model'>
-                <Menu pointing secondary>
+                <Menu borderless className='top-menu'>
                     <Menu.Item header>{this.getHeader()}</Menu.Item>
                     <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-training-data'>
                         <Icon size='small' name='database' />
