@@ -32,7 +32,8 @@ const Statistics = (props) => {
                 row[language] = count;
             });
             return row;
-        });
+        })
+            .sort((r1, r2) => r2[workingLanguage] || 0 - r1[workingLanguage] || 0);
 
     const dataToDisplay = useMemo(() => getDataToDisplay());
 
@@ -96,7 +97,7 @@ const Statistics = (props) => {
             <br />
             {dataToDisplay && dataToDisplay.length
                 ? (
-                    <div className='glow-box'>
+                    <div className='glow-box extra-padding'>
                         <DataTable
                             columns={columns}
                             data={dataToDisplay}
