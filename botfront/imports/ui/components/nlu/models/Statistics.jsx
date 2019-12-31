@@ -46,7 +46,7 @@ const Statistics = (props) => {
             return [...acc, row];
         }, [headers.map(h => `"${h}"`)]).join('\n');
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
-        return saveAs(blob, 'nlu_statistics.csv');
+        return saveAs(blob, `nlu_statistics_${projectId}_${new Date().toISOString().split('T')[0]}.csv`);
     };
 
     const renderCards = () => {
