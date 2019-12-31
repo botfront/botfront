@@ -4,7 +4,7 @@ import shortid from 'shortid';
 import { isEqual } from 'lodash';
 
 import { OOS_LABEL } from '../../constants.json';
-import { StoryController } from '../../../../lib/story_controller';
+import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
@@ -31,7 +31,6 @@ const defaultTemplate = (templateType) => {
 export default class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
-        menuCloser: () => {},
         responses: {},
     };
 
@@ -47,7 +46,7 @@ export default class StoryVisualEditor extends React.Component {
         }
     }
 
-    trackOpenMenu = func => this.setState({ menuCloser: func });
+    trackOpenMenu = (func) => { this.menuCloser = func; };
 
     handleDeleteLine = (index) => {
         const { story } = this.props;
@@ -68,10 +67,10 @@ export default class StoryVisualEditor extends React.Component {
     };
 
     handleCreateUserUtterance = (index, payload) => {
-        this.setState({ lineInsertIndex: null });
         const { story } = this.props;
-        const newLine = { type: 'user', data: [payload || null] };
+        const newLine = { type: 'user', data: [payload || { intent: NEW_INTENT }] };
         story.insertLine(index, newLine);
+        this.setState({ lineInsertIndex: null });
     };
 
     handleChangeActionOrSlot = (type, index, data) => {
@@ -108,19 +107,6 @@ export default class StoryVisualEditor extends React.Component {
         } catch (err) {
             return { text: utterance, intent: OOS_LABEL };
         }
-    };
-
-    formatErrors = (exceptions) => {
-        const messages = exceptions.map(({ message }) => (
-            <>
-                {message
-                    .split('`')
-                    .forEach((bit, idx) => (idx % 2 === 0 ? bit : <i>{bit}</i>))}
-            </>
-        ));
-        if (exceptions.some(exception => exception.type === 'error')) return { severity: 'error', messages };
-        if (exceptions.some(exception => exception.type === 'warning')) return { severity: 'warning', messages };
-        return { severity: null, messages };
     };
 
     renderActionLine = (i, l, exceptions) => (
@@ -190,7 +176,7 @@ export default class StoryVisualEditor extends React.Component {
                         if (
                             !(
                                 this.addStoryCursor.current.contains(relatedTarget)
-                                || modals.some(m => m.contains(relatedTarget))
+                                || modals.length
                                 || popups.some(m => m.contains(relatedTarget))
                                 || (relatedTarget && relatedTarget.tagName === 'INPUT')
                             )
@@ -272,7 +258,7 @@ export default class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
-        const { menuCloser, responses } = this.state;
+        const { responses } = this.state;
         const { language } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
@@ -322,7 +308,7 @@ export default class StoryVisualEditor extends React.Component {
         });
 
         return (
-            <div className='story-visual-editor' onMouseLeave={menuCloser}>
+            <div className='story-visual-editor' onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}>
                 {this.renderAddLine(-1)}
                 {lines}
             </div>
