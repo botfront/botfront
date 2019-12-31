@@ -1,9 +1,10 @@
 import React, { useContext, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Statistic } from 'semantic-ui-react';
+import { Statistic, Button } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import { useQuery } from '@apollo/react-hooks';
+import { saveAs } from 'file-saver';
 import { Stories as StoriesCollection } from '../../../../api/story/stories.collection';
 import { Loading } from '../../utils/Utils';
 import IntentLabel from '../common/IntentLabel';
@@ -27,15 +28,26 @@ const Statistics = (props) => {
 
     const getDataToDisplay = () => !loading
         && data.getIntentStatistics.map(({ intent, example, counts }) => {
-            const row = { intent, example };
+            const row = { intent, example: example ? example.text : null };
             counts.forEach(({ language, count }) => {
                 row[language] = count;
             });
             return row;
         })
-            .sort((r1, r2) => r2[workingLanguage] || 0 - r1[workingLanguage] || 0);
+            .sort((r1, r2) => (r2[workingLanguage] || 0) - (r1[workingLanguage] || 0));
 
     const dataToDisplay = useMemo(() => getDataToDisplay());
+
+    const downloadData = () => {
+        const headers = ['intent', 'example', ...projectLanguages.map(l => l.value)];
+        const csvData = (dataToDisplay || []).reduce((acc, curr) => {
+            let row = '';
+            headers.forEach((h) => { row += `"${`${(curr[h] || '')}`.replace('"', '""')}",`; });
+            return [...acc, row];
+        }, [headers.map(h => `"${h}"`)]).join('\n');
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+        return saveAs(blob, 'nlu_statistics.csv');
+    };
 
     const renderCards = () => {
         const cards = [
@@ -71,13 +83,12 @@ const Statistics = (props) => {
     const renderExample = (row) => {
         const { datum } = row;
         if (!datum.example) return <i>No example defined.</i>;
-        const { text } = datum.example;
-        return text;
+        return datum.example;
     };
 
-    const countColumns = projectLanguages.map(({ text, value }) => ({
+    const countColumns = projectLanguages.map(({ value }) => ({
         key: value,
-        header: text,
+        header: value,
         style: { width: '110px', ...(value === workingLanguage ? { fontWeight: 'bold' } : {}) },
     }));
 
@@ -98,6 +109,11 @@ const Statistics = (props) => {
             {dataToDisplay && dataToDisplay.length
                 ? (
                     <div className='glow-box extra-padding'>
+                        <div className='side-by-side'>
+                            <h3>Examples per intent</h3>
+                            <Button onClick={downloadData} disabled={!(dataToDisplay || []).length} icon='download' basic />
+                        </div>
+                        <br />
                         <DataTable
                             columns={columns}
                             data={dataToDisplay}
