@@ -21,9 +21,9 @@ const LanguageDropdown = ({
         projectLanguages: defaultLanguageOptions,
     } = useContext(ProjectContext);
 
-    const selectedLanguage = defaultSelectedLanguage || specifiedSelectedLanguage;
-    const handleLanguageChange = defaultHandleLanguageChange || specifiedHandleLanguageChange;
-    const languageOptions = defaultLanguageOptions || specifiedLanguageOptions;
+    const selectedLanguage = specifiedSelectedLanguage || defaultSelectedLanguage;
+    const handleLanguageChange = specifiedHandleLanguageChange || defaultHandleLanguageChange;
+    const languageOptions = specifiedLanguageOptions || defaultLanguageOptions;
 
     // if (languageOptions.length < 2) return null;
     return (

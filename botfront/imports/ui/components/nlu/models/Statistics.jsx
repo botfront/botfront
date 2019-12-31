@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Statistic, Icon } from 'semantic-ui-react';
+import { Statistic } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import { useQuery } from '@apollo/react-hooks';
