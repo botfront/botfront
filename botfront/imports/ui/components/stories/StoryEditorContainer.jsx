@@ -233,7 +233,7 @@ const StoryEditorContainer = ({
                 onLoad={editor => handleLoadEditor(editor, pathAsString)}
                 minLines={5}
                 maxLines={Infinity}
-                fontSize={16}
+                fontSize={14}
                 onChange={newStory => storyControllers[pathAsString].setMd(newStory)}
                 value={
                     storyControllers[pathAsString]
