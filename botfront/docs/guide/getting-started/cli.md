@@ -43,4 +43,9 @@ Commands:
   watch              Restart the Actions service automatically on file change. Must be executed in your project's directory
   docs               Open the online documentation in your browser
 ```
+## Using plain `docker-compose` commands
+
+The CLI wraps `docker-compose`. `botfront up` generates `.env` and `.docker-compose.yml` at the root of your project and then invokes `docker-compose up`.
+Once those files are generated you can use all `docker-compose` commands from the root of your project.
+Note that since those files are generated, any change will be overwritten next time you run `botfront up`. Instead, make changes to the files found in the `.botfront` folder.
 
