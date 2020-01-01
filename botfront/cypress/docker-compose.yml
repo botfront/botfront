@@ -43,7 +43,7 @@ services:
     environment:
       - PORT=3000
       - BF_PROJECT_ID=bf
-      - NODE_ENV=test
+      - MODE=test
       - MONGO_URL=mongodb://mongo:27017/bf
       - ORCHESTRATOR=docker-compose
       - ROOT_URL=http://botfront:3000
@@ -57,12 +57,12 @@ services:
     # ports:
     #   - '8080:8080'
     environment:
-      # NODE_ENV must not be set to test because it would use the mongo mem server which we don't want here
+      # MODE must not be set to test because it would use the mongo mem server which we don't want here
       - MONGO_URL=mongodb://mongo:27017/bf
       - CORS=*
 
   rasa:
-    image: botfront/rasa-for-botfront:v1.3.9-bf.4
+    image: botfront/rasa-for-botfront:${RASA_TAG}
     container_name: botfront-test-rasa
     restart: always
     command:
@@ -75,7 +75,7 @@ services:
     volumes:
       - './mounted/models/:/app/models'
     environment:
-      - BF_URL=http://botfront-api:8080
+      - BF_URL=http://botfront:3000/graphql
       - BF_PROJECT_ID=bf
 
   # actions:

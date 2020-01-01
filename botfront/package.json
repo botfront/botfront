@@ -1,13 +1,13 @@
 {
   "name": "botfront",
-  "version": "0.18.5",
+  "version": "0.19.0-alpha.0",
   "repository": "https://github.com/botfront/botfront",
   "license": "AGPL-3.0-only",
   "scripts": {
     "start": "meteor run",
     "start:docker-compose": "BF_PROJECT_ID=bf ORCHESTRATOR=docker-compose meteor run",
-    "start:docker-compose.dev": "NODE_ENV=development BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
-    "start:docker-compose.ci": "NODE_ENV=test BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
+    "start:docker-compose.dev": "MODE=development BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
+    "start:docker-compose.ci": "MODE=test BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
     "test-watch": "METEOR_PORT=3100 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
     "test-once": "METEOR_PORT=3100 TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100",
     "debug": "meteor run --inspect-brk=9229",

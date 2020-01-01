@@ -1,6 +1,7 @@
-#####################################################################
-# You should not edit this file unless you know what you are doing. #
-#####################################################################
+########################################################################
+# This file is used as a template for the docker-compose.yaml file     #
+# you will find at the root of your project when running `botfront up` #
+########################################################################
 
 version: "3.0"
 services:
@@ -16,7 +17,7 @@ services:
     depends_on:
     - mongo
     env_file:
-    - .botfront/.env
+    - .env
     environment:
       PORT: 3000
 
@@ -30,24 +31,28 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - .botfront/.env
+      - .env
 
   rasa:
-    image:  botfront/rasa-for-botfront
+    build:
+      context: ./rasa
+      args:
+        RASA_IMAGE: ${IMAGES_CURRENT_RASA}
     container_name: botfront-rasa
     networks: ["botfront-network"]
     restart: always
     ports:
       - 5005:5005
-    depends_on:
-      - botfront-api
     volumes:
       - ./models/:/app/models
     env_file:
-      - .botfront/.env
+      - .env
 
   actions:
-    build: ./actions
+    build:
+      context: ./actions
+      args:
+        RASA_SDK_IMAGE: ${IMAGES_CURRENT_ACTIONS}
     container_name: botfront-actions
     networks: ["botfront-network"]
     restart: always
@@ -61,7 +66,7 @@ services:
       - --actions
       - actions
     env_file:
-      - .botfront/.env
+      - .env
 
   duckling:
     image: botfront/duckling
@@ -81,7 +86,7 @@ services:
     ports:
     - "27017:27017"
     env_file:
-      - .botfront/.env
+      - .env
 
 
 networks:

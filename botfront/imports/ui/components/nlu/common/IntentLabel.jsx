@@ -87,6 +87,7 @@ const Intent = React.forwardRef((props, ref) => {
                 width: '300px',
             }}
             className='intent-dropdown'
+            data-cy='intent-dropdown'
         >
             {allowAdditions && renderInsertNewIntent()}
             {dataToDisplay.length ? (
@@ -148,7 +149,7 @@ const Intent = React.forwardRef((props, ref) => {
 });
 
 Intent.propTypes = {
-    value: PropTypes.string.isRequired,
+    value: PropTypes.string,
     allowEditing: PropTypes.bool,
     allowAdditions: PropTypes.bool,
     enableReset: PropTypes.bool,
@@ -157,6 +158,7 @@ Intent.propTypes = {
 };
 
 Intent.defaultProps = {
+    value: null,
     allowEditing: false,
     allowAdditions: false,
     onChange: () => {},

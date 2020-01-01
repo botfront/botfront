@@ -17,6 +17,6 @@ export const getDefaultEndpoints = ({ _id }) => {
     return defaultEndpoints
         .replace(/{BF_API_HOST}/g, bfApiHost)
         .replace(/{BF_PROJECT_ID}/g, _id)
-        .replace(/{ROOT_URL}/g, process.env.ROOT_URL || rootUrl)
+        .replace(/{ROOT_URL}/g, rootUrl || process.env.ROOT_URL)
         .replace(/{ACTIONS_URL}/g, process.env.ACTIONS_URL || actionsServerUrl);
 };

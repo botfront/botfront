@@ -48,7 +48,7 @@ const logUtterancesFromTracker = async function(projectId, req) {
         );
         if (userUtterances.length) {
             // there should only be one event here, really
-            const { language } = userUtterances[0].parse_data;
+            const { language } = userUtterances[0].metadata;
             const project = await Projects.findOne({ _id: projectId }, { nlu_models: 1 }).lean();
             const model = await NLUModels.findOne(
                 {

@@ -1,5 +1,7 @@
-import { dump as yamlDump, safeLoad as yamlLoad, safeDump } from 'js-yaml';
+import { safeDump } from 'js-yaml/lib/js-yaml';
+import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
+import { clearTypenameField } from '../../../../lib/utils';
 import { Stories } from '../../../story/stories.collection';
 
 const formatNewlines = (sequence) => {
@@ -30,29 +32,59 @@ export const createResponses = async (projectId, responses) => {
     const answer = newResponses.map((newResponse) => {
         const properResponse = newResponse;
         properResponse.projectId = projectId;
-        properResponse.values = formatTextOnSave(properResponse.values);
         return BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
     });
 
     return Promise.all(answer);
 };
 
-export const updateResponse = async (projectId, _id, newResponse) => {
-    const formatedResponse = {
-        ...newResponse,
-        values: formatTextOnSave(newResponse.values),
-    };
-    return BotResponses.updateOne({ _id }, formatedResponse).exec();
-};
+export const updateResponse = async (projectId, _id, newResponse) => BotResponses
+    .updateOne({ projectId, _id }, newResponse).exec();
+
 export const createResponse = async (projectId, newResponse) => BotResponses.create({
-    ...newResponse,
+    ...clearTypenameField(newResponse),
     projectId,
 });
-export const deleteResponse = async (projectId, key) => BotResponses.deleteOne({ projectId, key });
 
 export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
+
+export const deleteResponse = async (projectId, key) => BotResponses.findOneAndDelete({ projectId, key });
+
+export const getBotResponse = async (projectId, key) => BotResponses.findOne({
+    projectId,
+    key,
+}).lean();
+
+export const getBotResponseById = async (_id) => {
+    const botResponse = await BotResponses.findOne({
+        _id,
+    }).lean();
+    return botResponse;
+};
+
+export const upsertResponse = async ({
+    projectId, language, key, newPayload,
+}) => BotResponses.findOneAndUpdate(
+    { projectId, key, 'values.lang': language },
+    { $set: { 'values.$.sequence': [{ content: safeDump(clearTypenameField(newPayload)) }] } },
+    { new: true, lean: true },
+).exec().then(result => (
+    result
+    || BotResponses.findOneAndUpdate(
+        { projectId, key },
+        {
+            $push: { values: { lang: language, sequence: [{ content: safeDump(clearTypenameField(newPayload)) }] } },
+            $setOnInsert: {
+                _id: shortid.generate(),
+                projectId,
+                key,
+            },
+        },
+        { new: true, lean: true, upsert: true },
+    )
+));
 
 export const newGetBotResponses = async ({ projectId, template, language }) => {
     // template (optional): str || array

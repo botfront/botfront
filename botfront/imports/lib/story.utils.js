@@ -187,13 +187,11 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
             // The ternary condition makes it work if we have an array of story object
             // Rather than an array of straight up strings.
             if (typeof story.story === 'string' ? story.story.trim() : story.trim()) {
-                const val = new StoryController(
-                    story.story ? story.story : story,
+                const val = new StoryController({
+                    story: story.story ? story.story : story,
                     slots,
-                    () => {},
-                    null,
                     templates,
-                );
+                });
                 return val.extractDomain();
             }
             return {
@@ -312,14 +310,13 @@ export const accumulateExceptions = (
         const currentPathAsString = currentPath.join();
         let currentController = null;
         if (!storyControllers[currentPathAsString]) {
-            newStoryControllers[currentPathAsString] = new StoryController(
-                currentStory.story || '',
+            newStoryControllers[currentPathAsString] = new StoryController({
+                story: currentStory.story || '',
                 slots,
-                () => {},
-                content => saveStoryMethod(currentPath, { story: content }),
+                onUpdate: content => saveStoryMethod(currentPath, { story: content }),
                 templates,
                 isABranch,
-            );
+            });
             currentController = newStoryControllers[currentPathAsString];
         } else {
             currentController = storyControllers[currentPathAsString];

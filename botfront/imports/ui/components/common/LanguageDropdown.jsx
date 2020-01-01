@@ -1,32 +1,72 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'semantic-ui-react';
+import { connect } from 'react-redux';
+import { setWorkingLanguage } from '../../store/actions/actions';
+import { ProjectContext } from '../../layouts/context';
 
 const LanguageDropdown = ({
-    languageOptions,
-    selectedLanguage,
-    handleLanguageChange,
-}) => (
-    <Dropdown
-        className='language-dropdown'
-        placeholder='Select Langugage'
-        search
-        selection
-        value={selectedLanguage}
-        options={languageOptions}
-        onChange={(e, lang) => { handleLanguageChange(lang.value); }}
-        data-cy='language-selector'
-    />
-);
+    /*
+        This component accepts a selectedLanguage, handleLanguageChange and languageOptions prop,
+        but falls back to context default if not provided
+    */
+    selectedLanguage: specifiedSelectedLanguage,
+    handleLanguageChange: specifiedHandleLanguageChange,
+    languageOptions: specifiedLanguageOptions,
+    defaultSelectedLanguage,
+    defaultHandleLanguageChange,
+    multiple,
+}) => {
+    const {
+        projectLanguages: defaultLanguageOptions,
+    } = useContext(ProjectContext);
+
+    const selectedLanguage = defaultSelectedLanguage || specifiedSelectedLanguage;
+    const handleLanguageChange = defaultHandleLanguageChange || specifiedHandleLanguageChange;
+    const languageOptions = defaultLanguageOptions || specifiedLanguageOptions;
+
+    // if (languageOptions.length < 2) return null;
+    return (
+        <Dropdown
+            className='language-dropdown'
+            placeholder='Select Langugage'
+            search
+            selection
+            multiple={multiple}
+            value={selectedLanguage}
+            options={languageOptions}
+            onChange={(_e, { value }) => handleLanguageChange(value)}
+            data-cy='language-selector'
+        />
+    );
+};
 
 LanguageDropdown.propTypes = {
-    languageOptions: PropTypes.array.isRequired,
-    selectedLanguage: PropTypes.string,
-    handleLanguageChange: PropTypes.func.isRequired,
+    selectedLanguage: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    languageOptions: PropTypes.array,
+    multiple: PropTypes.bool,
+    handleLanguageChange: PropTypes.func,
+    defaultSelectedLanguage: PropTypes.string,
+    defaultHandleLanguageChange: PropTypes.func.isRequired,
 };
 
 LanguageDropdown.defaultProps = {
-    selectedLanguage: '',
+    selectedLanguage: null,
+    defaultSelectedLanguage: '',
+    languageOptions: null,
+    handleLanguageChange: null,
+    multiple: false,
 };
 
-export default LanguageDropdown;
+const mapStateToProps = state => ({
+    defaultSelectedLanguage: state.settings.get('workingLanguage'),
+});
+
+const mapDispatchToProps = {
+    defaultHandleLanguageChange: setWorkingLanguage,
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(LanguageDropdown);

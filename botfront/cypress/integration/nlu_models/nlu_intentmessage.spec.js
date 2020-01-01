@@ -47,6 +47,7 @@ describe('NLU Intent warning message displays', function() {
         cy.contains('You need at least two distinct intents to train NLU').should('not.exist');
         
         // delete example
+        cy.dataCy('icon-gem').first().click(); // unmark canonical on the first example so it can be deleted
         cy.contains('hello')
             .closest('.rt-tr')
             .find('[data-cy=trash] .viewOnHover')

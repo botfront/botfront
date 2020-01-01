@@ -6,14 +6,14 @@ As we haven't reached 1.x we consider minor versions as major and they could hav
 For example  `0.18.1` -> `0.18.3`
 Botfront will offer you to upgrade your project. Part of the process is automated, buty you will still have **ONE thing** to do manually:
 Take:
-- Take `rasa-for-botfront` image version in `.botfront/botfront.yaml`. In the following it would be `v1.3.9-bf.4` (with the `v`)
+- Take `rasa-for-botfront` image version in `.botfront/botfront.yaml`. In the following it would be `v1.5.1-bf.4` (with the `v`)
 - Take `rasa-sdk` image version in `.botfront/botfront.yaml`. In the following it would be `1.3.2` (without the `v`)
 
 ```yaml{4,5}
 images:
   default:
     ...
-    rasa: botfront/rasa-for-botfront:v1.3.9-bf.4
+    rasa: botfront/rasa-for-botfront:v1.5.1-bf.4
     actions: rasa/rasa-sdk:1.3.2
     ...
 ```

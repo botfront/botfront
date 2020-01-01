@@ -38,7 +38,9 @@ BotResponse.defaultProps = {
     key: 'bot-response',
 };
 
-function Turn({ userSays, botResponses, key }) {
+function Turn({
+    userSays, userId, botResponses, key,
+}) {
     if (!userSays && botResponses.length === 0) {
         return null;
     }
@@ -49,6 +51,7 @@ function Turn({ userSays, botResponses, key }) {
                 <Comment.Avatar src='/images/avatars/matt.jpg' />,
                 <UserUtteredEventViewer
                     event={userSays}
+                    author={userId}
                 />,
             ])}
             <Comment.Group>
@@ -74,16 +77,18 @@ function Turn({ userSays, botResponses, key }) {
 
 Turn.propTypes = {
     userSays: PropTypes.object,
+    userId: PropTypes.string,
     botResponses: PropTypes.arrayOf(PropTypes.object).isRequired,
     key: PropTypes.string,
 };
 
 Turn.defaultProps = {
     userSays: null,
+    userId: null,
     key: 'dialogue-turn',
 };
 
-function ConversationDialogueViewer({ tracker, mode }) {
+function ConversationDialogueViewer({ conversation: { tracker, userId }, mode }) {
     const turns = [];
     let currentTurn = {
         userSays: null,
@@ -141,7 +146,7 @@ function ConversationDialogueViewer({ tracker, mode }) {
         <Comment.Group>
             {turns.length > 0 ? (
                 turns.map(({ userSays, botResponses }, index) => (
-                    <Turn userSays={userSays} botResponses={botResponses} key={`dialogue-turn-${index}`} />
+                    <Turn userSays={userSays} userId={userId} botResponses={botResponses} key={`dialogue-turn-${index}`} />
                 ))
             ) : (
                 <Message
@@ -162,7 +167,7 @@ function ConversationDialogueViewer({ tracker, mode }) {
 }
 
 ConversationDialogueViewer.propTypes = {
-    tracker: PropTypes.object.isRequired,
+    conversation: PropTypes.object.isRequired,
     mode: PropTypes.string,
 };
 

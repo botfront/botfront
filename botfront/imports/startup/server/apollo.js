@@ -21,14 +21,17 @@ export const connectToDb = () => {
 
 export const runAppolloServer = () => {
     const server = new ApolloServer({
+        uploads: false,
         typeDefs,
         resolvers,
-        context: async ({ req }) => {
-            const { headers: { authorization } } = req;
-            if (!authorization) throw new AuthenticationError('Missing authorization header');
-            if (process.env.API_KEY && process.env.API_KEY === authorization) return ({});
-            const user = await getUser(req.headers.authorization);
-            if (!user) throw new AuthenticationError('Unauthorized');
+        context: async ({ req: { headers: { authorization } } }) => {
+            // If API_KEY set and authorization not corresponding: error
+            if (process.env.API_KEY && (!authorization || (process.env.API_KEY !== authorization))) throw new AuthenticationError('Missing authorization header');
+
+            const user = await getUser(authorization);
+            // Authorization header and no corresponding user: Error
+            if (authorization && !user) throw new AuthenticationError('Unauthorized');
+
             return ({ user });
         },
         schemaDirectives,

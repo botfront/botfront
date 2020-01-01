@@ -107,7 +107,7 @@ describe('stories', function() {
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
-            .type('* intent', { force: true });
+            .type('* intent    ', { force: true });
         // Go to group 2
         clickStoryGroup('Group 2');
         // Go back to group 1

@@ -2,6 +2,8 @@ scalar Date
 
 scalar Any
 
+scalar StringOrListOfStrings
+
 type PageInfo {
     endCursor: String!,
     hasNextPage: Boolean!

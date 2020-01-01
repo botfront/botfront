@@ -1,4 +1,5 @@
-import { sortBy } from 'lodash';
+import { sortBy, isEqual } from 'lodash';
+import { safeDump, safeLoad } from 'js-yaml';
 import { Instances } from '../imports/api/instances/instances.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
@@ -24,8 +25,8 @@ Migrations.add({
     // add default default domain to global settings, and update projects to have this default domain
     up: () => {
         let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
-        if (process.env.NODE_ENV === 'development') spec = `${spec}.dev`;
-        if (process.env.NODE_ENV === 'test') spec = `${spec}.ci`;
+        if (process.env.MODE === 'development') spec = `${spec}.dev`;
+        if (process.env.MODE === 'test') spec = `${spec}.ci`;
         let globalSettings;
         try {
             globalSettings = JSON.parse(Assets.getText(`default-settings${spec}.json`));
@@ -123,6 +124,37 @@ Migrations.add({
             const events = aggregateEvents(story);
             Stories.update({ _id: story._id }, { $set: { events } });
         });
+    },
+});
+
+const processSequence = sequence => sequence
+    .map(s => safeLoad(s.content))
+    .reduce((acc, curr) => {
+        const newSequent = {};
+        if (curr.text && !acc.text) newSequent.text = curr.text;
+        if (curr.text && acc.text) newSequent.text = `${acc.text}\n\n${curr.text}`;
+        if (curr.buttons) newSequent.buttons = [...(acc.buttons || []), ...curr.buttons];
+        return newSequent;
+    }, {});
+
+Migrations.add({
+    version: 4,
+    // join sequences of text in responsesa
+    up: () => {
+        BotResponses.find().lean().then(responses => responses.forEach((response) => {
+            const updatedResponse = {
+                ...response,
+                values: response.values.map(value => ({
+                    ...value,
+                    sequence: [{ content: safeDump(processSequence(value.sequence)) }], //
+                })),
+            };
+            delete updatedResponse._id;
+            if (!isEqual(response, updatedResponse)) {
+                const { projectId, key } = response;
+                BotResponses.updateOne({ projectId, key }, updatedResponse).exec();
+            }
+        }));
     },
 });
 

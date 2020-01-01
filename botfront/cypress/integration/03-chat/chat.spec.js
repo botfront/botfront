@@ -18,10 +18,6 @@ describe('chat side panel handling', function() {
         cy.deleteProject('bf');
     });
 
-    after(function() {
-        
-    });
-
     it('opens and close the chat', function() {
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
@@ -107,8 +103,5 @@ describe('chat side panel handling', function() {
             .get('.visible.menu')
             .contains('my_intent')
             .should('not.exist');
-
-        cy.dataCy('delete-story').click();
-        cy.dataCy('confirm-yes').click();
     });
 });
