@@ -2,13 +2,10 @@ import SimpleSchema from 'simpl-schema';
 import { privateSettingsSchema as basePrivateSettingsSchema, publicSettingsSchema as basePublicSettingsSchema } from './globalSettings.schema.default';
 
 export const privateSettingsSchema = basePrivateSettingsSchema.extend({
-    gcpModelsBucket: { type: String, optional: true },
     gcpProjectId: { type: String, optional: true },
     bfApiHost: { type: String, optional: true },
-    imagesTag: { type: String, optional: true },
-    dockerRegistry: { type: String, optional: true },
-    rasaUrl: { type: String, optional: true },
-    defaultDeployment: { type: String, optional: true },
+    rasaServerDefaultUrl: { type: String, optional: true },
+    socketHost: { type: String, optional: true },
 });
 
 export const publicSettingsSchema = basePublicSettingsSchema.extend({

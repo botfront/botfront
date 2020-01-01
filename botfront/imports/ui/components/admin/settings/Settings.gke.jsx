@@ -3,7 +3,6 @@ import { AutoField } from 'uniforms-semantic';
 import React from 'react';
 
 import InfoField from '../../utils/InfoField';
-import AceField from '../../utils/AceField';
 
 export default [
     {
@@ -11,18 +10,8 @@ export default [
         render: () => (
             <Tab.Pane>
                 <InfoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
-                <InfoField name='settings.private.gcpProjectId' label='GCP Project ID' />
-                <InfoField name='settings.private.gcpModelsBucket' label='GCS Bucket for Core models' />
-                <InfoField name='settings.private.dockerRegistry' label='Docker registry' />
-                <InfoField name='settings.private.imagesTag' label='Docker images tag' />
-            </Tab.Pane>
-        ),
-    },
-    {
-        menuItem: <Menu.Item content='GKE Deployment' />,
-        render: () => (
-            <Tab.Pane>
-                <AceField name='settings.private.defaultDeployment' label='' fontSize={12} convertYaml />
+                <InfoField name='settings.private.rasaServerDefaultUrl' label='Rasa server default URL' />
+                <InfoField name='settings.private.socketHost' label='Socket host' info='Host of all projects' />
             </Tab.Pane>
         ),
     },

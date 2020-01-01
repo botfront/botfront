@@ -1,7 +1,6 @@
 import { ProjectsSchema as BaseProjectsSchema } from './project.schema.default';
 
 export const ProjectsSchema = BaseProjectsSchema.extend({
-    apiKey: { type: String, optional: true },
     namespace: {
         type: String,
         unique: 1,
@@ -10,6 +9,7 @@ export const ProjectsSchema = BaseProjectsSchema.extend({
             return !this.value.match(/^bf-[a-zA-Z0-9-]+$/) ? 'invalidNamespace' : null;
         },
     },
+    modelsBucket: { type: String, regEx: /^[a-z0-9-_]+$/, optional: true },
 });
 
 ProjectsSchema.messageBox.messages({

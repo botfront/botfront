@@ -8,7 +8,7 @@
             ]
         },
         "private": {
-            "rasaUrl": "http://localhost:5005",
+            "rasaServerDefaultUrl": "http://localhost:5005",
             "bfApiHost": "http://botfront-api:8080",
             "rootUrl": "http://host.docker.internal:3000",
             "actionsServerUrl": "http://localhost:5055/webhook",

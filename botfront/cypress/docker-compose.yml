@@ -44,7 +44,7 @@ services:
     environment:
       - PORT=3000
       - BF_PROJECT_ID=bf
-      - NODE_ENV=test
+      - MODE=test
       - MONGO_URL=mongodb://mongo:27017/bf
       - ORCHESTRATOR=gke
       - ROOT_URL=http://botfront:3000
@@ -63,7 +63,7 @@ services:
       - CORS=*
 
   rasa:
-    image: botfront/rasa-for-botfront:${RASA_TAG}
+    image: botfront/rasa-for-botfront:v1.5.1-bf.4
     container_name: botfront-test-rasa
     restart: always
     command:

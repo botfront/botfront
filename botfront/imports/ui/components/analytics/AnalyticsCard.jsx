@@ -104,7 +104,7 @@ function AnalyticsCard(props) {
     if (exportError && activateDownload === true) {
         setActivateDownload(false);
         // eslint-disable-next-line no-console
-        if (process.env.NODE_ENV === 'development') console.log(exportError);
+        if (process.env.MODE === 'development') console.log(exportError);
     }
 
     const renderChart = () => {

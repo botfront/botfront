@@ -1,34 +1,23 @@
-import { Deployments } from '../deployment/deployment.collection';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
-export const getDefaultInstance = ({ _id, apiKey }) => {
+export const getDefaultInstance = ({ _id, namespace }) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    const deployment = Deployments.findOne(
-        { projectId: _id },
-        { fields: { 'deployment.domain': 1 } },
-    );
 
-    const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.rasaUrl': 1 } });
-    const { settings: { private: { rasaUrl } } } = settings;
-    
-    if (deployment) {
-        const { domain } = deployment;
-        return {
-            name: 'Default',
-            host: `https://${domain}/nlu`,
-            token: apiKey,
-            adminOnly: true,
-            projectId: _id,
-            type: ['nlu'],
-        };
-    }
-
-    return {
+    const fields = { 'settings.private.rasaServerDefaultUrl': 1 };
+    const {
+        settings: {
+            private: {
+                rasaServerDefaultUrl = '',
+            } = {},
+        } = {},
+    } = GlobalSettings.findOne({}, { fields });
+    const defaultInstance = {
         name: 'Default',
-        host: rasaUrl || 'http://localhost:5005',
-        token: apiKey,
+        host: rasaServerDefaultUrl.replace(/{PROJECT_NAMESPACE}/g, namespace),
         adminOnly: true,
         projectId: _id,
-        type: ['nlu'],
+        type: 'server',
     };
+
+    return defaultInstance;
 };

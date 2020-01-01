@@ -10,8 +10,6 @@ import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
-import { createDeployment } from '../deployment/deployment.methods';
-import { Deployments } from '../deployment/deployment.collection';
 import { checkIfCan } from '../../lib/scopes';
 import { Conversations } from '../conversations';
 import { createIntroStoryGroup, createDefaultStoryGroup } from '../storyGroups/storyGroups.methods';
@@ -59,7 +57,6 @@ if (Meteor.isServer) {
                     intents[ex.intent].push({ entities: exEntities, example: ex });
                 }
             });
-        
         return { intents, entities };
     };
 
@@ -72,7 +69,6 @@ if (Meteor.isServer) {
             try {
                 _id = createProject(item);
                 createEndpoints({ _id, ...item });
-                createDeployment({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
                 createIntroStoryGroup(_id);
@@ -117,7 +113,6 @@ if (Meteor.isServer) {
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });
                 Projects.remove({ _id: projectId }); // Delete project
-                Deployments.remove({ projectId }); // Delete deployment
                 // Delete project related permissions for users (note: the role package does not provide
                 const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
                 projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually

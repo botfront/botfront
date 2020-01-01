@@ -5,7 +5,7 @@ import {
     uniq, uniqBy, sortBy, intersectionBy, find,
 } from 'lodash';
 import {
-    formatError, getModelIdsFromProjectId,
+    formatError, getModelIdsFromProjectId, getProjectIdFromModelId,
 } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';

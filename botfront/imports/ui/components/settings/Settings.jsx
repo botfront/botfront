@@ -54,14 +54,6 @@ class Settings extends React.Component {
                 render: () => <Tab.Pane><Credentials orchestrator={orchestrator} /></Tab.Pane>,
             },
             {
-                menuItem: <Menu.Item className='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
-                render: () => <Tab.Pane><Endpoints orchestrator={orchestrator} /></Tab.Pane>,
-            },
-            {
-                menuItem: <Menu.Item className='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
-                render: () => <Tab.Pane><Instances /></Tab.Pane>,
-            },
-            {
                 menuItem: <Menu.Item className='project-settings-menu-default-domain' icon='globe' content='Default Domain' key='Default Domain' />,
                 render: () => <Tab.Pane><DefaultDomain /></Tab.Pane>,
             },
@@ -72,7 +64,15 @@ class Settings extends React.Component {
         ];
 
         if (can('global-admin', projectId)) {
-            panes.push(
+            panes = [...panes,
+                {
+                    menuItem: <Menu.Item className='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
+                    render: () => <Tab.Pane><Endpoints orchestrator={orchestrator} /></Tab.Pane>,
+                },
+                {
+                    menuItem: <Menu.Item className='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
+                    render: () => <Tab.Pane><Instances /></Tab.Pane>,
+                },
                 {
                     menuItem: (
                         <Menu.Item
@@ -84,7 +84,7 @@ class Settings extends React.Component {
                         />
                     ),
                 },
-            );
+            ];
         }
 
         if (orchestratorMenuItems) {

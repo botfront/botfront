@@ -6,6 +6,7 @@ export const InstanceSchema = new SimpleSchema(
         host: { type: String, regEx: /^(http|https):\/\// },
         token: { type: String, optional: true },
         projectId: { type: String },
+        type: { type: String, allowedValues: ['server', 'worker'] },
     },
     {
         clean: {

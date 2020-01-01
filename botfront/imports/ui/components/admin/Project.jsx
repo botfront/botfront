@@ -84,8 +84,8 @@ class Project extends React.Component {
                                 )}
                                 <SelectField name='defaultLanguage' label={null} placeholder='Select the default language of your project' />
                                 <br />
-                                {projectsSchema.allowsKey('apiKey') && (
-                                    <InfoField name='apiKey' label='API key' info='Botfront API key' />
+                                {projectsSchema.allowsKey('modelsBucket') && (
+                                    <InfoField name='modelsBucket' label='Models Bucket' info='The name of the storage bucket where trained models will be stored' />
                                 )}
                                 <AutoField name='disabled' data-cy='disable' />
                                 <ErrorsField />

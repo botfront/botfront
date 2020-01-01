@@ -23,18 +23,21 @@ Credentials.deny({
     },
 });
 
-const getDefaultCredentials = () => {
+const getDefaultCredentials = ({ namespace }) => {
     if (!Meteor.isServer) throw new Meteor.Error(401, 'Unauthorized');
     const fields = {
         'settings.private.defaultCredentials': 1,
+        'settings.private.socketHost': 1,
     };
-    const { settings: { private: { defaultCredentials = '' } = {} } = {} } = GlobalSettings.findOne({}, { fields }) || {};
-    return defaultCredentials;
+    const { settings: { private: { defaultCredentials = '', socketHost = '' } = {} } = {} } = GlobalSettings.findOne({}, { fields }) || {};
+    return defaultCredentials
+        .replace(/{SOCKET_HOST}/g, socketHost)
+        .replace(/{PROJECT_NAMESPACE}/g, namespace);
 };
 
-export const createCredentials = ({ _id: projectId }) => {
+export const createCredentials = ({ _id: projectId, namespace }) => {
     ENVIRONMENT_OPTIONS.forEach((environment) => {
-        Credentials.insert({ projectId, environment, credentials: getDefaultCredentials() });
+        Credentials.insert({ projectId, environment, credentials: getDefaultCredentials({ namespace }) });
     });
 };
 

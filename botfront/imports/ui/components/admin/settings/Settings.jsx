@@ -77,15 +77,15 @@ class Settings extends React.Component {
             <Message
                 info
                 icon='question circle'
-                content={
+                content={(
                     <>
-                        Default Rasa Core (see{' '}
+                        Default Rasa (see{' '}
                         <a target='_blank' rel='noopener noreferrer' href='https://rasa.com/docs/core/server/#endpoint-configuration'>
                             Rasa documentation
                         </a>
                         ) &nbsp;endpoints for new projects
                     </>
-                }
+                )}
             />
             <AceField name='settings.private.defaultEndpoints' label='' fontSize={12} convertYaml />
         </Tab.Pane>
@@ -96,15 +96,15 @@ class Settings extends React.Component {
             <Message
                 info
                 icon='question circle'
-                content={
+                content={(
                     <>
-                        Default Rasa Core (see{' '}
+                        Default Rasa (see{' '}
                         <a target='_blank' rel='noopener noreferrer' href='https://rasa.com/docs/core/connectors/'>
                             Rasa documentation
                         </a>
                         ) &nbsp;channel credentials for new projects
                     </>
-                }
+                )}
             />
             <AceField name='settings.private.defaultCredentials' label='' fontSize={12} convertYaml />
         </Tab.Pane>
@@ -115,11 +115,11 @@ class Settings extends React.Component {
             <Message
                 info
                 icon='question circle'
-                content={
+                content={(
                     <>
                         Default default domain for new projects
                     </>
-                }
+                )}
             />
             <AceField name='settings.private.defaultDefaultDomain' label='' fontSize={12} convertYaml />
         </Tab.Pane>

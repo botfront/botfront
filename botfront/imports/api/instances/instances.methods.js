@@ -16,7 +16,7 @@ import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import { checkIfCan } from '../roles/roles';
-import { Deployments } from '../deployment/deployment.collection';
+import { Projects } from '../project/project.collection';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
 
@@ -36,6 +36,7 @@ export const createInstance = async (project) => {
             return await Instances.insert(instance);
         }
     } catch (e) {
+        console.log(e);
         throw new Error('Could not create default instance', e);
     }
 };
@@ -235,16 +236,9 @@ if (Meteor.isServer) {
 
                     await client.put('/model', { model_file: trainedModelPath });
                     if (process.env.ORCHESTRATOR === 'gke') {
-                        try {
-                            const deployment = Deployments.findOne({ projectId }, { fields: { 'deployment.config.gcp_models_bucket': 1 } }) || {};
-                            const { deployment: { config: { gcp_models_bucket = null } = {} } = {} } = deployment;
-
-                            if (gcp_models_bucket) {
-                                await uploadFileToGcs(trainedModelPath, gcp_models_bucket);
-                            }
-                        } catch (e) {
-                            console.log(e)
-                            // do something maybe ?
+                        const { modelsBucket } = Projects.findOne({ _id: projectId }, { fields: { modelsBucket: 1 } }) || {};
+                        if (modelsBucket) {
+                            await uploadFileToGcs(trainedModelPath, modelsBucket);
                         }
                     }
                     const modelIds = getModelIdsFromProjectId(projectId);
