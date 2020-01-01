@@ -101,7 +101,7 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
             $addFields: { values: { $filter: { input: '$values', as: 'value', cond: { $in: ['$$value.lang', languageArray] } } } },
         }];
     }
-    
+
     return BotResponses.aggregate([
         { $match: { projectId, ...templateKey, ...languageKey } },
         ...languageFilter,
@@ -120,38 +120,6 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
     ]);
 };
 
-/* considering this function does not only get the response we need to trigger the onAddReponse subscription
-when it does add a response the onAddResponse is used for that
-contratry to update, the list of response need to be constatly updated to properly check the exceptions */
-export const getBotResponse = async (projectId, key, lang = 'en', onAddResponse = () => {}) => {
-    let botResponse = await BotResponses.findOne({
-        projectId,
-        key,
-    }).lean();
-    const newSeq = {
-        sequence: [{ content: safeDump({ text: key }) }],
-        lang,
-    };
-    if (!botResponse) {
-        botResponse = { key, values: [newSeq] };
-        const newResponse = await createResponse(projectId, botResponse);
-        onAddResponse(projectId, newResponse);
-        return newResponse;
-    }
-    if (!botResponse.values.some(v => v.lang === lang)) {
-        botResponse.values.push(newSeq);
-        await updateResponse(projectId, botResponse._id, botResponse);
-    }
-    return botResponse;
-};
-
-
-export const getBotResponseById = async (_id) => {
-    const botResponse = await BotResponses.findOne({
-        _id,
-    }).lean();
-    return botResponse;
-};
 
 export const deleteResponsesRemovedFromStories = (removedResponses, projectId) => {
     const sharedResponses = Stories.find({ events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
