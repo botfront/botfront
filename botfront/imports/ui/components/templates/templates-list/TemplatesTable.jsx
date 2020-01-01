@@ -29,7 +29,7 @@ class TemplatesTable extends React.Component {
     getTemplateLanguages = () => sortBy(this.props.nluLanguages);
 
     getColumns = (lang) => {
-        const { projectId } = this.props;
+        const { projectId, events } = this.props;
 
         const columns = [
             {
@@ -74,6 +74,10 @@ class TemplatesTable extends React.Component {
                         color='grey'
                         size='small'
                         onClick={() => this.deleteTemplate(key)}
+                        disabled={events.filter((storyEvents) => {
+                            if (!storyEvents) return false;
+                            return storyEvents.find(responseName => responseName === key);
+                        }).length > 0}
                     />
                 ),
                 width: 25,
@@ -226,6 +230,7 @@ TemplatesTable.propTypes = {
     changePage: PropTypes.func.isRequired,
     changeWorkingLanguage: PropTypes.func.isRequired,
     deleteBotResponse: PropTypes.func.isRequired,
+    events: PropTypes.array.isRequired,
 };
 
 

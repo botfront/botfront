@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import {
     Button, Container, Icon, Menu, Segment,
 } from 'semantic-ui-react';
+import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect } from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
 import { browserHistory } from 'react-router';
@@ -13,8 +14,9 @@ import ImportExport from '../import-export/ImportExport';
 import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
+import { Loading } from '../../utils/Utils';
+import { Stories } from '../../../../api/story/stories.collection';
 import { DELETE_BOT_RESPONSE } from '../mutations';
-
 
 class Templates extends React.Component {
     constructor(props) {
@@ -59,16 +61,18 @@ class Templates extends React.Component {
     render() {
         const { activeItem } = this.state;
         const {
-            templates, projectId, nluLanguages, deleteBotResponse,
+            templates, projectId, nluLanguages, deleteBotResponse, events, loading,
         } = this.props;
         return (
             <div data-cy='responses-screen'>
                 {this.renderMenu(projectId, activeItem, nluLanguages)}
-                <Container>
-                    {activeItem === 'content' && <div><TemplatesTable deleteBotResponse={deleteBotResponse} templates={templates} nluLanguages={nluLanguages} /></div>}
-                    {activeItem === 'import-export' && <Segment style={{ background: '#fff' }}><ImportExport projectId={projectId} /></Segment>}
-                    <br />
-                </Container>
+                <Loading loading={loading}>
+                    <Container>
+                        {activeItem === 'content' && <div><TemplatesTable deleteBotResponse={deleteBotResponse} templates={templates} nluLanguages={nluLanguages} events={events} /></div>}
+                        {activeItem === 'import-export' && <Segment style={{ background: '#fff' }}><ImportExport projectId={projectId} /></Segment>}
+                        <br />
+                    </Container>
+                </Loading>
             </div>
         );
     }
@@ -79,9 +83,11 @@ Templates.propTypes = {
     projectId: PropTypes.string.isRequired,
     nluLanguages: PropTypes.array.isRequired,
     deleteBotResponse: PropTypes.func.isRequired,
+    events: PropTypes.array.isRequired,
+    loading: PropTypes.bool.isRequired,
 };
 
-const TemplatesContainer = ({ params }) => {
+const TemplatesContainer = ({ params, events, ready }) => {
     const [templates, setTemplates] = useState([]);
 
     const project = Projects.find({ _id: params.project_id }, { fields: { nlu_models: 1 } }).fetch();
@@ -138,10 +144,11 @@ const TemplatesContainer = ({ params }) => {
     });
 
     const [deleteBotResponse] = useMutation(DELETE_BOT_RESPONSE, { refetchQueries: [{ query: GET_BOT_RESPONSES, variables: { projectId: params.project_id } }] });
-    
-    
+
     return (
         <Templates
+            loading={!ready && loading}
+            events={events}
             templates={templates}
             deleteBotResponse={deleteBotResponse}
             projectId={params.project_id}
@@ -152,6 +159,8 @@ const TemplatesContainer = ({ params }) => {
 
 TemplatesContainer.propTypes = {
     params: PropTypes.object.isRequired,
+    ready: PropTypes.bool.isRequired,
+    events: PropTypes.array.isRequired,
 };
 
 function mapStateToProps (state) {
@@ -160,4 +169,13 @@ function mapStateToProps (state) {
     };
 }
 
-export default connect(mapStateToProps)(TemplatesContainer);
+const ConnectedTemplates = connect(mapStateToProps)(TemplatesContainer);
+
+export default withTracker((props) => {
+    const storiesHandler = Meteor.subscribe('stories.events', props.params.project_id);
+    const events = Stories
+        .find()
+        .fetch()
+        .map(story => story.events);
+    return { ...props, events, ready: storiesHandler.ready() };
+})(ConnectedTemplates);

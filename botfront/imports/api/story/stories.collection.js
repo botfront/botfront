@@ -42,6 +42,10 @@ if (Meteor.isServer) {
         check(projectId, String);
         return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
     });
+    Meteor.publish('stories.events', function(projectId) {
+        check(projectId, String);
+        return Stories.find({ projectId }, { fields: { title: true, events: true } });
+    });
 }
 
 Stories.attachSchema(StorySchema);
