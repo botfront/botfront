@@ -240,6 +240,14 @@
             position: relative;
         }
     }
+
+    .ui.small.image {
+        border-radius: 4px;
+        object-fit: cover;
+        width: 224px;
+        height: 160px;
+        border: 1px solid #acbac4;
+    }
 }
 
 .floating-icon-button.ellipsis.horizontal {
@@ -404,6 +412,12 @@ div.add-entity-wrap {
     &:not([agent="user"]) {
         margin-left: 16px;
         background: rgba(0, 0, 0, 0.04);
+        &.image {
+            background: none;
+            .inner {
+                margin-bottom: 8px;
+            }
+        }
     }
     &[agent="na"] {
         background: none;
