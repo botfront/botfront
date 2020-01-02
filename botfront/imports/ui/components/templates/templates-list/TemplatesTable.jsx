@@ -68,7 +68,10 @@ class TemplatesTable extends React.Component {
                             open={activeEditor === botResponse._id}
                             botResponse={botResponse || null}
                             closeModal={() => setActiveEditor('')}
-                            renameable // replace with logic that checks if the response is contained in a story
+                            renameable={!events.find((storyEvents) => {
+                                if (!storyEvents) return false;
+                                return storyEvents.find(responseName => responseName === key);
+                            })}
                         />
                     );
                 },

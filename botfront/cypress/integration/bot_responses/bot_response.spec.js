@@ -101,7 +101,27 @@ describe('Bot responses', function() {
         cy.dataCy('metadata-tab').click();
         cy.dataCy('response-name-error').should('exist');
     })
-    it('should disable edit-reponse-input if the response is used in a story', function() {
+    it('should disable response name input if the response is used in a story', function() {
+        cy.visit('/project/bf/stories')
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.wait(250);
+        cy.dataCy('toggle-md').click();
+        cy.get('.ace_content').click({ force: true })
+        cy.get('textarea').type('  - utter_test_A{enter}')
+
+        cy.visit('/project/bf/dialogue/templates')
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-text-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.get('.dimmer').click({ position: 'topLeft'}) // close the response editor
+
+        cy.visit('/project/bf/dialogue/templates')
+        cy.dataCy('template-intent').parents('.rt-tr-group').find('.edit.icon').click();
+        cy.dataCy('response-name-input').should('have.class', 'disabled')
     })
     it('be able to edit a response with the response editor in the visual story editor', function() {
         cy.visit('/project/bf/dialogue/templates')
@@ -110,17 +130,17 @@ describe('Bot responses', function() {
         cy.dataCy('response-name-input').click().find('input').type('test_A');
         cy.dataCy('bot-response-input').find('textarea').type('aa');
         cy.get('.dimmer').click({ position: 'topLeft'}) // close the response editor
-        cy.dataCy('template-intent').contains('utter_test_A').should('exist')
+        cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
-        cy.visit('/project/bf/stories')
+        cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input')
-        .find('input')
-        .type('myTest{enter}');
+            .find('input')
+            .type('myTest{enter}');
         cy.wait(250);
         cy.dataCy('toggle-md').click();
         cy.get('.ace_content').click({ force: true })
-        cy.get('textarea').type('  - utter_test_A')
+        cy.get('textarea').type('  - utter_test_A{enter}')
         cy.dataCy('toggle-visual').click()
         cy.dataCy('bot-response-input').contains('aa').should('exist')
         cy.wait(250);
