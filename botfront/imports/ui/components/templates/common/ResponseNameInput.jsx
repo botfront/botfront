@@ -34,7 +34,7 @@ const ResponseNameInput = (props) => {
                     />
                     {errorMessage && (
                         <Popup
-                            trigger={<Icon name='exclamation circle' color='red' />}
+                            trigger={<Icon name='exclamation circle' color='red' data-cy='response-name-error' />}
                             content={errorMessage}
                         />
                     )}

@@ -52,6 +52,7 @@ class TemplatesTable extends React.Component {
                 className: 'center',
                 Cell: ({ value: key, viewIndex: index }) => {
                     const { templates, activeEditor, setActiveEditor } = this.props;
+                    const botResponse = templates.find(({ key: templateKey }) => templateKey === key) || {}
                     return (
                         <BotResponseEditor
                             trigger={(
@@ -61,11 +62,11 @@ class TemplatesTable extends React.Component {
                                     name='edit'
                                     color='grey'
                                     size='small'
-                                    onClick={() => setActiveEditor(key)}
+                                    onClick={() => setActiveEditor(botResponse._id)}
                                 />
                             )}
-                            open={activeEditor === key}
-                            botResponse={activeEditor === key ? templates.find(({ key: templateKey }) => templateKey === activeEditor) : null}
+                            open={activeEditor === botResponse._id}
+                            botResponse={botResponse || null}
                             closeModal={() => setActiveEditor('')}
                             renameable // replace with logic that checks if the response is contained in a story
                         />

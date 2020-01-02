@@ -188,7 +188,6 @@ const TemplatesContainer = ({ params, events, ready }) => {
                 const respIdx = templates.findIndex(
                     template => (template._id === resp._id && template._id) || template.key === resp.key
                 );
-                console.log(respIdx);
                 if (respIdx !== -1) {
                     newTemplates[respIdx] = resp;
                 } else {
@@ -221,7 +220,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
             { query: GET_BOT_RESPONSES, variables: { projectId: params.project_id } },
         ],
     });
-    console.log(templates)
+
     return (
         <Templates
             loading={!ready && loading}

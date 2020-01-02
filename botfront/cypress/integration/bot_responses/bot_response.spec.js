@@ -32,14 +32,77 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').contains('utter_test_A').should('exist')
         cy.dataCy('remove-response-0').click();
     });
-    // it('should not allow duplicate names when editing a response', function() {
-    // });
-    // it('should not allow duplicate names when creating a response', function() {
-    // });
-    // it('should require response names to start with utter_', function() {
-    // })
-    // it('should disable edit-reponse-input if the response is used in a story', function() {
-    // })
+    it('should edit a response using the response editor', function() {
+        cy.visit('/project/bf/dialogue/templates')
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-text-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.get('.dimmer').click({ position: 'topLeft'}) // close the response editor
+        cy.dataCy('edit-response-0').click();
+        cy.dataCy('response-name-input').click().find('input').type('{backspace}B');
+        cy.dataCy('bot-response-input').click().find('textarea').clear().type('new response');
+        cy.get('.dimmer').click({ position: 'topLeft'}) // close the response editor
+        cy.dataCy('template-intent').contains('utter_test_A').should('not.exist');
+        cy.dataCy('response-text').contains('response content').should('not.exist');
+        cy.dataCy('template-intent').contains('utter_test_B').should('exist');
+        cy.dataCy('response-text').contains('new response').should('exist');
+    });
+    it('should not allow duplicate names when creating a response', function() {
+        cy.visit('/project/bf/dialogue/templates')
+        // add the first response
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-text-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.get('.dimmer').click({ position: 'topLeft'}) // close the response editor
+        // add a second response with the same name
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-text-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('bot-response-input').find('textarea').type('response two');
+        cy.get('.dimmer').click({ position: 'topLeft'}) // attempt to close the response editor
+        cy.dataCy('response-name-error').should('exist');
+        // verify the second response was not added
+        cy.visit('/project/bf/dialogue/templates')
+        cy.dataCy('response-text').contains('response content').should('exist')
+        cy.dataCy('response-text').contains('response two').should('not.exist');
+    });
+    it('should not allow duplicate names when editing a response', function() {
+        cy.visit('/project/bf/dialogue/templates');
+        // add the first response
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-text-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.get('.dimmer').click({ position: 'topLeft'}) // close the response editor
+        // add a second response
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-text-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_B');
+        cy.dataCy('bot-response-input').find('textarea').type('response two');
+        cy.get('.dimmer').click({ position: 'topLeft'}) // close the response editor
+        // edit a the second response to have the same name as the first
+        cy.dataCy('edit-response-1').click();
+        cy.dataCy('response-name-input').click().find('input').type('{backspace}A');
+        cy.dataCy('metadata-tab').click();
+        cy.get('.dimmer').click({ position: 'topLeft'}) // close the response editor
+        cy.dataCy('response-name-error').should('exist');
+        cy.dataCy('response-name-input').click().find('input').type('{backspace}B');
+        // verify the response name has not been duplicated
+        cy.dataCy('response-text').contains('response content').should('exist');
+        cy.dataCy('template-intent').contains('test_B').should('exist');
+    });
+    it('should require response names to start with utter_', function() {
+        cy.visit('/project/bf/dialogue/templates')
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-text-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('{backspace}test_A');
+        cy.dataCy('metadata-tab').click();
+        cy.dataCy('response-name-error').should('exist');
+    })
+    it('should disable edit-reponse-input if the response is used in a story', function() {
+    })
     it('be able to edit a response with the response editor in the visual story editor', function() {
         cy.visit('/project/bf/dialogue/templates')
         cy.dataCy('create-response').click();

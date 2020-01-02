@@ -99,7 +99,6 @@ const BotResponseEditor = (props) => {
             if (error) {
                 if (error.message.match(/E11000/)) {
                     setRenameError('Response names must be unique');
-                    setResponseKey(botResponse.key);
                     return;
                 }
                 setRenameError('There was an error saving your response');
@@ -132,11 +131,11 @@ const BotResponseEditor = (props) => {
     const handleModalClose = () => {
         const validResponse = newBotResponse || botResponse;
         if (!open) return;
-        if (!isNew || checkResponseEmpty(validResponse)) {
-            refreshBotResponse(name); // refresh the content of the response in the visual story editor
+        if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
+            refreshBotResponse(`${language}-${name}`); // refresh the content of the response in the visual story editor
             closeModal();
             return;
-        }
+        } 
         if (isNew && !checkResponseEmpty(validResponse)) {
             if (!responseKey.match(/^utter_/)) {
                 setRenameError('Response names must start with "utter_"')
@@ -148,7 +147,6 @@ const BotResponseEditor = (props) => {
                     console.log(err);
                     if (err.message.match(/E11000/)) {
                         setRenameError('Response names must be unique');
-                        setResponseKey(botResponse.key);
                         return;
                     }
                 }
