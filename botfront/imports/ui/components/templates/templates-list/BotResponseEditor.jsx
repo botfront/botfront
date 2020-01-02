@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { safeDump } from 'js-yaml';
 import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks';
 import {
-    Segment, Menu, MenuItem, Modal, Popup, Icon,
+    Segment, Menu, MenuItem, Modal,
 } from 'semantic-ui-react';
 // connections
 import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../mutations';
@@ -183,8 +183,6 @@ const BotResponseEditor = (props) => {
                     <ResponseNameInput
                         renameable={renameable}
                         onChange={(e, target) => {
-                            console.log(e)
-                            console.log(target)
                             setResponseKey(target.value)
                         }}
                         saveResponseName={handleChangeKey}
