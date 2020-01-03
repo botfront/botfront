@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Popup } from 'semantic-ui-react';
-
-// import FloatingIconButton from '../../common/FloatingIconButton';
+import IconButton from '../../common/IconButton';
 
 export default function ActivityActionsColumn(props) {
     const {
@@ -13,11 +12,11 @@ export default function ActivityActionsColumn(props) {
         onDelete,
     } = props;
 
-    const size = 'mini';
+    const size = 'small';
     let action;
     if (isUtteranceOutdated(datum)) {
         action = (
-            <Button
+            <IconButton
                 size={size}
                 disabled
                 basic
@@ -27,7 +26,7 @@ export default function ActivityActionsColumn(props) {
         );
     } else if (!!datum.validated) {
         action = (
-            <Button
+            <IconButton
                 size={size}
                 onClick={() => onToggleValidation(datum)}
                 color='green'
@@ -42,7 +41,7 @@ export default function ActivityActionsColumn(props) {
                 inverted
                 content='Mark this utterance valid'
                 trigger={(
-                    <Button
+                    <IconButton
                         basic
                         size={size}
                         disabled={!datum.intent}
@@ -57,12 +56,10 @@ export default function ActivityActionsColumn(props) {
     }
 
     return (
-        <div key={`${datum._id}-actions`}>
+        <div key={`${datum._id}-actions`} className='side-by-side narrow right'>
             {action}
             {!isUtteranceReinterpreting(datum) && (
-                <Button
-                    basic
-                    size={size}
+                <IconButton
                     onClick={() => onDelete([datum])}
                     color='grey'
                     icon='trash'

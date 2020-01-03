@@ -117,10 +117,11 @@ const BotResponseContainer = (props) => {
     );
 
     const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());
+    const extraClass = isImageResponse && value.image.trim() ? 'image' : '';
 
     return (
         <div
-            className={`utterance-container bot-response ${isImageResponse ? 'image' : ''}`}
+            className={`utterance-container bot-response ${extraClass}`}
             agent='bot'
             data-cy='bot-response-input'
         >

@@ -1,3 +1,24 @@
+.ui.button.icon.icon-button {
+    padding: 5px 5px;
+    &.grey:not(.basic) {
+        background-color: #eceff1 !important;
+        box-shadow: none !important;
+        color: #acbac4 !important;
+        &:hover {
+            color: #8d99a2 !important;
+        }
+    }
+}
+
+.responses-container {
+    .side-by-side {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        visibility: hidden;
+    }
+}
+
 .story-visual-editor {
     display: flex;
     flex-direction: column;
@@ -35,6 +56,9 @@
                 visibility: visible;
                 white-space: nowrap;
                 opacity: 0.5;
+            }
+            .side-by-side {
+                visibility: visible;
             }
         }
     }
@@ -205,7 +229,7 @@
     .flex-right {
         display: inline-flex;
         justify-content: space-between;
-        align-items: baseline;
+        align-items: flex-end;
         
         .utterance-container {
             width: 100%;
@@ -231,7 +255,6 @@
         text-overflow: ellipsis;
         overflow: hidden;
         position: relative;
-        bottom: -10px;
     }
 
     .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border
@@ -414,6 +437,7 @@ div.add-entity-wrap {
         background: rgba(0, 0, 0, 0.04);
         &.image {
             background: none;
+            margin-left: 4px;
             .inner {
                 margin-bottom: 8px;
             }
