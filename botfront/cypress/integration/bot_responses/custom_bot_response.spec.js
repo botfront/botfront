@@ -3,13 +3,13 @@
 describe('Bot responses', function() {
     beforeEach(function() {
         cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'en').then(
-            () => cy.createNLUModelProgramatically('bf', '', 'de'),
-        );
+        cy.createProject('bf', 'My Project', 'en');
         cy.login();
     });
 
     afterEach(function() {
+        cy.deleteProject('bf');
+        cy.logout();
     });
     it('should create a custom response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
