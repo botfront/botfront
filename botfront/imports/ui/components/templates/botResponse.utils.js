@@ -67,11 +67,17 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
 };
 
 export const parseContentType = (content) => {
-    if (Object.keys(content).includes('custom')) return 'CustomPayload';
-    if (Object.keys(content).includes('image') && !Object.keys(content).includes('buttons')) return 'ImagePayload';
-    if (Object.keys(content).includes('buttons') && !Object.keys(content).includes('image')) return 'QuickReplyPayload';
-    if (Object.keys(content).includes('text') && !Object.keys(content).includes('image') && !Object.keys(content).includes('buttons')) return 'TextPayload';
-    return 'CustomPayload';
+    switch (true) {
+    case Object.keys(content).includes('custom'):
+        return 'CustomPayload';
+    case Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
+        return 'ImagePayload';
+    case Object.keys(content).includes('buttons') && !Object.keys(content).includes('image'):
+        return 'QuickReplyPayload';
+    case Object.keys(content).includes('text') && !Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
+        return 'TextPayload';
+    default: return 'CustomPayload';
+    }
 };
 
 export const addContentType = content => ({ ...content, __typename: parseContentType(content) });
