@@ -76,10 +76,17 @@ export const parseContentType = (content) => {
 
 export const addContentType = content => ({ ...content, __typename: parseContentType(content) });
 
+const getTemplateFromResponse = (response) => {
+    const content = safeLoad(response.values[0].sequence[0].content);
+    const contentType = parseContentType(content);
+    const template = defaultTemplate(contentType);
+    return safeDump(template);
+};
+
 export const addResponseLanguage = (response, language) => {
     const updatedResponse = response;
     const newValue = {
-        sequence: [{ content: safeDump(defaultTemplate(parseContentType(safeLoad(response.values[0].sequence[0].content)))) }],
+        sequence: getTemplateFromResponse(response),
         lang: language,
     };
     updatedResponse.values = [...response.values, newValue];
