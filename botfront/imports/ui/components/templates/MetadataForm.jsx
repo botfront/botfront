@@ -111,7 +111,13 @@ function ResponseMetadataForm({
             errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you set neither text nor message container properties' });
         }
 
-        if (model.domHighlight && model.domHighlight.enabled && ((!model.domHighlight.selector || !model.domHighlight.selector.length) || (!model.domHighlight.css || !model.domHighlight.css.length))) {
+        if (model.domHighlight
+            && model.domHighlight.enabled
+            && (
+                (!model.domHighlight.selector || !model.domHighlight.selector.length)
+                || (!model.domHighlight.css || !model.domHighlight.css.length)
+            )
+        ) {
             errors.push({ name: 'domHighlight', message: 'When enabling DOM highlighting both selector and css must be set.' });
         }
 
@@ -211,7 +217,7 @@ function ResponseMetadataForm({
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
-                            <LongTextField name='customCss.text' label='Message text CSS' data-cy='custom-message-css'/>
+                            <LongTextField name='customCss.text' label='Message text CSS' data-cy='custom-message-css' />
                             <LongTextField name='customCss.messageContainer' label='Message container CSS' data-cy='custom-container-css' />
                         </>
                     </DisplayIf>
@@ -228,7 +234,7 @@ function ResponseMetadataForm({
                 <br />
                 <ErrorsField />
                 <br />
-                <SubmitField name='Save' data-cy='submit-metadata'/>
+                <SubmitField name='Save' data-cy='submit-metadata' />
             </AutoForm>
         </div>
     );
