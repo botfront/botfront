@@ -21,7 +21,7 @@ TemplatesTableItemText.propTypes = {
 
 export default function TemplatesTableItem({ sequence }) {
     return (
-        <div className='templates-table-item'>
+        <div className='templates-table-item' data-cy='response-text'>
             {sequence.map(({ content }, i) => <TemplatesTableItemText rawText={content} key={i.toString(10)} />)}
         </div>
     );

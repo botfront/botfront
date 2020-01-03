@@ -9,5 +9,8 @@
     ],
     "cSpell.words": [
         "nlu"
-    ]
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
 }

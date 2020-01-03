@@ -18,6 +18,7 @@ import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
 import { flattenStory, extractDomain } from '../../lib/story.utils';
+import BotResponses from '../graphql/botResponses/botResponses.model';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
@@ -93,7 +94,7 @@ if (Meteor.isServer) {
                 throw formatError(e);
             }
         },
-        'project.delete'(projectId, options = { failSilently: false }) {
+        async 'project.delete'(projectId, options = { failSilently: false }) {
             check(projectId, String);
             check(options, Object);
             const { failSilently } = options;
@@ -113,6 +114,7 @@ if (Meteor.isServer) {
                 Slots.remove({ projectId });
                 Projects.remove({ _id: projectId }); // Delete project
                 Deployments.remove({ projectId }); // Delete deployment
+                await BotResponses.remove({ projectId });
             } catch (e) {
                 if (!failSilently) throw e;
             }

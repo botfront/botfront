@@ -41,6 +41,7 @@ function StoryEditors(props) {
         Meteor.call(
             'stories.delete',
             stories[index],
+            projectId,
             wrapMeteorCallback((err) => {
                 if (!err) {
                     if (stories.length === 1) onDeleteGroup(storyGroup);
@@ -50,7 +51,7 @@ function StoryEditors(props) {
     }
 
     function handleStoryRenaming(newTitle, index) {
-        Meteor.call('stories.update', { ...stories[index], title: newTitle });
+        Meteor.call('stories.update', { ...stories[index], title: newTitle }, projectId);
     }
 
     function handleMoveStory(newGroupId, index) {
@@ -60,6 +61,7 @@ function StoryEditors(props) {
         Meteor.call(
             'stories.update',
             { ...stories[index], storyGroupId: newGroupId },
+            projectId,
             wrapMeteorCallback((err) => {
                 if (!err) {
                     // deletes group if no stories left
