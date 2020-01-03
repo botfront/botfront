@@ -14,6 +14,7 @@ import {
     changePageTemplatesTable, setWorkingLanguage, changeFilterTemplatesTable, toggleMatchingTemplatesTable,
 } from '../../../store/actions/actions';
 import { languages } from '../../../../lib/languages';
+import BotResponseEditor from './BotResponseEditor';
 
 class TemplatesTable extends React.Component {
     constructor(props) {
@@ -29,8 +30,7 @@ class TemplatesTable extends React.Component {
     getTemplateLanguages = () => sortBy(this.props.nluLanguages);
 
     getColumns = (lang) => {
-        const { projectId, events } = this.props;
-
+        const { events } = this.props;
         const columns = [
             {
                 id: lang,
@@ -50,16 +50,31 @@ class TemplatesTable extends React.Component {
                 id: 'edit',
                 accessor: 'key',
                 className: 'center',
-                Cell: ({ value: key, viewIndex: index }) => (
-                    <Icon
-                        link
-                        data-cy={`edit-response-${index}`}
-                        name='edit'
-                        color='grey'
-                        size='small'
-                        onClick={() => this.redirect(`/project/${projectId}/dialogue/template/${key}`)}
-                    />
-                ),
+                Cell: ({ value: key, viewIndex: index }) => {
+                    const { templates, activeEditor, setActiveEditor } = this.props;
+                    const botResponse = templates.find(({ key: templateKey }) => templateKey === key) || {};
+                    return (
+                        <BotResponseEditor
+                            trigger={(
+                                <Icon
+                                    link
+                                    data-cy={`edit-response-${index}`}
+                                    name='edit'
+                                    color='grey'
+                                    size='small'
+                                    onClick={() => setActiveEditor(botResponse._id)}
+                                />
+                            )}
+                            open={activeEditor === botResponse._id}
+                            botResponse={botResponse || null}
+                            closeModal={() => setActiveEditor('')}
+                            renameable={!events.find((storyEvents) => {
+                                if (!storyEvents) return false;
+                                return storyEvents.find(responseName => responseName === key);
+                            })}
+                        />
+                    );
+                },
                 width: 25,
             },
             {
@@ -200,7 +215,9 @@ class TemplatesTable extends React.Component {
     };
 
     render() {
-        const { nluLanguages, templates, workingLanguage } = this.props;
+        const {
+            nluLanguages, templates, workingLanguage, newResponse, closeNewResponse,
+        } = this.props;
         const activeIndex = this.getTemplateLanguages(templates).indexOf(workingLanguage);
         return (
             <div>
@@ -214,6 +231,16 @@ class TemplatesTable extends React.Component {
                         menu={{ pointing: true, secondary: true }}
                         panes={this.getPanes(templates)}
                         onTabChange={this.onTabChange}
+                    />
+                )}
+                {newResponse.open && (
+                    <BotResponseEditor
+                        trigger={<div />}
+                        open={newResponse.open}
+                        closeModal={closeNewResponse}
+                        renameable
+                        responseType={newResponse.type}
+                        isNew
                     />
                 )}
             </div>
@@ -231,8 +258,15 @@ TemplatesTable.propTypes = {
     changeWorkingLanguage: PropTypes.func.isRequired,
     deleteBotResponse: PropTypes.func.isRequired,
     events: PropTypes.array.isRequired,
+    activeEditor: PropTypes.string,
+    setActiveEditor: PropTypes.func.isRequired,
+    newResponse: PropTypes.object,
+    closeNewResponse: PropTypes.func.isRequired,
 };
 
+TemplatesTable.defaultProps = {
+    activeEditor: '', newResponse: { open: false, type: '' },
+};
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

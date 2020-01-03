@@ -125,11 +125,9 @@ describe('story visual editor', function () {
                 .should('exist') // there's a row with our text and response hash
                 .find('.icon.edit')
                 .click();
-            cy.get('.response-message-0:not(.button)')
-                .invoke('text')
-                .as('qr');
         });
-        cy.get('@qr').then(qr => expect(qr).to.match(qrGold)); // test qr template against gold
+        cy.dataCy('postback_option').contains('postback option').should('exist');
+        cy.dataCy('web_url_option').contains('web_url option').should('exist');
 
         cy.visit('/project/bf/nlu/models');
         cy.get('[role=row]')

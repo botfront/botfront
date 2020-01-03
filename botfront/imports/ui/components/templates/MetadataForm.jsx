@@ -82,12 +82,12 @@ function ResponseMetadataForm({
     const getPageChangeErrors = ({ pageChangeCallbacks }) => {
         const errors = [];
         if (pageChangeCallbacks && pageChangeCallbacks.enabled) {
-            if (!pageChangeCallbacks.pageChanges || pageChangeCallbacks.pageChanges.length < 1) {
+            if (!pageChangeCallbacks || !pageChangeCallbacks.pageChanges || pageChangeCallbacks.pageChanges.length < 1) {
                 errors.push({ name: 'pageChangeCallback.pageChanges', message: 'If you enable page changes you should at least have one' });
             }
         }
 
-        if (pageChangeCallbacks.pageChanges && pageChangeCallbacks.pageChanges.length) {
+        if (pageChangeCallbacks && pageChangeCallbacks.pageChanges && pageChangeCallbacks.pageChanges.length) {
             const missing = [];
             pageChangeCallbacks.pageChanges.forEach((i) => {
                 if (!i.url || !i.url.length < 0 || !i.callbackIntent || !i.callbackIntent.length < 0) { missing.push(i); }
@@ -107,11 +107,11 @@ function ResponseMetadataForm({
     const validator = (model) => {
         const errors = [...getPageChangeErrors(model)];
 
-        if (model.customCss.enabled && !model.customCss.text && !model.customCssContainer) {
+        if (model.customCss && model.customCss.enabled && !model.customCss.text && !model.customCssContainer) {
             errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you set neither text nor message container properties' });
         }
 
-        if (model.domHighlight.enabled && ((!model.domHighlight.selector || !model.domHighlight.selector.length) || (!model.domHighlight.css || !model.domHighlight.css.length))) {
+        if (model.domHighlight && model.domHighlight.enabled && ((!model.domHighlight.selector || !model.domHighlight.selector.length) || (!model.domHighlight.css || !model.domHighlight.css.length))) {
             errors.push({ name: 'domHighlight', message: 'When enabling DOM highlighting both selector and css must be set.' });
         }
 
@@ -160,7 +160,7 @@ function ResponseMetadataForm({
             menuItem: 'General',
             render: () => (
                 <>
-                    <AutoField name='linksTarget' />
+                    <AutoField name='linksTarget' data-cy='links-target' />
                     <AutoField name='userInput' />
                     <ToggleField name='persistentButtons' className='toggle' />
                 </>
@@ -211,8 +211,8 @@ function ResponseMetadataForm({
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
-                            <LongTextField name='customCss.text' label='Message text CSS' />
-                            <LongTextField name='customCss.messageContainer' label='Message container CSS' />
+                            <LongTextField name='customCss.text' label='Message text CSS' data-cy='custom-message-css'/>
+                            <LongTextField name='customCss.messageContainer' label='Message container CSS' data-cy='custom-container-css' />
                         </>
                     </DisplayIf>
                 </>
@@ -228,7 +228,7 @@ function ResponseMetadataForm({
                 <br />
                 <ErrorsField />
                 <br />
-                <SubmitField name='Save' />
+                <SubmitField name='Save' data-cy='submit-metadata'/>
             </AutoForm>
         </div>
     );
@@ -240,7 +240,14 @@ ResponseMetadataForm.propTypes = {
 };
 
 ResponseMetadataForm.defaultProps = {
-    responseMetadata: null,
+    responseMetadata: {
+        linksTarget: '_blank',
+        userInput: 'show',
+        messageTarget: 'conversation',
+        domHighlight: {},
+        customCss: {},
+        pageChangeCallbacks: null,
+    },
 };
 
 export default ResponseMetadataForm;
