@@ -152,7 +152,7 @@ export default class DataImport extends React.Component {
                         mode='json'
                         theme='github'
                         name='nlu_data'
-                        fontSize={16}
+                        fontSize={14}
                         showPrintMargin={false}
                         showGutter
                         onChange={this.onChange}

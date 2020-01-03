@@ -4,7 +4,7 @@ import React from 'react';
 import moment from 'moment-timezone';
 import PropTypes from 'prop-types';
 import {
-    TextArea, Tab, Form, Dropdown, Input, Checkbox,
+    TextArea, Form, Dropdown, Input, Checkbox,
 } from 'semantic-ui-react';
 import ReactJson from 'react-json-view';
 import { connect } from 'react-redux';
@@ -89,7 +89,7 @@ class API extends React.Component {
 
         const codeString = this.getCodeString();
         return (
-            <Tab.Pane>
+            <div className='glow-box extra-padding no-margin'>
                 <br />
                 <div id='playground'>
                     <Form>
@@ -120,7 +120,7 @@ class API extends React.Component {
                 </div>
                 <br />
                 <ReactJson src={output} collapsed={3} name={false} />
-            </Tab.Pane>
+            </div>
         );
     }
 }

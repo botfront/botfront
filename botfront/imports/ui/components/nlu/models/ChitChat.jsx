@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import Alert from 'react-s-alert';
 import { Meteor } from 'meteor/meteor';
 import {
-    Dropdown, Confirm,
-    Container, Button,
+    Dropdown, Confirm, Button,
     Loader, Message, Icon,
 } from 'semantic-ui-react';
 import 'react-s-alert/dist/s-alert-default.css';
@@ -69,11 +68,11 @@ export default class ChitChat extends React.Component {
         } = this.state;
         
         return (
-            <Container>
+            <div className='glow-box extra-padding no-margin'>
                 {notConfiguredError && <Message error content={notConfiguredError} />}
                 {chitChatIntents && chitChatIntents.length === 0 && <Message info content="Chitchat intents are not available in your model's language." />}
                 {chitChatIntents && chitChatIntents.length > 0 && (
-                    <div className='chitchat' style={{ minHeight: 600 }}>
+                    <div className='chitchat' style={{ minHeight: 300 }}>
                         {/* minHeight to make sure there is enough space for the dropdown */}
                         <Message info data-cy='chit-chat-message'>
                             <Icon name='lightbulb' size='small' />
@@ -112,7 +111,7 @@ export default class ChitChat extends React.Component {
                 )}
 
                 {!chitChatIntents && <Loader active inline='centered' />}
-            </Container>
+            </div>
         );
     }
 }

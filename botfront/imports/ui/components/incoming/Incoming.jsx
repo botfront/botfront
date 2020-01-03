@@ -99,9 +99,8 @@ class Incoming extends React.Component {
                     selectedLanguage={workingLanguage}
                     handleLanguageChange={this.handleLanguageChange}
                     tab={router.params.tab}
-                    className='incoming'
                 />
-                <div className='incoming-background'>
+                <div>
                     <Container>
                         <Loading loading={!ready || !model}>
                             <Tab
