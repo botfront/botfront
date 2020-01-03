@@ -54,7 +54,7 @@ class Templates extends React.Component {
                 <Dropdown.Item
                     text='Quick replies'
                     onClick={() => this.setState({ newResponse: { open: true, type: 'QuickReplyPayload' } })}
-                    data-cy='add-quick-reply-response'
+                    data-cy='add-quickreply-response'
                 />
                 <Dropdown.Item
                     text='Image'

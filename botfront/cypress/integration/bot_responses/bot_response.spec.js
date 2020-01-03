@@ -11,6 +11,7 @@ describe('Bot responses', function() {
 
     afterEach(function() {
     });
+
     it('should create a response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
@@ -37,6 +38,27 @@ describe('Bot responses', function() {
         cy.dataCy('response-text').contains('response content').should('not.exist');
         cy.dataCy('template-intent').contains('utter_test_B').should('exist');
         cy.dataCy('response-text').contains('new response').should('exist');
+    });
+    it('should allow the response to be edited in another language', function() {
+        cy.visit('/project/bf/dialogue/templates');
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-text-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.dataCy('template-intent').contains('utter_test_A').should('exist');
+        // edit in a second language
+        cy.get('.item').contains('German').click();
+        cy.dataCy('edit-response-0').click();
+        cy.dataCy('bot-response-input').click().find('textarea').clear()
+            .type('new response');
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.dataCy('template-intent').contains('utter_test_A').should('exist');
+        cy.dataCy('response-text').contains('new response').should('exist');
+        // verify original language has not changed
+        cy.get('.item').contains('English').click();
+        cy.dataCy('template-intent').contains('utter_test_A').should('exist');
+        cy.dataCy('response-text').contains('response content').should('exist');
     });
     it('should not allow duplicate names when creating a response', function() {
         cy.visit('/project/bf/dialogue/templates');
