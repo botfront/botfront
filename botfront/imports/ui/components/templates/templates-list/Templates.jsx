@@ -33,8 +33,6 @@ class Templates extends React.Component {
 
     handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
 
-    creatResponse = () => {};
-
     renderAddResponse = () => (
         <Dropdown
             text='Add bot response'
