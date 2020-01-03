@@ -16,7 +16,9 @@ import SequenceEditor from './SequenceEditor';
 import MetadataForm from '../MetadataForm';
 import ResponseNameInput from '../common/ResponseNameInput';
 // utils
-import { createResponseFromTemplate, checkResponseEmpty } from '../botResponse.utils';
+import {
+    createResponseFromTemplate, checkResponseEmpty, addResponseLanguage,
+} from '../botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
 
@@ -158,7 +160,7 @@ const BotResponseEditor = (props) => {
     const getActiveValue = () => {
         const activeValue = botResponse.values && botResponse.values.find(({ lang }) => lang === language);
         if (!activeValue) {
-            createResponseFromTemplate();
+            return addResponseLanguage(botResponse, language).values.find(({ lang }) => lang === language).sequence;
         }
         return activeValue.sequence;
     };
@@ -244,6 +246,7 @@ const BotResponseEditorWrapper = (props) => {
         isNew,
         open,
         responseType,
+        language,
     } = props;
 
     const [botResponse, setBotResponse] = useState();
@@ -259,6 +262,9 @@ const BotResponseEditorWrapper = (props) => {
         useEffect(() => {
             if (data && data.botResponse) {
                 setBotResponse(data.botResponse);
+            }
+            if (data && data.botResponse === null) {
+                setBotResponse(createResponseFromTemplate('TextPayload', language, { key: name }));
             }
         }, [data]);
 
@@ -278,7 +284,7 @@ const BotResponseEditorWrapper = (props) => {
     }
 
     if (isNew && !incomingBotResponse && !botResponse) {
-        setBotResponse(createResponseFromTemplate(responseType));
+        setBotResponse(createResponseFromTemplate(responseType, language));
     }
 
     if ((!botResponse && !incomingBotResponse && !isNew) || !open) return trigger;

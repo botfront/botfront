@@ -48,22 +48,22 @@ class Templates extends React.Component {
             <Dropdown.Menu>
                 <Dropdown.Item
                     text='Text'
-                    onClick={() => this.setState({ newResponse: { open: true, type: 'text' } })}
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'TextPayload' } })}
                     data-cy='add-text-response'
                 />
                 <Dropdown.Item
                     text='Quick replies'
-                    onClick={() => this.setState({ newResponse: { open: true, type: 'qr' } })}
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'QuickReplyPayload' } })}
                     data-cy='add-quick-reply-response'
                 />
                 <Dropdown.Item
                     text='Image'
-                    onClick={() => this.setState({ newResponse: { open: true, type: 'image' } })}
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'ImagePayload' } })}
                     data-cy='add-image-response'
                 />
                 <Dropdown.Item
                     text='Custom'
-                    onClick={() => this.setState({ newResponse: { open: true, type: 'custom' } })}
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'CustomPayload' } })}
                     data-cy='add-custom-response'
                 />
             </Dropdown.Menu>

@@ -1,5 +1,4 @@
 import { safeLoad, safeDump } from 'js-yaml';
-import shortid from 'shortid';
 
 const checkContentEmpty = content => (
     content.image
@@ -22,10 +21,10 @@ export const checkResponseEmpty = (response) => {
 };
 
 export const defaultTemplate = (template) => {
-    if (template === 'text') {
+    if (template === 'TextPayload') {
         return { text: '', __typename: 'TextPayload' };
     }
-    if (template === 'qr') {
+    if (template === 'QuickReplyPayload') {
         return {
             __typename: 'QuickReplyPayload',
             text: '',
@@ -38,12 +37,12 @@ export const defaultTemplate = (template) => {
             ],
         };
     }
-    if (template === 'custom') {
+    if (template === 'CustomPayload') {
         return {
             __typename: 'CustomPayload',
         };
     }
-    if (template === 'image') {
+    if (template === 'ImagePayload') {
         return {
             image: '',
             __typename: 'ImagePayload',
@@ -52,10 +51,9 @@ export const defaultTemplate = (template) => {
     return false;
 };
 
-export const createResponseFromTemplate = (type, options = {}) => {
-    const { generateKey } = options;
-    const language = 'en';
-    const key = generateKey ? `utter_${shortid}` : 'utter_';
+export const createResponseFromTemplate = (type, language, options = {}) => {
+    const { key: incommingKey } = options;
+    const key = incommingKey || 'utter_';
     const newTemplate = {
         key,
         values: [
@@ -69,10 +67,6 @@ export const createResponseFromTemplate = (type, options = {}) => {
 };
 
 export const parseContentType = (content) => {
-    // if (content.elements || content.attachment || content.custom) return 'CustomPayload';
-    // if (content.image && !content.buttons) return 'ImagePayload';
-    // if (content.buttons && !content.image) return 'QuickReplyPayload';
-    // if (content.text && !content.image && !content.buttons) return 'TextPayload';
     if (Object.keys(content).includes('custom')) return 'CustomPayload';
     if (Object.keys(content).includes('image') && !Object.keys(content).includes('buttons')) return 'ImagePayload';
     if (Object.keys(content).includes('buttons') && !Object.keys(content).includes('image')) return 'QuickReplyPayload';
@@ -81,3 +75,13 @@ export const parseContentType = (content) => {
 };
 
 export const addContentType = content => ({ ...content, __typename: parseContentType(content) });
+
+export const addResponseLanguage = (response, language) => {
+    const updatedResponse = response;
+    const newValue = {
+        sequence: [{ content: safeDump(defaultTemplate(parseContentType(safeLoad(response.values[0].sequence[0].content)))) }],
+        lang: language,
+    };
+    updatedResponse.values = [...response.values, newValue];
+    return updatedResponse;
+};
