@@ -31,6 +31,11 @@ const defaultTemplate = (templateType) => {
             image: '',
         };
     }
+    if (templateType === 'custom') {
+        return {
+            __typename: 'CustomPayload',
+        };
+    }
     return false;
 };
 

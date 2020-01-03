@@ -94,6 +94,7 @@ const BotResponsesContainer = (props) => {
                     onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)}
                     focus={focus === index}
                     onFocus={() => setFocus(index)}
+                    editCustom={() => setEditorOpen(true)}
                 />
                 {index === sequenceArray.length - 1 && name && (
                     <div className='response-name'>{name}</div>
