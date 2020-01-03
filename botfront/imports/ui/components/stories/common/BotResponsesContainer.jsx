@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Placeholder } from 'semantic-ui-react';
 
-import FloatingIconButton from '../../common/FloatingIconButton';
+import IconButton from '../../common/IconButton';
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
 
@@ -109,7 +109,10 @@ const BotResponsesContainer = (props) => {
                 )}
                 {getSequence().map(renderResponse)}
                 {deletable && onDeleteAllResponses && (
-                    <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
+                    <div className='side-by-side right narrow'>
+                        <IconButton icon='ellipsis vertical' />
+                        <IconButton onClick={onDeleteAllResponses} icon='trash' />
+                    </div>
                 )}
             </div>
         </ExceptionWrapper>

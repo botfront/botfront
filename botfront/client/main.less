@@ -42,7 +42,6 @@
     text-transform: none;
 }
 
-
 html {
     overflow: hidden;
     height: 100%;
@@ -210,4 +209,25 @@ p.overflow {
 
 .ui.menu.secondary.pointing.hoverable .item:hover {
     border-color: #b0b5bb;
+}
+
+// these two are to style broken images
+img:before { 
+    display: block;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: #eee;
+}
+
+img:after {
+    content: '\f127';
+    font-family: 'Icons';
+    display: block;
+    font-size: xx-large;
+    color: #ccc;
+    position: absolute;
+    top: 25%;
+    width: 100%;
+    text-align: center;
 }

@@ -25,6 +25,12 @@ const defaultTemplate = (templateType) => {
             buttons: [{ title: '', type: 'postback', payload: '' }],
         };
     }
+    if (templateType === 'image') {
+        return {
+            __typename: 'ImagePayload',
+            image: '',
+        };
+    }
     return false;
 };
 
@@ -45,6 +51,8 @@ export default class StoryVisualEditor extends React.Component {
             this.addStoryCursor.current.focus();
         }
     }
+
+    menuCloser = () => {};
 
     trackOpenMenu = (func) => { this.menuCloser = func; };
 

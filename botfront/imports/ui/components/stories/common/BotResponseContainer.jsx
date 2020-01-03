@@ -1,5 +1,7 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { Input, Button, Image } from 'semantic-ui-react';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
 import FloatingIconButton from '../../common/FloatingIconButton';
@@ -14,8 +16,11 @@ const BotResponseContainer = (props) => {
     const [shiftPressed, setshiftPressed] = useState(false);
     const focusGrabber = useRef();
     const isTextResponse = value.__typename === 'TextPayload';
-    const hasText = Object.keys(value).includes('text');
-    const hasButtons = Object.keys(value).includes('buttons');
+    const isQRResponse = value.__typename === 'QuickReplyPayload';
+    const isImageResponse = value.__typename === 'ImagePayload';
+    const hasText = Object.keys(value).includes('text') && value.text !== null;
+
+    const imageUrlRef = useRef();
 
     const unformatNewlines = (response) => {
         if (!response) return response;
@@ -27,13 +32,21 @@ const BotResponseContainer = (props) => {
     useEffect(() => {
         setInput(unformatNewlines(value.text));
         if (focus && focusGrabber.current) focusGrabber.current.focus();
-    }, [value, focus]);
+        if (focus && imageUrlRef.current) imageUrlRef.current.focus();
+    }, [value.text, focus]);
 
 
     function handleTextBlur() {
         if (isTextResponse) onChange({ text: formatNewlines(input) }, false);
-        if (hasButtons) onChange({ text: formatNewlines(input), buttons: value.buttons }, false);
+        if (isQRResponse) onChange({ text: formatNewlines(input), buttons: value.buttons }, false);
+        if (isImageResponse) onChange({ text: formatNewlines(input), image: value.image }, false);
     }
+
+    const setImage = () => {
+        const image = imageUrlRef.current.inputRef.current.value;
+        onChange({ ...value, image }, false);
+    };
+
 
     const handleKeyDown = (e) => {
         if (e.key === 'Shift') {
@@ -49,6 +62,10 @@ const BotResponseContainer = (props) => {
             }
             e.preventDefault();
             onChange({ text: formatNewlines(input) }, true);
+        }
+        if (e.key === 'Enter' && isImageResponse) {
+            e.preventDefault();
+            setImage();
         }
     };
 
@@ -78,21 +95,46 @@ const BotResponseContainer = (props) => {
     const renderButtons = () => (
         <QuickReplies
             value={value.buttons}
-            onChange={(newButtons) => {
-                onChange({ buttons: newButtons, text: value.text }, false);
+            onChange={(buttons) => {
+                onChange({ ...value, buttons }, false);
             }}
         />
     );
 
+    const renderViewImage = () => (
+        <Image src={value.image} size='small' alt='Image URL broken' />
+    );
+
+    const renderSetImage = () => (
+        <>
+            <b>Insert image from URL</b>
+            <br />
+            <Input
+                ref={imageUrlRef}
+                autoFocus
+                placeholder='URL'
+                onBlur={setImage}
+                onKeyDown={handleKeyDown}
+                size='small'
+                data-cy='image-url-input'
+            />
+            <Button primary onClick={setImage} size='small' content='Save' />
+        </>
+    );
+
+    const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());
+    const extraClass = isImageResponse && value.image.trim() ? 'image' : '';
+
     return (
         <div
-            className='utterance-container bot-response'
+            className={`utterance-container bot-response ${extraClass}`}
             agent='bot'
             data-cy='bot-response-input'
         >
             <div className='inner'>
-                {hasText && renderText()}
-                {hasButtons && renderButtons()}
+                {hasText && !isImageResponse && renderText()}
+                {isImageResponse && renderImage()}
+                {isQRResponse && renderButtons()}
             </div>
             {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
         </div>
