@@ -52,7 +52,7 @@ class TemplatesTable extends React.Component {
                 className: 'center',
                 Cell: ({ value: key, viewIndex: index }) => {
                     const { templates, activeEditor, setActiveEditor } = this.props;
-                    const botResponse = templates.find(({ key: templateKey }) => templateKey === key) || {}
+                    const botResponse = templates.find(({ key: templateKey }) => templateKey === key) || {};
                     return (
                         <BotResponseEditor
                             trigger={(

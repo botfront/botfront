@@ -143,7 +143,10 @@ const BotResponseEditor = (props) => {
                 return;
             }
             insertResponse(validResponse, (err) => {
-                if (!err) closeModal();
+                if (!err) {
+                    closeModal();
+                    return;
+                }
                 console.log(err);
                 if (err.message.match(/E11000/)) {
                     setRenameError('Response names must be unique');

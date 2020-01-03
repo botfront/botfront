@@ -1,28 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import yaml from 'js-yaml';
-import { Icon } from 'semantic-ui-react';
+import { safeLoad } from 'js-yaml';
+import { Icon, Image } from 'semantic-ui-react';
 
-function TemplatesTableItemText({ rawText }) {
-    const template = yaml.safeLoad(rawText);
-    const { text = rawText } = template;
-
+function TemplatesTableItemContent({ rawContent }) {
+    const { text, image } = safeLoad(rawContent);
     return (
         <div>
-            <Icon name='quote left' size='tiny' />
-            {text}
+            
+            {text && <><Icon name='quote left' size='tiny' />{text}</>}
+            {image && <Image src={image} size='small' alt='Image URL broken' />}
         </div>
     );
 }
 
-TemplatesTableItemText.propTypes = {
-    rawText: PropTypes.string.isRequired,
+TemplatesTableItemContent.propTypes = {
+    rawContent: PropTypes.string.isRequired,
 };
+
 
 export default function TemplatesTableItem({ sequence }) {
     return (
         <div className='templates-table-item' data-cy='response-text'>
-            {sequence.map(({ content }, i) => <TemplatesTableItemText rawText={content} key={i.toString(10)} />)}
+            {sequence.map(({ content }, i) => <TemplatesTableItemContent rawContent={content} key={i.toString(10)} />)}
         </div>
     );
 }

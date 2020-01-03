@@ -20,10 +20,11 @@ const SequenceEditor = (props) => {
     const renderContent = () => {
         const content = getContent(sequence[0]);
         if (!sequence) return <></>;
-        console.log(content);
         return (
             <>
-                { (content.__typename === 'TextPayload' || content.__typename === 'QuickReplyPayload') && (
+                { (content.__typename === 'TextPayload'
+                || content.__typename === 'QuickReplyPayload'
+                || content.__typename === 'ImagePayload') && (
                     <BotResponsesContainer
                         deleteable
                         initialValue={content}

@@ -3,9 +3,8 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Placeholder, Button } from 'semantic-ui-react';
 
-import IconButton from '../../common/IconButton';
+// import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
-import FloatingIconButton from '../../common/FloatingIconButton';
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
 
@@ -113,12 +112,13 @@ const BotResponsesContainer = (props) => {
                     </Placeholder>
                 )}
                 {getSequence().map(renderResponse)}
-                {deletable && onDeleteAllResponses && (
+
+                {/* deletable && onDeleteAllResponses && (
                     <div className='side-by-side right narrow'>
                         <IconButton icon='ellipsis vertical' />
                         <IconButton onClick={onDeleteAllResponses} icon='trash' />
                     </div>
-                )}
+                ) */}
                 {enableEditPopup && (
                     <div className='response-edit-menu'>
                         <BotResponseEditor
@@ -131,7 +131,14 @@ const BotResponsesContainer = (props) => {
                             renameable={false}
                             refreshBotResponse={refreshBotResponse} // required to update the response in the visual story editor
                         />
-                        <Button className='open-edit-responses' icon={{ name: 'trash', size: 'small' }} onClick={onDeleteAllResponses} data-cy='delete-responses' />
+                        { deletable && onDeleteAllResponses && (
+                            <Button
+                                className='open-edit-responses'
+                                icon={{ name: 'trash', size: 'small' }}
+                                onClick={onDeleteAllResponses}
+                                data-cy='delete-responses'
+                            />
+                        )}
                     </div>
                 )}
             </div>
