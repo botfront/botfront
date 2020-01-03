@@ -65,7 +65,7 @@ class Templates extends React.Component {
                     />
                     <Dropdown.Item
                         text='Custom'
-                        onClick={() => console.log('quick click')}
+                        onClick={() => this.setState({ newResponse: { open: true, type: 'custom' } })}
                         data-cy='add-custom-response'
                     />
                 </Dropdown.Menu>

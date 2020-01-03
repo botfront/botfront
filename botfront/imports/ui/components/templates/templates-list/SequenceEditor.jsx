@@ -3,9 +3,12 @@ import React from 'react';
 
 import { safeLoad } from 'js-yaml';
 import PropTypes from 'prop-types';
-import { addContentType } from '../botResponse.utils';
-import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 
+
+import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
+import CustomResponseEditor from '../common/CustomResponseEditor';
+
+import { addContentType } from '../botResponse.utils';
 
 const SequenceEditor = (props) => {
     const {
@@ -17,15 +20,26 @@ const SequenceEditor = (props) => {
         return content.__typename ? content : addContentType(content);
     };
     const renderContent = () => {
+        const content = getContent(sequence[0]);
         if (!sequence) return <></>;
         return (
-            <BotResponsesContainer
-                deleteable
-                initialValue={getContent(sequence[0])}
-                onChange={onChange}
-                isNew={false}
-                enableEditPopup={false}
-            />
+            <>
+                { (content.__typename === 'TextPayload' || content.__typename === 'QuickReplyPayload') && (
+                    <BotResponsesContainer
+                        deleteable
+                        initialValue={content}
+                        onChange={onChange}
+                        isNew={false}
+                        enableEditPopup={false}
+                    />
+                )}
+                {content.__typename === 'CustomPayload' && (
+                    <CustomResponseEditor
+                        content={content}
+                        onChange={onChange}
+                    />
+                )}
+            </>
         );
     };
     return renderContent();

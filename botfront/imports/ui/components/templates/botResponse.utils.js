@@ -2,6 +2,8 @@ import { safeLoad, safeDump } from 'js-yaml';
 import shortid from 'shortid';
 
 const checkContentEmpty = content => (
+    content.imageUrl ||
+    content.custom ||
     (content.text.length > 0 && content.buttons && content.buttons.length && content.buttons[0].title)
     || (content.text && content.text.length > 0 && !content.buttons));
 
@@ -35,6 +37,11 @@ export const defaultTemplate = (template) => {
             ],
         };
     }
+    if (template === 'custom') {
+        return {
+            __typename: 'CustomPayload'
+        }
+    }
     return false;
 };
 
@@ -59,6 +66,7 @@ export const parseContentType = (content) => {
     if (content.image && !content.buttons) return 'ImagePayload';
     if (content.buttons && !content.image) return 'QuickReplyPayload';
     if (content.text && !content.image && !content.buttons) return 'TextPayload';
+    return 'CustomPayload'
 };
 
 export const addContentType = content => ({ ...content, __typename: parseContentType(content) });
