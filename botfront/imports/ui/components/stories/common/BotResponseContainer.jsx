@@ -9,12 +9,13 @@ import FloatingIconButton from '../../common/FloatingIconButton';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus,
+        value, onDelete, onChange, deletable, focus, onFocus, editCustom,
     } = props;
 
     const [input, setInput] = useState();
     const [shiftPressed, setshiftPressed] = useState(false);
     const focusGrabber = useRef();
+    const isCustom = value.__typename === 'CustomPayload';
     const isTextResponse = value.__typename === 'TextPayload';
     const isQRResponse = value.__typename === 'QuickReplyPayload';
     const isImageResponse = value.__typename === 'ImagePayload';
@@ -123,6 +124,9 @@ const BotResponseContainer = (props) => {
     );
 
     const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());
+
+    const renderCustom = () => (<Button className='edit-custom-response' onClick={() => editCustom()}>Custom Format Response</Button>);
+
     const extraClass = isImageResponse && value.image.trim() ? 'image' : '';
 
     return (
@@ -135,6 +139,7 @@ const BotResponseContainer = (props) => {
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && renderImage()}
                 {isQRResponse && renderButtons()}
+                {isCustom && renderCustom()}
                 {/* hasButtons && value.buttons !== null && renderButtons() */}
             </div>
             {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
@@ -149,11 +154,13 @@ BotResponseContainer.propTypes = {
     onFocus: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
+    editCustom: PropTypes.func,
 };
 
 BotResponseContainer.defaultProps = {
     deletable: true,
     focus: false,
+    editCustom: () => {},
 };
 
 export default BotResponseContainer;
