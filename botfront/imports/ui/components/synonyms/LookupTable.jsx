@@ -83,17 +83,19 @@ export default class LookupTable extends React.Component {
                     listPlaceholder={listPlaceholder}
                 />
                 <br />
-                <ReactTable
-                    data={data}
-                    minRows={1}
-                    columns={this.getColumns()}
-                    getTheadThProps={() => ({
-                        style: {
-                            borderRight: 'none',
-                            ...headerStyle,
-                        },
-                    })}
-                />
+                <div className='glow-box extra-padding no-margin'>
+                    <ReactTable
+                        data={data}
+                        minRows={1}
+                        columns={this.getColumns()}
+                        getTheadThProps={() => ({
+                            style: {
+                                borderRight: 'none',
+                                ...headerStyle,
+                            },
+                        })}
+                    />
+                </div>
             </Tab.Pane>
         );
     }

@@ -94,7 +94,7 @@ const Statistics = (props) => {
 
     const columns = [
         {
-            key: 'intent', header: 'Intent', style: { width: '180px', minWidth: '180px', overflow: 'hidden' }, render: renderIntent,
+            key: 'intent', header: 'Intent', style: { width: '200px', minWidth: '200px', overflow: 'hidden' }, render: renderIntent,
         },
         {
             key: 'example', header: 'Example', style: { width: '100%' }, render: renderExample,
