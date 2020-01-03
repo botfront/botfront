@@ -334,7 +334,6 @@ class NLUModel extends React.Component {
                                     />
                                 </div>
                             )}
-                            <br />
                         </>
                     )}
                     <br />
