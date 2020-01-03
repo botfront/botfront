@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.1](https://github.com/botfront/botfront/compare/v0.19.0-alpha.0...v0.19.0-alpha.1) (2020-01-03)
+
+
+### Bug Fixes
+
+* bug with utterance insertion in visual story editor ([#385](https://github.com/botfront/botfront/issues/385)) ([61605db](https://github.com/botfront/botfront/commit/61605db))
+* enforce uniqueness of index in bot responses ([befe4fb](https://github.com/botfront/botfront/commit/befe4fb))
+* language retrieval failure preventing activity logging ([8f215ba](https://github.com/botfront/botfront/commit/8f215ba))
+
+
+### Features
+
+* **cli:** improvements in version management and file generation ([#396](https://github.com/botfront/botfront/issues/396)) ([e2a9258](https://github.com/botfront/botfront/commit/e2a9258))
+* **language selector:** make multiple selection possible ([#389](https://github.com/botfront/botfront/issues/389)) ([4dce052](https://github.com/botfront/botfront/commit/4dce052))
+* **seq:** don't commit response unless actually changed ([2f04706](https://github.com/botfront/botfront/commit/2f04706))
+* **seqs:** move resolved responses to state ([5d814dd](https://github.com/botfront/botfront/commit/5d814dd))
+* **sequences:** context update function ([2ce2257](https://github.com/botfront/botfront/commit/2ce2257))
+* **sequences:** new line logic ([cf760a6](https://github.com/botfront/botfront/commit/cf760a6))
+* **sequences:** sequent delete logic ([3f1d3e2](https://github.com/botfront/botfront/commit/3f1d3e2))
+* **sequences:** wip ([29df2b1](https://github.com/botfront/botfront/commit/29df2b1))
+* **user id:** add user id to conversations ([e434d60](https://github.com/botfront/botfront/commit/e434d60))
+* add a statistics page to training data ([#397](https://github.com/botfront/botfront/issues/397)) ([11786a5](https://github.com/botfront/botfront/commit/11786a5))
+* ensure consistency between stories and responses ([#366](https://github.com/botfront/botfront/issues/366)) ([097211f](https://github.com/botfront/botfront/commit/097211f))
+* **user id:** show user id in conversation viewer ([2d41018](https://github.com/botfront/botfront/commit/2d41018))
+* images can be added to the story visual editor ([#401](https://github.com/botfront/botfront/issues/401)) ([866bb7f](https://github.com/botfront/botfront/commit/866bb7f))
+* log conversation language too ([3a5e458](https://github.com/botfront/botfront/commit/3a5e458))
+
+
+### Tests
+
+* adapt canonical test to new intent label component ([e2c30f2](https://github.com/botfront/botfront/commit/e2c30f2))
+* fix more tests ([62f0ec3](https://github.com/botfront/botfront/commit/62f0ec3))
+* fix tests ([f494a00](https://github.com/botfront/botfront/commit/f494a00))
+* stop overwriting endpoints with fixtures ([984572c](https://github.com/botfront/botfront/commit/984572c))
+
+
+
 ## [0.19.0-alpha.0](https://github.com/botfront/botfront/compare/v0.18.5...v0.19.0-alpha.0) (2019-12-19)
 
 
