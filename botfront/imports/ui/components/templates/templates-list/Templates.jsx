@@ -35,45 +35,42 @@ class Templates extends React.Component {
 
     creatResponse = () => {};
 
-    renderAddResponse = () => {
-        const { nluLanguages } = this.props;
-        return (
-            <Dropdown
-                text='Add bot response'
-                icon='plus'
-                floating
-                labeled
-                button
-                className='icon'
-                data-cy='create-response'
-            >
-                <Dropdown.Menu>
-                    <Dropdown.Item
-                        text='Text'
-                        onClick={() => this.setState({ newResponse: { open: true, type: 'text' } })}
-                        data-cy='add-text-response'
-                    />
-                    <Dropdown.Item
-                        text='Quick replies'
-                        onClick={() => this.setState({ newResponse: { open: true, type: 'qr' } })}
-                        data-cy='add-quick-reply-response'
-                    />
-                    <Dropdown.Item
-                        text='Image'
-                        onClick={() => console.log('text click')}
-                        data-cy='add-image-response'
-                    />
-                    <Dropdown.Item
-                        text='Custom'
-                        onClick={() => this.setState({ newResponse: { open: true, type: 'custom' } })}
-                        data-cy='add-custom-response'
-                    />
-                </Dropdown.Menu>
-            </Dropdown>
-        );
-    };
+    renderAddResponse = () => (
+        <Dropdown
+            text='Add bot response'
+            icon='plus'
+            floating
+            labeled
+            button
+            className='icon'
+            data-cy='create-response'
+        >
+            <Dropdown.Menu>
+                <Dropdown.Item
+                    text='Text'
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'text' } })}
+                    data-cy='add-text-response'
+                />
+                <Dropdown.Item
+                    text='Quick replies'
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'qr' } })}
+                    data-cy='add-quick-reply-response'
+                />
+                <Dropdown.Item
+                    text='Image'
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'image' } })}
+                    data-cy='add-image-response'
+                />
+                <Dropdown.Item
+                    text='Custom'
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'custom' } })}
+                    data-cy='add-custom-response'
+                />
+            </Dropdown.Menu>
+        </Dropdown>
+    );
 
-    renderMenu = (projectId, activeItem, nluLanguages) => (
+    renderMenu = (projectId, activeItem) => (
         <Menu pointing secondary style={{ background: '#fff' }}>
             <Menu.Item>
                 <Menu.Header as='h3'>
@@ -147,7 +144,6 @@ Templates.propTypes = {
     deleteBotResponse: PropTypes.func.isRequired,
     events: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
-    insertResponse: PropTypes.func.isRequired,
 };
 
 const TemplatesContainer = ({ params, events, ready }) => {
@@ -186,7 +182,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
                 const newTemplates = [...templates];
                 const resp = { ...subscriptionData.data.botResponsesModified };
                 const respIdx = templates.findIndex(
-                    template => (template._id === resp._id && template._id) || template.key === resp.key
+                    template => (template._id === resp._id && template._id) || template.key === resp.key,
                 );
                 if (respIdx !== -1) {
                     newTemplates[respIdx] = resp;

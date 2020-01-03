@@ -54,8 +54,8 @@ const BotResponseEditor = (props) => {
         createBotResponse({
             variables: {
                 projectId,
-                response: clearTypenameField(newResponse)
-            }
+                response: clearTypenameField(newResponse),
+            },
         }).then(
             (result) => { callback(undefined, result); },
             (error) => { callback(error); },
@@ -80,7 +80,8 @@ const BotResponseEditor = (props) => {
     const handleChangeMetadata = (updatedMetadata) => {
         if (isNew) {
             setNewBotResponse(
-                { ...(newBotResponse || botResponse), metadata: updatedMetadata });
+                { ...(newBotResponse || botResponse), metadata: updatedMetadata },
+            );
             return;
         }
         updateResponse({ ...botResponse, metadata: updatedMetadata }, () => {});
@@ -121,7 +122,7 @@ const BotResponseEditor = (props) => {
             setNewBotResponse(updateSequence(newBotResponse || botResponse, content));
             return;
         }
-        upsertResponse(name || botResponse.key, updatedSequence).then((error, result) => {
+        upsertResponse(name || botResponse.key, updatedSequence).then((error) => {
             if (error) {
                 console.log(error);
             }
@@ -135,20 +136,17 @@ const BotResponseEditor = (props) => {
             refreshBotResponse(`${language}-${name}`); // refresh the content of the response in the visual story editor
             closeModal();
             return;
-        } 
+        }
         if (isNew && !checkResponseEmpty(validResponse)) {
             if (!responseKey.match(/^utter_/)) {
-                setRenameError('Response names must start with "utter_"')
+                setRenameError('Response names must start with "utter_"');
                 return;
             }
             insertResponse(validResponse, (err) => {
                 if (!err) closeModal();
-                if (err) {
-                    console.log(err);
-                    if (err.message.match(/E11000/)) {
-                        setRenameError('Response names must be unique');
-                        return;
-                    }
+                console.log(err);
+                if (err.message.match(/E11000/)) {
+                    setRenameError('Response names must be unique');
                 }
             });
         }
@@ -181,7 +179,7 @@ const BotResponseEditor = (props) => {
                     <ResponseNameInput
                         renameable={renameable}
                         onChange={(e, target) => {
-                            setResponseKey(target.value)
+                            setResponseKey(target.value);
                         }}
                         saveResponseName={handleChangeKey}
                         errorMessage={renameError}
@@ -231,7 +229,7 @@ BotResponseEditor.defaultProps = {
     renameable: true,
     isNew: false,
     refreshBotResponse: () => {},
-    name: null
+    name: null,
 };
 
 const BotResponseEditorWrapper = (props) => {
@@ -249,8 +247,6 @@ const BotResponseEditorWrapper = (props) => {
 
     if (name && !incomingBotResponse) {
         const {
-            loading,
-            error,
             data,
             refetch,
         } = useQuery(GET_BOT_RESPONSE, {
@@ -271,7 +267,7 @@ const BotResponseEditorWrapper = (props) => {
             variables: { projectId },
             onSubscriptionData: ({ subscriptionData }) => {
                 const resp = {
-                    ...subscriptionData.data.botResponsesModified
+                    ...subscriptionData.data.botResponsesModified,
                 };
                 if (resp.name === name) { setBotResponse(resp); }
             },
@@ -279,10 +275,10 @@ const BotResponseEditorWrapper = (props) => {
     }
 
     if (isNew && !incomingBotResponse && !botResponse) {
-        setBotResponse(createResponseFromTemplate(responseType))
+        setBotResponse(createResponseFromTemplate(responseType));
     }
 
-    if (!botResponse && !incomingBotResponse && !isNew || !open) return trigger;
+    if ((!botResponse && !incomingBotResponse && !isNew) || !open) return trigger;
     return (
         <BotResponseEditor
             {...props}

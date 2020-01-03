@@ -2,9 +2,9 @@ import { safeLoad, safeDump } from 'js-yaml';
 import shortid from 'shortid';
 
 const checkContentEmpty = content => (
-    content.imageUrl ||
-    content.custom ||
-    (content.text.length > 0 && content.buttons && content.buttons.length && content.buttons[0].title)
+    content.image
+    || content.custom
+    || (content.text.length > 0 && content.buttons && content.buttons.length && content.buttons[0].title)
     || (content.text && content.text.length > 0 && !content.buttons));
 
 export const checkResponseEmpty = (response) => {
@@ -27,6 +27,7 @@ export const defaultTemplate = (template) => {
     }
     if (template === 'qr') {
         return {
+            __typename: 'QuickReplyPayload',
             text: '',
             buttons: [
                 {
@@ -39,8 +40,14 @@ export const defaultTemplate = (template) => {
     }
     if (template === 'custom') {
         return {
-            __typename: 'CustomPayload'
-        }
+            __typename: 'CustomPayload',
+        };
+    }
+    if (template === 'image') {
+        return {
+            image: '',
+            __typename: 'ImagePayload',
+        };
     }
     return false;
 };
@@ -62,11 +69,15 @@ export const createResponseFromTemplate = (type, options = {}) => {
 };
 
 export const parseContentType = (content) => {
-    if (content.elements || content.attachment || content.custom) return 'CustomPayload';
-    if (content.image && !content.buttons) return 'ImagePayload';
-    if (content.buttons && !content.image) return 'QuickReplyPayload';
-    if (content.text && !content.image && !content.buttons) return 'TextPayload';
-    return 'CustomPayload'
+    // if (content.elements || content.attachment || content.custom) return 'CustomPayload';
+    // if (content.image && !content.buttons) return 'ImagePayload';
+    // if (content.buttons && !content.image) return 'QuickReplyPayload';
+    // if (content.text && !content.image && !content.buttons) return 'TextPayload';
+    if (Object.keys(content).includes('custom')) return 'CustomPayload';
+    if (Object.keys(content).includes('image') && !Object.keys(content).includes('buttons')) return 'ImagePayload';
+    if (Object.keys(content).includes('buttons') && !Object.keys(content).includes('image')) return 'QuickReplyPayload';
+    if (Object.keys(content).includes('text') && !Object.keys(content).includes('image') && !Object.keys(content).includes('buttons')) return 'TextPayload';
+    return 'CustomPayload';
 };
 
 export const addContentType = content => ({ ...content, __typename: parseContentType(content) });

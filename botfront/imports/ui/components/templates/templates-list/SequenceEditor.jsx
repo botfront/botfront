@@ -1,9 +1,7 @@
-
 import React from 'react';
 
 import { safeLoad } from 'js-yaml';
 import PropTypes from 'prop-types';
-
 
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
@@ -22,6 +20,7 @@ const SequenceEditor = (props) => {
     const renderContent = () => {
         const content = getContent(sequence[0]);
         if (!sequence) return <></>;
+        console.log(content);
         return (
             <>
                 { (content.__typename === 'TextPayload' || content.__typename === 'QuickReplyPayload') && (
