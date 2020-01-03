@@ -22,7 +22,7 @@ export default function IconButton(props) {
 }
 
 IconButton.propTypes = {
-    onClick: PropTypes.func.isRequired,
+    onClick: PropTypes.func,
     icon: PropTypes.string.isRequired,
     size: PropTypes.string,
     color: PropTypes.string,
@@ -32,6 +32,7 @@ IconButton.propTypes = {
 };
 
 IconButton.defaultProps = {
+    onClick: () => {},
     size: 'mini',
     color: 'grey',
     'data-cy': null,

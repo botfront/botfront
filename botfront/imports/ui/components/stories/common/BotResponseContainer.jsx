@@ -42,6 +42,12 @@ const BotResponseContainer = (props) => {
         if (isImageResponse) onChange({ text: formatNewlines(input), image: value.image }, false);
     }
 
+    const setImage = () => {
+        const image = imageUrlRef.current.inputRef.current.value;
+        onChange({ ...value, image }, false);
+    };
+
+
     const handleKeyDown = (e) => {
         if (e.key === 'Shift') {
             setshiftPressed(true);
@@ -56,6 +62,10 @@ const BotResponseContainer = (props) => {
             }
             e.preventDefault();
             onChange({ text: formatNewlines(input) }, true);
+        }
+        if (e.key === 'Enter' && isImageResponse) {
+            e.preventDefault();
+            setImage();
         }
     };
 
@@ -91,11 +101,6 @@ const BotResponseContainer = (props) => {
         />
     );
 
-    const setImage = () => {
-        const image = imageUrlRef.current.inputRef.current.value;
-        onChange({ ...value, image }, false);
-    };
-
     const renderViewImage = () => (
         <Image src={value.image} size='small' alt='Image URL broken' />
     );
@@ -109,6 +114,7 @@ const BotResponseContainer = (props) => {
                 autoFocus
                 placeholder='URL'
                 onBlur={setImage}
+                onKeyDown={handleKeyDown}
                 size='small'
                 data-cy='image-url-input'
             />
