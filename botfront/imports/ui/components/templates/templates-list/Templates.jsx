@@ -33,8 +33,6 @@ class Templates extends React.Component {
 
     handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
 
-    creatResponse = () => {};
-
     renderAddResponse = () => (
         <Dropdown
             text='Add bot response'
@@ -71,7 +69,7 @@ class Templates extends React.Component {
     );
 
     renderMenu = (projectId, activeItem) => (
-        <Menu pointing secondary style={{ background: '#fff' }}>
+        <Menu pointing secondary className='top-menu'>
             <Menu.Item>
                 <Menu.Header as='h3'>
                     <Icon name='comment alternate' />

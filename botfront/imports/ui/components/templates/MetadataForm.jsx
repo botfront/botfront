@@ -44,12 +44,11 @@ function ResponseMetadataForm({
         type ResponseMetadata {
             linksTarget: String!
             userInput:  String!
-
             userInputHint:  String!
-            messageTarget:  String!
             domHighlight: DomHighlight
             pageChangeCallbacks : PageChangeCallbacks
             customCss: CustomCss
+            persistentButtons: Boolean!
         }
 
         # This is required by buildASTSchema
@@ -59,7 +58,7 @@ function ResponseMetadataForm({
     const defaultModel = {
         linksTarget: '_blank',
         userInput: 'show',
-        messageTarget: 'conversation',
+        persistentButtons: false,
         domHighlight: {},
         customCss: {},
         pageChangeCallbacks: null,
@@ -150,13 +149,9 @@ function ResponseMetadataForm({
                 { label: 'Disable', value: 'disable' },
             ],
         },
-        messageTarget: {
-            label: 'Where do you want to display the message?',
-            options: [
-                { label: 'Tooltip (only when conversation has not started yet)', value: 'tooltip_init' },
-                { label: 'Tooltip (always)', value: 'tooltip_always' },
-                { label: 'In the conversation', value: 'conversation' },
-            ],
+        persistentButtons: {
+            label: 'Should the buttons persist? (only applicable if the message contains buttons)',
+            defaultValue: false,
         },
     };
 
@@ -167,7 +162,7 @@ function ResponseMetadataForm({
                 <>
                     <AutoField name='linksTarget' data-cy='links-target' />
                     <AutoField name='userInput' />
-                    <AutoField name='messageTarget' />
+                    <ToggleField name='persistentButtons' className='toggle' />
                 </>
             ),
         },

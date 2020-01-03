@@ -19,7 +19,6 @@
 @import '../imports/ui/components/stories/common/style.import.less';
 @import '../imports/ui/components/stories/common/QuickReply.import.less';
 @import '../imports/ui/components/settings/style.import.less';
-@import '../imports/ui/components/incoming/style.import.less';
 
 @sidebar-bg: rgb(45, 47, 74);
 @sidebar-size: 190px;
@@ -42,6 +41,11 @@
     text-transform: none;
 }
 
+.ui.top-menu {
+    height: @top-menu-height;
+    border-radius: 0 !important;
+}
+
 html {
     overflow: hidden;
     height: 100%;
@@ -53,6 +57,10 @@ body {
     color: #212121;
     font-size: inherit !important;
     font-family: inherit !important;
+}
+
+.Pane.vertical.Pane1 {
+    background-color: #f4f4f5;
 }
 
 h3 {
@@ -158,18 +166,6 @@ div[role="button"] {
     outline: 0;
 }
 
-.center {
-    text-align: center;
-}
-
-.right {
-    text-align: right;
-}
-
-.left {
-    text-align: left;
-}
-
 .with_margin {
     margin-bottom: 10px;
 }
@@ -180,13 +176,12 @@ p.overflow {
 }
 
 #playground .ui.form textarea {
-    border-top: 0;
-    border-left: 0;
-    border-right: 0;
-    /*padding: 0.24em;*/
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    background: transparent;
+    border: none;
+    padding: 15px;
+    box-shadow: 0 1px 5px rgba(34, 36, 38, 0.1);
+    background: #fff;
+    resize: none;
+    overflow: hidden;
 }
 
 #test_set_buttons {
@@ -211,7 +206,10 @@ p.overflow {
     border-color: #b0b5bb;
 }
 
-// these two are to style broken images
+.ui.basic.button {
+    background: #fff none !important;
+}
+
 img:before { 
     display: block;
     position: absolute;

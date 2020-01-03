@@ -1,0 +1,17 @@
+type Query {
+    getIntentStatistics(
+        projectId: String!
+        language: String!
+    ): [NluStatistics]
+}
+
+type NluStatistics {
+    intent: String!
+    example: Any
+    counts: [NluStatisticsByLanguage]
+}
+
+type NluStatisticsByLanguage {
+    language: String!
+    count: Int!
+}

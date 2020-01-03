@@ -166,7 +166,6 @@ class NLUModel extends React.Component {
             },
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
             { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
-            { menuItem: 'Statistics', render: () => <Statistics model={model} intents={intents} entities={entities} /> },
             { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
             { menuItem: 'Insert many', render: () => <IntentBulkInsert onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
         ];
@@ -242,6 +241,7 @@ class NLUModel extends React.Component {
                 } = {},
             } = {},
             ready,
+            intents,
         } = this.props;
         const {
             activeItem, instance, entities, subPageInitialState,
@@ -272,7 +272,7 @@ class NLUModel extends React.Component {
         }
         return (
             <div id='nlu-model'>
-                <Menu pointing secondary>
+                <Menu borderless className='top-menu'>
                     <Menu.Item header>{this.getHeader()}</Menu.Item>
                     <Menu.Item name='data' active={activeItem === 'data'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-training-data'>
                         <Icon size='small' name='database' />
@@ -281,6 +281,10 @@ class NLUModel extends React.Component {
                     <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-evaluation'>
                         <Icon size='small' name='percent' />
                         Evaluation
+                    </Menu.Item>
+                    <Menu.Item name='statistics' active={activeItem === 'statistics'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-statistics'>
+                        <Icon size='small' name='pie graph' />
+                        Statistics
                     </Menu.Item>
                     <Menu.Item name='settings' active={activeItem === 'settings'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-settings'>
                         <Icon size='small' name='setting' />
@@ -311,27 +315,31 @@ class NLUModel extends React.Component {
                     </Menu.Menu>
                 </Menu>
                 <Container>
-                    <>{this.renderWarningMessageIntents()}</>
-                    <br />
-                    {instance && (
-                        <div id='playground'>
-                            <NLUPlayground
-                                testMode
-                                model={model}
-                                projectId={projectId}
-                                instance={instance}
-                                floated='right'
-                                entities={entities}
-                                intents={this.getIntentForDropdown(false)}
-                                onSave={example => this.onNewExamples([example])}
-                                postSaveAction='clear'
-                            />
-                        </div>
+                    {['data', 'evaluation'].includes(activeItem) && (
+                        <>
+                            {this.renderWarningMessageIntents()}
+                            <br />
+                            {instance && (
+                                <div id='playground'>
+                                    <NLUPlayground
+                                        testMode
+                                        model={model}
+                                        projectId={projectId}
+                                        instance={instance}
+                                        floated='right'
+                                        entities={entities}
+                                        intents={this.getIntentForDropdown(false)}
+                                        onSave={example => this.onNewExamples([example])}
+                                        postSaveAction='clear'
+                                    />
+                                </div>
+                            )}
+                        </>
                     )}
-                    <br />
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} initialState={subPageInitialState} />}
+                    {activeItem === 'statistics' && <Statistics model={model} intents={intents} entities={entities} />}
                     {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
                 </Container>
             </div>
