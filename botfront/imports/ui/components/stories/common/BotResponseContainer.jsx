@@ -44,7 +44,7 @@ const BotResponseContainer = (props) => {
 
     const setImage = () => {
         const image = imageUrlRef.current.inputRef.current.value;
-        onChange({ ...value, image }, false);
+        onChange({ ...value, image, text: '' }, false);
     };
 
 
