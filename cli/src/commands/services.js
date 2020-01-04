@@ -84,15 +84,11 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
     let command = 'docker-compose up -d';
     try {
         startSpinner(spinner, 'Starting Botfront...')
-        console.log('1')
         await shellAsync(command, { silent: !verbose });
-        console.log('2')
         if (ci) process.exit(0); // exit now if ci
 
         if (!exclude.includes('botfront')) await waitForService('botfront');
-        console.log('3')
         stopSpinner();
-        console.log('4')
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
         const message = 'Useful commands:\n\n' + (
 

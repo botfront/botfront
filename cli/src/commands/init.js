@@ -74,8 +74,7 @@ export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, 
         } else {
             await copy(templateDir, targetAbsolutePath, { clobber: false });
         }
-        updateProjectFile(targetAbsolutePath, images)
-        generateDockerCompose()
+        updateProjectFile(targetAbsolutePath, images);
     } catch (e) {
         consoleError(e);
     }
