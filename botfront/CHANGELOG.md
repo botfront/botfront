@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.2](https://github.com/botfront/botfront/compare/v0.19.0-alpha.1...v0.19.0-alpha.2) (2020-01-04)
+
+
+### Bug Fixes
+
+* text should not be null in image payload ([6321efd](https://github.com/botfront/botfront/commit/6321efd))
+* **cli:** docker-compose file must not be generated on project init ([#404](https://github.com/botfront/botfront/issues/404)) ([ce11213](https://github.com/botfront/botfront/commit/ce11213))
+
+
+
 ## [0.19.0-alpha.1](https://github.com/botfront/botfront/compare/v0.19.0-alpha.0...v0.19.0-alpha.1) (2020-01-03)
 
 
