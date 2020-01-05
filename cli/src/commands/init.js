@@ -11,7 +11,6 @@ import boxen from 'boxen';
 import { uniqueNamesGenerator } from 'unique-names-generator';
 import {
     updateProjectFile,
-    generateDockerCompose,
     failSpinner,
     startSpinner,
     succeedSpinner,
