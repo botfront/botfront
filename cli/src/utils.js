@@ -161,10 +161,18 @@ export async function updateProjectFile(projectAbsPath, images) {
     if (!config.version) {
         config.version = getBotfrontVersion();
     }
+
     config.images.current = JSON.parse(JSON.stringify(config.images.default)); // deep copy
     Object.keys(config.images.current).forEach(service => {
         if (images[service]) config.images.current[service] = images[service];
     });
+
+    const password = randomString();
+    Object.assign(config.env, {
+        mongo_url: `mongodb://root:${password}@mongo:27017/bf?authSource=admin`,
+        mongo_initdb_root_username: 'root',
+        mongo_initdb_root_password: password,
+    })
     fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
 }
 
@@ -346,4 +354,14 @@ export async function waitForService(serviceName) {
             }
         }, 1000);
     });
+}
+
+export function randomString(length=12) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }
