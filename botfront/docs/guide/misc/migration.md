@@ -27,6 +27,17 @@ And apply these versions to:
 
 ### 0.18.x -> 0.19.x
 
+#### Breaking changes
+
+We significantly changed (and improved) how bot responses work. Only three types remain:
+- Text
+- Text with buttons
+- Image
+- Custom
+
+If you were using other response types (mostly facebook related such as Templates, Lists, ...) they will be lost. **You need to make a copy before upgrading.**
+
+#### Upgrading a project
 The folder project structure has changed. You will need to create another project and copy your data in it:
 
 1. Create a new project with `botfront init`.
