@@ -166,8 +166,6 @@ export async function updateProjectFile(projectAbsPath, images) {
         if (images[service]) config.images.current[service] = images[service];
     });
     fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
-
-    updateEnvFile(projectAbsPath);
 }
 
 export async function updateEnvFile(projectAbsPath) {
