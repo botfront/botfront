@@ -147,7 +147,7 @@ describe('Bot responses', function() {
         cy.dataCy('toggle-md').click();
         cy.get('.ace_content').click({ force: true });
         cy.get('textarea').type('  - utter_test_A                 '); // the spaces are a workaround for a bug with md saving
-
+        
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
         cy.dataCy('add-text-response').click();
@@ -159,8 +159,8 @@ describe('Bot responses', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('browser-item').find('span').contains('myTest').click();
         cy.dataCy('story-title').should('have.value', 'myTest');
-        cy.dataCy('bot-response-input').contains('aa').should('exist');
-        cy.dataCy('edit-responses').click();
+        cy.dataCy('bot-response-input').contains('aa').should('exist').trigger('mouseover');
+        cy.dataCy('edit-responses').click({ force: true });
         cy.dataCy('response-editor').should('exist');
 
         cy.dataCy('response-editor').findCy('bot-response-input').type('{backspace}{backspace}edited by response editor');
