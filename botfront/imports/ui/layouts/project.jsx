@@ -408,6 +408,8 @@ const ProjectContainer = withTracker((props) => {
         changeProjectId(projectId);
     }
 
+    const projectLanguages = ready ? getPublishedNluModelLanguages(project.nlu_models, true) : [];
+
     // update working language
     if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {
         changeWorkingLanguage(defaultLanguage);
@@ -420,7 +422,7 @@ const ProjectContainer = withTracker((props) => {
         channel,
         instance,
         slots: Slots.find({}).fetch(),
-        projectLanguages: ready ? getPublishedNluModelLanguages(project.nlu_models, true) : [],
+        projectLanguages,
         renderLegacyModels,
     };
 })(windowSize(Project));
