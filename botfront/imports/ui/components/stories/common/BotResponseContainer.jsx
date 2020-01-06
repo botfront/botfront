@@ -125,7 +125,15 @@ const BotResponseContainer = (props) => {
 
     const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());
 
-    const renderCustom = () => (<Button className='edit-custom-response' onClick={() => editCustom()}>Custom Format Response</Button>);
+    const renderCustom = () => (
+        <Button
+            className='edit-custom-response'
+            onClick={() => editCustom()}
+            data-cy='edit-custom-response'
+        >
+            Custom Format Response
+        </Button>
+    );
 
     const extraClass = isImageResponse && value.image.trim() ? 'image' : '';
 
