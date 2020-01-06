@@ -112,7 +112,8 @@ describe('Bot responses', function() {
         cy.dataCy('create-response').click();
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type('{backspace}test_A');
-        cy.dataCy('metadata-tab').click();
+        cy.dataCy('bot-response-input').find('textarea').type('response text');
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.dataCy('response-name-error').should('exist');
     });
     it('should disable response name input if the response is used in a story', function() {
