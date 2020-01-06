@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Placeholder, Button } from 'semantic-ui-react';
+import { Placeholder } from 'semantic-ui-react';
 
-// import IconButton from '../../common/IconButton';
+import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
@@ -112,18 +112,11 @@ const BotResponsesContainer = (props) => {
                     </Placeholder>
                 )}
                 {getSequence().map(renderResponse)}
-
-                {/* deletable && onDeleteAllResponses && (
-                    <div className='side-by-side right narrow'>
-                        <IconButton icon='ellipsis vertical' />
-                        <IconButton onClick={onDeleteAllResponses} icon='trash' />
-                    </div>
-                ) */}
-                {enableEditPopup && (
-                    <div className='response-edit-menu'>
+                <div className='side-by-side right narrow'>
+                    {enableEditPopup && (
                         <BotResponseEditor
                             trigger={(
-                                <Button className='delete-responses' icon={{ name: 'ellipsis vertical', size: 'small' }} onClick={() => setEditorOpen(true)} data-cy='edit-responses' />
+                                <IconButton icon='ellipsis vertical' onClick={() => setEditorOpen(true)} data-cy='edit-responses' />
                             )}
                             open={editorOpen}
                             name={name}
@@ -131,16 +124,11 @@ const BotResponsesContainer = (props) => {
                             renameable={false}
                             refreshBotResponse={refreshBotResponse} // required to update the response in the visual story editor
                         />
-                        { deletable && onDeleteAllResponses && (
-                            <Button
-                                className='open-edit-responses'
-                                icon={{ name: 'trash', size: 'small' }}
-                                onClick={onDeleteAllResponses}
-                                data-cy='delete-responses'
-                            />
-                        )}
-                    </div>
-                )}
+                    )}
+                    { deletable && onDeleteAllResponses && (
+                        <IconButton onClick={onDeleteAllResponses} icon='trash' />
+                    )}
+                </div>
             </div>
         </ExceptionWrapper>
     );
