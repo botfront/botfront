@@ -173,34 +173,27 @@ function Activity(props) {
     ];
 
     const renderTopBar = () => (
-        <>
-            <Segment.Group className='new-utterances-topbar' horizontal>
-                <Segment className='new-utterances-topbar-section' tertiary compact floated='left'>
-                    <ActivityActions
-                        onEvaluate={linkRender}
-                        onDelete={() => handleDelete(validated.map(u => u._id))}
-                        onAddToTraining={() => handleAddToTraining(validated)}
-                        onInvalidate={() => handleUpdate(validated.map(({ _id, validated: v }) => ({ _id, validated: !v })))}
-                        numValidated={validated.length}
-                        projectId={projectId}
-                    />
-                </Segment>
-                <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
-                    <PrefixDropdown
-                        selection={sortType}
-                        updateSelection={option => setSortType(option.value)}
-                        options={[
-                            { value: 'Newest', text: 'Newest' },
-                            { value: 'Oldest', text: 'Oldest' },
-                            { value: '% ascending', text: '% ascending' },
-                            { value: '% decending', text: '% decending' },
-                        ]}
-                        prefix='Sort by'
-                    />
-                </Segment>
-            </Segment.Group>
-            <br />
-        </>
+        <div className='side-by-side'>
+            <ActivityActions
+                onEvaluate={linkRender}
+                onDelete={() => handleDelete(validated.map(u => u._id))}
+                onAddToTraining={() => handleAddToTraining(validated)}
+                onInvalidate={() => handleUpdate(validated.map(({ _id, validated: v }) => ({ _id, validated: !v })))}
+                numValidated={validated.length}
+                projectId={projectId}
+            />
+            <PrefixDropdown
+                selection={sortType}
+                updateSelection={option => setSortType(option.value)}
+                options={[
+                    { value: 'Newest', text: 'Newest' },
+                    { value: 'Oldest', text: 'Oldest' },
+                    { value: '% ascending', text: '% ascending' },
+                    { value: '% decending', text: '% decending' },
+                ]}
+                prefix='Sort by'
+            />
+        </div>
     );
 
     return (
