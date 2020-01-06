@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Form, TextArea, Tab, Message,
+    Form, TextArea, Message,
 } from 'semantic-ui-react';
 
 import IntentLabel from '../common/IntentLabel';
@@ -69,7 +69,7 @@ class IntentBulkInsert extends React.Component {
         } = this.state;
 
         return (
-            <Tab.Pane id='intent-bulk-insert'>
+            <div className='glow-box extra-padding no-margin' id='intent-bulk-insert'>
                 <Message info content='One example per line' />
                 <br />
                 <Form>
@@ -96,7 +96,7 @@ class IntentBulkInsert extends React.Component {
                         />
                     </div>
                 </Form>
-            </Tab.Pane>
+            </div>
         );
     }
 }

@@ -17,6 +17,7 @@ import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
 import { flattenStory, extractDomain, getAllTemplates } from '../../lib/story.utils';
+import BotResponses from '../graphql/botResponses/botResponses.model';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
@@ -93,7 +94,7 @@ if (Meteor.isServer) {
                 throw formatError(e);
             }
         },
-        'project.delete'(projectId, options = { failSilently: false, bypassWithCI: false }) {
+        async 'project.delete'(projectId, options = { failSilently: false, bypassWithCI: false }) {
             check(projectId, String);
             check(options, Object);
             const { failSilently, bypassWithCI } = options;
@@ -116,6 +117,7 @@ if (Meteor.isServer) {
                 // Delete project related permissions for users (note: the role package does not provide
                 const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
                 projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
+                await BotResponses.remove({ projectId });
             } catch (e) {
                 if (!failSilently) throw e;
             }

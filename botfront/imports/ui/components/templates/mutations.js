@@ -15,7 +15,7 @@ mutation createResponse($projectId: String!, $response: BotResponseInput) {
 }`;
 
 export const UPDATE_BOT_RESPONSE = gql`
-mutation updateResponse($projectId: String!, $_id: String!, $response: BotResponseInput) {
+mutation updateResponse($projectId: String!, $_id: String!,$response: BotResponseInput) {
     updateResponse(projectId: $projectId, _id: $_id, response: $response){
       success
     }

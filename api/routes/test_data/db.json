@@ -269,6 +269,7 @@
             "projectId": "one",
             "storyGroupId": "one",
             "branches": [],
+            "events": [],
             "story": "one",
             "checkpoints": [["one-a"]]
         },
@@ -277,8 +278,35 @@
             "title": "two-a",
             "projectId": "two",
             "storyGroupId": "two",
-            "branches": [],
-            "story": "two-a",
+            "branches": [
+                {
+                    "title": "branch1a",
+                    "branches": [],
+                    "_id": "TMossB1L",
+                    "story": "* B\n  - utter_bot_A"
+                },
+                {
+                    "title": "branch1b",
+                    "branches": [
+                        {
+                            "title": "branch2a",
+                            "branches": [],
+                            "_id": "YS2vF4ex",
+                            "story": "* C\n  - utter_bot_A"
+                        },
+                        {
+                            "title": "branch2b",
+                            "branches": [],
+                            "_id": "gBGmAF8lk",
+                            "story": "* c1\n  - action_test_A"
+                        }
+                    ],
+                    "_id": "TOl028Tm0",
+                    "story": "* b1\n  - utter_bot_B"
+                }
+            ],
+            "events": ["utter_test", "action_test", "utter_bot_A", "utter_bot_B", "action_test_A"],
+            "story": "  - utter_test\n  - action_test\n  - utter_test",
             "checkpoints": [["two-a"]]
         },
         {
@@ -287,6 +315,7 @@
             "projectId": "two",
             "storyGroupId": "two",
             "branches": [],
+            "events": [],
             "story": "two-b",
             "checkpoints": [["two-a"]]
         }

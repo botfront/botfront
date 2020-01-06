@@ -54,7 +54,7 @@ const AceField = ({
             theme='xcode'
             name={name}
             onChange={v => onChange(v)}
-            fontSize={fontSize || 16}
+            fontSize={fontSize || 14}
             showPrintMargin={false}
             showGutter
             highlightActiveLine

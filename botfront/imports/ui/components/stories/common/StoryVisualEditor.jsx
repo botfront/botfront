@@ -4,7 +4,7 @@ import shortid from 'shortid';
 import { isEqual } from 'lodash';
 
 import { OOS_LABEL } from '../../constants.json';
-import { StoryController } from '../../../../lib/story_controller';
+import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../common/FloatingIconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import BotResponsesContainer from './BotResponsesContainer';
@@ -25,13 +25,18 @@ const defaultTemplate = (templateType) => {
             buttons: [{ title: '', type: 'postback', payload: '' }],
         };
     }
+    if (templateType === 'image') {
+        return {
+            __typename: 'ImagePayload',
+            image: '',
+        };
+    }
     return false;
 };
 
 export default class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
-        menuCloser: () => {},
         responses: {},
     };
 
@@ -47,7 +52,9 @@ export default class StoryVisualEditor extends React.Component {
         }
     }
 
-    trackOpenMenu = func => this.setState({ menuCloser: func });
+    menuCloser = () => {};
+
+    trackOpenMenu = (func) => { this.menuCloser = func; };
 
     handleDeleteLine = (index) => {
         const { story } = this.props;
@@ -68,10 +75,10 @@ export default class StoryVisualEditor extends React.Component {
     };
 
     handleCreateUserUtterance = (index, payload) => {
-        this.setState({ lineInsertIndex: null });
         const { story } = this.props;
-        const newLine = { type: 'user', data: [payload || null] };
+        const newLine = { type: 'user', data: [payload || { intent: NEW_INTENT }] };
         story.insertLine(index, newLine);
+        this.setState({ lineInsertIndex: null });
     };
 
     handleChangeActionOrSlot = (type, index, data) => {
@@ -108,19 +115,6 @@ export default class StoryVisualEditor extends React.Component {
         } catch (err) {
             return { text: utterance, intent: OOS_LABEL };
         }
-    };
-
-    formatErrors = (exceptions) => {
-        const messages = exceptions.map(({ message }) => (
-            <>
-                {message
-                    .split('`')
-                    .forEach((bit, idx) => (idx % 2 === 0 ? bit : <i>{bit}</i>))}
-            </>
-        ));
-        if (exceptions.some(exception => exception.type === 'error')) return { severity: 'error', messages };
-        if (exceptions.some(exception => exception.type === 'warning')) return { severity: 'warning', messages };
-        return { severity: null, messages };
     };
 
     renderActionLine = (i, l, exceptions) => (
@@ -190,7 +184,7 @@ export default class StoryVisualEditor extends React.Component {
                         if (
                             !(
                                 this.addStoryCursor.current.contains(relatedTarget)
-                                || modals.some(m => m.contains(relatedTarget))
+                                || modals.length
                                 || popups.some(m => m.contains(relatedTarget))
                                 || (relatedTarget && relatedTarget.tagName === 'INPUT')
                             )
@@ -246,24 +240,30 @@ export default class StoryVisualEditor extends React.Component {
     );
 
     getBotResponseInitialValue = (name) => {
-        const { getResponse } = this.context;
+        const { getResponse, language } = this.context;
         const { responses } = this.state;
         getResponse(name).then((response) => {
             if (!response) return;
-            responses[name] = response;
+            responses[`${language}-${name}`] = response;
             this.setState({ responses });
         });
     }
 
+    refreshBotResponse = (name) => {
+        const { responses } = this.state;
+        const { [name]: removedResponse, ...rest } = responses;
+        this.setState({ responses: rest });
+    }
+
     handleBotResponseChange = async (name, newResponse) => {
-        const { upsertResponse } = this.context;
+        const { upsertResponse, language } = this.context;
         const { story } = this.props;
         const { responses } = this.state;
-        if (isEqual(responses[name], newResponse)) return;
+        if (isEqual(responses[`${language}-${name}`], newResponse)) return;
         upsertResponse(name, newResponse).then((response) => {
             if (!response) return;
             story.addTemplate({ key: name });
-            responses[name] = newResponse;
+            responses[`${language}-${name}`] = newResponse;
             this.setState({ responses }); // to update exceptions
         });
     }
@@ -272,7 +272,7 @@ export default class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
-        const { menuCloser, responses } = this.state;
+        const { responses } = this.state;
         const { language } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
@@ -286,17 +286,16 @@ export default class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'bot') {
                 const { name } = line.gui.data;
                 return (
-                    <React.Fragment key={`bot-${name}-${language}-${!!responses[name]}`}>
-                        {/* having language in key here makes BotResponsesContainer rerender and therefore
-                         response is refetched on language change */}
+                    <React.Fragment key={`bot-${name}-${language}-${!!responses[`${language}-${name}`]}`}>
                         <BotResponsesContainer
                             deletable
                             exceptions={exceptions}
                             name={name}
-                            initialValue={responses[name] || this.getBotResponseInitialValue(name, index)}
+                            initialValue={responses[`${language}-${name}`] || this.getBotResponseInitialValue(name, index)}
                             onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                            isNew={!!(responses[name] || {}).isNew}
+                            isNew={!!(responses[`${language}-${name}`] || {}).isNew}
+                            refreshBotResponse={this.refreshBotResponse}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
@@ -304,7 +303,8 @@ export default class StoryVisualEditor extends React.Component {
             }
             if (line.gui.type === 'user') {
                 return (
-                    <React.Fragment key={`user${line.md || ''}-${index}`}>
+                    <React.Fragment key={`user-${line.md || ''}-${index}-${language}`}>
+                        {/* having language in key here makes component renrender on language change */}
                         <UserUtteranceContainer
                             exceptions={exceptions}
                             value={line.gui.data[0]} // for now, data is a singleton
@@ -323,7 +323,7 @@ export default class StoryVisualEditor extends React.Component {
         });
 
         return (
-            <div className='story-visual-editor' onMouseLeave={menuCloser}>
+            <div className='story-visual-editor' onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}>
                 {this.renderAddLine(-1)}
                 {lines}
             </div>

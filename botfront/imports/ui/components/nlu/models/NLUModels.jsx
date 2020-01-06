@@ -80,11 +80,11 @@ class NLUModels extends React.Component {
     })
 
     renderMenu = () => (
-        <Menu pointing secondary style={{ background: '#fff' }}>
+        <Menu borderless className='top-menu'>
             <Menu.Item>
                 <Menu.Header as='h3'>
                     <Icon name='database' />
-                    {' NLU Models'}
+                     NLU Models
                 </Menu.Header>
             </Menu.Item>
         </Menu>
@@ -267,7 +267,8 @@ class NLUModels extends React.Component {
                             panes={this.getPanes(models)}
                             onTabChange={this.onTabChange}
                             activeIndex={activeIndex}
-                        />)
+                        />
+                    )
                     }
                 </Container>
             </div>

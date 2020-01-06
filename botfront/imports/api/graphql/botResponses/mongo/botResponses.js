@@ -2,6 +2,28 @@ import { safeDump } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/utils';
+import { Stories } from '../../../story/stories.collection';
+
+const formatNewlines = (sequence) => {
+    const regexSpacedNewline = / {2}\n/g;
+    const regexNewline = /\n/g;
+    const updatedSequence = sequence.map(({ content: contentYaml }) => {
+        const content = yamlLoad(contentYaml);
+        if (content.text) {
+            content.text = content.text
+                .replace(regexSpacedNewline, '\n')
+                .replace(regexNewline, '  \n');
+        }
+        return { content: yamlDump({ ...content }) };
+    });
+    return updatedSequence;
+};
+
+const formatTextOnSave = values => values.map((item) => {
+    const updatedItem = item;
+    updatedItem.sequence = formatNewlines(item.sequence);
+    return updatedItem;
+});
 
 export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
@@ -19,10 +41,13 @@ export const createResponses = async (projectId, responses) => {
 export const updateResponse = async (projectId, _id, newResponse) => BotResponses
     .updateOne({ projectId, _id }, newResponse).exec();
 
-export const createResponse = async (projectId, newResponse) => BotResponses.create({
-    ...clearTypenameField(newResponse),
-    projectId,
-});
+
+export const createResponse = async (projectId, newResponse) => {
+    return BotResponses.create({
+        ...clearTypenameField(newResponse),
+        projectId,
+    });
+};
 
 export const getBotResponses = async projectId => BotResponses.find({
     projectId,
@@ -79,7 +104,7 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
             $addFields: { values: { $filter: { input: '$values', as: 'value', cond: { $in: ['$$value.lang', languageArray] } } } },
         }];
     }
-    
+
     return BotResponses.aggregate([
         { $match: { projectId, ...templateKey, ...languageKey } },
         ...languageFilter,
@@ -96,4 +121,16 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
             },
         },
     ]);
+};
+
+
+export const deleteResponsesRemovedFromStories = (removedResponses, projectId) => {
+    const sharedResponses = Stories.find({ events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
+    if (removedResponses && removedResponses.length > 0) {
+        const deleteResponses = removedResponses.filter((event) => {
+            if (!sharedResponses) return true;
+            return !sharedResponses.find(({ events }) => events.includes(event));
+        });
+        deleteResponses.forEach(event => deleteResponse(projectId, event));
+    }
 };

@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Placeholder } from 'semantic-ui-react';
 
-import FloatingIconButton from '../../common/FloatingIconButton';
+import IconButton from '../../common/IconButton';
+import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
 
@@ -16,8 +17,11 @@ const BotResponsesContainer = (props) => {
         deletable,
         exceptions,
         isNew,
+        refreshBotResponse,
+        enableEditPopup,
     } = props;
     const [template, setTemplate] = useState(initialValue || null);
+    const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
 
@@ -76,7 +80,7 @@ const BotResponsesContainer = (props) => {
             setToBeCreated(null);
         }
     }, [toBeCreated]);
-
+    
     const renderResponse = (response, index, sequenceArray) => (
         <React.Fragment
             key={`${response.text}-${(sequenceArray[index + 1] || {}).text}-${index}`}
@@ -108,9 +112,23 @@ const BotResponsesContainer = (props) => {
                     </Placeholder>
                 )}
                 {getSequence().map(renderResponse)}
-                {deletable && onDeleteAllResponses && (
-                    <FloatingIconButton icon='trash' onClick={onDeleteAllResponses} />
-                )}
+                <div className='side-by-side right narrow'>
+                    {enableEditPopup && (
+                        <BotResponseEditor
+                            trigger={(
+                                <IconButton icon='ellipsis vertical' onClick={() => setEditorOpen(true)} data-cy='edit-responses' />
+                            )}
+                            open={editorOpen}
+                            name={name}
+                            closeModal={() => setEditorOpen(false)}
+                            renameable={false}
+                            refreshBotResponse={refreshBotResponse} // required to update the response in the visual story editor
+                        />
+                    )}
+                    { deletable && onDeleteAllResponses && (
+                        <IconButton onClick={onDeleteAllResponses} icon='trash' />
+                    )}
+                </div>
             </div>
         </ExceptionWrapper>
     );
@@ -124,6 +142,8 @@ BotResponsesContainer.propTypes = {
     onDeleteAllResponses: PropTypes.func,
     exceptions: PropTypes.array,
     isNew: PropTypes.bool.isRequired,
+    refreshBotResponse: PropTypes.func,
+    enableEditPopup: PropTypes.bool,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -133,6 +153,8 @@ BotResponsesContainer.defaultProps = {
     onChange: () => {},
     onDeleteAllResponses: null,
     exceptions: [{ type: null }],
+    refreshBotResponse: () => {},
+    enableEditPopup: true,
 };
 
 export default BotResponsesContainer;

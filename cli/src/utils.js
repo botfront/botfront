@@ -162,29 +162,46 @@ export async function updateProjectFile(projectAbsPath, images) {
     if (!config.version) {
         config.version = getBotfrontVersion();
     }
+
     config.images.current = JSON.parse(JSON.stringify(config.images.default)); // deep copy
     Object.keys(config.images.current).forEach(service => {
         if (images[service]) config.images.current[service] = images[service];
     });
-    fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
 
-    updateEnvFile(projectAbsPath);
+    const password = randomString();
+    Object.assign(config.env, {
+        mongo_url: `mongodb://root:${password}@mongo:27017/bf?authSource=admin`,
+        mongo_initdb_root_username: 'root',
+        mongo_initdb_root_password: password,
+    })
+    fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
 }
 
 export async function updateEnvFile(projectAbsPath) {
     const config = getProjectConfig(projectAbsPath);
-    let envFileContent = '#################################################################\n';
-    envFileContent +=    '# This file is generated.                                       #\n';
-    envFileContent +=    '# Environment variables can be changed or added in botfront.yml #\n';
-    envFileContent +=    '#################################################################\n\n';
+    let envFileContent = '########################################################################\n';
+    envFileContent +=    '# This file is generated when `botfront up` is invoked.                #\n';
+    envFileContent +=    '# You can change / add environment variables in .botfront/botfront.yml #\n';
+    envFileContent +=    '########################################################################\n\n';
     Object.keys(config.env).forEach(variable => {
         envFileContent += `${variable.toUpperCase()}=${config.env[variable]}\n`;
+    });
+    Object.keys(config.images.default).forEach(variable => {
+        envFileContent += `IMAGES_DEFAULT_${variable.toUpperCase().replace('-','_')}=${config.images.default[variable]}\n`;
+    });
+    Object.keys(config.images.current).forEach(variable => {
+        envFileContent += `IMAGES_CURRENT_${variable.toUpperCase().replace('-','_')}=${config.images.current[variable]}\n`;
     });
 
     fs.writeFileSync(getProjectEnvFilePath(projectAbsPath), envFileContent);
 }
 
 export async function generateDockerCompose(exclude = [], dir) {
+    let initContent = '######################################################################################################\n';
+    initContent +=    '# This file is generated when `botfront up` is invoked.                                              #\n';
+    initContent +=    '# Changes in .botfront/botfront.yml and .botfront/docker-compose-template.yml will be reflected here #\n';
+    initContent +=    '######################################################################################################\n\n';
+
     const dc = getComposeFile(dir, DOCKER_COMPOSE_TEMPLATE_FILENAME);
     exclude.forEach(excl => { // remove reference to excluded services
         if (excl in dc.services) delete dc.services[excl]
@@ -203,7 +220,7 @@ export async function generateDockerCompose(exclude = [], dir) {
     // for (let key in dcCopy.services) {
     //     console.log(key, dcCopy.services[key].depends_on)
     // }
-    fs.writeFileSync(getComposeFilePath(dir), yaml.safeDump(dcCopy));
+    fs.writeFileSync(getGeneratedComposeFilePath(dir), `${initContent}${yaml.safeDump(dcCopy)}`);
     return true;
 }
 
@@ -234,6 +251,9 @@ export function getComposeFilePath(dir, fileName = DOCKER_COMPOSE_FILENAME) {
     return path.join(fixDir(dir), BF_CONFIG_DIR, fileName);
 }
 
+export function getGeneratedComposeFilePath(dir, fileName = DOCKER_COMPOSE_FILENAME) {
+    return path.join(fixDir(dir), fileName);
+}
 export function getProjectInfoDirPath(dir) {
     return path.join(fixDir(dir), BF_CONFIG_DIR);
 }
@@ -243,7 +263,7 @@ export function getProjectInfoFilePath(dir) {
 }
 
 export function getProjectEnvFilePath(dir) {
-    return path.join(fixDir(dir), BF_CONFIG_DIR, ENV_FILENAME );
+    return path.join(fixDir(dir), ENV_FILENAME );
 }
 
 export function isProjectDir(dir) {
@@ -254,8 +274,12 @@ export function getComposeFile(dir, fileName) {
     return yaml.safeLoad(fs.readFileSync(getComposeFilePath(dir, fileName), 'utf-8'));
 }
 
+export function getGeneratedComposeFile(dir, fileName) {
+    return yaml.safeLoad(fs.readFileSync(getGeneratedComposeFilePath(dir, fileName), 'utf-8'));
+}
+
 export function getServices(dir) {
-    const services = getComposeFile(dir).services;
+    const services = getGeneratedComposeFile(dir).services;
     return Object.keys(services)
         .filter(s => !!services[s].image)
         .map(s => services[s].image);
@@ -269,7 +293,7 @@ export async function getMissingImgs(dir) {
 }
 
 export function getServiceNames(dir) {
-    const services = getComposeFile(dir).services;
+    const services = getGeneratedComposeFile(dir).services;
     return Object.keys(services);
 }
 
@@ -279,7 +303,7 @@ export function getDefaultServiceNames(dir) {
 }
 
 export function getService(serviceName, dir) {
-    return getComposeFile(dir).services[serviceName];
+    return getGeneratedComposeFile(dir).services[serviceName];
 }
 
 export function getExternalPort(serviceName, dir) {
@@ -335,4 +359,14 @@ export async function waitForService(serviceName) {
             }
         }, 1000);
     });
+}
+
+export function randomString(length=12) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }

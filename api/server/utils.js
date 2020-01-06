@@ -47,3 +47,40 @@ exports.checkApiKeyAgainstProject = (projectId, req) => {
 };
 
 exports.isRequestTrusted = isRequestTrusted;
+
+const getStoryEvents = (md) => {
+    /*
+    return an array of the "utter_" and "action_" events in the md
+    */
+    let events = [];
+    try {
+        const lines = md.split('\n');
+        lines.forEach((line) => {
+            const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
+            if (prefix.trim() === '-'
+                && !events.includes(content)
+                && (content.match(/^utter_/) || content.match(/^action_/))
+            ) {
+                events = [...events, content];
+            }
+        });
+    } catch (err) {
+        /*
+        if there is an error, skip the story. this should only happen
+        when the story is empty with the error: "md.split is not a function"
+        */
+    }
+    return events;
+};
+
+exports.aggregateEvents = (parentStory) => {
+    let events = [];
+    const traverseBranches = (story) => {
+        events = Array.from(new Set([...events, ...getStoryEvents(story.story)]))
+        if (story.branches) {
+            story.branches.forEach(branch => traverseBranches(branch));
+        }
+    };
+    traverseBranches(parentStory);
+    return { ...parentStory, events };
+};

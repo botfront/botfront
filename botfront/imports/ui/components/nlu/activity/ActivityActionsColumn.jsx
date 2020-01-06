@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Popup, Icon } from 'semantic-ui-react';
-
+import IconButton from '../../common/IconButton';
 import SmartTip from './SmartTip';
 
 export default function ActivityActionsColumn(props) {
@@ -61,13 +61,13 @@ export default function ActivityActionsColumn(props) {
         />
     );
 
-    const size = 'mini';
+    const size = 'small';
     const deleteable = data.filter(u => getSmartTips(u).code === 'aboveTh');
     const { code, tip, message } = getSmartTips(datum);
     let action;
     if (code === 'outdated') {
         action = (
-            <Button
+            <IconButton
                 size={size}
                 disabled
                 basic
@@ -77,7 +77,7 @@ export default function ActivityActionsColumn(props) {
         );
     } else if (!!datum.validated) {
         action = (
-            <Button
+            <IconButton
                 size={size}
                 onClick={() => onToggleValidation(datum)}
                 color='green'
@@ -130,7 +130,7 @@ export default function ActivityActionsColumn(props) {
                 inverted
                 content='Mark this utterance valid'
                 trigger={(
-                    <Button
+                    <IconButton
                         basic
                         size={size}
                         disabled={!datum.intent}
@@ -145,12 +145,10 @@ export default function ActivityActionsColumn(props) {
     }
 
     return (
-        <div key={`${datum._id}-actions`}>
+        <div key={`${datum._id}-actions`} className='side-by-side narrow right'>
             {action}
             {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && (
-                <Button
-                    basic
-                    size={size}
+                <IconButton
                     onClick={() => onDelete([datum])}
                     color='grey'
                     icon='trash'

@@ -20,7 +20,6 @@
 @import '../imports/ui/components/stories/common/QuickReply.import.less';
 @import '../imports/ui/components/settings/style.import.less';
 @import '../imports/ui/components/analytics/Analytics.import.less';
-@import '../imports/ui/components/incoming/style.import.less';
 @import '../imports/ui/components/charts/style.import.less';
 
 @sidebar-bg: rgb(45, 47, 74);
@@ -44,6 +43,10 @@
     text-transform: none;
 }
 
+.ui.top-menu {
+    height: @top-menu-height;
+    border-radius: 0 !important;
+}
 
 html {
     overflow: hidden;
@@ -56,6 +59,10 @@ body {
     color: #212121;
     font-size: inherit !important;
     font-family: inherit !important;
+}
+
+.Pane.vertical.Pane1 {
+    background-color: #f4f4f5;
 }
 
 h3 {
@@ -165,18 +172,6 @@ div[role="button"] {
     outline: 0;
 }
 
-.center {
-    text-align: center;
-}
-
-.right {
-    text-align: right;
-}
-
-.left {
-    text-align: left;
-}
-
 .with_margin {
     margin-bottom: 10px;
 }
@@ -187,13 +182,12 @@ p.overflow {
 }
 
 #playground .ui.form textarea {
-    border-top: 0;
-    border-left: 0;
-    border-right: 0;
-    /*padding: 0.24em;*/
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    background: transparent;
+    border: none;
+    padding: 15px;
+    box-shadow: 0 1px 5px rgba(34, 36, 38, 0.1);
+    background: #fff;
+    resize: none;
+    overflow: hidden;
 }
 
 #test_set_buttons {
@@ -216,4 +210,31 @@ p.overflow {
 
 .ui.menu.secondary.pointing.hoverable .item:hover {
     border-color: #b0b5bb;
+}
+
+.ui.basic.button {
+    background: #fff none !important;
+    &.small.icon.left.white {
+        background: #fff none !important;
+    }
+}
+
+img:before { 
+    display: block;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: #eee;
+}
+
+img:after {
+    content: '\f127';
+    font-family: 'Icons';
+    display: block;
+    font-size: xx-large;
+    color: #ccc;
+    position: absolute;
+    top: 25%;
+    width: 100%;
+    text-align: center;
 }

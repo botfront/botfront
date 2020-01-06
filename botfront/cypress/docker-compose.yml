@@ -58,7 +58,7 @@ services:
     # ports:
     #   - '8080:8080'
     environment:
-      # NODE_ENV must not be set to test because it would use the mongo mem server which we don't want here
+      # MODE must not be set to test because it would use the mongo mem server which we don't want here
       - MONGO_URL=mongodb://mongo:27017/bf
       - CORS=*
 

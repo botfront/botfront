@@ -325,67 +325,69 @@ export default class NluDataTable extends React.Component {
                         </Grid.Row>
                     </Grid>
                 )}
-                <ReactTable
-                    data={this.getExamples()}
-                    onFilteredChange={this.collapseExpanded}
-                    onSortedChange={this.collapseExpanded}
-                    onPageChange={() => this.setState({ expanded: {} })}
-                    expanded={expanded}
-                    onExpandedChange={(newExpanded, index) => {
-                        let expandedChange = {};
-                        if (newExpanded[index[0]] === false) {
-                            expandedChange = {};
-                        } else {
-                            Object.keys(newExpanded).forEach((k) => {
-                                expandedChange[k] = parseInt(k, 10) === index[0] ? {} : false;
-                            });
+                <div className='glow-box extra-padding no-margin'>
+                    <ReactTable
+                        data={this.getExamples()}
+                        onFilteredChange={this.collapseExpanded}
+                        onSortedChange={this.collapseExpanded}
+                        onPageChange={() => this.setState({ expanded: {} })}
+                        expanded={expanded}
+                        onExpandedChange={(newExpanded, index) => {
+                            let expandedChange = {};
+                            if (newExpanded[index[0]] === false) {
+                                expandedChange = {};
+                            } else {
+                                Object.keys(newExpanded).forEach((k) => {
+                                    expandedChange[k] = parseInt(k, 10) === index[0] ? {} : false;
+                                });
+                            }
+                            this.setState({ expanded: expandedChange });
+                        }}
+                        columns={columns}
+                        minRows={1}
+                        style={{ overflow: 'visible' }}
+                        getTbodyProps={() => ({
+                            style: {
+                                overflow: 'visible',
+                            },
+                        })}
+                        getTableProps={() => ({
+                            style: {
+                                overflow: 'visible',
+                            },
+                        })}
+                        getTdProps={() => ({
+                            style: {
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                            },
+                        })}
+                        getTheadThProps={() => ({
+                            style: {
+                                borderRight: 'none',
+                                ...headerStyle,
+                            },
+                        })}
+                        className=''
+                        SubComponent={can('nlu-data:w', projectId)
+                            ? (row) => {
+                                if (row.row.example.canonical) return undefined;
+                                return (
+                                    <NLUExampleEditMode
+                                        floated='right'
+                                        example={row.original}
+                                        entities={entities}
+                                        intents={this.getIntentForDropdown(false)}
+                                        onSave={this.onEditExample}
+                                        onCancel={() => this.setState({ expanded: {} })}
+                                        postSaveAction='close'
+                                    />
+                                );
+                            } : null
                         }
-                        this.setState({ expanded: expandedChange });
-                    }}
-                    columns={columns}
-                    minRows={1}
-                    style={{ overflow: 'visible' }}
-                    getTbodyProps={() => ({
-                        style: {
-                            overflow: 'visible',
-                        },
-                    })}
-                    getTableProps={() => ({
-                        style: {
-                            overflow: 'visible',
-                        },
-                    })}
-                    getTdProps={() => ({
-                        style: {
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                        },
-                    })}
-                    getTheadThProps={() => ({
-                        style: {
-                            borderRight: 'none',
-                            ...headerStyle,
-                        },
-                    })}
-                    className=''
-                    SubComponent={can('nlu-data:w', projectId)
-                        ? (row) => {
-                            if (row.row.example.canonical) return undefined;
-                            return (
-                                <NLUExampleEditMode
-                                    floated='right'
-                                    example={row.original}
-                                    entities={entities}
-                                    intents={this.getIntentForDropdown(false)}
-                                    onSave={this.onEditExample}
-                                    onCancel={() => this.setState({ expanded: {} })}
-                                    postSaveAction='close'
-                                />
-                            );
-                        } : null
-                    }
-                />
+                    />
+                </div>
             </Tab.Pane>
         );
     }

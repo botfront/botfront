@@ -82,6 +82,7 @@
 
 .story-editor {
   margin-bottom: 20px;
+  box-shadow: 0 1px 5px rgba(34, 36, 38, 0.1);
   .ui.attached.menu.top {
     &.collapsed {
       border-radius: 0.3em;
@@ -164,7 +165,7 @@
       margin: 0;
       flex-wrap: wrap;
       min-height: 0;
-      background-color: #f8fbfd;
+      background-color: #f9f9f9;
       a.item {
         padding: 0.25rem 0.5rem;
         white-space: nowrap;
@@ -172,11 +173,10 @@
         max-width: ~"calc(20ch + 40px)";
 
         &.active {
-          border-color: @blue;
-          background-color: #f0f3f5;
+          border-color: darken(#f9f9f9, 30%);
         }
         &:active, &:hover:not(.active) {
-          background-color: screen(@blue, #dddddd);
+          background-color: darken(#f9f9f9, 5%);
           border-color: inherit;
         }
         &.add-tab {
@@ -192,7 +192,7 @@
         }
         input {
           outline: none;
-          border: solid 1px screen(@blue, #666666);
+          border: solid 1px darken(#f9f9f9, 30%);
           background-color: #ffffff;
           border-radius: 4px;
           padding: 1px;
@@ -208,7 +208,7 @@
           min-width: 3ch;
           max-width: 20ch;
           &.decorated {
-            border: solid 1px screen(@blue, #999999);
+            border: solid 1px darken(#f9f9f9, 30%);
             background-color: #ffffff;
             border-radius: 4px;
             padding: 2px 7px 2px 1px;
@@ -230,7 +230,7 @@
     }
 
     &.bottom {
-      background-color: #eeeeee;
+      background-color: #f9f9f9;
       &.linked {
         background-color: rgba(0, 181, 173, 0.06);
       }

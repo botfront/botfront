@@ -51,7 +51,7 @@ function ActivityActions(props) {
             <Dropdown
                 trigger={(
                     <Button
-                        className='icon'
+                        className='white'
                         color='green'
                         size='small'
                         basic

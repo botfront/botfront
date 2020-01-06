@@ -347,3 +347,47 @@ export const accumulateExceptions = (
     });
     return exceptions;
 };
+
+export const getStoryEvents = (md) => {
+    let events = [];
+    try {
+        const lines = md.split('\n');
+        lines.forEach((line) => {
+            const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
+            if (prefix.trim() === '-'
+            && (content.match(/^utter_/) || content.match(/^action_/))
+            ) {
+                events = [...events, content];
+            }
+        });
+    } catch (err) {
+        /*
+        if there is an error, skip the story. this should only happen
+        when the story is empty with the error: "md.split is not a function"
+        */
+    }
+    return events;
+};
+
+export const aggregateEvents = (parentStory, update = {}) => {
+    /*
+    create an array of "utter_" and "action_" events in a story and it's child branches
+
+    the update will merge with the parentStory when branch._id or story._id is equal to update._id.
+    update._id should be a branchId or storyId
+
+    for example if the update object has a branches property
+    it will replace the branches of the story at the given _id with the branches in the update object
+    */
+    let events = [];
+    const traverseBranches = (incommingStory) => {
+        const story = incommingStory._id === update._id ? { ...incommingStory, ...update } : incommingStory;
+        events = Array.from(new Set([...events, ...getStoryEvents(story.story)]))
+        // events = [...events, ...getStoryEvents(story.story, events)];
+        if (story.branches) {
+            story.branches.forEach(branch => traverseBranches(branch));
+        }
+    };
+    traverseBranches(parentStory);
+    return events;
+};

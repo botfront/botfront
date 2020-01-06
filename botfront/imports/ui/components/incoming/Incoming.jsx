@@ -109,9 +109,8 @@ class Incoming extends React.Component {
                     handleEnvChange={this.handleEnvChange}
                     selectedEnvironment={workingEnvironment}
                     tab={router.params.tab}
-                    className='incoming'
                 />
-                <div className='incoming-background'>
+                <div>
                     <Container>
                         <Loading loading={!ready || !model}>
                             <Tab

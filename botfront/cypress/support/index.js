@@ -772,3 +772,17 @@ Cypress.Commands.add('updateConversation', (projectId, id, conversation) => {
         body: conversation,
     });
 });
+Cypress.Commands.add('getBranchContainer', (depth) => {
+    /*
+    gets the contents of a branch including contents of following branches
+    and branch menus. this does not include the specified branches branch-menu
+    */
+    let branch = cy.dataCy('single-story-editor').first();
+    for (let i = 0; i < depth; i += 1) {
+        branch = branch.find('[data-cy=single-story-editor]').first();
+    }
+    return branch;
+});
+
+// get the contents of the visual editor for a branch
+Cypress.Commands.add('getBranchEditor', depth => cy.getBranchContainer(depth).find('.story-visual-editor').first());

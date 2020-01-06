@@ -12,11 +12,14 @@ import botResponsesResolvers from './botResponses/resolvers';
 import botResponsesTypes from './botResponses/schemas';
 import configResolver from './config/configResolver';
 import configTypes from './config/config.types.graphql';
+import nluResolvers from './nlu/resolvers';
+import nluTypes from './nlu/schemas';
 
 export const resolvers = [
     ...conversationResolvers,
     ...nluResolvers,
     ...botResponsesResolvers,
+    ...nluResolvers,
     activityResolver,
     commonResolver,
     configResolver,
@@ -27,6 +30,7 @@ export const typeDefs = mergeTypes([
     ...botResponsesTypes,
     ...nluTypes,
     ...activityTypes,
+    ...nluTypes,
     commonTypes,
     configTypes,
 ], { all: true });

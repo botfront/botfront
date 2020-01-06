@@ -95,10 +95,19 @@ module.exports = {
                 title: 'Deployment',   // required
                 // path: '/guide',
                 collapsable: false,
-                sidebarDepth: 5,
+                sidebarDepth: 1,
                 children: [
                     '/guide/deployment/installation',
-                    '/guide/deployment/frontend',
+                ]
+            },
+            {
+                title: 'Channels',   // required
+                // path: '/guide',
+                collapsable: false,
+                sidebarDepth: 1,
+                children: [
+                    '/guide/channels/webchat',
+                    '/guide/channels/messenger',
                 ]
             },
             {

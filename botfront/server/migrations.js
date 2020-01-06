@@ -6,6 +6,8 @@ import { Credentials } from '../imports/api/credentials';
 import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
+import { Stories } from '../imports/api/story/stories.collection';
+import { aggregateEvents } from '../imports/lib/story.utils';
 
 /* globals Migrations */
 
@@ -149,6 +151,16 @@ Migrations.add({
     version: 4,
     // add default default domain to global settings, and update projects to have this default domain
     up: () => migrateResponses(),
+});
+Migrations.add({
+    version: 4,
+    up: () => {
+        const allStories = Stories.find().fetch();
+        allStories.forEach((story) => {
+            const events = aggregateEvents(story);
+            Stories.update({ _id: story._id }, { $set: { events } });
+        });
+    },
 });
 
 

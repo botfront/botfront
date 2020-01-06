@@ -146,7 +146,7 @@ export function PageMenu(props) {
         title, icon, children, className,
     } = props;
     return (
-        <Menu pointing secondary style={{ background: '#fff' }} className={className}>
+        <Menu borderless className={`top-menu ${className}`}>
             <Menu.Item>
                 <Menu.Header as='h3'>
                     <Icon name={icon} />

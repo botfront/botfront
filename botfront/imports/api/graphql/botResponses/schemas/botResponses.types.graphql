@@ -44,6 +44,7 @@ type BotResponse {
     _id: String
     projectId: String
     values: [BotResponseValue]
+    metadata: Any
 }
 
 type BotResponseValue {
@@ -60,6 +61,7 @@ input BotResponseInput {
     _id: String
     projectId: String
     values: [BotResponseValueInput]
+    metadata: Any
 }
 
 input BotResponseValueInput {

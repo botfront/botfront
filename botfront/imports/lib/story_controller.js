@@ -1,3 +1,5 @@
+export const NEW_INTENT = 'new_intent_inserted_by_visual_story_editor';
+
 class StoryException {
     constructor(type, message, line, code) {
         this.type = type;
@@ -168,6 +170,10 @@ export class StoryController {
         this.intent = this.content.split(' OR ').map(disj => disj.trim());
         this.response = null;
         this.form = null;
+        if (this.intent[0] === NEW_INTENT) {
+            this.lines[this.idx].gui = { type: 'user', data: [null] };
+            return;
+        }
         try {
             const intentData = [];
             this.intent.forEach((disj) => {
@@ -215,11 +221,10 @@ export class StoryController {
         }
     };
 
-    validateStory = (saveUpdate = true) => {
+    validateStory = () => {
         this.reset();
-        // if (!this.md.replace(/\s/g, '').length) this.raiseStoryException('no_empty');
         this.validateLines();
-        if (saveUpdate) this.saveUpdate();
+        this.saveUpdate();
     };
 
     validateLines = () => {
@@ -285,9 +290,8 @@ export class StoryController {
     }
 
     generateMdLine = (content) => {
-        const mdContent = this.toMd(content);
-        if (!mdContent) return { gui: content, md: '' };
-        return { gui: content, md: this.toMd(content) };
+        const md = this.toMd(content) || '';
+        return { gui: content, md };
     }
 
     deleteLine = (i) => {
@@ -298,10 +302,9 @@ export class StoryController {
 
     insertLine = (i, content) => {
         const newMdLine = this.generateMdLine(content);
-        if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i + 1), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        if (content.data && content.data !== [null]) this.saveUpdate();
+        this.validateStory();
     };
 
     replaceLine = (i, content) => {
@@ -309,8 +312,7 @@ export class StoryController {
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i), newMdLine, ...this.lines.slice(i + 1)];
         this.md = this.lines.map(l => l.md).join('\n');
-        const saveUpdate = content.data && content.data !== [null];
-        this.validateStory(saveUpdate);
+        this.validateStory();
     };
 
     setMd = (content) => {

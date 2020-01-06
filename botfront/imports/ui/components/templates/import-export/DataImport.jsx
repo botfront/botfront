@@ -92,7 +92,7 @@ export default function DataImport(props) {
                     mode='json'
                     theme='github'
                     name='templates'
-                    fontSize={12}
+                    fontSize={14}
                     showPrintMargin={false}
                     showGutter
                     onChange={onChange}

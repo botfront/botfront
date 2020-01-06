@@ -1,102 +1,155 @@
-import React from 'react';
+import React, { useContext, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Statistic, Tab, Grid } from 'semantic-ui-react';
-import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
-import PieChart from '../../charts/PieChart';
+import { Statistic, Button } from 'semantic-ui-react';
+import { withTracker } from 'meteor/react-meteor-data';
+import { connect } from 'react-redux';
+import { useQuery } from '@apollo/react-hooks';
+import { saveAs } from 'file-saver';
+import { Stories as StoriesCollection } from '../../../../api/story/stories.collection';
+import { Loading } from '../../utils/Utils';
+import IntentLabel from '../common/IntentLabel';
+import DataTable from '../../common/DataTable';
+import { ProjectContext } from '../../../layouts/context';
+import { GET_INTENT_STATISTICS } from './graphql';
 
 
-export default class Statistics extends React.Component {
-    entityDistribution = {
-        query: gql`
-            query EntityDistribution($modelId: String!) {
-                entityDistribution(modelId: $modelId) {
-                    entity
-                    count
-                }
-            }
-        `,
-        queryName: 'entityDistribution',
-        graphParams: { x: 'entity', y: [{ abs: 'count' }] },
+const Statistics = (props) => {
+    const {
+        model, intents, entities, storyCount, ready, projectId, workingLanguage,
+    } = props;
+
+    const { projectLanguages } = useContext(ProjectContext);
+    const { data, loading, refetch } = useQuery(
+        GET_INTENT_STATISTICS, { variables: { projectId, language: workingLanguage } },
+    );
+
+    // always refetch on first page load
+    useEffect(() => { if (refetch) refetch(); }, [refetch, workingLanguage]);
+
+    const getDataToDisplay = () => !loading
+        && data.getIntentStatistics.map(({ intent, example, counts }) => {
+            const row = { intent, example: example ? example.text : null };
+            counts.forEach(({ language, count }) => {
+                row[language] = count;
+            });
+            return row;
+        })
+            .sort((r1, r2) => (r2[workingLanguage] || 0) - (r1[workingLanguage] || 0));
+
+    const dataToDisplay = useMemo(() => getDataToDisplay());
+
+    const downloadData = () => {
+        const headers = ['intent', 'example', ...projectLanguages.map(l => l.value)];
+        const csvData = (dataToDisplay || []).reduce((acc, curr) => {
+            let row = '';
+            headers.forEach((h) => { row += `"${`${(curr[h] || '')}`.replace('"', '""')}",`; });
+            return [...acc, row];
+        }, [headers.map(h => `"${h}"`)]).join('\n');
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+        return saveAs(blob, `nlu_statistics_${projectId}_${new Date().toISOString().split('T')[0]}.csv`);
     };
 
-    intentDistribution = {
-        query: gql`
-            query IntentDistribution($modelId: String!) {
-                intentDistribution(modelId: $modelId) {
-                    intent
-                    count
-                }
-            }
-        `,
-        queryName: 'intentDistribution',
-        graphParams: { x: 'intent', y: [{ abs: 'count' }] },
-    };
-
-    renderStatistics() {
-        const {
-            model: { training_data: trainingData },
-            intents,
-            entities,
-        } = this.props;
-        const data = [
-            {
-                label: 'Examples',
-                value: trainingData.common_examples.length,
-            },
+    const renderCards = () => {
+        const cards = [
+            { label: 'Examples', value: model.training_data.common_examples.length },
             { label: 'Intents', value: intents.length },
             { label: 'Entities', value: entities.length },
-            {
-                label: 'Synonyms',
-                value: trainingData.entity_synonyms.length,
-            },
+            { label: 'Synonyms', value: model.training_data.entity_synonyms.length },
+            { label: 'Gazettes', value: model.training_data.fuzzy_gazette.length },
+            { label: 'Stories', value: storyCount },
         ];
 
-        return data.map((d, index) => (
-            <Statistic key={index}>
-                <Statistic.Value>{d.value}</Statistic.Value>
-                <Statistic.Label>{d.label}</Statistic.Label>
-            </Statistic>
+        return cards.map(d => (
+            <div className='glow-box hoverable' style={{ width: `calc(100% / ${cards.length})` }} key={d.label}>
+                <Statistic>
+                    <Statistic.Label>{d.label}</Statistic.Label>
+                    <Statistic.Value>{d.value}</Statistic.Value>
+                </Statistic>
+            </div>
         ));
-    }
+    };
 
-    renderDistribution = ({ query, queryName, graphParams }) => {
-        const { model: { _id: modelId } } = this.props;
+    const renderIntent = (row) => {
+        const { datum } = row;
         return (
-            <Query query={query} variables={{ modelId }}>
-                {({ loading, error, data }) => {
-                    if (loading) return 'Loading...';
-                    if (error) return `Error! ${error.message}`;
-                    return (
-                        <PieChart
-                            data={data[queryName]}
-                            {...graphParams}
-                            enableRadialLabels={false}
-                        />
-                    );
-                }}
-            </Query>
+            <IntentLabel
+                value={datum.intent ? datum.intent : ''}
+                allowEditing={false}
+            />
         );
     };
 
-    render() {
-        return (
-            <Tab.Pane>
-                <Statistic.Group widths='four'>{this.renderStatistics()}</Statistic.Group>
-                <Grid>
-                    <Grid.Row style={{ height: 500 }}>
-                        <Grid.Column width={8} style={{ height: 500 }}>{this.renderDistribution(this.intentDistribution)}</Grid.Column>
-                        <Grid.Column width={8} style={{ height: 500 }}>{this.renderDistribution(this.entityDistribution)}</Grid.Column>
-                    </Grid.Row>
-                </Grid>
-                
-                
-            </Tab.Pane>
-        );
-    }
-}
+
+    const renderExample = (row) => {
+        const { datum } = row;
+        if (!datum.example) return <i>No example defined.</i>;
+        return datum.example;
+    };
+
+    const countColumns = projectLanguages.map(({ value }) => ({
+        key: value,
+        header: value,
+        style: { width: '110px', ...(value === workingLanguage ? { fontWeight: 'bold' } : {}) },
+    }));
+
+    const columns = [
+        {
+            key: 'intent', header: 'Intent', style: { width: '200px', minWidth: '200px', overflow: 'hidden' }, render: renderIntent,
+        },
+        {
+            key: 'example', header: 'Example', style: { width: '100%' }, render: renderExample,
+        },
+        ...countColumns,
+    ];
+
+    return (
+        <Loading loading={!ready || loading}>
+            <div className='side-by-side'>{renderCards()}</div>
+            <br />
+            {dataToDisplay && dataToDisplay.length
+                ? (
+                    <div className='glow-box extra-padding'>
+                        <div className='side-by-side'>
+                            <h3>Examples per intent</h3>
+                            <Button onClick={downloadData} disabled={!(dataToDisplay || []).length} icon='download' basic />
+                        </div>
+                        <br />
+                        <DataTable
+                            columns={columns}
+                            data={dataToDisplay}
+                            gutterSize={0}
+                        />
+                    </div>
+                )
+                : null
+            }
+        </Loading>
+    );
+};
+
 Statistics.propTypes = {
     model: PropTypes.object.isRequired,
     intents: PropTypes.array.isRequired,
     entities: PropTypes.array.isRequired,
+    ready: PropTypes.bool.isRequired,
+    storyCount: PropTypes.number.isRequired,
+    projectId: PropTypes.string.isRequired,
+    workingLanguage: PropTypes.string.isRequired,
 };
+
+const StatisticsWithStoryCount = withTracker((props) => {
+    const { projectId } = props;
+    const storiesHandler = Meteor.subscribe('stories.light', projectId);
+
+    return {
+        ready: storiesHandler.ready(),
+        storyCount: StoriesCollection.find().count(),
+    };
+})(Statistics);
+
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
+});
+
+export default connect(mapStateToProps)(StatisticsWithStoryCount);

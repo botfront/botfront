@@ -18,6 +18,7 @@ import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { setProjectId, setWorkingLanguage } from '../store/actions/actions';
+import { getPublishedNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
@@ -235,7 +236,9 @@ class Project extends React.Component {
             renderLegacyModels,
             settings,
             project,
+            instance,
             workingLanguage,
+            projectLanguages,
             slots,
         } = this.props;
         const {
@@ -297,6 +300,9 @@ class Project extends React.Component {
                                 {({ loadingResponses, data, subscribeToMore }) => (
                                     <ProjectContext.Provider
                                         value={{
+                                            project,
+                                            instance,
+                                            projectLanguages,
                                             templates: data && !loadingResponses ? data.botResponses : [],
                                             intents,
                                             entities,
@@ -355,6 +361,7 @@ Project.propTypes = {
     projectId: PropTypes.string.isRequired,
     instance: PropTypes.object,
     workingLanguage: PropTypes.string,
+    projectLanguages: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
@@ -373,10 +380,9 @@ const ProjectContainer = withTracker((props) => {
     const {
         params: { project_id: projectId }, projectId: storeProjectId, changeWorkingLanguage, changeProjectId,
     } = props;
-    let projectHandler = null;
     let renderLegacyModels;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
-    projectHandler = Meteor.subscribe('projects', projectId);
+    const projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const settingsHandler = Meteor.subscribe('settings');
@@ -389,8 +395,9 @@ const ProjectContainer = withTracker((props) => {
     const readyHandlerList = [
         Meteor.user(),
         credentialsHandler.ready(),
+        projectHandler.ready(),
+        nluModelsHandler.ready(),
         settingsHandler.ready(),
-        projectHandler ? projectHandler.ready() && nluModelsHandler.ready() : nluModelsHandler.ready(),
         introStoryGroupIdHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
@@ -431,6 +438,7 @@ const ProjectContainer = withTracker((props) => {
         channel,
         instance,
         slots: Slots.find({}).fetch(),
+        projectLanguages: ready ? getPublishedNluModelLanguages(project.nlu_models, true) : [],
         renderLegacyModels,
         settings,
     };

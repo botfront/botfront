@@ -4,40 +4,27 @@ import {
     Popup,
     Label,
 } from 'semantic-ui-react';
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
 import moment from 'moment';
-import { connect } from 'react-redux';
 
-import { withTracker } from 'meteor/react-meteor-data';
-import { Instances } from '../../../api/instances/instances.collection';
-import { Projects } from '../../../api/project/project.collection';
-import { isTraining, getPublishedNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
 import LanguageDropdown from '../common/LanguageDropdown';
-import { setWorkingLanguage } from '../../store/actions/actions';
 
-function StoriesPageMenu(props) {
+import { ProjectContext } from '../../layouts/context';
+
+export default function StoriesPageMenu() {
     const {
         project,
         project: { _id: projectId, training: { endTime, status } = {} },
         instance,
-        ready,
-        workingLanguage,
-        changeWorkingLanguage,
-        projectLanguages,
-    } = props;
+    } = useContext(ProjectContext);
 
-    if (!ready) return null;
     return (
         <PageMenu title='Stories' icon='book'>
             <Menu.Item id='stories-language-dropdown'>
-                <LanguageDropdown
-                    languageOptions={projectLanguages}
-                    selectedLanguage={workingLanguage}
-                    handleLanguageChange={changeWorkingLanguage}
-                />
+                <LanguageDropdown />
             </Menu.Item>
             <Menu.Menu position='right'>
                 <Menu.Item>
@@ -104,58 +91,3 @@ function StoriesPageMenu(props) {
         </PageMenu>
     );
 }
-
-StoriesPageMenu.propTypes = {
-    ready: PropTypes.bool.isRequired,
-    project: PropTypes.any.isRequired,
-    instance: PropTypes.object,
-    workingLanguage: PropTypes.string,
-    changeWorkingLanguage: PropTypes.func.isRequired,
-    projectLanguages: PropTypes.array,
-};
-
-StoriesPageMenu.defaultProps = {
-    instance: null,
-    workingLanguage: null,
-    projectLanguages: [],
-};
-
-const mapStateToProps = state => ({
-    workingLanguage: state.settings.get('workingLanguage'),
-});
-
-const mapDispatchToProps = {
-    changeWorkingLanguage: setWorkingLanguage,
-};
-
-const StoriesPageMenuWithState = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(StoriesPageMenu);
-
-export default withTracker((props) => {
-    const { projectId } = props;
-    const projectsHandler = Meteor.subscribe('projects', projectId);
-    const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
-    const { training, nlu_models: nluModels } = Projects.findOne(
-        { _id: projectId },
-        {
-            fields: {
-                training: 1,
-                nlu_models: 1,
-            },
-        },
-    );
-    const instance = Instances.findOne({ projectId });
-
-    const projectLanguages = getPublishedNluModelLanguages(nluModels, true);
-
-    return {
-        ready:
-            projectsHandler.ready()
-            && instancesHandler.ready(),
-        instance,
-        project: { _id: projectId, training },
-        projectLanguages,
-    };
-})(StoriesPageMenuWithState);
