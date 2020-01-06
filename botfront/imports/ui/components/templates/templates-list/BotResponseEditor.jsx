@@ -138,7 +138,7 @@ const BotResponseEditor = (props) => {
         if (isNew && !checkResponseEmpty(validResponse)) {
             insertResponse(validResponse, (err) => {
                 validateResponseName(err);
-                if (!err && !renameError) {
+                if (!err) {
                     closeModal();
                 }
             });
