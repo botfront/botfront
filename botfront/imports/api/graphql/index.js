@@ -1,9 +1,7 @@
 import { mergeTypes } from 'merge-graphql-schemas';
 
 import conversationResolvers from './conversations/resolvers';
-import nluResolvers from './nlu/resolvers';
 import conversationTypes from './conversations/schemas';
-import nluTypes from './nlu/schemas';
 import activityResolver from './activity/resolvers/activityResolver';
 import activityTypes from './activity/schemas';
 import commonResolver from './common/commonResolver';
