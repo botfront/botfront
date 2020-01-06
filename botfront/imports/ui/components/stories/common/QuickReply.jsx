@@ -38,7 +38,7 @@ function QuickReply({
     const handleSave = (e) => {
         let origin = e.target; let depth = 0;
         while (origin.className !== 'intent-dropdown' && depth < 8) {
-            origin = origin.parentElement;
+            origin = origin.parentElement || {};
             depth += 1;
         }
         if (origin.className === 'intent-dropdown') return;
