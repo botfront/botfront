@@ -33,7 +33,7 @@ describe('Bot responses', function() {
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.dataCy('edit-response-0').click();
         cy.dataCy('response-name-input').click().find('input').type('{backspace}B');
-        cy.dataCy('bot-response-input').click().find('textarea').clear()
+        cy.dataCy('bot-response-input').click({ force: true }).find('textarea').clear()
             .type('new response');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.dataCy('template-intent').contains('utter_test_A').should('not.exist');

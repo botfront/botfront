@@ -55,7 +55,6 @@ const BotResponseEditor = (props) => {
     const validateResponseName = (err) => {
         if (!err) {
             setRenameError();
-            closeModal();
             return;
         }
         if (err.message.match(/E11000/)) {
@@ -137,7 +136,12 @@ const BotResponseEditor = (props) => {
             return;
         }
         if (isNew && !checkResponseEmpty(validResponse)) {
-            insertResponse(validResponse, validateResponseName);
+            insertResponse(validResponse, (err) => {
+                validateResponseName(err);
+                if (!err && !renameError) {
+                    closeModal();
+                }
+            });
         }
     };
 
