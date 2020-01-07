@@ -153,7 +153,7 @@ Migrations.add({
     up: () => migrateResponses(),
 });
 Migrations.add({
-    version: 4,
+    version: 5,
     up: () => {
         const allStories = Stories.find().fetch();
         allStories.forEach((story) => {
@@ -176,7 +176,7 @@ const processSequence = sequence => sequence
     }, {});
 
 Migrations.add({
-    version: 5,
+    version: 6,
     // join sequences of text in responsesa
     up: () => {
         BotResponses.find().lean().then(responses => responses.forEach((response) => {
