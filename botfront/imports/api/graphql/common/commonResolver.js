@@ -1,5 +1,6 @@
 import { GraphQLScalarType, GraphQLString } from 'graphql';
 import { Kind } from 'graphql/language';
+import GraphQLJSON from 'graphql-type-json';
 
 export default {
     Date: new GraphQLScalarType({
@@ -18,13 +19,7 @@ export default {
             return null;
         },
     }),
-    Any: new GraphQLScalarType({
-        name: 'Any',
-        description: 'Arbitrary value',
-        parseValue: v => v,
-        serialize: v => v,
-        parseLiteral: v => v,
-    }),
+    Any: GraphQLJSON,
     StringOrListOfStrings: new GraphQLScalarType({
         name: 'StringOrListOfStrings',
         description: 'String | [String]',
