@@ -75,6 +75,7 @@ function AnalyticsCard(props) {
     const variables = {
         projectId: queryParams.projectId,
         envs: queryParams.envs,
+        langs: queryParams.queryLanguages,
         from: applyTimezoneOffset(startDate, projectTimezoneOffset).valueOf() / 1000,
         to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
         ...(exclude ? { exclude } : {}),

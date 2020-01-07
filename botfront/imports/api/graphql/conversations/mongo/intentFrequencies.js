@@ -26,6 +26,7 @@ const getSliceParams = ({
 export const getIntentFrequencies = async ({
     projectId,
     envs,
+    langs,
     from,
     to = new Date().getTime(),
     only,
@@ -40,6 +41,7 @@ export const getIntentFrequencies = async ({
         $match: {
             projectId,
             ...(envs ? { env: { $in: envs } } : {}),
+            ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
     {

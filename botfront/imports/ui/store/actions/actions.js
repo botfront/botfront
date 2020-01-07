@@ -87,3 +87,10 @@ export function setAnalyticsCardSettings(cardId, setting, value) {
         value,
     };
 }
+
+export function setAnalyticsLanguages(languages) {
+    return {
+        type: types.SET_ANALYTICS_LANGUAGES,
+        languages,
+    };
+}

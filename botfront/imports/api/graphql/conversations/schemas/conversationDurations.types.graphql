@@ -2,6 +2,7 @@ type Query {
     conversationDurations(
         projectId: String!,
         envs: [String],
+        langs: [String] = [],
         from: Float = 0,
         to: Float,
         cutoffs: [Int] = [30, 60, 90, 120, 180],

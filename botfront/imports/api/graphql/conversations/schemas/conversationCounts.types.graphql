@@ -3,6 +3,7 @@ type Query {
         projectId: String!,
         subtype: String!,
         envs: [String],
+        langs: [String] = [],
         from: Float,
         to: Float,
         nBuckets: Int = 7,

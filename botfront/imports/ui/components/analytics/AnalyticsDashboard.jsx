@@ -16,7 +16,7 @@ import { Projects } from '../../../api/project/project.collection';
 
 function AnalyticsDashboard(props) {
     const {
-        projectId, environment, cardSettings, changeCardSettings, swapCards, projectName,
+        projectId, environment, cardSettings, changeCardSettings, swapCards, projectName, queryLanguages,
     } = props;
 
     const envs = [environment];
@@ -28,7 +28,7 @@ function AnalyticsDashboard(props) {
             title: 'Visits & Engagement',
             titleDescription: 'Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.',
             queryParams: {
-                temporal: true, projectId, envs, queryName: 'conversationCounts',
+                temporal: true, projectId, envs, queryName: 'conversationCounts', queryLanguages,
             },
             query: visitCounts,
             size: 'wide',
@@ -60,7 +60,7 @@ function AnalyticsDashboard(props) {
             title: 'Conversation Length',
             titleDescription: 'The number of user utterances contained in a conversation.',
             queryParams: {
-                projectId, envs, queryName: 'conversationLengths',
+                projectId, envs, queryName: 'conversationLengths', queryLanguages,
             },
             exportQueryParams: { limit: 100000 },
             query: conversationLengths,
@@ -86,7 +86,7 @@ function AnalyticsDashboard(props) {
             title: 'Top 10 Intents',
             titleDescription: 'The number of user utterances classified as having a given intent.',
             queryParams: {
-                projectId, envs, queryName: 'intentFrequencies',
+                projectId, envs, queryName: 'intentFrequencies', queryLanguages,
             },
             exportQueryParams: { limit: 100000 },
             query: intentFrequencies,
@@ -114,7 +114,7 @@ function AnalyticsDashboard(props) {
             title: 'Conversation Duration',
             titleDescription: 'The number of seconds elapsed between the first and the last message of a conversation.',
             queryParams: {
-                projectId, envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180],
+                projectId, envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180], queryLanguages,
             },
             query: conversationDurations,
             graphParams: {
@@ -140,7 +140,7 @@ function AnalyticsDashboard(props) {
             title: 'Fallback',
             titleDescription: 'The number of conversations in which a fallback action was triggered.',
             queryParams: {
-                temporal: true, envs, projectId, queryName: 'conversationCounts',
+                temporal: true, envs, projectId, queryName: 'conversationCounts', queryLanguages,
             },
             query: fallbackCounts,
             graphParams: {
@@ -163,8 +163,6 @@ function AnalyticsDashboard(props) {
                 axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
-        
-       
     };
     
     const [, drop] = useDrop({ accept: 'card' });
@@ -195,10 +193,12 @@ AnalyticsDashboard.propTypes = {
     changeCardSettings: PropTypes.func.isRequired,
     swapCards: PropTypes.func.isRequired,
     projectName: PropTypes.string,
+    queryLanguages: PropTypes.array,
 };
 
 AnalyticsDashboard.defaultProps = {
     projectName: 'Botfront',
+    queryLanguages: [],
 };
 
 const AnalyticsDashboardTracker = withTracker(({ projectId }) => {

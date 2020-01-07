@@ -6,6 +6,7 @@ const startDate = moment().subtract(6, 'days').startOf('day');
 const endDate = moment().endOf('day');
 
 const initialState = Map({
+    analyticsLanguages: List([]),
     cardSettings: OrderedMap({
         visitCounts: Map({
             visible: true,
@@ -44,7 +45,6 @@ const initialState = Map({
             valueType: 'absolute',
             responses: List(['action_botfront_fallback']),
         }),
-       
     }),
 });
 
@@ -65,6 +65,8 @@ export default function reducer(state = initialState, action) {
         });
     case types.SET_ANALYTICS_CARD_SETTINGS:
         return state.setIn(['cardSettings', action.cardId, action.setting], newValue);
+    case types.SET_ANALYTICS_LANGUAGES:
+        return state.set('analyticsLanguages', List(action.languages));
     default:
         return state;
     }

@@ -2,6 +2,7 @@ type Query {
     conversationLengths(
         projectId: String!,
         envs: [String],
+        langs: [String] = [],
         from: Float = 0,
         to: Float,
         limit: Int = 10

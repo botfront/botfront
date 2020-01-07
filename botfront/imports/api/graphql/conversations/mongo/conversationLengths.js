@@ -3,6 +3,7 @@ import Conversations from '../conversations.model';
 export const getConversationLengths = async ({
     projectId,
     envs,
+    langs,
     from,
     to = new Date().getTime(),
     limit,
@@ -11,6 +12,7 @@ export const getConversationLengths = async ({
         $match: {
             projectId,
             ...(envs ? { env: { $in: envs } } : {}),
+            ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
     {

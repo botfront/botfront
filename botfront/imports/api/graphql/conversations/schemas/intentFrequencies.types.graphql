@@ -2,6 +2,7 @@ type Query {
     intentFrequencies(
         projectId: String!,
         envs: [String],
+        langs: [String] = [],
         from: Float = 0,
         to: Float,
         exclude: [String] = [],

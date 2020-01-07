@@ -1,6 +1,7 @@
 query ConversationDurations(
     $projectId: String!,
-    $envs: [String] = ["development", null],    
+    $envs: [String] = ["development", null],
+    $langs: [String] = [],
     $from: Float,
     $to: Float,
     $cutoffs: [Int] = [30, 60, 90, 120, 180],
@@ -8,6 +9,7 @@ query ConversationDurations(
     conversationDurations(
         projectId: $projectId,
         envs: $envs,
+        langs: $langs,
         from: $from,
         to: $to,
         cutoffs: $cutoffs,

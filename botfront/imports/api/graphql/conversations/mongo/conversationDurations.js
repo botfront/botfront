@@ -25,6 +25,7 @@ const generateBuckets = (cutoffs, variable) => {
 export const getConversationDurations = async ({
     projectId,
     envs,
+    langs,
     from,
     to = new Date().getTime(),
     cutoffs,
@@ -33,6 +34,7 @@ export const getConversationDurations = async ({
         $match: {
             projectId,
             ...(envs ? { env: { $in: envs } } : {}),
+            ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
     {

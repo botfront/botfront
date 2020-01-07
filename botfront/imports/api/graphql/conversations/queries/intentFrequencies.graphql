@@ -1,6 +1,7 @@
 query IntentFrequencies(
     $projectId: String!,
     $envs: [String] = ["development", null],
+    $langs: [String] = [],
     $from: Float,
     $to: Float,
     $exclude: [String] = [],
@@ -14,6 +15,7 @@ query IntentFrequencies(
     intentFrequencies(
         projectId: $projectId,
         envs: $envs,
+        langs: $langs,
         from: $from,
         to: $to,
         exclude: $exclude,

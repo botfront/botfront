@@ -1,6 +1,7 @@
 query FallbackCounts(
     $projectId: String!,
     $envs: [String] = ["development", null],
+    $langs: [String] = [],
     $from: Float,
     $to: Float,
     $fallbacks: [String] = ["action_botfront_fallback"],
@@ -10,6 +11,7 @@ query FallbackCounts(
         projectId: $projectId,
         subtype: "fallback",
         envs: $envs,
+        langs: $langs,
         from: $from,
         to: $to,
         include: $fallbacks,

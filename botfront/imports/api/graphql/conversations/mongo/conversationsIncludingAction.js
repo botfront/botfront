@@ -4,6 +4,7 @@ import { generateBuckets, fillInEmptyBuckets } from '../../utils';
 export const getConversationsIncludingAction = async ({
     projectId,
     envs,
+    langs,
     from = new Date().getTime() - (86400 * 7),
     to = new Date().getTime(),
     nBuckets,
@@ -13,6 +14,7 @@ export const getConversationsIncludingAction = async ({
         $match: {
             projectId,
             ...(envs ? { env: { $in: envs } } : {}),
+            ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
     {

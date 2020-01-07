@@ -17,7 +17,7 @@ import { Query } from '@apollo/react-components';
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
-import { setProjectId, setWorkingLanguage } from '../store/actions/actions';
+import { setProjectId, setWorkingLanguage, setAnalyticsLanguages } from '../store/actions/actions';
 import { getPublishedNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
@@ -378,7 +378,7 @@ Project.defaultProps = {
 
 const ProjectContainer = withTracker((props) => {
     const {
-        params: { project_id: projectId }, projectId: storeProjectId, changeWorkingLanguage, changeProjectId,
+        params: { project_id: projectId }, projectId: storeProjectId, changeWorkingLanguage, changeProjectId, changeAnalyticsLanguages,
     } = props;
     let renderLegacyModels;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
@@ -426,9 +426,15 @@ const ProjectContainer = withTracker((props) => {
         changeProjectId(projectId);
     }
 
+    const projectLanguages = ready ? getPublishedNluModelLanguages(project.nlu_models, true) : [];
+
     // update working language
     if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {
         changeWorkingLanguage(defaultLanguage);
+    }
+    // update analytics language
+    if (!store.getState().analytics.get('analyticsLanguages').toJS().length && projectLanguages) {
+        changeAnalyticsLanguages(projectLanguages.map(l => l.value));
     }
 
     return {
@@ -438,7 +444,7 @@ const ProjectContainer = withTracker((props) => {
         channel,
         instance,
         slots: Slots.find({}).fetch(),
-        projectLanguages: ready ? getPublishedNluModelLanguages(project.nlu_models, true) : [],
+        projectLanguages,
         renderLegacyModels,
         settings,
     };
@@ -451,6 +457,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     changeWorkingLanguage: setWorkingLanguage,
+    changeAnalyticsLanguages: setAnalyticsLanguages,
     changeProjectId: setProjectId,
 };
 

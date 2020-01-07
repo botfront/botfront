@@ -1,6 +1,7 @@
 query VisitCounts(
     $projectId: String!,
     $envs: [String] = ["development", null],
+    $langs: [String] = [],
     $from: Float,
     $to: Float,
     $nBuckets: Int = 7,
@@ -10,6 +11,7 @@ query VisitCounts(
         projectId: $projectId,
         subtype: "engagement",
         envs: $envs,
+        langs: $langs,
         from: $from,
         to: $to,
         exclude: $exclude,
