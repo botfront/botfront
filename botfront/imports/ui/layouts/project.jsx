@@ -168,10 +168,10 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    upsertResponse = (key, newPayload) => {
+    upsertResponse = (key, newPayload, index) => {
         const { projectId, workingLanguage: language } = this.props;
         const variables = {
-            projectId, language, newPayload, key,
+            projectId, language, newPayload, key, index,
         };
         return apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,

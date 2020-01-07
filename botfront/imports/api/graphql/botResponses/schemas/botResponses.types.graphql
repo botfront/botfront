@@ -29,6 +29,7 @@ type Mutation {
         language: String!
         newPayload: Any
         key: String!
+        index: Int = -1
     ): BotResponse
     
     createResponse(projectId: String!, response: BotResponseInput): updateResponse!

@@ -16,6 +16,8 @@ import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
 
+const variationIndex = 0;
+
 const defaultTemplate = (templateType) => {
     if (templateType === 'text') return { __typename: 'TextPayload', text: '' };
     if (templateType === 'qr') {
@@ -107,7 +109,7 @@ export default class StoryVisualEditor extends React.Component {
         story.addTemplate({ key });
         responses[key] = { ...newTemplate, isNew: true };
         this.setState({ responses });
-        upsertResponse(key, newTemplate).then((full) => {
+        upsertResponse(key, newTemplate, variationIndex).then((full) => {
             if (full) story.insertLine(index, { type: 'bot', data: { name: key } });
         });
     };
@@ -265,7 +267,7 @@ export default class StoryVisualEditor extends React.Component {
         const { story } = this.props;
         const { responses } = this.state;
         if (isEqual(responses[`${language}-${name}`], newResponse)) return;
-        upsertResponse(name, newResponse).then((response) => {
+        upsertResponse(name, newResponse, variationIndex).then((response) => {
             if (!response) return;
             story.addTemplate({ key: name });
             responses[`${language}-${name}`] = newResponse;
