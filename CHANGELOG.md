@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.4-ee.5](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4-ee.4...v0.19.0-alpha.4-ee.5) (2020-01-07)
+
+
+### Bug Fixes
+
+* package.lock was broken after merge ([6f67a09](https://github.com/botfront/botfront/commit/6f67a0904e574aa75da613b6f7838e1512023cf5))
+
 ## [0.19.0-alpha.4-ee.4](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4-ee.3...v0.19.0-alpha.4-ee.4) (2020-01-07)
 
 
