@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.4](https://github.com/botfront/botfront/compare/v0.19.0-alpha.3...v0.19.0-alpha.4) (2020-01-07)
+
+
+### Bug Fixes
+
+* botResponseEditor, prevent close on save ([a6ae54d](https://github.com/botfront/botfront/commit/a6ae54d))
+* cannot close empty custom response ([edbfc1d](https://github.com/botfront/botfront/commit/edbfc1d))
+* intent confidence alignment in conversations ([#417](https://github.com/botfront/botfront/issues/417)) ([ec8b8b3](https://github.com/botfront/botfront/commit/ec8b8b3))
+* quick reply, select button intent ([2943a0b](https://github.com/botfront/botfront/commit/2943a0b))
+
+
+### Tests
+
+* add custom response via visual editor ([19c4bf4](https://github.com/botfront/botfront/commit/19c4bf4))
+* expect error on responseEditor close ([71f1178](https://github.com/botfront/botfront/commit/71f1178))
+* fix bot response test, fails to edit ([1ec4b5c](https://github.com/botfront/botfront/commit/1ec4b5c))
+
+
+
 ## [0.19.0-alpha.3](https://github.com/botfront/botfront/compare/v0.19.0-alpha.2...v0.19.0-alpha.3) (2020-01-07)
 
 
