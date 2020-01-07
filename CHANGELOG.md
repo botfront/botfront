@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.4-ee.4](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4-ee.3...v0.19.0-alpha.4-ee.4) (2020-01-07)
+
+
+### Bug Fixes
+
+* remove duplicate migration ids ([025e1a9](https://github.com/botfront/botfront/commit/025e1a93f1b55f4570151cf8df099431ce812b6e))
+
 ## [0.19.0-alpha.4-ee.3](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4-ee.2...v0.19.0-alpha.4-ee.3) (2020-01-07)
 
 ## [0.19.0-alpha.4-ee.2](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4-ee.1...v0.19.0-alpha.4-ee.2) (2020-01-07)
