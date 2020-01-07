@@ -187,9 +187,8 @@ class Project extends React.Component {
         const result = await apolloClient.query({
             query: GET_BOT_RESPONSE,
             variables: {
-                projectId,
                 template,
-                language: workingLanguage || 'en',
+                arguments: { projectId, language: workingLanguage },
                 ...(channel ? { channel } : {}),
             },
         });

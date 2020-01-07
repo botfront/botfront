@@ -108,8 +108,16 @@ if (Meteor.isServer) {
 
             const result = (await axios.all(requests))
                 .filter(r => r.status === 200)
-                .map(r => r.data);
-
+                .map(r => r.data)
+                .map((r) => {
+                    if (!r.text || !r.text.startsWith('/')) return r;
+                    return {
+                        text: r.text.replace(/^\//, ''),
+                        intent: null,
+                        intent_ranking: [],
+                        entities: [],
+                    };
+                });
             if (result.length < 1) throw new Meteor.Error('Error when parsing NLU');
             if (Array.from(new Set(result.map(r => r.language))).length > 1) {
                 throw new Meteor.Error('Tried to parse for more than one language at a time.');

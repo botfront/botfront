@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { GraphQLBridge } from 'uniforms-bridge-graphql';
 import { buildASTSchema, parse } from 'graphql';
@@ -48,7 +48,7 @@ function ResponseMetadataForm({
             domHighlight: DomHighlight
             pageChangeCallbacks : PageChangeCallbacks
             customCss: CustomCss
-            persistentButtons: Boolean!
+            forceOpen: Boolean!
         }
 
         # This is required by buildASTSchema
@@ -58,7 +58,7 @@ function ResponseMetadataForm({
     const defaultModel = {
         linksTarget: '_blank',
         userInput: 'show',
-        persistentButtons: false,
+        forceOpen: false,
         domHighlight: {},
         customCss: {},
         pageChangeCallbacks: null,
@@ -111,7 +111,13 @@ function ResponseMetadataForm({
             errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you set neither text nor message container properties' });
         }
 
-        if (model.domHighlight && model.domHighlight.enabled && ((!model.domHighlight.selector || !model.domHighlight.selector.length) || (!model.domHighlight.css || !model.domHighlight.css.length))) {
+        if (model.domHighlight
+            && model.domHighlight.enabled
+            && (
+                (!model.domHighlight.selector || !model.domHighlight.selector.length)
+                || (!model.domHighlight.css || !model.domHighlight.css.length)
+            )
+        ) {
             errors.push({ name: 'domHighlight', message: 'When enabling DOM highlighting both selector and css must be set.' });
         }
 
@@ -149,8 +155,8 @@ function ResponseMetadataForm({
                 { label: 'Disable', value: 'disable' },
             ],
         },
-        persistentButtons: {
-            label: 'Should the buttons persist? (only applicable if the message contains buttons)',
+        forceOpen: {
+            label: 'Force the chat widget to open? (Otherwise it will appear as a tooltip if the widget is closed)',
             defaultValue: false,
         },
     };
@@ -162,7 +168,7 @@ function ResponseMetadataForm({
                 <>
                     <AutoField name='linksTarget' data-cy='links-target' />
                     <AutoField name='userInput' />
-                    <ToggleField name='persistentButtons' className='toggle' />
+                    <ToggleField name='forceOpen' className='toggle' />
                 </>
             ),
         },
@@ -211,7 +217,7 @@ function ResponseMetadataForm({
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
-                            <LongTextField name='customCss.text' label='Message text CSS' data-cy='custom-message-css'/>
+                            <LongTextField name='customCss.text' label='Message text CSS' data-cy='custom-message-css' />
                             <LongTextField name='customCss.messageContainer' label='Message container CSS' data-cy='custom-container-css' />
                         </>
                     </DisplayIf>
@@ -228,7 +234,7 @@ function ResponseMetadataForm({
                 <br />
                 <ErrorsField />
                 <br />
-                <SubmitField name='Save' data-cy='submit-metadata'/>
+                <SubmitField name='Save' data-cy='submit-metadata' />
             </AutoForm>
         </div>
     );

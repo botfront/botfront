@@ -1,7 +1,7 @@
 import ReactTable from 'react-table-v6';
 import PropTypes from 'prop-types';
 import {
-    Icon, Label, Tab, Message,
+    Icon, Label, Tab, Message, Popup,
 } from 'semantic-ui-react';
 import React from 'react';
 import { find, sortBy } from 'lodash';
@@ -85,20 +85,29 @@ class TemplatesTable extends React.Component {
                 id: 'delete',
                 accessor: 'key',
                 className: 'center',
-                Cell: ({ value: key, viewIndex: index }) => (
-                    <Icon
-                        link
-                        name='delete'
-                        data-cy={`remove-response-${index}`}
-                        color='grey'
-                        size='small'
-                        onClick={() => this.deleteTemplate(key)}
-                        disabled={events.filter((storyEvents) => {
-                            if (!storyEvents) return false;
-                            return storyEvents.find(responseName => responseName === key);
-                        }).length > 0}
-                    />
-                ),
+                Cell: ({ value: key, viewIndex: index }) => {
+                    const isInStory = events.filter((storyEvents) => {
+                        if (!storyEvents) return false;
+                        return storyEvents.find(responseName => responseName === key);
+                    }).length > 0;
+                    return (
+                        <Popup
+                            trigger={(
+                                <Icon
+                                    link
+                                    name='delete'
+                                    data-cy={`remove-response-${index}`}
+                                    color='grey'
+                                    size='small'
+                                    onClick={() => this.deleteTemplate(key)}
+                                    disabled={isInStory}
+                                />
+                            )}
+                            content='This response cannot be deleted because it is used in a story'
+                            disabled={!isInStory}
+                        />
+                    );
+                },
                 width: 25,
             });
         }

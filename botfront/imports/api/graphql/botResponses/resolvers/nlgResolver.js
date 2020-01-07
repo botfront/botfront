@@ -28,10 +28,11 @@ const resolveTemplate = async ({
         // No response found, return template name
         return { text: template };
     }
-    const payload = safeLoad(sample(source).payload);
+    const { payload: rawPayload, metadata } = sample(source);
+    const payload = safeLoad(rawPayload);
     if (payload.key) delete payload.key;
     if (payload.text) payload.text = interpolateSlots(payload.text, slots);
-    return payload;
+    return { ...payload, metadata };
 };
 
 export default {
@@ -43,6 +44,7 @@ export default {
                 tracker: { slots } = {},
                 channel: { name: channel } = {},
             } = args;
+            if (!language || !projectId) throw new Error('Language or projectId missing!');
             return resolveTemplate({
                 template, projectId, language, slots, channel,
             });

@@ -15,10 +15,10 @@ query retreiveBotResponses($projectId: String!) {
 }`;
 
 export const GET_BOT_RESPONSE = gql`
-query getResponse($template: StringOrListOfStrings!, $projectId: String!, $language: StringOrListOfStrings!) {
+query getResponse($template: StringOrListOfStrings!, $arguments: Any!) {
     getResponse(
         template: $template
-        arguments: { projectId: $projectId, language: $language }
+        arguments: $arguments
     ) {
         __typename
         text

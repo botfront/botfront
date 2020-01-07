@@ -12,11 +12,9 @@ import { watch } from 'chokidar';
 import {
     fixDir,
     isProjectDir,
-    getComposeFilePath,
     getMissingImgs,
     waitForService,
     getServiceUrl,
-    getComposeWorkingDir,
     wait,
     shellAsync,
     getServiceNames,
@@ -149,8 +147,8 @@ export async function dockerComposeRestart(service, { verbose }, workingDir) {
 }
 
 export async function dockerComposeBuildAndRestart(service, { verbose }, workingDir) {
-    let command = `docker-compose up -d --build ${service}`;
-    await shellAsync(command, { silent: !verbose }).catch((consoleError));
+    let command = `docker-compose up -d --force-recreate --build ${service}`;
+    await shellAsync(command, { silent: verbose }).catch((consoleError));
 }
 
 export async function dockerComposeCommand(service, {name, action}, verbose, workingDir, message = '') {
