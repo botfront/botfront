@@ -44,6 +44,7 @@ export default {
                 tracker: { slots } = {},
                 channel: { name: channel } = {},
             } = args;
+            if (!language || !projectId) throw new Error('Language or projectId missing!');
             return resolveTemplate({
                 template, projectId, language, slots, channel,
             });
