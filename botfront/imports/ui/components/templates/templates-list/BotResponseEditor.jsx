@@ -52,6 +52,20 @@ const BotResponseEditor = (props) => {
     const [responseKey, setResponseKey] = useState(botResponse.key);
     const [renameError, setRenameError] = useState();
 
+    const validateResponseName = (err) => {
+        if (!err) {
+            setRenameError();
+            return;
+        }
+        if (err.message.match(/E11000/)) {
+            setRenameError('Response names must be unique');
+        } else if (err.message.match(/alidation failed: key: Path `key` is invalid/)) {
+            setRenameError('Response names must start with utter_');
+        } else {
+            setRenameError('an unexpected error occured while saving this response');
+        }
+    };
+
     const insertResponse = (newResponse, callback) => {
         createBotResponse({
             variables: {
@@ -90,25 +104,11 @@ const BotResponseEditor = (props) => {
     };
 
     const handleChangeKey = async () => {
-        if (!responseKey.match(/^utter_/)) {
-            setRenameError('Response names must start with "utter_"');
-            return;
-        }
         if (isNew) {
             setNewBotResponse({ ...(newBotResponse || botResponse), key: responseKey });
             return;
         }
-        updateResponse({ ...botResponse, key: responseKey }, (error) => {
-            if (error) {
-                if (error.message.match(/E11000/)) {
-                    setRenameError('Response names must be unique');
-                    return;
-                }
-                setRenameError('There was an error saving your response');
-                return;
-            }
-            setRenameError();
-        });
+        updateResponse({ ...botResponse, key: responseKey }, validateResponseName);
     };
 
     const updateSequence = (oldResponse, content) => {
@@ -124,11 +124,7 @@ const BotResponseEditor = (props) => {
             setNewBotResponse(updateSequence(newBotResponse || botResponse, content));
             return;
         }
-        upsertResponse(name || botResponse.key, updatedSequence).then((error) => {
-            if (error) {
-                console.log(error);
-            }
-        });
+        upsertResponse(name || botResponse.key, updatedSequence);
     };
 
     const handleModalClose = () => {
@@ -140,18 +136,10 @@ const BotResponseEditor = (props) => {
             return;
         }
         if (isNew && !checkResponseEmpty(validResponse)) {
-            if (!responseKey.match(/^utter_/)) {
-                setRenameError('Response names must start with "utter_"');
-                return;
-            }
             insertResponse(validResponse, (err) => {
+                validateResponseName(err);
                 if (!err) {
                     closeModal();
-                    return;
-                }
-                console.log(err);
-                if (err.message.match(/E11000/)) {
-                    setRenameError('Response names must be unique');
                 }
             });
         }

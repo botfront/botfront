@@ -111,7 +111,13 @@ function ResponseMetadataForm({
             errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you set neither text nor message container properties' });
         }
 
-        if (model.domHighlight && model.domHighlight.enabled && ((!model.domHighlight.selector || !model.domHighlight.selector.length) || (!model.domHighlight.css || !model.domHighlight.css.length))) {
+        if (model.domHighlight
+            && model.domHighlight.enabled
+            && (
+                (!model.domHighlight.selector || !model.domHighlight.selector.length)
+                || (!model.domHighlight.css || !model.domHighlight.css.length)
+            )
+        ) {
             errors.push({ name: 'domHighlight', message: 'When enabling DOM highlighting both selector and css must be set.' });
         }
 

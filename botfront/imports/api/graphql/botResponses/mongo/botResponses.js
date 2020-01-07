@@ -39,15 +39,13 @@ export const createResponses = async (projectId, responses) => {
 };
 
 export const updateResponse = async (projectId, _id, newResponse) => BotResponses
-    .updateOne({ projectId, _id }, newResponse).exec();
+    .updateOne({ projectId, _id }, newResponse, { runValidators: true }).exec();
 
 
-export const createResponse = async (projectId, newResponse) => {
-    return BotResponses.create({
-        ...clearTypenameField(newResponse),
-        projectId,
-    });
-};
+export const createResponse = async (projectId, newResponse) => BotResponses.create({
+    ...clearTypenameField(newResponse),
+    projectId,
+});
 
 export const getBotResponses = async projectId => BotResponses.find({
     projectId,

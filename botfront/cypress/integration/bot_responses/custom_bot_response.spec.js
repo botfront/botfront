@@ -38,4 +38,22 @@ describe('Bot responses', function() {
         cy.dataCy('edit-response-0').click();
         cy.dataCy('custom-response-editor').contains('success: true').should('exist');
     });
+    it('should add a custom response in the visual story editor', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+
+        cy.dataCy('single-story-editor').trigger('mouseover');
+        cy.dataCy('add-bot-line').click({ force: true });
+        cy.dataCy('from-custom-template').click();
+
+        cy.dataCy('edit-custom-response').click();
+        cy.dataCy('custom-response-editor').click().find('textarea').type('test: success');
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.dataCy('edit-custom-response').click();
+        cy.dataCy('custom-response-editor').contains('test: success').should('exist');
+    });
 });
