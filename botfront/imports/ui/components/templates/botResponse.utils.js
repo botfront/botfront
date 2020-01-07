@@ -3,7 +3,7 @@ import { safeLoad, safeDump } from 'js-yaml';
 const checkContentEmpty = content => (
     content.image
     || content.custom
-    || (content.text.length > 0 && content.buttons && content.buttons.length && content.buttons[0].title)
+    || (content.text && content.text.length > 0 && content.buttons && content.buttons.length && content.buttons[0].title)
     || (content.text && content.text.length > 0 && !content.buttons));
 
 export const checkResponseEmpty = (response) => {
