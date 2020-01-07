@@ -66,13 +66,17 @@ export const getBotResponseById = async (_id) => {
 };
 
 export const upsertResponse = async ({
-    projectId, language, key, newPayload,
-}) => BotResponses.findOneAndUpdate(
-    { projectId, key, 'values.lang': language },
-    { $set: { 'values.$.sequence': [{ content: safeDump(clearTypenameField(newPayload)) }] } },
-    { new: true, lean: true },
-).exec().then(result => (
-    result
+    projectId, language, key, newPayload, index,
+}) => {
+    const update = index === -1
+        ? { $push: { 'values.$.sequence': { $each: [{ content: safeDump(clearTypenameField(newPayload)) }] } } }
+        : { $set: { [`values.$.sequence.${index || 0}`]: { content: safeDump(clearTypenameField(newPayload)) } } };
+    const ret = await BotResponses.findOneAndUpdate(
+        { projectId, key, 'values.lang': language },
+        update,
+        { new: true, lean: true },
+    ).exec().then(result => (
+        result
     || BotResponses.findOneAndUpdate(
         { projectId, key },
         {
@@ -85,7 +89,9 @@ export const upsertResponse = async ({
         },
         { new: true, lean: true, upsert: true },
     )
-));
+    ));
+    return ret;
+};
 
 export const newGetBotResponses = async ({ projectId, template, language }) => {
     // template (optional): str || array

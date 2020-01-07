@@ -1,7 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { Segment, Icon } from 'semantic-ui-react';
 
 import { safeLoad } from 'js-yaml';
-import PropTypes from 'prop-types';
+
 
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
@@ -17,18 +19,18 @@ const SequenceEditor = (props) => {
         const content = safeLoad(variation.content);
         return content.__typename ? content : addContentType(content);
     };
-    const renderContent = () => {
-        const content = getContent(sequence[0]);
-        if (!sequence) return <></>;
+    const renderVariation = (variation, index) => {
+        const content = getContent(variation);
+        if (!content) return <></>;
         return (
-            <>
+            <Segment className='variation-container' attached key={`variation-${index}`}>
                 { (content.__typename === 'TextPayload'
-                || content.__typename === 'QuickReplyPayload'
-                || content.__typename === 'ImagePayload') && (
+                    || content.__typename === 'QuickReplyPayload'
+                    || content.__typename === 'ImagePayload') && (
                     <BotResponsesContainer
                         deleteable
                         initialValue={content}
-                        onChange={onChange}
+                        onChange={value => onChange(value, index)}
                         isNew={false}
                         enableEditPopup={false}
                     />
@@ -36,13 +38,14 @@ const SequenceEditor = (props) => {
                 {content.__typename === 'CustomPayload' && (
                     <CustomResponseEditor
                         content={content}
-                        onChange={onChange}
+                        onChange={value => onChange(value, index)}
                     />
                 )}
-            </>
+                <Icon name='star' color='yellow' float='right' />
+            </Segment>
         );
     };
-    return renderContent();
+    return <>{sequence.map(renderVariation)}</>;
 };
 
 SequenceEditor.propTypes = {

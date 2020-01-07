@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { safeDump, safeLoad } from 'js-yaml';
 import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks';
 import {
-    Segment, Menu, MenuItem, Modal,
+    Segment, Menu, MenuItem, Modal, Button, Icon,
 } from 'semantic-ui-react';
 // connections
 import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../mutations';
@@ -17,7 +17,7 @@ import MetadataForm from '../MetadataForm';
 import ResponseNameInput from '../common/ResponseNameInput';
 // utils
 import {
-    createResponseFromTemplate, checkResponseEmpty, addResponseLanguage, addContentType,
+    createResponseFromTemplate, checkResponseEmpty, addResponseLanguage, addContentType, getDefaultTemplateFromSequence,
 } from '../botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
@@ -47,10 +47,14 @@ const BotResponseEditor = (props) => {
     const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
     const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
     
-    const [newBotResponse, setNewBotResponse] = useState();
+    const [newBotResponse, setNewBotResponse] = useState(botResponse);
     const [activeTab, setActiveTab] = useState(0);
     const [responseKey, setResponseKey] = useState(botResponse.key);
     const [renameError, setRenameError] = useState();
+
+    useEffect(() => {
+        setNewBotResponse(botResponse);
+    }, [botResponse]);
 
     const validateResponseName = (err) => {
         if (!err) {
@@ -96,35 +100,43 @@ const BotResponseEditor = (props) => {
     const handleChangeMetadata = (updatedMetadata) => {
         if (isNew) {
             setNewBotResponse(
-                { ...(newBotResponse || botResponse), metadata: updatedMetadata },
+                { ...newBotResponse, metadata: updatedMetadata },
             );
             return;
         }
-        updateResponse({ ...botResponse, metadata: updatedMetadata }, () => {});
+        updateResponse({ ...newBotResponse, metadata: updatedMetadata }, () => {});
     };
 
     const handleChangeKey = async () => {
         if (isNew) {
-            setNewBotResponse({ ...(newBotResponse || botResponse), key: responseKey });
+            setNewBotResponse({ ...newBotResponse, key: responseKey });
             return;
         }
-        updateResponse({ ...botResponse, key: responseKey }, validateResponseName);
+        updateResponse({ ...newBotResponse, key: responseKey }, validateResponseName);
     };
 
-    const updateSequence = (oldResponse, content) => {
-        const updatedResponse = oldResponse;
+    const updateSequence = (oldResponse, content, index) => {
+        const updatedResponse = { ...oldResponse };
         const activeIndex = oldResponse.values.findIndex(({ lang }) => lang === language);
-        updatedResponse.values[activeIndex].sequence[0].content = content;
+        let { sequence } = updatedResponse.values[activeIndex];
+        if (index !== undefined && sequence[index]) {
+            sequence[index].content = content;
+        } else {
+            sequence = [...sequence, { content }];
+        }
+        updatedResponse.values[activeIndex].sequence = sequence;
         return updatedResponse;
     };
 
-    const handleSequenceChange = (updatedSequence) => {
+    const handleSequenceChange = (updatedSequence, index) => {
         const content = safeDump(updatedSequence);
         if (isNew) {
-            setNewBotResponse(updateSequence(newBotResponse || botResponse, content));
+            const tempvar = updateSequence(newBotResponse, content, index);
+            setNewBotResponse(tempvar);
+            
             return;
         }
-        upsertResponse(name || botResponse.key, updatedSequence);
+        upsertResponse(name || newBotResponse.key, updatedSequence, index);
     };
 
     const getActiveValue = () => {
@@ -136,7 +148,7 @@ const BotResponseEditor = (props) => {
     };
 
     const handleModalClose = () => {
-        const validResponse = newBotResponse || botResponse;
+        const validResponse = newBotResponse;
         if (!open) return;
         if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
             refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveValue()[0].content))); // refresh the content of the response in the visual story editor
@@ -152,51 +164,72 @@ const BotResponseEditor = (props) => {
             });
         }
     };
+
+    const getActiveSequence = () => {
+        const validResponse = newBotResponse;
+        const activeValue = validResponse.values && validResponse.values.find(({ lang }) => lang === language);
+        if (!activeValue) {
+            return addResponseLanguage(validResponse, language).values.find(({ lang }) => lang === language).sequence;
+        }
+        return activeValue.sequence;
+    };
+
+    const addSequence = () => {
+        const activeSequence = getActiveSequence();
+        const template = getDefaultTemplateFromSequence(activeSequence);
+        handleSequenceChange(template);
+    };
    
-    const tabs = [
-        (
-            <Segment attached>
-                <SequenceEditor
-                    sequence={getActiveValue()}
-                    onChange={handleSequenceChange}
-                />
-            </Segment>
-        ),
-        <Segment attached><MetadataForm responseMetadata={botResponse.metadata} onChange={handleChangeMetadata} /></Segment>,
-    ];
-
-    const renderContent = () => (
-        <Segment.Group className='response-editor' data-cy='response-editor'>
-            <Segment attached='top' className='resonse-editor-topbar'>
-                <div className='response-editor-topbar-section'>
-                    <ResponseNameInput
-                        renameable={renameable}
-                        onChange={(e, target) => {
-                            setResponseKey(target.value);
-                        }}
-                        saveResponseName={handleChangeKey}
-                        errorMessage={renameError}
-                        responseName={responseKey}
-                        disabledMessage='Responses used in a story cannot be renamed.'
-                    />
-                </div>
-                <div className='response-editor-topbar-section'>
-                    <Menu pointing secondary activeIndex={activeTab}>
-                        <MenuItem onClick={() => { setActiveTab(0); }} active={activeTab === 0} className='response-variations' data-cy='variations-tab'>Response</MenuItem>
-                        <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata' data-cy='metadata-tab'>Metadata</MenuItem>
-                    </Menu>
-                </div>
-                <div className='response-editor-topbar-section' />
-            </Segment>
-            {tabs[activeTab]}
-        </Segment.Group>
-    );
-
+    const renderActiveTab = () => {
+        const activeSequence = getActiveSequence();
+        if (activeTab === 1) {
+            return <Segment attached><MetadataForm responseMetadata={newBotResponse.metadata} onChange={handleChangeMetadata} /></Segment>;
+        }
+        return (
+            <SequenceEditor
+                sequence={activeSequence}
+                onChange={handleSequenceChange}
+            />
+        );
+    };
     return (
         <Modal
             className='response-editor-dimmer'
             trigger={trigger}
-            content={renderContent()}
+            content={(
+                <Segment.Group className='response-editor' data-cy='response-editor'>
+                    <Segment attached='top' className='resonse-editor-topbar'>
+                        <div className='response-editor-topbar-section'>
+                            <ResponseNameInput
+                                renameable={renameable}
+                                onChange={(e, target) => {
+                                    setResponseKey(target.value);
+                                }}
+                                saveResponseName={handleChangeKey}
+                                errorMessage={renameError}
+                                responseName={responseKey}
+                                disabledMessage='Responses used in a story cannot be renamed.'
+                            />
+                        </div>
+                        <div className='response-editor-topbar-section'>
+                            <Menu pointing secondary activeIndex={activeTab}>
+                                <MenuItem onClick={() => { setActiveTab(0); }} active={activeTab === 0} className='response-variations' data-cy='variations-tab'>Response</MenuItem>
+                                <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata' data-cy='metadata-tab'>Metadata</MenuItem>
+                            </Menu>
+                        </div>
+                        <div className='response-editor-topbar-section' />
+                    </Segment>
+                    {renderActiveTab()}
+                    <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
+                        <Button
+                            className='add-sequence-button'
+                            data-cy='add-sequence'
+                            icon='plus'
+                            onClick={addSequence}
+                        />
+                    </Segment>
+                </Segment.Group>
+            )}
             open
             onClose={handleModalClose}
             centered={false}
