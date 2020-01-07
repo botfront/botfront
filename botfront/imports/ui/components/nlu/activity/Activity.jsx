@@ -205,7 +205,6 @@ function Activity(props) {
             <Popup
                 className={convId ? 'dialogue-popup' : ''}
                 on={convId ? 'click' : 'hover'}
-                inverted
                 trigger={(
                     <Button
                         basic
@@ -219,11 +218,11 @@ function Activity(props) {
                     />
                 )}
             >
-                {!convLoading && convData && convId(
+                {!convLoading && convData && convId && (
                     <ConversationDialogueViewer
-                        tracker={convData.conversation.tracker}
+                        conversation={convData.conversation}
                         messageIdInView={row.datum.message_id}
-                    />,
+                    />
                 )}
                 {!convId && 'No conversation data'}
             </Popup>
