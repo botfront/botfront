@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.3](https://github.com/botfront/botfront/compare/v0.19.0-alpha.2...v0.19.0-alpha.3) (2020-01-07)
+
+
+### Bug Fixes
+
+* allow any type of ars in NLG endpoint to support forms ([#410](https://github.com/botfront/botfront/issues/410)) ([a2f6d5f](https://github.com/botfront/botfront/commit/a2f6d5f))
+* metadata and delete icons remain visible ([#407](https://github.com/botfront/botfront/issues/407)) ([0ec6c18](https://github.com/botfront/botfront/commit/0ec6c18))
+* story visual editor can't retrieve bot responses ([#415](https://github.com/botfront/botfront/issues/415)) ([083af1e](https://github.com/botfront/botfront/commit/083af1e))
+* strip slashes when parsing and no model trained ([#412](https://github.com/botfront/botfront/issues/412)) ([6ad1f66](https://github.com/botfront/botfront/commit/6ad1f66))
+
+
+### Features
+
+* add forceOpen to metadata ([#413](https://github.com/botfront/botfront/issues/413)) ([f8a4a5c](https://github.com/botfront/botfront/commit/f8a4a5c))
+* **cli:** mongo database security ([#406](https://github.com/botfront/botfront/issues/406)) ([7a711a7](https://github.com/botfront/botfront/commit/7a711a7))
+* facebook messenger support ([#405](https://github.com/botfront/botfront/issues/405)) ([eeb7119](https://github.com/botfront/botfront/commit/eeb7119))
+
+
+
 ## [0.19.0-alpha.2](https://github.com/botfront/botfront/compare/v0.19.0-alpha.1...v0.19.0-alpha.2) (2020-01-04)
 
 
