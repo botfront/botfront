@@ -5,7 +5,9 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { browserHistory } from 'react-router';
 import { connect } from 'react-redux';
-import { AutoForm, SubmitField, ErrorsField } from 'uniforms-semantic';
+import {
+    AutoForm, SubmitField, ErrorsField, AutoField,
+} from 'uniforms-semantic';
 import { Dropdown, Form, Message } from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { ProjectsSchema as projectsSchemaDefault } from '../../../api/project/project.schema.default';
@@ -206,11 +208,10 @@ class ProjectInfo extends React.Component {
                             data-cy='deployment-environments'
                         />
 
-                        <InfoField
+                        <AutoField
                             step='0.5'
                             name='timezoneOffset'
                             label='Timezone offset relative to UTC±00:00'
-                            info='All date of the application are queried as your timezone was UTC±00:00, use this field if you want to offest your dates queries'
                             data-cy='change-timezone-offset'
                         />
                         <br />

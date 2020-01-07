@@ -61,9 +61,9 @@ const CanonicalPopup = (props) => {
 };
 
 const exampleShape = {
-    intent: PropTypes.string.isRequired,
+    intent: PropTypes.string,
     text: PropTypes.string.isRequired,
-    entities: PropTypes.array.isRequired,
+    entities: PropTypes.array,
     canonical: PropTypes.bool,
 };
 
