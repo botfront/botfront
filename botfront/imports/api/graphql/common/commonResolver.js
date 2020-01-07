@@ -19,7 +19,13 @@ export default {
             return null;
         },
     }),
-    Any: GraphQLJSON,
+    Any: new GraphQLScalarType({
+        name: 'Any',
+        description: 'Arbitrary JSON value',
+        parseValue: v => GraphQLJSON.parseValue(v),
+        serialize: v => GraphQLJSON.serialize(v),
+        parseLiteral: v => GraphQLJSON.parseLiteral(v),
+    }),
     StringOrListOfStrings: new GraphQLScalarType({
         name: 'StringOrListOfStrings',
         description: 'String | [String]',
