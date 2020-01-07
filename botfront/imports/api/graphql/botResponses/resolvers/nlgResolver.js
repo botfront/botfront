@@ -40,11 +40,12 @@ export default {
         getResponse: async (_root, args) => {
             const {
                 template,
-                arguments: { language, projectId } = {},
+                arguments: { language: specifiedLang, projectId } = {},
                 tracker: { slots } = {},
                 channel: { name: channel } = {},
             } = args;
-            if (!language || !projectId) throw new Error('Language or projectId missing!');
+            if (!projectId) throw new Error('Language or projectId missing!');
+            const language = specifiedLang || await Meteor.call('project.getDefaultLanguage', projectId);
             return resolveTemplate({
                 template, projectId, language, slots, channel,
             });
