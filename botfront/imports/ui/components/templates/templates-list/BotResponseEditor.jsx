@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { safeDump, safeLoad } from 'js-yaml';
 import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks';
 import {
-    Segment, Menu, MenuItem, Modal, Button, Icon,
+    Segment, Menu, MenuItem, Modal, Button,
 } from 'semantic-ui-react';
 // connections
-import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE } from '../mutations';
+import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE, DELETE_VARIATION } from '../mutations';
 import { RESPONSES_MODIFIED } from './subscriptions';
 import { GET_BOT_RESPONSE } from '../queries';
 // components
@@ -17,7 +17,11 @@ import MetadataForm from '../MetadataForm';
 import ResponseNameInput from '../common/ResponseNameInput';
 // utils
 import {
-    createResponseFromTemplate, checkResponseEmpty, addResponseLanguage, addContentType, getDefaultTemplateFromSequence,
+    createResponseFromTemplate,
+    checkResponseEmpty,
+    addResponseLanguage,
+    getDefaultTemplateFromSequence,
+    addContentType,
 } from '../botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
@@ -46,6 +50,7 @@ const BotResponseEditor = (props) => {
     const { upsertResponse } = useContext(ProjectContext); // using the upsert function from the project context ensures the visual story is updated
     const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
     const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
+    const [deleteVariation] = useMutation(DELETE_VARIATION);
     
     const [newBotResponse, setNewBotResponse] = useState(botResponse);
     const [activeTab, setActiveTab] = useState(0);
@@ -95,6 +100,30 @@ const BotResponseEditor = (props) => {
                 callback(error);
             },
         );
+    };
+
+    const handleDeleteVariation = (index) => {
+        const activeIndex = newBotResponse.values.findIndex(({ lang }) => lang === language);
+        
+        const { sequence } = newBotResponse.values[activeIndex];
+        const updatedSequence = [
+            ...sequence.slice(0, index),
+            ...sequence.slice(index + 1),
+        ];
+        
+        const updatedBotResponse = { ...newBotResponse };
+        updatedBotResponse.values[activeIndex].sequence = updatedSequence;
+        if (isNew) {
+            setNewBotResponse(updatedBotResponse);
+            return;
+        }
+        const variables = {
+            projectId,
+            language,
+            key: name || newBotResponse.key,
+            index,
+        };
+        deleteVariation({ variables });
     };
 
     const handleChangeMetadata = (updatedMetadata) => {
@@ -151,8 +180,11 @@ const BotResponseEditor = (props) => {
         const validResponse = newBotResponse;
         if (!open) return;
         if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
-            refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveValue()[0].content))); // refresh the content of the response in the visual story editor
-            closeModal();
+            const newPayload = addContentType(safeLoad(validResponse.values.find(({ lang }) => lang === language).sequence[0].content));
+            upsertResponse(newBotResponse.key, newPayload, 0).then(() => {
+                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveValue()[0].content))); // refresh the content of the response in the visual story editor
+                closeModal();
+            });
             return;
         }
         if (isNew && !checkResponseEmpty(validResponse)) {
@@ -189,6 +221,7 @@ const BotResponseEditor = (props) => {
             <SequenceEditor
                 sequence={activeSequence}
                 onChange={handleSequenceChange}
+                onDeleteVariation={handleDeleteVariation}
             />
         );
     };

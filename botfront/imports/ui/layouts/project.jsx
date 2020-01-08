@@ -176,7 +176,7 @@ class Project extends React.Component {
         return apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,
             variables,
-            update: UPSERT_BOT_RESPONSE_CACHE(variables),
+            update: UPSERT_BOT_RESPONSE_CACHE({ ...variables, index: 0 }),
         });
     }
 

@@ -70,8 +70,8 @@ export const upsertResponse = async ({
 }) => {
     const update = index === -1
         ? { $push: { 'values.$.sequence': { $each: [{ content: safeDump(clearTypenameField(newPayload)) }] } } }
-        : { $set: { [`values.$.sequence.${index || 0}`]: { content: safeDump(clearTypenameField(newPayload)) } } };
-    const ret = await BotResponses.findOneAndUpdate(
+        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) } } };
+    return BotResponses.findOneAndUpdate(
         { projectId, key, 'values.lang': language },
         update,
         { new: true, lean: true },
@@ -90,7 +90,22 @@ export const upsertResponse = async ({
         { new: true, lean: true, upsert: true },
     )
     ));
-    return ret;
+};
+
+export const deleteVariation = async ({
+    projectId, language, key, index,
+}) => {
+    const responseMatch = await BotResponses.findOne(
+        { projectId, key, 'values.lang': language },
+    ).exec();
+    const sequence = responseMatch && responseMatch.values.find(({ lang }) => lang === language).sequence;
+    if (!sequence) return null;
+    const updatedSequence = [...sequence.slice(0, index), ...sequence.slice(index + 1)];
+    return BotResponses.findOneAndUpdate(
+        { projectId, key, 'values.lang': language },
+        { $set: { 'values.$.sequence': updatedSequence } },
+        { new: true, lean: true },
+    );
 };
 
 export const newGetBotResponses = async ({ projectId, template, language }) => {
