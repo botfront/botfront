@@ -247,8 +247,8 @@ const BotResponseEditor = (props) => {
                     {renderActiveTab()}
                     <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
                         <Button
-                            className='add-sequence-button'
-                            data-cy='add-sequence'
+                            className='add-variation-button'
+                            data-cy='add-variation'
                             icon='plus'
                             onClick={addSequence}
                         />
@@ -324,7 +324,7 @@ const BotResponseEditorWrapper = (props) => {
                 const resp = {
                     ...subscriptionData.data.botResponsesModified,
                 };
-                if (resp.name === name) { setBotResponse(resp); }
+                if (resp.key === name) { setBotResponse(resp); }
             },
         });
     }
