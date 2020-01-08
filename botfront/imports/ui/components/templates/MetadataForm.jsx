@@ -42,7 +42,7 @@ function ResponseMetadataForm({
         }
 
         type ResponseMetadata {
-            linksTarget: String!
+            linkTarget: String!
             userInput:  String!
             userInputHint:  String!
             domHighlight: DomHighlight
@@ -56,7 +56,7 @@ function ResponseMetadataForm({
     `)).getType('ResponseMetadata');
 
     const defaultModel = {
-        linksTarget: '_blank',
+        linkTarget: '_blank',
         userInput: 'show',
         forceOpen: false,
         domHighlight: {},
@@ -136,7 +136,7 @@ function ResponseMetadataForm({
     };
 
     const schemaData = {
-        linksTarget: {
+        linkTarget: {
             label: 'Where should the links open?',
             defaultValue: '_blank',
             allowedValues: ['_blank', '_self'],
@@ -166,7 +166,7 @@ function ResponseMetadataForm({
             menuItem: 'General',
             render: () => (
                 <>
-                    <AutoField name='linksTarget' data-cy='links-target' />
+                    <AutoField name='linkTarget' data-cy='links-target' />
                     <AutoField name='userInput' />
                     <ToggleField name='forceOpen' className='toggle' />
                 </>
@@ -247,7 +247,7 @@ ResponseMetadataForm.propTypes = {
 
 ResponseMetadataForm.defaultProps = {
     responseMetadata: {
-        linksTarget: '_blank',
+        linkTarget: '_blank',
         userInput: 'show',
         messageTarget: 'conversation',
         domHighlight: {},
