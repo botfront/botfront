@@ -229,12 +229,11 @@ function ResponseMetadataForm({
     const displayModel = responseMetadata ? preprocessModel(responseMetadata) : preprocessModel(defaultModel);
     return (
         <div className='response-metadata-form'>
-            <AutoForm model={displayModel} schema={new GraphQLBridge(schema, validator, schemaData)} onSubmit={model => onChange(postProcess(model))}>
+            <AutoForm autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaData)} onSubmit={model => onChange(postProcess(model))}>
                 <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
                 <br />
                 <ErrorsField />
                 <br />
-                <SubmitField name='Save' data-cy='submit-metadata' />
             </AutoForm>
         </div>
     );
