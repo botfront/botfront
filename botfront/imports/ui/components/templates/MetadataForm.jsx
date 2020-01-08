@@ -141,8 +141,8 @@ function ResponseMetadataForm({
             defaultValue: '_blank',
             allowedValues: ['_blank', '_self'],
             options: [
-                { label: 'In the current tab', value: '_blank' },
-                { label: 'In a new tab', value: '_self' },
+                { label: 'In the current tab', value: '_self' },
+                { label: 'In a new tab', value: '_blank' },
             ],
         },
         userInput: {
