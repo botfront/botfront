@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery, useMutation, useLazyQuery } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
 import { browserHistory, withRouter } from 'react-router';
 import {
@@ -8,7 +8,7 @@ import {
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Meteor } from 'meteor/meteor';
-import { GET_CONVERSATIONS } from './queries';
+import { GET_CONVERSATIONS, GET_INTENTS_IN_CONVERSATIONS } from './queries';
 import { DELETE_CONV } from './mutations';
 import ConversationViewer from './ConversationViewer';
 import ConversationFilters from './ConversationFilters';
@@ -33,6 +33,7 @@ function ConversationsBrowser(props) {
         setActionOptions,
         loading,
         projectId,
+        intentsOptions,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -75,7 +76,7 @@ function ConversationsBrowser(props) {
 
         return '';
     }
-    
+
     const goToConversation = (newPage, conversationId, replace = false) => {
         // let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
         const url = updateIncomingPath({ ...router.params, page: newPage || 1, selected_id: conversationId });
@@ -110,7 +111,7 @@ function ConversationsBrowser(props) {
         return items;
     }
 
-    function changeFilters(lengthFilter, confidenceFilter, actionFilters, startDate, endDate) {
+    function changeFilters(lengthFilter, confidenceFilter, actionFilters, startDate, endDate, userId, operatorActionsFilters, operatorIntentsFilters, intentFilters) {
         const offsetStart = startDate ? applyTimezoneOffset(startDate, projectTimezoneOffset) : null;
         const offsetEnd = endDate ? applyTimezoneOffset(endDate, projectTimezoneOffset) : null;
         setActiveFilters({
@@ -121,6 +122,10 @@ function ConversationsBrowser(props) {
             actionFilters,
             startDate: offsetStart,
             endDate: offsetEnd,
+            userId,
+            operatorActionsFilters,
+            operatorIntentsFilters,
+            intentFilters,
         });
         refetch();
     }
@@ -153,11 +158,15 @@ function ConversationsBrowser(props) {
                         confidenceFilter={activeFilters.confidenceFilter}
                         xThanConfidence={activeFilters.xThanConfidence}
                         actionFilters={activeFilters.actionFilters}
+                        intentFilters={activeFilters.intentFilters}
                         startDate={activeFilters.startDate}
                         endDate={activeFilters.endDate}
+                        operatorActionsFilters={activeFilters.operatorActionsFilters}
+                        operatorIntentsFilters={activeFilters.operatorIntentsFilters}
                         changeFilters={changeFilters}
                         actionsOptions={actionsOptions}
                         setActionOptions={setActionOptions}
+                        intentsOptions={intentsOptions}
                     />
                 </Grid.Row>
                 <Loading loading={loading}>
@@ -193,10 +202,10 @@ function ConversationsBrowser(props) {
                             </Grid.Column>
                         </>
                     ) : (
-                        <Grid.Column width={16}>
-                            <Message data-cy='no-conv' info>No conversations to load.</Message>
-                        </Grid.Column>
-                    )}
+                            <Grid.Column width={16}>
+                                <Message data-cy='no-conv' info>No conversations to load.</Message>
+                            </Grid.Column>
+                        )}
                 </Loading>
             </Grid>
         </div>
@@ -213,6 +222,7 @@ ConversationsBrowser.propTypes = {
     activeFilters: PropTypes.object,
     setActiveFilters: PropTypes.func.isRequired,
     actionsOptions: PropTypes.array,
+    intentsOptions: PropTypes.array,
     setActionOptions: PropTypes.func.isRequired,
     loading: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
@@ -223,6 +233,7 @@ ConversationsBrowser.defaultProps = {
     activeConversationId: null,
     activeFilters: {},
     actionsOptions: [],
+    intentsOptions: [],
 };
 
 const ConversationsBrowserContainer = (props) => {
@@ -234,7 +245,7 @@ const ConversationsBrowserContainer = (props) => {
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
     const page = parseInt(router.params.page, 10) || 1;
-    
+
     const [activeFilters, setActiveFilters] = useState({
         lengthFilter: -1,
         xThanLength: 'greaterThan',
@@ -244,11 +255,25 @@ const ConversationsBrowserContainer = (props) => {
         startDate: null,
         endDate: null,
         timeZoneHoursOffset: null,
+        userId: null,
+        operatorActionsFilters: 'or',
+        operatorIntentsFilters: 'or',
+        intentFilters: [],
     });
     const [actionsOptions, setActionOptions] = useState([]);
-    
+    const [intentsOptions, setIntentsOptions] = useState([]);
 
+    const [loadIntents] = useLazyQuery(GET_INTENTS_IN_CONVERSATIONS, {
+        variables: { projectId },
+        onCompleted: (data) => {
+            setIntentsOptions(data.intentsInConversations.map(((intent) => {
+                if (intent === null) return { value: null, text: 'null', key: 'null' };
+                return { value: intent, text: intent, key: intent };
+            })));
+        },
+    });
     useEffect(() => {
+        loadIntents();
         Meteor.call(
             'project.getActions',
             projectId,
@@ -259,6 +284,7 @@ const ConversationsBrowserContainer = (props) => {
             }),
         );
     }, []);
+
 
     const {
         loading, error, data, refetch,
@@ -271,12 +297,16 @@ const ConversationsBrowserContainer = (props) => {
             ...activeFilters,
             startDate: activeFilters.startDate,
             endDate: activeFilters.endDate,
+            userId: activeFilters.userId,
+            operatorActionsFilters: activeFilters.operatorActionsFilters,
+            operatorIntentsFilters: activeFilters.operatorIntentsFilters,
+            intentFilters: activeFilters.intentFilters,
         },
         pollInterval: 5000,
     });
 
     const componentProps = {
-        page, projectId, router, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions,
+        page, projectId, router, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions, intentsOptions,
     };
 
     if (!loading && !error) {
@@ -319,13 +349,10 @@ const ConversationsBrowserContainer = (props) => {
 ConversationsBrowserContainer.propTypes = {
     router: PropTypes.object.isRequired,
     environment: PropTypes.string,
-    actionsOptions: PropTypes.array,
-    setActionOptions: PropTypes.func.isRequired,
 };
 
 ConversationsBrowserContainer.defaultProps = {
     environment: 'developement',
-    actionsOptions: [],
 };
 
 const mapStateToProps = state => ({

@@ -14,8 +14,13 @@ type Query {
       startDate: String
       endDate: String
       timeZoneHoursOffset: Float
+      userId: String
+      operatorActionsFilters: String,
+      operatorIntentsFilters: String,
+      intentFilters: [String]
       ): Pagination
     conversation(projectId: String!, id: String!): ConversationContainer!
+    intentsInConversations(projectId: String!): [String]
 }
 
 enum order {

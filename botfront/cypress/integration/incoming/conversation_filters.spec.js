@@ -41,7 +41,7 @@ describe('filters', function () {
         cy.get('.accordion.ui > .content').should('have.class', 'active');
         cy.dataCy('length-filter').find('input').should('have.value', '5');
         cy.dataCy('confidence-filter').find('input').should('have.value', '75');
-        cy.get('[data-cy=action-filter] > .fluid > .ui').should('have.text', 'test');
+        cy.get('.fluid > .ui').should('have.text', 'test');
     });
     
     it('should be resetable', function () {
@@ -137,8 +137,11 @@ describe('filters', function () {
     
     it('should filter by action', function () {
         cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
+            // both conversation that have been added also gave an action_dummy
             cy.addConversation('bf', 'test', conversationData.action_test);
             cy.addConversation('bf', 'autre', conversationData.action_autre);
+            cy.updateConversation('bf', 'test', conversationData.action_test);
+            cy.updateConversation('bf', 'autre', conversationData.action_autre);
             cy.visit('/project/bf/incoming');
             cy.dataCy('conversations')
                 .click();
@@ -162,6 +165,70 @@ describe('filters', function () {
                 .click()
                 .find('input')
                 .type('action_autre{enter}{esc}');
+            cy.dataCy('action-filter')
+                .find('.filter-dropdown')
+                .click()
+                .find('input')
+                .type('action_dummy{enter}{esc}');
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('conversation-item').should('have.text', 'autretest');
+            cy.dataCy('action-filter')
+                .find('.andor')
+                .click()
+                .find('div')
+                .contains('And')
+                .click();
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('conversation-item').should('have.text', 'autre');
+            cy.dataCy('conversation-item').should('not.have.text', 'test');
+        });
+    });
+    it('should filter by intent', function () {
+        cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
+            // both conversation that have been added also gave an intent_dummy
+            cy.addConversation('bf', 'test', conversationData.intent_test);
+            cy.addConversation('bf', 'autre', conversationData.intent_autre);
+            cy.updateConversation('bf', 'test', conversationData.intent_test);
+            cy.updateConversation('bf', 'autre', conversationData.intent_autre);
+            cy.visit('/project/bf/incoming');
+            cy.dataCy('conversations')
+                .click();
+            cy.dataCy('intent-filter')
+                .find('.filter-dropdown')
+                .click()
+                .find('input')
+                .type('intent_test{enter}{esc}');
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('conversation-item').should('have.text', 'test');
+            cy.dataCy('conversation-item').should('not.have.text', 'autre');
+            cy.dataCy('intent-filter')
+                .click()
+                .find('.label')
+                .contains('intent_test')
+                .find('.icon')
+                .click();
+            cy.dataCy('intent-filter')
+                .find('.filter-dropdown')
+                .click()
+                .find('input')
+                .type('intent_autre{enter}{esc}');
+            cy.dataCy('intent-filter')
+                .find('.filter-dropdown')
+                .click()
+                .find('input')
+                .type('intent_dummy{enter}{esc}');
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('conversation-item').should('have.text', 'autretest');
+            cy.dataCy('intent-filter')
+                .find('.andor')
+                .click()
+                .find('div')
+                .contains('And')
+                .click();
             cy.dataCy('apply-filters').click();
             cy.wait(100);
             cy.dataCy('conversation-item').should('have.text', 'autre');
@@ -183,16 +250,59 @@ describe('filters', function () {
         cy.dataCy('utterance-text').should('contains.text', 'nov');
         cy.dataCy('conversation-item').should('have.length', 1);
     });
+
+    it('should filter by userId', function () {
+        cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
+            cy.addConversation('bf', 'uidaaa', conversationData.uid_aaa);
+            cy.addConversation('bf', 'uidbbb', conversationData.uid_bbb);
+            cy.updateConversation('bf', 'uidaaa', conversationData.uid_aaa); // the uid field is only added after the update
+            cy.updateConversation('bf', 'uidbbb', conversationData.uid_bbb);
+            cy.visit('/project/bf/incoming');
+            cy.dataCy('conversations')
+                .click();
+            cy.dataCy('id-filter')
+                .find('input')
+                .type('aaa');
+                
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('conversation-item').should('have.text', 'uidaaa');
+            cy.dataCy('conversation-item').should('not.have.text', 'uidbbb');
+        });
+    });
+
+    it('should filter by userId', function () {
+        cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
+            cy.addConversation('bf', 'uidaaa', conversationData.uid_aaa);
+            cy.addConversation('bf', 'uidbbb', conversationData.uid_bbb);
+            cy.updateConversation('bf', 'uidaaa', conversationData.uid_aaa); // the uid field is only added after the update
+            cy.updateConversation('bf', 'uidbbb', conversationData.uid_bbb);
+            cy.visit('/project/bf/incoming');
+            cy.dataCy('conversations')
+                .click();
+            cy.dataCy('id-filter')
+                .find('input')
+                .type('aaa');
+                
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('conversation-item').should('have.text', 'uidaaa');
+            cy.dataCy('conversation-item').should('not.have.text', 'uidbbb');
+        });
+    });
     
     it('should filter be possible to filter with multiple constraints at once', function () {
         cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
             cy.addConversation('bf', 'test', conversationData.action_test);
             cy.addConversation('bf', 'autre', conversationData.action_autre);
+            cy.updateConversation('bf', 'test', conversationData.action_test);
+            cy.updateConversation('bf', 'autre', conversationData.action_autre);
             cy.addConversation('bf', 'conf90', conversationData.conf_90);
             cy.addConversation('bf', 'conf70', conversationData.conf_70);
             cy.addConversation('bf', 'len3', conversationData.len_3);
             cy.addConversation('bf', 'len1', conversationData.len_1);
             cy.addConversation('bf', 'pass_all', conversationData.len_3_conf_70_action_test);
+            cy.updateConversation('bf', 'pass_all', conversationData.len_3_conf_70_action_test);
 
             cy.visit('/project/bf/incoming');
             cy.dataCy('conversations')

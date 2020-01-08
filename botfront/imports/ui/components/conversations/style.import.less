@@ -37,23 +37,70 @@ div.bot-response-message {
 }
 
 .conversation-filter-container {
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
+
+  &.first-line{
+    margin-right: 7rem;
+  }
 
   button.filter-button {
+    position: absolute;
     max-width: 20em;
-    display: inline-block;
+    right: 0px;
     margin-right: 0.7rem ;
+    margin-left: 0.7rem ;
+    overflow: hidden;
     border-style: none;
     height: 36px;
+    margin-top: 1em;
   }
 
   .conversation-filter {
     padding: 0 0.75em;
-    display: inline-block;
-   
+    margin-top: 1em;
+    .segments.horizontal.multiselect-andor{
+      border: none;
+    }
+
+    &.id-filter{
+      flex-grow: 1;
+      min-width: 10rem;
+    }
+
     &.actions {
-      max-width: 320px;
-      width: 320px;
+      max-width: 50%;
+      min-width: 50%;
+      margin-top: 1em;
+    }
+
+    &.intents{
+      max-width: 50%;
+      min-width: 50%;
+      margin-top: 1em;
+      .dropdown.filter-dropdown > .label {
+       color:white;
+       background-color:#a333c8;;
+      }
+    }
+    .segment.multiselect-segment {
+      width: 90%;
+      .dropdown.filter-dropdown {
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        border-right: none;
+      }
+    }
+
+    .segment.andor-segment {
+      width: 6rem;
+      .dropdown.andor {
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+        border-left: none;
+        height: 100%;
+      }
+      
     }
 
     &.conv-length {
@@ -125,9 +172,25 @@ div.bot-response-message {
       &.number-filter{
         width: 4.5em;
       }
+      &.id-filter{
+        flex-grow: 1;
+        min-width: 10rem;
+      }
       &.x-than-filter{
         width: 112px;
         background-color: #e8e8e8;
+        .label{
+          padding-top: 0.8rem;
+          width: 100%;
+          height: 100%;
+          border-radius: unset;
+          font-size: 1rem;
+        }
+      }
+      &.uid-label{
+        background-color: #e8e8e8;
+        max-width: 5rem;
+
         .label{
           padding-top: 0.8rem;
           width: 100%;

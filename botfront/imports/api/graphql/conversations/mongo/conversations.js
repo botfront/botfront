@@ -37,7 +37,7 @@ const getComparaisonSymbol = (comparaisonString) => {
 };
 
 
-const createFilterObject = (
+const createFilterObject = ({
     projectId,
     status = [],
     env = 'development',
@@ -46,8 +46,11 @@ const createFilterObject = (
     actionFilters,
     startDate,
     endDate,
-    timeZoneHoursOffset,
-) => {
+    userId,
+    operatorActionsFilters,
+    operatorIntentsFilters,
+    intentFilters,
+}) => {
     const filters = { projectId };
     if (status.length > 0) filters.status = { $in: status };
     if (env) filters.env = env;
@@ -68,8 +71,18 @@ const createFilterObject = (
         }];
     }
     if (actionFilters && actionFilters.length > 0) {
-        filters['tracker.events.event'] = 'action';
-        filters['tracker.events.name'] = { $in: actionFilters };
+        if (operatorActionsFilters === 'and') {
+            filters.actions = { $all: actionFilters };
+        } else {
+            filters.actions = { $in: actionFilters };
+        }
+    }
+    if (intentFilters && intentFilters.length > 0) {
+        if (operatorIntentsFilters === 'and') {
+            filters.intents = { $all: intentFilters };
+        } else {
+            filters.intents = { $in: intentFilters };
+        }
     }
     if (startDate && endDate) {
         filters.$and = [
@@ -87,11 +100,14 @@ const createFilterObject = (
             },
         ];
     }
+    if (userId) {
+        filters.userId = userId;
+    }
     return filters;
 };
 
 
-export const getConversations = async (
+export const getConversations = async ({
     projectId,
     page = 1,
     pageSize = 20,
@@ -105,8 +121,12 @@ export const getConversations = async (
     actionFilters = null,
     startDate = null,
     endDate = null,
-    timeZoneHoursOffset = null) => {
-    const filtersObject = createFilterObject(
+    userId = null,
+    operatorActionsFilters = 'or',
+    operatorIntentsFilters = 'or',
+    intentFilters = null,
+}) => {
+    const filtersObject = createFilterObject({
         projectId,
         status,
         env,
@@ -115,8 +135,11 @@ export const getConversations = async (
         actionFilters,
         startDate,
         endDate,
-        timeZoneHoursOffset,
-    );
+        userId,
+        operatorActionsFilters,
+        operatorIntentsFilters,
+        intentFilters,
+    });
     const sortObject = createSortObject(sort);
     
 
@@ -201,6 +224,18 @@ export const getConversation = async (projectId, id) => (Conversations.findOne(
         _id: id,
     },
 ).lean());
+
+
+export const getIntents = async (projectId) => {
+    const intentsOfConversation = await Conversations.find(
+        {
+            projectId,
+        }, 'intents',
+    ).lean();
+    
+    const intents = intentsOfConversation.map(conversation => conversation.intents);
+    return Array.from(new Set(intents.flat()));
+};
 
 export const updateConversationStatus = async (id, status) => (
     Conversations.updateOne({ _id: id }, { $set: { status } }).exec()

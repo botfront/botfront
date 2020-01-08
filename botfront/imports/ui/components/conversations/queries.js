@@ -14,6 +14,10 @@ query retreiveConversations(
     $startDate: String
     $endDate: String
     $timeZoneHoursOffset: Float
+    $userId: String,
+    $operatorActionsFilters: String,
+    $operatorIntentsFilters: String,
+    $intentFilters: [String]
     ) {
     conversationsPage(
         projectId: $projectId,
@@ -29,7 +33,11 @@ query retreiveConversations(
         actionFilters: $actionFilters,
         startDate: $startDate,
         endDate: $endDate,
-        timeZoneHoursOffset: $timeZoneHoursOffset
+        timeZoneHoursOffset: $timeZoneHoursOffset,
+        userId: $userId
+        operatorActionsFilters: $operatorActionsFilters,
+        operatorIntentsFilters: $operatorIntentsFilters,
+        intentFilters: $intentFilters
     ) {
         conversations {
             _id
@@ -98,3 +106,10 @@ query retreiveAConversation($projectId: String!, $conversationId: String!) {
       userId
     }
 }`;
+
+
+export const GET_INTENTS_IN_CONVERSATIONS = gql`
+    query retrieveIntentsInConversations($projectId: String!) {
+        intentsInConversations(projectId: $projectId)
+    }
+`;

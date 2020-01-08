@@ -11,6 +11,7 @@ import {
 } from 'semantic-ui-react';
 import momentPropTypes from 'react-moment-proptypes';
 import DatePicker from '../common/DatePicker';
+import AndOrMultiSelect from './AndOrMultiSelect';
 
 const ConversationFilters = ({
     lengthFilter,
@@ -18,11 +19,16 @@ const ConversationFilters = ({
     confidenceFilter,
     xThanConfidence,
     actionFilters,
+    intentFilters,
     changeFilters,
     startDate,
     endDate,
+    userId,
     actionsOptions,
     setActionOptions,
+    intentsOptions,
+    operatorActionsFilters,
+    operatorIntentsFilters,
 }) => {
     const [newLengthFilter, setNewLengthFilter] = useState({
         compare: lengthFilter,
@@ -33,11 +39,16 @@ const ConversationFilters = ({
         xThan: xThanConfidence,
     });
     const [newActionFilters, setNewActionFilters] = useState(actionFilters);
+    const [newIntentFilters, setNewIntentFilters] = useState(intentFilters);
     const [newStartDate, setNewStartDate] = useState(startDate);
     const [newEndDate, setNewEndDate] = useState(endDate);
+    const [newUserIdFilter, setNewUserIdFilter] = useState(userId);
     const [activeAccordion, setActiveAccordion] = useState(true);
+    const [newOperatorActionsFilters, setNewOperatorActionsFilters] = useState(operatorActionsFilters);
+    const [newOperatorIntentsFilters, setNewOperatorIntentsFilters] = useState(operatorIntentsFilters);
 
     useEffect(() => setNewActionFilters(actionFilters), [actionFilters]);
+    useEffect(() => setNewIntentFilters(intentFilters), [intentFilters]);
     useEffect(() => setNewStartDate(startDate), [startDate]);
     useEffect(() => setNewEndDate(endDate), [endDate]);
     useEffect(() => setNewConfidenceFilter({
@@ -73,6 +84,10 @@ const ConversationFilters = ({
             newActionFilters,
             newStartDate,
             newEndDate,
+            newUserIdFilter,
+            newOperatorActionsFilters,
+            newOperatorIntentsFilters,
+            newIntentFilters,
         );
     };
 
@@ -89,12 +104,19 @@ const ConversationFilters = ({
             compare: -1,
             xThan: 'greaterThan',
         });
+        setNewUserIdFilter(null);
+        setNewOperatorActionsFilters('or');
+        setNewOperatorIntentsFilters('or');
         changeFilters(
             { compare: -1, xThan: 'greaterThan' },
             { compare: -1, xThan: 'lessThan' },
             [],
             null,
             null,
+            null,
+            'or',
+            'or',
+            [],
         );
     };
 
@@ -112,6 +134,12 @@ const ConversationFilters = ({
     if (
         newActionFilters.length > 0
         && newActionFilters.every(e => actionFilters.includes(e))
+    ) {
+        numberOfActiveFilter += 1;
+    }
+    if (
+        newIntentFilters.length > 0
+        && newIntentFilters.every(e => intentFilters.includes(e))
     ) {
         numberOfActiveFilter += 1;
     }
@@ -162,26 +190,7 @@ const ConversationFilters = ({
                 </span>
             </Accordion.Title>
             <Accordion.Content active={activeAccordion}>
-                <div className='conversation-filter-container'>
-                    <div className='conversation-filter actions' data-cy='action-filter'>
-                        <Dropdown
-                            className='filter-dropdown multi-select'
-                            placeholder='Action name'
-                            fluid
-                            multiple
-                            search
-                            selection
-                            onChange={(e, { value }) => {
-                                setNewActionFilters(value);
-                            }}
-                            value={newActionFilters}
-                            additionLabel='Add: '
-                            noResultsMessage='Type to add action filters'
-                            allowAdditions
-                            onAddItem={(_, { value }) => addNewOption(value)}
-                            options={actionsOptions}
-                        />
-                    </div>
+                <div className='conversation-filter-container first-line'>
 
                     <div className='conversation-filter' data-cy='confidence-filter'>
                         <Segment.Group
@@ -252,6 +261,27 @@ const ConversationFilters = ({
                         </Segment.Group>
                     </div>
 
+                    <div className='conversation-filter id-filter' data-cy='id-filter'>
+                        <Segment.Group
+                            horizontal
+                            data-cy='id-filter'
+                            className='conversation-filter'
+                        >
+                            <Segment className='uid-label'>
+                                <Label> User ID</Label>
+                            </Segment>
+                            <Segment className='id-filter'>
+                                <Input
+                                    onChange={(e, { value }) => setNewUserIdFilter(
+                                        value.trim(),
+                                    )
+                                    }
+                                    placeholder='unique identifier'
+                                />
+                            </Segment>
+                        </Segment.Group>
+                    </div>
+
                     <div className='conversation-filter' data-cy='date-filter'>
                         <Segment className='date-filter' data-cy='date-picker-container'>
                             <DatePicker
@@ -274,6 +304,28 @@ const ConversationFilters = ({
                     {/* <Segment className='filter-button'>
                         </Segment> */}
                 </div>
+                <div className='conversation-filter-container'>
+                    <div className='conversation-filter actions' data-cy='action-filter'>
+                        <AndOrMultiSelect
+                            values={newActionFilters}
+                            addItem={addNewOption}
+                            options={actionsOptions}
+                            onChange={setNewActionFilters}
+                            operatorChange={setNewOperatorActionsFilters}
+                            placeholder='Action name'
+                            allowAdditions
+                        />
+                    </div>
+                    <div className='conversation-filter intents' data-cy='intent-filter'>
+                        <AndOrMultiSelect
+                            values={newIntentFilters}
+                            options={intentsOptions}
+                            onChange={setNewIntentFilters}
+                            operatorChange={setNewOperatorIntentsFilters}
+                            placeholder='Intent name'
+                        />
+                    </div>
+                </div>
             </Accordion.Content>
         </Accordion>
     );
@@ -286,17 +338,27 @@ ConversationFilters.propTypes = {
     xThanConfidence: PropTypes.string.isRequired,
     changeFilters: PropTypes.func.isRequired,
     actionFilters: PropTypes.array,
+    intentFilters: PropTypes.array,
     startDate: momentPropTypes.momentObj,
     endDate: momentPropTypes.momentObj,
     actionsOptions: PropTypes.array,
     setActionOptions: PropTypes.func.isRequired,
+    userId: PropTypes.string,
+    intentsOptions: PropTypes.array,
+    operatorActionsFilters: PropTypes.string,
+    operatorIntentsFilters: PropTypes.string,
 };
 
 ConversationFilters.defaultProps = {
     startDate: null,
     endDate: null,
     actionFilters: [],
+    intentFilters: [],
     actionsOptions: [],
+    userId: null,
+    intentsOptions: PropTypes.array,
+    operatorActionsFilters: 'or',
+    operatorIntentsFilters: 'or',
 };
 
 export default ConversationFilters;
