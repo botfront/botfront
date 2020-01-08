@@ -168,10 +168,10 @@ const BotResponseEditor = (props) => {
         upsertResponse(name || newBotResponse.key, updatedSequence, index);
     };
 
-    const getActiveValue = () => {
-        const activeValue = botResponse.values && botResponse.values.find(({ lang }) => lang === language);
+    const getActiveSequence = () => {
+        const activeValue = newBotResponse.values && newBotResponse.values.find(({ lang }) => lang === language);
         if (!activeValue) {
-            return addResponseLanguage(botResponse, language).values.find(({ lang }) => lang === language).sequence;
+            return addResponseLanguage(newBotResponse, language).values.find(({ lang }) => lang === language).sequence;
         }
         return activeValue.sequence;
     };
@@ -180,9 +180,9 @@ const BotResponseEditor = (props) => {
         const validResponse = newBotResponse;
         if (!open) return;
         if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
-            const newPayload = addContentType(safeLoad(validResponse.values.find(({ lang }) => lang === language).sequence[0].content));
+            const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
             upsertResponse(newBotResponse.key, newPayload, 0).then(() => {
-                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveValue()[0].content))); // refresh the content of the response in the visual story editor
+                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
                 closeModal();
             });
             return;
@@ -197,14 +197,6 @@ const BotResponseEditor = (props) => {
         }
     };
 
-    const getActiveSequence = () => {
-        const validResponse = newBotResponse;
-        const activeValue = validResponse.values && validResponse.values.find(({ lang }) => lang === language);
-        if (!activeValue) {
-            return addResponseLanguage(validResponse, language).values.find(({ lang }) => lang === language).sequence;
-        }
-        return activeValue.sequence;
-    };
 
     const addSequence = () => {
         const activeSequence = getActiveSequence();
