@@ -7,7 +7,6 @@ const metadata = {
     linkTarget: '_self',
     userInput: 'disable',
     userInputHint: 'blabla',
-    messageTarget: 'a very long text',
     domHighlight: {
         selector: '.something',
         css: 'color: white',

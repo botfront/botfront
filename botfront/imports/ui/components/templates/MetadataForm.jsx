@@ -6,7 +6,7 @@ import {
     Message, Tab,
 } from 'semantic-ui-react';
 import {
-    AutoForm, AutoField, ErrorsField, LongTextField, SubmitField,
+    AutoForm, AutoField, ErrorsField, LongTextField,
 } from 'uniforms-semantic';
 import { cloneDeep } from 'lodash';
 import InfoField from '../utils/InfoField';
@@ -248,7 +248,6 @@ ResponseMetadataForm.defaultProps = {
     responseMetadata: {
         linkTarget: '_blank',
         userInput: 'show',
-        messageTarget: 'conversation',
         domHighlight: {},
         customCss: {},
         pageChangeCallbacks: null,
