@@ -1,6 +1,7 @@
 import { safeLoad } from 'js-yaml';
 import { sample } from 'lodash';
 import { newGetBotResponses } from '../mongo/botResponses';
+import { getLanguagesFromProjectId } from '../../../../lib/utils';
 
 const interpolateSlots = (text, slots) => {
     // fills in {slotname} in templates
@@ -44,8 +45,10 @@ export default {
                 tracker: { slots } = {},
                 channel: { name: channel } = {},
             } = args;
-            if (!projectId) throw new Error('Language or projectId missing!');
-            const language = specifiedLang || await Meteor.call('project.getDefaultLanguage', projectId);
+            if (!projectId) throw new Error('ProjectId missing!');
+            const language = specifiedLang && getLanguagesFromProjectId(projectId).includes(specifiedLang)
+                ? specifiedLang
+                : slots.fallback_language;
             return resolveTemplate({
                 template, projectId, language, slots, channel,
             });
