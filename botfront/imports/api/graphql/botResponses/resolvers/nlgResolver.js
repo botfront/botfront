@@ -34,10 +34,10 @@ const resolveTemplate = async ({
     // ? safeLoad(sample(source).payload) // if called by rasa get a random variation
     // : safeLoad(source[0].payload); // if called anywhere else get the first variation
 
-    const { payload: rawPayload, metadata } = sample(source) || source[0];
+    const { payload: rawPayload, metadata } = slots ? sample(source) : source[0];
     const payload = safeLoad(rawPayload);
     if (payload.key) delete payload.key;
-    if (payload.text) payload.text = interpolateSlots(payload.text, slots);
+    if (payload.text) payload.text = interpolateSlots(payload.text, slots || {});
     return { ...payload, metadata };
 };
 
