@@ -13,6 +13,23 @@ import InfoField from '../utils/InfoField';
 import ToggleField from '../common/ToggleField';
 import DisplayIf from '../DisplayIf';
 
+// force open affect force close and vice versa
+class AutoFormMetadata extends AutoForm {
+    onChange(key, value) {
+        if (key === 'forceOpen') {
+            super.onChange('forceOpen', value);
+            if (value) super.onChange('forceClose', false);
+            return;
+        }
+        if (key === 'forceClose') {
+            super.onChange('forceClose', value);
+            if (value) super.onChange('forceOpen', false);
+            return;
+        }
+        super.onChange(key, value);
+    }
+}
+
 function ResponseMetadataForm({
     responseMetadata, onChange,
 }) {
@@ -49,6 +66,7 @@ function ResponseMetadataForm({
             pageChangeCallbacks : PageChangeCallbacks
             customCss: CustomCss
             forceOpen: Boolean!
+            forceClose: Boolean!
         }
 
         # This is required by buildASTSchema
@@ -59,6 +77,7 @@ function ResponseMetadataForm({
         linkTarget: '_blank',
         userInput: 'show',
         forceOpen: false,
+        forceClose: false,
         domHighlight: {},
         customCss: {},
         pageChangeCallbacks: null,
@@ -159,6 +178,10 @@ function ResponseMetadataForm({
             label: 'Force the chat widget to open? (Otherwise it will appear as a tooltip if the widget is closed)',
             defaultValue: false,
         },
+        forceClose: {
+            label: 'Force the chat widget to close? (message will appear as a tooltip)',
+            defaultValue: false,
+        },
     };
 
     const panes = [
@@ -168,7 +191,14 @@ function ResponseMetadataForm({
                 <>
                     <AutoField name='linkTarget' data-cy='links-target' />
                     <AutoField name='userInput' />
-                    <ToggleField name='forceOpen' className='toggle' />
+                    <ToggleField
+                        name='forceOpen'
+                        className='toggle'
+                    />
+                    <ToggleField
+                        name='forceClose'
+                        className='toggle'
+                    />
                 </>
             ),
         },
@@ -229,12 +259,12 @@ function ResponseMetadataForm({
     const displayModel = responseMetadata ? preprocessModel(responseMetadata) : preprocessModel(defaultModel);
     return (
         <div className='response-metadata-form'>
-            <AutoForm autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaData)} onSubmit={model => onChange(postProcess(model))}>
+            <AutoFormMetadata autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaData)} onSubmit={model => onChange(postProcess(model))}>
                 <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
                 <br />
                 <ErrorsField />
                 <br />
-            </AutoForm>
+            </AutoFormMetadata>
         </div>
     );
 }
