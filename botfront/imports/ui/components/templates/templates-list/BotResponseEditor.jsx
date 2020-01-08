@@ -181,7 +181,7 @@ const BotResponseEditor = (props) => {
         if (!open) return;
         if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
             const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
-            upsertResponse(newBotResponse.key, newPayload, 0).then(() => {
+            upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
                 refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
                 closeModal();
             });
