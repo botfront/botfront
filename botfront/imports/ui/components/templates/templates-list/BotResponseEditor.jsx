@@ -56,6 +56,7 @@ const BotResponseEditor = (props) => {
     const [activeTab, setActiveTab] = useState(0);
     const [responseKey, setResponseKey] = useState(botResponse.key);
     const [renameError, setRenameError] = useState();
+    const [triggerClose, setTriggerClose] = useState(false);
 
     useEffect(() => {
         setNewBotResponse(botResponse);
@@ -197,6 +198,12 @@ const BotResponseEditor = (props) => {
         }
     };
 
+    useEffect(() => {
+        if (triggerClose === true) {
+            handleModalClose();
+            setTriggerClose(false);
+        }
+    }, [triggerClose]);
 
     const addSequence = () => {
         const activeSequence = getActiveSequence();
@@ -256,8 +263,8 @@ const BotResponseEditor = (props) => {
                     </Segment>
                 </Segment.Group>
             )}
-            open
-            onClose={handleModalClose}
+            open={open}
+            onClose={() => setTriggerClose(true)}
             centered={false}
         />
     );
@@ -334,7 +341,7 @@ const BotResponseEditorWrapper = (props) => {
         setBotResponse(createResponseFromTemplate(responseType, language));
     }
 
-    if ((!botResponse && !incomingBotResponse && !isNew) || !open) return trigger;
+    if ((!botResponse && !incomingBotResponse && !isNew)) return trigger;
     return (
         <BotResponseEditor
             {...props}

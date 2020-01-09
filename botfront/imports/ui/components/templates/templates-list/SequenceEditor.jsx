@@ -27,7 +27,7 @@ const SequenceEditor = (props) => {
         const content = getContent(variation);
         if (!content) return <></>;
         return (
-            <Segment className='variation-container' attached key={`variation-${index}-${content.text}`}>
+            <Segment className='variation-container' attached key={`variation-${index}-${content.text}`} data-cy='variation-container'>
                 { (content.__typename === 'TextPayload'
                     || content.__typename === 'QuickReplyPayload'
                     || content.__typename === 'ImagePayload') && (
@@ -46,12 +46,13 @@ const SequenceEditor = (props) => {
                         onChange={value => onChange(value, index)}
                     />
                 )}
-                <div>
+                <div className='variation-option-menu'>
                     {/* <Icon name='star' color='yellow' float='right' /> */}
                     <IconButton
                         id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
                         onClick={() => {
                             if (sequence.length === 1) {
+                                console.log(content);
                                 const blankTemplate = defaultTemplate(content.__typename);
                                 onChange(blankTemplate, 0);
                                 return;
