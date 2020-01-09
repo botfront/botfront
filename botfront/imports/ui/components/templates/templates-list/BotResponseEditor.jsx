@@ -13,7 +13,7 @@ import { GET_BOT_RESPONSE } from '../queries';
 // components
 import { ProjectContext } from '../../../layouts/context';
 import SequenceEditor from './SequenceEditor';
-import MetadataForm from '../MetadataForm';
+import MetadataForm from '../MetadataForm.ce';
 import ResponseNameInput from '../common/ResponseNameInput';
 // utils
 import {
