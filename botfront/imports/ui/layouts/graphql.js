@@ -42,7 +42,7 @@ export const UPSERT_BOT_RESPONSE_CACHE = variables => (cache, { data: { upsertRe
     } = variables;
     cache.writeQuery({
         query: GET_BOT_RESPONSE,
-        variables: { projectId, template, language },
+        variables: { template, arguments: { projectId, language } },
         data: { getResponse: newPayload },
     });
 };
