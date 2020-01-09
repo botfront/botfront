@@ -24,17 +24,39 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('response-text').find('img').should('have.attr', 'src').and('equal', imageUrlA);
     });
-    // it('should add image variations', function() {
-    //     cy.visit('/project/bf/dialogue/templates');
-    //     cy.dataCy('create-response').click();
-    //     cy.dataCy('add-image-response').click();
-    //     cy.dataCy('response-name-input').click().find('input').type('test_A');
-    //     cy.dataCy('image-url-input').find('input').type(imageUrlA);
-    //     cy.dataCy('add-variation').click();
-    //     cy.dataCy('image-url-input').last().find('input').type(imageUrlB);
-    //     cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-    //     cy.dataCy('template-intent').contains('utter_test_A').should('exist');
-    //     cy.dataCy('response-text').find('img').should('have.attr', 'src').and('equal', imageUrlA);
-    //     cy.dataCy('response-text').find('img').should('have.attr', 'src').and('equal', imageUrlB);
-    // });
+    it('should add image variations', function() {
+        cy.visit('/project/bf/dialogue/templates');
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-image-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('image-url-input').find('input').type(imageUrlA).blur();
+        cy.dataCy('add-variation').click();
+        cy.dataCy('image-url-input').last().find('input').type(imageUrlB);
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.dataCy('template-intent').contains('utter_test_A').should('exist');
+        cy.dataCy('response-text').find('img').first().should('have.attr', 'src')
+            .and('equal', imageUrlA);
+        cy.dataCy('response-text').find('img').last().should('have.attr', 'src')
+            .and('equal', imageUrlB);
+    });
+    it('should edit image variations', function() {
+        cy.visit('/project/bf/dialogue/templates');
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-image-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('image-url-input').find('input').type(imageUrlA).blur();
+        cy.dataCy('add-variation').click();
+        cy.dataCy('image-url-input').last().find('input').type(imageUrlB);
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('.dimmer').should('not.exist');
+
+        cy.dataCy('edit-response-0').click();
+        cy.dataCy('icon-trash').first().click();
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('.dimmer').should('not.exist');
+
+        cy.dataCy('response-text').find('img').first().should('have.attr', 'src')
+            .and('equal', imageUrlB);
+        cy.dataCy('response-text').find('img').should('have.length', 1);
+    });
 });
