@@ -113,7 +113,7 @@ const BotResponsesContainer = (props) => {
                     </Placeholder>
                 )}
                 {getSequence().map(renderResponse)}
-                <div className='side-by-side right narrow'>
+                <div className='side-by-side right narrow top-right'>
                     {enableEditPopup && (
                         <BotResponseEditor
                             trigger={(

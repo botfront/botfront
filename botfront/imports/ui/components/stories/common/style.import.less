@@ -11,7 +11,7 @@
 }
 
 .responses-container {
-    .side-by-side {
+    .side-by-side.top-right {
         position: absolute;
         top: 5px;
         right: 5px;
@@ -171,6 +171,12 @@
             visibility: visible
         }
     }
+}
+
+.align-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .responses-container {
@@ -430,9 +436,6 @@ div.add-entity-wrap {
         .floating-icon-button {
             width: 16px;
             opacity: 1;
-        }
-        .inner {
-            width: ~"calc(100% - 20px)";
         }
     }
 
