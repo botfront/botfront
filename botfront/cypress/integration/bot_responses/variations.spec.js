@@ -8,8 +8,8 @@ describe('Bot responses', function() {
     });
 
     afterEach(function() {
-        // cy.deleteProject('bf');
-        // cy.logout();
+        cy.deleteProject('bf');
+        cy.logout();
     });
     const addVariation = (text) => {
         cy.dataCy('add-variation').click();
@@ -68,5 +68,29 @@ describe('Bot responses', function() {
         cy.dataCy('response-text').find('div').contains('edited B').should('exist');
         cy.dataCy('response-text').find('div').contains('edited C').should('exist');
         cy.dataCy('response-text').find('div').contains('edited deleted').should('not.exist');
+    });
+    it('should show the first variation in the visual editor', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+
+        cy.dataCy('single-story-editor').trigger('mouseover');
+        cy.dataCy('add-bot-line').click({ force: true });
+        cy.dataCy('from-text-template').click({ force: true });
+
+        cy.dataCy('bot-response-input').click().find('textarea').type('hi');
+        cy.dataCy('single-story-editor').trigger('mouseover');
+        cy.dataCy('edit-responses').click({ force: true });
+
+        cy.dataCy('add-variation').click();
+        cy.dataCy('bot-response-input').last().click()
+            .find('textarea')
+            .clear()
+            .type('bye');
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.dataCy('bot-response-input').contains('bye').should('exist');
     });
 });
