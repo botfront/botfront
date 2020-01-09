@@ -13,7 +13,7 @@ describe('Bot responses', function() {
         cy.deleteProject('bf');
         cy.logout();
     });
-
+    
     it('should create a response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
@@ -138,6 +138,7 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').parents('.rt-tr-group').find('.edit.icon').click();
         cy.dataCy('response-name-input').should('have.class', 'disabled');
     });
+    
     it('be able to edit a response with the response editor in the visual story editor', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click();
@@ -167,9 +168,7 @@ describe('Bot responses', function() {
         cy.dataCy('response-editor').findCy('bot-response-input').type('{backspace}{backspace}edited by response editor');
         cy.dataCy('response-name-input').should('have.class', 'disabled');
         cy.dataCy('metadata-tab').click();
-        cy.get('.item').contains('Custom CSS').click();
-        cy.get('.checkbox').find('label').click();
-        cy.dataCy('custom-message-css').find('textarea').type('div{}');
+        cy.dataCy('links-target').find('select.dropdown').select('_self');
         cy.get('.dimmer').click({ position: 'topLeft' });
 
         cy.dataCy('bot-response-input').contains('edited by response editor').should('exist');
@@ -181,8 +180,7 @@ describe('Bot responses', function() {
         cy.wait(250);
         cy.dataCy('response-editor').findCy('bot-response-input').contains('edited by visual story');
         cy.dataCy('metadata-tab').click();
-        cy.get('.item').contains('Custom CSS').click();
-        cy.dataCy('custom-message-css').contains('div{}').should('exist');
+        cy.dataCy('links-target').should('have.text', 'In the current tab');
     });
     it('should be able to create a response in the visual editor and edit it with the response editor', function() {
         cy.visit('/project/bf/stories');
