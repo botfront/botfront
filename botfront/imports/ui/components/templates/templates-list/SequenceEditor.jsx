@@ -52,7 +52,6 @@ const SequenceEditor = (props) => {
                         id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
                         onClick={() => {
                             if (sequence.length === 1) {
-                                console.log(content);
                                 const blankTemplate = defaultTemplate(content.__typename);
                                 onChange(blankTemplate, 0);
                                 return;
