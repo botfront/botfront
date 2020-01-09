@@ -1,11 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Image } from 'semantic-ui-react';
+import {
+    Input, Button, Image, Icon, Loader, Dimmer,
+} from 'semantic-ui-react';
+import { NativeTypes } from 'react-dnd-html5-backend-cjs';
+import { useDrop } from 'react-dnd-cjs';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
 import FloatingIconButton from '../../common/FloatingIconButton';
-
 
 const BotResponseContainer = (props) => {
     const {
@@ -22,6 +25,8 @@ const BotResponseContainer = (props) => {
     const hasText = Object.keys(value).includes('text') && value.text !== null;
 
     const imageUrlRef = useRef();
+    const fileField = useRef();
+    const [isUploading, setIsUploading] = useState();
 
     const unformatNewlines = (response) => {
         if (!response) return response;
@@ -36,13 +41,12 @@ const BotResponseContainer = (props) => {
         if (focus && imageUrlRef.current) imageUrlRef.current.focus();
     }, [value.text, focus]);
 
-
     function handleTextBlur(e) {
         const tagRegex = new RegExp(tag);
         if (e.relatedTarget && !!e.relatedTarget.id.match(tagRegex)) return;
         if (isTextResponse) onChange({ text: formatNewlines(input) }, false);
-        if (isQRResponse) onChange({ text: formatNewlines(input), buttons: value.buttons }, false);
-        if (isImageResponse) onChange({ text: formatNewlines(input), image: value.image }, false);
+        if (isQRResponse) { onChange({ text: formatNewlines(input), buttons: value.buttons }, false); }
+        if (isImageResponse) { onChange({ text: formatNewlines(input), image: value.image }, false); }
     }
 
     const setImage = image => onChange({ ...value, image, text: '' }, false);
@@ -106,27 +110,83 @@ const BotResponseContainer = (props) => {
         <Image src={value.image} size='small' alt='Image URL broken' />
     );
 
+    const renderUploading = () => (
+        <div style={{ minHeight: '50px' }}>
+            <Dimmer active inverted>
+                <Loader inverted size='small'>
+                    <span className='small grey'>Uploading</span>
+                </Loader>
+            </Dimmer>
+        </div>
+    );
+
+    const handleFileDrop = (files) => {
+        const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+        if (!validFiles.length) return alert('Not an image');
+        setIsUploading(true);
+        setTimeout(() => {
+            setImage('https://icon2.cleanpng.com/20180331/vlq/kisspng-unicorn-paper-party-printing-mythology-unicornio-5abf95f9cd7b97.4029263615225052098417.jpg');
+            setIsUploading(false);
+        }, 1500);
+    };
+
+    const [{ canDrop, isOver }, drop] = useDrop({
+        accept: [NativeTypes.FILE],
+        drop: item => handleFileDrop(item.files),
+        collect: monitor => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
+    });
+
     const renderSetImage = () => (
-        <div>
-            <b>Insert image from URL</b>
-            <br />
-            <div className='side-by-side'>
-                <Input
-                    ref={imageUrlRef}
-                    autoFocus
-                    placeholder='URL'
-                    onBlur={setImageFromUrlBox}
-                    onKeyDown={handleKeyDown}
-                    size='small'
-                    data-cy='image-url-input'
-                    className='image-url-input'
+        <div
+            ref={drop}
+            {...(canDrop && isOver ? { className: 'upload-target' } : {})}
+        >
+            <div className='align-center'>
+                <Icon name='image' size='huge' color='grey' />
+                <input
+                    type='file'
+                    ref={fileField}
+                    style={{ display: 'none' }}
+                    onChange={e => handleFileDrop(e.target.files)}
                 />
-                <Button primary onClick={setImageFromUrlBox} size='small' content='Save' />
+                <Button
+                    primary
+                    basic
+                    content='Upload image'
+                    size='small'
+                    onClick={() => fileField.current.click()}
+                />
+                <span className='small grey'>or drop an image file to upload</span>
+            </div>
+            <div className='or'> or </div>
+            <div>
+                <b>Insert image from URL</b>
+                <br />
+                <div className='side-by-side'>
+                    <Input
+                        ref={imageUrlRef}
+                        autoFocus
+                        placeholder='URL'
+                        onBlur={setImageFromUrlBox}
+                        onKeyDown={handleKeyDown}
+                        size='small'
+                        data-cy='image-url-input'
+                        className='image-url-input'
+                    />
+                    <Button primary onClick={setImageFromUrlBox} size='small' content='Save' />
+                </div>
             </div>
         </div>
     );
 
-    const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());
+    const renderImage = () => (isUploading
+        ? renderUploading()
+        : !value.image.trim()
+            ? renderSetImage()
+            : renderViewImage());
 
     const renderCustom = () => (
         <Button
