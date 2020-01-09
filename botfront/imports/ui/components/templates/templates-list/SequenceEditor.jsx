@@ -6,8 +6,9 @@ import { safeLoad } from 'js-yaml';
 
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
+import IconButton from '../../common/IconButton';
 
-import { addContentType } from '../botResponse.utils';
+import { addContentType, defaultTemplate } from '../botResponse.utils';
 
 const SequenceEditor = (props) => {
     const {
@@ -20,6 +21,7 @@ const SequenceEditor = (props) => {
         const content = safeLoad(variation.content);
         return content.__typename ? content : addContentType(content);
     };
+
     const renderVariation = (variation, index) => {
         const content = getContent(variation);
         if (!content) return <></>;
@@ -44,14 +46,17 @@ const SequenceEditor = (props) => {
                 )}
                 <div>
                     {/* <Icon name='star' color='yellow' float='right' /> */}
-                    { sequence.length > 1 && (
-                        <Button
-                            onClick={() => { onDeleteVariation(index); }}
-                            icon='trash'
-                            float='right'
-                            data-cy='delete-variation'
-                        />
-                    )}
+                    <IconButton
+                        onClick={() => {
+                            if (sequence.length === 1) {
+                                const blankTemplate = defaultTemplate(content.__typename);
+                                onChange(blankTemplate, 0);
+                                return;
+                            }
+                            onDeleteVariation(index);
+                        }}
+                        icon='trash'
+                    />
                 </div>
             </Segment>
         );
