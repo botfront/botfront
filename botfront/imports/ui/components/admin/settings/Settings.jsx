@@ -1,6 +1,6 @@
 import '../../../../lib/dynamic_import';
 import {
-    Container, Tab, Message, Grid, Menu,
+    Container, Tab, Message, Grid, Menu 
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -8,24 +8,26 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import {
-    AutoForm, ErrorsField, SubmitField, AutoField,
+    AutoForm, ErrorsField, SubmitField, AutoField 
 } from 'uniforms-semantic';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { PageMenu } from '../../utils/Utils';
+import WebhooksForm from './WebhooksForm';
 
 class Settings extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false };
-        this.state = { schema: null };
+        this.state = { saving: false, schema: null, activePane: null };
     }
 
     async componentDidMount() {
         const orchestrator = await Meteor.callWithPromise('orchestration.type');
-        const { GlobalSettingsSchema: schema } = await import(`../../../../api/globalSettings/globalSettings.schema.${orchestrator}`);
+        const { GlobalSettingsSchema: schema } = await import(
+            `../../../../api/globalSettings/globalSettings.schema.${orchestrator}`,
+        );
         let orchestratorSettingsComponent = null;
         if (orchestrator !== 'default') {
             const { default: def } = await import(`./Settings.${orchestrator}`);
@@ -38,11 +40,15 @@ class Settings extends React.Component {
     handleReturnToProjectSettings = () => {
         const { router, projectId } = this.props;
         router.push(`/project/${projectId}/settings`);
-    }
+    };
 
     onSave = (settings) => {
         this.setState({ saving: true });
-        Meteor.call('settings.save', settings, wrapMeteorCallback(() => this.setState({ saving: false }), 'Settings saved'));
+        Meteor.call(
+            'settings.save',
+            settings,
+            wrapMeteorCallback(() => this.setState({ saving: false }), 'Settings saved'),
+        );
     };
 
     renderSecurityPane = () => (
@@ -53,7 +59,11 @@ class Settings extends React.Component {
                 content={(
                     <>
                         If you want to secure your login page with a Catpcha. &nbsp;
-                        <a target='_blank' rel='noopener noreferrer' href='https://developers.google.com/recaptcha'>
+                        <a
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            href='https://developers.google.com/recaptcha'
+                        >
                             Get your keys here
                         </a>
                         . Only v2 is supported.
@@ -67,7 +77,11 @@ class Settings extends React.Component {
 
     renderDefaultNLUPipeline = () => (
         <Tab.Pane>
-            <Message info icon='question circle' content='Default NLU pipeline for new NLU models' />
+            <Message
+                info
+                icon='question circle'
+                content='Default NLU pipeline for new NLU models'
+            />
             <AceField name='settings.public.defaultNLUConfig' label='' convertYaml />
         </Tab.Pane>
     );
@@ -80,14 +94,23 @@ class Settings extends React.Component {
                 content={(
                     <>
                         Default Rasa (see{' '}
-                        <a target='_blank' rel='noopener noreferrer' href='https://rasa.com/docs/core/server/#endpoint-configuration'>
+                        <a
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            href='https://rasa.com/docs/core/server/#endpoint-configuration'
+                        >
                             Rasa documentation
                         </a>
                         ) &nbsp;endpoints for new projects
                     </>
                 )}
             />
-            <AceField name='settings.private.defaultEndpoints' label='' fontSize={12} convertYaml />
+            <AceField
+                name='settings.private.defaultEndpoints'
+                label=''
+                fontSize={12}
+                convertYaml
+            />
         </Tab.Pane>
     );
 
@@ -99,14 +122,23 @@ class Settings extends React.Component {
                 content={(
                     <>
                         Default Rasa (see{' '}
-                        <a target='_blank' rel='noopener noreferrer' href='https://rasa.com/docs/core/connectors/'>
+                        <a
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            href='https://rasa.com/docs/core/connectors/'
+                        >
                             Rasa documentation
                         </a>
                         ) &nbsp;channel credentials for new projects
                     </>
                 )}
             />
-            <AceField name='settings.private.defaultCredentials' label='' fontSize={12} convertYaml />
+            <AceField
+                name='settings.private.defaultCredentials'
+                label=''
+                fontSize={12}
+                convertYaml
+            />
         </Tab.Pane>
     );
 
@@ -115,19 +147,24 @@ class Settings extends React.Component {
             <Message
                 info
                 icon='question circle'
-                content={(
-                    <>
-                        Default default domain for new projects
-                    </>
-                )}
+                content={<>Default default domain for new projects</>}
             />
-            <AceField name='settings.private.defaultDefaultDomain' label='' fontSize={12} convertYaml />
+            <AceField
+                name='settings.private.defaultDefaultDomain'
+                label=''
+                fontSize={12}
+                convertYaml
+            />
         </Tab.Pane>
     );
 
     renderAppearance = () => (
         <Tab.Pane>
-            <Message info icon='question circle' content='Login page background images URLs' />
+            <Message
+                info
+                icon='question circle'
+                content='Login page background images URLs'
+            />
             <AutoField name='settings.public.backgroundImages' />
             <AutoField name='settings.public.logoUrl' />
             <AutoField name='settings.public.smallLogoUrl' />
@@ -136,20 +173,31 @@ class Settings extends React.Component {
 
     renderMisc = () => (
         <Tab.Pane>
-            <Message info icon='question circle' content='ID of project containing chitchat NLU training data' />
+            <Message
+                info
+                icon='question circle'
+                content='ID of project containing chitchat NLU training data'
+            />
             <AutoField name='settings.public.chitChatProjectId' />
             <AutoField name='settings.public.docUrl' />
         </Tab.Pane>
     );
 
     getSettingsPanes = () => {
-        const { projectId } = this.props;
-        const { orchestratorSettingsComponent: OrchestratorSettingsComponent, orchestrator } = this.state;
+        const { projectId, settings } = this.props;
+        const {
+            orchestratorSettingsComponent: OrchestratorSettingsComponent,
+            orchestrator,
+        } = this.state;
         let panes = [
             { menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
             { menuItem: 'Default credentials', render: this.renderDefaultCredentials },
             { menuItem: 'Default endpoints', render: this.renderDefaultEndpoints },
-            { menuItem: 'Default default domain', render: this.renderDefaultDefaultDomain },
+            {
+                menuItem: 'Default default domain',
+                render: this.renderDefaultDefaultDomain,
+            },
+            { menuItem: 'Webhooks', render: () => WebhooksForm({ onSave: this.onSave, webhooks: settings.settings.private.webhooks }) },
             { menuItem: 'Security', render: this.renderSecurityPane },
             { menuItem: 'Appearance', render: this.renderAppearance },
             { menuItem: 'Misc', render: this.renderMisc },
@@ -177,26 +225,42 @@ class Settings extends React.Component {
         return panes;
     };
 
-    renderSettings = (saving, settings, schema) => (
-        <>
-            <PageMenu icon='setting' title='Global Settings' />
-            <Container id='admin-settings' data-cy='admin-settings-menu'>
-                <AutoForm schema={new SimpleSchema2Bridge(schema)} model={settings} onSubmit={this.onSave} disabled={saving}>
-                    <Tab menu={{ vertical: true }} grid={{ paneWidth: 13, tabWidth: 3 }} panes={this.getSettingsPanes()} />
-                    <br />
-                    <Grid>
-                        <Grid.Row>
-                            <Grid.Column width={3} />
-                            <Grid.Column width={13}>
-                                <ErrorsField />
-                                <SubmitField value='Save' className='primary' />
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
-                </AutoForm>
-            </Container>
-        </>
-    );
+    renderSettings = (saving, settings, schema) => {
+        const { activePane } = this.state;
+        return (
+            <>
+                <PageMenu icon='setting' title='Global Settings' />
+                <Container id='admin-settings' data-cy='admin-settings-menu'>
+                    <AutoForm
+                        schema={new SimpleSchema2Bridge(schema)}
+                        model={settings}
+                        onSubmit={this.onSave}
+                        disabled={saving}
+                    >
+                        <Tab
+                            menu={{ vertical: true }}
+                            grid={{ paneWidth: 13, tabWidth: 3 }}
+                            panes={this.getSettingsPanes()}
+                            onTabChange={(_e, { activeIndex }) => this.setState({
+                                    activePane: this.getSettingsPanes()[activeIndex].menuItem,
+                                })
+                            }
+                        />
+                        <br />
+                        <Grid>
+                            <Grid.Row>
+                                <Grid.Column width={3} />
+                                <Grid.Column width={13}>
+                                    <ErrorsField />
+                                    { activePane !== 'Webhooks' && <SubmitField value='Save' className='primary' />}
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </AutoForm>
+                </Container>
+            </>
+        )
+    };
 
     renderLoading = () => <div />;
 

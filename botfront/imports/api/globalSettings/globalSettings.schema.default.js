@@ -3,6 +3,18 @@ import SimpleSchema from 'simpl-schema';
 
 import { validateYaml } from '../../lib/utils';
 
+const webhookSchema = new SimpleSchema({
+    name: { type: String },
+    url: { type: String, optional: true },
+    method: { type: String },
+});
+
+const webhooksSchema = new SimpleSchema({
+    restartRasaWebhook: { type: webhookSchema },
+    uploadImageWebhook: { type: webhookSchema },
+    deleteImageWebhook: { type: webhookSchema },
+});
+
 export const privateSettingsSchema = new SimpleSchema({
     defaultEndpoints: {
         type: String, custom: validateYaml, optional: true, defaultValue: '',
@@ -11,6 +23,7 @@ export const privateSettingsSchema = new SimpleSchema({
     defaultRules: { type: String, custom: validateYaml, optional: true },
     defaultPolicies: { type: String, custom: validateYaml, optional: true },
     defaultDefaultDomain: { type: String, optional: true, custom: validateYaml },
+    webhooks: { type: webhooksSchema },
     reCatpchaSecretServerKey: { type: String, optional: true },
 });
 
