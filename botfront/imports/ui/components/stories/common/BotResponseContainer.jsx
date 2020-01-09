@@ -107,20 +107,23 @@ const BotResponseContainer = (props) => {
     );
 
     const renderSetImage = () => (
-        <>
+        <div>
             <b>Insert image from URL</b>
             <br />
-            <Input
-                ref={imageUrlRef}
-                autoFocus
-                placeholder='URL'
-                onBlur={setImage}
-                onKeyDown={handleKeyDown}
-                size='small'
-                data-cy='image-url-input'
-            />
-            <Button primary onClick={setImage} size='small' content='Save' />
-        </>
+            <div className='side-by-side'>
+                <Input
+                    ref={imageUrlRef}
+                    autoFocus
+                    placeholder='URL'
+                    onBlur={setImage}
+                    onKeyDown={handleKeyDown}
+                    size='small'
+                    data-cy='image-url-input'
+                    className='image-url-input'
+                />
+                <Button primary onClick={setImage} size='small' content='Save' />
+            </div>
+        </div>
     );
 
     const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());

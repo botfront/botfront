@@ -256,8 +256,13 @@ export const getAllTemplates = async (projectId, language = '') => {
 };
 
 export const getStoriesAndDomain = async (projectId, language) => {
-    let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
-    defaultDomain = yaml.safeLoad(defaultDomain.content);
+    const { defaultDomain: yamlDDomain, defaultLanguage } = Projects.findOne({ _id: projectId }, { defaultDomain: 1, defaultLanguage: 1 });
+    const defaultDomain = yaml.safeLoad(yamlDDomain.content) || {};
+
+    defaultDomain.slots = {
+        ...(defaultDomain.slots || {}),
+        fallback_language: { type: 'unfeaturized', initial_value: defaultLanguage },
+    };
 
     const selectedStoryGroupsIds = StoryGroups.find(
         { projectId, selected: true },
@@ -382,7 +387,7 @@ export const aggregateEvents = (parentStory, update = {}) => {
     let events = [];
     const traverseBranches = (incommingStory) => {
         const story = incommingStory._id === update._id ? { ...incommingStory, ...update } : incommingStory;
-        events = Array.from(new Set([...events, ...getStoryEvents(story.story)]))
+        events = Array.from(new Set([...events, ...getStoryEvents(story.story)]));
         // events = [...events, ...getStoryEvents(story.story, events)];
         if (story.branches) {
             story.branches.forEach(branch => traverseBranches(branch));

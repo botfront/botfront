@@ -4,10 +4,9 @@ import { withKnobs } from '@storybook/addon-knobs';
 import ResponseMetadataForm from '../imports/ui/components/templates/MetadataForm';
 
 const metadata = {
-    linksTarget: '_self',
+    linkTarget: '_self',
     userInput: 'disable',
     userInputHint: 'blabla',
-    messageTarget: 'a very long text',
     domHighlight: {
         selector: '.something',
         css: 'color: white',

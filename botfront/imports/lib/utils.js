@@ -11,6 +11,7 @@ import { checkIfCan } from '../api/roles/roles';
 
 import { Projects } from '../api/project/project.collection';
 import { NLUModels } from '../api/nlu_model/nlu_model.collection';
+import { getNluModelLanguages } from '../api/nlu_model/nlu_model.utils';
 
 export const formatAxiosError = (method, error) => {
     const { status, statusText } = error.response;
@@ -182,6 +183,8 @@ if (Meteor.isServer) {
     });
 }
 export const getModelIdsFromProjectId = projectId => Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+
+export const getLanguagesFromProjectId = projectId => getNluModelLanguages(getModelIdsFromProjectId(projectId));
 
 export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
     const nluModelIds = getModelIdsFromProjectId(projectId);

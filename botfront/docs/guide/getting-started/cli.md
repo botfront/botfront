@@ -49,3 +49,11 @@ The CLI wraps `docker-compose`. `botfront up` generates `.env` and `.docker-comp
 Once those files are generated you can use all `docker-compose` commands from the root of your project.
 Note that since those files are generated, any change will be overwritten next time you run `botfront up`. Instead, make changes to the files found in the `.botfront` folder.
 
+## Troubleshooting
+
+Sometimes Docker may complain about a missing network or a conflicting name.
+One of these commands will generally fix the problem:
+
+- `botfront down` from your project folder
+- `botfront killall` from anywhere
+- [`docker system prune`](https://docs.docker.com/engine/reference/commandline/system_prune/) from anywhere

@@ -25,6 +25,10 @@ const BotResponsesContainer = (props) => {
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
 
+    useEffect(() => {
+        setTemplate(initialValue);
+    }, [initialValue]);
+
     const newText = { __typename: 'TextPayload', text: '' };
 
     const getSequence = () => {
@@ -113,7 +117,7 @@ const BotResponsesContainer = (props) => {
                     </Placeholder>
                 )}
                 {getSequence().map(renderResponse)}
-                <div className='side-by-side right narrow'>
+                <div className='side-by-side right narrow top-right'>
                     {enableEditPopup && (
                         <BotResponseEditor
                             trigger={(
