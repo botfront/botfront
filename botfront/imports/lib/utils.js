@@ -7,6 +7,7 @@ import React from 'react';
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { Projects } from '../api/project/project.collection';
 import { NLUModels } from '../api/nlu_model/nlu_model.collection';
+import { getNluModelLanguages } from '../api/nlu_model/nlu_model.utils';
 
 export const formatAxiosError = (method, error) => {
     const { status, statusText } = error.response;
@@ -87,6 +88,8 @@ export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProp
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
 
 export const getModelIdsFromProjectId = projectId => Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+
+export const getLanguagesFromProjectId = projectId => getNluModelLanguages(getModelIdsFromProjectId(projectId));
 
 export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
     const nluModelIds = getModelIdsFromProjectId(projectId);

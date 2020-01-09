@@ -1,6 +1,7 @@
 import { safeLoad } from 'js-yaml';
 import { sample } from 'lodash';
 import { newGetBotResponses } from '../mongo/botResponses';
+import { getLanguagesFromProjectId } from '../../../../lib/utils';
 
 const interpolateSlots = (text, slots) => {
     // fills in {slotname} in templates
@@ -40,11 +41,14 @@ export default {
         getResponse: async (_root, args) => {
             const {
                 template,
-                arguments: { language, projectId } = {},
+                arguments: { language: specifiedLang, projectId } = {},
                 tracker: { slots } = {},
                 channel: { name: channel } = {},
             } = args;
-            if (!language || !projectId) throw new Error('Language or projectId missing!');
+            if (!projectId) throw new Error('ProjectId missing!');
+            const language = specifiedLang && getLanguagesFromProjectId(projectId).includes(specifiedLang)
+                ? specifiedLang
+                : slots.fallback_language;
             return resolveTemplate({
                 template, projectId, language, slots, channel,
             });
