@@ -37,7 +37,7 @@ export default class Filters extends React.Component {
         const renderEntityLabel = label => ({ color: getColor(label.text, true), content: `${label.text}` });
 
         return (
-            <div className={className}>
+            <div className={`side-by-side narrow ${className}`}>
                 {intents.length > 0 && (
                     <Dropdown
                         style={{ marginRight: '10px' }}
@@ -75,7 +75,7 @@ export default class Filters extends React.Component {
 
 Filters.defaultProps = {
     filter: null,
-    className: 'side-by-side left narrow',
+    className: 'left',
 };
 
 Filters.propTypes = {
