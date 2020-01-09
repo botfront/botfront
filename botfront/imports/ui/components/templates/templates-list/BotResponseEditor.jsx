@@ -214,6 +214,7 @@ const BotResponseEditor = (props) => {
                 sequence={activeSequence}
                 onChange={handleSequenceChange}
                 onDeleteVariation={handleDeleteVariation}
+                name={name || newBotResponse.key}
             />
         );
     };

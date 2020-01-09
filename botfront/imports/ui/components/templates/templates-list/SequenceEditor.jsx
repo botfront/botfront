@@ -12,6 +12,7 @@ import { addContentType, defaultTemplate } from '../botResponse.utils';
 
 const SequenceEditor = (props) => {
     const {
+        name,
         sequence,
         onChange,
         onDeleteVariation,
@@ -36,6 +37,7 @@ const SequenceEditor = (props) => {
                         onChange={value => onChange(value, index)}
                         isNew={false}
                         enableEditPopup={false}
+                        tag={`${name}-${index}`}
                     />
                 )}
                 {content.__typename === 'CustomPayload' && (
@@ -47,6 +49,7 @@ const SequenceEditor = (props) => {
                 <div>
                     {/* <Icon name='star' color='yellow' float='right' /> */}
                     <IconButton
+                        id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
                         onClick={() => {
                             if (sequence.length === 1) {
                                 const blankTemplate = defaultTemplate(content.__typename);
@@ -68,6 +71,7 @@ SequenceEditor.propTypes = {
     sequence: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
     onDeleteVariation: PropTypes.func.isRequired,
+    name: PropTypes.string.isRequired,
 };
 
 export default SequenceEditor;

@@ -9,7 +9,7 @@ import FloatingIconButton from '../../common/FloatingIconButton';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom,
+        value, onDelete, onChange, deletable, focus, onFocus, editCustom, tag,
     } = props;
 
     const [input, setInput] = useState();
@@ -37,7 +37,9 @@ const BotResponseContainer = (props) => {
     }, [value.text, focus]);
 
 
-    function handleTextBlur() {
+    function handleTextBlur(e) {
+        const tagRegex = new RegExp(tag);
+        if (!!e.relatedTarget.id.match(tagRegex)) return;
         if (isTextResponse) onChange({ text: formatNewlines(input) }, false);
         if (isQRResponse) onChange({ text: formatNewlines(input), buttons: value.buttons }, false);
         if (isImageResponse) onChange({ text: formatNewlines(input), image: value.image }, false);
@@ -164,12 +166,14 @@ BotResponseContainer.propTypes = {
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     editCustom: PropTypes.func,
+    tag: PropTypes.string,
 };
 
 BotResponseContainer.defaultProps = {
     deletable: true,
     focus: false,
     editCustom: () => {},
+    tag: null,
 };
 
 export default BotResponseContainer;
