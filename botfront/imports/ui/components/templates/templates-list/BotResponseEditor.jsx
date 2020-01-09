@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { safeDump } from 'js-yaml';
+import { safeDump, safeLoad } from 'js-yaml';
 import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks';
 import {
     Segment, Menu, MenuItem, Modal,
@@ -17,7 +17,7 @@ import MetadataForm from '../MetadataForm';
 import ResponseNameInput from '../common/ResponseNameInput';
 // utils
 import {
-    createResponseFromTemplate, checkResponseEmpty, addResponseLanguage,
+    createResponseFromTemplate, checkResponseEmpty, addResponseLanguage, addContentType,
 } from '../botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
@@ -127,11 +127,19 @@ const BotResponseEditor = (props) => {
         upsertResponse(name || botResponse.key, updatedSequence);
     };
 
+    const getActiveValue = () => {
+        const activeValue = botResponse.values && botResponse.values.find(({ lang }) => lang === language);
+        if (!activeValue) {
+            return addResponseLanguage(botResponse, language).values.find(({ lang }) => lang === language).sequence;
+        }
+        return activeValue.sequence;
+    };
+
     const handleModalClose = () => {
         const validResponse = newBotResponse || botResponse;
         if (!open) return;
         if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
-            refreshBotResponse(`${language}-${name}`); // refresh the content of the response in the visual story editor
+            refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveValue()[0].content))); // refresh the content of the response in the visual story editor
             closeModal();
             return;
         }
@@ -143,14 +151,6 @@ const BotResponseEditor = (props) => {
                 }
             });
         }
-    };
-
-    const getActiveValue = () => {
-        const activeValue = botResponse.values && botResponse.values.find(({ lang }) => lang === language);
-        if (!activeValue) {
-            return addResponseLanguage(botResponse, language).values.find(({ lang }) => lang === language).sequence;
-        }
-        return activeValue.sequence;
     };
    
     const tabs = [

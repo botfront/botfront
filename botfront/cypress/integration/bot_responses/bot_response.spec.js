@@ -184,4 +184,27 @@ describe('Bot responses', function() {
         cy.get('.item').contains('Custom CSS').click();
         cy.dataCy('custom-message-css').contains('div{}').should('exist');
     });
+    it('should be able to create a response in the visual editor and edit it with the response editor', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+
+        cy.dataCy('single-story-editor').trigger('mouseover');
+        cy.dataCy('add-bot-line').click({ force: true });
+        cy.dataCy('from-text-template').click({ force: true });
+
+        cy.dataCy('bot-response-input').click().find('textarea').type('hi');
+        cy.dataCy('single-story-editor').trigger('mouseover');
+        cy.dataCy('edit-responses').click({ force: true });
+        cy.dataCy('response-editor').findCy('bot-response-input').contains('hi').should('exist');
+        cy.dataCy('response-editor').findCy('bot-response-input').click().find('textarea')
+            .clear()
+            .type('bye')
+            .blur();
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.dataCy('bot-response-input').contains('bye').should('exist');
+    });
 });

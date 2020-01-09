@@ -25,6 +25,10 @@ const BotResponsesContainer = (props) => {
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
 
+    useEffect(() => {
+        setTemplate(initialValue);
+    }, [initialValue]);
+
     const newText = { __typename: 'TextPayload', text: '' };
 
     const getSequence = () => {

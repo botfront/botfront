@@ -254,10 +254,9 @@ export default class StoryVisualEditor extends React.Component {
         });
     }
 
-    refreshBotResponse = (name) => {
+    refreshBotResponse = (name, data) => {
         const { responses } = this.state;
-        const { [name]: removedResponse, ...rest } = responses;
-        this.setState({ responses: rest });
+        this.setState({ responses: { ...responses, [name]: data } });
     }
 
     handleBotResponseChange = async (name, newResponse) => {
