@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.5](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4...v0.19.0-alpha.5) (2020-01-09)
+
+
+### Bug Fixes
+
+* missing response content in visual editor ([439bbc4](https://github.com/botfront/botfront/commit/439bbc4))
+
+
+### Features
+
+* nlg in project default language if no language specified ([#418](https://github.com/botfront/botfront/issues/418)) ([e2ab647](https://github.com/botfront/botfront/commit/e2ab647))
+
+
+### Tests
+
+* response editor in visual editor ([9b60cb4](https://github.com/botfront/botfront/commit/9b60cb4))
+
+
+
 ## [0.19.0-alpha.4](https://github.com/botfront/botfront/compare/v0.19.0-alpha.3...v0.19.0-alpha.4) (2020-01-07)
 
 
