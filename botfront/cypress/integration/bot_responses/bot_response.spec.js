@@ -170,7 +170,6 @@ describe('Bot responses', function() {
         cy.get('.item').contains('Custom CSS').click();
         cy.get('.checkbox').find('label').click();
         cy.dataCy('custom-message-css').find('textarea').type('div{}');
-        cy.dataCy('submit-metadata').click();
         cy.get('.dimmer').click({ position: 'topLeft' });
 
         cy.dataCy('bot-response-input').contains('edited by response editor').should('exist');

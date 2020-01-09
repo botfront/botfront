@@ -6,12 +6,29 @@ import {
     Message, Tab,
 } from 'semantic-ui-react';
 import {
-    AutoForm, AutoField, ErrorsField, LongTextField, SubmitField,
+    AutoForm, AutoField, ErrorsField, LongTextField,
 } from 'uniforms-semantic';
 import { cloneDeep } from 'lodash';
 import InfoField from '../utils/InfoField';
 import ToggleField from '../common/ToggleField';
 import DisplayIf from '../DisplayIf';
+
+// force open affect force close and vice versa
+class AutoFormMetadata extends AutoForm {
+    onChange(key, value) {
+        if (key === 'forceOpen') {
+            super.onChange('forceOpen', value);
+            if (value) super.onChange('forceClose', false);
+            return;
+        }
+        if (key === 'forceClose') {
+            super.onChange('forceClose', value);
+            if (value) super.onChange('forceOpen', false);
+            return;
+        }
+        super.onChange(key, value);
+    }
+}
 
 function ResponseMetadataForm({
     responseMetadata, onChange,
@@ -42,13 +59,14 @@ function ResponseMetadataForm({
         }
 
         type ResponseMetadata {
-            linksTarget: String!
+            linkTarget: String!
             userInput:  String!
             userInputHint:  String!
             domHighlight: DomHighlight
             pageChangeCallbacks : PageChangeCallbacks
             customCss: CustomCss
             forceOpen: Boolean!
+            forceClose: Boolean!
         }
 
         # This is required by buildASTSchema
@@ -56,9 +74,10 @@ function ResponseMetadataForm({
     `)).getType('ResponseMetadata');
 
     const defaultModel = {
-        linksTarget: '_blank',
+        linkTarget: '_blank',
         userInput: 'show',
         forceOpen: false,
+        forceClose: false,
         domHighlight: {},
         customCss: {},
         pageChangeCallbacks: null,
@@ -136,13 +155,13 @@ function ResponseMetadataForm({
     };
 
     const schemaData = {
-        linksTarget: {
+        linkTarget: {
             label: 'Where should the links open?',
             defaultValue: '_blank',
             allowedValues: ['_blank', '_self'],
             options: [
-                { label: 'In the current tab', value: '_blank' },
-                { label: 'In a new tab', value: '_self' },
+                { label: 'In the current tab', value: '_self' },
+                { label: 'In a new tab', value: '_blank' },
             ],
         },
         userInput: {
@@ -159,6 +178,10 @@ function ResponseMetadataForm({
             label: 'Force the chat widget to open? (Otherwise it will appear as a tooltip if the widget is closed)',
             defaultValue: false,
         },
+        forceClose: {
+            label: 'Force the chat widget to close? (message will appear as a tooltip)',
+            defaultValue: false,
+        },
     };
 
     const panes = [
@@ -166,9 +189,16 @@ function ResponseMetadataForm({
             menuItem: 'General',
             render: () => (
                 <>
-                    <AutoField name='linksTarget' data-cy='links-target' />
+                    <AutoField name='linkTarget' data-cy='links-target' />
                     <AutoField name='userInput' />
-                    <ToggleField name='forceOpen' className='toggle' />
+                    <ToggleField
+                        name='forceOpen'
+                        className='toggle'
+                    />
+                    <ToggleField
+                        name='forceClose'
+                        className='toggle'
+                    />
                 </>
             ),
         },
@@ -229,13 +259,12 @@ function ResponseMetadataForm({
     const displayModel = responseMetadata ? preprocessModel(responseMetadata) : preprocessModel(defaultModel);
     return (
         <div className='response-metadata-form'>
-            <AutoForm model={displayModel} schema={new GraphQLBridge(schema, validator, schemaData)} onSubmit={model => onChange(postProcess(model))}>
+            <AutoFormMetadata autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaData)} onSubmit={model => onChange(postProcess(model))}>
                 <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
                 <br />
                 <ErrorsField />
                 <br />
-                <SubmitField name='Save' data-cy='submit-metadata' />
-            </AutoForm>
+            </AutoFormMetadata>
         </div>
     );
 }
@@ -247,9 +276,8 @@ ResponseMetadataForm.propTypes = {
 
 ResponseMetadataForm.defaultProps = {
     responseMetadata: {
-        linksTarget: '_blank',
+        linkTarget: '_blank',
         userInput: 'show',
-        messageTarget: 'conversation',
         domHighlight: {},
         customCss: {},
         pageChangeCallbacks: null,
