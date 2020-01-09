@@ -30,12 +30,14 @@ export default class Filters extends React.Component {
     };
 
     render() {
-        const { filter: { intents: intentsFilter, entities: entitiesFilter, query }, intents, entities } = this.props;
+        const {
+            filter: { intents: intentsFilter, entities: entitiesFilter, query }, intents, entities, className,
+        } = this.props;
         const renderIntentLabel = label => ({ color: 'purple', content: `${label.text}` });
         const renderEntityLabel = label => ({ color: getColor(label.text, true), content: `${label.text}` });
 
         return (
-            <div style={{ marginRight: '10px' }}>
+            <div className={className}>
                 {intents.length > 0 && (
                     <Dropdown
                         style={{ marginRight: '10px' }}
@@ -73,6 +75,7 @@ export default class Filters extends React.Component {
 
 Filters.defaultProps = {
     filter: null,
+    className: 'side-by-side left narrow',
 };
 
 Filters.propTypes = {
@@ -80,4 +83,5 @@ Filters.propTypes = {
     entities: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
     filter: PropTypes.object,
+    className: PropTypes.string,
 };

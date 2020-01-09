@@ -147,23 +147,20 @@ function OutOfScope(props) {
 
     const render = () => (
         <>
-            <Segment.Group className='new-utterances-topbar' horizontal>
-                <Segment className='new-utterances-topbar-section' tertiary compact floated='left'>
+            <div className='side-by-side'>
+                <div>
                     <Button onClick={handleExport} disabled={!(data || []).length}><Icon name='download' />Export</Button>
-                </Segment>
-                <Segment className='new-utterances-topbar-section' tertiary compact floated='right'>
-                    <PrefixDropdown
-                        selection={sortType}
-                        updateSelection={option => setSortType(option.value)}
-                        options={[
-                            { value: 'Newest', text: 'Newest' },
-                            { value: 'Oldest', text: 'Oldest' },
-                        ]}
-                        prefix='Sort by'
-                    />
-                </Segment>
-            </Segment.Group>
-            
+                </div>
+                <PrefixDropdown
+                    selection={sortType}
+                    updateSelection={option => setSortType(option.value)}
+                    options={[
+                        { value: 'Newest', text: 'Newest' },
+                        { value: 'Oldest', text: 'Oldest' },
+                    ]}
+                    prefix='Sort by'
+                />
+            </div>
             <br />
             <DataTable
                 columns={columns}
