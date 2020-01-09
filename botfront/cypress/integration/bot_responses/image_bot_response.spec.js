@@ -52,6 +52,8 @@ describe('Bot responses', function() {
 
         cy.dataCy('edit-response-0').click();
         cy.dataCy('icon-trash').first().click();
+        cy.dataCy('icon-trash').first().click();
+        cy.dataCy('image-url-input').find('input').type(imageUrlB).blur();
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
 
