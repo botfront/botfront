@@ -43,11 +43,9 @@ const BotResponseContainer = (props) => {
         if (isImageResponse) onChange({ text: formatNewlines(input), image: value.image }, false);
     }
 
-    const setImage = () => {
-        const image = imageUrlRef.current.inputRef.current.value;
-        onChange({ ...value, image, text: '' }, false);
-    };
+    const setImage = image => onChange({ ...value, image, text: '' }, false);
 
+    const setImageFromUrlBox = () => setImage(imageUrlRef.current.inputRef.current.value);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Shift') {
@@ -66,7 +64,7 @@ const BotResponseContainer = (props) => {
         }
         if (e.key === 'Enter' && isImageResponse) {
             e.preventDefault();
-            setImage();
+            setImageFromUrlBox();
         }
     };
 
@@ -115,13 +113,13 @@ const BotResponseContainer = (props) => {
                     ref={imageUrlRef}
                     autoFocus
                     placeholder='URL'
-                    onBlur={setImage}
+                    onBlur={setImageFromUrlBox}
                     onKeyDown={handleKeyDown}
                     size='small'
                     data-cy='image-url-input'
                     className='image-url-input'
                 />
-                <Button primary onClick={setImage} size='small' content='Save' />
+                <Button primary onClick={setImageFromUrlBox} size='small' content='Save' />
             </div>
         </div>
     );
