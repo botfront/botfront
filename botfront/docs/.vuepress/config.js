@@ -95,8 +95,9 @@ module.exports = {
                 title: 'Channels',   // required
                 // path: '/guide',
                 collapsable: false,
-                sidebarDepth: 1,
+                sidebarDepth: 0,
                 children: [
+                    ['/guide/channels/overview', 'Overview'],
                     '/guide/channels/webchat',
                     '/guide/channels/messenger',
                 ]
