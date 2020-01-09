@@ -24,7 +24,7 @@ describe('Bot responses', function() {
         cy.wait(250);
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('edit-response-0').click();
-        cy.dataCy('custom-response-editor').contains('test: success').should('exist');
+        cy.dataCy('variation-container').contains('test: success').should('exist');
     });
     it('should edit a custom response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
@@ -41,13 +41,32 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
         cy.dataCy('edit-response-0').click();
-        cy.dataCy('custom-response-editor').click().find('textarea').clear()
-            .type('success: true');
+        cy.dataCy('variation-container').click().find('textarea').clear()
+            .type('success: true')
+            .blur();
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
         cy.wait(250);
         cy.dataCy('edit-response-0').click();
-        cy.dataCy('custom-response-editor').contains('success: true').should('exist');
+        cy.dataCy('variation-container').contains('success: true').should('exist');
+    });
+    it('should add variations for a custom response', function() {
+        cy.visit('/project/bf/dialogue/templates');
+        cy.dataCy('create-response').click();
+        cy.dataCy('add-custom-response').click();
+        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.dataCy('variation-container').click().find('textarea').type('{selectAll}{del}doesNotExist: true');
+        cy.dataCy('icon-trash').first().click();
+        cy.dataCy('variation-container').contains('doesNotExist: true').should('not.exist');
+        cy.dataCy('variation-container').click().find('textarea').type('test: A');
+        cy.dataCy('add-variation').click();
+        cy.dataCy('variation-container').last().click().find('textarea')
+            .type('{selectAll}{del}test: B');
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.dataCy('template-intent').contains('utter_test_A').should('exist');
+        cy.dataCy('edit-response-0').click();
+        cy.dataCy('variation-container').contains('test: A').should('exist');
+        cy.dataCy('variation-container').contains('test: B').should('exist');
     });
     it('should add a custom response in the visual story editor', function() {
         cy.visit('/project/bf/stories');
@@ -62,11 +81,12 @@ describe('Bot responses', function() {
         cy.dataCy('from-custom-template').click();
 
         cy.dataCy('edit-custom-response').click();
-        cy.dataCy('custom-response-editor').click().find('textarea').type('test: success');
+        cy.dataCy('variation-container').click().find('textarea').type('{selectAll}{del}test: success')
+            .blur();
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
         cy.wait(250);
         cy.dataCy('edit-custom-response').click();
-        cy.dataCy('custom-response-editor').contains('test: success').should('exist');
+        cy.dataCy('variation-container').contains('test: success').should('exist');
     });
 });
