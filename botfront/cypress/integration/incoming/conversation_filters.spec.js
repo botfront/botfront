@@ -237,18 +237,48 @@ describe('filters', function () {
     });
 
     it('should filter by date', function () {
-        cy.importProject('bf', 'filter_by_date_data.json');
-        cy.visit('/project/bf/incoming');
-        cy.dataCy('conversations')
+        cy.visit('/project/bf/settings');
+        cy.dataCy('project-settings-more')
             .click();
-        cy.dataCy('utterance-text').should('contains.text', 'nov');
-        cy.dataCy('conversation-item').eq(1).click();
-        cy.dataCy('utterance-text').should('contains.text', 'oct');
-        cy.pickDateRange(0, '1/11/2019', '30/11/2019');
-        cy.dataCy('apply-filters').click();
-        cy.wait(100);
-        cy.dataCy('utterance-text').should('contains.text', 'nov');
-        cy.dataCy('conversation-item').should('have.length', 1);
+        cy.dataCy('admin-settings-menu')
+            .find('a')
+            .contains('GKE settings')
+            .click();
+        cy.dataCy('docker-api-host')
+            .click();
+        cy.dataCy('docker-api-host')
+            .find('input')
+            .clear()
+            .type(`${Cypress.env('API_URL')}{enter}`);
+        cy.visit('/project/bf/settings');
+        cy.contains('Import/Export').click();
+        cy.dataCy('import-type-dropdown')
+            .click();
+        cy.dataCy('import-type-dropdown')
+            .find('span')
+            .contains('Botfront')
+            .click();
+        cy.fixture('filter_by_date_data.json', 'utf8').then((content) => {
+            cy.get('.file-dropzone').upload(content, 'data.json');
+            cy.dataCy('skip')
+                .click();
+            cy.get('.actions > .primary')
+                .click();
+            cy.dataCy('import-button')
+                .click();
+            cy.dataCy('project-import-success').should('exist');
+            cy.visit('/project/bf/incoming');
+            cy.dataCy('conversations')
+                .click();
+            cy.dataCy('utterance-text').should('contains.text', 'nov');
+            cy.dataCy('conversation-item').eq(1).click();
+            cy.dataCy('utterance-text').should('contains.text', 'oct');
+            cy.pickDateRange(0, '1/11/2019', '30/11/2019');
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('utterance-text').should('contains.text', 'nov');
+            cy.dataCy('conversation-item').should('have.length', 1);
+        });
     });
 
     it('should filter by userId', function () {
