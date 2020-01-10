@@ -38,7 +38,7 @@ function ResponseButtonEditor({
                             placeholder='Button title'
                             onChange={(_event, { value }) => {
                                 const updatedVal = { title: value, type };
-                                if (type === 'web_url') updatedVal.payload = url;
+                                if (type === 'web_url') updatedVal.url = url;
                                 else updatedVal.payload = payload;
                                 onChange(updatedVal);
                             }}
@@ -65,8 +65,8 @@ function ResponseButtonEditor({
                             <Form.Input
                                 label='URL'
                                 placeholder='http://'
-                                value={payload}
-                                onChange={(_event, { value }) => onChange({ title, type, payload: value })
+                                value={url}
+                                onChange={(_event, { value }) => onChange({ title, type, url: value })
                                 }
                                 data-cy='enter_url'
                             />

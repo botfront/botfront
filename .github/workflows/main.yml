@@ -140,7 +140,6 @@ jobs:
           docker-compose up \
           --abort-on-container-exit \
           --exit-code-from e2e
-        continue-on-error: true
         env:
           RASA_TAG: ${{ steps.versions.outputs.rasa }}
       - name: persist screenshots as artifact on failure

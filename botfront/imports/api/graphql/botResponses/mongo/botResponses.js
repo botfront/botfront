@@ -118,7 +118,7 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
                 metadata: '$metadata',
             },
         },
-    ]);
+    ]).allowDiskUse(true);
 };
 
 

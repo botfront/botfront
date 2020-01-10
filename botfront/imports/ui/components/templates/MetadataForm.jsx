@@ -78,6 +78,7 @@ export const panes = [
                 <ToggleField
                     name='forceOpen'
                     className='toggle'
+                    data-cy='toggle-force-open'
                 />
                 <ToggleField
                     name='forceClose'

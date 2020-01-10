@@ -8,12 +8,13 @@ import { stringPayloadToObject } from '../../../../lib/story_controller';
 export const isButtonValid = ({
     title,
     type,
+    url,
     payload, // eslint-disable-line camelcase
 }) => {
     const titleOk = title.length > 0;
     const payloadOk = type === 'postback'
         ? stringPayloadToObject(payload).intent.length > 0
-        : payload && payload.length;
+        : url && url.length;
 
     return titleOk && payloadOk;
 };
@@ -43,6 +44,8 @@ function QuickReply({
         }
         if (origin.className === 'intent-dropdown') return;
         setIsOpen(false);
+        // eslint-disable-next-line no-underscore-dangle
+        buttonValue.__typename = buttonValue.type === 'postback' ? 'PostbackButton' : 'WebUrlButton';
         onChange(buttonValue);
     };
 
@@ -63,7 +66,7 @@ function QuickReply({
                     onDelete={onDelete}
                     onClose={handleSave}
                     showDelete={showDelete}
-                    valid={valid}
+                    valid={!!valid}
                 />
             </Popup>
         </>
