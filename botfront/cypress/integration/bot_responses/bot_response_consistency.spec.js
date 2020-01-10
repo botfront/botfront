@@ -18,7 +18,7 @@ describe('Bot responses', function() {
 
     const createPersistedResponse = () => {
         cy.dataCy('add-story').click();
-        cy.dataCy('from-text-template').last().click({ force: true });
+        cy.dataCy('single-story-editor').last().find('[data-cy=from-text-template]').click({ force: true });
         cy.dataCy('single-story-editor')
             .last()
             .find('[data-cy=bot-response-input]')
