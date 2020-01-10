@@ -137,6 +137,7 @@ const ProjectContainer = withTracker(({ params }) => {
                 fields: {
                     name: 1,
                     namespace: 1,
+                    modelsBucket: 1,
                     disabled: 1,
                     apiKey: 1,
                     defaultLanguage: 1,
