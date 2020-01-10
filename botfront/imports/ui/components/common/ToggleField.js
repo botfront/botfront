@@ -15,14 +15,16 @@ const Bool = ({
     required,
     showInlineError,
     value,
+    'data-cy': dataCy,
     ...props
 }) => (
     <div
         className={classnames(className, { disabled, error, required }, 'field')}
         {...filterDOMProps(props)}
     >
-        <div className='ui checkbox toggle'>
+        <div className='ui checkbox toggle' data-cy={dataCy}>
             <input
+                data-cy={`toggled-${value}`}
                 checked={value}
                 className='hidden'
                 disabled={disabled}

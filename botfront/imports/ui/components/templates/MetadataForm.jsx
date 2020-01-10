@@ -90,6 +90,7 @@ function ResponseMetadataForm({
                 <ToggleField
                     name='forceOpen'
                     className='toggle'
+                    data-cy='toggle-force-open'
                 />
                 <ToggleField
                     name='forceClose'

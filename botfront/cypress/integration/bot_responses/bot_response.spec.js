@@ -168,7 +168,7 @@ describe('Bot responses', function() {
         cy.dataCy('response-editor').findCy('bot-response-input').type('{backspace}{backspace}edited by response editor');
         cy.dataCy('response-name-input').should('have.class', 'disabled');
         cy.dataCy('metadata-tab').click();
-        cy.dataCy('links-target').find('select.dropdown').select('_self');
+        cy.dataCy('toggle-force-open').click();
         cy.get('.dimmer').click({ position: 'topLeft' });
 
         cy.dataCy('bot-response-input').contains('edited by response editor').should('exist');
@@ -180,7 +180,7 @@ describe('Bot responses', function() {
         cy.wait(250);
         cy.dataCy('response-editor').findCy('bot-response-input').contains('edited by visual story');
         cy.dataCy('metadata-tab').click();
-        cy.dataCy('links-target').should('have.text', 'In the current tab');
+        cy.dataCy('toggle-force-open').find('[data-cy=toggled-true]').should('exist');
     });
     it('should be able to create a response in the visual editor and edit it with the response editor', function() {
         cy.visit('/project/bf/stories');
