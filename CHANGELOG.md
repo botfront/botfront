@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.5-ee.1](https://github.com/botfront/botfront/compare/v0.19.0-alpha.5-ee.0...v0.19.0-alpha.5-ee.1) (2020-01-10)
+
 ## [0.19.0-alpha.5-ee.0](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4-ee.5...v0.19.0-alpha.5-ee.0) (2020-01-09)
 
 
