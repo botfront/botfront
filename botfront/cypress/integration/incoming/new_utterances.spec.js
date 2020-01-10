@@ -239,7 +239,6 @@ describe('incoming page', function() {
         cy.visit('/project/bf/incoming');
         cy.get('.row-wrapper').should('exist');
         cy.wait(500);
-        cy.get('.row-wrapper').trigger('mouseover');
         cy.dataCy('conversation-viewer').first().click({ force: true });
         cy.get('.popup').should('exist');
         cy.get('.popup').should('contains.text', 'test conv link');
