@@ -200,6 +200,7 @@ const BotResponseEditor = (props) => {
 
     useEffect(() => {
         if (triggerClose === true) {
+            // allows focused content to blur and save before closing the modal
             handleModalClose();
             setTriggerClose(false);
         }
@@ -264,7 +265,7 @@ const BotResponseEditor = (props) => {
                 </Segment.Group>
             )}
             open={open}
-            onClose={() => setTriggerClose(true)}
+            onClose={() => setTriggerClose(true)} // closes the modal the next time it renders using useEffect
             centered={false}
         />
     );
@@ -298,7 +299,6 @@ const BotResponseEditorWrapper = (props) => {
         projectId,
         name,
         isNew,
-        open,
         responseType,
         language,
     } = props;

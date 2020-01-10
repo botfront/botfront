@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Icon, Button } from 'semantic-ui-react';
+import { Segment } from 'semantic-ui-react';
 
 import { safeLoad } from 'js-yaml';
 
