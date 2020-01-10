@@ -18,19 +18,18 @@ describe('Bot responses', function() {
 
     const createPersistedResponse = () => {
         cy.dataCy('add-story').click();
-        cy.dataCy('from-text-template').last().click({ force: true }).parents('[data-cy=single-story-editor]')
+        cy.dataCy('from-text-template').last().click({ force: true });
+        cy.dataCy('single-story-editor')
+            .last()
             .find('[data-cy=bot-response-input]')
             .should('exist');
 
         cy.dataCy('bot-response-input').last().click()
             .find('textarea')
             .clear()
-            .type('persistent response');
-
-        cy.dataCy('delete-story').first().click();
-        cy.dataCy('confirm-yes').click({ force: true });
+            .type('persistent response')
+            .blur();
     };
-
 
     it('Should delete an existing response from the project when it is deleted in a story', function() {
         cy.visit('/project/bf/stories');
@@ -80,7 +79,8 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input').last().click()
             .find('textarea')
             .clear()
-            .type('persistent response');
+            .type('persistent response')
+            .blur();
 
         cy.dataCy('delete-story').first().click();
         cy.dataCy('confirm-yes').click({ force: true });
@@ -105,7 +105,6 @@ describe('Bot responses', function() {
             .clear()
             .type('delete storyGroup test response');
         
-        
         cy.dataCy('browser-item')
             .contains('myTest')
             .parents('[data-cy=browser-item]')
@@ -115,6 +114,11 @@ describe('Bot responses', function() {
             .click({ force: true });
         cy.get('.ui.primary.button').contains('Delete').click();
 
+        cy.dataCy('add-item').click({ force: true });
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        clickStoryGroup('myTest');
         createPersistedResponse();
      
         cy.visit('/project/bf/dialogue/templates');

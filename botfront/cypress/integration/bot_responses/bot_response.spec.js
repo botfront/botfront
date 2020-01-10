@@ -194,11 +194,13 @@ describe('Bot responses', function() {
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-text-template').click({ force: true });
 
-        cy.dataCy('bot-response-input').click().find('textarea').type('hi');
+        cy.dataCy('bot-response-input').click().find('textarea').type('hi')
+            .blur();
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.dataCy('edit-responses').click({ force: true });
-        cy.dataCy('response-editor').findCy('bot-response-input').contains('hi').should('exist');
-        cy.dataCy('response-editor').findCy('bot-response-input').click().find('textarea')
+
+        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').contains('hi').should('exist');
+        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').click().find('textarea')
             .clear()
             .type('bye')
             .blur();
