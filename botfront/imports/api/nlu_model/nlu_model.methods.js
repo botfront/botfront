@@ -446,6 +446,10 @@ if (Meteor.isServer) {
                 { fields: { nlu_models: 1 } },
             );
 
+            console.log(projectId);
+            console.log(lang);
+            console.log(payload);
+            
             const entitiesQuery = [];
             if (payload.entities && payload.entities.length) {
                 entitiesQuery.push({

@@ -46,9 +46,10 @@ describe('Bot responses', function() {
 
         cy.dataCy('edit-response-0').click();
         cy.dataCy('bot-response-input').click().find('textarea').clear()
-            .type('updated text');
+            .type('updated text')
+            .blur();
+        cy.wait(500);
 
-        cy.dataCy('button_A').first().click({ force: true });
         cy.dataCy('button_A').first().click({ force: true });
         cy.dataCy('enter-button-title').find('input').clear().type('button B');
         cy.dataCy('intent-label').should('exist').click();
