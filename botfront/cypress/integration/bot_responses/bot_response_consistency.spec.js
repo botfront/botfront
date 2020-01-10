@@ -33,12 +33,9 @@ describe('Bot responses', function() {
             .clear()
             .type('test delete response default');
         
-        cy.dataCy('bot-response-input')
-            .first()
-            .findCy('icon-trash')
+        cy.dataCy('icon-trash')
             .click({ force: true });
         cy.dataCy('bot-response-input').should('not.exist');
-
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('response-text').contains('test delete response default').should('not.exist');
     });
