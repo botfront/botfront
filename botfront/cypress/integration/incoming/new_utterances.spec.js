@@ -68,13 +68,13 @@ describe('incoming page', function() {
                 },
                 input_channel: 'webchat',
                 message_id: '451e0d9d8b494c5aafae0f4ae923004f',
-                metadata: null,
+                metadata: { language: 'en' },
             }],
         latest_input_channel: 'webchat',
         active_form: {},
         latest_action_name: 'action_listen',
     };
-
+    
     const addNewUtterances = () => {
     // add utterances with populate
         cy.visit('/project/bf/incoming');
@@ -237,9 +237,9 @@ describe('incoming page', function() {
         cy.updateConversation('bf', 'test', JSON.stringify(conversationUpdate));
 
         cy.visit('/project/bf/incoming');
-        cy.dataCy('row-wrapper').should('exist');
+        cy.get('.row-wrapper').should('exist');
         cy.wait(500);
-        cy.dataCy('row-wrapper').trigger('mouseover');
+        cy.get('.row-wrapper').trigger('mouseover');
         cy.dataCy('conversation-viewer').first().click({ force: true });
         cy.get('.popup').should('exist');
         cy.get('.popup').should('contains.text', 'test conv link');
