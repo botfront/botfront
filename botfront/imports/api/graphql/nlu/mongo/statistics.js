@@ -45,4 +45,4 @@ export const getIntentStatistics = async ids => Model.aggregate([
         },
     },
     { $sort: { intent: 1 } },
-]);
+]).allowDiskUse(true);
