@@ -8,6 +8,7 @@ describe('project creation', function() {
 
     afterEach(function() {
         cy.deleteProject('bf');
+        cy.deleteProject('test');
     });
 
     it('should be possible to create and delete project', function() {
@@ -25,14 +26,14 @@ describe('project creation', function() {
         cy.dataCy('submit-field').click();
         cy.location('href').should('match', /http:\/\/\w*:*[0-9]*\/admin\/projects/);
         cy.get(':nth-child(3) > .rt-tr > :nth-child(1)').should('have.text', 'test');
-        cy.get(':nth-child(3) > .rt-tr > :nth-child(3)').click();
+        cy.get(':nth-child(3) > .rt-tr > :nth-child(3) a').click();
         cy.location('href').should('match', /http:\/\/\w*:*[0-9]*\/admin\/project\/./);
         cy.dataCy('delete-project').should('be.disabled');
         cy.get('.ui > label').click();
         cy.dataCy('submit-field').click();
         cy.get(':nth-child(1) > .rt-tr > :nth-child(1)').eq(1).should('have.text', 'test');
-        cy.get(':nth-child(1) > .rt-tr > :nth-child(3)').eq(1).click();
-        cy.location('href').should('match',/http:\/\/\w*:*[0-9]*\/admin\/project\/./);
+        cy.get(':nth-child(1) > .rt-tr > :nth-child(3) a').click();
+        cy.location('href').should('match', /http:\/\/\w*:*[0-9]*\/admin\/project\/./);
         cy.dataCy('delete-project').should('not.be.disabled');
         cy.dataCy('delete-project').click();
         cy.get('.primary').click();
