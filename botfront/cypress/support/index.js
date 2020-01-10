@@ -598,11 +598,12 @@ Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Pro
 
 Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(fixture, 'utf8')
     .then((data) => {
-        axios.put(
-            `${Cypress.env('API_URL')}/project/${projectId}/import`,
-            data,
-        ).then((response) => {
-            if (response.status !== 200) throw new Error();
+        const url = `${Cypress.env('API_URL')}/project/${projectId}/import`;
+        cy.request({
+            method: 'PUT',
+            url,
+            headers: { 'Content-Type': 'application/json' },
+            body: data,
         });
     }));
 
