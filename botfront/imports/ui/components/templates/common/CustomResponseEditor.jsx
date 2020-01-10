@@ -20,7 +20,7 @@ const SequenceEditor = (props) => {
     }, [content]);
 
     return (
-        <div className='custom-response-editor'>
+        <div className='custom-response-editor' data-cy='custom-response-editor'>
             <AceEditor
                 width='100%'
                 minLines={10}

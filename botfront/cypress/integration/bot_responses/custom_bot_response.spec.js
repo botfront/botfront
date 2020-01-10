@@ -48,7 +48,8 @@ describe('Bot responses', function() {
         cy.get('.dimmer').should('not.exist');
         cy.wait(250);
         cy.dataCy('edit-response-0').click();
-        cy.dataCy('variation-container').contains('success: true').should('exist');
+        cy.dataCy('custom-response-editor').find('.ace_line').should('have.length', 2);
+        cy.dataCy('custom-response-editor').find('.ace_line').contains('success: true').should('exist');
     });
     it('should add variations for a custom response', function() {
         cy.visit('/project/bf/dialogue/templates');
