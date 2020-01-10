@@ -446,6 +446,10 @@ if (Meteor.isServer) {
                 { fields: { nlu_models: 1 } },
             );
 
+            console.log(projectId);
+            console.log(lang);
+            console.log(payload);
+            
             const entitiesQuery = [];
             if (payload.entities && payload.entities.length) {
                 entitiesQuery.push({
@@ -487,7 +491,7 @@ if (Meteor.isServer) {
                 { $unwind: '$training_data.common_examples' },
                 ...entitiesQuery,
                 { $sort: { 'training_data.common_examples.canonical': -1, 'training_data.common_examples.updatedAt': -1 } },
-            ]).allowDiskUse(true).toArray();
+            ]).toArray();
 
             const model = models[0];
 
