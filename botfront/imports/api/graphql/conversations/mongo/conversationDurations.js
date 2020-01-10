@@ -119,4 +119,4 @@ export const getConversationDurations = async ({
         },
     },
     { $sort: { duration: 1 } },
-]);
+]).allowDiskUse(true);

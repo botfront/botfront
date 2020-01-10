@@ -101,4 +101,4 @@ export const getConversationsIncludingAction = async ({
         },
     },
     { $sort: { bucket: 1 } },
-]), from, to, nBuckets);
+]).allowDiskUse(true), from, to, nBuckets);
