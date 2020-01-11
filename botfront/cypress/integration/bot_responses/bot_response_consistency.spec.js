@@ -45,14 +45,14 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input')
             .find('textarea')
             .clear()
-            .type('test delete response default')
-            .blur();
+            .type('test delete response default');
+        cy.wait(500);
         cy.dataCy('icon-trash')
             .click({ force: true });
+        cy.wait(500);
         cy.dataCy('bot-response-input').should('not.exist');
-        createPersistedResponse();
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('response-text').contains('test delete response default').should('not.exist');
+        cy.dataCy('no-responses').should('exist');
     });
 
     it('Should delete a response in a story from the project when the story is deleted', function() {
