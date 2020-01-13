@@ -16,20 +16,20 @@ describe('Bot responses', function() {
         cy.deleteProject('bf');
     });
 
-    const createPersistedResponse = () => {
-        cy.dataCy('add-story').click();
-        cy.dataCy('single-story-editor').last().find('[data-cy=from-text-template]').click({ force: true });
-        cy.dataCy('single-story-editor')
-            .last()
-            .find('[data-cy=bot-response-input]')
-            .should('exist');
+    // const createPersistedResponse = () => {
+    //     cy.dataCy('add-story').click();
+    //     cy.dataCy('single-story-editor').last().find('[data-cy=from-text-template]').click({ force: true });
+    //     cy.dataCy('single-story-editor')
+    //         .last()
+    //         .find('[data-cy=bot-response-input]')
+    //         .should('exist');
 
-        cy.dataCy('bot-response-input').last().click()
-            .find('textarea')
-            .clear()
-            .type('persistent response')
-            .blur();
-    };
+    //     cy.dataCy('bot-response-input').last().click()
+    //         .find('textarea')
+    //         .clear()
+    //         .type('persistent response')
+    //         .blur();
+    // };
 
     it('Should delete an existing response from the project when it is deleted in a story', function() {
         cy.visit('/project/bf/stories');
@@ -45,14 +45,14 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input')
             .find('textarea')
             .clear()
-            .type('test delete response default')
-            .blur();
+            .type('test delete response default');
+        cy.wait(500);
         cy.dataCy('icon-trash')
             .click({ force: true });
+        cy.wait(500);
         cy.dataCy('bot-response-input').should('not.exist');
-        createPersistedResponse();
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('response-text').contains('test delete response default').should('not.exist');
+        cy.dataCy('no-responses').should('exist');
     });
 
     it('Should delete a response in a story from the project when the story is deleted', function() {
@@ -74,19 +74,13 @@ describe('Bot responses', function() {
         // add a story so that the story group is not deleted
         // ensuring that this test only tests deleting responses when a story is deleted
         cy.dataCy('add-story').click();
-        cy.dataCy('from-text-template').last().click({ force: true });
-        cy.dataCy('bot-response-input').should('have.length', 2);
-        cy.dataCy('bot-response-input').last().click()
-            .find('textarea')
-            .clear()
-            .type('persistent response')
-            .blur();
+        cy.dataCy('single-story-editor').should('have.length', 2);
 
         cy.dataCy('delete-story').first().click();
         cy.dataCy('confirm-yes').click({ force: true });
         
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('response-text').contains('test delete response delete story').should('not.exist');
+        cy.dataCy('no-responses').should('exist');
     });
 
     it('Should delete an existing response from the project when the story group is deleted', function() {
@@ -119,10 +113,9 @@ describe('Bot responses', function() {
             .find('input')
             .type('myTest{enter}');
         clickStoryGroup('myTest');
-        createPersistedResponse();
      
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('response-text').contains('delete storyGroup test response').should('not.exist');
+        cy.dataCy('no-responses').should('exist');
     });
     
     it('Should delete a response in a branch when the branch is deleted', function() {

@@ -23,7 +23,7 @@ Meteor.methods({
             return Stories.update({ _id }, { $set: { ...rest } });
         }
         const originStory = Stories.findOne({ _id });
-        const { events: oldEvents } = originStory;
+        const { events: oldEvents } = originStory || {};
         // passing story.story and path[(last index)] AKA storyBranchId to aggregate events allows it to aggregate events with the updated story md
         const newEvents = aggregateEvents(originStory, { ...rest, _id: path[path.length - 1] }); // path[(last index)] is the id of the updated branch
 
