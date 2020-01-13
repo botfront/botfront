@@ -18,6 +18,8 @@ describe('Bot responses', function() {
         cy.dataCy('response-name-input').click().find('input').type('test_A');
         cy.dataCy('custom-response-editor').click().find('textarea').type('test: success');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('.dimmer').should('not.exist');
+        cy.wait(250);
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('edit-response-0').click();
         cy.dataCy('custom-response-editor').contains('test: success').should('exist');
@@ -35,6 +37,8 @@ describe('Bot responses', function() {
         cy.dataCy('custom-response-editor').click().find('textarea').clear()
             .type('success: true');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('.dimmer').should('not.exist');
+        cy.wait(250);
         cy.dataCy('edit-response-0').click();
         cy.dataCy('custom-response-editor').contains('success: true').should('exist');
     });
@@ -53,6 +57,8 @@ describe('Bot responses', function() {
         cy.dataCy('edit-custom-response').click();
         cy.dataCy('custom-response-editor').click().find('textarea').type('test: success');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('.dimmer').should('not.exist');
+        cy.wait(250);
         cy.dataCy('edit-custom-response').click();
         cy.dataCy('custom-response-editor').contains('test: success').should('exist');
     });
