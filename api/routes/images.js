@@ -1,0 +1,77 @@
+const { body, validationResult } = require('express-validator/check');
+const {
+    getVerifiedProject,
+    uploadFileToGcs,
+    deleteFileFromGcs,
+} = require('../server/utils');
+
+const getBucket = async (projectId, req) => {
+    const project = await getVerifiedProject(projectId, req);
+    if (!project) return { error: 'unauthorized', status: 401 };
+    const { DEPLOYMENT_ENVIRONMENT, GCP_PROJECT_ID } = process.env;
+    if (!project.namespace)
+        return { error: 'No GC namespace set for project', status: 422 };
+    if (!DEPLOYMENT_ENVIRONMENT)
+        return { error: 'No DEPLOYMENT_ENVIRONMENT variable set', status: 422 };
+    if (!GCP_PROJECT_ID) return { error: 'No GCP_PROJECT_ID variable set', status: 422 };
+    return {
+        bucket: `${DEPLOYMENT_ENVIRONMENT}-media-${project.namespace}-${GCP_PROJECT_ID}`,
+    };
+};
+
+exports.getBucket = getBucket;
+
+exports.uploadImageValidator = [
+    body('data', 'data should be a string').isString(),
+    body('projectId', 'projectId should be a string').isString(),
+    body('mimeType', 'mimeType should be a string').isString(),
+    body('language', 'language should be a string').isString(),
+    body('responseId', 'responseId should be a string').isString(),
+];
+
+exports.uploadImage = async function(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ error: errors.array() });
+    const { data, projectId, mimeType, language, responseId } = req.body;
+    const { error, status, bucket } = await getBucket(projectId, req);
+    if (error) return res.status(status).json({ error });
+    const fileExtension = (mimeType.match(/image\/(.*)/) || [])[1];
+    if (!fileExtension) return res.status(422).json({ error: 'Bad mimetype' });
+    
+    try {
+        const fs = require('fs');
+        const filename = `${__dirname}/${responseId}-${language}.${fileExtension}`;
+        fs.writeFile(filename, data, 'base64', async () => {
+            try {
+                const response = await uploadFileToGcs(filename, bucket);
+                return res.status(200).json({ uri: response[0].metadata.mediaLink });
+            } catch (err) {
+                return res.status(err.code || 500).json(err);
+            }
+        });
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+};
+
+exports.deleteImageValidator = [
+    body('projectId', 'projectId should be a string').isString(),
+    body('uri', 'uri should be a string').isString(),
+];
+
+exports.deleteImage = async function(req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ error: errors.array() });
+    const { projectId, uri } = req.body;
+    const { error, status, bucket } = await getBucket(projectId, req);
+    if (error) return res.status(status).json({ error });
+    const filename = (uri.match(/.*\/(.*?)(\?|$)/) || [])[1];
+    if (!filename) return res.status(422).json({ error: 'Could not parse URI' });
+
+    try {
+        const response = await deleteFileFromGcs(filename, bucket);
+        return res.status(response[0].statusCode).json();
+    } catch (err) {
+        return res.status(err.code || 500).json(err);
+    }
+};
