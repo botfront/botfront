@@ -154,6 +154,13 @@ describe('NLU canonical examples', function () {
     
     it('should tag the first example for an intent created in the visual editor as canonical', function () {
         cy.visit('/project/bf/stories');
+
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').click({ force: true });
         cy.dataCy('utterance-input')
