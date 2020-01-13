@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.6-ee.0](https://github.com/botfront/botfront/compare/v0.19.0-alpha.5-ee.1...v0.19.0-alpha.6-ee.0) (2020-01-13)
+
+
+### Bug Fixes
+
+* utterance text missing in visual editor ([285fe29](https://github.com/botfront/botfront/commit/285fe29876fc06698176fe2b306c6041929f84a1))
+
 ## [0.19.0-alpha.5-ee.1](https://github.com/botfront/botfront/compare/v0.19.0-alpha.5-ee.0...v0.19.0-alpha.5-ee.1) (2020-01-10)
 
 ## [0.19.0-alpha.5-ee.0](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4-ee.5...v0.19.0-alpha.5-ee.0) (2020-01-09)
