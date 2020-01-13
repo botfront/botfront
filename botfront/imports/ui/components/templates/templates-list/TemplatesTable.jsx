@@ -186,6 +186,7 @@ class TemplatesTable extends React.Component {
                     &nbsp;button to create your first bot response.
                 </div>
             )}
+            data-cy='no-responses'
         />
     );
 
