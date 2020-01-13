@@ -13,7 +13,7 @@ describe('Bot responses', function() {
         cy.deleteProject('bf');
         cy.logout();
     });
-    
+    /*
     it('should create a response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
@@ -28,6 +28,7 @@ describe('Bot responses', function() {
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
         cy.dataCy('add-text-response').click();
+
         cy.dataCy('response-name-input').click().find('input').type('test_A');
         cy.dataCy('bot-response-input').find('textarea').type('response content');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
@@ -182,6 +183,7 @@ describe('Bot responses', function() {
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').find('[data-cy=toggled-true]').should('exist');
     });
+    */
     it('should be able to create a response in the visual editor and edit it with the response editor', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click();
@@ -198,13 +200,16 @@ describe('Bot responses', function() {
             .blur();
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.dataCy('edit-responses').click({ force: true });
-
-        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').contains('hi').should('exist');
+        cy.get('[data-cy=response-editor] [data-cy=bot-response-input]').should('exist');
+        cy.get('[data-cy=response-editor] [data-cy=bot-response-input]').should('have.text', 'hi');
         cy.dataCy('response-editor').find('[data-cy=bot-response-input]').click().find('textarea')
             .clear()
             .type('bye')
             .blur();
+        cy.wait(200); // ensure that graphql calls completes
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.dataCy('bot-response-input').contains('bye').should('exist');
+        cy.wait(200); // ensure that graphql calls completes
+        cy.dataCy('bot-response-input').should('exist');
+        cy.dataCy('bot-response-input').should('have.text', 'bye');
     });
 });
