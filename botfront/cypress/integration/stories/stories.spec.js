@@ -401,7 +401,7 @@ describe('stories', function() {
             .find('div')
             .children()
             .first()
-            .click();
+            .click({ force: true });
         cy.dataCy('story-top-menu')
             .find('.trash.disabled.icon')
             .should('exist');
@@ -416,7 +416,7 @@ describe('stories', function() {
             .last()
             .dataCy('branch-label')
             .last()
-            .click();
+            .click({ force: true });
         cy.dataCy('single-story-editor')
             .last()
             .dataCy('branch-label')
@@ -431,7 +431,7 @@ describe('stories', function() {
             .eq(1)
             .dataCy('branch-label')
             .last()
-            .click();
+            .click({ force: true });
         cy.dataCy('single-story-editor')
             .eq(1)
             .dataCy('branch-label')
