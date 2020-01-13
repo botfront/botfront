@@ -34,10 +34,10 @@ function WidgetRulesForm({
             test: Boolean!
             payload: String!
             text: String!
-            trigger: Url
+            trigger: [String]
             timeOnPage: Float
             numberOfVists: Int
-            numberOfPageVists: Int
+            numberOfPageVisits: Int
             device: String
             queryString: [QueryString]
             eventListeners: [EventListener]
@@ -91,8 +91,11 @@ function WidgetRulesForm({
         timeOnPage: {
             label: 'Time on page',
         },
-        numberOfPageVists: {
-            label: 'Number of visits',
+        numberOfVisits: {
+            label: 'Total number of visits',
+        },
+        numberOfPageVisits: {
+            label: 'Number of visits to this page',
         },
         device: {
             label: 'device',
