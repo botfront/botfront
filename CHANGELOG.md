@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-alpha.6](https://github.com/botfront/botfront/compare/v0.19.0-alpha.5...v0.19.0-alpha.6) (2020-01-13)
+
+
+### Bug Fixes
+
+* utterance text missing in visual editor ([285fe29](https://github.com/botfront/botfront/commit/285fe29))
+
+
+### Tests
+
+* fix bot response consistency ([c3f4e26](https://github.com/botfront/botfront/commit/c3f4e26))
+* fix bot response tests ([fa975be](https://github.com/botfront/botfront/commit/fa975be))
+* fix bot_response + bot_response_consistency ([832d69d](https://github.com/botfront/botfront/commit/832d69d))
+* fix bot_response_consistency tests ([715fa35](https://github.com/botfront/botfront/commit/715fa35))
+* refactor bot response consistency ([0a9efa5](https://github.com/botfront/botfront/commit/0a9efa5))
+* wait for save in custom bot response spec ([5ad290b](https://github.com/botfront/botfront/commit/5ad290b))
+
+
+
 ## [0.19.0-alpha.5](https://github.com/botfront/botfront/compare/v0.19.0-alpha.4...v0.19.0-alpha.5) (2020-01-09)
 
 
