@@ -23,60 +23,60 @@ function ResponseMetadataForm({
 }) {
     const pageEventOptions = [
         {
-            label: 'onclick',
-            value: 'onclick',
+            label: 'click',
+            value: 'click',
         },
         {
-            label: 'oncontextmenu',
-            value: 'oncontextmenu',
+            label: 'contextmenu',
+            value: 'contextmenu',
         },
         {
-            label: 'ondblclick',
-            value: 'ondblclick',
+            label: 'dblclick',
+            value: 'dblclick',
         },
         {
-            label: 'onmousedown',
-            value: 'onmousedown',
+            label: 'mousedown',
+            value: 'mousedown',
         },
         {
-            label: 'onmouseenter',
-            value: 'onmouseenter',
+            label: 'mouseenter',
+            value: 'mouseenter',
         },
         {
-            label: 'onmouseleave',
-            value: 'onmouseleave',
+            label: 'mouseleave',
+            value: 'mouseleave',
         },
         {
-            label: 'onmousemove',
-            value: 'onmousemove',
+            label: 'mousemove',
+            value: 'mousemove',
         },
         {
-            label: 'onmouseout',
-            value: 'onmouseout',
+            label: 'mouseout',
+            value: 'mouseout',
         },
         {
-            label: 'onmouseover',
-            value: 'onmouseover',
+            label: 'mouseover',
+            value: 'mouseover',
         },
         {
-            label: 'onmouseup',
-            value: 'onmouseup',
+            label: 'mouseup',
+            value: 'mouseup',
         },
         {
-            label: 'onblur',
-            value: 'onblur',
+            label: 'blur',
+            value: 'blur',
         },
         {
-            label: 'onfocus',
-            value: 'onfocus',
+            label: 'focus',
+            value: 'focus',
         },
         {
-            label: 'onfocusin',
-            value: 'onfocusin',
+            label: 'focusin',
+            value: 'focusin',
         },
         {
-            label: 'onfocusout',
-            value: 'onfocusout',
+            label: 'focusout',
+            value: 'focusout',
         },
     ];
     const schema = extendSchema(buildASTSchema(parse(`
@@ -226,7 +226,7 @@ function ResponseMetadataForm({
         if (newModel.domHighlight && newModel.domHighlight.enabled) delete newModel.domHighlight.enabled;
         if (newModel.customCss && newModel.customCss.enabled) delete newModel.customCss.enabled;
         if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks.enabled;
-        if (newModel.pageEventCallbacks && !newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks;
+        if (newModel.pageEventCallbacks && newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks.enabled;
 
         return newModel;
     };
