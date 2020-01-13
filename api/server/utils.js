@@ -84,3 +84,15 @@ exports.aggregateEvents = (parentStory) => {
     traverseBranches(parentStory);
     return { ...parentStory, events };
 };
+
+exports.uploadFileToGcs = (filePath, bucket) => {
+    const { Storage } = require('@google-cloud/storage');
+    const storage = new Storage();
+    return storage.bucket(bucket).upload(filePath);
+}
+
+exports.deleteFileFromGcs = (filePath, bucket) => {
+    const { Storage } = require('@google-cloud/storage');
+    const storage = new Storage();
+    return storage.bucket(bucket).file(filePath).delete();
+}
