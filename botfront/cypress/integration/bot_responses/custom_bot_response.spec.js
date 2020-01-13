@@ -16,7 +16,9 @@ describe('Bot responses', function() {
         cy.dataCy('create-response').click();
         cy.dataCy('add-custom-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
-        cy.dataCy('custom-response-editor').click().find('textarea').type('test: success');
+        cy.wait(100);
+        cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}test: success');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
         cy.wait(250);
@@ -29,8 +31,13 @@ describe('Bot responses', function() {
         cy.dataCy('create-response').click();
         cy.dataCy('add-custom-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
-        cy.dataCy('custom-response-editor').click().find('textarea').type('test: success');
+        cy.wait(100);
+        cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}test: success');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.wait(100);
+        cy.get('.dimmer').should('not.exist');
+        cy.wait(250);
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
         cy.dataCy('edit-response-0').click();
