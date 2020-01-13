@@ -13,7 +13,7 @@ describe('Bot responses', function() {
         cy.deleteProject('bf');
         cy.logout();
     });
-    /*
+
     it('should create a response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
@@ -183,7 +183,7 @@ describe('Bot responses', function() {
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').find('[data-cy=toggled-true]').should('exist');
     });
-    */
+
     it('should be able to create a response in the visual editor and edit it with the response editor', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click();
