@@ -22,17 +22,10 @@ describe('story visual editor', function () {
         cy.deleteProject('bf');
     });
 
-    beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-        cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
-        cy.loginTestUser('admin@bf.com');
+    beforeEach(function () {
+        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
-
-    afterEach(function() {
-        cy.deleteUser('admin@bf.com');
-        cy.deleteProject('bf');
-    });
-
+    
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
         cy.importNluData('bf', 'nlu_sample_en.json', 'English');
         cy.train();

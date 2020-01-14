@@ -21,7 +21,6 @@ describe('nlu tagging in training data', function() {
     });
 
     afterEach(function() {
-        cy.deleteUser('admin@bf.com');
         cy.deleteProject('bf');
     });
 

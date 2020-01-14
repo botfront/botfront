@@ -5,25 +5,13 @@ const storyGroupTwo = 'storyGroupTwo';
 const testText = '* my_intent';
 
 describe('stories', function() {
-    before(function() {
-        cy.deleteProject('bf');
-    });
-
-    afterEach(function() {
-        cy.deleteProject('bf');
-    });
-
     beforeEach(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-        cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
-        cy.loginTestUser('admin@bf.com');
+        cy.createProject('bf');
     });
 
     afterEach(function() {
-        cy.deleteUser('admin@bf.com');
         cy.deleteProject('bf');
     });
-
 
     function clickStoryGroup(group) {
         const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
