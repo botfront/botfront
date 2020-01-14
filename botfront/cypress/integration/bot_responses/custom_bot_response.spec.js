@@ -56,18 +56,21 @@ describe('Bot responses', function() {
         cy.dataCy('create-response').click();
         cy.dataCy('add-custom-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
-        cy.dataCy('variation-container').click().find('textarea').type('{selectAll}{del}doesNotExist: true');
+        cy.wait(100);
+        cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}doesNotExist: true');
+        cy.wait(100);
         cy.dataCy('icon-trash').first().click();
-        cy.dataCy('variation-container').contains('doesNotExist: true').should('not.exist');
-        cy.dataCy('variation-container').click().find('textarea').type('test: A');
+        cy.dataCy('custom-response-editor').contains('doesNotExist: true').should('not.exist');
+        cy.dataCy('custom-response-editor').click().find('textarea').type('test: A');
         cy.dataCy('add-variation').click();
-        cy.dataCy('variation-container').last().click().find('textarea')
+        cy.dataCy('custom-response-editor').should('have.length', 2);
+        cy.dataCy('custom-response-editor').last().click().find('textarea')
             .type('{selectAll}{del}test: B');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('edit-response-0').click();
-        cy.dataCy('variation-container').contains('test: A').should('exist');
-        cy.dataCy('variation-container').contains('test: B').should('exist');
+        cy.dataCy('custom-response-editor').contains('test: A').should('exist');
+        cy.dataCy('custom-response-editor').contains('test: B').should('exist');
     });
     it('should add a custom response in the visual story editor', function() {
         cy.visit('/project/bf/stories');
@@ -82,12 +85,14 @@ describe('Bot responses', function() {
         cy.dataCy('from-custom-template').click();
 
         cy.dataCy('edit-custom-response').click();
-        cy.dataCy('variation-container').click().find('textarea').type('{selectAll}{del}test: success')
+        cy.wait(100);
+        cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}test: success')
             .blur();
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
         cy.wait(250);
         cy.dataCy('edit-custom-response').click();
-        cy.dataCy('variation-container').contains('test: success').should('exist');
+        cy.dataCy('custom-response-editor').contains('test: success').should('exist');
     });
 });

@@ -35,12 +35,13 @@ describe('Bot responses', function() {
         cy.dataCy('edit-response-0').click();
         cy.dataCy('response-name-input').click().find('input').type('{backspace}B');
         cy.dataCy('bot-response-input').click({ force: true }).find('textarea').clear()
-            .type('new response');
+            .type('new response')
+            .blur();
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.dataCy('template-intent').contains('utter_test_A').should('not.exist');
-        cy.dataCy('response-text').contains('response content').should('not.exist');
         cy.dataCy('template-intent').contains('utter_test_B').should('exist');
         cy.dataCy('response-text').contains('new response').should('exist');
+        cy.dataCy('template-intent').contains('utter_test_A').should('not.exist');
+        cy.dataCy('response-text').contains('response content').should('not.exist');
     });
     it('should allow the response to be edited in another language', function() {
         cy.visit('/project/bf/dialogue/templates');
@@ -54,7 +55,8 @@ describe('Bot responses', function() {
         cy.get('.item').contains('German').click();
         cy.dataCy('edit-response-0').click();
         cy.dataCy('bot-response-input').click().find('textarea').clear()
-            .type('new response');
+            .type('new response')
+            .blur();
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('response-text').contains('new response').should('exist');
@@ -166,7 +168,7 @@ describe('Bot responses', function() {
         cy.dataCy('edit-responses').click({ force: true });
         cy.dataCy('response-editor').should('exist');
 
-        cy.dataCy('response-editor').findCy('bot-response-input').type('{backspace}{backspace}edited by response editor');
+        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').type('{backspace}{backspace}edited by response editor');
         cy.dataCy('response-name-input').should('have.class', 'disabled');
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').click();
@@ -177,9 +179,10 @@ describe('Bot responses', function() {
         cy.dataCy('browser-item').contains('myTest').click();
 
         cy.dataCy('edit-responses').click({ force: true });
+        cy.dataCy('variations-tab').click();
         cy.dataCy('response-editor').should('exist');
         cy.wait(250);
-        cy.dataCy('response-editor').findCy('bot-response-input').contains('edited by visual story');
+        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').contains('edited by visual story');
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').find('[data-cy=toggled-true]').should('exist');
     });

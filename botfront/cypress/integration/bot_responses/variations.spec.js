@@ -36,6 +36,7 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input').contains('D').should('not.exist');
         
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('.dimmer').should('not.exist');
         cy.dataCy('response-text').find('div').contains('A').should('exist');
         cy.dataCy('response-text').find('div').contains('C').should('exist');
         cy.dataCy('response-text').find('div').contains('D').should('not.exist');
@@ -49,6 +50,7 @@ describe('Bot responses', function() {
         addVariation('test B');
         addVariation('test C');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('.dimmer').should('not.exist');
         cy.dataCy('edit-response-0').click();
         cy.dataCy('bot-response-input').eq(0).click().find('textarea')
             .clear()
@@ -64,6 +66,7 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input').contains('edited deleted').should('not.exist');
         addVariation('edited C');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('.dimmer').should('not.exist');
         cy.dataCy('response-text').find('div').contains('edited A').should('exist');
         cy.dataCy('response-text').find('div').contains('edited B').should('exist');
         cy.dataCy('response-text').find('div').contains('edited C').should('exist');
@@ -91,6 +94,7 @@ describe('Bot responses', function() {
             .clear()
             .type('bye');
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.dataCy('bot-response-input').contains('bye').should('exist');
+        cy.get('.dimmer').should('not.exist');
+        cy.dataCy('bot-response-input').contains('bye').should('not.exist');
     });
 });
