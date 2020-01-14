@@ -44,6 +44,7 @@ describe('Bot responses', function() {
         cy.dataCy('variation-container').click().find('textarea').clear()
             .type('success: true')
             .blur();
+        cy.wait(250);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
         cy.wait(250);
