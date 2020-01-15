@@ -37,7 +37,10 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input').click({ force: true }).find('textarea').clear()
             .type('new response')
             .blur();
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         cy.dataCy('template-intent').contains('utter_test_B').should('exist');
         cy.dataCy('response-text').contains('new response').should('exist');
         cy.dataCy('template-intent').contains('utter_test_A').should('not.exist');
@@ -49,7 +52,10 @@ describe('Bot responses', function() {
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
         cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         // edit in a second language
         cy.get('.item').contains('German').click();
@@ -57,7 +63,10 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input').click().find('textarea').clear()
             .type('new response')
             .blur();
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('response-text').contains('new response').should('exist');
         // verify original language has not changed
@@ -72,7 +81,10 @@ describe('Bot responses', function() {
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
         cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         // add a second response with the same name
         cy.dataCy('create-response').click();
         cy.dataCy('add-text-response').click();
@@ -92,18 +104,27 @@ describe('Bot responses', function() {
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
         cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         // add a second response
         cy.dataCy('create-response').click();
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_B');
         cy.dataCy('bot-response-input').find('textarea').type('response two');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         // edit a the second response to have the same name as the first
         cy.dataCy('edit-response-1').click();
         cy.dataCy('response-name-input').click().find('input').type('{backspace}A');
         cy.dataCy('metadata-tab').click();
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         cy.dataCy('response-name-error').should('exist');
         cy.dataCy('response-name-input').click().find('input').type('{backspace}B');
         // verify the response name has not been duplicated
@@ -116,7 +137,10 @@ describe('Bot responses', function() {
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type('{backspace}test_A');
         cy.dataCy('bot-response-input').find('textarea').type('response text');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         cy.dataCy('response-name-error').should('exist');
     });
     it('should disable response name input if the response is used in a story', function() {
@@ -135,7 +159,10 @@ describe('Bot responses', function() {
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
         cy.dataCy('bot-response-input').find('textarea').type('response content');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
 
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('template-intent').parents('.rt-tr-group').find('.edit.icon').click();
@@ -158,7 +185,10 @@ describe('Bot responses', function() {
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
         cy.dataCy('bot-response-input').find('textarea').type('aa');
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
         cy.visit('/project/bf/stories');
@@ -172,7 +202,10 @@ describe('Bot responses', function() {
         cy.dataCy('response-name-input').should('have.class', 'disabled');
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').click();
-        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.wait(100);
+        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.get('dimmer').should('not.exist');
+        cy.wait(100);
 
         cy.dataCy('bot-response-input').contains('edited by response editor').should('exist');
         cy.dataCy('bot-response-input').type('edited by visual story');
