@@ -40,7 +40,7 @@ exports.uploadImage = async function(req, res) {
     
     try {
         const fs = require('fs');
-        const filename = `${__dirname}/${responseId}-${language}.${fileExtension}`;
+        const filename = `/tmp/${responseId}-${language}.${fileExtension}`;
         fs.writeFile(filename, data, 'base64', async () => {
             try {
                 const response = await uploadFileToGcs(filename, bucket);

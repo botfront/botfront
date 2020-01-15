@@ -49,6 +49,7 @@ config().then(async config => {
                 useNewUrlParser: true,
                 useFindAndModify: false,
                 useUnifiedTopology: true,
+                useCreateIndex: true,
             });
             clearInterval(mongoConnectInterval)
             app.listen(port, function() {
