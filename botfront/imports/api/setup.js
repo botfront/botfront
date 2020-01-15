@@ -136,7 +136,6 @@ if (Meteor.isServer) {
                 {
                     name: 'My First Model',
                     language: projectData.language,
-                    published: true,
                 },
                 projectId,
             );

@@ -158,9 +158,9 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(language, String);
             check(instance, Object);
-            const publishedModels = await Meteor.callWithPromise('nlu.getPublishedModelsLanguages', projectId);
+            const modelIds = await getModelIdsFromProjectId(projectId);
             const nluModels = NLUModels.find(
-                { _id: { $in: publishedModels.map(m => m._id) } },
+                { _id: { $in: modelIds } },
                 {
                     fields: {
                         config: 1,
