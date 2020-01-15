@@ -1,5 +1,7 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+    useState, useEffect, useRef, useContext,
+} from 'react';
 import PropTypes from 'prop-types';
 import {
     Input, Button, Image, Icon, Loader, Dimmer,
@@ -9,11 +11,13 @@ import { useDrop } from 'react-dnd-cjs';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
 import FloatingIconButton from '../../common/FloatingIconButton';
+import { ProjectContext } from '../../../layouts/context';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom, tag,
+        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag,
     } = props;
+    const { webhooks } = useContext(ProjectContext);
 
     const [input, setInput] = useState();
     const [shiftPressed, setshiftPressed] = useState(false);
@@ -120,14 +124,13 @@ const BotResponseContainer = (props) => {
         </div>
     );
 
-    const handleFileDrop = (files) => {
+    const handleFileDrop = async (files) => {
         const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-        if (!validFiles.length) return alert('Not an image');
+        if (validFiles.length !== 1) return; // reject sets, and non-images
         setIsUploading(true);
-        setTimeout(() => {
-            setImage('https://icon2.cleanpng.com/20180331/vlq/kisspng-unicorn-paper-party-printing-mythology-unicornio-5abf95f9cd7b97.4029263615225052098417.jpg');
-            setIsUploading(false);
-        }, 1500);
+        uploadImage({
+            file: validFiles[0], setImage, resetUploadStatus: () => setIsUploading(false),
+        });
     };
 
     const [{ canDrop, isOver }, drop] = useDrop({
@@ -144,24 +147,28 @@ const BotResponseContainer = (props) => {
             ref={drop}
             {...(canDrop && isOver ? { className: 'upload-target' } : {})}
         >
-            <div className='align-center'>
-                <Icon name='image' size='huge' color='grey' />
-                <input
-                    type='file'
-                    ref={fileField}
-                    style={{ display: 'none' }}
-                    onChange={e => handleFileDrop(e.target.files)}
-                />
-                <Button
-                    primary
-                    basic
-                    content='Upload image'
-                    size='small'
-                    onClick={() => fileField.current.click()}
-                />
-                <span className='small grey'>or drop an image file to upload</span>
-            </div>
-            <div className='or'> or </div>
+            {webhooks && webhooks.uploadImageWebhook && webhooks.uploadImageWebhook.url && (
+                <>
+                    <div className='align-center'>
+                        <Icon name='image' size='huge' color='grey' />
+                        <input
+                            type='file'
+                            ref={fileField}
+                            style={{ display: 'none' }}
+                            onChange={e => handleFileDrop(e.target.files)}
+                        />
+                        <Button
+                            primary
+                            basic
+                            content='Upload image'
+                            size='small'
+                            onClick={() => fileField.current.click()}
+                        />
+                        <span className='small grey'>or drop an image file to upload</span>
+                    </div>
+                    <div className='or'> or </div>
+                </>
+            )}
             <div>
                 <b>Insert image from URL</b>
                 <br />
@@ -227,6 +234,7 @@ BotResponseContainer.propTypes = {
     onDelete: PropTypes.func.isRequired,
     editCustom: PropTypes.func,
     tag: PropTypes.string,
+    uploadImage: PropTypes.func,
 };
 
 BotResponseContainer.defaultProps = {
@@ -234,6 +242,7 @@ BotResponseContainer.defaultProps = {
     focus: false,
     editCustom: () => {},
     tag: null,
+    uploadImage: () => {},
 };
 
 export default BotResponseContainer;

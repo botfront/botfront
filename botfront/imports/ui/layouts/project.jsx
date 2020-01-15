@@ -306,6 +306,7 @@ class Project extends React.Component {
                                             intents,
                                             entities,
                                             slots,
+                                            webhooks: settings.settings.private.webhooks,
                                             language: workingLanguage,
                                             upsertResponse: this.upsertResponse,
                                             getResponse: this.getResponse,
@@ -385,7 +386,9 @@ const ProjectContainer = withTracker((props) => {
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const settingsHandler = Meteor.subscribe('settings');
-    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1 } });
+    const settings = GlobalSettings.findOne({}, {
+        fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1, 'settings.private.webhooks': 1 },
+    });
     const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);

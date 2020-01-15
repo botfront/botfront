@@ -7,6 +7,7 @@ import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
+import { useUpload } from '../hooks/image.hooks';
 
 const BotResponsesContainer = (props) => {
     const {
@@ -25,6 +26,7 @@ const BotResponsesContainer = (props) => {
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(isNew ? 0 : null);
+    const [uploadImage] = useUpload(name);
 
     useEffect(() => {
         setTemplate(initialValue);
@@ -101,6 +103,7 @@ const BotResponsesContainer = (props) => {
                     focus={focus === index}
                     onFocus={() => setFocus(index)}
                     editCustom={() => setEditorOpen(true)}
+                    uploadImage={uploadImage}
                 />
                 {index === sequenceArray.length - 1 && name && (
                     <div className='response-name'>{name}</div>
