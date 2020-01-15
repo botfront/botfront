@@ -20,8 +20,6 @@ if (Meteor.isServer) {
 
             const params = { ...options };
             params.output = 'json';
-            console.log(params);
-
 
             const exportRequest = axios.get(
                 `${apiHost}/project/${projectId}/export`,
@@ -52,10 +50,6 @@ if (Meteor.isServer) {
                 stories: rasaData.stories,
             };
             return exportData;
-            // config
-            // credentials
-            // domain
-            // endpoints
         },
     });
 }
