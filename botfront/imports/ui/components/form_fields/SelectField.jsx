@@ -50,7 +50,8 @@ const renderSelect = ({
         selection
         onChange={(e, { value }) => onChange(value)}
         options={getOptions(allowedValues, props)}
-    />);
+    />
+);
 
 const Select = ({
     allowedValues,

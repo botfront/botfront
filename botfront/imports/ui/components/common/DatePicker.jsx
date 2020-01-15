@@ -8,9 +8,9 @@ import {
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 
-if (!Meteor.isTest) {
-    import 'react-dates/lib/css/_datepicker.css';
-}
+// if (!Meteor.isTest) {
+import 'react-dates/lib/css/_datepicker.css';
+// }
 
 function DatePicker({
     startDate, endDate, onConfirm, position,
