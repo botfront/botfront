@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Modal, Segment } from 'semantic-ui-react';
 
 
-import StoryTriggersForm from '../chat_rules/StoryTriggersForm';
+import StoryTriggersForm from '../chat_rules/StoryRulesForm';
 
 const StoryTriggerEditor = (props) => {
     const [localOpen, setLocalOpen] = useState(false);
@@ -13,12 +13,12 @@ const StoryTriggerEditor = (props) => {
         trigger,
         storyId,
         projectId,
-        triggers: incommingTriggers,
+        triggerRules: incommingRules,
         open = localOpen,
         setOpen = setLocalOpen,
     } = props;
 
-    const [triggers, setTriggers] = useState({ triggers: incommingTriggers });
+    const [triggerRules, setTriggerRules] = useState({ triggers: incommingRules });
 
     const modalTrigger = { // customize onClick and className of the trigger element
         ...trigger,
@@ -32,13 +32,28 @@ const StoryTriggerEditor = (props) => {
             },
         },
     };
-    
-    const handleChangeTriggers = (model) => {
-        setTriggers(model);
+
+    const traverseTriggers = (model) => {
+        const newModel = model;
+        Object.keys(model).forEach((key) => {
+            if (key.match(/__DISPLAYIF$/) && !model[key]) {
+                const dataKey = key.substring(0, key.length - 11);
+                delete newModel[dataKey];
+                return;
+            }
+            if (typeof newModel[key] === 'object') {
+                traverseTriggers(newModel[key]);
+            }
+        });
+        return newModel;
+    };
+
+    const handleChangeRules = (model) => {
+        setTriggerRules(model);
     };
 
     const handleModalClose = () => {
-        Meteor.call('stories.updateTriggers', projectId, storyId, triggers, (err) => {
+        Meteor.call('stories.updateTriggers', projectId, storyId, traverseTriggers(triggerRules), (err) => {
             if (err) return;
             setOpen(false);
         });
@@ -53,7 +68,7 @@ const StoryTriggerEditor = (props) => {
         >
             <Segment.Group>
                 <Segment>
-                    <StoryTriggersForm onChange={handleChangeTriggers} storyTriggers={triggers} saveAndExit={handleModalClose} />
+                    <StoryTriggersForm onChange={handleChangeRules} triggerRules={triggerRules} saveAndExit={handleModalClose} />
                 </Segment>
             </Segment.Group>
         </Modal>
@@ -64,13 +79,13 @@ StoryTriggerEditor.propTypes = {
     trigger: PropTypes.element.isRequired, // the trigger element will have it's onClick and className props modified
     storyId: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
-    triggers: PropTypes.array,
+    triggerRules: PropTypes.array,
     open: PropTypes.bool,
     setOpen: PropTypes.func,
 };
 
 StoryTriggerEditor.defaultProps = {
-    triggers: [],
+    triggerRules: [],
     open: null,
     setOpen: null,
 };

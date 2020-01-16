@@ -36,13 +36,15 @@ const QueryStringSchema = new SimpleSchema({
 });
 
 const TriggerSchema = new SimpleSchema({
-    url: { type: String, optional: true },
+    url: { type: Array, optional: true },
+    'url.$': { type: String },
     timeOnPage: { type: Number, optional: true },
     numberOfVisits: { type: String, optional: true },
     numberOfPageVisits: { type: String, optional: true },
     device: { type: String, optional: true },
     queryString: { type: QueryStringSchema, optional: true },
-    eventListeners: { type: EventListenersSchema, optional: true },
+    eventListeners: { type: Array, optional: true },
+    'eventListeners.$': { type: EventListenersSchema, optional: true },
 });
 
 export const RulesSchema = new SimpleSchema({
@@ -76,6 +78,6 @@ export const StorySchema = new SimpleSchema({
     checkpoints: { type: Array, optional: true },
     'checkpoints.$': { type: Array },
     'checkpoints.$.$': { type: String },
-    triggers: { type: Array, optional: true },
-    'triggers.$': { type: RulesSchema },
+    triggerRules: { type: Array, optional: true },
+    'triggerRules.$': { type: RulesSchema },
 });

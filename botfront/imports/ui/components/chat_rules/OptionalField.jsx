@@ -41,7 +41,7 @@ const OptionalField = (props) => {
 
 OptionalField.propTypes = {
     name: PropTypes.string.isRequired,
-    children: PropTypes.element.isRequired,
+    children: PropTypes.oneOfType(PropTypes.arrayOf(PropTypes.element).isRequired, PropTypes.element),
     label: PropTypes.string,
 };
 OptionalField.defaultProps = {
