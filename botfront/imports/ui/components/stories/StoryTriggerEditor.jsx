@@ -53,7 +53,7 @@ const StoryTriggerEditor = (props) => {
         >
             <Segment.Group>
                 <Segment>
-                    <StoryTriggersForm onChange={handleChangeTriggers} storyTriggers={triggers} />
+                    <StoryTriggersForm onChange={handleChangeTriggers} storyTriggers={triggers} saveAndExit={handleModalClose} />
                 </Segment>
             </Segment.Group>
         </Modal>
