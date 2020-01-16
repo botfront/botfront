@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Dropdown, Label, Message, Header, Button,
+    Popup, Icon, Menu, Dropdown, Label, Message, Header,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState, useContext } from 'react';
@@ -9,7 +9,7 @@ import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
-import StoryTriggerEditor from './StoryTriggerEditor';
+import StoryTriggerEditor from './rules/StoryTriggerEditor';
 import { setStoryCollapsed } from '../../store/actions/actions';
 
 import { ConversationOptionsContext } from './Context';
@@ -30,7 +30,7 @@ const StoryTopMenu = ({
     isDestinationStory,
     originStories,
     isLinked,
-    triggers,
+    triggerRules,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -210,9 +210,9 @@ const StoryTopMenu = ({
                     />
                     <StoryTriggerEditor
                         // the trigger element will have it's onClick and className props modified
-                        trigger={<Icon name='setting' color={triggers.length > 0 ? 'green' : 'grey'} />}
+                        trigger={<Icon name='setting' color={triggerRules.length > 0 ? 'green' : 'grey'} />}
                         storyId={storyId}
-                        triggers={triggers}
+                        triggerRules={triggerRules}
                         open={triggerEditorOpen}
                         setOpen={setTriggerEditorOpen}
                     />
@@ -307,7 +307,7 @@ const StoryTopMenu = ({
                     {renderConnectedStories()}
                 </Popup>
             )}
-            {triggers.length > 0 && (
+            {triggerRules.length > 0 && (
                 <Message
                     className='connected-story-alert'
                     attached
@@ -339,13 +339,13 @@ StoryTopMenu.propTypes = {
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
-    triggers: PropTypes.array,
+    triggerRules: PropTypes.array,
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     isLinked: false,
     originStories: [],
-    triggers: [],
+    triggerRules: [],
 };
 
 const mapStateToProps = (state, ownProps) => ({
