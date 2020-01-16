@@ -1,8 +1,6 @@
 import { Loader } from 'semantic-ui-react';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DndProvider } from 'react-dnd-cjs';
-import HTML5Backend from 'react-dnd-html5-backend-cjs';
 import { WithRefreshOnLoad } from '../../layouts/project';
 
 import StoriesPageMenu from './StoriesPageMenu';
@@ -16,9 +14,7 @@ const StoriesContainer = (props) => {
         <>
             <StoriesPageMenu projectId={params.project_id} />
             <React.Suspense fallback={<Loader />}>
-                <DndProvider backend={HTML5Backend}>
-                    <Stories projectId={params.project_id} />
-                </DndProvider>
+                <Stories projectId={params.project_id} />
             </React.Suspense>
         </>
     );

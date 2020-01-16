@@ -28,5 +28,5 @@ export function useUpload(templateKey) {
         }
     };
     if (templateKey && webhooks && language && projectId && reader) return [uploadImage];
-    return () => {};
+    return [() => {}];
 }

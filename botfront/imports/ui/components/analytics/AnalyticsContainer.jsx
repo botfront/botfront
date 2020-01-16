@@ -4,8 +4,6 @@ import Immutable from 'immutable';
 import { Meteor } from 'meteor/meteor';
 import { Menu } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import { DndProvider } from 'react-dnd-cjs';
-import HTML5Backend from 'react-dnd-html5-backend-cjs';
 import { setWorkingDeploymentEnvironment, setAnalyticsLanguages } from '../../store/actions/actions';
 import EnvSelector from '../common/EnvSelector';
 import LanguageDropdown from '../common/LanguageDropdown';
@@ -55,9 +53,7 @@ function AnalyticsContainer(props) {
                 </Menu.Item>
             </PageMenu>
             <React.Suspense fallback={<div className='analytics-dashboard' />}>
-                <DndProvider backend={HTML5Backend}>
-                    <Dashboard queryLanguages={queryLanguages.toJS()} />
-                </DndProvider>
+                <Dashboard queryLanguages={queryLanguages.toJS()} />
             </React.Suspense>
         </>
     );
