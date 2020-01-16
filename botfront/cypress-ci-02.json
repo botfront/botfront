@@ -13,17 +13,17 @@
     "viewportHeight": 900,
     "viewportWidth": 1800,
     "ignoreTestFiles":[
-        "integration/02_training/**/*",
-        "integration/03-chat/**/*",
-        "integration/04_nlu_activity/**/*",
-        "integration/account/**/*",
-        "integration/admin_dashboard/**/*",
-        "integration/analytics/**/*",
-        "integration/bot_responses/**/*",
-        "integration/docker-compose/**/*",
-        "integration/import_export_project/**/*",
-        "integration/incoming/**/*",
-        "integration/language_dropdown/**/*"
+        "**/02_training/{**/*,*}.js",
+        "**/03-chat/{**/*,*}.js",
+        "**/04_nlu_activity/{**/*,*}.js",
+        "**/account/{**/*,*}.js",
+        "**/admin_dashboard/{**/*,*}.js",
+        "**/analytics/{**/*,*}.js",
+        "**/bot_responses/{**/*,*}.js",
+        "**/docker-compose/{**/*,*}.js",
+        "**/import_export_project/{**/*,*}.js",
+        "**/incoming/{**/*,*}.js",
+        "**/language_dropdown/{**/*,*}.js"
     ],
     "env": {
         "RASA_URL": "http://localhost:5005",

@@ -13,13 +13,13 @@
     "viewportHeight": 900,
     "viewportWidth": 1800,
     "ignoreTestFiles":[
-        "integration/nlu_models/**/*",
-        "integration/nlu_tagging/**/*",
-        "integration/project_creation/**/*",
-        "integration/project_settings/**/*",
-        "integration/roles_nlu_settings/**/*",
-        "integration/roles_successor_chat/**/*",
-        "integration/stories/**/*"
+        "**/nlu_models/{**/*,*}.js",
+        "**/nlu_tagging/{**/*,*}.js",
+        "**/project_creation/{**/*,*}.js",
+        "**/project_settings/{**/*,*}.js",
+        "**/roles_nlu_settings/{**/*,*}.js",
+        "**/roles_successor_chat/{**/*,*}.js",
+        "**/stories/{**/*,*}.js"
     ],
     "env": {
         "RASA_URL": "http://localhost:5005",
