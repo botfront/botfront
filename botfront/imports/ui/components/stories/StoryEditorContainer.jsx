@@ -198,6 +198,7 @@ const StoryEditorContainer = ({
             isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
             isLinked={destinationStories.length > 0}
             originStories={story.checkpoints}
+            triggers={story.triggers}
         />
     );
 

@@ -25,6 +25,35 @@ for (let i = 0; i < 100; i += 1) {
     intermediateSchemas.push([schemaShape, new SimpleSchema(schemaShape)]);
 }
 
+const EventListenersSchema = new SimpleSchema({
+    selector: { type: String, trim: true },
+    event: { type: String, trim: true },
+});
+
+const QueryStringSchema = new SimpleSchema({
+    param: { type: String, trim: true },
+    valuse: { type: String, trim: true },
+});
+
+const TriggerSchema = new SimpleSchema({
+    url: { type: String, optional: true },
+    timeOnPage: { type: Number, optional: true },
+    numberOfVisits: { type: String, optional: true },
+    numberOfPageVisits: { type: String, optional: true },
+    device: { type: String, optional: true },
+    queryString: { type: QueryStringSchema, optional: true },
+    eventListeners: { type: EventListenersSchema, optional: true },
+});
+
+export const RulesSchema = new SimpleSchema({
+    payload: { type: String, trim: true },
+    text: { type: String, optional: true },
+    trigger: {
+        type: TriggerSchema,
+        optional: true,
+    },
+});
+
 export const StorySchema = new SimpleSchema({
     story: {
         type: String,
@@ -47,4 +76,6 @@ export const StorySchema = new SimpleSchema({
     checkpoints: { type: Array, optional: true },
     'checkpoints.$': { type: Array },
     'checkpoints.$.$': { type: String },
+    triggers: { type: Array, optional: true },
+    'triggers.$': { type: RulesSchema },
 });

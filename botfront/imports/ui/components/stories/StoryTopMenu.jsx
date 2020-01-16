@@ -9,6 +9,7 @@ import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
+import StoryTriggerEditor from './StoryTriggerEditor';
 import { setStoryCollapsed } from '../../store/actions/actions';
 
 import { ConversationOptionsContext } from './Context';
@@ -29,6 +30,7 @@ const StoryTopMenu = ({
     isDestinationStory,
     originStories,
     isLinked,
+    triggers,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -219,6 +221,11 @@ const StoryTopMenu = ({
                         onBlur={submitTitleInput}
                         disabled={disabled}
                     />
+                    <StoryTriggerEditor
+                        trigger={<Menu.Item icon='setting' />}
+                        storyId={storyId}
+                        triggers={triggers}
+                    />
                 </Menu.Item>
                 <Menu.Item position='right'>
                     {renderWarnings()}
@@ -316,11 +323,13 @@ StoryTopMenu.propTypes = {
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
+    triggers: PropTypes.array,
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     isLinked: false,
     originStories: [],
+    triggers: [],
 };
 
 const mapStateToProps = (state, ownProps) => ({
