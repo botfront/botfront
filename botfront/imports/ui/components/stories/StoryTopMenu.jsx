@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Dropdown, Label, Message, Header,
+    Popup, Icon, Menu, Dropdown, Label, Message, Header, Button,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState, useContext } from 'react';
@@ -36,6 +36,7 @@ const StoryTopMenu = ({
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
+    const [triggerEditorOpen, setTriggerEditorOpen] = useState(false);
 
     const { stories, storyGroups } = useContext(ConversationOptionsContext);
 
@@ -207,10 +208,18 @@ const StoryTopMenu = ({
                         }}
                         data-cy='collapse-story-button'
                     />
+                    <StoryTriggerEditor
+                        // the trigger element will have it's onClick and className props modified
+                        trigger={<Icon name='setting' color={triggers.length > 0 ? 'green' : 'grey'} />}
+                        storyId={storyId}
+                        triggers={triggers}
+                        open={triggerEditorOpen}
+                        setOpen={setTriggerEditorOpen}
+                    />
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
                     ) : (
-                        <span className='story-title-prefix'>##</span>
+                        <span className='story-title-prefix'> #</span>
                     )}
                     <input
                         data-cy='story-title'
@@ -220,11 +229,6 @@ const StoryTopMenu = ({
                         onKeyDown={handleInputKeyDown}
                         onBlur={submitTitleInput}
                         disabled={disabled}
-                    />
-                    <StoryTriggerEditor
-                        trigger={<Menu.Item icon='setting' />}
-                        storyId={storyId}
-                        triggers={triggers}
                     />
                 </Menu.Item>
                 <Menu.Item position='right'>
@@ -302,6 +306,18 @@ const StoryTopMenu = ({
                 >
                     {renderConnectedStories()}
                 </Popup>
+            )}
+            {triggers.length > 0 && (
+                <Message
+                    className='connected-story-alert'
+                    attached
+                    warning
+                    size='tiny'
+                    onClick={() => setTriggerEditorOpen(true)}
+                >
+                    <Icon name='info circle' />
+                    Trigger conditions are set for this story. It will start automatically when the conditions are met.
+                </Message>
             )}
         </>
     );
