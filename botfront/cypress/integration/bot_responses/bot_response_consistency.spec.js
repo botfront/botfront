@@ -47,6 +47,8 @@ describe('Bot responses', function() {
             .clear()
             .type('test delete response default');
         cy.wait(500);
+        cy.dataCy('story-title')
+            .click({ force: true });
         cy.dataCy('icon-trash')
             .click({ force: true });
         cy.wait(500);
