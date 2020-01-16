@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Modal, Segment } from 'semantic-ui-react';
 
 
-import StoryTriggersForm from '../chat_rules/StoryRulesForm';
+import StoryTriggersForm from './StoryRulesForm';
 
 const StoryTriggerEditor = (props) => {
     const [localOpen, setLocalOpen] = useState(false);
@@ -18,7 +18,7 @@ const StoryTriggerEditor = (props) => {
         setOpen = setLocalOpen,
     } = props;
 
-    const [triggerRules, setTriggerRules] = useState({ triggers: incommingRules });
+    const [triggerRules, setTriggerRules] = useState({ triggerRules: incommingRules });
 
     const modalTrigger = { // customize onClick and className of the trigger element
         ...trigger,

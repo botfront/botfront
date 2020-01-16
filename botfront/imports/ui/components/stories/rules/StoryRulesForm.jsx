@@ -9,8 +9,8 @@ import {
 import { cloneDeep } from 'lodash';
 import shortId from 'shortid';
 
-import SelectField from '../form_fields/SelectField';
-import OptionalField from './OptionalField';
+import SelectField from '../../form_fields/SelectField';
+import OptionalField from '../../form_fields/OptionalField';
 
 // force open affect force close and vice versa
 
@@ -99,13 +99,8 @@ function StoryRulesForm({
         activeModel.hasToggles = true;
         return activeModel;
     };
-
-    const preProcess = () => {
-        const model = initializeToggles();
-        return model;
-    };
     
-    const activeModel = preProcess();
+    const activeModel = initializeToggles();
 
     const postProcess = (formModel) => {
         const model = cloneDeep(formModel);
@@ -132,11 +127,11 @@ function StoryRulesForm({
     const handleSubmit = (model) => {
         onChange(postProcess(model));
     };
-    
+    console.log(activeModel);
     return (
         <div className='story-trigger-form-container'>
             <AutoForm autosave model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={handleSubmit}>
-                <AutoField name='triggerRules' label='Triggers'>
+                <AutoField name='triggerRules' label='Trigger rules'>
                     <AutoField name='$'>
                         <div>
                             <div>
