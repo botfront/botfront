@@ -1,0 +1,34 @@
+{
+    "fixturesFolder": "cypress/fixtures",
+    "integrationFolder": "cypress/integration",
+    "pluginsFile": "cypress/plugins/index.js",
+    "screenshotsFolder": "cypress/screenshots",
+    "supportFile": "cypress/support/index.js",
+    "videoUploadOnPasses": false,
+    "videosFolder": "cypress/videos",
+    "baseUrl": "http://localhost:3000",
+    "defaultCommandTimeout": 10000,
+    "watchForFileChanges": false,
+    "numTestsKeptInMemory": 2 ,
+    "viewportHeight": 900,
+    "viewportWidth": 1800,
+    "ignoreTestFiles":[
+        "integration/02_training/**/*",
+        "integration/03-chat/**/*",
+        "integration/04_nlu_activity/**/*",
+        "integration/account/**/*",
+        "integration/admin_dashboard/**/*",
+        "integration/analytics/**/*",
+        "integration/bot_responses/**/*",
+        "integration/docker-compose/**/*",
+        "integration/import_export_project/**/*",
+        "integration/incoming/**/*",
+        "integration/language_dropdown/**/*"
+    ],
+    "env": {
+        "RASA_URL": "http://localhost:5005",
+        "API_URL": "http://localhost:8080",
+        "VIDEO": "false",
+        "SCREENSHOTS": "true"
+    }
+}
