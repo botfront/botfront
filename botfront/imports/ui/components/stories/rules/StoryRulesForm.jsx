@@ -127,9 +127,9 @@ function StoryRulesForm({
     const handleSubmit = (model) => {
         onChange(postProcess(model));
     };
-    console.log(activeModel);
+
     return (
-        <div className='story-trigger-form-container'>
+        <div className='story-trigger-form-container' data-cy='story-rules-editor'>
             <AutoForm autosave model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={handleSubmit}>
                 <AutoField name='triggerRules' label='Trigger rules'>
                     <AutoField name='$'>
@@ -138,18 +138,18 @@ function StoryRulesForm({
                                 <ListDelField name='' />
                             </div>
                             <div>
-                                <OptionalField name='text' label='Enable payload text'>
-                                    <AutoField name='' label='Payload text' />
+                                <OptionalField name='text' label='Enable payload text' data-cy='toggle-payload-text'>
+                                    <AutoField name='' label='Payload text' data-cy='payload-text-input' />
                                 </OptionalField>
                                 <AutoField name='trigger' label='Conditions'>
                                     <OptionalField name='url' label='Enable URL trigger'>
                                         <AutoField name='' label='trigger URLs' />
                                     </OptionalField>
-                                    <OptionalField name='numberOfVisits' label='Enable number of website visits trigger'>
-                                        <AutoField name='' label='Trigger once a user has visited this website a set number of times' />
+                                    <OptionalField name='numberOfVisits' label='Enable number of website visits trigger' data-cy='toggle-website-visits'>
+                                        <AutoField name='' label='Trigger once a user has visited this website a set number of times' data-cy='website-visits-input' />
                                     </OptionalField>
-                                    <OptionalField name='numberOfPageVisits' label='Enable number of specific page visits trigger'>
-                                        <AutoField name='' label='Tigger once a user has visited a specific page a set number of times' />
+                                    <OptionalField name='numberOfPageVisits' label='Enable number of specific page visits trigger' data-cy='toggle-page-visits'>
+                                        <AutoField name='' label='Tigger once a user has visited a specific page a set number of times' data-cy='page-visits-input' />
                                     </OptionalField>
                                     <OptionalField name='device' label='Enable device type trigger'>
                                         <SelectField
@@ -163,13 +163,13 @@ function StoryRulesForm({
                                             ]}
                                         />
                                     </OptionalField>
-                                    <OptionalField name='queryString' label='Enable query string trigger'>
-                                        <AutoField name='' />
+                                    <OptionalField name='queryString' label='Enable query string trigger' data-cy='toggle-query-string'>
+                                        <AutoField name='' data-cy='query-string-field' />
                                     </OptionalField>
-                                    <OptionalField name='timeOnPage' label='Enable time on page trigger'>
+                                    <OptionalField name='timeOnPage' label='Enable time on page trigger' data-cy='toggle-time-on-page'>
                                         <AutoField name='' label='Trigger after a period of time on a page' />
                                     </OptionalField>
-                                    <OptionalField name='eventListeners' label='Enable event listener trigger'>
+                                    <OptionalField name='eventListeners' label='Enable event listener trigger' data-cy='toggle-event-listeners'>
                                         <AutoField name=''>
                                             <AutoField name='$'>
                                                 <ListDelField name='' />

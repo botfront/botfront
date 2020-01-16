@@ -7,7 +7,9 @@ import DisplayIf from '../DisplayIf';
 
 
 const OptionalField = (props) => {
-    const { name, children, label } = props;
+    const {
+        name, children, label, 'data-cy': dataCy,
+    } = props;
 
     const accessProperty = (data, targetName) => {
         let property = data;
@@ -27,7 +29,7 @@ const OptionalField = (props) => {
     const renderChildren = () => children.map(element => ({ ...(element || {}), props: { ...(element.props || {}), name: (element.props.name ? `${name}.${element.props.name}` : name) } }));
     return (
         <>
-            <ToggleField name={`${name}__DISPLAYIF`} {...label ? { label } : {}} />
+            <ToggleField name={`${name}__DISPLAYIF`} {...label ? { label } : {}} {...dataCy ? { 'data-cy': dataCy } : {}} />
             <DisplayIf
                 condition={context => isEnabled(context, `${name}__DISPLAYIF`)}
             >
@@ -43,9 +45,11 @@ OptionalField.propTypes = {
     name: PropTypes.string.isRequired,
     children: PropTypes.oneOfType(PropTypes.arrayOf(PropTypes.element).isRequired, PropTypes.element),
     label: PropTypes.string,
+    'data-cy': PropTypes.string,
 };
 OptionalField.defaultProps = {
     label: null,
+    'data-cy': null,
 };
 
 export default OptionalField;
