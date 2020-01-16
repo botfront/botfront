@@ -13,7 +13,7 @@ import OptionalField from './OptionalField';
 // force open affect force close and vice versa
 
 function StoryTriggersForm({
-    storyTriggers, onChange,
+    storyTriggers, onChange, saveAndExit,
 }) {
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
@@ -128,7 +128,7 @@ function StoryTriggersForm({
                             </OptionalField>
                             <OptionalField name='device' label='Enable device type trigger'>
                                 <SelectField
-                                    placeHolder='all'
+                                    placeholder='Select a type of device to activate the payload'
                                     label='Trigger if the user is using a certain type of device'
                                     options={[
                                         { value: 'all', text: 'All' },
@@ -152,7 +152,7 @@ function StoryTriggersForm({
                 <br />
                 <ErrorsField />
                 <br />
-                <SubmitField value='save' />
+                <SubmitField value='Save and exit' onClick={saveAndExit} />
             </AutoForm>
         </div>
     );
@@ -161,6 +161,7 @@ function StoryTriggersForm({
 StoryTriggersForm.propTypes = {
     storyTriggers: PropTypes.array,
     onChange: PropTypes.func.isRequired,
+    saveAndExit: PropTypes.func.isRequired,
 };
 
 StoryTriggersForm.defaultProps = {
