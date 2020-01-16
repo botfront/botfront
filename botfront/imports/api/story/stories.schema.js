@@ -32,7 +32,7 @@ const EventListenersSchema = new SimpleSchema({
 
 const QueryStringSchema = new SimpleSchema({
     param: { type: String, trim: true },
-    valuse: { type: String, trim: true },
+    value: { type: String, trim: true },
 });
 
 const TriggerSchema = new SimpleSchema({
