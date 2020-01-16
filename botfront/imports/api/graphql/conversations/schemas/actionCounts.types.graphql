@@ -1,18 +1,18 @@
 type Query {
-    responseCounts(
+    actionCounts(
         projectId: String!,
         envs: [String],
         langs: [String] = [],
         from: Float,
         to: Float,
         nBuckets: Int = 7,
-        responses: [String] = ["utter_fallback"],
-    ): [ResponseCount!]!
+        include: [String] = ["action_botfront_fallback"],
+    ): [ActionCount!]!
 }
 
-type ResponseCount {
+type ActionCount {
     bucket: String,
+    hits: Int,
     count: Int,
-    total: Int,
     proportion: Float,
 }

@@ -138,9 +138,11 @@ function AnalyticsDashboard(props) {
         fallbackCounts: {
             chartTypeOptions: ['line', 'table'],
             title: 'Fallback',
-            titleDescription: 'The number of conversations in which a fallback action was triggered.',
+            // titleDescription: 'The number of conversations in which a fallback action was triggered.',
+            titleDescription: 'The number of times a fallback action was triggered.',
             queryParams: {
-                temporal: true, envs, projectId, queryName: 'conversationCounts', queryLanguages,
+                // temporal: true, envs, projectId, queryName: 'conversationCounts', queryLanguages,
+                temporal: true, envs, projectId, queryName: 'actionCounts', queryLanguages,
             },
             query: fallbackCounts,
             graphParams: {

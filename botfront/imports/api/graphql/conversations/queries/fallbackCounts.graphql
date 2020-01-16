@@ -1,3 +1,28 @@
+## This is the old style, which was a conversation count
+# query FallbackCounts(
+#     $projectId: String!,
+#     $envs: [String] = ["development", null],
+#     $langs: [String] = [],
+#     $from: Float,
+#     $to: Float,
+#     $fallbacks: [String] = ["action_botfront_fallback"],
+#     $nBuckets: Int = 7,
+# ) {
+#     conversationCounts(
+#         projectId: $projectId,
+#         subtype: "fallback",
+#         envs: $envs,
+#         langs: $langs,
+#         from: $from,
+#         to: $to,
+#         include: $fallbacks,
+#         nBuckets: $nBuckets,
+#     ) {
+#         bucket, hits, count, proportion
+#     }
+# }
+
+## This is the new style, which is a count of actions across all convs
 query FallbackCounts(
     $projectId: String!,
     $envs: [String] = ["development", null],
@@ -7,9 +32,8 @@ query FallbackCounts(
     $fallbacks: [String] = ["action_botfront_fallback"],
     $nBuckets: Int = 7,
 ) {
-    conversationCounts(
+    actionCounts(
         projectId: $projectId,
-        subtype: "fallback",
         envs: $envs,
         langs: $langs,
         from: $from,
