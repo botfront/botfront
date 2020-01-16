@@ -6,6 +6,7 @@ import {
     createResponse,
     createResponses,
     deleteResponse,
+    deleteVariation,
     getBotResponseById,
     upsertResponse,
 } from '../mongo/botResponses';
@@ -88,6 +89,14 @@ export default {
         async createResponses(_, args, __) {
             const response = await createResponses(args.projectId, args.responses);
             return { success: !!response.id };
+        },
+        async deleteVariation(_, args, __) {
+            const response = await deleteVariation(args);
+            pubsub.publish(RESPONSES_MODIFIED, {
+                projectId: args.projectId,
+                botResponsesModified: response,
+            });
+            return { success: !!response };
         },
     },
     BotResponse: {
