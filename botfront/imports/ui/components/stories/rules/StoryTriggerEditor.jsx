@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Modal, Segment } from 'semantic-ui-react';
+import { Modal, Segment, Popup } from 'semantic-ui-react';
 
 
 import StoryTriggersForm from './StoryRulesForm';
@@ -16,6 +16,7 @@ const StoryTriggerEditor = (props) => {
         triggerRules: incommingRules,
         open = localOpen,
         setOpen = setLocalOpen,
+        isDestinationStory,
     } = props;
 
     const [triggerRules, setTriggerRules] = useState({ triggerRules: incommingRules });
@@ -30,6 +31,7 @@ const StoryTriggerEditor = (props) => {
                 if (!trigger.props.onClick) return undefined;
                 return trigger.props.onClick(...args);
             },
+            disabled: isDestinationStory,
         },
     };
 
@@ -59,19 +61,26 @@ const StoryTriggerEditor = (props) => {
         });
     };
 
-
     return (
-        <Modal
-            trigger={modalTrigger}
-            onClose={handleModalClose}
-            open={open}
-        >
-            <Segment.Group>
-                <Segment>
-                    <StoryTriggersForm onChange={handleChangeRules} triggerRules={triggerRules} saveAndExit={handleModalClose} />
-                </Segment>
-            </Segment.Group>
-        </Modal>
+        <Popup
+            trigger={(
+                <div>
+                    <Modal
+                        trigger={modalTrigger}
+                        onClose={handleModalClose}
+                        open={open}
+                    >
+                        <Segment.Group>
+                            <Segment>
+                                <StoryTriggersForm onChange={handleChangeRules} triggerRules={triggerRules} saveAndExit={handleModalClose} />
+                            </Segment>
+                        </Segment.Group>
+                    </Modal>
+                </div>
+            )}
+            content='You must remove the links to this story to add triggers'
+            disabled={!isDestinationStory}
+        />
     );
 };
 
@@ -82,6 +91,7 @@ StoryTriggerEditor.propTypes = {
     triggerRules: PropTypes.array,
     open: PropTypes.bool,
     setOpen: PropTypes.func,
+    isDestinationStory: PropTypes.bool.isRequired,
 };
 
 StoryTriggerEditor.defaultProps = {

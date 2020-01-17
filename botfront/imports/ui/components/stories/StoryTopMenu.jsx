@@ -215,6 +215,7 @@ const StoryTopMenu = ({
                         triggerRules={triggerRules}
                         open={triggerEditorOpen}
                         setOpen={setTriggerEditorOpen}
+                        isDestinationStory={isDestinationStory}
                     />
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />

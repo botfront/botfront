@@ -84,6 +84,7 @@ class StoryFooter extends React.Component {
                 if (story.branches && story.branches.length > 0) return true;
                 return false;
             }
+            if (story.triggerRules && story.triggerRules.length > 0) return false;
             return true;
         })
             .map(story => ({ key: story._id, text: story.title, value: story._id }))
@@ -166,8 +167,8 @@ class StoryFooter extends React.Component {
                 disabled={!canBranch}
                 onChange={onDestinationStorySelection}
             />
-
-        </Menu.Item>);
+        </Menu.Item>
+    );
 
 
     positionStoryLinker = destinationStory => (destinationStory === null ? 'right' : 'left');
