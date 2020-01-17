@@ -65,6 +65,21 @@ function ResponseMetadataForm({
             value: 'focusout',
         },
     ];
+
+    const domHighlightOptions = [
+        {
+            label: 'Use default highlight',
+            value: 'default',
+        },
+        {
+            label: 'Use an existing css class',
+            value: 'class',
+        },
+        {
+            label: 'Specify custom css style',
+            value: 'custom',
+        },
+    ];
     const schema = extendSchema(buildASTSchema(parse(`
     
     type PageChange {
@@ -92,6 +107,7 @@ function ResponseMetadataForm({
 
     type DomHighlight {
         enabled: Boolean!
+        type: String
         selector: String
         css: String
     }
@@ -123,7 +139,27 @@ function ResponseMetadataForm({
     };
 
     const panesAdvanced = [
-        ...panes,
+        {
+            menuItem: 'General',
+            render: () => (
+                <> {panes[0].render()}
+                    <ToggleField name='domHighlight.enabled' className='toggle' label='Highlight element on page' />
+                    <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.enabled}>
+                        <>
+                            <InfoField name='domHighlight.selector' label='CSS selector' info='The CSS selector of the DOM element to highlight' />
+                            <SelectField name='domHighlight.type' options={domHighlightOptions} />
+                        
+                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.type === 'class'}>
+                                <AutoField name='domHighlight.css' label='Class name' />
+                            </DisplayIf>
+                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.type === 'custom'}>
+                                <LongTextField name='domHighlight.css' label='Custom css' />
+                            </DisplayIf>
+                        </>
+                    </DisplayIf>
+                </>
+            ),
+        },
         {
             menuItem: 'Callbacks',
             render: () => (
@@ -168,20 +204,6 @@ function ResponseMetadataForm({
                                     </NestField>
                                 </ListItemField>
                             </ListField>
-                        </>
-                    </DisplayIf>
-                </>
-            ),
-        },
-        {
-            menuItem: 'Highlight a DOM element',
-            render: () => (
-                <>
-                    <ToggleField name='domHighlight.enabled' className='toggle' label='Enable' />
-                    <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.enabled}>
-                        <>
-                            <InfoField name='domHighlight.selector' label='CSS selector' info='The CSS selector of the DOM element to highlight' />
-                            <InfoField name='domHighlight.css' label='CSS' info='The CSS to apply to the selector' />
                         </>
                     </DisplayIf>
                 </>
@@ -275,10 +297,10 @@ function ResponseMetadataForm({
             && model.domHighlight.enabled
             && (
                 (!model.domHighlight.selector || !model.domHighlight.selector.length)
-                || (!model.domHighlight.css || !model.domHighlight.css.length)
+                || (!model.domHighlight.type || !model.domHighlight.type.length)
             )
         ) {
-            errors.push({ name: 'domHighlight', message: 'When enabling DOM highlighting both selector and css must be set.' });
+            errors.push({ name: 'domHighlight', message: 'When enabling highlighting of elements on page, at least selector and type must be set.' });
         }
 
         if (errors.length) {
