@@ -12,12 +12,24 @@ const SequenceEditor = (props) => {
         content,
         onChange,
     } = props;
-    const { custom } = content;
-    const [value, setValue] = useState(custom ? safeDump(custom) : '');
+
+    const cleanDump = (data) => {
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+            return safeDump(data);
+        }
+        return ''; // display empty objects as an empty yaml editor rather than "{}"
+    };
+
+    const { __typename, __isCustom, ...initialValue } = content;
+    const [value, setValue] = useState(cleanDump(initialValue));
+
     useEffect(() => {
-        const { custom: customContent } = content;
-        setValue(customContent ? safeDump(customContent) : '');
+        setValue(cleanDump(initialValue));
     }, [content]);
+
+    const handleBlur = () => {
+        onChange({ __typename, __isCustom, ...safeLoad(value) });
+    };
 
     return (
         <div className='custom-response-editor' data-cy='custom-response-editor'>
@@ -28,7 +40,7 @@ const SequenceEditor = (props) => {
                 mode='yaml'
                 theme='xcode'
                 onChange={v => setValue(v)}
-                onBlur={() => onChange({ ...content, custom: safeLoad(value) })}
+                onBlur={handleBlur}
                 fontSize={16}
                 showPrintMargin={false}
                 showGutter
