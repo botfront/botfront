@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-    Message, Segment, Popup, Button,
-} from 'semantic-ui-react';
+import { Message, Popup } from 'semantic-ui-react';
 import { useLazyQuery } from '@apollo/react-hooks';
+import IconButton from '../../common/IconButton';
 import IntentLabel from '../common/IntentLabel';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
@@ -206,7 +205,7 @@ function Activity(props) {
                 className={convId ? 'dialogue-popup' : ''}
                 on={convId ? 'click' : 'hover'}
                 trigger={(
-                    <Button
+                    <IconButton
                         basic
                         icon='comments'
                         color='grey'
