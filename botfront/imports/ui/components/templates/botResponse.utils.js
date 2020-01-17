@@ -12,7 +12,6 @@ export const checkResponseEmpty = (response) => {
         if (!isEmpty) return;
         value.sequence.forEach((variation) => {
             const content = safeLoad(variation.content);
-            console.log(content);
             if (checkContentEmpty(content)) {
                 isEmpty = false;
             }

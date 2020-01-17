@@ -7,7 +7,6 @@ import {
     Segment, Menu, MenuItem, Modal, Button,
 } from 'semantic-ui-react';
 // connections
-import { set } from 'mongoose';
 import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE, DELETE_VARIATION } from '../mutations';
 import { RESPONSES_MODIFIED } from './subscriptions';
 import { GET_BOT_RESPONSE } from '../queries';
@@ -185,21 +184,16 @@ const BotResponseEditor = (props) => {
             const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
             upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
                 refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
-                console.log('A');
                 closeModal();
             });
-            return;
-        }
-        if (isNew && !checkResponseEmpty(validResponse)) {
+        } else if (isNew && !checkResponseEmpty(validResponse)) {
             insertResponse(validResponse, (err) => {
                 validateResponseName(err);
                 if (!err) {
-                    console.log('B');
                     closeModal();
                 }
             });
         } else {
-            console.log('C');
             closeModal();
         }
     };
