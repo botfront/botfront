@@ -72,9 +72,12 @@ describe('Exporting a Project', function() {
                 .click();
             cy.dataCy('save-changes')
                 .click({ force: true });
+            cy.dataCy('save-changes')
+                .should('not.have.class', 'disabled');
             
             // english and french should be available
-            cy.contains('Import/Export').click();
+            cy.contains('Endpoints').click({ force: true });
+            cy.contains('Import/Export').click({ force: true });
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
