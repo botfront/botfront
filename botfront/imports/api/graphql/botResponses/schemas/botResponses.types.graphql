@@ -122,6 +122,7 @@ type ImagePayload implements BotResponsePayload {
 }
 
 type CustomPayload implements BotResponsePayload {
+    _isCustom: Boolean!
     text: String
     buttons: [Button!]
     elements: [Any!]

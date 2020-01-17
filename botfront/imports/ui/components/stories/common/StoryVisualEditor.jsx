@@ -35,6 +35,7 @@ const defaultTemplate = (templateType) => {
     }
     if (templateType === 'custom') {
         return {
+            _isCustom: true,
             __typename: 'CustomPayload',
         };
     }

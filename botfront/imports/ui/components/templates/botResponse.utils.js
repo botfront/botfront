@@ -1,7 +1,7 @@
 import { safeLoad, safeDump } from 'js-yaml';
 
 const checkContentEmpty = content => (
-    (content.__isCustom && Object.keys(content).length > 2)
+    (content._isCustom && Object.keys(content).length > 2)
     || (content.image && content.image.length > 0)
     || (content.text && content.text.length > 0 && content.buttons)
     || (content.text && content.text.length > 0 && !content.buttons));
@@ -40,7 +40,7 @@ export const defaultTemplate = (template) => {
     if (template === 'CustomPayload') {
         return {
             __typename: 'CustomPayload',
-            __isCustom: true,
+            _isCustom: true,
         };
     }
     if (template === 'ImagePayload') {
@@ -69,7 +69,7 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
 
 export const parseContentType = (content) => {
     switch (true) {
-    case Object.keys(content).includes('__isCustom'):
+    case Object.keys(content).includes('_isCustom'):
         return 'CustomPayload';
     case Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
         return 'ImagePayload';

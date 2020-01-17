@@ -61,7 +61,7 @@ export default {
     },
     BotResponsePayload: {
         __resolveType: (v) => {
-            if (v.elements || v.attachment || v.custom) return 'CustomPayload';
+            if (v.elements || v.attachment || v._isCustom) return 'CustomPayload';
             if (Object.keys(v).includes('image') && !Object.keys(v).includes('buttons')) return 'ImagePayload';
             if (Object.keys(v).includes('buttons') && !Object.keys(v).includes('image')) return 'QuickReplyPayload';
             if (Object.keys(v).includes('text') && !Object.keys(v).includes('image') && !Object.keys(v).includes('buttons')) return 'TextPayload';

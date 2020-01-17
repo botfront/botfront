@@ -20,7 +20,7 @@ const SequenceEditor = (props) => {
         return ''; // display empty objects as an empty yaml editor rather than "{}"
     };
 
-    const { __typename, __isCustom, ...initialValue } = content;
+    const { __typename, _isCustom, ...initialValue } = content;
     const [value, setValue] = useState(cleanDump(initialValue));
 
     useEffect(() => {
@@ -28,7 +28,7 @@ const SequenceEditor = (props) => {
     }, [content]);
 
     const handleBlur = () => {
-        onChange({ __typename, __isCustom, ...safeLoad(value) });
+        onChange({ __typename, _isCustom, ...safeLoad(value) });
     };
 
     return (
