@@ -4,27 +4,6 @@ import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Stories } from '../../../story/stories.collection';
 
-const formatNewlines = (sequence) => {
-    const regexSpacedNewline = / {2}\n/g;
-    const regexNewline = /\n/g;
-    const updatedSequence = sequence.map(({ content: contentYaml }) => {
-        const content = yamlLoad(contentYaml);
-        if (content.text) {
-            content.text = content.text
-                .replace(regexSpacedNewline, '\n')
-                .replace(regexNewline, '  \n');
-        }
-        return { content: yamlDump({ ...content }) };
-    });
-    return updatedSequence;
-};
-
-const formatTextOnSave = values => values.map((item) => {
-    const updatedItem = item;
-    updatedItem.sequence = formatNewlines(item.sequence);
-    return updatedItem;
-});
-
 export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
 

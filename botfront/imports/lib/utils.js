@@ -3,6 +3,7 @@ import { sample } from 'lodash';
 import yaml from 'js-yaml';
 import path from 'path';
 import React from 'react';
+import axios from 'axios';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { Projects } from '../api/project/project.collection';
@@ -86,6 +87,24 @@ export const getBackgroundImageUrl = () => {
 export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProperty.call(e, 'value') || e.value.length > 0);
 
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
+
+if (Meteor.isServer) {
+    Meteor.methods({
+        async 'axios.requestWithJsonBody'(url, method, data) {
+            check(url, String);
+            check(method, String);
+            check(data, Object);
+            try {
+                const response = await axios({ url, method, data });
+                const { status, data: responseData } = response;
+                return { status, data: responseData };
+            } catch (e) {
+                if (e.response) return { status: e.response.status };
+                return { status: 408 };
+            }
+        },
+    });
+}
 
 export const getModelIdsFromProjectId = projectId => Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
 
