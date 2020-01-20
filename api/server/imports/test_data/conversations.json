@@ -7,7 +7,7 @@
       "latest_message": {
         "intent": { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
         "entities": [],
-        "language": "en",
+        "metadata": { "language": "en" },
         "intent_ranking": [
           { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
           { "name": "chitchat.greet", "confidence": 0.04303739219903946 }
@@ -28,15 +28,14 @@
         {
           "event": "user",
           "timestamp": 1570560766.3634415,
-          "text": "",
+          "text": "hey",
           "parse_data": {
             "intent": { "name": null, "confidence": 0 },
             "entities": [],
-            "text": ""
+            "text": "hey"
           },
           "input_channel": "webchat",
-          "message_id": "a9f2eabbfde34bbabfa430b5e2bcbbad",
-          "metadata": null
+          "message_id": "a9f2eabbfde34bbabfa430b5e2bcbbad"
         },
         {
           "event": "action",
@@ -71,13 +70,13 @@
           "event": "user",
           "timestamp": 1570560770.552943,
           "text": "Hello",
+          "metadata": { "language": "en" },
           "parse_data": {
             "intent": {
               "name": "chitchat.greet",
               "confidence": 0.93438720703125
             },
             "entities": [],
-            "language": "en",
             "intent_ranking": [
               { "name": "chitchat.greet", "confidence": 0.93438720703125 },
               { "name": "chitchat.bye", "confidence": 0.06561281532049179 }
@@ -85,9 +84,7 @@
             "text": "Hello"
           },
           "input_channel": "webchat",
-          "message_id": "30cfba7c62d546548414b2fcaf804147",
-          "metadata": null
-        },
+          "message_id": "30cfba7c62d546548414b2fcaf804147"        },
         {
           "event": "action",
           "timestamp": 1570560770.5711837,
@@ -106,8 +103,7 @@
             "attachment": null,
             "image": null,
             "custom": null
-          },
-          "metadata": {}
+          }
         },
         {
           "event": "action",
@@ -120,17 +116,15 @@
           "event": "user",
           "timestamp": 1570560772.6873093,
           "text": "Nye",
+          "metadata": { "language": "en" },
           "parse_data": {
             "intent": { "name": null, "confidence": 0 },
             "entities": [],
-            "language": "en",
             "intent_ranking": [],
             "text": "Nye"
           },
           "input_channel": "webchat",
-          "message_id": "ab31298483cd44008599c5d0889e9365",
-          "metadata": null
-        },
+          "message_id": "ab31298483cd44008599c5d0889e9365"        },
         {
           "event": "action",
           "timestamp": 1570560772.7044666,
@@ -164,13 +158,13 @@
           "event": "user",
           "timestamp": 1570560776.8422823,
           "text": "bye",
+          "metadata": { "language": "en" },
           "parse_data": {
             "intent": {
               "name": "chitchat.bye",
               "confidence": 0.9569626450538635
             },
             "entities": [],
-            "language": "en",
             "intent_ranking": [
               { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
               { "name": "chitchat.greet", "confidence": 0.04303739219903946 }
@@ -178,9 +172,7 @@
             "text": "bye"
           },
           "input_channel": "webchat",
-          "message_id": "affc078bb70746ec95af11e0b0c3d9e5",
-          "metadata": null
-        },
+          "message_id": "affc078bb70746ec95af11e0b0c3d9e5"        },
         {
           "event": "action",
           "timestamp": 1570560776.8618143,
@@ -228,7 +220,7 @@
       "latest_message": {
         "intent": { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
         "entities": [],
-        "language": "en",
+        "metadata": { "language": "en" },
         "intent_ranking": [
           { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
           { "name": "chitchat.greet", "confidence": 0.04303739219903946 }
@@ -249,16 +241,14 @@
         {
           "event": "user",
           "timestamp": 1570560766.3634415,
-          "text": "",
+          "text": "hey",
           "parse_data": {
             "intent": { "name": null, "confidence": 0 },
             "entities": [],
-            "text": ""
+            "text": "hey"
           },
           "input_channel": "webchat",
-          "message_id": "a9f2eabbfde34bbabfa430b5e2bcbbad",
-          "metadata": null
-        },
+          "message_id": "a9f2eabbfde34bbabfa430b5e2bcbbad"        },
         {
           "event": "action",
           "timestamp": 1570560766.4099376,
@@ -292,13 +282,13 @@
           "event": "user",
           "timestamp": 1570560770.552943,
           "text": "Hello",
+          "metadata": { "language": "en" },
           "parse_data": {
             "intent": {
               "name": "chitchat.greet",
               "confidence": 0.93438720703125
             },
             "entities": [],
-            "language": "en",
             "intent_ranking": [
               { "name": "chitchat.greet", "confidence": 0.93438720703125 },
               { "name": "chitchat.bye", "confidence": 0.06561281532049179 }
@@ -306,9 +296,7 @@
             "text": "Hello"
           },
           "input_channel": "webchat",
-          "message_id": "30cfba7c62d546548414b2fcaf804147",
-          "metadata": null
-        },
+          "message_id": "30cfba7c62d546548414b2fcaf804147"        },
         {
           "event": "action",
           "timestamp": 1570560770.5711837,
@@ -341,16 +329,15 @@
           "event": "user",
           "timestamp": 1570560772.6873093,
           "text": "Nye",
+          "metadata": { "language": "en" },
           "parse_data": {
             "intent": { "name": null, "confidence": 0 },
             "entities": [],
-            "language": "en",
             "intent_ranking": [],
             "text": "Nye"
           },
           "input_channel": "webchat",
-          "message_id": "ab31298483cd44008599c5d0889e9365",
-          "metadata": null
+          "message_id": "ab31298483cd44008599c5d0889e9365"
         },
         {
           "event": "action",
@@ -391,7 +378,7 @@
               "confidence": 0.9569626450538635
             },
             "entities": [],
-            "language": "en",
+            "metadata": { "language": "en" },
             "intent_ranking": [
               { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
               { "name": "chitchat.greet", "confidence": 0.04303739219903946 }
@@ -399,9 +386,7 @@
             "text": "bye"
           },
           "input_channel": "webchat",
-          "message_id": "affc078bb70746ec95af11e0b0c3d9e5",
-          "metadata": null
-        },
+          "message_id": "affc078bb70746ec95af11e0b0c3d9e5"        },
         {
           "event": "action",
           "timestamp": 1570560776.8618143,
@@ -449,7 +434,7 @@
       "latest_message": {
         "intent": { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
         "entities": [],
-        "language": "en",
+        "metadata": { "language": "en" },
         "intent_ranking": [
           { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
           { "name": "chitchat.greet", "confidence": 0.04303739219903946 }
@@ -470,16 +455,14 @@
         {
           "event": "user",
           "timestamp": 1570560766.3634415,
-          "text": "",
+          "text": "hey",
           "parse_data": {
             "intent": { "name": null, "confidence": 0 },
             "entities": [],
-            "text": ""
+            "text": "hey"
           },
           "input_channel": "webchat",
-          "message_id": "a9f2eabbfde34bbabfa430b5e2bcbbad",
-          "metadata": null
-        },
+          "message_id": "a9f2eabbfde34bbabfa430b5e2bcbbad"        },
         {
           "event": "action",
           "timestamp": 1570560766.4099376,
@@ -519,7 +502,7 @@
               "confidence": 0.93438720703125
             },
             "entities": [],
-            "language": "en",
+            "metadata": { "language": "en" },
             "intent_ranking": [
               { "name": "chitchat.greet", "confidence": 0.93438720703125 },
               { "name": "chitchat.bye", "confidence": 0.06561281532049179 }
@@ -527,9 +510,7 @@
             "text": "Hello"
           },
           "input_channel": "webchat",
-          "message_id": "30cfba7c62d546548414b2fcaf804147",
-          "metadata": null
-        },
+          "message_id": "30cfba7c62d546548414b2fcaf804147"        },
         {
           "event": "action",
           "timestamp": 1570560770.5711837,
@@ -565,14 +546,12 @@
           "parse_data": {
             "intent": { "name": null, "confidence": 0 },
             "entities": [],
-            "language": "en",
+            "metadata": { "language": "en" },
             "intent_ranking": [],
             "text": "Nye"
           },
           "input_channel": "webchat",
-          "message_id": "ab31298483cd44008599c5d0889e9365",
-          "metadata": null
-        },
+          "message_id": "ab31298483cd44008599c5d0889e9365"        },
         {
           "event": "action",
           "timestamp": 1570560772.7044666,
@@ -612,7 +591,7 @@
               "confidence": 0.9569626450538635
             },
             "entities": [],
-            "language": "en",
+            "metadata": { "language": "en" },
             "intent_ranking": [
               { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
               { "name": "chitchat.greet", "confidence": 0.04303739219903946 }
@@ -620,9 +599,7 @@
             "text": "bye"
           },
           "input_channel": "webchat",
-          "message_id": "affc078bb70746ec95af11e0b0c3d9e5",
-          "metadata": null
-        },
+          "message_id": "affc078bb70746ec95af11e0b0c3d9e5"        },
         {
           "event": "action",
           "timestamp": 1570560776.8618143,
@@ -673,7 +650,7 @@
           "confidence": 0.9569626450538635
         },
         "entities": [],
-        "language": "en",
+        "metadata": { "language": "en" },
         "intent_ranking": [
           { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
           { "name": "chitchat.greet", "confidence": 0.04303739219903946 }
@@ -694,16 +671,14 @@
         {
           "event": "user",
           "timestamp": 1570560766.3634415,
-          "text": "",
+          "text": "hey",
           "parse_data": {
             "intent": { "name": null, "confidence": 0 },
             "entities": [],
-            "text": ""
+            "text": "hey"
           },
           "input_channel": "webchat",
-          "message_id": "a9f2eabbfde34bbabfa430b5e2bcbbad",
-          "metadata": null
-        },
+          "message_id": "a9f2eabbfde34bbabfa430b5e2bcbbad"        },
         {
           "event": "action",
           "timestamp": 1570560766.4099376,
@@ -743,7 +718,7 @@
               "confidence": 0.93438720703125
             },
             "entities": [],
-            "language": "en",
+            "metadata": { "language": "en" },
             "intent_ranking": [
               { "name": "chitchat.greet", "confidence": 0.93438720703125 },
               { "name": "chitchat.bye", "confidence": 0.06561281532049179 }
@@ -751,9 +726,7 @@
             "text": "Hello"
           },
           "input_channel": "webchat",
-          "message_id": "30cfba7c62d546548414b2fcaf804147",
-          "metadata": null
-        },
+          "message_id": "30cfba7c62d546548414b2fcaf804147"        },
         {
           "event": "action",
           "timestamp": 1570560770.5711837,
@@ -789,14 +762,12 @@
           "parse_data": {
             "intent": { "name": null, "confidence": 0 },
             "entities": [],
-            "language": "en",
+            "metadata": { "language": "en" },
             "intent_ranking": [],
             "text": "Nye"
           },
           "input_channel": "webchat",
-          "message_id": "ab31298483cd44008599c5d0889e9365",
-          "metadata": null
-        },
+          "message_id": "ab31298483cd44008599c5d0889e9365"        },
         {
           "event": "action",
           "timestamp": 1570560772.7044666,
@@ -836,7 +807,7 @@
               "confidence": 0.9569626450538635
             },
             "entities": [],
-            "language": "en",
+            "metadata": { "language": "en" },
             "intent_ranking": [
               { "name": "chitchat.bye", "confidence": 0.9569626450538635 },
               { "name": "chitchat.greet", "confidence": 0.04303739219903946 }
@@ -844,9 +815,7 @@
             "text": "bye"
           },
           "input_channel": "webchat",
-          "message_id": "affc078bb70746ec95af11e0b0c3d9e5",
-          "metadata": null
-        },
+          "message_id": "affc078bb70746ec95af11e0b0c3d9e5"        },
         {
           "event": "action",
           "timestamp": 1570560776.8618143,

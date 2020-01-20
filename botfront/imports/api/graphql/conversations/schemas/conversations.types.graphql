@@ -72,7 +72,7 @@ type Conversation {
 }
 
 input ConversationInput {
-  latest_message: MessageInput,
+  latest_message: Any,
   events: [EventInput],
   sender_id: String,
   slots: Any,
@@ -91,15 +91,6 @@ type Message {
     language: String
     project: String
     entities: [Entity]
-}
-
-input MessageInput {
-  intent_ranking: [IntentInput!],
-  intent: IntentInput!,
-  text: String,
-  language: String,
-  project: String,
-  entities: [EntityInput] ,
 }
 
 type Entity {
@@ -154,7 +145,7 @@ input EventInput {
   name: String,
   policy: String,
   confidence: Float,
-  parse_data: MessageInput,
+  parse_data: Any,
   input_channel: String,
   message_id: String,
   metadata: Any,

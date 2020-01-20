@@ -19,6 +19,7 @@ const BotResponsesContainer = (props) => {
         isNew,
         refreshBotResponse,
         enableEditPopup,
+        tag,
     } = props;
     const [template, setTemplate] = useState(initialValue || null);
     const [editorOpen, setEditorOpen] = useState(false);
@@ -91,6 +92,7 @@ const BotResponsesContainer = (props) => {
         >
             <div className='flex-right'>
                 <BotResponseContainer
+                    tag={tag}
                     deletable={deletable && sequenceArray.length > 1}
                     value={response}
                     onDelete={() => handleDeleteResponse(index)}
@@ -149,6 +151,7 @@ BotResponsesContainer.propTypes = {
     isNew: PropTypes.bool.isRequired,
     refreshBotResponse: PropTypes.func,
     enableEditPopup: PropTypes.bool,
+    tag: PropTypes.string,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -160,6 +163,7 @@ BotResponsesContainer.defaultProps = {
     exceptions: [{ type: null }],
     refreshBotResponse: () => {},
     enableEditPopup: true,
+    tag: null,
 };
 
 export default BotResponsesContainer;

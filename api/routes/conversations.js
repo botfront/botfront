@@ -69,7 +69,7 @@ exports.updateConversation = async function(req, res) {
             //in case the senderId would be different from the convId in the future
             const { _id = senderId } = await dialogues.findOne({'tracker.sender_id': senderId},{ _id: 1}) || {};
 
-            if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, req, _id);
+            if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, req.body, _id);
             const tracker = req.body;
             const { userId, language } = extractMetadataFromTracker(tracker);
             const setTracker = {};

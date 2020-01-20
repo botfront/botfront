@@ -1,8 +1,7 @@
 const { Projects, NLUModels, Activity } = require('../../models/models');
 
-async function logUtterance(modelId, parseData, callback, message_id = null, conversation_id = null) {
+async function logUtterance(modelId, parseData, callback, message_id = null, conversation_id = null, env = 'development') {
     const { text } = parseData;
-    const existingExample = await Activity.findOne({ modelId, text }, { _id: 1 });
     const newData = {
         ...parseData,
         message_id,
@@ -10,16 +9,16 @@ async function logUtterance(modelId, parseData, callback, message_id = null, con
         intent: parseData.intent.name,
         confidence: parseData.intent.confidence,
     };
-    let utterance = { ...new Activity(newData) }._doc;
+    const { _id, ...utterance } = { ...new Activity(newData) }._doc;
     if (!parseData.intent) utterance.intent = null;
 
-    if (existingExample) delete utterance._id;
     if (utterance.entities) {
         utterance.entities = utterance.entities.filter(e => e.extractor !== 'ner_duckling_http');
     }
+    utterance.env = env;
 
     Activity.findOneAndUpdate(
-        { modelId, text },
+        { modelId, text, env },
         utterance,
         {
             upsert: true,
@@ -43,30 +42,34 @@ async function create(req, res) {
     }
 }
 
-const logUtterancesFromTracker = async function(projectId, req, conversation_id) {
+const logUtterancesFromTracker = async function(projectId, tracker, conversation_id, filter = () => true, env = 'development') {
     
     try {
-        const userUtterances = req.body.events.filter(
+        const userUtterances = tracker.events.filter(
             event => event.event === 'user' && event.text.indexOf('/') !== 0,
-        );
+        )
+            .filter(filter);
         if (userUtterances.length) {
-            // there should only be one event here, really
-            const { language } = userUtterances[0].metadata || {language:'en'};
-            const project = await Projects.findOne({ _id: projectId }, { nlu_models: 1 }).lean();
+            const { language } = userUtterances[0].metadata || {}; // take lang from first
+            const project = await Projects.findOne({ _id: projectId }, { nlu_models: 1, defaultLanguage: 1 }).lean();
+            const { defaultLanguage } = project;
+            if (!language && !defaultLanguage) return;
             const model = await NLUModels.findOne(
                 {
-                    language,
+                    language: language || defaultLanguage,
                     _id: { $in: project.nlu_models },
                 },
                 { _id: 1 },
             ).lean();
+            if (!model) return;
             userUtterances.forEach(u =>
                 logUtterance(
                     model._id,
                     u.parse_data,
-                    (_u, e) => e && console.log('Logging failed: ', e),
+                    (_u, e) => e && console.log('Logging failed: ', e, u),
                     u.message_id,
                     conversation_id,
+                    env,
                 ),
             );
         }

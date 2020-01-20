@@ -5,6 +5,7 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
 import React from 'react';
+import axios from 'axios';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { checkIfCan } from '../api/roles/roles';
@@ -179,6 +180,20 @@ if (Meteor.isServer) {
             this.unblock();
             const { settings: { private: { gcpModelsBucket } } } = GlobalSettings.findOne({}, { fields: { 'settings.private.gcpModelsBucket': 1 } });
             return Meteor.call('upload.gcs', fileBinaryString, projectId, gcpModelsBucket, `prod-${projectId}.zip`);
+        },
+
+        async 'axios.requestWithJsonBody'(url, method, data) {
+            check(url, String);
+            check(method, String);
+            check(data, Object);
+            try {
+                const response = await axios({ url, method, data });
+                const { status, data: responseData } = response;
+                return { status, data: responseData };
+            } catch (e) {
+                if (e.response) return { status: e.response.status };
+                return { status: 408 };
+            }
         },
     });
 }

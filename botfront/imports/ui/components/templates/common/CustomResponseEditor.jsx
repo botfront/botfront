@@ -12,22 +12,21 @@ const SequenceEditor = (props) => {
         content,
         onChange,
     } = props;
-    const { custom } = content
+    const { custom } = content;
     const [value, setValue] = useState(custom ? safeDump(custom) : '');
     useEffect(() => {
-        const { custom } = content
-        setValue(custom ? safeDump(custom) : '');
-    }, [content])
+        const { custom: customContent } = content;
+        setValue(customContent ? safeDump(customContent) : '');
+    }, [content]);
 
     return (
-        <div data-cy='custom-response-editor'>
+        <div className='custom-response-editor' data-cy='custom-response-editor'>
             <AceEditor
                 width='100%'
-                minLines={25}
+                minLines={10}
                 maxLines={25}
-                mode={'yaml'}
+                mode='yaml'
                 theme='xcode'
-                name={name}
                 onChange={v => setValue(v)}
                 onBlur={() => onChange({ ...content, custom: safeLoad(value) })}
                 fontSize={16}
@@ -45,7 +44,7 @@ const SequenceEditor = (props) => {
                 }}
             />
         </div>
-    )
+    );
 };
 
 SequenceEditor.propTypes = {

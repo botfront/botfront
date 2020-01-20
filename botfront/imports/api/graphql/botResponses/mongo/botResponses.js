@@ -4,27 +4,6 @@ import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Stories } from '../../../story/stories.collection';
 
-const formatNewlines = (sequence) => {
-    const regexSpacedNewline = / {2}\n/g;
-    const regexNewline = /\n/g;
-    const updatedSequence = sequence.map(({ content: contentYaml }) => {
-        const content = yamlLoad(contentYaml);
-        if (content.text) {
-            content.text = content.text
-                .replace(regexSpacedNewline, '\n')
-                .replace(regexNewline, '  \n');
-        }
-        return { content: yamlDump({ ...content }) };
-    });
-    return updatedSequence;
-};
-
-const formatTextOnSave = values => values.map((item) => {
-    const updatedItem = item;
-    updatedItem.sequence = formatNewlines(item.sequence);
-    return updatedItem;
-});
-
 export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
 
@@ -66,13 +45,17 @@ export const getBotResponseById = async (_id) => {
 };
 
 export const upsertResponse = async ({
-    projectId, language, key, newPayload,
-}) => BotResponses.findOneAndUpdate(
-    { projectId, key, 'values.lang': language },
-    { $set: { 'values.$.sequence': [{ content: safeDump(clearTypenameField(newPayload)) }] } },
-    { new: true, lean: true },
-).exec().then(result => (
-    result
+    projectId, language, key, newPayload, index,
+}) => {
+    const update = index === -1
+        ? { $push: { 'values.$.sequence': { $each: [{ content: safeDump(clearTypenameField(newPayload)) }] } } }
+        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) } } };
+    return BotResponses.findOneAndUpdate(
+        { projectId, key, 'values.lang': language },
+        update,
+        { new: true, lean: true },
+    ).exec().then(result => (
+        result
     || BotResponses.findOneAndUpdate(
         { projectId, key },
         {
@@ -85,7 +68,24 @@ export const upsertResponse = async ({
         },
         { new: true, lean: true, upsert: true },
     )
-));
+    ));
+};
+
+export const deleteVariation = async ({
+    projectId, language, key, index,
+}) => {
+    const responseMatch = await BotResponses.findOne(
+        { projectId, key, 'values.lang': language },
+    ).exec();
+    const sequence = responseMatch && responseMatch.values.find(({ lang }) => lang === language).sequence;
+    if (!sequence) return null;
+    const updatedSequence = [...sequence.slice(0, index), ...sequence.slice(index + 1)];
+    return BotResponses.findOneAndUpdate(
+        { projectId, key, 'values.lang': language },
+        { $set: { 'values.$.sequence': updatedSequence } },
+        { new: true, lean: true },
+    );
+};
 
 export const newGetBotResponses = async ({ projectId, template, language }) => {
     // template (optional): str || array
