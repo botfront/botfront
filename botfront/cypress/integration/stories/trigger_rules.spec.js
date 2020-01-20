@@ -1,16 +1,15 @@
-/* global cy:true */
+/* eslint-disable no-undef */
 
 describe('Smart story trigger rules', function() {
     afterEach(function() {
-        // cy.deleteProject('bf');
-        // cy.logout();
+        cy.deleteProject('bf');
+        cy.logout();
     });
 
     beforeEach(function() {
         cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
-    
     it('should edit and save the trigger rules', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('edit-trigger-rules').click();
@@ -79,7 +78,7 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('toggle-payload-text').click();
         cy.dataCy('payload-text-input').find('input').should('have.value', '');
     });
-    it('should diabled time on page when event listeners are enabled', function() {
+    it('should disabled time on page when event listeners are enabled', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('edit-trigger-rules').click();
         // add two rulesets
@@ -153,5 +152,43 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('stories-linker').last().click();
         cy.dataCy('link-to').last().find('span').contains('myTest')
             .should('not.exist');
+    });
+    it('should trigger a story with the rules payload', () => {
+        cy.MeteorCallAdmin('storyGroups.insert', [
+            {
+                _id: 'RULES',
+                name: 'Test Group',
+                projectId: 'bf',
+            },
+        ]);
+        cy.MeteorCallAdmin('stories.insert', [
+            {
+                _id: 'TESTSTORY',
+                projectId: 'bf',
+                storyGroupId: 'RULES',
+                story: '  - utter_smart_payload',
+                title: 'Test Story',
+            },
+        ]);
+        cy.logout();
+        cy.login();
+        cy.visit('/project/bf/stories');
+        cy.dataCy('browser-item').contains('Test Group').click();
+        cy.dataCy('story-title').should('have.value', 'Test Story');
+        // add rules to the first story
+        cy.dataCy('edit-trigger-rules').click();
+        cy.dataCy('story-rules-editor').find('.add.icon').click();
+        cy.dataCy('toggle-payload-text').first().click();
+        cy.dataCy('payload-text-input').first().click().find('input')
+            .type('test payload');
+        cy.dataCy('toggle-website-visits').first().click();
+        cy.dataCy('website-visits-input').first().click().find('input')
+            .type('3');
+        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.get('.dimmer').should('not.exist');
+        cy.train();
+        cy.dataCy('open-chat').click();
+        cy.newChatSesh('en');
+        cy.testChatInput('/payload_TESTSTORY', 'utter_smart_payload'); // nlg returns template name if not defined
     });
 });
