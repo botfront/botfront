@@ -369,75 +369,86 @@ Cypress.Commands.add('removeTestActivity', (modelId) => {
     cy.MeteorCallAdmin('activity.deleteExamples', [modelId, ['TestActivity']]);
 });
 
-Cypress.Commands.add('addTestConversation', (projectId) => {
-    const commandToAddConversation = `mongo meteor --host localhost:3001 --eval "db.conversations.insert({
-        _id:'6f1800deea7f469b8dafd928f092a280',
-        tracker:{
-           events:[
+// Cypress.Commands.add('addTestConversation', (projectId) => {
+//     const commandToAddConversation = `mongo meteor --host localhost:3001 --eval "db.conversations.insert({
+//         _id:'6f1800deea7f469b8dafd928f092a280',
+//         tracker:{
+//            events:[
 
-           ],
-           slots:{
-              latest_response_name:null,
-              followup_response_name:null,
-              parse_data:null
-           },
-           latest_input_channel:'socketio',
-           paused:false,
-           followup_action:null,
-           latest_message:{
-              text:'/get_started',
-              entities:[
+//            ],
+//            slots:{
+//               latest_response_name:null,
+//               followup_response_name:null,
+//               parse_data:null
+//            },
+//            latest_input_channel:'socketio',
+//            paused:false,
+//            followup_action:null,
+//            latest_message:{
+//               text:'/get_started',
+//               entities:[
      
-              ],
-              intent_ranking:[
-                 {
-                    name:'get_started',
-                    confidence:{
-                       '$numberInt':'1'
-                    }
-                 }
-              ],
-              intent:{
-                 name:'get_started',
-                 confidence:{
-                    '$numberInt':'1'
-                 }
-              }
-           },
-           sender_id:'6f1800deea7f469b8dafd928f092a280',
-           latest_event_time:{
-              '$numberDouble':'1551194858.7705371'
-           },
-           latest_action_name:'action_listen'
-        },
-        status:'read',
-        projectId:'${projectId}',
-        createdAt:{
-           '$date':{
-              '$numberLong':'1551194858732'
-           }
-        },
-        updatedAt:{
-           '$date':{
-              '$numberLong':'1551194858788'
-           }
-        }
-    });"`;
-    cy.exec(commandToAddConversation);
-});
+//               ],
+//               intent_ranking:[
+//                  {
+//                     name:'get_started',
+//                     confidence:{
+//                        '$numberInt':'1'
+//                     }
+//                  }
+//               ],
+//               intent:{
+//                  name:'get_started',
+//                  confidence:{
+//                     '$numberInt':'1'
+//                  }
+//               }
+//            },
+//            sender_id:'6f1800deea7f469b8dafd928f092a280',
+//            latest_event_time:{
+//               '$numberDouble':'1551194858.7705371'
+//            },
+//            latest_action_name:'action_listen'
+//         },
+//         status:'read',
+//         projectId:'${projectId}',
+//         createdAt:{
+//            '$date':{
+//               '$numberLong':'1551194858732'
+//            }
+//         },
+//         updatedAt:{
+//            '$date':{
+//               '$numberLong':'1551194858788'
+//            }
+//         }
+//     });"`;
+//     cy.exec(commandToAddConversation);
+// });
 
-Cypress.Commands.add('removeTestConversationEnv', (id) => {
+Cypress.Commands.add('removeTestConversation', (id) => {
     cy.MeteorCallAdmin('conversations.delete', [id]);
 });
 
-Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = null) => {
+Cypress.Commands.add('addTestConversation', (projectId, { id = 'abc', env = null, lang = 'en' }) => {
     const body = JSON.stringify({
         conversations: [{
             _id: id,
             env,
             tracker: {
                 events: [
-
+                    {
+                        event: 'user',
+                        text: `${id}-blah-blah-${lang}`,
+                        metadata: { language: lang },
+                        parse_data: {
+                            intent: { name: null, confidence: 0 },
+                            entities: [],
+                            text: `${id}-blah-blah`,
+                        },
+                        input_channel: 'webchat',
+                        timestamp: 99999,
+                    },
                 ],
                 slots: {
                     latest_response_name: null,
@@ -448,7 +459,7 @@ Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = n
                 paused: false,
                 followup_action: null,
                 latest_message: {
-                    text: '/get_started',
+                    text: `${id}-blah-blah-${lang}`,
                     entities: [
 
                     ],
@@ -463,7 +474,7 @@ Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = n
                         confidence: 1,
                     },
                 },
-                sender_id: '6f1800deea7f469b8dafd928f092a280',
+                sender_id: id,
                 latest_event_time: '2019-10-08T18:52:46.343Z',
                 latest_action_name: 'action_listen',
             },
@@ -474,7 +485,7 @@ Cypress.Commands.add('addTestConversationToEnv', (projectId, id = 'abc', env = n
         }],
         processNlu: true,
     });
-   
+
     let url = `http://localhost:8080/conversations/bf/environment/${env}?api-key=`;
     if (Cypress.env('API_URL')) {
         url = `${Cypress.env('API_URL')}/conversations/bf/environment/${env}?api-key=`;

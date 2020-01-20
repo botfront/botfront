@@ -6,10 +6,10 @@ describe('environments-change', function () {
     });
 
     beforeEach(function () {
-        cy.removeTestConversationEnv('dev1');
-        cy.removeTestConversationEnv('dev2');
-        cy.removeTestConversationEnv('prod');
-        cy.removeTestConversationEnv('stage');
+        cy.removeTestConversation('dev1');
+        cy.removeTestConversation('dev2');
+        cy.removeTestConversation('prod');
+        cy.removeTestConversation('stage');
         cy.createProject('bf', 'My Project', 'fr');
         cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
         cy.loginTestUser('admin@bf.com');
@@ -75,11 +75,11 @@ describe('environments-change', function () {
         checkConversationEmpty();
     });
 
-    it('should display the right conversations by environment', function () {
-        cy.addTestConversationToEnv('bf', 'dev1', 'development');
-        cy.addTestConversationToEnv('bf', 'dev2', 'development');
-        cy.addTestConversationToEnv('bf', 'prod', 'production');
-        cy.addTestConversationToEnv('bf', 'stage', 'staging');
+    it('should display the right conversations and activity by environment', function () {
+        cy.addTestConversation('bf', { id: 'dev1', env: 'development', lang: 'fr' });
+        cy.addTestConversation('bf', { id: 'dev2', env: 'development', lang: 'fr' });
+        cy.addTestConversation('bf', { id: 'prod', env: 'production', lang: 'fr' });
+        cy.addTestConversation('bf', { id: 'stage', env: 'staging', lang: 'fr' });
         cy.visit('/project/bf/settings');
         cy.contains('Project Info').click();
         cy.dataCy('deployment-environments')
@@ -93,20 +93,43 @@ describe('environments-change', function () {
         cy.dataCy('save-changes').click();
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations').click();
+
         changeEnv('production');
         cy.get('.ui.vertical.menu')
             .should('not.contain.text', 'dev1')
             .should('not.contain.text', 'dev2')
             .should('contain.text', 'prod')
             .should('not.contain.text', 'stage');
+        cy.dataCy('newutterances').click();
+        cy.dataCy('utterance-text')
+            .should('not.contain.text', 'dev1')
+            .should('not.contain.text', 'dev2')
+            .should('contain.text', 'prod')
+            .should('not.contain.text', 'stage');
+
+        cy.dataCy('conversations').click();
         changeEnv('development');
         cy.get('.ui.vertical.menu')
             .should('contain.text', 'dev1')
             .should('contain.text', 'dev2')
             .should('not.contain.text', 'prod')
             .should('not.contain.text', 'stage');
+        cy.dataCy('newutterances').click();
+        cy.dataCy('utterance-text')
+            .should('contain.text', 'dev1')
+            .should('not.contain.text', 'dev2')
+            .should('not.contain.text', 'prod')
+            .should('not.contain.text', 'stage');
+
+        cy.dataCy('conversations').click();
         changeEnv('staging');
         cy.get('.ui.vertical.menu')
+            .should('not.contain.text', 'dev1')
+            .should('not.contain.text', 'dev2')
+            .should('not.contain.text', 'prod')
+            .should('contain.text', 'stage');
+        cy.dataCy('newutterances').click();
+        cy.dataCy('utterance-text')
             .should('not.contain.text', 'dev1')
             .should('not.contain.text', 'dev2')
             .should('not.contain.text', 'prod')
