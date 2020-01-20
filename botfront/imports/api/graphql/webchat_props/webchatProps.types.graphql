@@ -18,8 +18,8 @@ type Trigger {
     numberOfVisits: Int
     numberOfPageVisits: Int
     device: String
-    queryString: QueryString
-    eventListener: EventListener
+    queryString: [QueryString]
+    eventListener: [EventListener]
 }
 
 type Rules {

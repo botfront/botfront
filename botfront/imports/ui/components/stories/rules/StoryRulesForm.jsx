@@ -36,7 +36,8 @@ function StoryRulesForm({
         numberOfPageVisits__DISPLAYIF: { type: Boolean, optional: true },
         device: { type: String, optional: true },
         device__DISPLAYIF: { type: Boolean, optional: true },
-        queryString: { type: QueryStringSchema, optional: true },
+        queryString: { type: Array, optional: true },
+        'queryString.$': { type: QueryStringSchema, optional: true },
         queryString__DISPLAYIF: { type: Boolean, optional: true },
         timeOnPage: { type: Number, optional: true },
         timeOnPage__DISPLAYIF: { type: Boolean, optional: true },
@@ -77,12 +78,23 @@ function StoryRulesForm({
         return key.match(regex) ? '$' : key;
     };
 
+    const isEnabled = (field) => {
+        switch (true) {
+        case field === undefined:
+            return false;
+        case Array.isArray(field) && field.length === 0:
+            return false;
+        default:
+            return true;
+        }
+    };
+
     const togglesTraverse = (model, parentPath) => {
         const modelWithToggles = model;
         const path = parentPath || '';
         Object.keys(modelWithToggles).forEach((key) => {
             const currentPath = path.length === 0 ? key : `${path}.${createPathElem(key)}`;
-            if (toggleFields.includes(currentPath) && modelWithToggles[key] !== undefined) {
+            if (toggleFields.includes(currentPath) && isEnabled(modelWithToggles[key])) {
                 modelWithToggles[`${key}__DISPLAYIF`] = true;
                 return;
             }
