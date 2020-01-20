@@ -9,7 +9,7 @@ import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
-import StoryTriggerEditor from './rules/StoryTriggerEditor';
+import StoryRulesEditor from './rules/StoryRulesEditor';
 import { setStoryCollapsed } from '../../store/actions/actions';
 
 import { ConversationOptionsContext } from './Context';
@@ -30,7 +30,7 @@ const StoryTopMenu = ({
     isDestinationStory,
     originStories,
     isLinked,
-    triggerRules,
+    rules,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -208,11 +208,11 @@ const StoryTopMenu = ({
                         }}
                         data-cy='collapse-story-button'
                     />
-                    <StoryTriggerEditor
+                    <StoryRulesEditor
                         // the trigger element will have it's onClick and className props modified
-                        trigger={<Icon name='setting' color={triggerRules.length > 0 ? 'green' : 'grey'} data-cy='edit-trigger-rules' />}
+                        trigger={<Icon name='setting' color={rules.length > 0 ? 'green' : 'grey'} data-cy='edit-trigger-rules' />}
                         storyId={storyId}
-                        triggerRules={triggerRules}
+                        rules={rules}
                         open={triggerEditorOpen}
                         setOpen={setTriggerEditorOpen}
                         isDestinationStory={isDestinationStory}
@@ -308,7 +308,7 @@ const StoryTopMenu = ({
                     {renderConnectedStories()}
                 </Popup>
             )}
-            {triggerRules.length > 0 && (
+            {rules.length > 0 && (
                 <Message
                     className='connected-story-alert'
                     attached
@@ -340,13 +340,13 @@ StoryTopMenu.propTypes = {
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
-    triggerRules: PropTypes.array,
+    rules: PropTypes.array,
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     isLinked: false,
     originStories: [],
-    triggerRules: [],
+    rules: [],
 };
 
 const mapStateToProps = (state, ownProps) => ({

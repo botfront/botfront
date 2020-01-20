@@ -84,7 +84,7 @@ class StoryFooter extends React.Component {
                 if (story.branches && story.branches.length > 0) return true;
                 return false;
             }
-            if (story.triggerRules && story.triggerRules.length > 0) return false;
+            if (story.rules && story.rules.length > 0) return false;
             return true;
         })
             .map(story => ({ key: story._id, text: story.title, value: story._id }))

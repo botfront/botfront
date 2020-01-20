@@ -79,6 +79,6 @@ export const StorySchema = new SimpleSchema({
     checkpoints: { type: Array, optional: true },
     'checkpoints.$': { type: Array },
     'checkpoints.$.$': { type: String },
-    triggerRules: { type: Array, optional: true },
-    'triggerRules.$': { type: RulesSchema },
+    rules: { type: Array, optional: true },
+    'rules.$': { type: RulesSchema },
 });

@@ -9,7 +9,7 @@ const testStoryA = {
     title: 'test story',
     storyGroupId: 'test_story_group_A',
     story: '',
-    triggerRules: [
+    rules: [
         {
             payload: 'test_payload_A',
             text: 'hello!',
@@ -34,7 +34,7 @@ const testStoryB = {
     title: 'test story',
     storyGroupId: 'test_story_group_A',
     story: '',
-    triggerRules: [
+    rules: [
         {
             payload: 'test_payload_C',
             text: 'wow!',
@@ -59,7 +59,7 @@ const testStoryC = {
     title: 'test story',
     storyGroupId: 'test_story_group_A',
     story: '',
-    triggerRules: [],
+    rules: [],
 };
 
 const testStoryD = {

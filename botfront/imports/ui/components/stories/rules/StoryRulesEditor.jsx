@@ -1,25 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Modal, Segment, Popup } from 'semantic-ui-react';
 
 
-import StoryTriggersForm from './StoryRulesForm';
+import StoryRulesForm from './StoryRulesForm';
 
-const StoryTriggerEditor = (props) => {
+const StoryRulesEditor = (props) => {
     const [localOpen, setLocalOpen] = useState(false);
 
     const {
         trigger,
         storyId,
         projectId,
-        triggerRules: incommingRules,
+        rules: incommingRules,
         open = localOpen,
         setOpen = setLocalOpen,
         isDestinationStory,
     } = props;
 
-    const [triggerRules, setTriggerRules] = useState({ triggerRules: incommingRules });
+    const [rules, setRules] = useState({ rules: incommingRules });
+
+    useEffect(() => {
+        setRules({ rules: incommingRules });
+    }, [incommingRules]);
 
     const modalTrigger = { // customize onClick and className of the trigger element
         ...trigger,
@@ -51,11 +55,11 @@ const StoryTriggerEditor = (props) => {
     };
 
     const handleChangeRules = (model) => {
-        setTriggerRules(model);
+        setRules(model);
     };
 
     const handleModalClose = () => {
-        Meteor.call('stories.updateTriggers', projectId, storyId, clearOptionalFields(triggerRules), (err) => {
+        Meteor.call('stories.updateTriggers', projectId, storyId, clearOptionalFields(rules), (err) => {
             if (err) return;
             setOpen(false);
         });
@@ -72,9 +76,9 @@ const StoryTriggerEditor = (props) => {
                     >
                         <Segment.Group>
                             <Segment>
-                                <StoryTriggersForm
+                                <StoryRulesForm
                                     onChange={handleChangeRules}
-                                    triggerRules={triggerRules}
+                                    rules={rules}
                                     saveAndExit={handleModalClose}
                                     payloadName={`/payload_${storyId}`}
                                 />
@@ -89,18 +93,18 @@ const StoryTriggerEditor = (props) => {
     );
 };
 
-StoryTriggerEditor.propTypes = {
+StoryRulesEditor.propTypes = {
     trigger: PropTypes.element.isRequired, // the trigger element will have it's onClick and className props modified
     storyId: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
-    triggerRules: PropTypes.array,
+    rules: PropTypes.array,
     open: PropTypes.bool,
     setOpen: PropTypes.func,
     isDestinationStory: PropTypes.bool.isRequired,
 };
 
-StoryTriggerEditor.defaultProps = {
-    triggerRules: [],
+StoryRulesEditor.defaultProps = {
+    rules: [],
     open: null,
     setOpen: null,
 };
@@ -109,4 +113,4 @@ const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
 });
 
-export default connect(mapStateToProps)(StoryTriggerEditor);
+export default connect(mapStateToProps)(StoryRulesEditor);
