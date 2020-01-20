@@ -7,14 +7,11 @@ describe('Project Core Policy', function() {
 
     afterEach(function() {
         cy.deleteProject('bf');
+        cy.logout();
     });
 
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
-    });
-
-    afterEach(function() {
-        cy.logout();
     });
 
     describe('Core Policy', function() {

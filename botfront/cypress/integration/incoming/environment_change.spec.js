@@ -11,12 +11,9 @@ describe('environments-change', function () {
         cy.removeTestConversationEnv('prod');
         cy.removeTestConversationEnv('stage');
         cy.createProject('bf', 'My Project', 'fr');
-        cy.createUser('admin', 'admin@bf.com', 'project-admin', 'bf');
-        cy.loginTestUser('admin@bf.com');
     });
 
     afterEach(function () {
-        cy.deleteUser('admin@bf.com');
         cy.deleteProject('bf');
     });
 
