@@ -21,7 +21,7 @@ const chooseTemplateSource = (responses, channel) => {
 };
 
 const resolveTemplate = async ({
-    template, projectId, language, slots = {}, channel = null,
+    template, projectId, language, slots, channel = null,
 }) => {
     const responses = await newGetBotResponses({ projectId, template, language });
     const source = chooseTemplateSource(responses, channel);
@@ -29,10 +29,15 @@ const resolveTemplate = async ({
         // No response found, return template name
         return { text: template };
     }
-    const { payload: rawPayload, metadata } = sample(source);
+    
+    // const payload = slots // slots are passed only when  resolveTemplate is called by rasa
+    // ? safeLoad(sample(source).payload) // if called by rasa get a random variation
+    // : safeLoad(source[0].payload); // if called anywhere else get the first variation
+
+    const { payload: rawPayload, metadata } = slots ? sample(source) : source[0];
     const payload = safeLoad(rawPayload);
     if (payload.key) delete payload.key;
-    if (payload.text) payload.text = interpolateSlots(payload.text, slots);
+    if (payload.text) payload.text = interpolateSlots(payload.text, slots || {});
     return { ...payload, metadata };
 };
 

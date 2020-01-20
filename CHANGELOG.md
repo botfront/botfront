@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-beta.0](https://github.com/botfront/botfront/compare/v0.19.0-alpha.6...v0.19.0-beta.0) (2020-01-20)
+
+
+### Bug Fixes
+
+* cannot edit project startup responses ([fad2eca](https://github.com/botfront/botfront/commit/fad2eca))
+* deleteVariation fails if variation is focused ([b7262dd](https://github.com/botfront/botfront/commit/b7262dd))
+* variations not saving ([9929a72](https://github.com/botfront/botfront/commit/9929a72))
+* variations save on modal close ([ce040af](https://github.com/botfront/botfront/commit/ce040af))
+* visual editor, always load first variation ([a5703bf](https://github.com/botfront/botfront/commit/a5703bf))
+
+
+### Tests
+
+* custom and image variations ([4f3e1d1](https://github.com/botfront/botfront/commit/4f3e1d1))
+* edit image variations ([7cdf9ac](https://github.com/botfront/botfront/commit/7cdf9ac))
+* first variation is shown in visual stories ([35cfd08](https://github.com/botfront/botfront/commit/35cfd08))
+* fix custom bot response test ([7e6132b](https://github.com/botfront/botfront/commit/7e6132b))
+* quick reply variations ([2ffe6af](https://github.com/botfront/botfront/commit/2ffe6af))
+* variations ([133dd0d](https://github.com/botfront/botfront/commit/133dd0d))
+
+
+
 ## [0.19.0-alpha.6](https://github.com/botfront/botfront/compare/v0.19.0-alpha.5...v0.19.0-alpha.6) (2020-01-13)
 
 

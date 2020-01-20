@@ -1,22 +1,26 @@
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 
+export const displayError = (error) => {
+    if (!process.env.production) console.log(error);
+
+    if (error.error === 'warning') {
+        Alert.warning(`Warning: ${error.reason || error.error || error.message}`, {
+            position: 'top',
+            timeout: 5 * 1000,
+        });
+    } else {
+        Alert.error(`Error: ${error.reason || error.error || error.message}`, {
+            position: 'top',
+            timeout: 'none',
+        });
+    }
+};
+
 export function wrapMeteorCallback(callback, successMessage = '') {
     return (error, result) => {
         if (error) {
-            if (!process.env.production) console.log(error);
-
-            if (error.error === 'warning') {
-                Alert.warning(`Warning: ${error.reason || error.error || error.message}`, {
-                    position: 'top',
-                    timeout: 5 * 1000,
-                });
-            } else {
-                Alert.error(`Error: ${error.reason || error.error || error.message}`, {
-                    position: 'top',
-                    timeout: 'none',
-                });
-            }
+            displayError(error);
         } else if (successMessage) {
             Alert.success(successMessage, {
                 position: 'top-right',

@@ -4,7 +4,7 @@ import { Button } from 'semantic-ui-react';
 
 export default function IconButton(props) {
     const {
-        onClick, icon, size, color, 'data-cy': dataCy, disabled, basic,
+        onClick, icon, size, color, 'data-cy': dataCy, disabled, basic, id,
     } = props;
 
     return (
@@ -17,6 +17,7 @@ export default function IconButton(props) {
             data-cy={dataCy || `icon-${icon}`}
             disabled={disabled}
             basic={basic}
+            {...id ? { id } : {}}
         />
     );
 }
@@ -29,6 +30,7 @@ IconButton.propTypes = {
     'data-cy': PropTypes.string,
     disabled: PropTypes.bool,
     basic: PropTypes.bool,
+    id: PropTypes.string,
 };
 
 IconButton.defaultProps = {
@@ -38,4 +40,5 @@ IconButton.defaultProps = {
     'data-cy': null,
     disabled: false,
     basic: false,
+    id: null,
 };

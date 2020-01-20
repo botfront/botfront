@@ -29,10 +29,13 @@ type Mutation {
         language: String!
         newPayload: Any
         key: String!
+        index: Int = -1
     ): BotResponse
 
     createResponse(projectId: String!, response: BotResponseInput): updateResponse!
     createResponses(projectId: String!, responses: String): updateResponse!
+
+    deleteVariation(projectId: String!, key: String!, language: String!, index: Int!): updateResponse!
 }
 
 type updateResponse {

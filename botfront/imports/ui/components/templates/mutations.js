@@ -20,3 +20,10 @@ mutation updateResponse($projectId: String!, $_id: String!, $response: BotRespon
       success
     }
 }`;
+
+export const DELETE_VARIATION = gql`
+mutation deleteVariation($projectId: String!, $key: String!, $language: String!, $index: Int!) {
+  deleteVariation(projectId: $projectId, key: $key, language: $language, index: $index){
+    success
+  }
+}`;
