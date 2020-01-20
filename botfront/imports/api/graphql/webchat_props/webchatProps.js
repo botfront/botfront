@@ -2,10 +2,10 @@ import { Stories } from '../../story/stories.collection';
 
 export const getWebchatProps = async projectId => Stories.find(
     { projectId },
-    { triggerRules: true },
+    { rules: true },
 ).fetch().reduce((result, option) => {
-    if (option.triggerRules) {
-        return [...result, ...option.triggerRules];
+    if (option.rules) {
+        return [...result, ...option.rules];
     }
     return result;
 }, []);

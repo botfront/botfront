@@ -14,7 +14,7 @@ import OptionalField from '../../form_fields/OptionalField';
 // force open affect force close and vice versa
 
 function StoryRulesForm({
-    triggerRules, onChange, saveAndExit, payloadName,
+    rules, onChange, saveAndExit, payloadName,
 }) {
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
@@ -57,20 +57,20 @@ function StoryRulesForm({
     });
     
     export const rootSchema = new SimpleSchema({
-        triggerRules: { type: Array, optional: true },
-        'triggerRules.$': { type: RulesSchema },
+        rules: { type: Array, optional: true },
+        'rules.$': { type: RulesSchema },
         hasToggles: { type: Boolean, optional: true },
     });
 
     const toggleFields = [
-        'triggerRules.$.text',
-        'triggerRules.$.trigger.url',
-        'triggerRules.$.trigger.timeOnPage',
-        'triggerRules.$.trigger.numberOfVisits',
-        'triggerRules.$.trigger.numberOfPageVisits',
-        'triggerRules.$.trigger.device',
-        'triggerRules.$.trigger.queryString',
-        'triggerRules.$.trigger.eventListeners',
+        'rules.$.text',
+        'rules.$.trigger.url',
+        'rules.$.trigger.timeOnPage',
+        'rules.$.trigger.numberOfVisits',
+        'rules.$.trigger.numberOfPageVisits',
+        'rules.$.trigger.device',
+        'rules.$.trigger.queryString',
+        'rules.$.trigger.eventListeners',
     ];
 
     const createPathElem = (key) => {
@@ -105,8 +105,8 @@ function StoryRulesForm({
     };
 
     const initializeToggles = () => {
-        if (triggerRules.hasToggles === true) return triggerRules;
-        const activeModel = togglesTraverse(triggerRules);
+        if (rules.hasToggles === true) return rules;
+        const activeModel = togglesTraverse(rules);
         activeModel.hasToggles = true;
         return activeModel;
     };
@@ -115,13 +115,13 @@ function StoryRulesForm({
 
     const postProcess = (formModel) => {
         const model = cloneDeep(formModel);
-        model.triggerRules = model.triggerRules.map((ruleSet, index) => {
+        model.rules = model.rules.map((ruleSet, index) => {
             const newRuleSet = ruleSet;
             if (ruleSet.trigger
                 && ruleSet.trigger.timeOnPage__DISPLAYIF === true
                 && ruleSet.trigger.eventListeners__DISPLAYIF === true
             ) {
-                if (!activeModel.triggerRules[index].trigger.eventListeners__DISPLAYIF) {
+                if (!activeModel.rules[index].trigger.eventListeners__DISPLAYIF) {
                     newRuleSet.trigger.timeOnPage__DISPLAYIF = false;
                 } else {
                     newRuleSet.trigger.eventListeners__DISPLAYIF = false;
@@ -142,7 +142,7 @@ function StoryRulesForm({
     return (
         <div className='story-trigger-form-container' data-cy='story-rules-editor'>
             <AutoForm autosave model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={handleSubmit}>
-                <AutoField name='triggerRules' label='Trigger rules'>
+                <AutoField name='rules' label='Trigger rules'>
                     <AutoField name='$'>
                         <div>
                             <div>
@@ -214,14 +214,14 @@ function StoryRulesForm({
 }
 
 StoryRulesForm.propTypes = {
-    triggerRules: PropTypes.object,
+    rules: PropTypes.object,
     payloadName: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     saveAndExit: PropTypes.func.isRequired,
 };
 
 StoryRulesForm.defaultProps = {
-    triggerRules: { triggerRules: [] },
+    rules: { rules: [] },
 };
 
 export default StoryRulesForm;

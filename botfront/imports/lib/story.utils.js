@@ -121,12 +121,12 @@ export const findBranchById = (branchesN0, branchId) => {
 };
 
 const addSmartPayloads = (story) => {
-    if (story.triggerRules === undefined || story.triggerRules[0] === undefined) {
+    if (story.rules === undefined || story.rules[0] === undefined) {
         return story;
     }
     const smartStory = story;
     let content = story.story;
-    const payloadName = story.triggerRules[0].payload.slice(1);
+    const payloadName = story.rules[0].payload.slice(1);
     content = `* ${payloadName}\n${content}`;
     smartStory.story = content;
     return smartStory;
@@ -286,13 +286,13 @@ export const getStoriesAndDomain = async (projectId, language) => {
             { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
             {
                 fields: {
-                    story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, triggerRules: 1,
+                    story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, rules: 1,
                 },
             },
         ).fetch()
         : Stories.find({ projectId }, {
             fields: {
-                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, triggerRules: 1,
+                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, rules: 1,
             },
         }).fetch();
     const storiesForDomain = stories
