@@ -7,7 +7,6 @@ import {
     AutoForm, AutoField, ErrorsField, SubmitField, ListDelField,
 } from 'uniforms-semantic';
 import { cloneDeep } from 'lodash';
-import shortId from 'shortid';
 
 import SelectField from '../../form_fields/SelectField';
 import OptionalField from '../../form_fields/OptionalField';
@@ -15,7 +14,7 @@ import OptionalField from '../../form_fields/OptionalField';
 // force open affect force close and vice versa
 
 function StoryRulesForm({
-    triggerRules, onChange, saveAndExit,
+    triggerRules, onChange, saveAndExit, payloadName,
 }) {
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
@@ -117,7 +116,7 @@ function StoryRulesForm({
                 }
             }
             if (!newRuleSet.payload) {
-                newRuleSet.payload = `/payload_${shortId()}`;
+                newRuleSet.payload = payloadName;
             }
             return newRuleSet;
         });
@@ -204,6 +203,7 @@ function StoryRulesForm({
 
 StoryRulesForm.propTypes = {
     triggerRules: PropTypes.object,
+    payloadName: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     saveAndExit: PropTypes.func.isRequired,
 };

@@ -35,7 +35,7 @@ const StoryTriggerEditor = (props) => {
         },
     };
 
-    const traverseTriggers = (model) => {
+    const clearOptionalFields = (model) => {
         const newModel = model;
         Object.keys(model).forEach((key) => {
             if (key.match(/__DISPLAYIF$/) && !model[key]) {
@@ -44,7 +44,7 @@ const StoryTriggerEditor = (props) => {
                 return;
             }
             if (typeof newModel[key] === 'object') {
-                traverseTriggers(newModel[key]);
+                clearOptionalFields(newModel[key]);
             }
         });
         return newModel;
@@ -55,7 +55,7 @@ const StoryTriggerEditor = (props) => {
     };
 
     const handleModalClose = () => {
-        Meteor.call('stories.updateTriggers', projectId, storyId, traverseTriggers(triggerRules), (err) => {
+        Meteor.call('stories.updateTriggers', projectId, storyId, clearOptionalFields(triggerRules), (err) => {
             if (err) return;
             setOpen(false);
         });
@@ -72,7 +72,12 @@ const StoryTriggerEditor = (props) => {
                     >
                         <Segment.Group>
                             <Segment>
-                                <StoryTriggersForm onChange={handleChangeRules} triggerRules={triggerRules} saveAndExit={handleModalClose} />
+                                <StoryTriggersForm
+                                    onChange={handleChangeRules}
+                                    triggerRules={triggerRules}
+                                    saveAndExit={handleModalClose}
+                                    payloadName={`/payload_${storyId}`}
+                                />
                             </Segment>
                         </Segment.Group>
                     </Modal>
