@@ -305,11 +305,10 @@ function ResponseMetadataForm({
         if (model.domHighlight
             && model.domHighlight.enabled
             && (
-                (!model.domHighlight.selector || !model.domHighlight.selector.length)
-                || (!model.domHighlight.style || !model.domHighlight.style.length)
+                !model.domHighlight.selector || !model.domHighlight.selector.length
             )
         ) {
-            errors.push({ name: 'domHighlight', message: 'When enabling highlighting of elements on page, at least selector and style must be set.' });
+            errors.push({ name: 'domHighlight', message: 'When enabling highlighting of elements on page, selector must be set.' });
         }
 
         if (errors.length) {
