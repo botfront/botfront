@@ -28,6 +28,7 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('page-visits-input').last().click().find('input')
             .type('4');
         cy.dataCy('toggle-query-string').last().click();
+        cy.dataCy('query-string-field').last().find('.add.icon').click();
         cy.dataCy('query-string-field').last().find('input').first()
             .click()
             .type('name');
