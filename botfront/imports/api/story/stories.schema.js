@@ -42,7 +42,8 @@ const TriggerSchema = new SimpleSchema({
     numberOfVisits: { type: String, optional: true },
     numberOfPageVisits: { type: String, optional: true },
     device: { type: String, optional: true },
-    queryString: { type: QueryStringSchema, optional: true },
+    queryString: { type: Array, optional: true },
+    'queryString.$': { type: QueryStringSchema, optional: true },
     eventListeners: { type: Array, optional: true },
     'eventListeners.$': { type: EventListenersSchema, optional: true },
 });
