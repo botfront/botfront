@@ -8,6 +8,7 @@ import {
 import {
     AutoField, ErrorsField, LongTextField, ListField, ListItemField, NestField,
 } from 'uniforms-semantic';
+
 import { cloneDeep } from 'lodash';
 
 import SelectField from '../form_fields/SelectField';
@@ -66,20 +67,6 @@ function ResponseMetadataForm({
         },
     ];
 
-    const domHighlightOptions = [
-        {
-            label: 'Use default highlight',
-            value: 'default',
-        },
-        {
-            label: 'Use an existing css class',
-            value: 'class',
-        },
-        {
-            label: 'Specify custom css style',
-            value: 'custom',
-        },
-    ];
     const schema = extendSchema(buildASTSchema(parse(`
     
     type PageChange {
@@ -107,7 +94,7 @@ function ResponseMetadataForm({
 
     type DomHighlight {
         enabled: Boolean!
-        type: String
+        style: String
         selector: String
         css: String
     }
@@ -132,10 +119,32 @@ function ResponseMetadataForm({
 
     const defaultModelAdvanced = {
         ...defaultModel,
-        domHighlight: {},
+        domHighlight: { style: 'default' },
         customCss: {},
         pageChangeCallbacks: null,
         pageEventCallbacks: null,
+    };
+
+    const schemaDataAdvanved = {
+        ...schemaData,
+        'domHighlight.style': {
+            initialValue: 'default',
+            allowedValues: ['default', 'class', 'custom'],
+            options: [
+                {
+                    label: 'Use default',
+                    value: 'default',
+                },
+                {
+                    label: 'Use an existing css class',
+                    value: 'class',
+                },
+                {
+                    label: 'Specify custom css style',
+                    value: 'custom',
+                },
+            ],
+        },
     };
 
     const panesAdvanced = [
@@ -147,12 +156,12 @@ function ResponseMetadataForm({
                     <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.enabled}>
                         <>
                             <InfoField name='domHighlight.selector' label='CSS selector' info='The CSS selector of the DOM element to highlight' />
-                            <SelectField name='domHighlight.type' options={domHighlightOptions} />
+                            <SelectField name='domHighlight.style' />
                         
-                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.type === 'class'}>
+                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'class'}>
                                 <AutoField name='domHighlight.css' label='Class name' />
                             </DisplayIf>
-                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.type === 'custom'}>
+                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'custom'}>
                                 <LongTextField name='domHighlight.css' label='Custom css' />
                             </DisplayIf>
                         </>
@@ -297,10 +306,10 @@ function ResponseMetadataForm({
             && model.domHighlight.enabled
             && (
                 (!model.domHighlight.selector || !model.domHighlight.selector.length)
-                || (!model.domHighlight.type || !model.domHighlight.type.length)
+                || (!model.domHighlight.style || !model.domHighlight.style.length)
             )
         ) {
-            errors.push({ name: 'domHighlight', message: 'When enabling highlighting of elements on page, at least selector and type must be set.' });
+            errors.push({ name: 'domHighlight', message: 'When enabling highlighting of elements on page, at least selector and style must be set.' });
         }
 
         if (errors.length) {
@@ -323,7 +332,7 @@ function ResponseMetadataForm({
 
     return (
         <div className='response-metadata-form'>
-            <AutoFormMetadata autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaData)} onSubmit={model => onChange(postProcess(model))}>
+            <AutoFormMetadata autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)} onSubmit={model => onChange(postProcess(model))}>
                 <Tab menu={{ secondary: true, pointing: true }} panes={panesAdvanced} />
                 <br />
                 <ErrorsField />
