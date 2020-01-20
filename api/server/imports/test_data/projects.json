@@ -1,10 +1,12 @@
 [
   {
     "_id": "pro1",
-    "nlu_models": ["nlu1", "nlu2"]
+    "nlu_models": ["nlu1", "nlu2"],
+    "defaultLanguage": "en"
   },
   {
     "_id": "pro2",
-    "nlu_models": ["nlu3", "nlu4"]
+    "nlu_models": ["nlu3", "nlu4"],
+    "defaultLanguage": "en"
   }
 ]

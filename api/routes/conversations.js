@@ -61,7 +61,7 @@ const extractMetadataFromTracker = (tracker) => {
 
 exports.updateConversation = async function(req, res) {
     const { project_id: projectId, sender_id: senderId } = req.params;
-    if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, req);
+    if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, req.body);
     checkApiKeyAgainstProject(projectId, req)
         .then(() => {
             const tracker = req.body;

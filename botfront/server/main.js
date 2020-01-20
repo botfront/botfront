@@ -38,6 +38,7 @@ import '../imports/api/importExport/import.methods';
 import '../imports/api/importExport/export.methods';
 import '../imports/startup/server/apollo';
 import '../imports/api/graphql/botResponses/botResponses.model';
+import '../imports/api/graphql/activity/activity.model';
 
 
 import './migrations';

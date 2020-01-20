@@ -25,6 +25,8 @@ const model = new Schema({
         type: Date,
         default: Date.now,
     },
+    env: { type: String, required: false },
 });
+model.index({ text: 1, modelId: 1, env: 1 }, { unique: true });
 
 module.exports = mongoose.model('Activity', model, 'activity');
