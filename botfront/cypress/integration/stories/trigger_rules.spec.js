@@ -106,4 +106,52 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('toggle-event-listeners').find('[data-cy=toggled-true]').should('exist');
         cy.dataCy('toggle-time-on-page').find('[data-cy=toggled-false]').should('exist');
     });
+    it('should not allow a destination story to have rules', () => {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+
+        // add story
+        cy.dataCy('add-story').click();
+        cy.dataCy('single-story-editor').should('have.length', 2);
+        // link the new story to the first story
+        cy.dataCy('stories-linker').last().click();
+        cy.dataCy('link-to').last().find('span').contains('myTest')
+            .click({ force: true });
+        cy.dataCy('connected-to').should('exist');
+
+        cy.dataCy('edit-trigger-rules').first().should('have.class', 'disabled');
+        cy.dataCy('edit-trigger-rules').first().click();
+        cy.dataCy('story-rules-editor').should('not.exist');
+    });
+    it('should not allow linking to a story with rules', () => {
+        cy.visit('/project/bf/stories');
+        // add a story group
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+        // add rules to the first story
+        cy.dataCy('edit-trigger-rules').click();
+        cy.dataCy('story-rules-editor').find('.add.icon').click();
+        cy.dataCy('toggle-payload-text').first().click();
+        cy.dataCy('payload-text-input').first().click().find('input')
+            .type('test payload');
+        cy.dataCy('toggle-website-visits').first().click();
+        cy.dataCy('website-visits-input').first().click().find('input')
+            .type('3');
+        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.get('.dimmer').should('not.exist');
+        // add a new story
+        cy.dataCy('add-story').click();
+        cy.dataCy('single-story-editor').should('have.length', 2);
+        // try to link the new story to the first story
+        cy.dataCy('stories-linker').last().click();
+        cy.dataCy('link-to').last().find('span').contains('myTest')
+            .should('not.exist');
+    });
 });
