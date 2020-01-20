@@ -66,7 +66,9 @@ const activity = new Schema({
     ooS: { type: Boolean, required: false },
     createdAt: { type: Date, required: false, default: Date.now },
     updatedAt: { type: Date, required: false, default: Date.now },
+    env: { type: String, required: false },
 }, { versionKey: false });
+activity.index({ text: 1, modelId: 1, env: 1 }, { unique: true });
 
 exports.Activity = mongoose.model('Activity', activity, 'activity');
 exports.Conversations = mongoose.model('Conversations', conversations, 'conversations');
