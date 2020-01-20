@@ -177,26 +177,56 @@ const BotResponseEditor = (props) => {
         return activeValue.sequence;
     };
 
+    const refreshCacheAndClose = () => {
+        const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
+        upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
+            refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
+            closeModal();
+        });
+    };
+
     const handleModalClose = () => {
         const validResponse = newBotResponse;
-        if (!open) return;
-        if (!isNew && !renameError) {
-            const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
-            upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
-                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
-                closeModal();
-            });
-        } else if (isNew && !checkResponseEmpty(validResponse)) {
+        switch (true) {
+        case !open: return;
+        case !isNew && !renameError:
+            refreshCacheAndClose();
+            return;
+        case isNew && !checkResponseEmpty(validResponse):
             insertResponse(validResponse, (err) => {
                 validateResponseName(err);
                 if (!err) {
-                    closeModal();
+                    refreshCacheAndClose();
                 }
             });
-        } else {
+            return;
+        case !!renameError:
+            return; // prevent close if there is a rename error
+        default:
             closeModal();
         }
+        // if (!open) return;
+        // if (!isNew && !renameError) {
+        //     const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
+        //     upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
+        //         refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
+        //         closeModal();
+        //     });
+        //     return;
+        // }
+        // if (isNew && !checkResponseEmpty(validResponse)) {
+        //     insertResponse(validResponse, (err) => {
+        //         validateResponseName(err);
+        //         if (!err) {
+        //             closeModal();
+        //         }
+        //     });
+        //     return;
+        // }
+        // if (renameError) return;
+        // closeModal();
     };
+
 
     useEffect(() => {
         if (triggerClose === true) {
