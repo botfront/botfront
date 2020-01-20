@@ -78,7 +78,6 @@ export default function ActivityActionsColumn(props) {
     } else if (!!datum.validated) {
         action = (
             <IconButton
-                basic
                 size={size}
                 onClick={() => onToggleValidation(datum)}
                 color='green'
