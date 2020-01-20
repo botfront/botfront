@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useMutation } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
 import {
-    Message, Segment, Popup, Button, Icon,
+    Message, Popup, Button, Icon,
 } from 'semantic-ui-react';
 import { saveAs } from 'file-saver';
 import IntentLabel from '../common/IntentLabel';
@@ -18,7 +18,7 @@ import DataTable from '../../common/DataTable';
 import { clearTypenameField } from '../../../../lib/utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
-import FloatingIconButton from '../../common/FloatingIconButton';
+import IconButton from '../../common/IconButton';
 
 function OutOfScope(props) {
     const [sortType, setSortType] = useState('Newest');
@@ -35,7 +35,6 @@ function OutOfScope(props) {
 
     const {
         model: { _id: modelId },
-        intents,
         projectId,
     } = props;
 
@@ -55,14 +54,13 @@ function OutOfScope(props) {
         refetch();
     };
 
-    const handleUpdate = async (d) => {
+    const handleUpdate = async (newData, rest) => {
+        // rest argument is to supress warnings caused by incomplete schema on optimistic response
         upsertActivity({
-            variables: { modelId, data: d },
+            variables: { modelId, data: newData },
             optimisticResponse: {
                 __typename: 'Mutation',
-                upsertActivity: {
-                    __typename: 'Activity', ...d[0],
-                },
+                upsertActivity: newData.map(d => ({ __typename: 'Activity', ...rest, ...d })),
             },
         });
     };
@@ -78,17 +76,17 @@ function OutOfScope(props) {
             enableReset
             allowAdditions
             allowEditing
-            onChange={({ _id, intent }) => handleUpdate([{ _id, intent, confidence: null }])}
+            onChange={intent => handleUpdate([{ _id: row.datum._id, intent, confidence: null }], row.datum)}
         />
     );
 
     const renderExample = row => (
         <UserUtteranceViewer
             value={row.datum}
-            onChange={u => handleUpdate([{
-                _id: u._id,
-                entities: u.entities.map(e => clearTypenameField(({ ...e, confidence: null }))),
-            }])}
+            onChange={({ _id, entities: ents, ...rest }) => handleUpdate([{
+                _id,
+                entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
+            }], rest)}
             editable
             projectId={projectId}
             showIntent={false}
@@ -106,7 +104,7 @@ function OutOfScope(props) {
                     inverted
                     content='Add this utterance to training data'
                     trigger={(
-                        <Button
+                        <IconButton
                             basic
                             size={size}
                             onClick={() => handleAddToTraining([datum])}
@@ -118,9 +116,9 @@ function OutOfScope(props) {
             );
     
         return (
-            <div key={`${datum._id}-actions`}>
+            <div key={`${datum._id}-actions`} className='side-by-side narrow right'>
                 {action}
-                <FloatingIconButton icon='trash' onClick={() => handleDelete([datum._id])} />
+                <IconButton icon='trash' onClick={() => handleDelete([datum._id])} />
             </div>
         );
     };

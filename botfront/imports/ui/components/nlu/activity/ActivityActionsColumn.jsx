@@ -78,6 +78,7 @@ export default function ActivityActionsColumn(props) {
     } else if (!!datum.validated) {
         action = (
             <IconButton
+                basic
                 size={size}
                 onClick={() => onToggleValidation(datum)}
                 color='green'
@@ -95,7 +96,14 @@ export default function ActivityActionsColumn(props) {
                     renderValidateButton(datum),
                     ...(deleteable.length > 1 ? [renderDeleteButton(datum)] : []),
                 ]}
-                button={<Button size={size} icon='trash' color='teal' basic />}
+                button={(
+                    <IconButton
+                        basic
+                        size={size}
+                        color='teal'
+                        icon='trash'
+                    />
+                )}
             />
         );
     } else if (code === 'entitiesInTD') {
@@ -105,7 +113,14 @@ export default function ActivityActionsColumn(props) {
                 message={message}
                 mainAction={renderDeleteButton(datum)}
                 otherActions={[renderValidateButton(datum)]}
-                button={<Button size={size} icon='info' color='yellow' />}
+                button={(
+                    <IconButton
+                        basic
+                        size={size}
+                        color='yellow'
+                        icon='info'
+                    />
+                )}
             />
         );
     } else if (!datum.intent) {
@@ -114,7 +129,7 @@ export default function ActivityActionsColumn(props) {
                 inverted
                 content='Mark this utterance OoS'
                 trigger={(
-                    <Button
+                    <IconButton
                         basic
                         size={size}
                         onClick={() => onMarkOoS(datum)}
