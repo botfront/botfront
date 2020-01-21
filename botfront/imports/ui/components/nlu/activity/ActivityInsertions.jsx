@@ -15,8 +15,8 @@ export async function populateActivity(instance, examples, modelId, callback) {
         if (err) return;
         const data = (Array.isArray(activity) ? activity : [activity]).map(a => ({
             text: a.text,
-            intent: a.intent.name,
-            confidence: a.intent.confidence,
+            intent: (a.intent && a.intent.name) || null,
+            confidence: (a.intent && a.intent.confidence) || null,
             entities: a.entities.filter(e => e.extractor !== 'ner_duckling_http'),
         }));
 
