@@ -11,7 +11,32 @@ import { cloneDeep } from 'lodash';
 import SelectField from '../../form_fields/SelectField';
 import OptionalField from '../../form_fields/OptionalField';
 
-// force open affect force close and vice versa
+import { getModelField } from '../../../../lib/autoForm.utils';
+
+class RulesForm extends AutoForm {
+    onChange(key, value) {
+        super.onChange(key, value);
+        const keyArray = key.split('.');
+        if (keyArray[keyArray.length - 1] === 'timeOnPage__DISPLAYIF' && value === true) {
+            // disabled the eventListener field when timeOnPage is enabled
+            const eventListenersBoolKey = [...keyArray];
+            eventListenersBoolKey[eventListenersBoolKey.length - 1] = 'eventListeners__DISPLAYIF';
+            super.onChange(eventListenersBoolKey.join('.'), false);
+            const eventListenersValueKey = [...keyArray];
+            eventListenersValueKey[eventListenersValueKey.length - 1] = 'eventListeners';
+            super.onChange(
+                eventListenersValueKey.join('.'),
+                getModelField(eventListenersValueKey.join('.'), this.props.model) || [],
+            );
+        }
+        if (keyArray[keyArray.length - 1] === 'eventListeners__DISPLAYIF' && value === true) {
+            // disabled the timeOnPage field when eventListener field is enabled
+            const timeOnPageBoolKey = [...keyArray];
+            timeOnPageBoolKey[timeOnPageBoolKey.length - 1] = 'timeOnPage__DISPLAYIF';
+            super.onChange(timeOnPageBoolKey.join('.'), false);
+        }
+    }
+}
 
 function StoryRulesForm({
     rules, onChange, saveAndExit, payloadName,
@@ -115,18 +140,8 @@ function StoryRulesForm({
 
     const postProcess = (formModel) => {
         const model = cloneDeep(formModel);
-        model.rules = model.rules.map((ruleSet, index) => {
+        model.rules = model.rules.map((ruleSet) => {
             const newRuleSet = ruleSet;
-            if (ruleSet.trigger
-                && ruleSet.trigger.timeOnPage__DISPLAYIF === true
-                && ruleSet.trigger.eventListeners__DISPLAYIF === true
-            ) {
-                if (!activeModel.rules[index].trigger.eventListeners__DISPLAYIF) {
-                    newRuleSet.trigger.timeOnPage__DISPLAYIF = false;
-                } else {
-                    newRuleSet.trigger.eventListeners__DISPLAYIF = false;
-                }
-            }
             if (!newRuleSet.payload) {
                 newRuleSet.payload = payloadName;
             }
@@ -141,31 +156,31 @@ function StoryRulesForm({
 
     return (
         <div className='story-trigger-form-container' data-cy='story-rules-editor'>
-            <AutoForm autosave model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={handleSubmit}>
+            <RulesForm autosave model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={handleSubmit}>
                 <AutoField name='rules' label='Trigger rules'>
                     <AutoField name='$'>
-                        <div>
-                            <div>
+                        <div className='list-container'>
+                            <div className='delete-list-container'>
                                 <ListDelField name='' />
                             </div>
-                            <div>
-                                <OptionalField name='text' label='Enable payload text' data-cy='toggle-payload-text'>
-                                    <AutoField name='' label='Payload text' data-cy='payload-text-input' />
+                            <div className='list-element-container'>
+                                <OptionalField name='text' label='Display a user message' data-cy='toggle-payload-text'>
+                                    <AutoField name='' label='User message to display' data-cy='payload-text-input' />
                                 </OptionalField>
                                 <AutoField name='trigger' label='Conditions'>
-                                    <OptionalField name='url' label='Enable URL trigger'>
-                                        <AutoField name='' label='trigger URLs' />
+                                    <OptionalField name='url' label='Add URL condition'>
+                                        <AutoField name='' label='Trigger when the user visits these URLs' />
                                     </OptionalField>
-                                    <OptionalField name='numberOfVisits' label='Enable number of website visits trigger' data-cy='toggle-website-visits'>
-                                        <AutoField name='' label='Trigger once a user has visited this website a set number of times' data-cy='website-visits-input' />
+                                    <OptionalField name='numberOfVisits' label='Trigger based on the number of times the user has visited the website' data-cy='toggle-website-visits'>
+                                        <AutoField name='' label='Number of visits' data-cy='website-visits-input' />
                                     </OptionalField>
-                                    <OptionalField name='numberOfPageVisits' label='Enable number of specific page visits trigger' data-cy='toggle-page-visits'>
-                                        <AutoField name='' label='Tigger once a user has visited a specific page a set number of times' data-cy='page-visits-input' />
+                                    <OptionalField name='numberOfPageVisits' label='Trigger based on the number of times the user has visited this specific page' data-cy='toggle-page-visits'>
+                                        <AutoField name='' label='Number of page visits' data-cy='page-visits-input' />
                                     </OptionalField>
-                                    <OptionalField name='device' label='Enable device type trigger'>
+                                    <OptionalField name='device' label='Restrict to specific screen sizes'>
                                         <SelectField
                                             name=''
-                                            placeholder='Select a type of device to activate the payload'
+                                            placeholder='Select screen type'
                                             label='Trigger if the user is using a certain type of device'
                                             options={[
                                                 { value: 'all', text: 'All' },
@@ -174,28 +189,40 @@ function StoryRulesForm({
                                             ]}
                                         />
                                     </OptionalField>
-                                    <OptionalField name='queryString' label='Enable query string trigger' data-cy='toggle-query-string'>
+                                    <OptionalField name='queryString' label='Trigger if specific query string parameters are present in the URL' data-cy='toggle-query-string'>
                                         <AutoField name='' data-cy='query-string-field' />
                                     </OptionalField>
-                                    <OptionalField name='timeOnPage' label='Enable time on page trigger' data-cy='toggle-time-on-page'>
-                                        <AutoField name='' label='Trigger after a period of time on a page' />
+                                    <OptionalField name='timeOnPage' label='Trigger once the user has been on this page for a certain amount of time' data-cy='toggle-time-on-page'>
+                                        <AutoField name='' label='Number of seconds after which this conversation should be triggered' />
                                     </OptionalField>
                                     <OptionalField name='eventListeners' label='Enable event listener trigger' data-cy='toggle-event-listeners'>
                                         <AutoField name=''>
                                             <AutoField name='$'>
-                                                <ListDelField name='' />
-                                                <AutoField name='selector' />
-                                                <SelectField
-                                                    name='event'
-                                                    placeholder='Select an event type'
-                                                    options={[
-                                                        { value: 'click', text: 'Click' },
-                                                        { value: 'mouseover', text: 'Mouseover' },
-                                                        { value: 'focus', text: 'Focus' },
-                                                        { value: 'blur', text: 'Blur' },
-                                                        { value: 'change', text: 'Change' },
-                                                    ]}
-                                                />
+                                                <div className='list-container'>
+                                                    <div className='delete-list-container'>
+                                                        <ListDelField name='' />
+                                                    </div>
+                                                    <div className='list-element-container'>
+                                                        <AutoField name='selector' label='CSS selector' />
+                                                        <SelectField
+                                                            name='event'
+                                                            placeholder='Select an event type'
+                                                            options={[
+                                                                { value: 'click', text: 'Click' },
+                                                                { value: 'dblclick', text: 'Double click' },
+                                                                { value: 'mouseenter', text: 'Mouse enter' },
+                                                                { value: 'mouseleave', text: 'Mouse leave' },
+                                                                { value: 'mouseover', text: 'Mouse over' },
+                                                                { value: 'mousemove', text: 'Mouse move' },
+                                                                { value: 'change', text: 'Change' },
+                                                                { value: 'blur', text: 'Blur' },
+                                                                { value: 'focus', text: 'Focus' },
+                                                                { value: 'focusin', text: 'Focus in' },
+                                                                { value: 'focusout', text: 'Focus out' },
+                                                            ]}
+                                                        />
+                                                    </div>
+                                                </div>
                                             </AutoField>
                                         </AutoField>
                                     </OptionalField>
@@ -208,7 +235,7 @@ function StoryRulesForm({
                 <ErrorsField />
                 <br />
                 <SubmitField value='Save and exit' onClick={saveAndExit} />
-            </AutoForm>
+            </RulesForm>
         </div>
     );
 }
