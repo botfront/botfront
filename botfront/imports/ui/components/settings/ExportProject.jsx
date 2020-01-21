@@ -23,11 +23,11 @@ const ExportProject = ({
         text: 'There was an unexpected error in the api request.',
     });
     const toggles = {
-        projectData: [...useState(true), 'Export Project Data'],
-        conversations: [...useState(false), 'Export Conversations'],
-        credentials: [...useState(false), 'Export Credentials'],
-        endpoints: [...useState(false), 'Export Endpoints'],
-        instances: [...useState(false), 'Export Instances'],
+        projectData: [...useState(true), 'Export project data (NLU, stories, responses)'],
+        conversations: [...useState(false), 'Export conversations'],
+        credentials: [...useState(false), 'Export credentials'],
+        endpoints: [...useState(false), 'Export endpoints'],
+        instances: [...useState(false), 'Export instances'],
     };
 
     const projectDataCols = [
@@ -233,7 +233,7 @@ const ExportProject = ({
             />
             <br />
             {exportType.value === 'botfront'
-                && Object.keys(toggles).map(t => renderToggle(t))}
+                && Object.keys(toggles).map(t => <>{renderToggle(t)}<br /></>)}
             {exportType.value === 'rasa' && (
                 <>
                     <Message
