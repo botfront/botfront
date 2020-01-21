@@ -21,6 +21,7 @@ import {
     basicSchemaString, defaultModel, schemaData, AutoFormMetadata, panes,
 } from './MetadataForm';
 
+
 function ResponseMetadataForm({
     responseMetadata, onChange,
 }) {
@@ -99,10 +100,15 @@ function ResponseMetadataForm({
         css: String
     }
 
-    type CustomCss {
+    type CustomStyle {
         enabled: Boolean!
-        text: String
-        messageContainer: String
+        css: String
+        style: String!
+    }
+
+    type CustomCss {
+        text: CustomStyle
+        container: CustomStyle
     }
     
     ${basicSchemaString}
@@ -120,7 +126,7 @@ function ResponseMetadataForm({
     const defaultModelAdvanced = {
         ...defaultModel,
         domHighlight: { style: 'default' },
-        customCss: {},
+        customCss: { text: { style: 'class' }, container: { style: 'class' } },
         pageChangeCallbacks: null,
         pageEventCallbacks: null,
     };
@@ -141,6 +147,34 @@ function ResponseMetadataForm({
                 },
                 {
                     text: 'Specify custom css style',
+                    value: 'custom',
+                },
+            ],
+        },
+        'customCss.text.style': {
+            initialValue: 'class',
+            allowedValues: ['class', 'custom'],
+            options: [
+                {
+                    label: 'Use an existing css class',
+                    value: 'class',
+                },
+                {
+                    label: 'Specify custom css style',
+                    value: 'custom',
+                },
+            ],
+        },
+        'customCss.container.style': {
+            initialValue: 'class',
+            allowedValues: ['class', 'custom'],
+            options: [
+                {
+                    label: 'Use an existing css class',
+                    value: 'class',
+                },
+                {
+                    label: 'Specify custom css style',
                     value: 'custom',
                 },
             ],
@@ -219,16 +253,36 @@ function ResponseMetadataForm({
             ),
         },
         {
-            menuItem: 'Custom CSS',
+            menuItem: 'Message appearance',
             render: () => (
                 <>
-                    <ToggleField name='customCss.enabled' className='toggle' label='Enable' />
-                    <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
+                    <ToggleField name='customCss.text.enabled' className='toggle' label='Enable custom text style' />
+                    <DisplayIf condition={context => context.model.customCss && context.model.customCss.text && context.model.customCss.text.enabled}>
                         <>
-                            <LongTextField name='customCss.text' label='Message text CSS' data-cy='custom-message-css' />
-                            <LongTextField name='customCss.messageContainer' label='Message container CSS' data-cy='custom-container-css' />
+                            <SelectField name='customCss.text.style' />
+                            <DisplayIf condition={context => context.model.customCss && context.model.customCss.text.style === 'custom'}>
+                                <LongTextField name='customCss.text.css' label='Message text CSS' data-cy='custom-message-css' />
+                            </DisplayIf>
+                            <DisplayIf condition={context => context.model.customCss && context.model.customCss.text.style === 'class'}>
+                                <AutoField name='customCss.text.css' label='Message test class' data-cy='custom-message-css' />
+                            </DisplayIf>
                         </>
                     </DisplayIf>
+
+                    <ToggleField name='customCss.container.enabled' className='toggle' label='Enable custom message bubble style' />
+                    
+                    <DisplayIf condition={context => (context.model.customCss && context.model.customCss.container && context.model.customCss.container.enabled)}>
+                        <>
+                            <SelectField name='customCss.container.style' />
+                            <DisplayIf condition={context => context.model.customCss && context.model.customCss.container.style === 'custom'}>
+                                <LongTextField name='customCss.container.css' label='Message container CSS' data-cy='custom-message-css' />
+                            </DisplayIf>
+                            <DisplayIf condition={context => context.model.customCss && context.model.customCss.container.style === 'class'}>
+                                <AutoField name='customCss.container.css' label='Message container class' data-cy='custom-message-css' />
+                            </DisplayIf>
+                        </>
+                    </DisplayIf>
+                    
                 </>
             ),
         },
@@ -238,16 +292,16 @@ function ResponseMetadataForm({
         const newModel = cloneDeep(model);
         // Remove objects if they were disabled
         if (newModel.domHighlight && !newModel.domHighlight.enabled) delete newModel.domHighlight;
-        if (newModel.customCss && !newModel.customCss.enabled) delete newModel.customCss;
+        if (newModel.customCss && newModel.customCss.text && !newModel.customCss.text.enabled) delete newModel.customCss.text;
+        if (newModel.customCss && newModel.customCss.container && !newModel.customCss.container.enabled) delete newModel.customCss.container;
         if (newModel.pageChangeCallbacks && !newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks;
         if (newModel.pageEventCallbacks && !newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks;
-
         // Remove enabled fields
         if (newModel.domHighlight && newModel.domHighlight.enabled) delete newModel.domHighlight.enabled;
-        if (newModel.customCss && newModel.customCss.enabled) delete newModel.customCss.enabled;
+        if (newModel.customCss && newModel.customCss.text && newModel.customCss.text.enabled) delete newModel.customCss.text.enabled;
+        if (newModel.customCss && newModel.customCss.container && newModel.customCss.container.enabled) delete newModel.customCss.container.enabled;
         if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks.enabled;
         if (newModel.pageEventCallbacks && newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks.enabled;
-
         return newModel;
     };
 
@@ -298,7 +352,8 @@ function ResponseMetadataForm({
     const validator = (model) => {
         const errors = [...getPageChangeErrors(model), ...getPageEventErrors(model)];
 
-        if (model.customCss && model.customCss.enabled && !model.customCss.text && !model.customCssContainer) {
+        if ((model.customCss && model.customCss.text && model.customCss.text.enabled && !model.customCss.text.css)
+            || (model.customCss && model.customCss.container && model.customCss.container.enabled && !model.customCss.container.css)) {
             errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you set neither text nor message container properties' });
         }
 
@@ -322,7 +377,8 @@ function ResponseMetadataForm({
         if (newModel.domHighlight && (newModel.domHighlight.selector)) newModel.domHighlight.enabled = true;
         if (newModel.pageChangeCallbacks && (newModel.pageChangeCallbacks.pageChanges.length > 0)) newModel.pageChangeCallbacks.enabled = true;
         if (newModel.pageEventCallbacks && (newModel.pageEventCallbacks.pageEvents.length > 0)) newModel.pageEventCallbacks.enabled = true;
-        if (newModel.customCss && (newModel.customCss.text)) newModel.customCss.enabled = true;
+        if (newModel.customCss && newModel.customCss.text) newModel.customCss.text.enabled = true;
+        if (newModel.customCss && newModel.customCss.container) newModel.customCss.container.enabled = true;
         return newModel;
     };
 
