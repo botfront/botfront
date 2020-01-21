@@ -14,6 +14,15 @@ import OptionalField from '../../form_fields/OptionalField';
 import { getModelField } from '../../../../lib/autoForm.utils';
 
 class RulesForm extends AutoForm {
+    resetOptionalArray = (keyArray, fieldName) => {
+        const eventListenersValueKey = [...keyArray];
+        eventListenersValueKey[eventListenersValueKey.length - 1] = fieldName;
+        super.onChange(
+            eventListenersValueKey.join('.'),
+            getModelField(eventListenersValueKey.join('.'), this.props.model) || [],
+        );
+    }
+
     onChange(key, value) {
         super.onChange(key, value);
         const keyArray = key.split('.');
@@ -22,18 +31,26 @@ class RulesForm extends AutoForm {
             const eventListenersBoolKey = [...keyArray];
             eventListenersBoolKey[eventListenersBoolKey.length - 1] = 'eventListeners__DISPLAYIF';
             super.onChange(eventListenersBoolKey.join('.'), false);
-            const eventListenersValueKey = [...keyArray];
-            eventListenersValueKey[eventListenersValueKey.length - 1] = 'eventListeners';
-            super.onChange(
-                eventListenersValueKey.join('.'),
-                getModelField(eventListenersValueKey.join('.'), this.props.model) || [],
-            );
+            this.resetOptionalArray(keyArray, 'eventListeners');
         }
         if (keyArray[keyArray.length - 1] === 'eventListeners__DISPLAYIF' && value === true) {
             // disabled the timeOnPage field when eventListener field is enabled
             const timeOnPageBoolKey = [...keyArray];
             timeOnPageBoolKey[timeOnPageBoolKey.length - 1] = 'timeOnPage__DISPLAYIF';
             super.onChange(timeOnPageBoolKey.join('.'), false);
+        }
+        if (value === false) {
+            // prevent errors in hidden fields
+            switch (keyArray[keyArray.length - 1]) {
+            case 'eventListeners__DISPLAYIF':
+                this.resetOptionalArray(keyArray, 'eventListeners');
+                break;
+            case 'queryString__DISPLAYIF':
+                this.resetOptionalArray(keyArray, 'queryString');
+                break;
+            default:
+                break;
+            }
         }
     }
 }
