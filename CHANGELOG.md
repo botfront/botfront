@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.0-rc.0](https://github.com/botfront/botfront/compare/v0.19.0-beta.0...v0.19.0-rc.0) (2020-01-21)
+
+
+### Bug Fixes
+
+* **activity insertion:** prevent populateActivity never returning ([b4dc07b](https://github.com/botfront/botfront/commit/b4dc07b))
+* **activity logging:** use string ids ([8544d6f](https://github.com/botfront/botfront/commit/8544d6f))
+* **cli:** major version upgrade + migration guide ([#445](https://github.com/botfront/botfront/issues/445)) ([94d21a8](https://github.com/botfront/botfront/commit/94d21a8))
+* **conversation import:** new lang field location ([b349daf](https://github.com/botfront/botfront/commit/b349daf))
+
+
+### Features
+
+* **activity:** don't show spinner ([8ad22a5](https://github.com/botfront/botfront/commit/8ad22a5))
+* **export:** add exclusion options to project export ([92cc546](https://github.com/botfront/botfront/commit/92cc546))
+
+
+
 ## [0.19.0-beta.0](https://github.com/botfront/botfront/compare/v0.19.0-alpha.6...v0.19.0-beta.0) (2020-01-20)
 
 
