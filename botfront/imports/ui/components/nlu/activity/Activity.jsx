@@ -206,7 +206,7 @@ function Activity(props) {
                 on={convId ? 'click' : 'hover'}
                 trigger={(
                     <IconButton
-                        basic
+                        // basic
                         icon='comments'
                         color='grey'
                         data-cy='conversation-viewer'
