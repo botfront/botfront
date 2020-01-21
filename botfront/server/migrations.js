@@ -5,6 +5,7 @@ import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.col
 import { Projects } from '../imports/api/project/project.collection';
 import { Stories } from '../imports/api/story/stories.collection';
 import { aggregateEvents } from '../imports/lib/story.utils';
+import Activity from '../imports/api/graphql/activity/activity.model';
 
 /* globals Migrations */
 
@@ -138,7 +139,7 @@ const processSequence = sequence => sequence
     }, {});
 
 Migrations.add({
-    version: 4,
+    version: 5,
     // join sequences of text in responsesa
     up: () => {
         BotResponses.find().lean().then(responses => responses.forEach((response) => {
@@ -157,7 +158,32 @@ Migrations.add({
         }));
     },
 });
+Migrations.add({
+    version: 6,
+    // Remove object ids from activities
+    up: async () => {
+        Activity.find()
+            .lean()
+            .then(activities => activities.forEach(async (activity) => {
+                if (typeof activity._id !== 'string') {
+                    try {
+                        const { _id, ...activityWithoutId } = activity;
+                        await Activity.deleteOne(activityWithoutId);
+                        const idString = activity._id.toString();
 
+                        await Activity.create({
+                            _id: idString,
+                            ...activityWithoutId,
+                        });
+                    } catch (e) {
+                        console.log(
+                            'something went wrong during a migration, contact Botfront for further help',
+                        );
+                    }
+                }
+            }));
+    },
+});
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });
