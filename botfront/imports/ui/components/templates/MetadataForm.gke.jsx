@@ -196,7 +196,7 @@ function ResponseMetadataForm({
                                 <AutoField name='domHighlight.css' label='Class name' />
                             </DisplayIf>
                             <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'custom'}>
-                                <LongTextField name='domHighlight.css' label='Custom css' />
+                                <LongTextField className='monospaced' name='domHighlight.css' label='Custom css' />
                             </DisplayIf>
                         </>
                     </DisplayIf>
@@ -261,10 +261,10 @@ function ResponseMetadataForm({
                         <>
                             <SelectField name='customCss.text.style' />
                             <DisplayIf condition={context => context.model.customCss && context.model.customCss.text.style === 'custom'}>
-                                <LongTextField name='customCss.text.css' label='Message text CSS' data-cy='custom-message-css' />
+                                <LongTextField className='monospaced' name='customCss.text.css' label='Message text CSS' data-cy='custom-message-css' />
                             </DisplayIf>
                             <DisplayIf condition={context => context.model.customCss && context.model.customCss.text.style === 'class'}>
-                                <AutoField name='customCss.text.css' label='Message test class' data-cy='custom-message-css' />
+                                <AutoField name='customCss.text.css' label='Message text class' data-cy='custom-message-css' />
                             </DisplayIf>
                         </>
                     </DisplayIf>
@@ -275,7 +275,7 @@ function ResponseMetadataForm({
                         <>
                             <SelectField name='customCss.container.style' />
                             <DisplayIf condition={context => context.model.customCss && context.model.customCss.container.style === 'custom'}>
-                                <LongTextField name='customCss.container.css' label='Message container CSS' data-cy='custom-message-css' />
+                                <LongTextField className='monospaced' name='customCss.container.css' label='Message container CSS' data-cy='custom-message-css' />
                             </DisplayIf>
                             <DisplayIf condition={context => context.model.customCss && context.model.customCss.container.style === 'class'}>
                                 <AutoField name='customCss.container.css' label='Message container class' data-cy='custom-message-css' />
@@ -387,7 +387,7 @@ function ResponseMetadataForm({
 
     return (
         <div className='response-metadata-form'>
-            <AutoFormMetadata autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)} onSubmit={model => onChange(postProcess(model))}>
+            <AutoFormMetadata autosave autosaveDelay={250} model={displayModel} schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)} onSubmit={model => onChange(postProcess(model))}>
                 <Tab menu={{ secondary: true, pointing: true }} panes={panesAdvanced} />
                 <br />
                 <ErrorsField />
