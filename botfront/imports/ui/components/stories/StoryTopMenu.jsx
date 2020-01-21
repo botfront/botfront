@@ -210,7 +210,7 @@ const StoryTopMenu = ({
                     />
                     <StoryRulesEditor
                         // the trigger element will have it's onClick and className props modified
-                        trigger={<Icon name='setting' color={rules.length > 0 ? 'green' : 'grey'} data-cy='edit-trigger-rules' />}
+                        trigger={<Icon name='stopwatch' color={rules.length > 0 ? 'green' : 'grey'} data-cy='edit-trigger-rules' />}
                         storyId={storyId}
                         rules={rules}
                         open={triggerEditorOpen}
