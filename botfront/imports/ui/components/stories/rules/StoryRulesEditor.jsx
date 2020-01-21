@@ -25,7 +25,7 @@ const StoryRulesEditor = (props) => {
         setRules({ rules: incommingRules });
     }, [incommingRules]);
 
-    const modalTrigger = { // customize onClick and className of the trigger element
+    const modalTrigger = { // customize onClick, disabled, and className of the trigger element
         ...trigger,
         props: {
             ...trigger.props,
