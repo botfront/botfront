@@ -27,16 +27,8 @@ function ResponseMetadataForm({
             value: 'click',
         },
         {
-            label: 'contextmenu',
-            value: 'contextmenu',
-        },
-        {
             label: 'dblclick',
             value: 'dblclick',
-        },
-        {
-            label: 'mousedown',
-            value: 'mousedown',
         },
         {
             label: 'mouseenter',
@@ -47,20 +39,12 @@ function ResponseMetadataForm({
             value: 'mouseleave',
         },
         {
-            label: 'mousemove',
-            value: 'mousemove',
-        },
-        {
-            label: 'mouseout',
-            value: 'mouseout',
-        },
-        {
             label: 'mouseover',
             value: 'mouseover',
         },
         {
-            label: 'mouseup',
-            value: 'mouseup',
+            label: 'change',
+            value: 'change',
         },
         {
             label: 'blur',
