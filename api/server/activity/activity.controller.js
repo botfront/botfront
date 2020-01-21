@@ -19,7 +19,10 @@ async function logUtterance(modelId, parseData, callback, message_id = null, con
 
     Activity.findOneAndUpdate(
         { modelId, text, env },
-        utterance,
+        {
+            $set: utterance,
+            $setOnInsert: { _id },
+        },
         {
             upsert: true,
             runValidators: true,

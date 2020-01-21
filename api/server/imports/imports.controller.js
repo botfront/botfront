@@ -98,6 +98,7 @@ const formatsErrorsSummary = function(notValids) {
     return formatsError;
 };
 
+// wrong name, its actually the latest
 const getOldestTimeStamp = async function(env) {
     const lastestAddition = await Conversations.findOne({ env: env })
         .select('updatedAt')
