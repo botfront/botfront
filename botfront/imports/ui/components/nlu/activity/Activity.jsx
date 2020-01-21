@@ -56,8 +56,9 @@ function Activity(props) {
     } = props;
 
 
-    const [reinterpreting, setReinterpreting] = useState([]);
     const [filter, setFilter] = useState({ entities: [], intents: [], query: '' });
+    let reinterpreting = [];
+    const setReinterpreting = (v) => { reinterpreting = v; };
 
     const {
         data, hasNextPage, loading, loadMore, refetch,
@@ -187,7 +188,6 @@ function Activity(props) {
             modelId={modelId}
             lang={lang}
             projectId={projectId}
-            isUtteranceReinterpreting={isUtteranceReinterpreting}
             onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
             getSmartTips={u => getSmartTips(model, project, u)}
             onMarkOoS={({ _id, ooS, ...rest }) => handleUpdate([{ _id, ooS: !ooS }], rest)}

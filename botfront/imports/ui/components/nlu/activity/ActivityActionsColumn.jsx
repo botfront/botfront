@@ -9,7 +9,6 @@ export default function ActivityActionsColumn(props) {
         datum,
         data,
         getSmartTips,
-        isUtteranceReinterpreting,
         onToggleValidation,
         onMarkOoS,
         onDelete,
@@ -65,17 +64,7 @@ export default function ActivityActionsColumn(props) {
     const deleteable = data.filter(u => getSmartTips(u).code === 'aboveTh');
     const { code, tip, message } = getSmartTips(datum);
     let action;
-    if (code === 'outdated') {
-        action = (
-            <IconButton
-                size={size}
-                disabled
-                basic
-                icon='redo'
-                loading={isUtteranceReinterpreting(datum)}
-            />
-        );
-    } else if (!!datum.validated) {
+    if (!!datum.validated) {
         action = (
             <IconButton
                 size={size}
@@ -161,7 +150,7 @@ export default function ActivityActionsColumn(props) {
     return (
         <div key={`${datum._id}-actions`} className='side-by-side narrow right'>
             {action}
-            {!['aboveTh'].includes(code) && !isUtteranceReinterpreting(datum) && (
+            {!['aboveTh'].includes(code) && (
                 <IconButton
                     onClick={() => onDelete([datum])}
                     color='grey'
@@ -177,7 +166,6 @@ ActivityActionsColumn.propTypes = {
     datum: PropTypes.object.isRequired,
     data: PropTypes.array.isRequired,
     getSmartTips: PropTypes.func.isRequired,
-    isUtteranceReinterpreting: PropTypes.func.isRequired,
     onMarkOoS: PropTypes.func.isRequired,
     onToggleValidation: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
