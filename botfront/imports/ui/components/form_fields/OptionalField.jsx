@@ -5,21 +5,17 @@ import nothing from 'uniforms/nothing';
 import ToggleField from '../common/ToggleField';
 import DisplayIf from '../DisplayIf';
 
+import { getModelField } from '../../../lib/autoForm.utils';
+
 
 const OptionalField = (props) => {
     const {
         name, children, label, 'data-cy': dataCy,
     } = props;
 
-    const accessProperty = (data, targetName) => {
-        let property = data;
-        targetName.split('.').forEach((accessor) => { property = property[accessor]; });
-        return property;
-    };
-
     const isEnabled = (context, currentName) => {
         try {
-            const data = accessProperty(context.model, currentName);
+            const data = getModelField(currentName, context.model);
             return data;
         } catch (err) {
             return false;

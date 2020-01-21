@@ -59,7 +59,7 @@ const StoryRulesEditor = (props) => {
     };
 
     const handleModalClose = () => {
-        Meteor.call('stories.updateTriggers', projectId, storyId, clearOptionalFields(rules), (err) => {
+        Meteor.call('stories.updateRules', projectId, storyId, clearOptionalFields(rules), (err) => {
             if (err) return;
             setOpen(false);
         });

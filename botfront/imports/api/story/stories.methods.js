@@ -75,7 +75,7 @@ Meteor.methods({
             { $pullAll: { checkpoints: [branchPath] } },
         );
     },
-    'stories.updateTriggers'(projectId, storyId, rules) {
+    'stories.updateRules'(projectId, storyId, rules) {
         check(projectId, String);
         check(storyId, String);
         check(rules, Object);
