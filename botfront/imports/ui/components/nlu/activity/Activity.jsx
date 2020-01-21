@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import { Message, Segment } from 'semantic-ui-react';
+import { Message } from 'semantic-ui-react';
 import IntentLabel from '../common/IntentLabel';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
@@ -45,7 +45,8 @@ function Activity(props) {
     const {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({ modelId, ...getSortFunction() });
-    const [reinterpreting, setReinterpreting] = useState([]);
+    let reinterpreting = [];
+    const setReinterpreting = (v) => { reinterpreting = v; };
 
     // always refetch on first page load and sortType change
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, sortType]);
@@ -150,8 +151,6 @@ function Activity(props) {
     const renderActions = row => (
         <ActivityActionsColumn
             datum={row.datum}
-            isUtteranceReinterpreting={isUtteranceReinterpreting}
-            isUtteranceOutdated={isUtteranceOutdated}
             onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
             onDelete={utterances => handleDelete(utterances.map(u => u._id))}
         />
