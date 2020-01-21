@@ -208,19 +208,10 @@ const StoryTopMenu = ({
                         }}
                         data-cy='collapse-story-button'
                     />
-                    <StoryRulesEditor
-                        // the trigger element will have it's onClick and className props modified
-                        trigger={<Icon name='stopwatch' color={rules.length > 0 ? 'green' : 'grey'} data-cy='edit-trigger-rules' />}
-                        storyId={storyId}
-                        rules={rules}
-                        open={triggerEditorOpen}
-                        setOpen={setTriggerEditorOpen}
-                        isDestinationStory={isDestinationStory}
-                    />
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
                     ) : (
-                        <span className='story-title-prefix'> #</span>
+                        <span className='story-title-prefix'>##</span>
                     )}
                     <input
                         data-cy='story-title'
@@ -235,6 +226,15 @@ const StoryTopMenu = ({
                 <Menu.Item position='right'>
                     {renderWarnings()}
                     {renderErrors()}
+                    <StoryRulesEditor
+                        // the trigger element will have it's onClick, disabled, and className props modified
+                        trigger={<Icon name='stopwatch' color={rules.length > 0 ? 'green' : 'grey'} data-cy='edit-trigger-rules' />}
+                        storyId={storyId}
+                        rules={rules}
+                        open={triggerEditorOpen}
+                        setOpen={setTriggerEditorOpen}
+                        isDestinationStory={isDestinationStory}
+                    />
                     <Popup
                         trigger={
                             <Icon name='dolly' color='grey' link data-cy='move-story' />
