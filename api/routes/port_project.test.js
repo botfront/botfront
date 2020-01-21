@@ -106,7 +106,7 @@ describe('## Import', () => {
                         nlu_models: exportFileNluModels,
                         ...exportFileProject
                     } = { ...exportPayloads[1].project };
-                    delete exportFileProject.training
+                    newProject.training = exportFileProject.training;
                     const storyGroup = await allCollections.storyGroups
                         .findOne({ _id: { $nin: [storyGroupId] } }, { _id: 1 })
                         .lean();
@@ -122,7 +122,7 @@ describe('## Import', () => {
 
                     modelId = newNluModels[0]; // remember modelId
                     storyGroupId = storyGroup._id; // remember storyGroupId
-                    checkpoints = [[checkpoint._id]]
+                    checkpoints = [[checkpoint._id]];
 
                     expect(newProjectId).to.be.equal(projectId); // project id didn't change
                     expect(newProjectName).to.be.equal(projectName); // project name didn't change

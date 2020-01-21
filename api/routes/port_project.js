@@ -17,7 +17,7 @@ const { validationResult } = require('express-validator/check');
 const { getVerifiedProject, aggregateEvents } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
-const {sortBy} = require('lodash');
+const { sortBy } = require('lodash');
 
 const collectionsWithModelId = {
     activity: Activity,
@@ -47,7 +47,7 @@ const nativizeProject = function(projectId, projectName, backup) {
     const { project, ...nativizedBackup } = backup;
 
     // delete any metadata key (that's not a collection)
-    Object.keys(nativizedBackup).forEach(col => {
+    Object.keys(nativizedBackup).forEach((col) => {
         if (!Object.keys(allCollections).includes(col)) delete nativizedBackup[col];
     });
 
@@ -55,22 +55,24 @@ const nativizeProject = function(projectId, projectName, backup) {
 
     if ('models' in nativizedBackup) {
         const modelMapping = {};
-        nativizedBackup.models.forEach(m => Object.assign(modelMapping, { [m._id]: uuidv4() })); // generate mapping from old to new id
+        nativizedBackup.models.forEach((m) =>
+            Object.assign(modelMapping, { [m._id]: uuidv4() })
+        ); // generate mapping from old to new id
         nlu_models = nlu_models // apply mapping to nlu_models property of project
-            .filter(id => !Object.keys(modelMapping).includes(id))
+            .filter((id) => !Object.keys(modelMapping).includes(id))
             .concat(Object.values(modelMapping));
 
         Object.keys(collectionsWithModelId)
-            .filter(col => col in nativizedBackup) // apply mapping to collections whose docs have a modelId key
-            .forEach(col => {
-                nativizedBackup[col] = nativizedBackup[col].map(c => ({
+            .filter((col) => col in nativizedBackup) // apply mapping to collections whose docs have a modelId key
+            .forEach((col) => {
+                nativizedBackup[col] = nativizedBackup[col].map((c) => ({
                     ...c,
                     modelId: modelMapping[c.modelId],
                 }));
             });
 
         // apply mapping to NLUModels collection
-        nativizedBackup.models = nativizedBackup.models.map(m => ({
+        nativizedBackup.models = nativizedBackup.models.map((m) => ({
             ...m,
             _id: modelMapping[m._id],
         }));
@@ -79,22 +81,25 @@ const nativizeProject = function(projectId, projectName, backup) {
     if ('storyGroups' in nativizedBackup && 'stories' in nativizedBackup) {
         const storyGroupMapping = {};
         const storyMapping = {};
-        nativizedBackup.storyGroups.forEach(m =>
-            Object.assign(storyGroupMapping, { [m._id]: uuidv4() }),
+        nativizedBackup.storyGroups.forEach((m) =>
+            Object.assign(storyGroupMapping, { [m._id]: uuidv4() })
         );
-        nativizedBackup.stories.forEach(m =>
-            Object.assign(storyMapping, { [m._id]: uuidv4() }),
-        )
-        nativizedBackup.storyGroups = nativizedBackup.storyGroups.map(sg => ({
+        nativizedBackup.stories.forEach((m) =>
+            Object.assign(storyMapping, { [m._id]: uuidv4() })
+        );
+        nativizedBackup.storyGroups = nativizedBackup.storyGroups.map((sg) => ({
             ...sg,
             _id: storyGroupMapping[sg._id],
         })); // apply to storygroups
-        nativizedBackup.stories = nativizedBackup.stories.map(s => ({
+        nativizedBackup.stories = nativizedBackup.stories.map((s) => ({
             ...s,
             storyGroupId: storyGroupMapping[s.storyGroupId],
             _id: storyMapping[s._id],
             ...(s.checkpoints && {
-                checkpoints: s.checkpoints.map(checkpoint => [storyMapping[checkpoint[0]], ...checkpoint.slice(1)]),
+                checkpoints: s.checkpoints.map((checkpoint) => [
+                    storyMapping[checkpoint[0]],
+                    ...checkpoint.slice(1),
+                ]),
             }),
         })); // apply to stories
     }
@@ -104,18 +109,26 @@ const nativizeProject = function(projectId, projectName, backup) {
         nativizedBackup.stories = nativizedBackup.stories.map(aggregateEvents);
     }
 
-    nativizedBackup.project = { ...project, _id: projectId, name: projectName, nlu_models }; // change id of project
+    nativizedBackup.project = {
+        ...project,
+        _id: projectId,
+        name: projectName,
+        ...(nlu_models ? { nlu_models } : {}),
+    }; // change id of project
 
     Object.keys(collectionsWithProjectId)
-        .filter(col => col in nativizedBackup) // change projectId of every collection whose docs refer to it
-        .forEach(col => {
-            nativizedBackup[col] = nativizedBackup[col].map(c => ({ ...c, projectId }));
+        .filter((col) => col in nativizedBackup) // change projectId of every collection whose docs refer to it
+        .forEach((col) => {
+            nativizedBackup[col] = nativizedBackup[col].map((c) => ({ ...c, projectId }));
         });
 
-    Object.keys(nativizedBackup).forEach(col => {
+    Object.keys(nativizedBackup).forEach((col) => {
         // change id of every other doc
         if (!['project', 'models', 'storyGroups', 'stories'].includes(col)) {
-            nativizedBackup[col] = nativizedBackup[col].map(doc => ({ ...doc, _id: uuidv4() }));
+            nativizedBackup[col] = nativizedBackup[col].map((doc) => ({
+                ...doc,
+                _id: uuidv4(),
+            }));
         }
     });
 
@@ -129,7 +142,9 @@ const overwriteCollection = async function(projectId, modelIds, collection, back
             ? collectionsWithModelId[collection]
             : collectionsWithProjectId[collection];
     const filter =
-        collection in collectionsWithModelId ? { modelId: { $in: modelIds } } : { projectId };
+        collection in collectionsWithModelId
+            ? { modelId: { $in: modelIds } }
+            : { projectId };
     await model.deleteMany(filter).exec();
     await model.insertMany(backup[collection]);
 };
@@ -142,19 +157,18 @@ const zipFile = async (response) => {
         compression: 'DEFLATE',
         compressionOptions: { level: 9 },
     });
-}
+};
 
 const unzipFile = async (body) => {
     const zip = new JSZip();
     await zip.loadAsync(body);
-    const data = await zip.file('backup.json')
-        .async('string');
+    const data = await zip.file('backup.json').async('string');
     return JSON.parse(data);
-}
+};
 
 const gatherCollectionsForExport = async (project, models, excludedCollections) => {
     const response = { project, models };
-    delete response.project.training
+    delete response.project.training;
     for (let col in collectionsWithModelId) {
         if (!excludedCollections.includes(col)) {
             response[col] = await collectionsWithModelId[col]
@@ -164,19 +178,21 @@ const gatherCollectionsForExport = async (project, models, excludedCollections) 
     }
     for (let col in collectionsWithProjectId) {
         if (!excludedCollections.includes(col)) {
-            response[col] = await collectionsWithProjectId[col].find({ projectId: project._id }).lean();
+            response[col] = await collectionsWithProjectId[col]
+                .find({ projectId: project._id })
+                .lean();
         }
     }
     response.timestamp = new Date().getTime();
     return response;
-}
+};
 
 const returnResponse = async (res, response, filename) => {
-    const result = res.status(200).attachment(filename)
+    const result = res.status(200).attachment(filename);
     if (filename.slice(-4) === 'json') return result.json(response);
     const zippedFile = await zipFile(response);
     return result.send(zippedFile);
-}
+};
 
 exports.exportProjectValidator = [];
 
@@ -185,17 +201,29 @@ exports.exportProject = async function(req, res) {
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
     const { project_id: projectId } = req.params;
-    const { output = 'zip' } = req.query;
-    const excludedCollections = Object.keys(req.query)
-        .filter(k => ['0', 'false'].includes(req.query[k]));
+    const { output = 'zip', thinProject } = req.query;
+    const excludedCollections = Object.keys(req.query).filter((k) =>
+        ['0', 'false'].includes(req.query[k]),
+    );
+    const noProjectData = ['1', 'true'].includes(thinProject);
     try {
         const project = await getVerifiedProject(projectId, req);
         if (!project) throw { code: 401, error: 'unauthorized' };
         const models = await NLUModels.find({ _id: { $in: project.nlu_models } }).lean();
-        const response = await gatherCollectionsForExport(project, models, excludedCollections);
-        
-        const filename = `${project.name}-${response.timestamp}.${output === 'json' ? 'json' : 'botfront'}`;
-        
+        const response = await gatherCollectionsForExport(
+            project,
+            models,
+            excludedCollections,
+        );
+        if (noProjectData) {
+            response.project = { _id: project._id }; // don't export project doc
+            delete response.models;
+        }
+
+        const filename = `${project.name}-${response.timestamp}.${
+            output === 'json' ? 'json' : 'botfront'
+        }`;
+
         return await returnResponse(res, response, filename);
     } catch (err) {
         return res.status(500).json(err);
@@ -206,16 +234,9 @@ const importProjectValidator = [
     [
         'Project is required',
         ({ project }) =>
-            project &&
-            ['_id', 'name', 'defaultLanguage', 'nlu_models'].every(prop =>
-                Object.keys(project).includes(prop),
-            ),
+            project && ['_id'].every((prop) => Object.keys(project).includes(prop)),
     ],
-    // [
-    //     `Body is required to include ${Object.keys(allCollections).join(', ')}`,
-    //     body => body && Object.keys(allCollections).every(col => Object.keys(body).includes(col)),
-    // ],
-]
+];
 
 const countUtterMatches = (templateValues) => {
     const re = /utter_/g;
@@ -230,9 +251,12 @@ const createResponsesFromOldFormat = (oldTemplates, projectId) => {
         // Delete irrelevant fields and set new _id
         delete t.match;
         delete t.followUp;
-        t.projectId = projectId
+        t.projectId = projectId;
         // Put duplicates in a separate list
-        if ((index < templates.length - 1 && t.key === templates[index + 1].key) || (index > 0 && t.key === templates[index - 1].key)) {
+        if (
+            (index < templates.length - 1 && t.key === templates[index + 1].key) ||
+            (index > 0 && t.key === templates[index - 1].key)
+        ) {
             duplicates.push(t);
         } else {
             botResponses.push(t);
@@ -241,14 +265,17 @@ const createResponsesFromOldFormat = (oldTemplates, projectId) => {
     let i = 0;
     while (i < duplicates.length) {
         let numberOfOccurence = 1;
-        while (i + numberOfOccurence < duplicates.length && duplicates[i].key === duplicates[i + numberOfOccurence].key) {
+        while (
+            i + numberOfOccurence < duplicates.length &&
+            duplicates[i].key === duplicates[i + numberOfOccurence].key
+        ) {
             numberOfOccurence += 1;
         }
         const duplicateValues = duplicates.slice(i, i + numberOfOccurence);
-        if (!Array.from(new Set(duplicateValues.map(t => t.key))).length === 1)
-            throw ('Error when deduplicating botResponses, a non duplicate was picked as duplicate'); //  // Make sure duplicates are real
+        if (!Array.from(new Set(duplicateValues.map((t) => t.key))).length === 1)
+            throw 'Error when deduplicating botResponses, a non duplicate was picked as duplicate'; // Make sure duplicates are real
         // Count times /utter_/ is a match
-        const utters = duplicateValues.map(t => countUtterMatches(t.values));
+        const utters = duplicateValues.map((t) => countUtterMatches(t.values));
         // Find the index of the template with less /utter_/ in it. This is the value we'll keep
         const index = utters.indexOf(Math.min(...utters));
         // Push the template we keep in the array of valid bot responses
@@ -257,39 +284,47 @@ const createResponsesFromOldFormat = (oldTemplates, projectId) => {
     }
 
     // Integrity check
-    const distinctInDuplicates = [...new Set(duplicates.map(d => d.key))].length;
+    const distinctInDuplicates = [...new Set(duplicates.map((d) => d.key))].length;
     // duplicates.length - distinctInDuplicates: give back the number of occurence of a value minus one
     // Integrity check
-    if (!(botResponses.length === templates.length - (duplicates.length - distinctInDuplicates))) throw ('Error when deduplicating botResponses, some duplicates left');
-    if (!Array.from(new Set(botResponses)).length === botResponses.length) throw ('Error when deduplicating botResponses, some duplicates left');
-    return botResponses
-    
-}
+    if (
+        !(
+            botResponses.length ===
+            templates.length - (duplicates.length - distinctInDuplicates)
+        )
+    )
+        throw 'Error when deduplicating botResponses, some duplicates left';
+    if (!Array.from(new Set(botResponses)).length === botResponses.length)
+        throw 'Error when deduplicating botResponses, some duplicates left';
+    return botResponses;
+};
 
 exports.importProject = async function(req, res) {
     const { project_id: projectId } = req.params;
-    const body = req.body instanceof Buffer
-        ? await unzipFile(req.body)
-        : req.body;
+    const body = req.body instanceof Buffer ? await unzipFile(req.body) : req.body;
     try {
         const project = await getVerifiedProject(projectId, req);
         if (!project) throw { code: 401, error: 'unauthorized' };
         importProjectValidator.forEach(([message, validator]) => {
             if (!validator(body)) throw { code: 422, error: message };
-        })
+        });
         const backup = nativizeProject(projectId, project.name, body);
-        if (backup.project.templates){
-            backup.botResponses = createResponsesFromOldFormat(backup.project.templates, projectId);
-            delete backup.project.templates
+        if (backup.project.templates) {
+            backup.botResponses = createResponsesFromOldFormat(
+                backup.project.templates,
+                projectId,
+            );
+            delete backup.project.templates;
         }
-        delete backup.project.training
+        delete backup.project.training;
         for (let col in collections) {
             await overwriteCollection(projectId, project.nlu_models, col, backup);
         }
+        const overwrittenProject = { ...project, ...backup.project };
         await NLUModels.deleteMany({ _id: { $in: project.nlu_models } }).exec();
         await Projects.deleteMany({ _id: projectId }).exec();
         await NLUModels.insertMany(backup.models);
-        await Projects.insertMany([backup.project]);
+        await Projects.insertMany([overwrittenProject]);
         return res.status(200).send('Success');
     } catch (e) {
         // eslint-disable-next-line no-console
