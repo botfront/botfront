@@ -73,6 +73,12 @@ describe('NPM package update', () => {
         done();
     });
 
+    it('should display NPM project update message if newer major version', function(done){
+        const shouldUpdate = shouldUpdateNpmPackageWithVersions('0.18.5', '0.19.0-beta.0');
+        assert.equal(shouldUpdate, true);
+        done();
+    });
+
     it('should not display NPM project update message if older version', function(done){
         const shouldUpdate = shouldUpdateNpmPackageWithVersions('0.18.5', '0.18.4');
         assert.equal(shouldUpdate, false);
