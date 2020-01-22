@@ -52,6 +52,7 @@ const StoryEditorContainer = ({
     changeStoryPath,
     collapsed,
     projectId,
+    isInSmartStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots, templates } = useContext(ProjectContext);
@@ -204,6 +205,7 @@ const StoryEditorContainer = ({
             isLinked={destinationStories.length > 0}
             originStories={story.checkpoints}
             rules={story.rules}
+            isInSmartStories={isInSmartStories}
         />
     );
 
@@ -499,6 +501,7 @@ StoryEditorContainer.propTypes = {
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
+    isInSmartStories: PropTypes.bool,
 };
 
 StoryEditorContainer.defaultProps = {
@@ -507,6 +510,7 @@ StoryEditorContainer.defaultProps = {
     storyMode: 'markdown',
     branchPath: null,
     projectId: '',
+    isInSmartStories: false,
 };
 
 const mapStateToProps = (state, ownProps) => ({

@@ -1,4 +1,4 @@
-import { Container, Button } from 'semantic-ui-react';
+import { Container, Button, Message } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -106,14 +106,18 @@ function StoryEditors(props) {
             onClone={() => handleDuplicateStory(index)}
             onSaving={() => {}}
             onSaved={() => {}}
+            isInSmartStories={storyGroup.isSmartGroup}
         />
     ));
 
     return (
         <>
+            {storyGroup.isSmartGroup && stories.length === 0 && (
+                <Message info icon={{ name: 'info circle', size: 'small' }} content='Stories with smart triggers will appear here' />
+            )}
             {editors}
             <Container textAlign='center'>
-                {can('stories:w', projectId) && (
+                {can('stories:w', projectId) && !storyGroup.isSmartGroup && (
                     <Button
                         icon='add'
                         basic
@@ -145,13 +149,24 @@ StoryEditors.defaultProps = {
 export default withTracker((props) => {
     const { projectId, storyGroup } = props;
     // We're using a specific subscription so we don't fetch too much at once
-    const storiesHandler = Meteor.subscribe('stories.inGroup', projectId, storyGroup._id);
-
-    return {
-        ready: storiesHandler.ready(),
-        stories: Stories.find({
+    let storiesHandler = { ready: () => (false) };
+    let stories = [];
+    if (storyGroup._id) {
+        storiesHandler = Meteor.subscribe('stories.inGroup', projectId, storyGroup._id);
+        stories = Stories.find({
             projectId,
             storyGroupId: storyGroup._id,
-        }).fetch(),
+        }).fetch();
+    }
+    if (storyGroup.isSmartGroup) {
+        storiesHandler = Meteor.subscribe('smartStories', projectId);
+        stories = Stories.find({
+            projectId,
+            'rules.0.payload': { $exists: true },
+        }).fetch();
+    }
+    return {
+        ready: storiesHandler.ready(),
+        stories,
     };
 })(StoryEditors);

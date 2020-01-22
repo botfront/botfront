@@ -27,6 +27,12 @@ if (Meteor.isServer) {
         return Stories.find({ projectId });
     });
 
+    Meteor.publish('smartStories', function(projectId) {
+        check(projectId, String);
+        checkIfCan('stories:r', projectId);
+        return Stories.find({ projectId, rules: { $exists: true } });
+    });
+
     Meteor.publish('stories.intro', function(projectId) {
         check(projectId, String);
         checkIfCan('stories:r', projectId);

@@ -144,61 +144,67 @@ function Stories(props) {
             )
         );
     };
-    const renderStoriesContainer = () => (
-        <ConversationOptionsContext.Provider
-            value={{
-                browseToSlots: () => setSlotsModal(true),
-                stories,
-                storyGroups,
-                deleteStoryGroup: handleDeleteGroup,
-            }}
-        >
-            {modalWrapper(
-                slotsModal,
-                'Slots',
-                <SlotsEditor slots={slots} projectId={projectId} />,
-            )}
-            {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
-            <Container>
-                <Grid className='stories-container'>
-                    <Grid.Row columns={2}>
-                        <Grid.Column width={4}>
-                            {renderMessages()}
-                            <StoryGroupBrowser
-                                data={storyGroups}
-                                allowAddition
-                                allowEdit
-                                index={storyGroupCurrent}
-                                onAdd={handleAddStoryGroup}
-                                onChange={changeStoryGroup}
-                                onSwitchStoryMode={changeStoryMode}
-                                storyMode={storyMode}
-                                nameAccessor='name'
-                                selectAccessor='selected'
-                                toggleSelect={handleStoryGroupSelect}
-                                changeName={handleNameChange}
-                                placeholderAddItem='Choose a group name'
-                                modals={{ setSlotsModal, setPoliciesModal }}
-                            />
-                        </Grid.Column>
+    const renderStoriesContainer = () => {
+        const storyGroupsToRender = [
+            { isSmartGroup: true },
+            ...storyGroups,
+        ];
+        return (
+            <ConversationOptionsContext.Provider
+                value={{
+                    browseToSlots: () => setSlotsModal(true),
+                    stories,
+                    storyGroups,
+                    deleteStoryGroup: handleDeleteGroup,
+                }}
+            >
+                {modalWrapper(
+                    slotsModal,
+                    'Slots',
+                    <SlotsEditor slots={slots} projectId={projectId} />,
+                )}
+                {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
+                <Container>
+                    <Grid className='stories-container'>
+                        <Grid.Row columns={2}>
+                            <Grid.Column width={4}>
+                                {renderMessages()}
+                                <StoryGroupBrowser
+                                    data={storyGroups}
+                                    allowAddition
+                                    allowEdit
+                                    index={storyGroupCurrent}
+                                    onAdd={handleAddStoryGroup}
+                                    onChange={changeStoryGroup}
+                                    onSwitchStoryMode={changeStoryMode}
+                                    storyMode={storyMode}
+                                    nameAccessor='name'
+                                    selectAccessor='selected'
+                                    toggleSelect={handleStoryGroupSelect}
+                                    changeName={handleNameChange}
+                                    placeholderAddItem='Choose a group name'
+                                    modals={{ setSlotsModal, setPoliciesModal }}
+                                />
+                            </Grid.Column>
 
-                        <Grid.Column width={12}>
-                            <StoryEditors
-                                onDeleteGroup={handleDeleteGroup}
-                                projectId={projectId}
-                                storyGroups={storyGroups}
-                                storyGroup={
-                                    storyGroups[storyGroupCurrent]
-                                    || storyGroups[storyGroupCurrent + 1]
-                                    || storyGroups[storyGroupCurrent - 1]
-                                }
-                            />
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-            </Container>
-        </ConversationOptionsContext.Provider>
-    );
+                            <Grid.Column width={12}>
+                                <StoryEditors
+                                    onDeleteGroup={handleDeleteGroup}
+                                    projectId={projectId}
+                                    storyGroups={storyGroups}
+                                    storyGroup={
+                                        storyGroupsToRender[storyGroupCurrent]
+                                    || storyGroupsToRender[storyGroupCurrent + 1]
+                                    || storyGroupsToRender[storyGroupCurrent - 1]
+                                    }
+                                />
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                </Container>
+            </ConversationOptionsContext.Provider>
+        );
+    };
 
     if (ready) return renderStoriesContainer();
     return null;
@@ -219,9 +225,11 @@ Stories.defaultProps = {
     storyMode: 'visual',
 };
 
+
 const StoriesWithTracker = withTracker((props) => {
     const { projectId } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
+    const smartStoriesHandler = Meteor.subscribe('smartStories', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
     // fetch and sort story groups
@@ -241,13 +249,15 @@ const StoriesWithTracker = withTracker((props) => {
         });
     // unsortedStoryGroups[0] is the intro story group
     const storyGroups = [unsortedStoryGroups[0], ...sortedStoryGroups];
+    const stories = StoriesCollection.find({}).fetch();
 
     return {
         ready:
             storyGroupsHandler.ready()
-            && storiesHandler.ready(),
-        storyGroups,
-        stories: StoriesCollection.find({}).fetch(),
+            && storiesHandler.ready()
+            && smartStoriesHandler.ready(),
+        storyGroups: [...storyGroups],
+        stories,
     };
 })(Stories);
 
