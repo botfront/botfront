@@ -157,7 +157,7 @@ const StoryTopMenu = ({
         }
         if (isInSmartStories) {
             toolTipText = [
-                'To move this story, open it in it\'s original group.',
+                'To delete this story, open it in it\'s original group.',
             ];
         }
         return isLinked || isDestinationStory || isInSmartStories ? (
@@ -255,14 +255,18 @@ const StoryTopMenu = ({
                     />
                     <Popup
                         trigger={(
-                            <Popup
-                                disabled={!isInSmartStories}
-                                trigger={(
-                                    <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories} className='move-icon' />
-                                )}
-                                header='This story cannot be moved'
-                                content={'To move this story, open it in it\'s original group.'}
-                            />
+                            <div>
+                                <Popup
+                                    disabled={!isInSmartStories}
+                                    trigger={(
+                                        <div>
+                                            <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories} className='move-icon' />
+                                        </div>
+                                    )}
+                                    header='This story cannot be moved'
+                                    content={'To move this story, open it in it\'s original group.'}
+                                />
+                            </div>
                         )}
                         content={(
                             <ConfirmPopup
