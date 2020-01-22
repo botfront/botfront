@@ -3,19 +3,18 @@ import PropTypes from 'prop-types';
 
 import StoryGroupItem from './StoryGroupItem';
 
-const SmartStoryGroup = (props) => {
+const SmartStoryGroupItem = (props) => {
     const {
         activeIndex,
         index,
         handleClickMenuItem,
+        item,
     } = props;
     return (
         <StoryGroupItem
-            key='smart-story-group'
+            key={`smart-browser-item-${index}`}
             index={index}
-            item={{
-                name: 'Smart stories',
-            }}
+            item={item}
             indexProp={activeIndex}
             nameAccessor='name'
             handleClickMenuItem={() => handleClickMenuItem(index)}
@@ -29,14 +28,15 @@ const SmartStoryGroup = (props) => {
     );
 };
 
-SmartStoryGroup.propTypes = {
+SmartStoryGroupItem.propTypes = {
     activeIndex: PropTypes.number,
     index: PropTypes.number.isRequired,
     handleClickMenuItem: PropTypes.func.isRequired,
+    item: PropTypes.object.isRequired,
 };
 
-SmartStoryGroup.defaultProps = {
+SmartStoryGroupItem.defaultProps = {
     activeIndex: -1,
 };
 
-export default SmartStoryGroup;
+export default SmartStoryGroupItem;
