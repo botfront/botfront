@@ -56,7 +56,7 @@ function Stories(props) {
         </Modal>
     );
 
-    const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
+    const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId) + 1);
 
     useEffect(() => {
         if (switchToGroupByIdNext) {
