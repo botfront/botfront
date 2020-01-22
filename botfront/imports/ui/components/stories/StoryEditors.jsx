@@ -2,6 +2,7 @@ import { Container, Button, Message } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { safeLoad } from 'js-yaml';
 import { can } from '../../../lib/scopes';
 
 import { Stories } from '../../../api/story/stories.collection';
@@ -106,7 +107,7 @@ function StoryEditors(props) {
             onClone={() => handleDuplicateStory(index)}
             onSaving={() => {}}
             onSaved={() => {}}
-            isInSmartStories={storyGroup.isSmartGroup}
+            isInSmartStories={!!storyGroup.query}
         />
     ));
 
@@ -117,7 +118,7 @@ function StoryEditors(props) {
             )}
             {editors}
             <Container textAlign='center'>
-                {can('stories:w', projectId) && !storyGroup.isSmartGroup && (
+                {can('stories:w', projectId) && !storyGroup.query && (
                     <Button
                         icon='add'
                         basic
@@ -151,18 +152,18 @@ export default withTracker((props) => {
     // We're using a specific subscription so we don't fetch too much at once
     let storiesHandler = { ready: () => (false) };
     let stories = [];
-    if (storyGroup._id) {
+    // console.log(storyGroup);
+    if (storyGroup.query) {
+        storiesHandler = Meteor.subscribe('smartStories', projectId, storyGroup.query);
+        stories = Stories.find({
+            projectId,
+            ...safeLoad(storyGroup.query),
+        }).fetch();
+    } else {
         storiesHandler = Meteor.subscribe('stories.inGroup', projectId, storyGroup._id);
         stories = Stories.find({
             projectId,
             storyGroupId: storyGroup._id,
-        }).fetch();
-    }
-    if (storyGroup.isSmartGroup) {
-        storiesHandler = Meteor.subscribe('smartStories', projectId);
-        stories = Stories.find({
-            projectId,
-            'rules.0.payload': { $exists: true },
         }).fetch();
     }
     return {

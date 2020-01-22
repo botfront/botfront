@@ -7,7 +7,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import { Slots } from '../../../api/slots/slots.collection';
 import StoryGroupItem from './StoryGroupItem';
-import SmartStoryGroup from './SmartStoryGroup';
 import { ConversationOptionsContext } from './Context';
 
 class StoryGroupBrowser extends React.Component {
@@ -104,13 +103,14 @@ class StoryGroupBrowser extends React.Component {
             isIntroStory,
         } = options;
         return data.slice(...slice)
-            .map((item, index) => (item.isSmartGroup
+            .map((item, index) => (item.query
                 ? (
-                    <SmartStoryGroup
-                        key='smart-story-group'
+                    <SmartStoryGroupItem
+                        key={`smart-story-group-${index}`}
                         index={index + slice[0]}
                         activeIndex={indexProp}
                         handleClickMenuItem={this.handleClickMenuItem}
+                        item={item}
                     />
                 )
                 : (
@@ -189,6 +189,7 @@ class StoryGroupBrowser extends React.Component {
             placeholderAddItem,
         } = this.props;
         const { addMode, newItemName } = this.state;
+        const nSmartStories = data.filter(e => e.query).length;
 
         return (
             <div className='storygroup-browser'>
@@ -209,17 +210,17 @@ class StoryGroupBrowser extends React.Component {
                         ))}
                 {data.length && (
                     <Menu vertical fluid>
-                        {this.getItems([0, 1])}
-                    </Menu>
-                )}
-                {data.length && (
-                    <Menu vertical fluid>
-                        {this.getItems([1, 2], { isIntroStory: true })}
+                        {this.getItems([0, 1], { isIntroStory: true })}
                     </Menu>
                 )}
                 {data.length > 1 && (
                     <Menu vertical fluid>
-                        {this.getItems([2])}
+                        {this.getItems([1, nSmartStories + 1])}
+                    </Menu>
+                )}
+                {data.length > 1 && (
+                    <Menu vertical fluid>
+                        {this.getItems([nSmartStories + 1])}
                     </Menu>
                 )}
             </div>

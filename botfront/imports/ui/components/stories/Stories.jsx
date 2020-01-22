@@ -223,7 +223,6 @@ Stories.defaultProps = {
 const StoriesWithTracker = withTracker((props) => {
     const { projectId } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
-    const smartStoriesHandler = Meteor.subscribe('smartStories', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
     // fetch and sort story groups
@@ -233,6 +232,12 @@ const StoriesWithTracker = withTracker((props) => {
         .sort((storyGroupA, storyGroupB) => {
             const nameA = storyGroupA.name.toUpperCase();
             const nameB = storyGroupB.name.toUpperCase();
+            if (!storyGroupA.query && storyGroupB.query) {
+                return 1;
+            }
+            if (storyGroupA.query && !storyGroupB.query) {
+                return -1;
+            }
             if (nameA < nameB) {
                 return -1;
             }
@@ -248,9 +253,8 @@ const StoriesWithTracker = withTracker((props) => {
     return {
         ready:
             storyGroupsHandler.ready()
-            && storiesHandler.ready()
-            && smartStoriesHandler.ready(),
-        storyGroups: [{ isSmartGroup: true, id: 'SMART_STORY_GROUP' }, ...storyGroups],
+            && storiesHandler.ready(),
+        storyGroups,
         stories,
     };
 })(Stories);
