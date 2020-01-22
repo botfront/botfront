@@ -43,7 +43,7 @@ describe('stories', function() {
         cy.dataCy('move-story').click();
         cy.dataCy('confirm-yes').should('not.exist');
     });
-    it('should disable adding, deleting, and moving stories in the smart story group', function() {
+    it('should remove a story from the smart story group when it\'s rules are deleted', function() {
         cy.visit('/project/bf/stories');
         addStoryToSmartStoryGroup();
         
