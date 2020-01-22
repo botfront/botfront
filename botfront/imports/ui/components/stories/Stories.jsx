@@ -56,7 +56,7 @@ function Stories(props) {
         </Modal>
     );
 
-    const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId) + 1);
+    const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
 
     useEffect(() => {
         if (switchToGroupByIdNext) {
@@ -144,67 +144,61 @@ function Stories(props) {
             )
         );
     };
-    const renderStoriesContainer = () => {
-        const storyGroupsToRender = [
-            { isSmartGroup: true },
-            ...storyGroups,
-        ];
-        return (
-            <ConversationOptionsContext.Provider
-                value={{
-                    browseToSlots: () => setSlotsModal(true),
-                    stories,
-                    storyGroups,
-                    deleteStoryGroup: handleDeleteGroup,
-                }}
-            >
-                {modalWrapper(
-                    slotsModal,
-                    'Slots',
-                    <SlotsEditor slots={slots} projectId={projectId} />,
-                )}
-                {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
-                <Container>
-                    <Grid className='stories-container'>
-                        <Grid.Row columns={2}>
-                            <Grid.Column width={4}>
-                                {renderMessages()}
-                                <StoryGroupBrowser
-                                    data={storyGroups}
-                                    allowAddition
-                                    allowEdit
-                                    index={storyGroupCurrent}
-                                    onAdd={handleAddStoryGroup}
-                                    onChange={changeStoryGroup}
-                                    onSwitchStoryMode={changeStoryMode}
-                                    storyMode={storyMode}
-                                    nameAccessor='name'
-                                    selectAccessor='selected'
-                                    toggleSelect={handleStoryGroupSelect}
-                                    changeName={handleNameChange}
-                                    placeholderAddItem='Choose a group name'
-                                    modals={{ setSlotsModal, setPoliciesModal }}
-                                />
-                            </Grid.Column>
+    const renderStoriesContainer = () => (
+        <ConversationOptionsContext.Provider
+            value={{
+                browseToSlots: () => setSlotsModal(true),
+                stories,
+                storyGroups,
+                deleteStoryGroup: handleDeleteGroup,
+            }}
+        >
+            {modalWrapper(
+                slotsModal,
+                'Slots',
+                <SlotsEditor slots={slots} projectId={projectId} />,
+            )}
+            {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
+            <Container>
+                <Grid className='stories-container'>
+                    <Grid.Row columns={2}>
+                        <Grid.Column width={4}>
+                            {renderMessages()}
+                            <StoryGroupBrowser
+                                data={storyGroups}
+                                allowAddition
+                                allowEdit
+                                index={storyGroupCurrent}
+                                onAdd={handleAddStoryGroup}
+                                onChange={changeStoryGroup}
+                                onSwitchStoryMode={changeStoryMode}
+                                storyMode={storyMode}
+                                nameAccessor='name'
+                                selectAccessor='selected'
+                                toggleSelect={handleStoryGroupSelect}
+                                changeName={handleNameChange}
+                                placeholderAddItem='Choose a group name'
+                                modals={{ setSlotsModal, setPoliciesModal }}
+                            />
+                        </Grid.Column>
 
-                            <Grid.Column width={12}>
-                                <StoryEditors
-                                    onDeleteGroup={handleDeleteGroup}
-                                    projectId={projectId}
-                                    storyGroups={storyGroups}
-                                    storyGroup={
-                                        storyGroupsToRender[storyGroupCurrent]
-                                    || storyGroupsToRender[storyGroupCurrent + 1]
-                                    || storyGroupsToRender[storyGroupCurrent - 1]
-                                    }
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
-                </Container>
-            </ConversationOptionsContext.Provider>
-        );
-    };
+                        <Grid.Column width={12}>
+                            <StoryEditors
+                                onDeleteGroup={handleDeleteGroup}
+                                projectId={projectId}
+                                storyGroups={storyGroups}
+                                storyGroup={
+                                    storyGroups[storyGroupCurrent]
+                                    || storyGroups[storyGroupCurrent + 1]
+                                    || storyGroups[storyGroupCurrent - 1]
+                                }
+                            />
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+            </Container>
+        </ConversationOptionsContext.Provider>
+    );
 
     if (ready) return renderStoriesContainer();
     return null;
@@ -256,7 +250,7 @@ const StoriesWithTracker = withTracker((props) => {
             storyGroupsHandler.ready()
             && storiesHandler.ready()
             && smartStoriesHandler.ready(),
-        storyGroups: [...storyGroups],
+        storyGroups: [{ isSmartGroup: true, id: 'SMART_STORY_GROUP' }, ...storyGroups],
         stories,
     };
 })(Stories);

@@ -104,22 +104,31 @@ class StoryGroupBrowser extends React.Component {
             isIntroStory,
         } = options;
         return data.slice(...slice)
-            .map((item, index) => (
-                <StoryGroupItem
-                    key={index + slice[0] + 1}
-                    index={index + slice[0] + 1}
-                    item={item}
-                    indexProp={indexProp}
-                    nameAccessor={nameAccessor}
-                    handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0] + 1)}
-                    selectAccessor={selectAccessor}
-                    allowEdit={allowEdit && !isIntroStory}
-                    handleToggle={e => this.handleToggle(e, item)}
-                    saving={saving}
-                    changeName={changeName}
-                    stories={stories}
-                />
-            ));
+            .map((item, index) => (item.isSmartGroup
+                ? (
+                    <SmartStoryGroup
+                        key='smart-story-group'
+                        index={index + slice[0]}
+                        activeIndex={indexProp}
+                        handleClickMenuItem={this.handleClickMenuItem}
+                    />
+                )
+                : (
+                    <StoryGroupItem
+                        key={index + slice[0]}
+                        index={index + slice[0]}
+                        item={item}
+                        indexProp={indexProp}
+                        nameAccessor={nameAccessor}
+                        handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
+                        selectAccessor={selectAccessor}
+                        allowEdit={allowEdit && !isIntroStory}
+                        handleToggle={e => this.handleToggle(e, item)}
+                        saving={saving}
+                        changeName={changeName}
+                        stories={stories}
+                    />
+                )));
     };
 
     renderNavigation = () => {
@@ -178,7 +187,6 @@ class StoryGroupBrowser extends React.Component {
             data,
             allowAddition,
             placeholderAddItem,
-            index: indexProp,
         } = this.props;
         const { addMode, newItemName } = this.state;
 
@@ -199,19 +207,19 @@ class StoryGroupBrowser extends React.Component {
                                 data-cy='add-item-input'
                             />
                         ))}
-                <SmartStoryGroup
-                    index={0}
-                    activeIndex={indexProp}
-                    handleClickMenuItem={this.handleClickMenuItem}
-                />
                 {data.length && (
                     <Menu vertical fluid>
-                        {this.getItems([0, 1], { isIntroStory: true })}
+                        {this.getItems([0, 1])}
+                    </Menu>
+                )}
+                {data.length && (
+                    <Menu vertical fluid>
+                        {this.getItems([1, 2], { isIntroStory: true })}
                     </Menu>
                 )}
                 {data.length > 1 && (
                     <Menu vertical fluid>
-                        {this.getItems([1])}
+                        {this.getItems([2])}
                     </Menu>
                 )}
             </div>
