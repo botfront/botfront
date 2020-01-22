@@ -7,6 +7,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import { Slots } from '../../../api/slots/slots.collection';
 import StoryGroupItem from './StoryGroupItem';
+import SmartStoryGroup from './SmartStoryGroup';
 import { ConversationOptionsContext } from './Context';
 
 class StoryGroupBrowser extends React.Component {
@@ -105,12 +106,12 @@ class StoryGroupBrowser extends React.Component {
         return data.slice(...slice)
             .map((item, index) => (
                 <StoryGroupItem
-                    key={index + slice[0]}
-                    index={index + slice[0]}
+                    key={index + slice[0] + 1}
+                    index={index + slice[0] + 1}
                     item={item}
                     indexProp={indexProp}
                     nameAccessor={nameAccessor}
-                    handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
+                    handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0] + 1)}
                     selectAccessor={selectAccessor}
                     allowEdit={allowEdit && !isIntroStory}
                     handleToggle={e => this.handleToggle(e, item)}
@@ -177,6 +178,7 @@ class StoryGroupBrowser extends React.Component {
             data,
             allowAddition,
             placeholderAddItem,
+            index: indexProp,
         } = this.props;
         const { addMode, newItemName } = this.state;
 
@@ -197,6 +199,11 @@ class StoryGroupBrowser extends React.Component {
                                 data-cy='add-item-input'
                             />
                         ))}
+                <SmartStoryGroup
+                    index={0}
+                    activeIndex={indexProp}
+                    handleClickMenuItem={this.handleClickMenuItem}
+                />
                 {data.length && (
                     <Menu vertical fluid>
                         {this.getItems([0, 1], { isIntroStory: true })}

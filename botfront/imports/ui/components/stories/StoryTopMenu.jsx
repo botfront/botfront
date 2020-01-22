@@ -31,6 +31,7 @@ const StoryTopMenu = ({
     originStories,
     isLinked,
     rules,
+    isInSmartStories,
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
@@ -154,11 +155,16 @@ const StoryTopMenu = ({
                 'A story that is linked to another story cannot be deleted.',
             ];
         }
-        return isLinked || isDestinationStory ? (
+        if (isInSmartStories) {
+            toolTipText = [
+                'To move this story, open it in it\'s original group.',
+            ];
+        }
+        return isLinked || isDestinationStory || isInSmartStories ? (
             <ToolTipPopup
                 trigger={(
                     <Icon
-                        disabled={isDestinationStory || isLinked}
+                        disabled={isDestinationStory || isLinked || isInSmartStories}
                         name='trash'
                         data-cy='delete-story'
                     />
@@ -248,9 +254,16 @@ const StoryTopMenu = ({
                         isDestinationStory={isDestinationStory}
                     />
                     <Popup
-                        trigger={
-                            <Icon name='dolly' color='grey' link data-cy='move-story' />
-                        }
+                        trigger={(
+                            <Popup
+                                disabled={!isInSmartStories}
+                                trigger={(
+                                    <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories} className='move-icon' />
+                                )}
+                                header='This story cannot be moved'
+                                content={'To move this story, open it in it\'s original group.'}
+                            />
+                        )}
                         content={(
                             <ConfirmPopup
                                 title='Move story to :'
@@ -280,6 +293,7 @@ const StoryTopMenu = ({
                                 onNo={() => openMovePopup(false)}
                             />
                         )}
+                        disabled={isInSmartStories}
                         on='click'
                         open={movePopupOpened}
                         onOpen={() => openMovePopup(true)}
@@ -353,12 +367,16 @@ StoryTopMenu.propTypes = {
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
     rules: PropTypes.array,
+    disableDelete: PropTypes.bool,
+    disableMove: PropTypes.bool,
+    isInSmartStories: PropTypes.bool,
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     isLinked: false,
     originStories: [],
     rules: [],
+    isInSmartStories: false,
 };
 
 const mapStateToProps = (state, ownProps) => ({
