@@ -26,6 +26,7 @@ const SmartStoryGroup = (props) => {
                 saving={false}
                 changeName={() => {}}
                 stories={[]}
+                selectAccessor={null}
             />
         </Menu>
     );
