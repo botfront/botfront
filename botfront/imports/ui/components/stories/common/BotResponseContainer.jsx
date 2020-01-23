@@ -145,7 +145,6 @@ const BotResponseContainer = (props) => {
     const renderSetImage = () => (
         <div
             ref={drop}
-            {...(canDrop && isOver ? { className: 'upload-target' } : {})}
         >
             {webhooks && webhooks.uploadImageWebhook && webhooks.uploadImageWebhook.url && (
                 <>
@@ -213,7 +212,7 @@ const BotResponseContainer = (props) => {
             agent='bot'
             data-cy='bot-response-input'
         >
-            <div className='inner'>
+            <div className={`inner ${canDrop && isOver ? 'upload-target' : ''}`}>
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && renderImage()}
                 {isQRResponse && renderButtons()}
