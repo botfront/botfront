@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.1](https://github.com/botfront/botfront/compare/v0.19.0...v0.19.1) (2020-01-23)
+
+
+### Bug Fixes
+
+* response form leaves a margin at the right of the modal ([#443](https://github.com/botfront/botfront/issues/443)) ([bd876d8](https://github.com/botfront/botfront/commit/bd876d8))
+
+
+
 ## [0.19.0](https://github.com/botfront/botfront/compare/v0.19.0-rc.0...v0.19.0) (2020-01-22)
 
 
