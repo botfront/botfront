@@ -66,6 +66,7 @@ function ResponseMetadataForm({
     const schema = extendSchema(buildASTSchema(parse(`
     
     type PageChange {
+        regex: Boolean
         url: String!
         callbackIntent: String!
     }
