@@ -23,60 +23,44 @@ function ResponseMetadataForm({
 }) {
     const pageEventOptions = [
         {
-            label: 'onclick',
-            value: 'onclick',
+            label: 'click',
+            value: 'click',
         },
         {
-            label: 'oncontextmenu',
-            value: 'oncontextmenu',
+            label: 'dblclick',
+            value: 'dblclick',
         },
         {
-            label: 'ondblclick',
-            value: 'ondblclick',
+            label: 'mouseenter',
+            value: 'mouseenter',
         },
         {
-            label: 'onmousedown',
-            value: 'onmousedown',
+            label: 'mouseleave',
+            value: 'mouseleave',
         },
         {
-            label: 'onmouseenter',
-            value: 'onmouseenter',
+            label: 'mouseover',
+            value: 'mouseover',
         },
         {
-            label: 'onmouseleave',
-            value: 'onmouseleave',
+            label: 'change',
+            value: 'change',
         },
         {
-            label: 'onmousemove',
-            value: 'onmousemove',
+            label: 'blur',
+            value: 'blur',
         },
         {
-            label: 'onmouseout',
-            value: 'onmouseout',
+            label: 'focus',
+            value: 'focus',
         },
         {
-            label: 'onmouseover',
-            value: 'onmouseover',
+            label: 'focusin',
+            value: 'focusin',
         },
         {
-            label: 'onmouseup',
-            value: 'onmouseup',
-        },
-        {
-            label: 'onblur',
-            value: 'onblur',
-        },
-        {
-            label: 'onfocus',
-            value: 'onfocus',
-        },
-        {
-            label: 'onfocusin',
-            value: 'onfocusin',
-        },
-        {
-            label: 'onfocusout',
-            value: 'onfocusout',
+            label: 'focusout',
+            value: 'focusout',
         },
     ];
     const schema = extendSchema(buildASTSchema(parse(`
@@ -226,7 +210,7 @@ function ResponseMetadataForm({
         if (newModel.domHighlight && newModel.domHighlight.enabled) delete newModel.domHighlight.enabled;
         if (newModel.customCss && newModel.customCss.enabled) delete newModel.customCss.enabled;
         if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks.enabled;
-        if (newModel.pageEventCallbacks && !newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks;
+        if (newModel.pageEventCallbacks && newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks.enabled;
 
         return newModel;
     };
