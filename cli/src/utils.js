@@ -142,6 +142,7 @@ export async function displayNpmUpdateMessage() {
 
 export async function displayProjectUpdateMessage() {
     if (!isProjectDir()) return;
+    let isMajorUpdate = false;
 
     const botfrontVersion = getBotfrontVersion();
     const projectVersion = getProjectVersion();
@@ -151,13 +152,15 @@ export async function displayProjectUpdateMessage() {
     }
     if (isMajorUpdateWithVersion(projectVersion, botfrontVersion)) {
         console.log(boxen(`Project was made with Botfront ${chalk.blueBright(projectVersion)} and the currently installed version is ${chalk.green(botfrontVersion)}, which is a major update.\nPlease follow the instructions in the migration guide: ${chalk.cyan.bold('https://botfront.io/docs/migration')}.`));
+        isMajorUpdate = true;
     }
+    return isMajorUpdate;
 }
 
 /*
 Augment the botfront.yml file with version and project specific values
 */
-export async function updateProjectFile(projectAbsPath, images) {
+export async function updateProjectFile(projectAbsPath, images, mongoAuth = true) {
     const config = getProjectConfig(projectAbsPath);
     if (!config.version) {
         config.version = getBotfrontVersion();
@@ -168,12 +171,19 @@ export async function updateProjectFile(projectAbsPath, images) {
         if (images[service]) config.images.current[service] = images[service];
     });
 
-    const password = randomString();
-    Object.assign(config.env, {
-        mongo_url: `mongodb://root:${password}@mongo:27017/bf?authSource=admin`,
-        mongo_initdb_root_username: 'root',
-        mongo_initdb_root_password: password,
-    })
+    if (mongoAuth){
+        const password = randomString();
+        Object.assign(config.env, {
+            mongo_url: `mongodb://root:${password}@mongo:27017/bf?authSource=admin`,
+            mongo_initdb_root_username: 'root',
+            mongo_initdb_root_password: password,
+        })
+    } else {
+        Object.assign(config.env, {
+            mongo_url: 'mongodb://mongo:27017/bf',
+        })
+    }
+
     fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
 }
 

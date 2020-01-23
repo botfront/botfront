@@ -71,7 +71,8 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
         const noProjectMessage = `${chalk.yellow.bold('No project found.')} ${chalk.cyan.bold('botfront up')} must be executed from your project\'s directory`;
         return console.log(boxen(noProjectMessage));
     }
-    displayProjectUpdateMessage();
+    const isMajorUpdateRequired = await displayProjectUpdateMessage();
+    if (isMajorUpdateRequired) process.exit(0);
 
     updateEnvFile(process.cwd());
     await generateDockerCompose(exclude);

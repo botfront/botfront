@@ -38,9 +38,30 @@ We significantly changed (and improved) how bot responses work. Only three types
 If you were using other response types (mostly facebook related such as Templates, Lists, ...) they will be lost. **You need to make a copy before upgrading.**
 
 #### Upgrading a project
-The folder project structure has changed. You will need to create another project and copy your data in it:
+::: warning The project structure has changed.
+You will need to create another project and copy your data in it:
+:::
 
 1. Create a new project with `botfront init`.
 2. Copy the `botfront-db` folder from your old project to the newly created project. Make sure to copy and not move your db so you can always recover it from your existing project. Your existing project should remain unchanged.
 3. If you have custom actions, copy them to the `actions` folder in the new project.
-4. Run your project with `botfront up` and verify that everything works as expected.
+4. Run your project with `botfront up`. At this point, you should be able to log in.
+5. Go to `Settings > Endpoints`
+If you are running with the default CLI configuration, replace:
+
+```yaml
+nlg:
+  url: 'http://botfront-api:8080/project/bf/nlg'
+```
+
+with:
+```yaml
+nlg:
+  type: 'rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator'
+  url: 'http://botfront:3000/graphql' # This should be the same host as the Botfront app
+```
+
+6. Restart Rasa with `botfront restart rasa`
+7. Train
+8. You're done, have fun :)
+
