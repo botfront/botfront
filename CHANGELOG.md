@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.1-ee.0](https://github.com/botfront/botfront/compare/v0.19.0-alpha.6-ee.0...v0.19.1-ee.0) (2020-01-23)
+
+
+### Features
+
+* **activity:** don't show spinner ([8ad22a5](https://github.com/botfront/botfront/commit/8ad22a5934c49d57ec099cb3b87fb8c65c1df367))
+* **export:** add exclusion options to project export ([92cc546](https://github.com/botfront/botfront/commit/92cc5465865a541b4bb92df60373161163db1d0b))
+* **image upload:** add upload and delete routes ([41b923d](https://github.com/botfront/botfront/commit/41b923d2e07b33b414d1bf067a3ae9f81c65145b))
+* **image upload:** call image delete webhook from deleteResponse ([4ca39c3](https://github.com/botfront/botfront/commit/4ca39c350e778ff1d59da13c351888f9e4597f9b))
+* **image upload:** connect image upload to webhook ([f0e378d](https://github.com/botfront/botfront/commit/f0e378d315eb17705b89d0f288da5574f4d703f2))
+* **image upload:** wip ([2fc4e26](https://github.com/botfront/botfront/commit/2fc4e26b66a87b5afea4f674e136eac92bd39caa))
+* **webhooks:** add webhooks in global settings ([8752e83](https://github.com/botfront/botfront/commit/8752e83d2e79e94e083ff1586a54a2834e6a5d13))
+
+
+### Bug Fixes
+
+* response form leaves a margin at the right of the modal ([#443](https://github.com/botfront/botfront/issues/443)) ([bd876d8](https://github.com/botfront/botfront/commit/bd876d828cd9a42d62dd000124cbeeced8953e08))
+* **activity insertion:** prevent populateActivity never returning ([b4dc07b](https://github.com/botfront/botfront/commit/b4dc07b57ce77a1eae70ee7f23a4c249666f8c62))
+* **activity logging:** use string ids ([8544d6f](https://github.com/botfront/botfront/commit/8544d6fea7352cd350bdd8a61d8b3f4ca1a5e6eb))
+* **cli:** major version upgrade + migration guide ([#445](https://github.com/botfront/botfront/issues/445)) ([94d21a8](https://github.com/botfront/botfront/commit/94d21a851904e3de09c1133361636c1b5df0c57f))
+* cannot edit project startup responses ([fad2eca](https://github.com/botfront/botfront/commit/fad2ecafd3e65472c9d74aa08fc89c1d5a64468b))
+* deleteVariation fails if variation is focused ([b7262dd](https://github.com/botfront/botfront/commit/b7262dd2ad07d902be113d8071a47769b8bc4681))
+* validate utterance bug ([b2ab1b3](https://github.com/botfront/botfront/commit/b2ab1b36f1b7f68268973b3dacc4ee336776d56c))
+* **conversation import:** new lang field location ([b349daf](https://github.com/botfront/botfront/commit/b349dafd5683de48d754912d61ffb38055cd9241))
+* model bucket not shown in the project admin screen ([66985b5](https://github.com/botfront/botfront/commit/66985b55906eb193ef1b36f431daa71d6dded640))
+* variations not saving ([9929a72](https://github.com/botfront/botfront/commit/9929a72546fb82ae9a29be9599fd3938667e50a1))
+* variations save on modal close ([ce040af](https://github.com/botfront/botfront/commit/ce040afb8f1efc13521480a5532a7344bd7faa44))
+* visual editor, always load first variation ([a5703bf](https://github.com/botfront/botfront/commit/a5703bf78e8eae71794443058269b722e47f6018))
+
 ## [0.19.0-alpha.6-ee.0](https://github.com/botfront/botfront/compare/v0.19.0-alpha.5-ee.1...v0.19.0-alpha.6-ee.0) (2020-01-13)
 
 
