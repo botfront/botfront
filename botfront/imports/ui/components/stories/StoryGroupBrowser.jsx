@@ -7,6 +7,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import { Slots } from '../../../api/slots/slots.collection';
 import StoryGroupItem from './StoryGroupItem';
+import SmartStoryGroupItem from './SmartStoryGroupItem';
 import { ConversationOptionsContext } from './Context';
 
 class StoryGroupBrowser extends React.Component {
