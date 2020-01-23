@@ -187,12 +187,17 @@ if (Meteor.isServer) {
             check(method, String);
             check(data, Object);
             try {
-                const response = await axios({ url, method, data });
+                // 4mb
+                const maxContentLength = 4000000;
+                const response = await axios({
+                    url, method, data, maxContentLength,
+                });
                 const { status, data: responseData } = response;
                 return { status, data: responseData };
             } catch (e) {
-                if (e.response) return { status: e.response.status };
-                return { status: 408 };
+                // eslint-disable-next-line no-console
+                console.log('ERROR: Botfront encountered an error while uploading an image', e);
+                return { status: 500, data: 'Error while uploading image' };
             }
         },
     });
