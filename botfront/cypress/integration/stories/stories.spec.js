@@ -78,7 +78,7 @@ describe('stories', function() {
             .click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
         // verifies that the third story was not removed along with the first
-        cy.dataCy('browser-item').eq(2).should('have.class', 'active');
+        cy.dataCy('browser-item').contains(storyGroupOne).parents('[data-cy=browser-item]').should('have.class', 'active');
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('story-title').should('have.value', 'ID AKLEJDKSGLJENSKEPFM');
         // deletes the second story
@@ -202,7 +202,7 @@ describe('stories', function() {
         cy.dataCy('add-item-input')
             .find('input')
             .type('{enter}');
-        cy.dataCy('browser-item').should('have.lengthOf', 2);
+        cy.dataCy('browser-item').should('have.lengthOf', 3);
         cy.dataCy('add-item').click({ force: true });
         cy.dataCy('add-item-input')
             .find('input')
@@ -236,7 +236,7 @@ describe('stories', function() {
         cy.dataCy('story-editor').should('have.lengthOf', 1);
         cy.dataCy('delete-story').click({ force: true });
         cy.dataCy('confirm-yes').click({ force: true });
-        cy.dataCy('browser-item').should('have.lengthOf', 2);
+        cy.dataCy('browser-item').should('have.lengthOf', 3);
         cy.dataCy('add-story').click({ force: true });
         cy.dataCy('story-editor').should('have.lengthOf', 1);
     });
