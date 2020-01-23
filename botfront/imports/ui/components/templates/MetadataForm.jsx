@@ -60,11 +60,11 @@ export const schemaData = {
         ],
     },
     forceOpen: {
-        label: 'Force the chat widget to open? (Otherwise it will appear as a tooltip if the widget is closed)',
+        label: 'Force the chat widget to open? (The message will appear as a tooltip if the widget is closed)',
         defaultValue: false,
     },
     forceClose: {
-        label: 'Force the chat widget to close? (message will appear as a tooltip)',
+        label: 'Force the chat widget to close? (The message will appear as a tooltip)',
         defaultValue: false,
     },
 };
