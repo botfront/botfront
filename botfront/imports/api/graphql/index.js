@@ -12,8 +12,7 @@ import configResolver from './config/configResolver';
 import configTypes from './config/config.types.graphql';
 import nluResolvers from './nlu/resolvers';
 import nluTypes from './nlu/schemas';
-import webchatPropsResolver from './webchat_props/webchatProps.resolver';
-import webchatPropsTypes from './webchat_props/webchatProps.types.graphql';
+
 
 export const resolvers = [
     ...conversationResolvers,
@@ -23,7 +22,6 @@ export const resolvers = [
     activityResolver,
     commonResolver,
     configResolver,
-    webchatPropsResolver,
 ];
 
 export const typeDefs = mergeTypes([
@@ -34,7 +32,6 @@ export const typeDefs = mergeTypes([
     ...nluTypes,
     commonTypes,
     configTypes,
-    webchatPropsTypes,
 ], { all: true });
 
 export const schemaDirectives = {
