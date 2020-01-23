@@ -1,16 +1,23 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+    useState, useEffect, useRef, useContext,
+} from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Image } from 'semantic-ui-react';
+import {
+    Input, Button, Image, Icon, Loader, Dimmer,
+} from 'semantic-ui-react';
+import { NativeTypes } from 'react-dnd-html5-backend-cjs';
+import { useDrop } from 'react-dnd-cjs';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
 import FloatingIconButton from '../../common/FloatingIconButton';
-
+import { ProjectContext } from '../../../layouts/context';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom, tag,
+        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag,
     } = props;
+    const { webhooks } = useContext(ProjectContext);
 
     const [input, setInput] = useState();
     const [shiftPressed, setshiftPressed] = useState(false);
@@ -22,6 +29,8 @@ const BotResponseContainer = (props) => {
     const hasText = Object.keys(value).includes('text') && value.text !== null;
 
     const imageUrlRef = useRef();
+    const fileField = useRef();
+    const [isUploading, setIsUploading] = useState();
 
     const unformatNewlines = (response) => {
         if (!response) return response;
@@ -36,13 +45,12 @@ const BotResponseContainer = (props) => {
         if (focus && imageUrlRef.current) imageUrlRef.current.focus();
     }, [value.text, focus]);
 
-
     function handleTextBlur(e) {
         const tagRegex = new RegExp(tag);
         if (e.relatedTarget && !!e.relatedTarget.id.match(tagRegex)) return;
         if (isTextResponse) onChange({ text: formatNewlines(input) }, false);
-        if (isQRResponse) onChange({ text: formatNewlines(input), buttons: value.buttons }, false);
-        if (isImageResponse) onChange({ text: formatNewlines(input), image: value.image }, false);
+        if (isQRResponse) { onChange({ text: formatNewlines(input), buttons: value.buttons }, false); }
+        if (isImageResponse) { onChange({ text: formatNewlines(input), image: value.image }, false); }
     }
 
     const setImage = image => onChange({ ...value, image, text: '' }, false);
@@ -106,27 +114,85 @@ const BotResponseContainer = (props) => {
         <Image src={value.image} size='small' alt='Image URL broken' />
     );
 
+    const renderUploading = () => (
+        <div style={{ minHeight: '50px' }}>
+            <Dimmer active inverted>
+                <Loader inverted size='small'>
+                    <span className='small grey'>Uploading</span>
+                </Loader>
+            </Dimmer>
+        </div>
+    );
+
+    const handleFileDrop = async (files) => {
+        const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+        if (validFiles.length !== 1) return; // reject sets, and non-images
+        setIsUploading(true);
+        uploadImage({
+            file: validFiles[0], setImage, resetUploadStatus: () => setIsUploading(false),
+        });
+    };
+
+    const [{ canDrop, isOver }, drop] = useDrop({
+        accept: [NativeTypes.FILE],
+        drop: item => handleFileDrop(item.files),
+        collect: monitor => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
+    });
+
     const renderSetImage = () => (
-        <div>
-            <b>Insert image from URL</b>
-            <br />
-            <div className='side-by-side'>
-                <Input
-                    ref={imageUrlRef}
-                    autoFocus
-                    placeholder='URL'
-                    onBlur={setImageFromUrlBox}
-                    onKeyDown={handleKeyDown}
-                    size='small'
-                    data-cy='image-url-input'
-                    className='image-url-input'
-                />
-                <Button primary onClick={setImageFromUrlBox} size='small' content='Save' />
+        <div
+            ref={drop}
+        >
+            {webhooks && webhooks.uploadImageWebhook && webhooks.uploadImageWebhook.url && (
+                <>
+                    <div className='align-center'>
+                        <Icon name='image' size='huge' color='grey' />
+                        <input
+                            type='file'
+                            ref={fileField}
+                            style={{ display: 'none' }}
+                            onChange={e => handleFileDrop(e.target.files)}
+                        />
+                        <Button
+                            primary
+                            basic
+                            content='Upload image'
+                            size='small'
+                            onClick={() => fileField.current.click()}
+                        />
+                        <span className='small grey'>or drop an image file to upload</span>
+                    </div>
+                    <div className='or'> or </div>
+                </>
+            )}
+            <div>
+                <b>Insert image from URL</b>
+                <br />
+                <div className='side-by-side'>
+                    <Input
+                        ref={imageUrlRef}
+                        autoFocus
+                        placeholder='URL'
+                        onBlur={setImageFromUrlBox}
+                        onKeyDown={handleKeyDown}
+                        size='small'
+                        data-cy='image-url-input'
+                        className='image-url-input'
+                    />
+                    <Button primary onClick={setImageFromUrlBox} size='small' content='Save' />
+                </div>
             </div>
         </div>
     );
 
-    const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());
+    const renderImage = () => (isUploading
+        ? renderUploading()
+        : !value.image.trim()
+            ? renderSetImage()
+            : renderViewImage());
 
     const renderCustom = () => (
         <Button
@@ -146,7 +212,7 @@ const BotResponseContainer = (props) => {
             agent='bot'
             data-cy='bot-response-input'
         >
-            <div className='inner'>
+            <div className={`inner ${canDrop && isOver ? 'upload-target' : ''}`}>
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && renderImage()}
                 {isQRResponse && renderButtons()}
@@ -167,6 +233,7 @@ BotResponseContainer.propTypes = {
     onDelete: PropTypes.func.isRequired,
     editCustom: PropTypes.func,
     tag: PropTypes.string,
+    uploadImage: PropTypes.func,
 };
 
 BotResponseContainer.defaultProps = {
@@ -174,6 +241,7 @@ BotResponseContainer.defaultProps = {
     focus: false,
     editCustom: () => {},
     tag: null,
+    uploadImage: () => {},
 };
 
 export default BotResponseContainer;

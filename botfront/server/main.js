@@ -41,4 +41,3 @@ import '../imports/api/graphql/activity/activity.model';
 import './migrations';
 import '../imports/api/roles/roles.publication';
 import '../imports/api/roles/roles';
-import '../imports/api/images';

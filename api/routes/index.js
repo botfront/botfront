@@ -18,8 +18,10 @@ const {
     exportProject,
     exportProjectValidator,
     importProject,
-    importProjectValidator,
 } = require('./port_project');
+const {
+    uploadImage, deleteImage, uploadImageValidator, deleteImageValidator,
+} = require('./images');
 
 let router = express.Router();
 
@@ -42,6 +44,9 @@ router.get('/project/:project_id/endpoints/:environment?/', getProjectEndpoints)
 
 router.get('/project/:project_id/export', exportProjectValidator, exportProject);
 router.put('/project/:project_id/import', importProject);
+
+router.post('/image/upload', uploadImageValidator, uploadImage);
+router.delete('/image/delete', deleteImageValidator, deleteImage);
 
 router.get('/project/:project_id/models/published', getPublishedModels);
 router.get('/health-check', (req, res) => res.status(200).json());

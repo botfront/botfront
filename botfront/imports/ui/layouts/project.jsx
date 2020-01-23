@@ -7,6 +7,8 @@ import { Meteor } from 'meteor/meteor';
 import Intercom from 'react-intercom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { DndProvider } from 'react-dnd-cjs';
+import HTML5Backend from 'react-dnd-html5-backend-cjs';
 import Alert from 'react-s-alert';
 import yaml from 'js-yaml';
 import React from 'react';
@@ -306,6 +308,7 @@ class Project extends React.Component {
                                             intents,
                                             entities,
                                             slots,
+                                            webhooks: settings.settings.private.webhooks,
                                             language: workingLanguage,
                                             upsertResponse: this.upsertResponse,
                                             getResponse: this.getResponse,
@@ -327,15 +330,17 @@ class Project extends React.Component {
                                             }),
                                         }}
                                     >
-                                        <div data-cy='left-pane'>
-                                            {children}
-                                            {!showChatPane && channel && (
-                                                <Popup
-                                                    trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
-                                                    content='Try out your chatbot'
-                                                />
-                                            )}
-                                        </div>
+                                        <DndProvider backend={HTML5Backend}>
+                                            <div data-cy='left-pane'>
+                                                {children}
+                                                {!showChatPane && channel && (
+                                                    <Popup
+                                                        trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
+                                                        content='Try out your chatbot'
+                                                    />
+                                                )}
+                                            </div>
+                                        </DndProvider>
                                     </ProjectContext.Provider>
                                 )}
                             </Query>
@@ -385,7 +390,9 @@ const ProjectContainer = withTracker((props) => {
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const settingsHandler = Meteor.subscribe('settings');
-    const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1 } });
+    const settings = GlobalSettings.findOne({}, {
+        fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1, 'settings.private.webhooks': 1 },
+    });
     const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);

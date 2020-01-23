@@ -1,6 +1,7 @@
-import { safeDump } from 'js-yaml/lib/js-yaml';
+import { safeDump, safeLoad } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
+import { GlobalSettings } from '../../../globalSettings/globalSettings.collection';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Stories } from '../../../story/stories.collection';
 
@@ -11,15 +12,17 @@ export const createResponses = async (projectId, responses) => {
     const answer = newResponses.map((newResponse) => {
         const properResponse = newResponse;
         properResponse.projectId = projectId;
-        return BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
+        return BotResponses.update({ projectId, key: newResponse.key }, properResponse, {
+            upsert: true,
+        });
     });
 
     return Promise.all(answer);
 };
 
-export const updateResponse = async (projectId, _id, newResponse) => BotResponses
-    .updateOne({ projectId, _id }, newResponse, { runValidators: true }).exec();
-
+export const updateResponse = async (projectId, _id, newResponse) => BotResponses.updateOne({ projectId, _id }, newResponse, {
+    runValidators: true,
+}).exec();
 
 export const createResponse = async (projectId, newResponse) => BotResponses.create({
     ...clearTypenameField(newResponse),
@@ -30,7 +33,49 @@ export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
 
-export const deleteResponse = async (projectId, key) => BotResponses.findOneAndDelete({ projectId, key });
+const getImageUrls = response => response.values.reduce(
+    (vacc, vcurr) => [
+        ...vacc,
+        ...vcurr.sequence.reduce((sacc, scurr) => {
+            const { image } = safeLoad(scurr.content);
+            return image ? [...sacc, image] : [sacc];
+        }, []),
+    ],
+    [],
+);
+
+const getImageDeletionWebook = () => {
+    const {
+        settings: {
+            private: { webhooks },
+        },
+    } = GlobalSettings.findOne({}, { fields: { 'settings.private.webhooks': 1 } });
+    const {
+        deleteImageWebhook: { url, method },
+    } = webhooks;
+    return { url, method };
+};
+
+const deleteImages = async (imgUrls, projectId, url, method) => {
+    const result = await Promise.all(
+        imgUrls.map(imageUrl => Meteor.callWithPromise('axios.requestWithJsonBody', url, method, {
+            projectId,
+            uri: imageUrl,
+        })),
+    );
+    if (result.filter(r => ![204, 404].includes(r.status))) {
+        // Right now, can't find way to get error all the way to client
+        // but we can ignore since an error is not fatal
+    }
+};
+
+export const deleteResponse = async (projectId, key) => {
+    const response = await BotResponses.findOne({ projectId, key }).lean();
+    if (!response) return;
+    const { url, method } = getImageDeletionWebook();
+    if (url && method) deleteImages(getImageUrls(response), projectId, url, method);
+    return BotResponses.findOneAndDelete({ _id: response._id }); // eslint-disable-line consistent-return
+};
 
 export const getBotResponse = async (projectId, key) => BotResponses.findOne({
     projectId,
@@ -90,7 +135,9 @@ export const deleteVariation = async ({
 export const newGetBotResponses = async ({ projectId, template, language }) => {
     // template (optional): str || array
     // language (optional): str || array
-    let templateKey = {}; let languageKey = {}; let languageFilter = [];
+    let templateKey = {};
+    let languageKey = {};
+    let languageFilter = [];
     if (template) {
         const templateArray = typeof template === 'string' ? [template] : template;
         templateKey = { key: { $in: templateArray } };
@@ -98,9 +145,19 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
     if (language) {
         const languageArray = typeof language === 'string' ? [language] : language;
         languageKey = { 'values.lang': { $in: languageArray } };
-        languageFilter = [{
-            $addFields: { values: { $filter: { input: '$values', as: 'value', cond: { $in: ['$$value.lang', languageArray] } } } },
-        }];
+        languageFilter = [
+            {
+                $addFields: {
+                    values: {
+                        $filter: {
+                            input: '$values',
+                            as: 'value',
+                            cond: { $in: ['$$value.lang', languageArray] },
+                        },
+                    },
+                },
+            },
+        ];
     }
 
     return BotResponses.aggregate([
@@ -121,9 +178,11 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
     ]).allowDiskUse(true);
 };
 
-
 export const deleteResponsesRemovedFromStories = (removedResponses, projectId) => {
-    const sharedResponses = Stories.find({ events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
+    const sharedResponses = Stories.find(
+        { events: { $in: removedResponses } },
+        { fields: { events: true } },
+    ).fetch();
     if (removedResponses && removedResponses.length > 0) {
         const deleteResponses = removedResponses.filter((event) => {
             if (!sharedResponses) return true;

@@ -222,6 +222,16 @@ Migrations.add({
             }));
     },
 });
+Migrations.add({
+    version: 8,
+    // add webhooks in private global settings: EE-SPECIFIC
+    up: () => {
+        const globalSettings = JSON.parse(Assets.getText('default-settings.json'));
+        const { webhooks } = globalSettings.settings.private;
+        GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks': webhooks } });
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });
