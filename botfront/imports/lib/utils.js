@@ -92,24 +92,6 @@ export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProp
 
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
 
-if (Meteor.isServer) {
-    Meteor.methods({
-        async 'axios.requestWithJsonBody'(url, method, data) {
-            check(url, String);
-            check(method, String);
-            check(data, Object);
-            try {
-                const response = await axios({ url, method, data });
-                const { status, data: responseData } = response;
-                return { status, data: responseData };
-            } catch (e) {
-                if (e.response) return { status: e.response.status };
-                return { status: 408 };
-            }
-        },
-    });
-}
-
 function writeFile (path, bytes) {
     // TODO make it async when we have more traffic
     if (!fs.existsSync(`${Meteor.rootPath}/tmp`)) {
