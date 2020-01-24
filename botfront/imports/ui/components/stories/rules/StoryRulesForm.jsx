@@ -155,20 +155,9 @@ function StoryRulesForm({
     
     const activeModel = initializeToggles();
 
-    const postProcess = (formModel) => {
-        const model = cloneDeep(formModel);
-        model.rules = model.rules.map((ruleSet) => {
-            const newRuleSet = ruleSet;
-            if (!newRuleSet.payload) {
-                newRuleSet.payload = payloadName;
-            }
-            return newRuleSet;
-        });
-        return model;
-    };
 
     const handleSubmit = (model) => {
-        onChange(postProcess(model));
+        onChange(model);
     };
 
     return (
