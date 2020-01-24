@@ -67,6 +67,14 @@ export function getSubBranchesForPath(story, path) {
     }
 }
 
+export const insertSmartPayloads = (story) => {
+    if (!story.rules) return story;
+    const updatedStory = story;
+    const payloadName = story.rules[0].payload.substring(1); // remove the "/" from the start of the payload name
+    updatedStory.story = `* ${payloadName}\n${story.story || ''}`;
+    return updatedStory;
+};
+
 export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
     /*  this adds trailing and leading checkpoints to a story with a branch structure of arbitrary shape.
         {Parent body} turns into {Parent body\n> Parent title__branches} and {Child body} turns into
@@ -120,17 +128,6 @@ export const findBranchById = (branchesN0, branchId) => {
     return -1;
 };
 
-const addSmartPayloads = (story) => {
-    if (story.rules === undefined || story.rules[0] === undefined) {
-        return story;
-    }
-    const smartStory = story;
-    let content = story.story;
-    const payloadName = story.rules[0].payload.slice(1);
-    content = `* ${payloadName}\n${content}`;
-    smartStory.story = content;
-    return smartStory;
-};
 
 export const addlinkCheckpoints = (stories) => {
     // adds rasa checkpoints to linked stories */
@@ -203,6 +200,7 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
                     story: story.story ? story.story : story,
                     slots,
                     templates,
+                    triggerRules: story.rules,
                 });
                 return val.extractDomain();
             }
@@ -298,7 +296,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
     let storiesForRasa = stories
-        .map(addSmartPayloads)
+        .map(insertSmartPayloads)
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
         .map(story => appendBranchCheckpoints(story));
     storiesForRasa = addlinkCheckpoints(storiesForRasa)
@@ -333,6 +331,7 @@ export const accumulateExceptions = (
                 onUpdate: content => saveStoryMethod(currentPath, { story: content }),
                 templates,
                 isABranch,
+                triggerRules: currentStory.rules,
             });
             currentController = newStoryControllers[currentPathAsString];
         } else {

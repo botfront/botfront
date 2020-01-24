@@ -89,9 +89,10 @@ const StoryEditorContainer = ({
             onUpdate: content => saveStory(story._id, { story: content }),
             templates,
             isABranch: story.checkpoints && story.checkpoints.length > 0,
+            triggerRules: story.rules,
         }),
     });
-    
+
 
     // This effect is used to update errors when templates or slots are updated
     useEffect(() => {
@@ -165,6 +166,7 @@ const StoryEditorContainer = ({
                     onUpdate: content => saveStory(currentPath, { story: content }),
                     templates,
                     isABranch: currentPath.length > 1,
+                    triggerRules: newStory.triggerRules,
                 });
             }
         });
@@ -182,6 +184,10 @@ const StoryEditorContainer = ({
                 .length
             : 0
     );
+
+    useEffect(() => {
+        storyControllers[story._id].updateRules(story.rules);
+    }, [story.rules]);
 
     const renderTopMenu = () => (
         <StoryTopMenu
@@ -296,6 +302,7 @@ const StoryEditorContainer = ({
                     onUpdate: content => saveStory(path, { story: content }),
                     templates,
                     isABranch: path.length > 1,
+                    triggerRules: newBranch.rules,
                 }),
             });
         }
