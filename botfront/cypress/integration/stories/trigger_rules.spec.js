@@ -190,6 +190,6 @@ describe('Smart story trigger rules', function() {
         cy.train();
         cy.dataCy('open-chat').click();
         cy.newChatSesh('en');
-        cy.testChatInput('/payload_TESTSTORY', 'utter_smart_payload'); // nlg returns template name if not defined
+        cy.testChatInput('/trigger_TESTSTORY', 'utter_smart_payload'); // nlg returns template name if not defined
     });
 });
