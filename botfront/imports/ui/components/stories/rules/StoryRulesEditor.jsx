@@ -80,7 +80,6 @@ const StoryRulesEditor = (props) => {
                                     onChange={handleChangeRules}
                                     rules={rules}
                                     saveAndExit={handleModalClose}
-                                    payloadName={`/payload_${storyId}`}
                                 />
                             </Segment>
                         </Segment.Group>

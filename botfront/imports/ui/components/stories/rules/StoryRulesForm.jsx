@@ -6,7 +6,6 @@ import SimpleSchema from 'simpl-schema';
 import {
     AutoForm, AutoField, ErrorsField, SubmitField, ListDelField,
 } from 'uniforms-semantic';
-import { cloneDeep } from 'lodash';
 
 import SelectField from '../../form_fields/SelectField';
 import OptionalField from '../../form_fields/OptionalField';
@@ -56,11 +55,12 @@ class RulesForm extends AutoForm {
 }
 
 function StoryRulesForm({
-    rules, onChange, saveAndExit, payloadName,
+    rules, onChange, saveAndExit,
 }) {
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
         event: { type: String, trim: true },
+        once: { type: Boolean },
     });
     
     const QueryStringSchema = new SimpleSchema({
@@ -72,7 +72,7 @@ function StoryRulesForm({
         url: { type: Array, optional: true },
         'url.$': { type: String },
         url__DISPLAYIF: { type: Boolean, optional: true },
-        numberOfVisits: { type: String, optional: true },
+        numberOfVisits: { type: Number, optional: true },
         numberOfVisits__DISPLAYIF: { type: Boolean, optional: true },
         numberOfPageVisits: { type: String, optional: true },
         numberOfPageVisits__DISPLAYIF: { type: Boolean, optional: true },
@@ -227,6 +227,7 @@ function StoryRulesForm({
                                                                 { value: 'focusout', text: 'Focus out' },
                                                             ]}
                                                         />
+                                                        <AutoField name='once' label='Tirgger only the first time this event occurs' />
                                                     </div>
                                                 </div>
                                             </AutoField>
@@ -248,7 +249,6 @@ function StoryRulesForm({
 
 StoryRulesForm.propTypes = {
     rules: PropTypes.object,
-    payloadName: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     saveAndExit: PropTypes.func.isRequired,
 };
