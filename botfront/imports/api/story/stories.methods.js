@@ -1,11 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import shortId from 'shortid';
 import { checkIfCan } from '../../lib/scopes';
 import { traverseStory, aggregateEvents } from '../../lib/story.utils';
 import { Stories } from './stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
-import { shouldUpdatePayloadNames } from '../../lib/story.methods.utils';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
