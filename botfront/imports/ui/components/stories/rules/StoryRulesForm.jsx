@@ -9,6 +9,7 @@ import {
 
 import SelectField from '../../form_fields/SelectField';
 import OptionalField from '../../form_fields/OptionalField';
+import ToggleField from '../../common/ToggleField';
 
 import { getModelField } from '../../../../lib/autoForm.utils';
 
@@ -60,7 +61,7 @@ function StoryRulesForm({
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
         event: { type: String, trim: true },
-        once: { type: Boolean },
+        once: { type: Boolean, defaultValue: false },
     });
     
     const QueryStringSchema = new SimpleSchema({
@@ -214,20 +215,20 @@ function StoryRulesForm({
                                                             name='event'
                                                             placeholder='Select an event type'
                                                             options={[
-                                                                { value: 'click', text: 'Click' },
-                                                                { value: 'dblclick', text: 'Double click' },
-                                                                { value: 'mouseenter', text: 'Mouse enter' },
-                                                                { value: 'mouseleave', text: 'Mouse leave' },
-                                                                { value: 'mouseover', text: 'Mouse over' },
-                                                                { value: 'mousemove', text: 'Mouse move' },
-                                                                { value: 'change', text: 'Change' },
-                                                                { value: 'blur', text: 'Blur' },
-                                                                { value: 'focus', text: 'Focus' },
-                                                                { value: 'focusin', text: 'Focus in' },
-                                                                { value: 'focusout', text: 'Focus out' },
+                                                                { value: 'click', text: 'click' },
+                                                                { value: 'dblclick', text: 'dblclick' },
+                                                                { value: 'mouseenter', text: 'mouseenter' },
+                                                                { value: 'mouseleave', text: 'mouseleave' },
+                                                                { value: 'mouseover', text: 'mouseover' },
+                                                                { value: 'mousemove', text: 'mousemove' },
+                                                                { value: 'change', text: 'change' },
+                                                                { value: 'blur', text: 'blur' },
+                                                                { value: 'focus', text: 'focus' },
+                                                                { value: 'focusin', text: 'focusin' },
+                                                                { value: 'focusout', text: 'focusout' },
                                                             ]}
                                                         />
-                                                        <AutoField name='once' label='Tirgger only the first time this event occurs' />
+                                                        <ToggleField name='once' label='Tirgger only the first time this event occurs' />
                                                     </div>
                                                 </div>
                                             </AutoField>
