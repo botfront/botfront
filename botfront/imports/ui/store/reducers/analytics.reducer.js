@@ -37,6 +37,14 @@ const initialState = Map({
             chartType: 'bar',
             valueType: 'absolute',
         }),
+        conversationsWithFallback: Map({
+            visible: true,
+            startDate,
+            endDate,
+            chartType: 'line',
+            valueType: 'absolute',
+            responses: List(['action_botfront_fallback']),
+        }),
         fallbackCounts: Map({
             visible: true,
             startDate,

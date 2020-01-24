@@ -1,4 +1,4 @@
-query FallbackCounts(
+query ConversationsWithFallback(
     $projectId: String!,
     $envs: [String] = ["development", null],
     $langs: [String] = [],
@@ -7,8 +7,9 @@ query FallbackCounts(
     $fallbacks: [String] = ["action_botfront_fallback"],
     $nBuckets: Int = 7,
 ) {
-    actionCounts(
+    conversationCounts(
         projectId: $projectId,
+        subtype: "fallback",
         envs: $envs,
         langs: $langs,
         from: $from,

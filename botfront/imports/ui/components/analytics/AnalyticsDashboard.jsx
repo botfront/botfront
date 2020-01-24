@@ -12,6 +12,7 @@ import conversationDurations from '../../../api/graphql/conversations/queries/co
 import intentFrequencies from '../../../api/graphql/conversations/queries/intentFrequencies.graphql';
 import visitCounts from '../../../api/graphql/conversations/queries/visitCounts.graphql';
 import fallbackCounts from '../../../api/graphql/conversations/queries/fallbackCounts.graphql';
+import conversationsWithFallback from '../../../api/graphql/conversations/queries/conversationsWithFallback.graphql';
 import { Projects } from '../../../api/project/project.collection';
 
 function AnalyticsDashboard(props) {
@@ -135,12 +136,40 @@ function AnalyticsDashboard(props) {
                 axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
-        fallbackCounts: {
+        conversationsWithFallback: {
             chartTypeOptions: ['line', 'table'],
-            title: 'Fallback',
+            title: 'Conversations with Fallback',
             titleDescription: 'The number of conversations in which a fallback action was triggered.',
             queryParams: {
                 temporal: true, envs, projectId, queryName: 'conversationCounts', queryLanguages,
+            },
+            query: conversationsWithFallback,
+            graphParams: {
+                x: 'bucket',
+                y: [{ abs: 'hits', rel: 'proportion' }],
+                formats: {
+                    bucket: v => v.toLocaleDateString(),
+                    proportion: v => `${v}%`,
+                },
+                columns: [
+                    { header: 'Date', accessor: 'bucket', temporal: true },
+                    { header: 'Count', accessor: 'hits' },
+                    { header: 'Proportion', accessor: 'proportion' },
+                ],
+                rel: { y: [{ abs: 'proportion' }] },
+                axisTitleY: { absolute: 'Number of Fallbacks', relative: 'Fallback Ratio' },
+                axisTitleX: { day: 'Date', hour: 'Time' },
+                unitY: { relative: '%' },
+                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
+                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
+            },
+        },
+        fallbackCounts: {
+            chartTypeOptions: ['line', 'table'],
+            title: 'Fallback Rate',
+            titleDescription: 'The number of times a fallback action was triggered.',
+            queryParams: {
+                temporal: true, envs, projectId, queryName: 'actionCounts', queryLanguages,
             },
             query: fallbackCounts,
             graphParams: {

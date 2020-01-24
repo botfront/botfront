@@ -1,14 +1,14 @@
 import Conversations from '../conversations.model';
 import { generateBuckets, fillInEmptyBuckets } from '../../utils';
 
-export const getResponseCounts = async ({
+export const getActionCounts = async ({
     projectId,
     envs,
     langs,
     from = new Date().getTime() - (86400 * 7),
     to = new Date().getTime(),
     nBuckets,
-    responses,
+    include,
 }) => fillInEmptyBuckets(await Conversations.aggregate([
     {
         $match: {
@@ -58,13 +58,18 @@ export const getResponseCounts = async ({
     {
         $group: {
             _id: '$bucket',
-            total: {
+            count: {
                 $sum: 1,
             },
-            count: {
+            hits: {
                 $sum: {
                     $cond: {
-                        if: { $in: ['$tracker.events.name', responses] },
+                        if: {
+                            $and: [
+                                { $eq: ['$tracker.events.event', 'action'] },
+                                { $in: ['$tracker.events.name', include] },
+                            ],
+                        },
                         then: 1,
                         else: 0,
                     },
@@ -78,8 +83,8 @@ export const getResponseCounts = async ({
                 $divide: [
                     {
                         $subtract: [
-                            { $multiply: [{ $divide: ['$count', '$total'] }, 10000] },
-                            { $mod: [{ $multiply: [{ $divide: ['$count', '$total'] }, 10000] }, 1] },
+                            { $multiply: [{ $divide: ['$hits', '$count'] }, 10000] },
+                            { $mod: [{ $multiply: [{ $divide: ['$hits', '$count'] }, 10000] }, 1] },
                         ],
                     },
                     100,
@@ -91,8 +96,8 @@ export const getResponseCounts = async ({
         $project: {
             _id: null,
             bucket: '$_id',
+            hits: '$hits',
             count: '$count',
-            total: '$total',
             proportion: '$proportion',
         },
     },
