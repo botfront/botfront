@@ -8,6 +8,7 @@ import {
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Meteor } from 'meteor/meteor';
+import moment from 'moment';
 import { GET_CONVERSATIONS, GET_INTENTS_IN_CONVERSATIONS } from './queries';
 import { DELETE_CONV } from './mutations';
 import ConversationViewer from './ConversationViewer';
@@ -202,10 +203,10 @@ function ConversationsBrowser(props) {
                             </Grid.Column>
                         </>
                     ) : (
-                            <Grid.Column width={16}>
-                                <Message data-cy='no-conv' info>No conversations to load.</Message>
-                            </Grid.Column>
-                        )}
+                        <Grid.Column width={16}>
+                            <Message data-cy='no-conv' info>No conversations to load.</Message>
+                        </Grid.Column>
+                    )}
                 </Loading>
             </Grid>
         </div>
@@ -252,8 +253,8 @@ const ConversationsBrowserContainer = (props) => {
         confidenceFilter: -1,
         xThanConfidence: 'lessThan',
         actionFilters: [],
-        startDate: null,
-        endDate: null,
+        startDate: !window.Cypress ? moment().subtract(7, 'd') : null,
+        endDate: !window.Cypress ? moment() : null,
         timeZoneHoursOffset: null,
         userId: null,
         operatorActionsFilters: 'or',
