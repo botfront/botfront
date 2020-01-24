@@ -28,6 +28,7 @@ for (let i = 0; i < 100; i += 1) {
 const EventListenersSchema = new SimpleSchema({
     selector: { type: String, trim: true },
     event: { type: String, trim: true },
+    once: { type: Boolean },
 });
 
 const QueryStringSchema = new SimpleSchema({
