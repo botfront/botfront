@@ -223,6 +223,7 @@ function Activity(props) {
                     }
                     setOpenConvPopup(-1);
                 }}
+                // closeOnScroll // disabled as it also closes when scrolling inside the popup
                 trigger={(
                     <IconButton
                         // basic
@@ -233,7 +234,7 @@ function Activity(props) {
                         className={`action-icon ${!convId && 'inactive'}`}
                         name='comments'
                         size='mini'
-                        // closeOnScroll // disabled as it also closes when scrolling inside the popup
+                        
                         onClick={() => {
                             if (row.index !== openConvPopup) {
                                 setOpenConvPopup(row.index);
