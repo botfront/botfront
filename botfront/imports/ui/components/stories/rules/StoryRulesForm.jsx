@@ -254,10 +254,10 @@ function StoryRulesForm({
                                 <AutoField name='trigger' label='Conditions'>
                                     <SelectField
                                         name='when'
-                                        label='When should this event trigger'
+                                        label='When should this event be triggered?'
                                         options={[
-                                            { value: 'always', text: 'Always trigger' },
-                                            { value: 'init', text: 'Trigger on initialization' },
+                                            { value: 'always', text: 'Always' },
+                                            { value: 'init', text: 'Only if no conversation has started' },
                                         ]}
                                     />
                                     <OptionalField name='url' label='Add URL condition' getError={getEnabledError}>
@@ -279,7 +279,7 @@ function StoryRulesForm({
                                     >
                                         <AutoField name='' label='Number of page visits' data-cy='page-visits-input' step={1} min={0} />
                                     </OptionalField>
-                                    <OptionalField name='device' label='Restrict to specific screen sizes' getError={getEnabledError}>
+                                    <OptionalField name='device' label='Restrict to a specific device' getError={getEnabledError}>
                                         <SelectField
                                             name=''
                                             placeholder='Select screen type'
