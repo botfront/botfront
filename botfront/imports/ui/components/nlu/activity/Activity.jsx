@@ -55,7 +55,7 @@ function Activity(props) {
         linkRender,
     } = props;
 
-
+    const [openConvPopup, setOpenConvPopup] = useState(-1);
     const [filter, setFilter] = useState({ entities: [], intents: [], query: '' });
     let reinterpreting = [];
     const setReinterpreting = (v) => { reinterpreting = v; };
@@ -204,16 +204,35 @@ function Activity(props) {
             <Popup
                 className={convId ? 'dialogue-popup' : ''}
                 on={convId ? 'click' : 'hover'}
+                open={row.index === openConvPopup}
+                onClose={(e) => {
+                    if (/conversation-popup/.test(e.target.id)
+                    || /conversation-popup/.test(e.target.parentElement.id)) {
+                        /* if the click is on another conv popup trigger
+                            setOpenConvPopup will be set by that trigger */
+                        return;
+                    }
+                    setOpenConvPopup(-1);
+                }}
+                hideOnScroll
                 trigger={(
                     <IconButton
                         // basic
+                        id={`conversation-popup-${row.index}`}
                         icon='comments'
                         color='grey'
                         data-cy='conversation-viewer'
                         className={`action-icon ${!convId && 'inactive'}`}
                         name='comments'
                         size='mini'
-                        onClick={convId ? () => getConv() : null}
+                        onClick={() => {
+                            if (row.index !== openConvPopup) {
+                                setOpenConvPopup(row.index);
+                            } else {
+                                setOpenConvPopup(-1);
+                            }
+                            if (convId) getConv();
+                        }}
                     />
                 )}
             >
@@ -278,7 +297,6 @@ function Activity(props) {
             />
         </>
     );
-
     return (
         <>
             {renderTopBar()}
