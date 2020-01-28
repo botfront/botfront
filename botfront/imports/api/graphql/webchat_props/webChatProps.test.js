@@ -77,6 +77,7 @@ const expectedRules = [
         text: 'hello!',
         trigger: {
             device: 'desktop',
+            when: 'always',
         },
     },
     {
@@ -84,6 +85,7 @@ const expectedRules = [
         text: 'You\'re on a desktop computer!',
         trigger: {
             device: 'desktop',
+            when: 'always',
         },
     },
     {
@@ -91,6 +93,7 @@ const expectedRules = [
         text: 'wow!',
         trigger: {
             device: 'desktop',
+            when: 'always',
         },
     },
     {
@@ -98,6 +101,7 @@ const expectedRules = [
         text: 'You\'re awesome!',
         trigger: {
             device: 'desktop',
+            when: 'always',
         },
     },
 ];
