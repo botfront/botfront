@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Modal, Segment, Popup } from 'semantic-ui-react';
-
+import {
+    Modal, Segment, Popup, Message,
+} from 'semantic-ui-react';
 
 import StoryRulesForm from './StoryRulesForm';
 
@@ -20,6 +21,8 @@ const StoryRulesEditor = (props) => {
     } = props;
 
     const [rules, setRules] = useState({ rules: incommingRules });
+    const [formErrors, setFormErrors] = useState();
+    const [submitFailed, setSumbitFailed] = useState(false);
 
     useEffect(() => {
         setRules({ rules: incommingRules });
@@ -59,10 +62,21 @@ const StoryRulesEditor = (props) => {
     };
 
     const handleModalClose = () => {
+        if (formErrors) {
+            setSumbitFailed(true);
+            return;
+        }
+        setSumbitFailed(false);
         Meteor.call('stories.updateRules', projectId, storyId, clearOptionalFields(rules), (err) => {
             if (err) return;
             setOpen(false);
         });
+    };
+
+    const handleCancelChanges = () => {
+        setSumbitFailed(false);
+        setRules({ rules: incommingRules });
+        setOpen(false);
     };
 
     return (
@@ -76,10 +90,20 @@ const StoryRulesEditor = (props) => {
                     >
                         <Segment.Group>
                             <Segment>
+                                {submitFailed && formErrors && (
+                                    <Message
+                                        error
+                                        icon='exclamation circle'
+                                        header='Could not save trigger rules'
+                                        content='To return to the story editor fix the errors or click on the cancel button to discard your changes'
+                                    />
+                                )}
                                 <StoryRulesForm
                                     onChange={handleChangeRules}
                                     rules={rules}
                                     saveAndExit={handleModalClose}
+                                    cancelChanges={handleCancelChanges}
+                                    onChangeErrors={error => setFormErrors(!!error)}
                                 />
                             </Segment>
                         </Segment.Group>

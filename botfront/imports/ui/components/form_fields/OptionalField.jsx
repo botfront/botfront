@@ -10,7 +10,7 @@ import { getModelField } from '../../../lib/autoForm.utils';
 
 const OptionalField = (props) => {
     const {
-        name, children, label, 'data-cy': dataCy,
+        name, children, label, 'data-cy': dataCy, getError,
     } = props;
 
     const isEnabled = (context, currentName) => {
@@ -22,7 +22,14 @@ const OptionalField = (props) => {
         }
     };
 
-    const renderChildren = () => children.map(element => ({ ...(element || {}), props: { ...(element.props || {}), name: (element.props.name ? `${name}.${element.props.name}` : name) } }));
+    const renderChildren = () => children.map(element => ({
+        ...(element || {}),
+        props: {
+            ...(element.props || {}),
+            name: (element.props.name ? `${name}.${element.props.name}` : name),
+            error: getError((element.props.name ? `${name}.${element.props.name}` : name)),
+        },
+    }));
     return (
         <>
             <ToggleField name={`${name}__DISPLAYIF`} {...label ? { label } : {}} {...dataCy ? { 'data-cy': dataCy } : {}} />
@@ -42,10 +49,12 @@ OptionalField.propTypes = {
     children: PropTypes.oneOfType(PropTypes.arrayOf(PropTypes.element).isRequired, PropTypes.element),
     label: PropTypes.string,
     'data-cy': PropTypes.string,
+    getError: PropTypes.func,
 };
 OptionalField.defaultProps = {
     label: null,
     'data-cy': null,
+    getError: () => false,
 };
 
 export default OptionalField;

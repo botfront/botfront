@@ -1,27 +1,45 @@
-const triggerValidators = {
-    url: value => !value.find(urlString => !urlString),
-    numberOfVisits: value => value !== undefined,
-    numberOfPageVisits: value => value !== undefined,
-    device: value => value !== undefined,
-    queryString: v => !v.find(e => !(
+export const triggerValidators = { // at least one element is valid
+    url: value => !!value.some(urlString => urlString.length > 0),
+    numberOfVisits: value => value || value === 0,
+    numberOfPageVisits: value => value || value === 0,
+    device: value => value,
+    queryString: v => !!v.some(e => (
         e && e.param && e.param.length > 0
         && e.value && e.value.length > 0
     )),
-    timeOnPage: value => value !== undefined,
-    eventListeners: v => !v.find(e => !(
+    timeOnPage: value => value || value === 0,
+    eventListeners: v => !!v.some(e => (
         e && e.selector && e.selector.length
         && e.event
     )),
+    text: value => value && value.length > 0,
 };
 
-const hasTrigger = trigger => (
+export const eachTriggerValidators = { // all elements are valid
+    url: value => value && value.length > 0 && !!value.every(urlString => urlString && urlString.length > 0),
+    numberOfVisits: value => value || value === 0,
+    numberOfPageVisits: value => value || value === 0,
+    device: value => value,
+    queryString: v => v && v.length > 0 && !!v.every(e => (
+        e && e.param && e.param.length > 0
+        && e.value && e.value.length > 0
+    )),
+    timeOnPage: value => value || value === 0,
+    eventListeners: v => v && v.length > 0 && !!v.every(e => (
+        e && e.selector && e.selector.length
+        && e.event
+    )),
+    text: value => value && value.length > 0,
+};
+
+export const hasTrigger = trigger => (
     typeof trigger === 'object'
-    && Object.keys(trigger).filter((key) => {
-        if (!trigger[key]) return true;
-        return !triggerValidators[key](trigger[key]);
-    })
+        && Object.keys(trigger).some((key) => {
+            if (!trigger[key] && trigger[key] !== 0) return false;
+            if (!triggerValidators[key]) return false;
+            if (trigger[`${key}__DISPLAYIF`] === false) return false;
+            return triggerValidators[key](trigger[key]);
+        })
 );
 
-export const checkHasTriggers = (rules) => {
-    rules.filter(rule => (rule.trigger && hasTrigger(rule.trigger)));
-};
+export const hasTriggerRules = rules => rules.some(rule => (rule.trigger && hasTrigger(rule.trigger)));
