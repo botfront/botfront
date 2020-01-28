@@ -164,7 +164,7 @@ export class StoryController {
         have_intent: ['warning', 'Bot actions should usually be found in a user utterance block.'],
         empty_intent: ['warning', 'User utterance block closed without defining any bot action.'],
         declare_form: ['warning', 'Form calls (`- form{"name": "myform_form"}`) should be preceded by matching `- myform_form`.'],
-        smart_story_payload: ['error', 'Smart stories must not start with a user utterance'],
+        smart_story_payload: ['error', 'Smart stories are triggered automatically and must not start with a user utterance'],
     };
 
     validateIntent = () => {

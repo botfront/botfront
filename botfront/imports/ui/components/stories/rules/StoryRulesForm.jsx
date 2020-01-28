@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 // import { GraphQLBridge } from 'uniforms-bridge-graphql';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
@@ -6,12 +6,14 @@ import SimpleSchema from 'simpl-schema';
 import {
     AutoForm, AutoField, ErrorsField, SubmitField, ListDelField,
 } from 'uniforms-semantic';
+import { Button } from 'semantic-ui-react';
 
 import SelectField from '../../form_fields/SelectField';
 import OptionalField from '../../form_fields/OptionalField';
 import ToggleField from '../../common/ToggleField';
 
 import { getModelField } from '../../../../lib/autoForm.utils';
+import { eachTriggerValidators, hasTrigger } from '../../../../lib/storyRules.utils';
 
 class RulesForm extends AutoForm {
     resetOptionalArray = (keyArray, fieldName) => {
@@ -56,8 +58,12 @@ class RulesForm extends AutoForm {
 }
 
 function StoryRulesForm({
-    rules, onChange, saveAndExit,
+    rules, onChange, saveAndExit, cancelChanges, onChangeErrors,
 }) {
+    const [enabledErrors, setEnabledErrors] = useState({});
+
+    const getEnabledError = accessor => enabledErrors[accessor];
+
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
         event: { type: String, trim: true },
@@ -71,11 +77,11 @@ function StoryRulesForm({
     
     const TriggerSchema = new SimpleSchema({
         url: { type: Array, optional: true },
-        'url.$': { type: String },
+        'url.$': { type: String, optional: false },
         url__DISPLAYIF: { type: Boolean, optional: true },
         numberOfVisits: { type: Number, optional: true },
         numberOfVisits__DISPLAYIF: { type: Boolean, optional: true },
-        numberOfPageVisits: { type: String, optional: true },
+        numberOfPageVisits: { type: Number, optional: true },
         numberOfPageVisits__DISPLAYIF: { type: Boolean, optional: true },
         device: { type: String, optional: true },
         device__DISPLAYIF: { type: Boolean, optional: true },
@@ -87,6 +93,7 @@ function StoryRulesForm({
         eventListeners: { type: Array, optional: true },
         'eventListeners.$': { type: EventListenersSchema, optional: true },
         eventListeners__DISPLAYIF: { type: Boolean, optional: true },
+        when: { type: String, optional: true, defaultValue: 'always' },
     });
     
     export const RulesSchema = new SimpleSchema({
@@ -115,6 +122,18 @@ function StoryRulesForm({
         'rules.$.trigger.queryString',
         'rules.$.trigger.eventListeners',
     ];
+
+    const fieldErrorMessages = {
+        text: 'Display a user message is enabled but no message is set',
+        url: 'URL conditions are enabled but none are set',
+        numberOfVisits: 'the number of website visits trigger is enabled but no value is entered',
+        numberOfPageVisits: 'The number of page visits trigger is enabled but no value is entered',
+        timeOnPage: 'The time on page trigger is enabled but no value is entered',
+        device: 'A device type must be selected when the "restrict to specific screen sizes" field is enabled',
+        queryString: 'Query string triggers are enabled but none are set',
+        eventListeners: 'Event listener triggers are enabled but none are set',
+        trigger: 'At least one trigger condition must be added',
+    };
 
     const createPathElem = (key) => {
         const regex = /^[0-9]*$/gm;
@@ -161,9 +180,67 @@ function StoryRulesForm({
         onChange(model);
     };
 
+    const validateEnabledFields = (model) => {
+        let errors = [];
+        model.rules.forEach((rule, ruleIndex) => {
+            if (!rule.trigger || !hasTrigger(rule.trigger)) {
+                errors = [
+                    ...errors,
+                    { name: 'trigger', type: 'required', message: `Ruleset ${ruleIndex + 1}: ${fieldErrorMessages.trigger}` },
+                ];
+            }
+            toggleFields.forEach((fieldName) => {
+                const valueAccessor = fieldName.split('.').slice(2).join('.');
+                const toggleAccessor = `${valueAccessor}__DISPLAYIF`;
+                const fieldValue = getModelField(valueAccessor, rule);
+                const fieldEnabled = getModelField(toggleAccessor, rule);
+                const key = fieldName.split('.')[fieldName.split('.').length - 1];
+                const modelAccessor = fieldName.replace(/\$/, ruleIndex);
+                if (fieldEnabled && (!fieldValue || !eachTriggerValidators[key](fieldValue))) {
+                    if (!enabledErrors[modelAccessor]) setEnabledErrors({ ...enabledErrors, [modelAccessor]: true });
+                    errors = [
+                        ...errors,
+                        {
+                            name: fieldName.replace(/\$/, ruleIndex),
+                            type: 'required',
+                            message: `Ruleset ${ruleIndex + 1}: ${fieldErrorMessages[key]}`,
+                        },
+                    ];
+                    return;
+                }
+                if (enabledErrors[modelAccessor] === true) setEnabledErrors({ ...enabledErrors, [modelAccessor]: false });
+            });
+        });
+        return errors;
+    };
+
+    const filterRepeatErrors = (errors) => {
+        const messages = {};
+        return errors.filter((error) => {
+            if (messages[error.message]) return false;
+            messages[error.message] = true;
+            return true;
+        });
+    };
+
+    const handleValidate = (model, incommingErrors, callback) => {
+        const newError = incommingErrors || new Error('Fields are invalid');
+        let errors = incommingErrors
+            ? filterRepeatErrors(incommingErrors.details)
+            : [];
+        errors = [...errors, ...validateEnabledFields(model)];
+        newError.details = errors;
+        if (!newError.details.length) {
+            onChangeErrors(null);
+            return callback(null);
+        }
+        onChangeErrors(newError);
+        return callback(newError);
+    };
+
     return (
         <div className='story-trigger-form-container' data-cy='story-rules-editor'>
-            <RulesForm autosave model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={handleSubmit}>
+            <RulesForm autosave model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={handleSubmit} onValidate={handleValidate}>
                 <AutoField name='rules' label='Trigger rules'>
                     <AutoField name='$'>
                         <div className='list-container'>
@@ -171,20 +248,38 @@ function StoryRulesForm({
                                 <ListDelField name='' />
                             </div>
                             <div className='list-element-container'>
-                                <OptionalField name='text' label='Display a user message' data-cy='toggle-payload-text'>
+                                <OptionalField name='text' label='Display a user message' data-cy='toggle-payload-text' getError={getEnabledError}>
                                     <AutoField name='' label='User message to display' data-cy='payload-text-input' />
                                 </OptionalField>
                                 <AutoField name='trigger' label='Conditions'>
-                                    <OptionalField name='url' label='Add URL condition'>
-                                        <AutoField name='' label='Trigger when the user visits these URLs' />
+                                    <SelectField
+                                        name='when'
+                                        label='When should this event trigger'
+                                        options={[
+                                            { value: 'always', text: 'Always trigger' },
+                                            { value: 'init', text: 'Trigger on initialization' },
+                                        ]}
+                                    />
+                                    <OptionalField name='url' label='Add URL condition' getError={getEnabledError}>
+                                        <AutoField name='' label='Trigger when the user visits all of the following URLs' />
                                     </OptionalField>
-                                    <OptionalField name='numberOfVisits' label='Trigger based on the number of times the user has visited the website' data-cy='toggle-website-visits'>
-                                        <AutoField name='' label='Number of visits' data-cy='website-visits-input' />
+                                    <OptionalField
+                                        name='numberOfVisits'
+                                        label='Trigger based on the number of times the user has visited the website'
+                                        data-cy='toggle-website-visits'
+                                        getError={getEnabledError}
+                                    >
+                                        <AutoField name='' label='Number of website visits' data-cy='website-visits-input' />
                                     </OptionalField>
-                                    <OptionalField name='numberOfPageVisits' label='Trigger based on the number of times the user has visited this specific page' data-cy='toggle-page-visits'>
+                                    <OptionalField
+                                        name='numberOfPageVisits'
+                                        label='Trigger based on the number of times the user has visited this specific page'
+                                        data-cy='toggle-page-visits'
+                                        getError={getEnabledError}
+                                    >
                                         <AutoField name='' label='Number of page visits' data-cy='page-visits-input' />
                                     </OptionalField>
-                                    <OptionalField name='device' label='Restrict to specific screen sizes'>
+                                    <OptionalField name='device' label='Restrict to specific screen sizes' getError={getEnabledError}>
                                         <SelectField
                                             name=''
                                             placeholder='Select screen type'
@@ -196,13 +291,23 @@ function StoryRulesForm({
                                             ]}
                                         />
                                     </OptionalField>
-                                    <OptionalField name='queryString' label='Trigger if specific query string parameters are present in the URL' data-cy='toggle-query-string'>
+                                    <OptionalField
+                                        name='queryString'
+                                        label='Trigger if specific query string parameters are present in the URL'
+                                        data-cy='toggle-query-string'
+                                        getError={getEnabledError}
+                                    >
                                         <AutoField name='' data-cy='query-string-field' />
                                     </OptionalField>
-                                    <OptionalField name='timeOnPage' label='Trigger once the user has been on this page for a certain amount of time' data-cy='toggle-time-on-page'>
+                                    <OptionalField
+                                        name='timeOnPage'
+                                        label='Trigger once the user has been on this page for a certain amount of time'
+                                        data-cy='toggle-time-on-page'
+                                        getError={getEnabledError}
+                                    >
                                         <AutoField name='' label='Number of seconds after which this conversation should be triggered' />
                                     </OptionalField>
-                                    <OptionalField name='eventListeners' label='Enable event listener trigger' data-cy='toggle-event-listeners'>
+                                    <OptionalField name='eventListeners' label='Enable event listener trigger' data-cy='toggle-event-listeners' getError={getEnabledError}>
                                         <AutoField name=''>
                                             <AutoField name='$'>
                                                 <div className='list-container'>
@@ -242,7 +347,10 @@ function StoryRulesForm({
                 <br />
                 <ErrorsField />
                 <br />
-                <SubmitField value='Save and exit' onClick={saveAndExit} />
+                <div className='submit-rules-buttons'>
+                    <Button onClick={cancelChanges} floated='right'>Cancel</Button>
+                    <SubmitField value='Save and exit' onClick={saveAndExit} className='right floated blue' />
+                </div>
             </RulesForm>
         </div>
     );
@@ -252,10 +360,13 @@ StoryRulesForm.propTypes = {
     rules: PropTypes.object,
     onChange: PropTypes.func.isRequired,
     saveAndExit: PropTypes.func.isRequired,
+    cancelChanges: PropTypes.func.isRequired,
+    onChangeErrors: PropTypes.func,
 };
 
 StoryRulesForm.defaultProps = {
     rules: { rules: [] },
+    onChangeErrors: () => {},
 };
 
 export default StoryRulesForm;

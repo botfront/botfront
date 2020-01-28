@@ -7,6 +7,8 @@ import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
 
+import { hasTriggerRules } from '../../../lib/storyRules.utils';
+
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
 import StoryRulesEditor from './rules/StoryRulesEditor';
@@ -25,13 +27,16 @@ const StoryTopMenu = ({
     groupNames,
     collapsed,
     collapseStory,
-    warnings,
-    errors,
+    warnings: warningDetails,
+    errors: errorDetails,
     isDestinationStory,
     originStories,
     isLinked,
     rules,
 }) => {
+    const errors = errorDetails.length;
+    const warnings = warningDetails.length;
+
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
@@ -228,7 +233,16 @@ const StoryTopMenu = ({
                     {renderErrors()}
                     <StoryRulesEditor
                         // the trigger element will have it's onClick, disabled, and className props modified
-                        trigger={<Icon name='stopwatch' color={rules.length > 0 ? 'green' : 'grey'} data-cy='edit-trigger-rules' />}
+                        trigger={(
+                            <Icon
+                                name='stopwatch'
+                                color={(() => {
+                                    if (errorDetails.some(({ code }) => code === 'smart_story_payload')) return 'red';
+                                    return hasTriggerRules(rules) ? 'green' : 'grey';
+                                })()}
+                                data-cy='edit-trigger-rules'
+                            />
+                        )}
                         storyId={storyId}
                         rules={rules}
                         open={triggerEditorOpen}
@@ -308,7 +322,7 @@ const StoryTopMenu = ({
                     {renderConnectedStories()}
                 </Popup>
             )}
-            {rules.length > 0 && (
+            { hasTriggerRules(rules) && (
                 <Message
                     className='connected-story-alert'
                     attached
@@ -317,7 +331,7 @@ const StoryTopMenu = ({
                     onClick={() => setTriggerEditorOpen(true)}
                 >
                     <Icon name='info circle' />
-                    Trigger conditions are set for this story. It will start automatically when the conditions are met.
+                    This story will be triggered automatically when the conditions set with the stopwatch icon are met.
                 </Message>
             )}
         </>
@@ -335,8 +349,8 @@ StoryTopMenu.propTypes = {
     groupNames: PropTypes.array.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
-    warnings: PropTypes.number.isRequired,
-    errors: PropTypes.number.isRequired,
+    warnings: PropTypes.array.isRequired,
+    errors: PropTypes.array.isRequired,
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,

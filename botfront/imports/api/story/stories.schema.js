@@ -47,6 +47,7 @@ const TriggerSchema = new SimpleSchema({
     'queryString.$': { type: QueryStringSchema, optional: true },
     eventListeners: { type: Array, optional: true },
     'eventListeners.$': { type: EventListenersSchema, optional: true },
+    when: { type: String, defaultValue: 'always' },
 });
 
 export const RulesSchema = new SimpleSchema({

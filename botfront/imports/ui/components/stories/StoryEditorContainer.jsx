@@ -181,12 +181,12 @@ const StoryEditorContainer = ({
         exceptions[story._id] && exceptions[story._id][exceptionType]
             ? exceptions[story._id][exceptionType]
                 .filter(storyMode === 'markdown' ? e => e : e => e.code !== 'no_such_response') // don't show missing template warning in visual mode
-                .length
-            : 0
+            : []
     );
 
     useEffect(() => {
         storyControllers[story._id].updateRules(story.rules);
+        storyControllers[story._id].validateStory();
     }, [story.rules]);
 
     const renderTopMenu = () => (
