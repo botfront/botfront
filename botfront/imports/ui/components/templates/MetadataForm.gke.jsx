@@ -6,9 +6,11 @@ import {
     Message, Tab,
 } from 'semantic-ui-react';
 import {
-    SelectField, AutoField, ErrorsField, LongTextField, ListField, ListItemField, NestField,
+    AutoField, ErrorsField, LongTextField, ListField, ListItemField, NestField,
 } from 'uniforms-semantic';
 import { cloneDeep } from 'lodash';
+
+import SelectField from '../form_fields/SelectField';
 import InfoField from '../utils/InfoField';
 import ToggleField from '../common/ToggleField';
 import DisplayIf from '../DisplayIf';
@@ -23,43 +25,43 @@ function ResponseMetadataForm({
 }) {
     const pageEventOptions = [
         {
-            label: 'click',
+            text: 'click',
             value: 'click',
         },
         {
-            label: 'dblclick',
+            text: 'dblclick',
             value: 'dblclick',
         },
         {
-            label: 'mouseenter',
+            text: 'mouseenter',
             value: 'mouseenter',
         },
         {
-            label: 'mouseleave',
+            text: 'mouseleave',
             value: 'mouseleave',
         },
         {
-            label: 'mouseover',
+            text: 'mouseover',
             value: 'mouseover',
         },
         {
-            label: 'change',
+            text: 'change',
             value: 'change',
         },
         {
-            label: 'blur',
+            text: 'blur',
             value: 'blur',
         },
         {
-            label: 'focus',
+            text: 'focus',
             value: 'focus',
         },
         {
-            label: 'focusin',
+            text: 'focusin',
             value: 'focusin',
         },
         {
-            label: 'focusout',
+            text: 'focusout',
             value: 'focusout',
         },
     ];
