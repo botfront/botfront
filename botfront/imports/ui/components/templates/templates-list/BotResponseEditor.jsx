@@ -248,7 +248,7 @@ const BotResponseEditor = (props) => {
                         <div className='response-editor-topbar-section'>
                             <Menu pointing secondary activeIndex={activeTab}>
                                 <MenuItem onClick={() => { setActiveTab(0); }} active={activeTab === 0} className='response-variations' data-cy='variations-tab'>Variations</MenuItem>
-                                <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata' data-cy='metadata-tab'>Metadata</MenuItem>
+                                <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata' data-cy='metadata-tab'>Behaviour</MenuItem>
                             </Menu>
                         </div>
                         <div className='response-editor-topbar-section' />
