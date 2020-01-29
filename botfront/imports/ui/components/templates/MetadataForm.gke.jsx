@@ -256,9 +256,9 @@ function ResponseMetadataForm({
 
     const payloadFormatter = (payload) => {
         if (payload.match(/^\//)) { // regex for begin with a /
-            return payload;
+            return payload.replace(/\s/g, '');
         }
-        return `/${payload}`;
+        return `/${payload.replace(/\s/g, '')}`;
     };
     const postProcess = (model) => {
         const newModel = cloneDeep(model);
