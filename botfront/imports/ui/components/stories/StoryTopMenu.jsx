@@ -7,8 +7,6 @@ import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
 
-import { hasTriggerRules } from '../../../lib/storyRules.utils';
-
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
 import StoryRulesEditor from './rules/StoryRulesEditor';
@@ -238,7 +236,7 @@ const StoryTopMenu = ({
                                 name='stopwatch'
                                 color={(() => {
                                     if (errorDetails.some(({ code }) => code === 'smart_story_payload')) return 'red';
-                                    return hasTriggerRules(rules) ? 'green' : 'grey';
+                                    return rules && rules.length ? 'green' : 'grey';
                                 })()}
                                 data-cy='edit-trigger-rules'
                             />
@@ -322,7 +320,7 @@ const StoryTopMenu = ({
                     {renderConnectedStories()}
                 </Popup>
             )}
-            { hasTriggerRules(rules) && (
+            { rules && rules.length > 0 && (
                 <Message
                     className='connected-story-alert'
                     attached
