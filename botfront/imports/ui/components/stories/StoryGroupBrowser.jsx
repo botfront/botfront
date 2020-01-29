@@ -190,7 +190,6 @@ class StoryGroupBrowser extends React.Component {
             placeholderAddItem,
         } = this.props;
         const { addMode, newItemName } = this.state;
-        const nSmartStories = data.filter(e => e.query).length;
 
         return (
             <div className='storygroup-browser'>
@@ -216,12 +215,12 @@ class StoryGroupBrowser extends React.Component {
                 )}
                 {data.length > 1 && (
                     <Menu vertical fluid>
-                        {this.getItems([1, nSmartStories + 1])}
+                        {this.getItems([1, 2])}
                     </Menu>
                 )}
-                {data.length > 1 && (
+                {data.length > 2 && (
                     <Menu vertical fluid>
-                        {this.getItems([nSmartStories + 1])}
+                        {this.getItems([2])}
                     </Menu>
                 )}
             </div>

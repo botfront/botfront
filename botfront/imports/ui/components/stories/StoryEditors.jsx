@@ -2,7 +2,6 @@ import { Container, Button, Message } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { safeLoad } from 'js-yaml';
 import { can } from '../../../lib/scopes';
 
 import { Stories } from '../../../api/story/stories.collection';
@@ -152,12 +151,11 @@ export default withTracker((props) => {
     // We're using a specific subscription so we don't fetch too much at once
     let storiesHandler = { ready: () => (false) };
     let stories = [];
-    // console.log(storyGroup);
     if (storyGroup.query) {
         storiesHandler = Meteor.subscribe('smartStories', projectId, storyGroup.query);
         stories = Stories.find({
             projectId,
-            ...safeLoad(storyGroup.query),
+            ...storyGroup.query,
         }).fetch();
     } else {
         storiesHandler = Meteor.subscribe('stories.inGroup', projectId, storyGroup._id);

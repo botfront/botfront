@@ -9,7 +9,6 @@ describe('stories', function() {
     });
 
     beforeEach(function() {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
 

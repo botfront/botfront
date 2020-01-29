@@ -19,7 +19,6 @@ export const StoryGroupSchema = new SimpleSchema(
         'hasErrors.$': { type: String },
         hasWarnings: { type: Array, defaultValue: [] },
         'hasWarnings.$': { type: String },
-        query: { type: String, optional: true },
     },
     { tracker: Tracker },
 );
