@@ -371,8 +371,6 @@ StoryTopMenu.propTypes = {
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
     rules: PropTypes.array,
-    disableDelete: PropTypes.bool,
-    disableMove: PropTypes.bool,
     isInSmartStories: PropTypes.bool,
 };
 StoryTopMenu.defaultProps = {

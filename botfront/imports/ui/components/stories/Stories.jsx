@@ -232,12 +232,6 @@ const StoriesWithTracker = withTracker((props) => {
         .sort((storyGroupA, storyGroupB) => {
             const nameA = storyGroupA.name.toUpperCase();
             const nameB = storyGroupB.name.toUpperCase();
-            if (!storyGroupA.query && storyGroupB.query) {
-                return 1;
-            }
-            if (storyGroupA.query && !storyGroupB.query) {
-                return -1;
-            }
             if (nameA < nameB) {
                 return -1;
             }
@@ -247,15 +241,20 @@ const StoriesWithTracker = withTracker((props) => {
             return 0;
         });
     // unsortedStoryGroups[0] is the intro story group
-    const storyGroups = [unsortedStoryGroups[0], ...sortedStoryGroups];
-    const stories = StoriesCollection.find({}).fetch();
+    const smartStoryGroup = {
+        _id: 'SMART_STORY_GROUP',
+        name: 'Smart stories',
+        projectId,
+        query: { 'rules.0.payload': { $exists: true } },
+    };
+    const storyGroups = [unsortedStoryGroups[0], smartStoryGroup, ...sortedStoryGroups];
 
     return {
         ready:
             storyGroupsHandler.ready()
             && storiesHandler.ready(),
         storyGroups,
-        stories,
+        stories: StoriesCollection.find({}).fetch(),
     };
 })(Stories);
 

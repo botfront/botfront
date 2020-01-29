@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { safeDump } from 'js-yaml';
 import { checkIfCan } from '../../lib/scopes';
 import { StoryGroups } from './storyGroups.collection';
 import { Stories } from '../story/stories.collection';
@@ -54,23 +53,6 @@ export const createDefaultStoryGroup = (projectId) => {
                     projectId,
                 });
             } else {
-                // eslint-disable-next-line no-console
-                console.log(err);
-            }
-        },
-    );
-};
-
-export const createSmartStoriesGroup = (projectId) => {
-    Meteor.call(
-        'storyGroups.insert',
-        {
-            name: 'Smart stories',
-            projectId,
-            query: safeDump({ 'rules.0.payload': { $exists: true } }),
-        },
-        (err) => {
-            if (err) {
                 // eslint-disable-next-line no-console
                 console.log(err);
             }

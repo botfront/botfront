@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import { safeLoad } from 'js-yaml';
 import { checkIfCan } from '../../lib/scopes';
 import { StorySchema } from './stories.schema';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
@@ -30,9 +29,9 @@ if (Meteor.isServer) {
 
     Meteor.publish('smartStories', function(projectId, query) {
         check(projectId, String);
-        check(query, String);
+        check(query, Object);
         checkIfCan('stories:r', projectId);
-        return Stories.find({ projectId, ...safeLoad(query) });
+        return Stories.find({ projectId, ...query });
     });
 
     Meteor.publish('stories.intro', function(projectId) {
