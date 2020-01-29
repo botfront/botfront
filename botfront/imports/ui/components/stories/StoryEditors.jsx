@@ -18,6 +18,7 @@ function StoryEditors(props) {
     } = props;
 
     const groupNames = storyGroups
+        .filter(({ query }) => !query)
         .map(group => ({
             text: group.name,
             value: group._id,
