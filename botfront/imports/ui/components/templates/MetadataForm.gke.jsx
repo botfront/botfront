@@ -94,7 +94,7 @@ function ResponseMetadataForm({
 
     type DomHighlight {
         enabled: Boolean!
-        style: String
+        style: String!
         selector: String
         css: String
     }
@@ -157,7 +157,7 @@ function ResponseMetadataForm({
                         <>
                             <InfoField name='domHighlight.selector' label='CSS selector' info='The CSS selector of the DOM element to highlight' />
                             <SelectField name='domHighlight.style' />
-                        
+                            
                             <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'class'}>
                                 <AutoField name='domHighlight.css' label='Class name' />
                             </DisplayIf>
