@@ -2,13 +2,12 @@
 
 describe('Project Settings', function () {
     beforeEach(function () {
-        cy.createProject('bf', 'My Project', 'en');
-        cy.login();
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
 
     afterEach(function () {
-        cy.deleteProject('bf');
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     describe('Project info', function () {
