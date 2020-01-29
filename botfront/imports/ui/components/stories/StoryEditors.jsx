@@ -112,7 +112,7 @@ function StoryEditors(props) {
 
     return (
         <>
-            {storyGroup.isSmartGroup && stories.length === 0 && (
+            {storyGroup.query && stories.length === 0 && (
                 <Message info icon={{ name: 'info circle', size: 'small' }} content='Stories with smart triggers will appear here' data-cy='smart-stories-message' />
             )}
             {editors}
