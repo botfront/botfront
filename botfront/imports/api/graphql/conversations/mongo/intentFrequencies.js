@@ -133,4 +133,4 @@ export const getIntentFrequencies = async ({
 
     { $sort: { count: -1 } },
     { $limit: limit },
-]);
+]).allowDiskUse(true);

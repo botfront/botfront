@@ -102,4 +102,4 @@ export const getActionCounts = async ({
         },
     },
     { $sort: { bucket: 1 } },
-]), from, to, nBuckets);
+]).allowDiskUse(true), from, to, nBuckets);

@@ -11,7 +11,7 @@ describe('incoming page', function() {
     });
 
     afterEach(function() {
-        // cy.logout();
+        cy.logout();
     });
 
     const conversationToAdd = {

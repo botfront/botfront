@@ -25,7 +25,7 @@ export const getIntentDistribution = async id => Model.aggregate([
         },
     },
     { $sort: { count: -1 } },
-]);
+]).allowDiskUse(true);
 
 export const getEntityDistribution = async id => Model.aggregate([
     {
@@ -57,4 +57,4 @@ export const getEntityDistribution = async id => Model.aggregate([
         },
     },
     { $sort: { count: -1 } },
-]);
+]).allowDiskUse(true);

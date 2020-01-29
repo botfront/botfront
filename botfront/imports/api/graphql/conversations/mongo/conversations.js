@@ -204,7 +204,7 @@ export const getConversations = async ({
         },
     ];
     
-    const paginatedResults = await Conversations.aggregate(aggregation);
+    const paginatedResults = await Conversations.aggregate(aggregation).allowDiskUse(true);
     if (paginatedResults[0].conversations.length < 1) {
         return ({
             conversations: [],
