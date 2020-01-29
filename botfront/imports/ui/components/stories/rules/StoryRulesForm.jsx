@@ -269,7 +269,7 @@ function StoryRulesForm({
                                         data-cy='toggle-website-visits'
                                         getError={getEnabledError}
                                     >
-                                        <AutoField name='' label='Number of website visits' data-cy='website-visits-input' />
+                                        <AutoField name='' label='Number of website visits' data-cy='website-visits-input' step={1} min={0} />
                                     </OptionalField>
                                     <OptionalField
                                         name='numberOfPageVisits'
@@ -277,7 +277,7 @@ function StoryRulesForm({
                                         data-cy='toggle-page-visits'
                                         getError={getEnabledError}
                                     >
-                                        <AutoField name='' label='Number of page visits' data-cy='page-visits-input' />
+                                        <AutoField name='' label='Number of page visits' data-cy='page-visits-input' step={1} min={0} />
                                     </OptionalField>
                                     <OptionalField name='device' label='Restrict to specific screen sizes' getError={getEnabledError}>
                                         <SelectField
@@ -305,7 +305,7 @@ function StoryRulesForm({
                                         data-cy='toggle-time-on-page'
                                         getError={getEnabledError}
                                     >
-                                        <AutoField name='' label='Number of seconds after which this conversation should be triggered' />
+                                        <AutoField name='' label='Number of seconds after which this conversation should be triggered' step={1} min={0} />
                                     </OptionalField>
                                     <OptionalField name='eventListeners' label='Enable event listener trigger' data-cy='toggle-event-listeners' getError={getEnabledError}>
                                         <AutoField name=''>
