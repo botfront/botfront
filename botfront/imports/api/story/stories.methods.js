@@ -26,7 +26,7 @@ Meteor.methods({
         const { events: oldEvents } = originStory || {};
         // passing story.story and path[(last index)] AKA storyBranchId to aggregate events allows it to aggregate events with the updated story md
         const newEvents = aggregateEvents(originStory, { ...rest, _id: path[path.length - 1] }); // path[(last index)] is the id of the updated branch
-        
+
         const { indices } = traverseStory(originStory, path);
         const update = indices.length
             ? Object.assign(
@@ -36,18 +36,8 @@ Meteor.methods({
                 )),
             )
             : rest;
-        // if (shouldUpdatePayloadNames(originStory, story, path)) {
-        //     /*  change the payload name for all rules in this story
-        //         if the first line changed to a new user utterance
-        //     */
-        //     update.rules = originStory.rules.map(rule => ({
-        //         ...rule,
-        //         // payload is `/${intent name}`
-        //         payload: `/${story.story.split('\n')[0].substring(1).trim()}`,
-        //     }));
-        // }
         const result = await Stories.update({ _id }, { $set: { ...update, events: newEvents } });
-        
+
         // check if a response was removed
         const removedEvents = (oldEvents || []).filter(event => event.match(/^utter_/) && !newEvents.includes(event));
         deleteResponsesRemovedFromStories(removedEvents, projectId);
@@ -91,16 +81,6 @@ Meteor.methods({
         check(rules, Object);
         const update = {};
 
-        // const { story = '' } = await Stories.findOne({ projectId, _id: storyId }, { fields: { story: 1 } });
-        // const firstLine = story.split('\n')[0];
-
-        // let payloadName = '';
-        // if (/^\*/.exec(firstLine)) { // matches user utterances
-        //     payloadName = `${firstLine.substring(1).trim()}`;
-        // } else {
-        //     payloadName = `trigger_${shortId()}`;
-        // }
-        
         update.rules = rules.rules.map(rule => ({ ...rule, payload: `/trigger_${storyId}` }));
         Stories.update(
             { projectId, _id: storyId },

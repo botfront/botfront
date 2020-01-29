@@ -92,8 +92,7 @@ const StoryEditorContainer = ({
             triggerRules: story.rules,
         }),
     });
-
-
+    
     // This effect is used to update errors when templates or slots are updated
     useEffect(() => {
         Object.keys(storyControllers).forEach((storyId) => {

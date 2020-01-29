@@ -128,7 +128,6 @@ export const findBranchById = (branchesN0, branchId) => {
     return -1;
 };
 
-
 export const addlinkCheckpoints = (stories) => {
     // adds rasa checkpoints to linked stories */
 
@@ -293,6 +292,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
                 story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, rules: 1,
             },
         }).fetch();
+
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
     let storiesForRasa = stories
