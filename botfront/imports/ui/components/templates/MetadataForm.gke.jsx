@@ -135,6 +135,8 @@ function ResponseMetadataForm({
                                     <>
                                         In each <strong>Page change</strong> you can defined a <strong>URL</strong> to be matched against the next URL visited by the user.<br />
                                         The <strong>Callback intent</strong> will be sent by the chat widget if this page is visited.<br />
+                                        <strong>Only the paths will be compared</strong>, and the host will be ignored.
+                                        Which means that if you specify an url like http://localhost:5005/aaa/bbb it will also work for  https://yoursite.com/aaa/bbb<br />
                                         If none of the pages are visited, the <strong>Error intent</strong> will be triggered.
                                     </>
                                 )}
@@ -150,8 +152,8 @@ function ResponseMetadataForm({
                                 info
                                 content={(
                                     <>
-                                        In each <strong>Page Event</strong> you can defined a <strong>event</strong> to be matched against the next URL visited by the user.<br />
-                                        The <strong>Callback intent</strong> will be sent by the chat widget if this page is visited.<br />
+                                        In each <strong>Page Event</strong> you can defined a <strong>event</strong> to be added to the elements matching the selector<br />
+                                        The <strong>payload</strong> will be sent by the chat widget as the event is triggered<br />
                                     </>
                                 )}
                             />
