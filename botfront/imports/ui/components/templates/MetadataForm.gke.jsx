@@ -21,7 +21,6 @@ import {
     basicSchemaString, defaultModel, schemaData, AutoFormMetadata, panes,
 } from './MetadataForm';
 
-
 function ResponseMetadataForm({
     responseMetadata, onChange,
 }) {
