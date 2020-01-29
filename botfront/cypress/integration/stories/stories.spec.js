@@ -6,7 +6,7 @@ const testText = '* my_intent';
 
 describe('stories', function() {
     beforeEach(function() {
-        cy.createProject('bf');
+        cy.createProject('bf').then(() => cy.login());
     });
 
     afterEach(function() {
