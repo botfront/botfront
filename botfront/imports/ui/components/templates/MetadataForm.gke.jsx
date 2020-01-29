@@ -8,6 +8,7 @@ import {
 import {
     AutoField, ErrorsField, LongTextField, ListField, ListItemField, NestField,
 } from 'uniforms-semantic';
+
 import { cloneDeep } from 'lodash';
 
 import SelectField from '../form_fields/SelectField';
@@ -65,6 +66,7 @@ function ResponseMetadataForm({
             value: 'focusout',
         },
     ];
+
     const schema = extendSchema(buildASTSchema(parse(`
     
     type PageChange {
@@ -92,6 +94,7 @@ function ResponseMetadataForm({
 
     type DomHighlight {
         enabled: Boolean!
+        style: String!
         selector: String
         css: String
     }
@@ -116,14 +119,56 @@ function ResponseMetadataForm({
 
     const defaultModelAdvanced = {
         ...defaultModel,
-        domHighlight: {},
+        domHighlight: { style: 'default' },
         customCss: {},
         pageChangeCallbacks: null,
         pageEventCallbacks: null,
     };
 
+    const schemaDataAdvanved = {
+        ...schemaData,
+        'domHighlight.style': {
+            initialValue: 'default',
+            allowedValues: ['default', 'class', 'custom'],
+            options: [
+                {
+                    text: 'Use default',
+                    value: 'default',
+                },
+                {
+                    text: 'Use an existing css class',
+                    value: 'class',
+                },
+                {
+                    text: 'Specify custom css style',
+                    value: 'custom',
+                },
+            ],
+        },
+    };
+
     const panesAdvanced = [
-        ...panes,
+        {
+            menuItem: 'General',
+            render: () => (
+                <> {panes[0].render()}
+                    <ToggleField name='domHighlight.enabled' className='toggle' label='Highlight element on page' />
+                    <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.enabled}>
+                        <>
+                            <InfoField name='domHighlight.selector' label='CSS selector' info='The CSS selector of the DOM element to highlight' />
+                            <SelectField name='domHighlight.style' />
+                            
+                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'class'}>
+                                <AutoField name='domHighlight.css' label='Class name' />
+                            </DisplayIf>
+                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'custom'}>
+                                <LongTextField name='domHighlight.css' label='Custom css' />
+                            </DisplayIf>
+                        </>
+                    </DisplayIf>
+                </>
+            ),
+        },
         {
             menuItem: 'Callbacks',
             render: () => (
@@ -168,20 +213,6 @@ function ResponseMetadataForm({
                                     </NestField>
                                 </ListItemField>
                             </ListField>
-                        </>
-                    </DisplayIf>
-                </>
-            ),
-        },
-        {
-            menuItem: 'Highlight a DOM element',
-            render: () => (
-                <>
-                    <ToggleField name='domHighlight.enabled' className='toggle' label='Enable' />
-                    <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.enabled}>
-                        <>
-                            <InfoField name='domHighlight.selector' label='CSS selector' info='The CSS selector of the DOM element to highlight' />
-                            <InfoField name='domHighlight.css' label='CSS' info='The CSS to apply to the selector' />
                         </>
                     </DisplayIf>
                 </>
@@ -274,11 +305,10 @@ function ResponseMetadataForm({
         if (model.domHighlight
             && model.domHighlight.enabled
             && (
-                (!model.domHighlight.selector || !model.domHighlight.selector.length)
-                || (!model.domHighlight.css || !model.domHighlight.css.length)
+                !model.domHighlight.selector || !model.domHighlight.selector.length
             )
         ) {
-            errors.push({ name: 'domHighlight', message: 'When enabling DOM highlighting both selector and css must be set.' });
+            errors.push({ name: 'domHighlight', message: 'When enabling highlighting of elements on page, selector must be set.' });
         }
 
         if (errors.length) {
@@ -301,7 +331,7 @@ function ResponseMetadataForm({
 
     return (
         <div className='response-metadata-form'>
-            <AutoFormMetadata autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaData)} onSubmit={model => onChange(postProcess(model))}>
+            <AutoFormMetadata autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)} onSubmit={model => onChange(postProcess(model))}>
                 <Tab menu={{ secondary: true, pointing: true }} panes={panesAdvanced} />
                 <br />
                 <ErrorsField />
