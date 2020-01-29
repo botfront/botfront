@@ -101,8 +101,8 @@ function ResponseMetadataForm({
 
     type CustomCss {
         enabled: Boolean!
-        text: String
-        messageContainer: String
+        css: String
+        style: String!
     }
     
     ${basicSchemaString}
@@ -120,7 +120,7 @@ function ResponseMetadataForm({
     const defaultModelAdvanced = {
         ...defaultModel,
         domHighlight: { style: 'default' },
-        customCss: {},
+        customCss: { text: { style: 'class' }, container: { style: 'class' } },
         pageChangeCallbacks: null,
         pageEventCallbacks: null,
     };
@@ -135,6 +135,20 @@ function ResponseMetadataForm({
                     text: 'Use default',
                     value: 'default',
                 },
+                {
+                    text: 'Use an existing css class',
+                    value: 'class',
+                },
+                {
+                    text: 'Specify custom css style',
+                    value: 'custom',
+                },
+            ],
+        },
+        'customCss.style': {
+            initialValue: 'class',
+            allowedValues: ['class', 'custom'],
+            options: [
                 {
                     text: 'Use an existing css class',
                     value: 'class',
@@ -162,7 +176,7 @@ function ResponseMetadataForm({
                                 <AutoField name='domHighlight.css' label='Class name' />
                             </DisplayIf>
                             <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'custom'}>
-                                <LongTextField name='domHighlight.css' label='Custom css' />
+                                <LongTextField className='monospaced' name='domHighlight.css' label='Custom css' />
                             </DisplayIf>
                         </>
                     </DisplayIf>
@@ -219,16 +233,22 @@ function ResponseMetadataForm({
             ),
         },
         {
-            menuItem: 'Custom CSS',
+            menuItem: 'Message appearance',
             render: () => (
                 <>
-                    <ToggleField name='customCss.enabled' className='toggle' label='Enable' />
+                    <ToggleField name='customCss.enabled' className='toggle' label='Enable custom message style' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
-                            <LongTextField name='customCss.text' label='Message text CSS' data-cy='custom-message-css' />
-                            <LongTextField name='customCss.messageContainer' label='Message container CSS' data-cy='custom-container-css' />
+                            <SelectField name='customCss.style' />
+                            <DisplayIf condition={context => context.model.customCss && context.model.customCss.style === 'custom'}>
+                                <LongTextField className='monospaced' name='customCss.css' label='Custom CSS' data-cy='custom-message-css' />
+                            </DisplayIf>
+                            <DisplayIf condition={context => context.model.customCss && context.model.customCss.style === 'class'}>
+                                <AutoField name='customCss.css' label='Custom class' data-cy='custom-message-css' />
+                            </DisplayIf>
                         </>
                     </DisplayIf>
+                    
                 </>
             ),
         },
@@ -241,13 +261,11 @@ function ResponseMetadataForm({
         if (newModel.customCss && !newModel.customCss.enabled) delete newModel.customCss;
         if (newModel.pageChangeCallbacks && !newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks;
         if (newModel.pageEventCallbacks && !newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks;
-
         // Remove enabled fields
         if (newModel.domHighlight && newModel.domHighlight.enabled) delete newModel.domHighlight.enabled;
         if (newModel.customCss && newModel.customCss.enabled) delete newModel.customCss.enabled;
         if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks.enabled;
         if (newModel.pageEventCallbacks && newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks.enabled;
-
         return newModel;
     };
 
@@ -298,8 +316,8 @@ function ResponseMetadataForm({
     const validator = (model) => {
         const errors = [...getPageChangeErrors(model), ...getPageEventErrors(model)];
 
-        if (model.customCss && model.customCss.enabled && !model.customCss.text && !model.customCssContainer) {
-            errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you set neither text nor message container properties' });
+        if (model.customCss && model.customCss.enabled && !model.customCss.css) {
+            errors.push({ name: 'customCss', message: 'You enabled Custom CSS but you did not set the css property' });
         }
 
         if (model.domHighlight
@@ -322,7 +340,7 @@ function ResponseMetadataForm({
         if (newModel.domHighlight && (newModel.domHighlight.selector)) newModel.domHighlight.enabled = true;
         if (newModel.pageChangeCallbacks && (newModel.pageChangeCallbacks.pageChanges.length > 0)) newModel.pageChangeCallbacks.enabled = true;
         if (newModel.pageEventCallbacks && (newModel.pageEventCallbacks.pageEvents.length > 0)) newModel.pageEventCallbacks.enabled = true;
-        if (newModel.customCss && (newModel.customCss.text)) newModel.customCss.enabled = true;
+        if (newModel.customCss && newModel.customCss) newModel.customCss.enabled = true;
         return newModel;
     };
 
@@ -331,7 +349,7 @@ function ResponseMetadataForm({
 
     return (
         <div className='response-metadata-form'>
-            <AutoFormMetadata autosave model={displayModel} schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)} onSubmit={model => onChange(postProcess(model))}>
+            <AutoFormMetadata autosave autosaveDelay={250} model={displayModel} schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)} onSubmit={model => onChange(postProcess(model))}>
                 <Tab menu={{ secondary: true, pointing: true }} panes={panesAdvanced} />
                 <br />
                 <ErrorsField />
