@@ -2,8 +2,8 @@
 
 describe('Smart story trigger rules', function() {
     afterEach(function() {
-        cy.deleteProject('bf');
-        cy.logout();
+        // cy.deleteProject('bf');
+        // cy.logout();
     });
 
     beforeEach(function() {
@@ -70,6 +70,7 @@ describe('Smart story trigger rules', function() {
         // verify trigger rules were saved
         cy.dataCy('payload-text-input').find('input').should('have.value', 'test payload');
         cy.dataCy('toggle-payload-text').click();
+        cy.dataCy('toggle-payload-text').find('[data-cy=toggled-false]').should('exist');
         // close the trigger rules editor
         cy.get('.dimmer').click({ position: 'topLeft' });
         cy.get('.dimmer').should('not.exist');
@@ -77,6 +78,7 @@ describe('Smart story trigger rules', function() {
         // reopen the trigger rules editor
         cy.dataCy('edit-trigger-rules').click();
         cy.dataCy('toggle-payload-text').click();
+        cy.dataCy('toggle-payload-text').find('[data-cy=toggled-true]').should('exist');
         cy.dataCy('payload-text-input').find('input').should('have.value', '');
     });
     it('should disabled time on page when event listeners are enabled', function() {
