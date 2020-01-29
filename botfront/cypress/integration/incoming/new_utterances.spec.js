@@ -240,7 +240,6 @@ describe('incoming page', function() {
         cy.get('.utterance-viewer').should('have.text', 'test conv link');
         cy.dataCy('conversation-viewer').first().click({ force: true });
         cy.get('.popup').should('exist');
-        cy.dataCy('conversation-viewer').first().trigger('click', { force: true });
         cy.get('.popup').should('contains.text', 'test conv link');
     });
 });
