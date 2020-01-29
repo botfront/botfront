@@ -68,7 +68,7 @@ export function getSubBranchesForPath(story, path) {
 }
 
 export const insertSmartPayloads = (story) => {
-    if (!story.rules) return story;
+    if (!story.rules || !(story.rules.length > 0)) return story;
     const updatedStory = story;
     const payloadName = story.rules[0].payload.substring(1); // remove the "/" from the start of the payload name
     updatedStory.story = `* ${payloadName}\n${story.story || ''}`;
