@@ -4,8 +4,8 @@ const storyGroupOne = 'storyGroupOne';
 
 describe('stories', function() {
     afterEach(function() {
-        cy.logout();
-        cy.deleteProject('bf');
+        // cy.logout();
+        // cy.deleteProject('bf');
     });
 
     beforeEach(function() {
@@ -52,5 +52,18 @@ describe('stories', function() {
         cy.get('.dimmer').should('not.exist');
 
         cy.dataCy('smart-stories-message').should('exist');
+    });
+    it('should not be possible to move a story to the smart story group', function() {
+        cy.visit('/project/bf/stories');
+
+        cy.dataCy('add-item').click({ force: true });
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type(`${storyGroupOne}{enter}`);
+        cy.dataCy('story-title').should('have.value', 'storyGroupOne');
+
+        cy.dataCy('move-story').click();
+        cy.dataCy('move-story-dropdown').click();
+        cy.dataCy('move-story-dropdown').find('span').should('not.have.text', 'SmartStories');
     });
 });
