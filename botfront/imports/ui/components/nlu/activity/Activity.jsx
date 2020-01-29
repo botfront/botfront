@@ -55,7 +55,7 @@ function Activity(props) {
         linkRender,
     } = props;
 
-
+    const [openConvPopup, setOpenConvPopup] = useState(-1);
     const [filter, setFilter] = useState({ entities: [], intents: [], query: '' });
     let reinterpreting = [];
     const setReinterpreting = (v) => { reinterpreting = v; };
@@ -198,22 +198,50 @@ function Activity(props) {
     const renderConvPopup = (row) => {
         const convId = row.datum.conversation_id;
         const [getConv, { loading: convLoading, data: convData }] = useLazyQuery(GET_CONVERSATION, {
-            variables: { projectId, conversationId: row.datum.conversation_id },
+            variables: { projectId, conversationId: convId },
         });
+        if (row.index === openConvPopup
+            && convId
+            && !convData
+            && !convLoading
+        ) {
+            getConv();
+        }
         return (
             <Popup
+                id={`conversation-popup-${row.index}`}
                 className={convId ? 'dialogue-popup' : ''}
                 on={convId ? 'click' : 'hover'}
+                open={row.index === openConvPopup}
+                onClose={(e) => {
+                    if (/conversation-popup/.test(e.target.id)
+                        || /conversation-popup/.test((e.target.parentElement || {}).id)
+                    ) {
+                        /* if the click is on another conv popup trigger
+                            setOpenConvPopup will be set by that trigger */
+                        return;
+                    }
+                    setOpenConvPopup(-1);
+                }}
+                // closeOnScroll // disabled as it also closes when scrolling inside the popup
                 trigger={(
                     <IconButton
                         // basic
+                        id={`conversation-popup-trigger-${row.index}`}
                         icon='comments'
                         color='grey'
                         data-cy='conversation-viewer'
                         className={`action-icon ${!convId && 'inactive'}`}
                         name='comments'
                         size='mini'
-                        onClick={convId ? () => getConv() : null}
+                        
+                        onClick={() => {
+                            if (row.index !== openConvPopup) {
+                                setOpenConvPopup(row.index);
+                            } else {
+                                setOpenConvPopup(-1);
+                            }
+                        }}
                     />
                 )}
             >
@@ -278,7 +306,6 @@ function Activity(props) {
             />
         </>
     );
-
     return (
         <>
             {renderTopBar()}

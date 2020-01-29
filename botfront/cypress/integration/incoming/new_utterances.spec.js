@@ -11,7 +11,7 @@ describe('incoming page', function() {
     });
 
     afterEach(function() {
-        cy.logout();
+        // cy.logout();
     });
 
     const conversationToAdd = {
@@ -237,8 +237,7 @@ describe('incoming page', function() {
         cy.updateConversation('bf', 'test', JSON.stringify(conversationUpdate));
 
         cy.visit('/project/bf/incoming');
-        cy.get('.row-wrapper').should('exist');
-        cy.wait(500);
+        cy.get('.utterance-viewer').should('have.text', 'test conv link');
         cy.dataCy('conversation-viewer').first().click({ force: true });
         cy.get('.popup').should('exist');
         cy.get('.popup').should('contains.text', 'test conv link');
