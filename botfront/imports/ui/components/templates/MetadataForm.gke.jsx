@@ -151,11 +151,11 @@ function ResponseMetadataForm({
             allowedValues: ['class', 'custom'],
             options: [
                 {
-                    label: 'Use an existing css class',
+                    text: 'Use an existing css class',
                     value: 'class',
                 },
                 {
-                    label: 'Specify custom css style',
+                    text: 'Specify custom css style',
                     value: 'custom',
                 },
             ],
