@@ -81,7 +81,7 @@ class StoryFooter extends React.Component {
     reshapeStoriesData = (data, currentStoryId) => (
         data.filter((story) => {
             if (story._id === currentStoryId) {
-                if (story.branches && story.branches.length > 0) return true;
+                if (story.branches && story.branches.length > 0 && !(story.rules && story.rules.length > 0)) return true;
                 return false;
             }
             if (story.rules && story.rules.length > 0) return false;
