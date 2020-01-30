@@ -22,7 +22,7 @@ export function useUpload(templateKey) {
                 };
                 Meteor.call('axios.requestWithJsonBody', url, method, data, (err, response) => {
                     if (err || response.status !== 200) {
-                        Alert.error(`Error: ${err || response.status} while trying to upload image`, {
+                        Alert.error(`Error ${err || response.status} while trying to upload image : ${response.data || ''} `, {
                             position: 'top-right',
                             timeout: 2000,
                         });
