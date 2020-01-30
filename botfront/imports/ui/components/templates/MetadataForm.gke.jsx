@@ -354,7 +354,7 @@ function ResponseMetadataForm({
         if (newModel.domHighlight && (newModel.domHighlight.selector)) newModel.domHighlight.enabled = true;
         if (newModel.pageChangeCallbacks && (newModel.pageChangeCallbacks.pageChanges.length > 0)) newModel.pageChangeCallbacks.enabled = true;
         if (newModel.pageEventCallbacks && (newModel.pageEventCallbacks.pageEvents.length > 0)) newModel.pageEventCallbacks.enabled = true;
-        if (newModel.customCss && newModel.customCss) newModel.customCss.enabled = true;
+        if (newModel.customCss && newModel.customCss.css) newModel.customCss.enabled = true;
         return newModel;
     };
 
