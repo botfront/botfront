@@ -123,7 +123,12 @@ const BotResponsesContainer = (props) => {
                     {enableEditPopup && (
                         <BotResponseEditor
                             trigger={(
-                                <IconButton icon='ellipsis vertical' onClick={() => setEditorOpen(true)} data-cy='edit-responses' />
+                                <IconButton
+                                    icon='ellipsis vertical'
+                                    onClick={() => setEditorOpen(true)}
+                                    data-cy='edit-responses'
+                                    // color is set inside the BotResponseEditor: green if metadata exists, default grey if it does not
+                                />
                             )}
                             open={editorOpen}
                             name={name}

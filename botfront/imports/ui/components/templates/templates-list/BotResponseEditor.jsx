@@ -22,6 +22,7 @@ import {
     addResponseLanguage,
     getDefaultTemplateFromSequence,
     addContentType,
+    checkMetadataSet,
 } from '../botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
@@ -238,10 +239,18 @@ const BotResponseEditor = (props) => {
             </>
         );
     };
+    // metadata is not fetched in the story editor so the color of the trigger is set here
+    const customizedTrigger = {
+        ...trigger,
+        props: {
+            ...trigger.props,
+            color: checkMetadataSet(newBotResponse.metadata) ? 'green' : trigger.props.color,
+        },
+    };
     return (
         <Modal
             className='response-editor-dimmer'
-            trigger={trigger}
+            trigger={customizedTrigger}
             content={(
                 <Segment.Group className='response-editor' data-cy='response-editor'>
                     <Segment attached='top' className='resonse-editor-topbar'>
