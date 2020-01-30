@@ -12,8 +12,8 @@ describe('NLU Intent warning message displays', function() {
     });
 
     after(function() {
-        cy.deleteProject('bf');
-        cy.logout();
+        // cy.deleteProject('bf');
+        // cy.logout();
     });
 
     it('Should add and delete multiple examples', function() {
@@ -48,12 +48,13 @@ describe('NLU Intent warning message displays', function() {
         
         // delete example
         cy.dataCy('icon-gem').first().click(); // unmark canonical on the first example so it can be deleted
+        cy.get('.black.gem').should('have.length', 1);
         cy.contains('hello')
             .closest('.rt-tr')
             .find('[data-cy=trash] .viewOnHover')
             .first()
             .click({ force: true });
-        cy.wait(100);
+        cy.dataCy('intent-label').should('have.length', 3);
 
         // delete example
         cy.contains('hi guys')
@@ -61,7 +62,7 @@ describe('NLU Intent warning message displays', function() {
             .find('[data-cy=trash] .viewOnHover')
             .first()
             .click({ force: true });
-        cy.wait(100);
+        cy.dataCy('intent-label').should('have.length', 2);
 
         // check warning message exists
         cy.contains('You need at least two distinct intents to train NLU').should('exist');
