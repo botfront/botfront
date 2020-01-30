@@ -120,7 +120,7 @@ function ResponseMetadataForm({
     const defaultModelAdvanced = {
         ...defaultModel,
         domHighlight: { style: 'default' },
-        customCss: { text: { style: 'class' }, container: { style: 'class' } },
+        customCss: { style: 'class' },
         pageChangeCallbacks: null,
         pageEventCallbacks: null,
     };
