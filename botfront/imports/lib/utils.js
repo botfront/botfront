@@ -197,7 +197,7 @@ if (Meteor.isServer) {
             } catch (e) {
                 // eslint-disable-next-line no-console
                 console.log('ERROR: Botfront encountered an error while uploading an image', e);
-                return { status: 500, data: 'Error while uploading image' };
+                return { status: 500, data: e.message };
             }
         },
     });

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 import { useContext } from 'react';
+import Alert from 'react-s-alert';
 import { Meteor } from 'meteor/meteor';
 import { ProjectContext } from '../../../layouts/context';
 
@@ -20,7 +21,12 @@ export function useUpload(templateKey) {
                     projectId, data: fileData, mimeType: file.type, language, responseId: `${templateKey}_${new Date().getTime()}`,
                 };
                 Meteor.call('axios.requestWithJsonBody', url, method, data, (err, response) => {
-                    if (err || response.status === 500) console.log('error while uploading the image, check botfront logs');
+                    if (err || response.status !== 200) {
+                        Alert.error(`Error ${err || response.status} while trying to upload image : ${response.data || ''} `, {
+                            position: 'top-right',
+                            timeout: 2000,
+                        });
+                    }
                     if (response.status === 200) setImage(response.data.uri);
                     resetUploadStatus();
                 });
