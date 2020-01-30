@@ -2,8 +2,8 @@
 
 describe('Smart story trigger rules', function() {
     afterEach(function() {
-        // cy.deleteProject('bf');
-        // cy.logout();
+        cy.deleteProject('bf');
+        cy.logout();
     });
 
     beforeEach(function() {
@@ -157,14 +157,14 @@ describe('Smart story trigger rules', function() {
             .should('not.exist');
     });
     it('should trigger a story with the rules payload', () => {
-        cy.MeteorCallAdmin('storyGroups.insert', [
+        cy.MeteorCall('storyGroups.insert', [
             {
                 _id: 'RULES',
                 name: 'Test Group',
                 projectId: 'bf',
             },
         ]);
-        cy.MeteorCallAdmin('stories.insert', [
+        cy.MeteorCall('stories.insert', [
             {
                 _id: 'TESTSTORY',
                 projectId: 'bf',
