@@ -42,42 +42,44 @@ const responses = new Schema({
         max: 5,
         min: 0,
     },
-    metadata:{
-        linkTarget: String,
-        userInput: String,
-        forceOpen: Boolean,
-        forceClose: Boolean,
-        domHighlight:{
-            style:String,
-            selector:String,
-        },
-        customCss:{
-            style:String,
-            css:String,
-        },
-        pageChangeCallbacks:{
-            pageChanges: {
-                type: [
-                    {
-                        regex: Boolean,
-                        url:String,
-                        callbackIntent:String,
-                    },
-                ],
+    metadata: {
+        default: undefined,
+        type: {
+            linkTarget: String,
+            userInput: String,
+            forceOpen: Boolean,
+            forceClose: Boolean,
+            domHighlight:{
+                style:String,
+                selector:String,
             },
-            errorIntent:String,
-        },
-        pageEventCallbacks:{
-            pageEvents:{
-                type: [
-                    {
-                        event: String,
-                        selector:String,
-                        payload:String,
-                    },
-                ],
+            customCss:{
+                style:String,
+                css:String,
             },
-        },
+            pageChangeCallbacks:{
+                pageChanges: {
+                    type: [
+                        {
+                            regex: Boolean,
+                            url:String,
+                            callbackIntent:String,
+                        },
+                    ],
+                },
+                errorIntent:String,
+            },
+            pageEventCallbacks:{
+                pageEvents:{
+                    type: [
+                        {
+                            event: String,
+                            selector:String,
+                            payload:String,
+                        },
+                    ],
+                },
+            }},
     },
 }, {versionKey: false });
 
