@@ -7,11 +7,7 @@ function clickStoryGroup(group) {
 
 describe('Bot responses', function() {
     beforeEach(function() {
-        cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'fr');
-        cy.login();
-    });
-
+        cy.deleteProject('bf').then(() => cy.login)
     afterEach(function() {
         cy.deleteProject('bf');
     });
