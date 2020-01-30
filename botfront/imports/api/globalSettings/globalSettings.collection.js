@@ -25,7 +25,7 @@ import(`./globalSettings.schema.${orchestration}`)
         if (Meteor.isServer) {
             Meteor.publish('settings', function() {
                 if (can('global-admin', this.userId)) return GlobalSettings.find({ _id: 'SETTINGS' });
-                return GlobalSettings.find({ _id: 'SETTINGS' }, { fields: { 'settings.public': 1 } });
+                return GlobalSettings.find({ _id: 'SETTINGS' }, { fields: { 'settings.public': 1, 'settings.private.webhooks': 1 } });
             });
         }
     });
