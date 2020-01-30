@@ -75,4 +75,16 @@ Meteor.methods({
             { $pullAll: { checkpoints: [branchPath] } },
         );
     },
+    async 'stories.updateRules'(projectId, storyId, rules) {
+        check(projectId, String);
+        check(storyId, String);
+        check(rules, Object);
+        const update = {};
+
+        update.rules = rules.rules.map(rule => ({ ...rule, payload: `/trigger_${storyId}` }));
+        Stories.update(
+            { projectId, _id: storyId },
+            { $set: update },
+        );
+    },
 });

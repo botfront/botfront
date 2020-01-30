@@ -9,6 +9,7 @@ import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
+import StoryRulesEditor from './rules/StoryRulesEditor';
 import { setStoryCollapsed } from '../../store/actions/actions';
 
 import { ConversationOptionsContext } from './Context';
@@ -24,16 +25,22 @@ const StoryTopMenu = ({
     groupNames,
     collapsed,
     collapseStory,
-    warnings,
-    errors,
+    warnings: warningDetails,
+    errors: errorDetails,
     isDestinationStory,
     originStories,
     isLinked,
+    rules,
+    isInSmartStories,
 }) => {
+    const errors = errorDetails.length;
+    const warnings = warningDetails.length;
+
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
     const [moveDestination, setMoveDestination] = useState(null);
+    const [triggerEditorOpen, setTriggerEditorOpen] = useState(false);
 
     const { stories, storyGroups } = useContext(ConversationOptionsContext);
 
@@ -148,11 +155,16 @@ const StoryTopMenu = ({
                 'A story that is linked to another story cannot be deleted.',
             ];
         }
-        return isLinked || isDestinationStory ? (
+        if (isInSmartStories) {
+            toolTipText = [
+                'To delete this story, open it in it\'s original group.',
+            ];
+        }
+        return isLinked || isDestinationStory || isInSmartStories ? (
             <ToolTipPopup
                 trigger={(
                     <Icon
-                        disabled={isDestinationStory || isLinked}
+                        disabled={isDestinationStory || isLinked || isInSmartStories}
                         name='trash'
                         data-cy='delete-story'
                     />
@@ -223,10 +235,39 @@ const StoryTopMenu = ({
                 <Menu.Item position='right'>
                     {renderWarnings()}
                     {renderErrors()}
+                    <StoryRulesEditor
+                        // the trigger element will have it's onClick, disabled, and className props modified
+                        trigger={(
+                            <Icon
+                                name='stopwatch'
+                                color={(() => {
+                                    if (errorDetails.some(({ code }) => code === 'smart_story_payload')) return 'red';
+                                    return rules && rules.length ? 'green' : 'grey';
+                                })()}
+                                data-cy='edit-trigger-rules'
+                            />
+                        )}
+                        storyId={storyId}
+                        rules={rules}
+                        open={triggerEditorOpen}
+                        setOpen={setTriggerEditorOpen}
+                        isDestinationStory={isDestinationStory}
+                    />
                     <Popup
-                        trigger={
-                            <Icon name='dolly' color='grey' link data-cy='move-story' />
-                        }
+                        trigger={(
+                            <div>
+                                <Popup
+                                    disabled={!isInSmartStories}
+                                    trigger={(
+                                        <div>
+                                            <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories} className='move-icon' />
+                                        </div>
+                                    )}
+                                    header='This story cannot be moved'
+                                    content={'To move this story, open it in it\'s original group.'}
+                                />
+                            </div>
+                        )}
                         content={(
                             <ConfirmPopup
                                 title='Move story to :'
@@ -256,6 +297,7 @@ const StoryTopMenu = ({
                                 onNo={() => openMovePopup(false)}
                             />
                         )}
+                        disabled={isInSmartStories}
                         on='click'
                         open={movePopupOpened}
                         onOpen={() => openMovePopup(true)}
@@ -296,6 +338,18 @@ const StoryTopMenu = ({
                     {renderConnectedStories()}
                 </Popup>
             )}
+            { rules && rules.length > 0 && (
+                <Message
+                    className='connected-story-alert'
+                    attached
+                    warning
+                    size='tiny'
+                    onClick={() => setTriggerEditorOpen(true)}
+                >
+                    <Icon name='info circle' />
+                    This story will be triggered automatically when the conditions set with the stopwatch icon are met.
+                </Message>
+            )}
         </>
     );
 };
@@ -311,16 +365,20 @@ StoryTopMenu.propTypes = {
     groupNames: PropTypes.array.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
-    warnings: PropTypes.number.isRequired,
-    errors: PropTypes.number.isRequired,
+    warnings: PropTypes.array.isRequired,
+    errors: PropTypes.array.isRequired,
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
+    rules: PropTypes.array,
+    isInSmartStories: PropTypes.bool,
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     isLinked: false,
     originStories: [],
+    rules: [],
+    isInSmartStories: false,
 };
 
 const mapStateToProps = (state, ownProps) => ({

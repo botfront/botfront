@@ -2,6 +2,7 @@
 
 describe('Exporting a Project', function() {
     beforeEach(function() {
+        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'fr').then(() => {
             cy.login();
         });
@@ -77,6 +78,7 @@ describe('Exporting a Project', function() {
             
             // english and french should be available
             cy.contains('Endpoints').click({ force: true });
+            cy.dataCy('endpoints-environment-menu').should('exist');
             cy.contains('Import/Export').click({ force: true });
             cy.dataCy('port-project-menu')
                 .find('.item')

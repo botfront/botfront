@@ -52,6 +52,7 @@ const StoryEditorContainer = ({
     changeStoryPath,
     collapsed,
     projectId,
+    isInSmartStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots, templates } = useContext(ProjectContext);
@@ -89,10 +90,10 @@ const StoryEditorContainer = ({
             onUpdate: content => saveStory(story._id, { story: content }),
             templates,
             isABranch: story.checkpoints && story.checkpoints.length > 0,
+            triggerRules: story.rules,
         }),
     });
     
-
     // This effect is used to update errors when templates or slots are updated
     useEffect(() => {
         Object.keys(storyControllers).forEach((storyId) => {
@@ -165,6 +166,7 @@ const StoryEditorContainer = ({
                     onUpdate: content => saveStory(currentPath, { story: content }),
                     templates,
                     isABranch: currentPath.length > 1,
+                    triggerRules: newStory.triggerRules,
                 });
             }
         });
@@ -179,9 +181,13 @@ const StoryEditorContainer = ({
         exceptions[story._id] && exceptions[story._id][exceptionType]
             ? exceptions[story._id][exceptionType]
                 .filter(storyMode === 'markdown' ? e => e : e => e.code !== 'no_such_response') // don't show missing template warning in visual mode
-                .length
-            : 0
+            : []
     );
+
+    useEffect(() => {
+        storyControllers[story._id].updateRules(story.rules);
+        storyControllers[story._id].validateStory();
+    }, [story.rules]);
 
     const renderTopMenu = () => (
         <StoryTopMenu
@@ -198,6 +204,8 @@ const StoryEditorContainer = ({
             isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
             isLinked={destinationStories.length > 0}
             originStories={story.checkpoints}
+            rules={story.rules}
+            isInSmartStories={isInSmartStories}
         />
     );
 
@@ -295,6 +303,7 @@ const StoryEditorContainer = ({
                     onUpdate: content => saveStory(path, { story: content }),
                     templates,
                     isABranch: path.length > 1,
+                    triggerRules: newBranch.rules,
                 }),
             });
         }
@@ -492,6 +501,7 @@ StoryEditorContainer.propTypes = {
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
+    isInSmartStories: PropTypes.bool,
 };
 
 StoryEditorContainer.defaultProps = {
@@ -500,6 +510,7 @@ StoryEditorContainer.defaultProps = {
     storyMode: 'markdown',
     branchPath: null,
     projectId: '',
+    isInSmartStories: false,
 };
 
 const mapStateToProps = (state, ownProps) => ({

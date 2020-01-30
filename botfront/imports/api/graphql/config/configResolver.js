@@ -1,5 +1,6 @@
 import yaml from 'js-yaml';
 import { Credentials, Endpoints } from './config.models.js';
+import { getWebchatProps } from './webchatProps';
 
 export default {
     Query: {
@@ -17,14 +18,22 @@ export default {
                 .select({ endpoints: 1 }).lean().exec();
             const credentialsFetched = await Credentials.findOne(query)
                 .select({ credentials: 1 }).lean().exec();
+            const rules = await getWebchatProps(projectId);
             let { endpoints } = endpointsFetched;
             let { credentials } = credentialsFetched;
 
+            credentials = yaml.safeLoad(credentials);
+            if (credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput']) {
+                credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'].props = { rules };
+            }
             // parse yaml unless yaml query param was passed
             if (output !== 'yaml') {
                 endpoints = yaml.safeLoad(endpoints);
-                credentials = yaml.safeLoad(credentials);
+                return { endpoints, credentials };
             }
+
+            credentials = yaml.safeDump(credentials);
+
             return { endpoints, credentials };
         },
     },

@@ -27,6 +27,13 @@ if (Meteor.isServer) {
         return Stories.find({ projectId });
     });
 
+    Meteor.publish('smartStories', function(projectId, query) {
+        check(projectId, String);
+        check(query, Object);
+        checkIfCan('stories:r', projectId);
+        return Stories.find({ projectId, ...query });
+    });
+
     Meteor.publish('stories.intro', function(projectId) {
         check(projectId, String);
         checkIfCan('stories:r', projectId);

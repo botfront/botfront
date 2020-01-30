@@ -13,6 +13,7 @@ import configTypes from './config/config.types.graphql';
 import nluResolvers from './nlu/resolvers';
 import nluTypes from './nlu/schemas';
 
+
 export const resolvers = [
     ...conversationResolvers,
     ...nluResolvers,

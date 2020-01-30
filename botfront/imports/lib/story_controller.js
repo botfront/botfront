@@ -11,12 +11,13 @@ class StoryException {
 
 export class StoryController {
     constructor({
-        story, slots, onUpdate = () => {}, templates = null, isABranch = false,
+        story, triggerRules, slots, onUpdate = () => {}, templates = null, isABranch = false,
     }) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.md = story;
+        this.isSmartStory = triggerRules && triggerRules.length > 0;
         this.isABranch = isABranch;
         this.templates = this.loadTemplates(templates || []) || [];
         this.saveUpdate = () => onUpdate(this.md);
@@ -163,6 +164,7 @@ export class StoryController {
         have_intent: ['warning', 'Bot actions should usually be found in a user utterance block.'],
         empty_intent: ['warning', 'User utterance block closed without defining any bot action.'],
         declare_form: ['warning', 'Form calls (`- form{"name": "myform_form"}`) should be preceded by matching `- myform_form`.'],
+        smart_story_payload: ['error', 'Smart stories are triggered automatically and must not start with a user utterance'],
     };
 
     validateIntent = () => {
@@ -205,7 +207,7 @@ export class StoryController {
 
     validateResponse = () => {
         this.response = this.content.trim();
-        if (!this.intent && !this.isABranch) this.raiseStoryException('have_intent');
+        if (!this.intent && !this.isABranch && !this.isSmartStory) this.raiseStoryException('have_intent');
         if (this.response.match(/^utter_/)) {
             this.validateUtter();
         } else if (this.response.match(/^action_/)) {
@@ -234,6 +236,9 @@ export class StoryController {
                 try {
                     [this.prefix, this.content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
                     this.prefix = this.prefix.trim();
+                    if (this.idx === 0 && this.prefix === '*' && !this.isABranch && this.isSmartStory) {
+                        this.raiseStoryException('smart_story_payload');
+                    }
                     if (this.prefix === '*') {
                         // new intent
                         this.validateIntent();
@@ -345,6 +350,10 @@ export class StoryController {
         }
         return this.domain;
     };
+
+    updateRules = (newRules) => {
+        this.isSmartStory = newRules && newRules.length > 0;
+    }
 }
 
 export const stringPayloadToObject = function(stringPayload) {

@@ -67,6 +67,14 @@ export function getSubBranchesForPath(story, path) {
     }
 }
 
+export const insertSmartPayloads = (story) => {
+    if (!story.rules || !(story.rules.length > 0)) return story;
+    const updatedStory = story;
+    const payloadName = story.rules[0].payload.substring(1); // remove the "/" from the start of the payload name
+    updatedStory.story = `* ${payloadName}\n${story.story || ''}`;
+    return updatedStory;
+};
+
 export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
     /*  this adds trailing and leading checkpoints to a story with a branch structure of arbitrary shape.
         {Parent body} turns into {Parent body\n> Parent title__branches} and {Child body} turns into
@@ -191,6 +199,7 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
                     story: story.story ? story.story : story,
                     slots,
                     templates,
+                    triggerRules: story.rules,
                 });
                 return val.extractDomain();
             }
@@ -274,24 +283,25 @@ export const getStoriesAndDomain = async (projectId, language) => {
             { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
             {
                 fields: {
-                    story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
+                    story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, rules: 1,
                 },
             },
         ).fetch()
         : Stories.find({ projectId }, {
             fields: {
-                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
+                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, rules: 1,
             },
         }).fetch();
+
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
     let storiesForRasa = stories
+        .map(insertSmartPayloads)
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
         .map(story => appendBranchCheckpoints(story));
     storiesForRasa = addlinkCheckpoints(storiesForRasa)
         .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
-
     const templates = await getAllTemplates(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     return {
@@ -321,6 +331,7 @@ export const accumulateExceptions = (
                 onUpdate: content => saveStoryMethod(currentPath, { story: content }),
                 templates,
                 isABranch,
+                triggerRules: currentStory.rules,
             });
             currentController = newStoryControllers[currentPathAsString];
         } else {

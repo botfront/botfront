@@ -115,6 +115,19 @@
         }
       }
     }
+    .dolly.icon.move-icon{
+      color:#767676;
+      &:hover{
+        color: #5c5c5c;
+        cursor: pointer;
+      }
+      &.disabled{
+        color: #767676;
+        &:hover{
+          color: #767676;
+        }
+      }
+    }
 
     .header {
       width: 60%;
@@ -148,6 +161,10 @@
       opacity: 0.4;
       margin-right: 0;
       padding-bottom: 5px;
+    }
+    .trigger-editor-modal-trigger {
+      margin-bottom: 3px;
+      cursor: pointer;
     }
 
     //removes borders b/w menu items
@@ -511,7 +528,6 @@
     .story-title-prefix{
       opacity: 0.4;
       margin-right: 0.25em;
-      
     }
     .title-list-elem{
       margin-top: 0px;

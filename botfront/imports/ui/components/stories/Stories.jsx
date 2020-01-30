@@ -219,6 +219,7 @@ Stories.defaultProps = {
     storyMode: 'visual',
 };
 
+
 const StoriesWithTracker = withTracker((props) => {
     const { projectId } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
@@ -240,7 +241,13 @@ const StoriesWithTracker = withTracker((props) => {
             return 0;
         });
     // unsortedStoryGroups[0] is the intro story group
-    const storyGroups = [unsortedStoryGroups[0], ...sortedStoryGroups];
+    const smartStoryGroup = {
+        _id: 'SMART_STORY_GROUP',
+        name: 'Smart stories',
+        projectId,
+        query: { 'rules.0.payload': { $exists: true } },
+    };
+    const storyGroups = [unsortedStoryGroups[0], smartStoryGroup, ...sortedStoryGroups];
 
     return {
         ready:

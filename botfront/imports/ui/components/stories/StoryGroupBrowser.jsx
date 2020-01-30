@@ -7,6 +7,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import { Slots } from '../../../api/slots/slots.collection';
 import StoryGroupItem from './StoryGroupItem';
+import SmartStoryGroupItem from './SmartStoryGroupItem';
 import { ConversationOptionsContext } from './Context';
 
 class StoryGroupBrowser extends React.Component {
@@ -103,22 +104,32 @@ class StoryGroupBrowser extends React.Component {
             isIntroStory,
         } = options;
         return data.slice(...slice)
-            .map((item, index) => (
-                <StoryGroupItem
-                    key={index + slice[0]}
-                    index={index + slice[0]}
-                    item={item}
-                    indexProp={indexProp}
-                    nameAccessor={nameAccessor}
-                    handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
-                    selectAccessor={selectAccessor}
-                    allowEdit={allowEdit && !isIntroStory}
-                    handleToggle={e => this.handleToggle(e, item)}
-                    saving={saving}
-                    changeName={changeName}
-                    stories={stories}
-                />
-            ));
+            .map((item, index) => (item.query
+                ? (
+                    <SmartStoryGroupItem
+                        key={`smart-story-group-${index}`}
+                        index={index + slice[0]}
+                        activeIndex={indexProp}
+                        handleClickMenuItem={this.handleClickMenuItem}
+                        item={item}
+                    />
+                )
+                : (
+                    <StoryGroupItem
+                        key={index + slice[0]}
+                        index={index + slice[0]}
+                        item={item}
+                        indexProp={indexProp}
+                        nameAccessor={nameAccessor}
+                        handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
+                        selectAccessor={selectAccessor}
+                        allowEdit={allowEdit && !isIntroStory}
+                        handleToggle={e => this.handleToggle(e, item)}
+                        saving={saving}
+                        changeName={changeName}
+                        stories={stories}
+                    />
+                )));
     };
 
     renderNavigation = () => {
@@ -204,7 +215,12 @@ class StoryGroupBrowser extends React.Component {
                 )}
                 {data.length > 1 && (
                     <Menu vertical fluid>
-                        {this.getItems([1])}
+                        {this.getItems([1, 2])}
+                    </Menu>
+                )}
+                {data.length > 2 && (
+                    <Menu vertical fluid>
+                        {this.getItems([2])}
                     </Menu>
                 )}
             </div>

@@ -25,6 +25,40 @@ for (let i = 0; i < 100; i += 1) {
     intermediateSchemas.push([schemaShape, new SimpleSchema(schemaShape)]);
 }
 
+const EventListenersSchema = new SimpleSchema({
+    selector: { type: String, trim: true },
+    event: { type: String, trim: true },
+    once: { type: Boolean },
+});
+
+const QueryStringSchema = new SimpleSchema({
+    param: { type: String, trim: true },
+    value: { type: String, trim: true },
+});
+
+const TriggerSchema = new SimpleSchema({
+    url: { type: Array, optional: true },
+    'url.$': { type: String },
+    timeOnPage: { type: Number, optional: true },
+    numberOfVisits: { type: String, optional: true },
+    numberOfPageVisits: { type: String, optional: true },
+    device: { type: String, optional: true },
+    queryString: { type: Array, optional: true },
+    'queryString.$': { type: QueryStringSchema, optional: true },
+    eventListeners: { type: Array, optional: true },
+    'eventListeners.$': { type: EventListenersSchema, optional: true },
+    when: { type: String, defaultValue: 'always' },
+});
+
+export const RulesSchema = new SimpleSchema({
+    payload: { type: String, trim: true },
+    text: { type: String, optional: true },
+    trigger: {
+        type: TriggerSchema,
+        optional: true,
+    },
+});
+
 export const StorySchema = new SimpleSchema({
     story: {
         type: String,
@@ -47,4 +81,6 @@ export const StorySchema = new SimpleSchema({
     checkpoints: { type: Array, optional: true },
     'checkpoints.$': { type: Array },
     'checkpoints.$.$': { type: String },
+    rules: { type: Array, optional: true },
+    'rules.$': { type: RulesSchema },
 });
