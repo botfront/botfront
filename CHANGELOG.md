@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.1-ee.1](https://github.com/botfront/botfront/compare/v0.19.1-ee.0...v0.19.1-ee.1) (2020-01-30)
+
+
+### Features
+
+* smart stories group ([23549f0](https://github.com/botfront/botfront/commit/23549f055086abde5c9b3a2b0bf749b851f44746))
+* smart stories group ([57203a1](https://github.com/botfront/botfront/commit/57203a1966efc7177d33f876211c86cccc5ce2ef))
+* stories: create and edit trigger conditions ([e50b308](https://github.com/botfront/botfront/commit/e50b308f0ea71b2f86d1ffbc5a52faa884c51f36))
+* stories: create and edit trigger conditions ([b0a3a6f](https://github.com/botfront/botfront/commit/b0a3a6f286268e9fdfe4240e1be3b44dc1323812))
+* **analytics:** change fallback count semantics ([d4bde03](https://github.com/botfront/botfront/commit/d4bde0314e97b01e061ae8ec2e5d24dbdd5fa835))
+* **analytics:** keep both kinds of fallback cards side by side ([69ea7d4](https://github.com/botfront/botfront/commit/69ea7d464c84b9f15d93925a4e7a83368a23bac3))
+
+
+### Bug Fixes
+
+* nlg endpoint is incorrect in gke default settings ([4665cc3](https://github.com/botfront/botfront/commit/4665cc30c23242195e8b8095e57c86aa9cc5ec91))
+
 ### [0.19.1-ee.0](https://github.com/botfront/botfront/compare/v0.19.0-alpha.6-ee.0...v0.19.1-ee.0) (2020-01-23)
 
 
