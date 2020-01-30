@@ -120,7 +120,7 @@ function ResponseMetadataForm({
     const defaultModelAdvanced = {
         ...defaultModel,
         domHighlight: { style: 'default' },
-        customCss: { text: { style: 'class' }, container: { style: 'class' } },
+        customCss: { style: 'class' },
         pageChangeCallbacks: null,
         pageEventCallbacks: null,
     };
@@ -254,6 +254,12 @@ function ResponseMetadataForm({
         },
     ];
 
+    const payloadFormatter = (payload) => {
+        if (payload.match(/^\//)) { // regex for begin with a /
+            return payload.replace(/\s/g, '');
+        }
+        return `/${payload.replace(/\s/g, '')}`;
+    };
     const postProcess = (model) => {
         const newModel = cloneDeep(model);
         // Remove objects if they were disabled
@@ -264,8 +270,16 @@ function ResponseMetadataForm({
         // Remove enabled fields
         if (newModel.domHighlight && newModel.domHighlight.enabled) delete newModel.domHighlight.enabled;
         if (newModel.customCss && newModel.customCss.enabled) delete newModel.customCss.enabled;
-        if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) delete newModel.pageChangeCallbacks.enabled;
-        if (newModel.pageEventCallbacks && newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks.enabled;
+        if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) {
+            delete newModel.pageChangeCallbacks.enabled;
+            newModel.pageChangeCallbacks.errorIntent = payloadFormatter(newModel.pageChangeCallbacks.errorIntent);
+            newModel.pageChangeCallbacks.pageChanges = newModel.pageChangeCallbacks.pageChanges.map(pageChange => ({ ...pageChange, callbackIntent: payloadFormatter(pageChange.callbackIntent) }));
+        }
+        if (newModel.pageEventCallbacks && newModel.pageEventCallbacks.enabled) {
+            delete newModel.pageEventCallbacks.enabled;
+            newModel.pageEventCallbacks.pageEvents = newModel.pageEventCallbacks.pageEvents.map(pageEvent => ({ ...pageEvent, payload: payloadFormatter(pageEvent.payload) }));
+        }
+
         return newModel;
     };
 
@@ -340,7 +354,7 @@ function ResponseMetadataForm({
         if (newModel.domHighlight && (newModel.domHighlight.selector)) newModel.domHighlight.enabled = true;
         if (newModel.pageChangeCallbacks && (newModel.pageChangeCallbacks.pageChanges.length > 0)) newModel.pageChangeCallbacks.enabled = true;
         if (newModel.pageEventCallbacks && (newModel.pageEventCallbacks.pageEvents.length > 0)) newModel.pageEventCallbacks.enabled = true;
-        if (newModel.customCss && newModel.customCss) newModel.customCss.enabled = true;
+        if (newModel.customCss && newModel.customCss.css) newModel.customCss.enabled = true;
         return newModel;
     };
 
