@@ -11,7 +11,7 @@ permalink: /rasa/:slug
 
 ## Development
 
-Botfront makes Rasa custom actions. Writing and using custom actions is very easy.
+Botfront makes coding and using Rasa custom actions very easy.
 
 In your project you should have the following folders:
 
@@ -32,6 +32,14 @@ The first thing to do is to launch the watcher. Symply run `botfront watch` from
 #### Write custom actions
 
 All actions in the `actions` folder will be found by the watcher. You can add actions to the default `my_actions.py` file or add new files.
+
+::: tip Importing modules in your actions
+Your imports must include `actions`. If you want to import a module in the `actions` folder:
+```python
+import actions.my_module
+```
+
+:::
 
 #### Verify that your actions are registered
 

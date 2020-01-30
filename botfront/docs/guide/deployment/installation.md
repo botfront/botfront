@@ -72,6 +72,17 @@ rasa_addons.core.channels.webchat.WebchatInput:
 ```
 9. Botfront is ready to use.
 
+## Production deployment without Botfront
+
+Alternatively you may want to deploy a single Rasa image containing your model, and not connect it to Botfront.
+In that case, since you won't use the NLG service included in Botfront, you need to let Rasa know that it must take the responses from the `templates` section of the domain.
+
+To do that, you must add the following to your `endpoints.yml`:
+
+```yaml
+nlg:
+  type: 'rasa_addons.core.nlg.BotfrontTemplatedNaturalLanguageGenerator'
+```
 
 ## Services and Docker images
 The table below lists all the services that can be used with Botfront.
