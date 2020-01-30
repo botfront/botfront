@@ -48,7 +48,7 @@ A Facebook Messenger chatbot is also tied to a Facebook App. Follow these steps 
 - Click on **Copy** and paste it direcly in the **channel** section and save it:
 
 ```yaml{2}
-rasa_addons.core.channels.messenger.FBmessenger:
+rasa_addons.core.channels.facebook_messenger.FBmessengerInput:
   page-access-token: <your token>
   ...
 ```
@@ -60,7 +60,7 @@ rasa_addons.core.channels.messenger.FBmessenger:
 ![](../../images/messenger_channel_step11.png)
 
 ```yaml{3}
-rasa_addons.core.channels.messenger.FBmessenger:
+rasa_addons.core.channels.facebook_messenger.FBmessengerInput:
   page-access-token: <your token>
   secret: <your secret>
   ...
@@ -68,7 +68,7 @@ rasa_addons.core.channels.messenger.FBmessenger:
 
 11. Add a verify token. It's a string of your choice, just pick something not too obvious.
 ```yaml{3}
-rasa_addons.core.channels.messenger.FBmessenger:
+rasa_addons.core.channels.facebook_messenger.FBmessengerInput:
   page-access-token: <your token>
   secret: <your secret>
   verify: <your verify token>
