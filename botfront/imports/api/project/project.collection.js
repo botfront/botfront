@@ -2,7 +2,7 @@ import { check, Match } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-import { can } from '../../lib/scopes';
+import { can, getScopesForUser } from '../../lib/scopes';
 
 export const Projects = new Mongo.Collection('projects');
 
@@ -83,7 +83,11 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('projects.names', function () {
-        return Projects.find({}, { name: 1 });
+        if (can('global-admin', this.userId)) {
+            return Projects.find({}, { name: 1 });
+        }
+        const project = getScopesForUser(this.userId, 'project-viewer');
+        return Projects.find({ id: project }, { name: 1 });
     });
 
     Meteor.publish('template-keys', function (projectId) {
