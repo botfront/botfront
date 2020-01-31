@@ -63,3 +63,24 @@ export function setStoryCollapsed(storyId, collapsed) {
         collapsed,
     };
 }
+
+export function setChatInitPayload (payload) {
+    return {
+        type: types.SET_CHAT_INIT_PAYLOAD,
+        payload,
+    };
+}
+
+export function setShowChat (showChat) {
+    return {
+        type: types.SET_SHOW_CHAT,
+        showChat,
+    };
+}
+
+export function setShouldRefreshChat (shouldRefreshChat) {
+    return {
+        type: types.SET_SHOULD_REFRESH_CHAT,
+        shouldRefreshChat,
+    };
+}

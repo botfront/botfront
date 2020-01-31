@@ -9,7 +9,10 @@ import 'brace/mode/text';
 
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
-import { setStoryCollapsed } from '../../store/actions/actions';
+import StoryPlayButton from './StoryPlayButton';
+import {
+    setStoryCollapsed,
+} from '../../store/actions/actions';
 
 import { ConversationOptionsContext } from './Context';
 
@@ -29,6 +32,7 @@ const StoryTopMenu = ({
     isDestinationStory,
     originStories,
     isLinked,
+    initPayload,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -155,6 +159,7 @@ const StoryTopMenu = ({
                         disabled={isDestinationStory || isLinked}
                         name='trash'
                         data-cy='delete-story'
+                        className='top-menu-clickable'
                     />
                 )}
                 toolTipText={toolTipText}
@@ -167,6 +172,7 @@ const StoryTopMenu = ({
                         disabled={isDestinationStory || isLinked}
                         name='trash'
                         data-cy='delete-story'
+                        className='top-menu-clickable'
                     />
                 )}
                 disabled={isDestinationStory || isLinked}
@@ -223,9 +229,13 @@ const StoryTopMenu = ({
                 <Menu.Item position='right'>
                     {renderWarnings()}
                     {renderErrors()}
+                    <StoryPlayButton
+                        initPayload={initPayload}
+                        className='top-menu-clickable'
+                    />
                     <Popup
                         trigger={
-                            <Icon name='dolly' color='grey' link data-cy='move-story' />
+                            <Icon name='dolly' data-cy='move-story' className='top-menu-clickable' />
                         }
                         content={(
                             <ConfirmPopup
@@ -316,11 +326,13 @@ StoryTopMenu.propTypes = {
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
+    initPayload: PropTypes.string,
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     isLinked: false,
     originStories: [],
+    initPayload: null,
 };
 
 const mapStateToProps = (state, ownProps) => ({

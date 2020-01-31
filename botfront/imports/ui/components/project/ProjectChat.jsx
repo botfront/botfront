@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
+import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -11,6 +12,7 @@ import { Stories } from '../../../api/story/stories.collection';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { checkStoryNotEmpty } from '../../../api/story/stories.methods';
 import { getLanguagesFromProjectId } from '../../../lib/utils';
+import { setShouldRefreshChat } from '../../store/actions/actions';
 
 class ProjectChat extends React.Component {
     constructor(props) {
@@ -30,11 +32,25 @@ class ProjectChat extends React.Component {
 
     componentWillReceiveProps(props) {
         this.props = props;
+        const { shouldRefreshChat, changeShouldRefreshChat } = this.props;
+        if (shouldRefreshChat) {
+            changeShouldRefreshChat(false);
+            this.handleReloadChat();
+        }
         const { initPayloads } = this.props;
         const { selectedPayload } = this.state;
         if (initPayloads && initPayloads.length > 0 && !selectedPayload) {
             this.setState({ selectedPayload: initPayloads[0].stringPayload });
         }
+    }
+
+    shouldComponentUpdate(nextprops) {
+        // make the chat appear less glitchy to the user when refreshing
+        const { shouldRefreshChat } = nextprops;
+        if (shouldRefreshChat) {
+            return false;
+        }
+        return true;
     }
 
     loadInstance = () => {
@@ -145,9 +161,10 @@ class ProjectChat extends React.Component {
             selectedLanguage,
             noChannel,
             path,
-            selectedPayload,
         } = this.state;
-        const { triggerChatPane, projectId, loading } = this.props;
+        const {
+            triggerChatPane, projectId, loading, initPayload,
+        } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
@@ -215,7 +232,7 @@ class ProjectChat extends React.Component {
                         key={key}
                         language={selectedLanguage}
                         path={path}
-                        initialPayLoad={selectedPayload || ''}
+                        initialPayLoad={initPayload || ''}
                     />
                 )}
                 {noChannel && (
@@ -250,7 +267,10 @@ ProjectChat.propTypes = {
     triggerChatPane: PropTypes.func.isRequired,
     channel: PropTypes.object.isRequired,
     initPayloads: PropTypes.array,
-    loading: PropTypes.bool,
+    initPayload: PropTypes.string.isRequired,
+    loading: PropTypes.bool.isRequired,
+    shouldRefreshChat: PropTypes.bool.isRequired,
+    changeShouldRefreshChat: PropTypes.func.isRequired,
 };
 
 ProjectChat.defaultProps = {
@@ -319,4 +339,13 @@ const ProjectChatContainer = withTracker(({ projectId }) => {
     };
 })(ProjectChat);
 
-export default ProjectChatContainer;
+const mapStateToProps = state => ({
+    initPayload: state.settings.get('chatInitPayload'),
+    shouldRefreshChat: state.settings.get('shouldRefreshChat'),
+});
+
+const mapDispatchToProps = {
+    changeShouldRefreshChat: setShouldRefreshChat,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectChatContainer);

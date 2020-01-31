@@ -182,6 +182,10 @@ const StoryEditorContainer = ({
             : 0
     );
 
+    const getInitIntent = () => (storyControllers[story._id].lines[0].gui.type === 'user'
+        ? storyControllers[story._id].lines[0].gui.data[0].intent
+        : undefined);
+
     const renderTopMenu = () => (
         <StoryTopMenu
             title={story.title}
@@ -197,8 +201,10 @@ const StoryEditorContainer = ({
             isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
             isLinked={destinationStories.length > 0}
             originStories={story.checkpoints}
+            initPayload={getInitIntent()}
         />
     );
+
 
     const convertToAnnotations = (pathAsString) => {
         if (!storyControllers[pathAsString]) {
