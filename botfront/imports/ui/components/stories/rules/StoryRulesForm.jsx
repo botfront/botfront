@@ -94,6 +94,8 @@ function StoryRulesForm({
 
     const getEnabledError = accessor => enabledErrors[accessor];
 
+    const noSpaces = /^\S*$/;
+
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
         event: { type: String, trim: true },
@@ -101,24 +103,24 @@ function StoryRulesForm({
     });
     
     const QueryStringSchema = new SimpleSchema({
-        param: { type: String, trim: true },
-        value: { type: String, trim: true },
+        param: { type: String, trim: true, regEx: noSpaces },
+        value: { type: String, trim: true, regEx: noSpaces },
     });
-    
+
     const TriggerSchema = new SimpleSchema({
         url: { type: Array, optional: true },
-        'url.$': { type: String, optional: false },
+        'url.$': { type: String, optional: false, regEx: noSpaces },
         url__DISPLAYIF: { type: Boolean, optional: true },
-        numberOfVisits: { type: Number, optional: true },
+        numberOfVisits: { type: Number, optional: true, min: 1 },
         numberOfVisits__DISPLAYIF: { type: Boolean, optional: true },
-        numberOfPageVisits: { type: Number, optional: true },
+        numberOfPageVisits: { type: Number, optional: true, min: 1 },
         numberOfPageVisits__DISPLAYIF: { type: Boolean, optional: true },
         device: { type: String, optional: true },
         device__DISPLAYIF: { type: Boolean, optional: true },
         queryString: { type: Array, optional: true },
         'queryString.$': { type: QueryStringSchema, optional: true },
         queryString__DISPLAYIF: { type: Boolean, optional: true },
-        timeOnPage: { type: Number, optional: true },
+        timeOnPage: { type: Number, optional: true, min: 1 },
         timeOnPage__DISPLAYIF: { type: Boolean, optional: true },
         eventListeners: { type: Array, optional: true },
         'eventListeners.$': { type: EventListenersSchema, optional: true },
@@ -241,13 +243,20 @@ function StoryRulesForm({
         return errors;
     };
 
+    const replaceRegexErrors = (error) => {
+        if (/failed regular expression validation/.test(error.message)) {
+            return { ...error, message: error.message.replace(/failed regular expression validation/, 'can not contain spaces') };
+        }
+        return error;
+    };
+
     const filterRepeatErrors = (errors) => {
         const messages = {};
         return errors.filter((error) => {
             if (messages[error.message]) return false;
             messages[error.message] = true;
             return true;
-        });
+        }).map(replaceRegexErrors);
     };
 
     const handleValidate = (model, incommingErrors, callback) => {
