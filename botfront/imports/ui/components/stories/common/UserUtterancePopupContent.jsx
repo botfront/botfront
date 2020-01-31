@@ -15,8 +15,8 @@ const UserUtterancePopupContent = (props) => {
 
     const payloadValid = () => {
         if (!payload.intent) return false;
-        if (payload.entities.length
-            && payload.entities.some(e => !e.entity || !e.entityValue || e.entityValue.trim() === '')) return false;
+        if (payload.entities.length > 0
+            && payload.entities.some(e => !e.entity || !e.value || e.value.trim() === '')) return false;
         return true;
     };
 
