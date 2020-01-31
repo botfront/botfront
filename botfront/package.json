@@ -22,7 +22,7 @@
     "licenses:csv": "license-checker --csv --out botfront-licenses.csv",
     "release": "standard-version",
     "storybook": "start-storybook",
-    "postinstall": "cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./public/ && cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./client/"
+    "postinstall": "cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./public/ && cp -R node_modules/semantic-ui-css/themes/default/assets/fonts ./client/ && cp node_modules/rasa-webchat/module/index.js node_modules/rasa-webchat/lib/index.js"
   },
   "dependencies": {
     "@apollo/react-components": "^3.1.3",
@@ -65,8 +65,8 @@
     "prop-types": "^15.7.2",
     "query-string": "^5.1.0",
     "random-seed": "^0.3.0",
-    "rasa-webchat": "^0.7.12",
-    "react": "^16.8.6",
+    "rasa-webchat": "0.7.16",
+    "react": "16.8.6",
     "react-ace": "^6.1.4",
     "react-apollo": "^2.5.8",
     "react-autosize-textarea": "^7.0.0",
