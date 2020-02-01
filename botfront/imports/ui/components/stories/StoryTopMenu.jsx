@@ -32,6 +32,7 @@ const StoryTopMenu = ({
     isLinked,
     rules,
     isInSmartStories,
+    startsWithUtterance,
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
@@ -235,23 +236,34 @@ const StoryTopMenu = ({
                 <Menu.Item position='right'>
                     {renderWarnings()}
                     {renderErrors()}
-                    <StoryRulesEditor
-                        // the trigger element will have it's onClick, disabled, and className props modified
+                    <Popup
+                        disabled={!startsWithUtterance}
+                        content='Triggers cannot be set of stories starting with a user utterance'
+                        on='hover'
                         trigger={(
-                            <Icon
-                                name='stopwatch'
-                                color={(() => {
-                                    if (errorDetails.some(({ code }) => code === 'smart_story_payload')) return 'red';
-                                    return rules && rules.length ? 'green' : 'grey';
-                                })()}
-                                data-cy='edit-trigger-rules'
-                            />
+                            <div>
+                                <StoryRulesEditor
+                                // the trigger element will have it's onClick, disabled, and className props modified
+                                    trigger={(
+                            
+                                        <Icon
+                                            name='stopwatch'
+                                            color={(() => {
+                                                if (errorDetails.some(({ code }) => code === 'smart_story_payload')) return 'red';
+                                                return rules && rules.length ? 'green' : 'grey';
+                                            })()}
+                                            data-cy='edit-trigger-rules'
+                                            disabled={startsWithUtterance}
+                                        />
+                                    )}
+                                    storyId={storyId}
+                                    rules={rules}
+                                    open={triggerEditorOpen}
+                                    setOpen={setTriggerEditorOpen}
+                                    isDestinationStory={isDestinationStory}
+                                />
+                            </div>
                         )}
-                        storyId={storyId}
-                        rules={rules}
-                        open={triggerEditorOpen}
-                        setOpen={setTriggerEditorOpen}
-                        isDestinationStory={isDestinationStory}
                     />
                     <Popup
                         trigger={(
@@ -372,13 +384,16 @@ StoryTopMenu.propTypes = {
     isLinked: PropTypes.bool,
     rules: PropTypes.array,
     isInSmartStories: PropTypes.bool,
+    startsWithUtterance: PropTypes.bool,
 };
+
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     isLinked: false,
     originStories: [],
     rules: [],
     isInSmartStories: false,
+    startsWithUtterance: false,
 };
 
 const mapStateToProps = (state, ownProps) => ({

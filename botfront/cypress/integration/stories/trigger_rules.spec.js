@@ -12,8 +12,11 @@ describe('Smart story trigger rules', function() {
     });
     it('should edit and save the trigger rules', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('edit-trigger-rules').trigger('mouseover');
+        cy.get('.popup').should('contain', 'Triggers cannot be set of stories starting with a user utterance');
+        cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
-        // add two rulesets
+        
         cy.dataCy('story-rules-editor').find('.add.icon').click();
         cy.dataCy('story-rules-editor').find('.add.icon').click();
         // edit the first ruleset
@@ -49,8 +52,12 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('query-string-field').find('input').first().should('have.value', 'name');
         cy.dataCy('query-string-field').find('input').last().should('have.value', 'value');
     });
+    
     it('should clear disabled fields on close', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('edit-trigger-rules').trigger('mouseover');
+        cy.get('.popup').should('contain', 'Triggers cannot be set of stories starting with a user utterance');
+        cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // add two rulesets
         cy.dataCy('story-rules-editor').find('.add.icon').click();
@@ -81,8 +88,12 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('toggle-payload-text').find('[data-cy=toggled-true]').should('exist');
         cy.dataCy('payload-text-input').find('input').should('have.value', '');
     });
+    
     it('should disabled time on page when event listeners are enabled', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('edit-trigger-rules').trigger('mouseover');
+        cy.get('.popup').should('contain', 'Triggers cannot be set of stories starting with a user utterance');
+        cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // add two rulesets
         cy.dataCy('story-rules-editor').find('.add.icon').click();
@@ -97,6 +108,9 @@ describe('Smart story trigger rules', function() {
     });
     it('should disabled event listeners when time on page is enabled', function() {
         cy.visit('/project/bf/stories');
+        cy.dataCy('edit-trigger-rules').trigger('mouseover');
+        cy.get('.popup').should('contain', 'Triggers cannot be set of stories starting with a user utterance');
+        cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         cy.dataCy('story-rules-editor').find('.add.icon').click();
         // verify only one toggle can be enabled at one time
@@ -110,6 +124,7 @@ describe('Smart story trigger rules', function() {
     });
     it('should not allow a destination story to have rules', () => {
         cy.visit('/project/bf/stories');
+
         cy.dataCy('add-item').click();
         cy.dataCy('add-item-input')
             .find('input')
@@ -124,7 +139,6 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('link-to').last().find('span').contains('myTest')
             .click({ force: true });
         cy.dataCy('connected-to').should('exist');
-
         cy.dataCy('edit-trigger-rules').first().should('have.class', 'disabled');
         cy.dataCy('edit-trigger-rules').first().click();
         cy.dataCy('story-rules-editor').should('not.exist');

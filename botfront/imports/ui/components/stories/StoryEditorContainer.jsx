@@ -206,6 +206,7 @@ const StoryEditorContainer = ({
             originStories={story.checkpoints}
             rules={story.rules}
             isInSmartStories={isInSmartStories}
+            startsWithUtterance={story && story.story !== undefined ? story.story.match(/^\*/) : false}
         />
     );
 

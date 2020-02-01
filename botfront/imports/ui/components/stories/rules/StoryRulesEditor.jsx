@@ -38,7 +38,7 @@ const StoryRulesEditor = (props) => {
                 if (!trigger.props.onClick) return undefined;
                 return trigger.props.onClick(...args);
             },
-            disabled: isDestinationStory,
+            disabled: trigger.props.disabled || isDestinationStory,
         },
     };
 
