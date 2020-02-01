@@ -86,8 +86,8 @@ if (Meteor.isServer) {
         if (can('global-admin', this.userId)) {
             return Projects.find({}, { name: 1 });
         }
-        const project = getScopesForUser(this.userId, 'project-viewer');
-        return Projects.find({ id: project }, { name: 1 });
+        const projects = getScopesForUser(this.userId, 'project-viewer');
+        return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
     });
 
     Meteor.publish('template-keys', function (projectId) {
