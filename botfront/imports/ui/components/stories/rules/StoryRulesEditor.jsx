@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-    Modal, Segment, Popup, Message,
-} from 'semantic-ui-react';
+import { Modal, Popup, Icon } from 'semantic-ui-react';
 
 import StoryRulesForm from './StoryRulesForm';
 
@@ -21,8 +19,6 @@ const StoryRulesEditor = (props) => {
     } = props;
 
     const [rules, setRules] = useState({ rules: incommingRules });
-    const [formErrors, setFormErrors] = useState();
-    const [submitFailed, setSumbitFailed] = useState(false);
 
     useEffect(() => {
         setRules({ rules: incommingRules });
@@ -61,20 +57,22 @@ const StoryRulesEditor = (props) => {
         setRules(model);
     };
 
-    const handleModalClose = () => {
-        if (formErrors) {
-            setSumbitFailed(true);
-            return;
-        }
-        setSumbitFailed(false);
-        Meteor.call('stories.updateRules', projectId, storyId, clearOptionalFields(rules), (err) => {
+    const handleOnSave = (model) => {
+        setRules(model);
+        Meteor.call('stories.updateRules', projectId, storyId, clearOptionalFields(model), (err) => {
+            if (err) return;
+            setOpen(false);
+        });
+    };
+
+    const deleteTriggers = () => {
+        Meteor.call('stories.deleteRules', projectId, storyId, (err) => {
             if (err) return;
             setOpen(false);
         });
     };
 
     const handleCancelChanges = () => {
-        setSumbitFailed(false);
         setRules({ rules: incommingRules });
         setOpen(false);
     };
@@ -85,28 +83,21 @@ const StoryRulesEditor = (props) => {
                 <div>
                     <Modal
                         trigger={modalTrigger}
-                        onClose={handleModalClose}
+                        onClose={() => {}}
                         open={open}
                     >
-                        <Segment.Group>
-                            <Segment>
-                                {submitFailed && formErrors && (
-                                    <Message
-                                        error
-                                        icon='exclamation circle'
-                                        header='Could not save trigger rules'
-                                        content='To return to the story editor fix the errors or click on the cancel button to discard your changes'
-                                    />
-                                )}
-                                <StoryRulesForm
-                                    onChange={handleChangeRules}
-                                    rules={rules}
-                                    saveAndExit={handleModalClose}
-                                    cancelChanges={handleCancelChanges}
-                                    onChangeErrors={error => setFormErrors(!!error)}
-                                />
-                            </Segment>
-                        </Segment.Group>
+                        <Modal.Header>
+                            Triggers
+                            <Icon name='close' onClick={handleCancelChanges} className='close-rules-editor' link />
+                        </Modal.Header>
+                        <Modal.Content>
+                            <StoryRulesForm
+                                onChange={handleChangeRules}
+                                rules={rules}
+                                onSave={handleOnSave}
+                                deleteTriggers={deleteTriggers}
+                            />
+                        </Modal.Content>
                     </Modal>
                 </div>
             )}

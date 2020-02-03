@@ -13,11 +13,10 @@ describe('Smart story trigger rules', function() {
     it('should edit and save the trigger rules', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('edit-trigger-rules').trigger('mouseover');
-        cy.get('.popup').should('contain', 'Triggers cannot be set of stories starting with a user utterance');
+        cy.get('.popup').should('contain', 'Triggers cannot be set in stories starting with a user utterance');
         cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
-        
-        cy.dataCy('story-rules-editor').find('.add.icon').click();
+        // add a second rulesets
         cy.dataCy('story-rules-editor').find('.add.icon').click();
         // edit the first ruleset
         cy.dataCy('toggle-payload-text').first().click();
@@ -31,7 +30,6 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('page-visits-input').last().click().find('input')
             .type('4');
         cy.dataCy('toggle-query-string').last().click();
-        cy.dataCy('query-string-field').last().find('.add.icon').click();
         cy.dataCy('query-string-field').last().find('input').first()
             .click()
             .type('name');
@@ -39,10 +37,9 @@ describe('Smart story trigger rules', function() {
             .click()
             .type('value');
         // close the trigger rules editor
-        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
-        cy.reload();
-        // open the trigger
+        // open the trigger editor
         cy.dataCy('edit-trigger-rules').should('have.class', 'green');
         cy.dataCy('edit-trigger-rules').click();
         // verify trigger rules were saved
@@ -56,12 +53,10 @@ describe('Smart story trigger rules', function() {
     it('should clear disabled fields on close', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('edit-trigger-rules').trigger('mouseover');
-        cy.get('.popup').should('contain', 'Triggers cannot be set of stories starting with a user utterance');
+        cy.get('.popup').should('contain', 'Triggers cannot be set in stories starting with a user utterance');
         cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
-        // add two rulesets
-        cy.dataCy('story-rules-editor').find('.add.icon').click();
-        // edit the first ruleset
+        // edit the trigger rules
         cy.dataCy('toggle-payload-text').click();
         cy.dataCy('payload-text-input').click().find('input')
             .type('test payload');
@@ -69,9 +64,8 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('website-visits-input').click().find('input')
             .type('3');
         // close the trigger rules editor
-        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
-        cy.reload();
         // reopen the trigger rules editor
         cy.dataCy('edit-trigger-rules').click();
         // verify trigger rules were saved
@@ -79,9 +73,8 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('toggle-payload-text').click();
         cy.dataCy('toggle-payload-text').find('[data-cy=toggled-false]').should('exist');
         // close the trigger rules editor
-        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
-        cy.reload();
         // reopen the trigger rules editor
         cy.dataCy('edit-trigger-rules').click();
         cy.dataCy('toggle-payload-text').click();
@@ -92,12 +85,10 @@ describe('Smart story trigger rules', function() {
     it('should disabled time on page when event listeners are enabled', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('edit-trigger-rules').trigger('mouseover');
-        cy.get('.popup').should('contain', 'Triggers cannot be set of stories starting with a user utterance');
+        cy.get('.popup').should('contain', 'Triggers cannot be set in stories starting with a user utterance');
         cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
-        // add two rulesets
-        cy.dataCy('story-rules-editor').find('.add.icon').click();
-        // edit the first ruleset
+        // verify only one toggle can be enabled at one time
         cy.dataCy('toggle-time-on-page').click();
         cy.dataCy('toggle-event-listeners').click();
         cy.dataCy('toggle-time-on-page').find('[data-cy=toggled-false]').should('exist');
@@ -109,10 +100,9 @@ describe('Smart story trigger rules', function() {
     it('should disabled event listeners when time on page is enabled', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('edit-trigger-rules').trigger('mouseover');
-        cy.get('.popup').should('contain', 'Triggers cannot be set of stories starting with a user utterance');
+        cy.get('.popup').should('contain', 'Triggers cannot be set in stories starting with a user utterance');
         cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
-        cy.dataCy('story-rules-editor').find('.add.icon').click();
         // verify only one toggle can be enabled at one time
         cy.dataCy('toggle-event-listeners').click();
         cy.dataCy('toggle-time-on-page').click();
@@ -131,7 +121,7 @@ describe('Smart story trigger rules', function() {
             .type('myTest{enter}');
         cy.dataCy('story-title').should('have.value', 'myTest');
 
-        // add story
+        // add a story
         cy.dataCy('add-story').click();
         cy.dataCy('single-story-editor').should('have.length', 2);
         // link the new story to the first story
@@ -153,14 +143,14 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('story-title').should('have.value', 'myTest');
         // add rules to the first story
         cy.dataCy('edit-trigger-rules').click();
-        cy.dataCy('story-rules-editor').find('.add.icon').click();
+        // cy.dataCy('story-rules-editor').find('.add.icon').click();
         cy.dataCy('toggle-payload-text').first().click();
         cy.dataCy('payload-text-input').first().click().find('input')
             .type('test payload');
         cy.dataCy('toggle-website-visits').first().click();
         cy.dataCy('website-visits-input').first().click().find('input')
             .type('3');
-        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
         // add a new story
         cy.dataCy('add-story').click();
@@ -192,20 +182,48 @@ describe('Smart story trigger rules', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('browser-item').contains('Test Group').click();
         cy.dataCy('story-title').should('have.value', 'Test Story');
-        // add rules to the first story
+        // add trigger rules to the story
         cy.dataCy('edit-trigger-rules').click();
-        cy.dataCy('story-rules-editor').find('.add.icon').click();
         cy.dataCy('toggle-payload-text').first().click();
         cy.dataCy('payload-text-input').first().click().find('input')
             .type('test payload');
         cy.dataCy('toggle-website-visits').first().click();
         cy.dataCy('website-visits-input').first().click().find('input')
             .type('3');
-        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
+        // verify the story is triggered by the payload '/trigger_storyId'
         cy.train();
         cy.dataCy('open-chat').click();
         cy.newChatSesh('en');
         cy.testChatInput('/trigger_TESTSTORY', 'utter_smart_payload'); // nlg returns template name if not defined
+    });
+    it('should delete trigger rules with the delete button', () => {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+        cy.dataCy('edit-trigger-rules').click();
+        // add trigger rules
+        cy.dataCy('toggle-payload-text').first().click();
+        cy.dataCy('payload-text-input').first().click().find('input')
+            .type('test payload');
+        cy.dataCy('toggle-website-visits').first().click();
+        cy.dataCy('website-visits-input').first().click().find('input')
+            .type('3');
+        // close the trigger rules editor
+        cy.dataCy('submit-triggers').click();
+        cy.get('.dimmer').should('not.exist');
+        // open the trigger
+        cy.dataCy('edit-trigger-rules').should('have.class', 'green');
+        cy.dataCy('edit-trigger-rules').click();
+        // verify trigger rules were deleted
+        cy.dataCy('delete-triggers').click();
+        cy.get('.dimmer').should('not.exist');
+        cy.dataCy('edit-trigger-rules').click();
+        cy.dataCy('toggle-payload-text').find('[data-cy=toggled-]').should('exist');
+        cy.dataCy('toggle-website-visits').find('[data-cy=toggled-]').should('exist');
     });
 });
