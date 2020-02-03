@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Widget } from 'rasa-webchat';
+import { Widget } from 'rasa-webchat/module';
 
 class Chat extends React.Component {
     // WARNING
