@@ -25,6 +25,7 @@ const PayloadEditor = (props) => {
     const getEntitiesInRasaFormat = ents => ents.map(({ entity, entityValue }) => ({
         entity,
         value: entityValue,
+        entityValue,
     }));
 
     function handleAddOrChangeIntent(value) {
@@ -37,7 +38,7 @@ const PayloadEditor = (props) => {
     function handleAddOrChangeEntity(currentEntity, newEntity, index) {
         const newEntities = [
             ...originalEntities.slice(0, index),
-            { entity: newEntity, value: currentEntity.entityValue },
+            { entity: newEntity, entityValue: currentEntity.entityValue, value: currentEntity.entityValue },
             ...originalEntities.slice(index + 1),
         ];
         onChange({ intent, entities: newEntities });
@@ -87,7 +88,7 @@ const PayloadEditor = (props) => {
                                 onChange={(e, { value }) => {
                                     const newEnts = [
                                         ...originalEntities.slice(0, i),
-                                        { ...entity, value },
+                                        { entity: entity.entity, value, entityValue: value },
                                         ...originalEntities.slice(i + 1),
                                     ];
                                     onChange({ intent, entities: newEnts });
@@ -116,7 +117,7 @@ const PayloadEditor = (props) => {
                             intent,
                             entities: [
                                 ...getEntitiesInRasaFormat(entities),
-                                { entity: '', value: '' },
+                                { entity: '', value: '', entityValue: '' },
                             ],
                         })
                         }
