@@ -1,9 +1,10 @@
 /* THIS FILE SHOULD NOT BE EDITED ON EE */
 import React from 'react';
 import {
-    AutoForm, AutoField,
+    AutoForm,
 } from 'uniforms-semantic';
 import ToggleField from '../common/ToggleField';
+import SelectField from '../form_fields/SelectField';
 
 
 // force open affect force close and vice versa
@@ -45,8 +46,8 @@ export const schemaData = {
         defaultValue: '_blank',
         allowedValues: ['_blank', '_self'],
         options: [
-            { label: 'In the current tab', value: '_self' },
-            { label: 'In a new tab', value: '_blank' },
+            { text: 'In the current tab', value: '_self' },
+            { text: 'In a new tab', value: '_blank' },
         ],
     },
     userInput: {
@@ -54,9 +55,9 @@ export const schemaData = {
         defaultValue: 'show',
         allowedValues: ['show', 'hide', 'disable'],
         options: [
-            { label: 'Show', value: 'show' },
-            { label: 'Hide', value: 'hide' },
-            { label: 'Disable', value: 'disable' },
+            { text: 'Show', value: 'show' },
+            { text: 'Hide', value: 'hide' },
+            { text: 'Disable', value: 'disable' },
         ],
     },
     forceOpen: {
@@ -74,8 +75,8 @@ export const panes = [
         menuItem: 'General',
         render: () => (
             <>
-                <AutoField name='linkTarget' data-cy='links-target' />
-                <AutoField name='userInput' />
+                <SelectField name='linkTarget' data-cy='links-target' />
+                <SelectField name='userInput' />
                 <ToggleField
                     name='forceOpen'
                     className='toggle'
