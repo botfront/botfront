@@ -128,7 +128,7 @@ const BotResponseEditor = (props) => {
     };
 
     const handleChangeMetadata = (updatedMetadata) => {
-        if (isNew) {
+        if (isNew || !newBotResponse._id) {
             setNewBotResponse(
                 { ...newBotResponse, metadata: updatedMetadata },
             );
@@ -180,20 +180,22 @@ const BotResponseEditor = (props) => {
     const handleModalClose = () => {
         const validResponse = newBotResponse;
         if (!open) return;
-        if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
-            const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
-            upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
-                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
-                closeModal();
-            });
-            return;
-        }
-        if (isNew && !checkResponseEmpty(validResponse)) {
+        // the response is new
+        if ((isNew && !checkResponseEmpty(validResponse))
+        // the response was one of the default defined one and thus does not really exist in db
+        || (!isNew && validResponse._id === undefined && checkResponseEmpty(validResponse))) {
             insertResponse(validResponse, (err) => {
                 validateResponseName(err);
                 if (!err) {
                     closeModal();
                 }
+            });
+            return;
+        } if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
+            const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
+            upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
+                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
+                closeModal();
             });
         }
     };
