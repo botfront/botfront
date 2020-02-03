@@ -39,7 +39,6 @@ describe('Smart story trigger rules', function() {
         // close the trigger rules editor
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
-        cy.reload();
         // open the trigger editor
         cy.dataCy('edit-trigger-rules').should('have.class', 'green');
         cy.dataCy('edit-trigger-rules').click();
@@ -67,7 +66,6 @@ describe('Smart story trigger rules', function() {
         // close the trigger rules editor
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
-        cy.reload();
         // reopen the trigger rules editor
         cy.dataCy('edit-trigger-rules').click();
         // verify trigger rules were saved
@@ -77,7 +75,6 @@ describe('Smart story trigger rules', function() {
         // close the trigger rules editor
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
-        cy.reload();
         // reopen the trigger rules editor
         cy.dataCy('edit-trigger-rules').click();
         cy.dataCy('toggle-payload-text').click();
@@ -203,6 +200,11 @@ describe('Smart story trigger rules', function() {
     });
     it('should delete trigger rules with the delete button', () => {
         cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
         cy.dataCy('edit-trigger-rules').click();
         // add trigger rules
         cy.dataCy('toggle-payload-text').first().click();
@@ -214,7 +216,6 @@ describe('Smart story trigger rules', function() {
         // close the trigger rules editor
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
-        cy.reload();
         // open the trigger
         cy.dataCy('edit-trigger-rules').should('have.class', 'green');
         cy.dataCy('edit-trigger-rules').click();
