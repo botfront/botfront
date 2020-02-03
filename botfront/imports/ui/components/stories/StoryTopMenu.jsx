@@ -238,7 +238,7 @@ const StoryTopMenu = ({
                     {renderErrors()}
                     <Popup
                         disabled={!startsWithUtterance}
-                        content='Triggers cannot be set of stories starting with a user utterance'
+                        content='Triggers cannot be set for stories starting with a user utterance'
                         on='hover'
                         trigger={(
                             <div>
