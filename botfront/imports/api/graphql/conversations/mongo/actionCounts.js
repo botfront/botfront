@@ -38,7 +38,6 @@ export const getActionCounts = async ({
         $match: {
             $and: [
                 { 'tracker.events.event': 'action' },
-                { 'tracker.events.name': { $regex: /^utter_/ } },
             ],
         },
     },
