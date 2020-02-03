@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { List, Icon, Popup } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 
 import {
     setShowChat, setChatInitPayload, setShouldRefreshChat,
@@ -17,7 +17,6 @@ const StoryPlayButton = (props) => {
     } = props;
     return (
         <Popup
-            flowing
             trigger={(
                 <Icon
                     name='play'
@@ -34,12 +33,7 @@ const StoryPlayButton = (props) => {
             )}
             content={(
                 <>
-                    to start a conversation from the story editor the story must either:
-                    <br />
-                    <List as='ol'>
-                        <List.Item as='li' value='-'>Start with a user utterance</List.Item>
-                        <List.Item as='li' value='-'>Have trigger rules set</List.Item>
-                    </List>
+                    To start a conversation from the story editor the story must start with a user utterance
                 </>
             )}
             disabled={!!initPayload}
