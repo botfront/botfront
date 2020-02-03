@@ -184,7 +184,7 @@ function ResponseMetadataForm({
             ),
         },
         {
-            menuItem: 'Events',
+            menuItem: 'Observe',
             render: () => (
                 <>
                     <ToggleField name='pageChangeCallbacks.enabled' className='toggle' label='Observe page changes' />
@@ -233,7 +233,7 @@ function ResponseMetadataForm({
             ),
         },
         {
-            menuItem: 'Style',
+            menuItem: 'Message appearance',
             render: () => (
                 <>
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable custom message style' />
