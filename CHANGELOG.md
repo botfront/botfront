@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.1-ee.2](https://github.com/botfront/botfront/compare/v0.19.1-ee.1...v0.19.1-ee.2) (2020-02-03)
+
+
+### Features
+
+* **cli:** add a .gitignore file to project template ([65f7d84](https://github.com/botfront/botfront/commit/65f7d84b82d939fa7514471b2c979f23b9e4e8e9))
+
+
+### Bug Fixes
+
+* all projects were visible to all users roles ([ed4c62e](https://github.com/botfront/botfront/commit/ed4c62eed593972cbaff603e55fc62c4615c3d93))
+* bad analytics filter ([bff8f06](https://github.com/botfront/botfront/commit/bff8f06f9f318a69b72cab5b336af1a8c7e39ccd))
+* it was not posible to have more than one entity in payload editor ([61cf096](https://github.com/botfront/botfront/commit/61cf096cf91e62c802bf23f2c2741601a1847b31))
+* only current project is visible from dropdown ([672dccd](https://github.com/botfront/botfront/commit/672dccd2c3daa0a71469f915b477858ceffe28e8))
+* **cli:** correct path in production Dockerfile for actions ([dd535a9](https://github.com/botfront/botfront/commit/dd535a939368dffddb698f6ed514316e2ea94608))
+* metadata lost at import, add the metadata model in the api ([2728b58](https://github.com/botfront/botfront/commit/2728b582c9d8467a1998f084f026910ee26f614d))
+
 ### [0.19.1-ee.1](https://github.com/botfront/botfront/compare/v0.19.1-ee.0...v0.19.1-ee.1) (2020-01-30)
 
 
