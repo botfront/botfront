@@ -19,10 +19,9 @@ describe('stories', function() {
             .type(`${storyGroupOne}{enter}`);
         cy.dataCy('story-title').should('have.value', 'storyGroupOne');
         cy.dataCy('edit-trigger-rules').click();
-        cy.dataCy('story-rules-editor').find('.add.icon').click();
         cy.dataCy('toggle-website-visits').click();
         cy.dataCy('website-visits-input').click().find('input').type('10');
-        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
         cy.dataCy('browser-item').contains('Smart stories').click();
         cy.dataCy('story-title').should('have.value', storyGroupOne);
@@ -48,7 +47,7 @@ describe('stories', function() {
         
         cy.dataCy('edit-trigger-rules').click();
         cy.dataCy('story-rules-editor').find('.close.icon').click();
-        cy.get('.dimmer').click({ position: 'topLeft' });
+        cy.dataCy('delete-triggers').click();
         cy.get('.dimmer').should('not.exist');
 
         cy.dataCy('smart-stories-message').should('exist');
