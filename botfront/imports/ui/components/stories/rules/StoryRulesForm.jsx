@@ -51,29 +51,30 @@ class RulesForm extends AutoForm {
     onChange(key, value) {
         super.onChange(key, value);
         const keyArray = key.split('.');
-        if (keyArray[keyArray.length - 1] === 'timeOnPage__DISPLAYIF' && value === true) {
+        const fieldName = keyArray[keyArray.length - 1];
+        if (fieldName === 'timeOnPage__DISPLAYIF' && value === true) {
             // disabled the eventListener field when timeOnPage is enabled
             const eventListenersBoolKey = [...keyArray];
             eventListenersBoolKey[eventListenersBoolKey.length - 1] = 'eventListeners__DISPLAYIF';
             super.onChange(eventListenersBoolKey.join('.'), false);
             this.resetOptionalArray(keyArray, 'eventListeners');
         }
-        if (keyArray[keyArray.length - 1] === 'eventListeners__DISPLAYIF' && value === true) {
+        if (fieldName === 'eventListeners__DISPLAYIF' && value === true) {
             // disabled the timeOnPage field when eventListener field is enabled
             const timeOnPageBoolKey = [...keyArray];
             timeOnPageBoolKey[timeOnPageBoolKey.length - 1] = 'timeOnPage__DISPLAYIF';
             super.onChange(timeOnPageBoolKey.join('.'), false);
         }
         if (value === true
-            && (keyArray[keyArray.length - 1] === 'eventListeners__DISPLAYIF'
-                || keyArray[keyArray.length - 1] === 'queryString__DISPLAYIF'
-                || keyArray[keyArray.length - 1] === 'url__DISPLAYIF'
+            && (fieldName === 'eventListeners__DISPLAYIF'
+                || fieldName === 'queryString__DISPLAYIF'
+                || fieldName === 'url__DISPLAYIF'
             )) {
             this.addDefaultArrayField([...keyArray]);
         }
         if (value === false) {
             // prevent errors in hidden fields
-            switch (keyArray[keyArray.length - 1]) {
+            switch (fieldName) {
             case 'eventListeners__DISPLAYIF':
                 this.resetOptionalArray(keyArray, 'eventListeners');
                 break;
