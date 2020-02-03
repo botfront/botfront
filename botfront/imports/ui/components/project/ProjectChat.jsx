@@ -163,12 +163,12 @@ class ProjectChat extends React.Component {
             path,
         } = this.state;
         const {
-            triggerChatPane, projectId, loading, initPayload,
+            triggerChatPane, projectId, /* loading, */ initPayload,
         } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
-                    <Dropdown item icon='bolt' data-cy='initial-payload-select'>
+                    {/* <Dropdown item icon='bolt' data-cy='initial-payload-select'>
                         <Dropdown.Menu>
                             {' '}
                             <Dropdown.Header
@@ -177,8 +177,8 @@ class ProjectChat extends React.Component {
                             />
                             {!loading && this.renderPayloadOptions()}
                         </Dropdown.Menu>
-                    </Dropdown>
-                    <Menu.Item>
+                    </Dropdown> */}
+                    <Menu.Item position='right'>
                         {selectedLanguage && (
                             <Dropdown
                                 options={languageOptions}
@@ -268,14 +268,14 @@ ProjectChat.propTypes = {
     channel: PropTypes.object.isRequired,
     initPayloads: PropTypes.array,
     initPayload: PropTypes.string.isRequired,
-    loading: PropTypes.bool.isRequired,
+    // loading: PropTypes.bool.isRequired,
     shouldRefreshChat: PropTypes.bool.isRequired,
     changeShouldRefreshChat: PropTypes.func.isRequired,
 };
 
 ProjectChat.defaultProps = {
     initPayloads: [],
-    loading: true,
+    // loading: true,
 };
 
 const ProjectChatContainer = withTracker(({ projectId }) => {

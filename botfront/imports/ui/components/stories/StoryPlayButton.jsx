@@ -29,6 +29,7 @@ const StoryPlayButton = (props) => {
                         refreshChat(true);
                     }}
                     className={className}
+                    data-cy='play-story'
                 />
             )}
             content={(
