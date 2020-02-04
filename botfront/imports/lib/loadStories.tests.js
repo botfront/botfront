@@ -1,6 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
-import { parseStoryGroup, parseStoryGroups, generateStories } from './loadStories';
+import {
+    parseStoryGroup, parseStoryGroups, generateStories,
+} from './loadStories';
 
 const storyGroupOne = [
     `## Farewells
@@ -28,14 +30,14 @@ const storyGroupOne = [
 > Get_started__New_Branch_2__branches
 
 > checkpoint_0`,
-].join('\n');
+];
 
 const storyGroupTwo = [
     `## Greetings
 > checkpoint_2
 * chitchat.greet
   - utter_hi`,
-].join('\n');
+];
 
 const badStories = [
     `## Sandwich
@@ -56,11 +58,11 @@ const badStories = [
     `## Mismatched child
 * intent_1
 > Another_names__branches`,
-].join('\n');
+];
 
 const storyGroups = [
-    { name: 'storyGroupOne', rawText: storyGroupOne, _id: '123' },
-    { name: 'storyGroupTwo', rawText: storyGroupTwo, _id: '456' },
+    { name: 'storyGroupOne', rawText: storyGroupOne.join('\n'), _id: '123' },
+    { name: 'storyGroupTwo', rawText: storyGroupTwo.join('\n'), _id: '456' },
 ];
 
 const storyGroupOneParsed = [
@@ -190,7 +192,7 @@ const navigateToPath = (stories, path) => path.reduce((prev, curr) => {
 if (Meteor.isServer) {
     describe('loadStories', () => {
         it('should raise error on deviant input format', () => {
-            const results = parseStoryGroup('123', badStories).map(e => e.error.message);
+            const results = parseStoryGroup('123', badStories.join('\n')).map(e => e.error.message);
             expect(results[0]).to.include('sandwiched');
             expect(results[1]).to.include('convention not respected');
             expect(results[2]).to.include('multiple mothers');
@@ -198,7 +200,7 @@ if (Meteor.isServer) {
             expect(results[4]).to.include('convention not respected');
         });
         it('required temporary features are extracted from raw story md', () => {
-            expect(parseStoryGroup('123', storyGroupOne)).to.be.deep.equal(
+            expect(parseStoryGroup('123', storyGroupOne.join('\n'))).to.be.deep.equal(
                 storyGroupOneParsed,
             );
         });
@@ -211,13 +213,13 @@ if (Meteor.isServer) {
         it('branching structure is reconstructed', () => {
             const storiesToInsert = generateStories(
                 parseStoryGroups(storyGroups),
-            );
+            ).stories;
             expect(stripIds(storiesToInsert)).to.be.deep.equal(storiesGenerated);
         });
         it('links are reconstructed from checkpoints', () => {
             const storiesToInsert = generateStories(
                 parseStoryGroups(storyGroups),
-            );
+            ).stories;
             const checkpointsOne = storiesToInsert.find(s => s.title === 'Farewells')
                 .checkpoints;
             expect(checkpointsOne.length).to.be.equal(2);
@@ -237,6 +239,26 @@ if (Meteor.isServer) {
                 title: 'Farewells',
                 storyGroupId: '123',
             });
+        });
+        it('Should drop broken checkpoints, and log warning', () => { // to do: log opposite: missing destinations
+            const { warnings, stories } = generateStories(
+                parseStoryGroups(storyGroups.slice(1, 2)), // only second group, with no origin for checkpoint_2
+            );
+            expect(stories[0].checkpoints).to.be.deep.equal([]);
+            expect(warnings[0].message).to.include('no origin counterpart was found');
+        });
+        it('Should drop broken branches, and log warning', () => { // to do: log opposite: motherless children
+            const { warnings, stories } = generateStories(
+                parseStoryGroups([
+                    {
+                        name: 'childlessMother',
+                        _id: '123',
+                        rawText: storyGroupOne[1],
+                    },
+                ]),
+            );
+            expect(stories[0].branches).to.be.an('undefined');
+            expect(warnings[0].message).to.include('branches were not found');
         });
     });
 }
