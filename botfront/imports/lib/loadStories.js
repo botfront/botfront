@@ -121,7 +121,8 @@ const updateLinks = (inputLinks, pathsAndIds) => {
 };
 
 export const generateStories = (parsedStories) => {
-    let output = {};
+    let output = { '': [] };
+    const warnings = [];
     let links = [];
     parsedStories
         .sort((a, b) => b.ancestorOf.length - a.ancestorOf.length) // sort deepest first
@@ -144,13 +145,19 @@ export const generateStories = (parsedStories) => {
                 ? shortid.generate().replace('_', '0')
                 : uuidv4();
 
+            if (hasDescendents && !output[currentPath]) {
+                warnings.push({
+                    message: `Story '${title}' refers to branches, but branches were not found.`,
+                });
+            }
+
             if (!output[ancestorPath]) output[ancestorPath] = [];
             output[ancestorPath].push({
                 _id,
                 story: body,
                 title,
                 ...(!ancestorOf.length ? { storyGroupId } : {}),
-                ...(hasDescendents ? { branches: output[currentPath] } : {}),
+                ...(hasDescendents && output[currentPath] ? { branches: output[currentPath] } : {}),
                 ...(linkFrom.length ? { checkpoints: linkFrom } : {}),
             });
 
@@ -162,26 +169,28 @@ export const generateStories = (parsedStories) => {
             });
         });
     output = output['']; // only output root stories (with their now embedded children)
-    output.forEach((story, index) => {
-        if (!story.checkpoints) return;
-        output[index] = {
-            ...story,
-            checkpoints: output[index].checkpoints.map(
-                c => links.find(l => l.name === c).value,
-            ),
-        };
+    output.forEach(({ checkpoints = [], title }, index) => {
+        const resolvedCheckpoints = [];
+        checkpoints.forEach((c) => {
+            const link = links.find(l => l.name === c) || {};
+            if (!link.value) {
+                warnings.push({
+                    message: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
+                });
+            } else resolvedCheckpoints.push(link.value);
+        });
+        output[index].checkpoints = resolvedCheckpoints;
     });
-    return output;
+    return { stories: output, warnings };
 };
 
-const injectStoryGroupIds = (existingStoryGroups, storyGroups, merge = true) => storyGroups.map((sg) => {
+const injectStoryGroupIds = (existingStoryGroups, storyGroups) => storyGroups.map((sg) => {
     const existing = existingStoryGroups.find(esg => esg.name === sg.name);
-    const _id = merge && existing ? existing._id : uuidv4();
-    const name = merge && existing
+    const name = existing
         ? `${sg.name} (${new Date()
             .toISOString()
             .replace('T', ' ')
             .replace('Z', '')})`
         : sg.name;
-    return { ...sg, name, _id };
+    return { ...sg, name, _id: uuidv4() };
 });
