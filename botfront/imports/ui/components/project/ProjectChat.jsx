@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {
-    Menu, Icon, Dropdown, Popup, Message, // Label,
+    Menu, Icon, Dropdown, Popup, Message,
 } from 'semantic-ui-react';
 import Chat from './Chat';
 import { getLanguagesFromProjectId } from '../../../lib/utils';
@@ -54,8 +54,6 @@ class ProjectChat extends React.Component {
     };
 
     handleReloadChat = () => {
-        const { shouldRefreshChat, changeShouldRefreshChat } = this.props;
-        if (shouldRefreshChat) changeShouldRefreshChat(false);
         window.localStorage.removeItem('chat_session');
         this.rerenderChatComponent();
     };

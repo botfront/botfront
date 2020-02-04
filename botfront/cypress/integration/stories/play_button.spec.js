@@ -2,7 +2,7 @@
 /* global cy:true */
 /* global Cypress:true */
 
-describe('Bot responses', function() {
+describe('Story play button', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
