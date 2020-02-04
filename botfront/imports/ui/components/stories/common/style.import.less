@@ -193,7 +193,17 @@
             .flex-right {
                 .utterance-container.metadata-response {
                     // only color metadata responses in the story editor
-                    background-color: rgb(224, 247, 224);
+                    &:not(.image) {
+                        background-color: rgb(224, 247, 224);
+                    }
+                    &.image{
+                        .inner {
+                            img{
+                                background-color: rgb(224, 247, 224);
+                                padding: 0.5em;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -264,9 +274,6 @@
         
         .utterance-container {
             width: 100%;
-            // &.metadata-response {
-            //     background-color: rgb(224, 247, 224);
-            // }
         }
 
         .viewOnHover {
