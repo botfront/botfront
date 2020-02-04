@@ -108,6 +108,7 @@ const BotResponsesContainer = (props) => {
                     editCustom={() => setEditorOpen(true)}
                     uploadImage={uploadImage}
                     hasMetadata={template && checkMetadataSet(template.metadata)}
+                    metadata={(template || {}).metadata}
                 />
                 {index === sequenceArray.length - 1 && name && (
                     <div className='response-name'>{name}</div>
@@ -115,7 +116,7 @@ const BotResponsesContainer = (props) => {
             </div>
         </React.Fragment>
     );
-
+    
     return (
         <ExceptionWrapper exceptions={exceptions}>
             <div className='responses-container exception-wrapper'>

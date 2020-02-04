@@ -15,7 +15,7 @@ import { ProjectContext } from '../../../layouts/context';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag, hasMetadata,
+        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag, hasMetadata, metadata,
     } = props;
     const { webhooks } = useContext(ProjectContext);
 
@@ -208,11 +208,19 @@ const BotResponseContainer = (props) => {
     const metadataClass = hasMetadata ? 'metadata-response' : '';
 
 
+    const getCustomStyle = () => {
+        if (metadata && metadata.customCss && metadata.customCss.style === 'custom' && metadata.customCss.css) {
+            return { style: { cssText: metadata.customCss.css } };
+        }
+        return {};
+    };
+
     return (
         <div
             className={`utterance-container bot-response ${extraClass} ${metadataClass}`}
             agent='bot'
             data-cy='bot-response-input'
+            {...getCustomStyle()}
         >
             <div className={`inner ${canDrop && isOver ? 'upload-target' : ''} ${hasMetadata ? 'metadata-response' : ''}`}>
                 {hasText && !isImageResponse && renderText()}
@@ -237,6 +245,7 @@ BotResponseContainer.propTypes = {
     tag: PropTypes.string,
     uploadImage: PropTypes.func,
     hasMetadata: PropTypes.bool,
+    metadata: PropTypes.object,
 };
 
 BotResponseContainer.defaultProps = {
@@ -246,6 +255,7 @@ BotResponseContainer.defaultProps = {
     tag: null,
     uploadImage: () => {},
     hasMetadata: false,
+    metadata: {},
 };
 
 export default BotResponseContainer;
