@@ -9,7 +9,7 @@ import FloatingIconButton from '../../common/FloatingIconButton';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom, tag,
+        value, onDelete, onChange, deletable, focus, onFocus, editCustom, tag, hasMetadata,
     } = props;
 
     const [input, setInput] = useState();
@@ -139,14 +139,16 @@ const BotResponseContainer = (props) => {
     );
 
     const extraClass = isImageResponse && value.image.trim() ? 'image' : '';
+    const metadataClass = hasMetadata ? 'metadata-response' : '';
+
 
     return (
         <div
-            className={`utterance-container bot-response ${extraClass}`}
+            className={`utterance-container bot-response ${extraClass} ${metadataClass}`}
             agent='bot'
             data-cy='bot-response-input'
         >
-            <div className='inner'>
+            <div className={`inner ${hasMetadata ? 'metadata-response' : ''}`}>
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && renderImage()}
                 {isQRResponse && renderButtons()}
@@ -167,6 +169,7 @@ BotResponseContainer.propTypes = {
     onDelete: PropTypes.func.isRequired,
     editCustom: PropTypes.func,
     tag: PropTypes.string,
+    hasMetadata: PropTypes.bool,
 };
 
 BotResponseContainer.defaultProps = {
@@ -174,6 +177,7 @@ BotResponseContainer.defaultProps = {
     focus: false,
     editCustom: () => {},
     tag: null,
+    hasMetadata: false,
 };
 
 export default BotResponseContainer;

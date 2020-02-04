@@ -178,6 +178,12 @@ const BotResponseEditor = (props) => {
         return activeValue.sequence;
     };
 
+    const getRefreshData = () => {
+        const ret = addContentType(safeLoad(getActiveSequence()[0].content));
+        const { metadata } = newBotResponse;
+        return { ...ret, metadata };
+    };
+
     const handleModalClose = () => {
         const validResponse = newBotResponse;
         if (!open) return;
@@ -193,9 +199,9 @@ const BotResponseEditor = (props) => {
             });
             return;
         } if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
-            const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
+            const newPayload = getRefreshData();
             upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
-                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
+                refreshBotResponse(`${language}-${name}`, newPayload); // refresh the content of the response in the visual story editor
                 closeModal();
             });
         }
@@ -239,18 +245,10 @@ const BotResponseEditor = (props) => {
             </>
         );
     };
-    // metadata is not fetched in the story editor so the color of the trigger is set here
-    const customizedTrigger = {
-        ...trigger,
-        props: {
-            ...trigger.props,
-            color: checkMetadataSet(newBotResponse.metadata) ? 'green' : trigger.props.color,
-        },
-    };
     return (
         <Modal
             className='response-editor-dimmer'
-            trigger={customizedTrigger}
+            trigger={trigger}
             content={(
                 <Segment.Group className='response-editor' data-cy='response-editor'>
                     <Segment attached='top' className='resonse-editor-topbar'>

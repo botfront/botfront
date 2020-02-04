@@ -8,6 +8,14 @@
             color: #8d99a2 !important;
         }
     }
+    &.light-green {
+        background-color: rgb(224, 247, 224);
+        color: rgb(136, 173, 136);
+        &:hover {
+            background-color: rgb(219, 243, 219);
+            color: rgb(110, 143, 110);
+        }
+    }
 }
 
 .responses-container {
@@ -38,7 +46,7 @@
         .add-story-line {
             opacity: 1;
         }
-
+        
         .responses-container {
             border-color: #eee;
             .viewOnHover {
@@ -243,6 +251,9 @@
         
         .utterance-container {
             width: 100%;
+            &.metadata-response {
+                background-color: rgb(224, 247, 224);
+            }
         }
 
         .viewOnHover {

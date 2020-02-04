@@ -8,6 +8,8 @@ import BotResponseEditor from '../../templates/templates-list/BotResponseEditor'
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
 
+import { checkMetadataSet } from '../../templates/botResponse.utils';
+
 const BotResponsesContainer = (props) => {
     const {
         name,
@@ -45,6 +47,7 @@ const BotResponsesContainer = (props) => {
             const newTemplate = {
                 __typename: 'TextPayload',
                 text: newSequence.map(seq => seq.text).join('\n\n'),
+                metadata: template.metadata,
             };
             onChange(newTemplate);
             return setTemplate(newTemplate);
@@ -101,6 +104,7 @@ const BotResponsesContainer = (props) => {
                     focus={focus === index}
                     onFocus={() => setFocus(index)}
                     editCustom={() => setEditorOpen(true)}
+                    hasMetadata={template && checkMetadataSet(template.metadata)}
                 />
                 {index === sequenceArray.length - 1 && name && (
                     <div className='response-name'>{name}</div>
@@ -127,7 +131,8 @@ const BotResponsesContainer = (props) => {
                                     icon='ellipsis vertical'
                                     onClick={() => setEditorOpen(true)}
                                     data-cy='edit-responses'
-                                    // color is set inside the BotResponseEditor: green if metadata exists, default grey if it does not
+                                    className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
+                                    color={null} // prevent default color overiding the color set by the class
                                 />
                             )}
                             open={editorOpen}
