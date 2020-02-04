@@ -209,7 +209,11 @@ const BotResponseContainer = (props) => {
 
 
     const getCustomStyle = () => {
-        if (metadata && metadata.customCss && metadata.customCss.style === 'custom' && metadata.customCss.css) {
+        if (metadata
+            && metadata.customCss
+            && metadata.customCss.style === 'custom'
+            && metadata.customCss.css
+        ) {
             return { style: { cssText: metadata.customCss.css } };
         }
         return {};
