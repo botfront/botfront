@@ -22,7 +22,6 @@ import {
     addResponseLanguage,
     getDefaultTemplateFromSequence,
     addContentType,
-    checkMetadataSet,
 } from '../botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
@@ -160,7 +159,8 @@ const BotResponseEditor = (props) => {
     };
 
     const handleSequenceChange = (updatedSequence, index) => {
-        const content = safeDump(updatedSequence);
+        const { metadata, ...rest } = updatedSequence;
+        const content = safeDump(rest);
         if (isNew) {
             const tempvar = updateSequence(newBotResponse, content, index);
             setNewBotResponse(tempvar);
