@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
-import { parseStoryGroup } from './loadStories';
+import { parseStoryGroup, parseStoryGroups, generateStories } from './loadStories';
 
 const storyGroupOne = [
     `## Farewells
@@ -28,87 +28,215 @@ const storyGroupOne = [
 > Get_started__New_Branch_2__branches
 
 > checkpoint_0`,
+].join('\n');
+
+const storyGroupTwo = [
     `## Greetings
 > checkpoint_2
 * chitchat.greet
   - utter_hi`,
 ].join('\n');
 
-const storyGroupOneParsed = [{
-    storyGroupName: 'storyGroupOne',
-    title: 'Farewells',
-    fullTitle: 'Farewells',
-    ancestorOf: [],
-    linkFrom: ['checkpoint_1', 'checkpoint_0'],
-    hasDescendents: false,
-    linkTo: 'checkpoint_2',
-    body: '',
-},
-{
-    storyGroupName: 'storyGroupOne',
-    title: 'Get started',
-    fullTitle: 'Get started',
-    ancestorOf: [],
-    linkFrom: [],
-    hasDescendents: true,
-    linkTo: null,
-    body: '* get_started\n  - utter_get_started',
-},
-{
-    storyGroupName: 'storyGroupOne',
-    title: 'New Branch 1',
-    fullTitle: 'Get started__New Branch 1',
-    ancestorOf: ['Get_started'],
-    linkFrom: [],
-    hasDescendents: false,
-    linkTo: null,
-    body: '',
-},
-{
-    storyGroupName: 'storyGroupOne',
-    title: 'New Branch 2',
-    fullTitle: 'Get started__New Branch 2',
-    ancestorOf: ['Get_started'],
-    linkFrom: [],
-    hasDescendents: true,
-    linkTo: null,
-    body: '',
-},
-{
-    storyGroupName: 'storyGroupOne',
-    title: 'New Branch 1',
-    fullTitle: 'Get started__New Branch 2__New Branch 1',
-    ancestorOf: ['Get_started', 'New_Branch_2'],
-    linkFrom: [],
-    hasDescendents: false,
-    linkTo: 'checkpoint_1',
-    body: '',
-},
-{
-    storyGroupName: 'storyGroupOne',
-    title: 'New Branch 2',
-    fullTitle: 'Get started__New Branch 2__New Branch 2',
-    ancestorOf: ['Get_started', 'New_Branch_2'],
-    linkFrom: [],
-    hasDescendents: false,
-    linkTo: 'checkpoint_0',
-    body: '',
-},
-{
-    storyGroupName: 'storyGroupOne',
-    title: 'Greetings',
-    fullTitle: 'Greetings',
-    ancestorOf: [],
-    linkFrom: ['checkpoint_2'],
-    hasDescendents: false,
-    linkTo: null,
-    body: '* chitchat.greet\n  - utter_hi',
-}];
+const badStories = [
+    `## Sandwich
+* intent_1
+> checkpoint_1
+* intent_2`,
+    `## Mismatched mother__child
+> Another_mothers__branches
+* intent_1`,
+    `## Mother__child
+> Mother__branches
+> Mother__branches
+* intent_1`,
+    `## Multiple destinations
+* intent_1
+> one
+> two`,
+    `## Mismatched child
+* intent_1
+> Another_names__branches`,
+].join('\n');
+
+const storyGroups = [
+    { name: 'storyGroupOne', rawText: storyGroupOne, _id: '123' },
+    { name: 'storyGroupTwo', rawText: storyGroupTwo, _id: '456' },
+];
+
+const storyGroupOneParsed = [
+    {
+        storyGroupId: '123',
+        title: 'Farewells',
+        fullTitle: 'Farewells',
+        ancestorOf: [],
+        linkFrom: ['checkpoint_1', 'checkpoint_0'],
+        hasDescendents: false,
+        linkTo: 'checkpoint_2',
+        body: '',
+    },
+    {
+        storyGroupId: '123',
+        title: 'Get started',
+        fullTitle: 'Get started',
+        ancestorOf: [],
+        linkFrom: [],
+        hasDescendents: true,
+        linkTo: null,
+        body: '* get_started\n  - utter_get_started',
+    },
+    {
+        storyGroupId: '123',
+        title: 'New Branch 1',
+        fullTitle: 'Get started__New Branch 1',
+        ancestorOf: ['Get_started'],
+        linkFrom: [],
+        hasDescendents: false,
+        linkTo: null,
+        body: '',
+    },
+    {
+        storyGroupId: '123',
+        title: 'New Branch 2',
+        fullTitle: 'Get started__New Branch 2',
+        ancestorOf: ['Get_started'],
+        linkFrom: [],
+        hasDescendents: true,
+        linkTo: null,
+        body: '',
+    },
+    {
+        storyGroupId: '123',
+        title: 'New Branch 1',
+        fullTitle: 'Get started__New Branch 2__New Branch 1',
+        ancestorOf: ['Get_started', 'New_Branch_2'],
+        linkFrom: [],
+        hasDescendents: false,
+        linkTo: 'checkpoint_1',
+        body: '',
+    },
+    {
+        storyGroupId: '123',
+        title: 'New Branch 2',
+        fullTitle: 'Get started__New Branch 2__New Branch 2',
+        ancestorOf: ['Get_started', 'New_Branch_2'],
+        linkFrom: [],
+        hasDescendents: false,
+        linkTo: 'checkpoint_0',
+        body: '',
+    },
+];
+
+const storyGroupTwoParsed = [
+    {
+        storyGroupId: '456',
+        title: 'Greetings',
+        fullTitle: 'Greetings',
+        ancestorOf: [],
+        linkFrom: ['checkpoint_2'],
+        hasDescendents: false,
+        linkTo: null,
+        body: '* chitchat.greet\n  - utter_hi',
+    },
+];
+
+const storiesGenerated = [
+    {
+        story: '',
+        title: 'Farewells',
+        storyGroupId: '123',
+    },
+    {
+        story: '* get_started\n  - utter_get_started',
+        title: 'Get started',
+        storyGroupId: '123',
+        branches: [
+            { story: '', title: 'New Branch 1' },
+            {
+                story: '',
+                title: 'New Branch 2',
+                branches: [
+                    { story: '', title: 'New Branch 1' },
+                    { story: '', title: 'New Branch 2' },
+                ],
+            },
+        ],
+    },
+    {
+        story: '* chitchat.greet\n  - utter_hi',
+        title: 'Greetings',
+        storyGroupId: '456',
+    },
+];
+
+const stripIds = (any) => {
+    const input = any;
+    if (Array.isArray(input)) return input.map(i => stripIds(i));
+    if (typeof input === 'object') {
+        if ('_id' in input) delete input._id;
+        if ('checkpoints' in input) delete input.checkpoints;
+        Object.keys(input).forEach((k) => {
+            input[k] = stripIds(input[k]);
+        });
+    }
+    return input;
+};
+
+const navigateToPath = (stories, path) => path.reduce((prev, curr) => {
+    const nextLevel = prev.find(s => s._id === curr);
+    expect(!!nextLevel).to.be.equal(true);
+    return nextLevel.branches || nextLevel;
+}, stories);
 
 if (Meteor.isServer) {
-    describe('loadStories', function() {
-        it('required temporary features are extracted from raw story md', function() {
-            expect(parseStoryGroup('storyGroupOne', storyGroupOne)).to.be.deep.equal(storyGroupOneParsed);
+    describe('loadStories', () => {
+        it('should raise error on deviant input format', () => {
+            const results = parseStoryGroup('123', badStories).map(e => e.error.message);
+            expect(results[0]).to.include('sandwiched');
+            expect(results[1]).to.include('convention not respected');
+            expect(results[2]).to.include('multiple mothers');
+            expect(results[3]).to.include('more than one destination');
+            expect(results[4]).to.include('convention not respected');
+        });
+        it('required temporary features are extracted from raw story md', () => {
+            expect(parseStoryGroup('123', storyGroupOne)).to.be.deep.equal(
+                storyGroupOneParsed,
+            );
+        });
+        it('required temporary features are extracted from raw story md across multiple story groups', () => {
+            expect(parseStoryGroups(storyGroups)).to.be.deep.equal([
+                ...storyGroupOneParsed,
+                ...storyGroupTwoParsed,
+            ]);
+        });
+        it('branching structure is reconstructed', () => {
+            const storiesToInsert = generateStories(
+                parseStoryGroups(storyGroups),
+            );
+            expect(stripIds(storiesToInsert)).to.be.deep.equal(storiesGenerated);
+        });
+        it('links are reconstructed from checkpoints', () => {
+            const storiesToInsert = generateStories(
+                parseStoryGroups(storyGroups),
+            );
+            const checkpointsOne = storiesToInsert.find(s => s.title === 'Farewells')
+                .checkpoints;
+            expect(checkpointsOne.length).to.be.equal(2);
+            expect(
+                stripIds(navigateToPath(storiesToInsert, checkpointsOne[0])),
+            ).to.be.deep.equal({ story: '', title: 'New Branch 1' });
+            expect(
+                stripIds(navigateToPath(storiesToInsert, checkpointsOne[1])),
+            ).to.be.deep.equal({ story: '', title: 'New Branch 2' });
+            const checkpointsTwo = storiesToInsert.find(s => s.title === 'Greetings')
+                .checkpoints;
+            expect(checkpointsTwo.length).to.be.equal(1);
+            expect(
+                stripIds(navigateToPath(storiesToInsert, checkpointsTwo[0])),
+            ).to.be.deep.equal({
+                story: '',
+                title: 'Farewells',
+                storyGroupId: '123',
+            });
         });
     });
 }
