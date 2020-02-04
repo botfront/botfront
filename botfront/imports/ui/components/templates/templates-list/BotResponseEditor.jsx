@@ -180,6 +180,10 @@ const BotResponseEditor = (props) => {
     const handleModalClose = () => {
         const validResponse = newBotResponse;
         if (!open) return;
+        if (isNew && checkResponseEmpty(validResponse)) {
+            closeModal();
+            return;
+        }
         // the response is new
         if ((isNew && !checkResponseEmpty(validResponse))
         // the response was one of the default defined one and thus does not really exist in db

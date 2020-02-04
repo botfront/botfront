@@ -1,13 +1,16 @@
 import { safeLoad, safeDump } from 'js-yaml';
 
 const checkContentEmpty = content => (
-    content.image
-    || content.custom
-    || (content.text && content.text.length > 0 && content.buttons && content.buttons.length && content.buttons[0].title)
+    (content.custom && (Object.keys(content.custom).length > 0))
+    || (content.image && content.image.length > 0)
+    || ((content.text && content.text.length > 0 && content.buttons)
+        || (content.buttons && content.buttons.length > 0 && content.buttons[0].title))
     || (content.text && content.text.length > 0 && !content.buttons));
 
 export const checkResponseEmpty = (response) => {
     let isEmpty = true;
+    if (response.metadata) isEmpty = false;
+    if (response.key !== 'utter_') isEmpty = false;
     response.values.forEach((value) => {
         if (!isEmpty) return;
         value.sequence.forEach((variation) => {
