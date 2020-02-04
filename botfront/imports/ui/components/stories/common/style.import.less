@@ -46,7 +46,7 @@
         .add-story-line {
             opacity: 1;
         }
-        
+
         .responses-container {
             border-color: #eee;
             .viewOnHover {
@@ -187,6 +187,19 @@
     align-items: center;
 }
 
+.single-story-container{ 
+    .story-line {
+        .responses-container {
+            .flex-right {
+                .utterance-container.metadata-response {
+                    // only color metadata responses in the story editor
+                    background-color: rgb(224, 247, 224);
+                }
+            }
+        }
+    }
+}
+
 .responses-container {
     width: 44rem;
     display: inline-flex;
@@ -251,9 +264,9 @@
         
         .utterance-container {
             width: 100%;
-            &.metadata-response {
-                background-color: rgb(224, 247, 224);
-            }
+            // &.metadata-response {
+            //     background-color: rgb(224, 247, 224);
+            // }
         }
 
         .viewOnHover {
