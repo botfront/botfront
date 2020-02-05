@@ -96,4 +96,19 @@ describe('Bot responses', function() {
         cy.dataCy('edit-custom-response').click();
         cy.dataCy('custom-response-editor').contains('test: success').should('exist');
     });
+    it('should provide the correct response template in a new language', () => {
+        cy.createNLUModelProgramatically('bf', '', 'fr');
+        cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+        cy.dataCy('single-story-editor').trigger('mouseover');
+        cy.dataCy('add-bot-line').click({ force: true });
+        cy.dataCy('from-custom-template').click({ force: true });
+        cy.dataCy('language-selector').click().find('div').contains('French')
+            .click({ force: true });
+        cy.dataCy('bot-response-input').find('[data-cy=edit-custom-response]').should('exist');
+    });
 });

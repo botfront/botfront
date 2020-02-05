@@ -3,8 +3,7 @@
 describe('Bot responses', function() {
     beforeEach(function() {
         cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'en');
-        cy.login();
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
     afterEach(function() {
         cy.deleteProject('bf');
@@ -106,5 +105,21 @@ describe('Bot responses', function() {
         cy.dataCy('button_B').should('exist');
         cy.dataCy('bot-response-input').contains('response text B').should('exist');
         cy.dataCy('button_A').should('exist');
+    });
+
+    it('should provide the correct response template in a new language', () => {
+        cy.createNLUModelProgramatically('bf', '', 'fr');
+        cy.visit('/project/bf/stories');
+        cy.dataCy('add-item').click();
+        cy.dataCy('add-item-input')
+            .find('input')
+            .type('myTest{enter}');
+        cy.dataCy('story-title').should('have.value', 'myTest');
+        cy.dataCy('single-story-editor').trigger('mouseover');
+        cy.dataCy('add-bot-line').click({ force: true });
+        cy.dataCy('from-qr-template').click({ force: true });
+        cy.dataCy('language-selector').click().find('div').contains('French')
+            .click({ force: true });
+        cy.dataCy('bot-response-input').find('[data-cy=button_title]').should('exist');
     });
 });
