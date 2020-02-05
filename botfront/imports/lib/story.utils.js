@@ -306,42 +306,42 @@ export const getStoriesAndDomain = async (projectId, language) => {
         fallback_language: { type: 'unfeaturized', initial_value: defaultLanguage },
     };
     appMethodLogger.debug('Selecting story groups');
-    const selectedStoryGroupsIds = StoryGroups.find(
-        { projectId, selected: true },
-        { fields: { _id: 1 } },
-    ).fetch().map(storyGroup => storyGroup._id);
-    appMethodLogger.debug('Fetching stories');
-    const stories = selectedStoryGroupsIds.length > 0
-        ? Stories.find(
-            { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
+    const storyGroups = StoryGroups.find(
+        { projectId }, { fields: { _id: 1, name: 1 } },
+    ).fetch();
+
+    let selectedStoryGroups = storyGroups.filter(sg => sg.selected);
+    selectedStoryGroups = selectedStoryGroups.length
+        ? selectedStoryGroups
+        : storyGroups;
+    const storiesByStoryGroup = []; let storiesForDomainExtraction = [];
+
+    appMethodLogger.debug('Fetching and formatting stories');
+    selectedStoryGroups.forEach(({ _id, name }) => {
+        const stories = Stories.find(
+            { projectId, storyGroupId: _id },
             {
                 fields: {
                     story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
                 },
             },
-        ).fetch()
-        : Stories.find({ projectId }, {
-            fields: {
-                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
-            },
-        }).fetch();
-    appMethodLogger.debug('Flatening stories');
-    const storiesForDomain = stories
-        .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
-    appMethodLogger.debug('Adding branch checkpoints');
-    let storiesForRasa = stories
-        .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
-        .map(story => appendBranchCheckpoints(story));
-    appMethodLogger.debug('Adding links checkpoints');
-    storiesForRasa = addlinkCheckpoints(storiesForRasa)
-        .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
-        .map(story => `## ${story.title}\n${story.story}`);
+        ).fetch();
+        const storiesForThisSG = addlinkCheckpoints(stories)
+            .map(story => appendBranchCheckpoints(story))
+            .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
+            .map(story => `## ${story.title}\n${story.story}`)
+            .join('\n');
+        storiesByStoryGroup.push(`# ${name}\n\n${storiesForThisSG}`);
+        storiesForDomainExtraction = storiesForDomainExtraction.concat(stories
+            .reduce((acc, story) => [...acc, ...flattenStory(story)], []));
+    });
+
     appMethodLogger.debug('Fetching templates');
     const templates = await getAllTemplates(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     return {
-        stories: storiesForRasa.join('\n'),
-        domain: extractDomain(storiesForDomain, slots, templates, defaultDomain),
+        stories: storiesByStoryGroup,
+        domain: extractDomain(storiesForDomainExtraction, slots, templates, defaultDomain),
     };
 };
 
