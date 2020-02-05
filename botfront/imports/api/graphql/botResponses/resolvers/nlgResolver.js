@@ -2,6 +2,7 @@ import { safeLoad } from 'js-yaml';
 import { sample } from 'lodash';
 import { newGetBotResponses } from '../mongo/botResponses';
 import { getLanguagesFromProjectId } from '../../../../lib/utils';
+import { parseContentType } from '../../../../lib/botResponse.utils';
 
 const interpolateSlots = (text, slots) => {
     // fills in {slotname} in templates
@@ -60,13 +61,7 @@ export default {
         },
     },
     BotResponsePayload: {
-        __resolveType: (v) => {
-            if (v.elements || v.attachment || v.custom) return 'CustomPayload';
-            if (Object.keys(v).includes('image') && !Object.keys(v).includes('buttons')) return 'ImagePayload';
-            if (Object.keys(v).includes('buttons') && !Object.keys(v).includes('image')) return 'QuickReplyPayload';
-            if (Object.keys(v).includes('text') && !Object.keys(v).includes('image') && !Object.keys(v).includes('buttons')) return 'TextPayload';
-            return 'CustomPayload';
-        },
+        __resolveType: parseContentType,
         text: ({ text }) => text,
         metadata: ({ metadata }) => metadata,
     },

@@ -3,6 +3,7 @@ import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Stories } from '../../../story/stories.collection';
+import { addTemplateLanguage } from '../../../../lib/botResponse.utils';
 
 export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
@@ -102,10 +103,8 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
             $addFields: { values: { $filter: { input: '$values', as: 'value', cond: { $in: ['$$value.lang', languageArray] } } } },
         }];
     }
+    const aggregationParameters = [
 
-    return BotResponses.aggregate([
-        { $match: { projectId, ...templateKey, ...languageKey } },
-        ...languageFilter,
         { $unwind: '$values' },
         { $unwind: '$values.sequence' },
         {
@@ -118,7 +117,23 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
                 metadata: '$metadata',
             },
         },
+    ];
+
+    let templates = await BotResponses.aggregate([
+        { $match: { projectId, ...templateKey, ...languageKey } },
+        ...languageFilter,
+        ...aggregationParameters,
     ]).allowDiskUse(true);
+
+    if (!templates || !templates.length > 0) {
+        templates = await BotResponses.aggregate([
+            { $match: { projectId, ...templateKey } },
+            ...aggregationParameters,
+        ]).allowDiskUse(true);
+        templates = addTemplateLanguage(templates, language);
+        // console.log(templates);
+    }
+    return templates;
 };
 
 
