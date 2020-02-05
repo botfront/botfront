@@ -7,6 +7,8 @@ import { Meteor } from 'meteor/meteor';
 import Intercom from 'react-intercom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { DndProvider } from 'react-dnd-cjs';
+import HTML5Backend from 'react-dnd-html5-backend-cjs';
 import Alert from 'react-s-alert';
 import yaml from 'js-yaml';
 import React from 'react';
@@ -314,15 +316,17 @@ class Project extends React.Component {
                                             }),
                                         }}
                                     >
-                                        <div data-cy='left-pane'>
-                                            {children}
-                                            {!showChat && channel && (
-                                                <Popup
-                                                    trigger={<Button size='big' circular onClick={() => { changeShowChat(!showChat); }} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
-                                                    content='Try out your chatbot'
-                                                />
-                                            )}
-                                        </div>
+                                        <DndProvider backend={HTML5Backend}>
+                                            <div data-cy='left-pane'>
+                                                {children}
+                                                {!showChat && channel && (
+                                                    <Popup
+                                                        trigger={<Button size='big' circular onClick={() => { changeShowChat(!showChat); }} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
+                                                        content='Try out your chatbot'
+                                                    />
+                                                )}
+                                            </div>
+                                        </DndProvider>
                                     </ProjectContext.Provider>
                                 )}
                             </Query>
