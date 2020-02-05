@@ -154,7 +154,7 @@ if (Meteor.isServer) {
             });
             return data;
         },
-        async 'rasa.getTrainingPayload'(projectId, instance, language = '') {
+        async 'rasa.getTrainingPayload'(projectId, instance, language = '', joinStoryFiles = true) {
             check(projectId, String);
             check(language, String);
             check(instance, Object);
@@ -197,7 +197,7 @@ if (Meteor.isServer) {
                 const { stories, domain } = await getStoriesAndDomain(projectId, language);
                 const payload = {
                     domain,
-                    stories,
+                    stories: joinStoryFiles ? stories.join('\n') : stories,
                     nlu,
                     config,
                     fixed_model_name: getProjectModelFileName(projectId),
