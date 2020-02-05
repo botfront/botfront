@@ -31,9 +31,6 @@ const resolveTemplate = async ({
         return { text: template };
     }
     
-    // const payload = slots // slots are passed only when  resolveTemplate is called by rasa
-    // ? safeLoad(sample(source).payload) // if called by rasa get a random variation
-    // : safeLoad(source[0].payload); // if called anywhere else get the first variation
 
     const { payload: rawPayload, metadata } = slots ? sample(source) : source[0];
     const payload = safeLoad(rawPayload);
