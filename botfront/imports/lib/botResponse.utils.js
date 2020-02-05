@@ -55,7 +55,7 @@ export const defaultTemplate = (template) => {
             ],
         };
     }
-    if (template === 'CustomPayload') {
+    if (template === 'CustomPay load') {
         return {
             __typename: 'CustomPayload',
         };
@@ -86,7 +86,7 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
 
 export const parseContentType = (content) => {
     switch (true) {
-    case Object.keys(content).includes('custom'):
+    case Object.keys(content).includes('custom') || Object.keys(content).includes('attachment') || Object.keys(content).includes('elements'):
         return 'CustomPayload';
     case Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
         return 'ImagePayload';
@@ -130,3 +130,14 @@ export const checkMetadataSet = (metadata) => {
     }
     return true;
 };
+
+export const addTemplateLanguage = (templates, language) => templates
+    .map((template) => {
+        const type = parseContentType(safeLoad(template.payload));
+        const payload = safeDump(defaultTemplate(type));
+        return {
+            ...template,
+            language,
+            payload,
+        };
+    });
