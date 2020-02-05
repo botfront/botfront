@@ -46,7 +46,7 @@ const OptionalField = (props) => {
 
 OptionalField.propTypes = {
     name: PropTypes.string.isRequired,
-    children: PropTypes.oneOfType(PropTypes.arrayOf(PropTypes.element).isRequired, PropTypes.element),
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element).isRequired, PropTypes.element]),
     label: PropTypes.string,
     'data-cy': PropTypes.string,
     getError: PropTypes.func,
