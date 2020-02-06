@@ -50,10 +50,9 @@ class RulesForm extends AutoForm {
 
     onChange(key, value) {
         // DESCRIPTION: handle secondary effects of model updates (eg: enabling timeOnPage disables eventListeners)
+        super.onChange(key, value); // update the model with the new value
         const keyArray = key.split('.');
         const fieldName = keyArray[keyArray.length - 1]; // the last value is the name of the edited field
-        
-        super.onChange(key, value); // update the model with the new value
 
         if (fieldName === 'timeOnPage__DISPLAYIF' && value === true) {
             // disabled the eventListener field when timeOnPage is enabled
@@ -73,6 +72,13 @@ class RulesForm extends AutoForm {
             const valueDisplayIfKey = [...keyArray];
             valueDisplayIfKey[valueDisplayIfKey.length - 1] = 'value__DISPLAYIF';
             super.onChange(valueDisplayIfKey.join('.'), !value === true);
+        }
+        if (fieldName === 'queryString' && Array.isArray(value)) {
+            // new elements in the queryString field are set to a default value
+            const oldValue = getModelField(key, this.props.model);
+            if (value.length === oldValue.length + 1) { // added a new element to the array
+                super.onChange(key, [...value.slice(0, value.length - 1), this.getDefaultValue(fieldName)]);
+            }
         }
         if (value === true
             && (fieldName === 'eventListeners__DISPLAYIF'

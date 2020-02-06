@@ -236,9 +236,6 @@ export class StoryController {
                 try {
                     [this.prefix, this.content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
                     this.prefix = this.prefix.trim();
-                    if (this.idx === 0 && this.prefix === '*' && !this.isABranch && this.isSmartStory) {
-                        this.raiseStoryException('smart_story_payload');
-                    }
                     if (this.prefix === '*') {
                         // new intent
                         this.validateIntent();

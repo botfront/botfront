@@ -12,8 +12,6 @@ describe('Smart story trigger rules', function() {
     });
     it('should edit and save the trigger rules', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('edit-trigger-rules').trigger('mouseover');
-        cy.get('.popup').should('contain', 'Triggers cannot be set in stories starting with a user utterance');
         cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // add a second rulesets
@@ -52,8 +50,6 @@ describe('Smart story trigger rules', function() {
     
     it('should clear disabled fields on close', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('edit-trigger-rules').trigger('mouseover');
-        cy.get('.popup').should('contain', 'Triggers cannot be set in stories starting with a user utterance');
         cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // edit the trigger rules
@@ -84,8 +80,6 @@ describe('Smart story trigger rules', function() {
     
     it('should disabled time on page when event listeners are enabled', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('edit-trigger-rules').trigger('mouseover');
-        cy.get('.popup').should('contain', 'Triggers cannot be set in stories starting with a user utterance');
         cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // verify only one toggle can be enabled at one time
@@ -99,8 +93,6 @@ describe('Smart story trigger rules', function() {
     });
     it('should disabled event listeners when time on page is enabled', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('edit-trigger-rules').trigger('mouseover');
-        cy.get('.popup').should('contain', 'Triggers cannot be set in stories starting with a user utterance');
         cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // verify only one toggle can be enabled at one time
