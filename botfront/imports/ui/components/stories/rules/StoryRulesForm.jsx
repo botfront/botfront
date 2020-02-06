@@ -44,15 +44,16 @@ class RulesForm extends AutoForm {
         let value = getModelField(valueAccessor.join('.'), this.props.model);
         if (!value || value.length === 0) {
             value = [this.getDefaultValue(key)];
-            super.onChange(valueAccessor.join('.'), value);
+            this.onChange(valueAccessor.join('.'), value);
         }
     }
 
     onChange(key, value) {
         // DESCRIPTION: handle secondary effects of model updates (eg: enabling timeOnPage disables eventListeners)
-        super.onChange(key, value); // update the model with the new value
         const keyArray = key.split('.');
         const fieldName = keyArray[keyArray.length - 1]; // the last value is the name of the edited field
+        
+        super.onChange(key, value); // update the model with the new value
 
         if (fieldName === 'timeOnPage__DISPLAYIF' && value === true) {
             // disabled the eventListener field when timeOnPage is enabled
@@ -73,13 +74,6 @@ class RulesForm extends AutoForm {
             valueDisplayIfKey[valueDisplayIfKey.length - 1] = 'value__DISPLAYIF';
             super.onChange(valueDisplayIfKey.join('.'), !value === true);
         }
-        if (fieldName === 'queryString' && Array.isArray(value)) {
-            // new elements in the queryString field are set to a default value
-            const oldValue = getModelField(key, this.props.model);
-            if (value.length === oldValue.length + 1) { // added a new element to the array
-                super.onChange(key, [...value.slice(0, value.length - 1), this.getDefaultValue(fieldName)]);
-            }
-        }
         if (value === true
             && (fieldName === 'eventListeners__DISPLAYIF'
                 || fieldName === 'queryString__DISPLAYIF'
@@ -87,6 +81,15 @@ class RulesForm extends AutoForm {
             )) {
             // when an array field is enabled, add an empty element to the array
             this.addDefaultArrayField([...keyArray]);
+        }
+        if (fieldName === 'queryString' && Array.isArray(value)) {
+            // set value__DISPLAYIF fields to NOT sendAsEntity when queryString elements are added or removed
+            super.onChange(key, value.map((elem = {}) => {
+                if (elem.value === undefined && elem.param === undefined && elem.sendAsEntity === undefined) {
+                    return { ...this.getDefaultValue(fieldName) };
+                }
+                return elem;
+            }));
         }
         if (value === false) {
             // prevent errors in hidden fields
@@ -211,7 +214,7 @@ function StoryRulesForm({
 
     const isEnabled = (field) => {
         switch (true) {
-        case field === undefined:
+        case field === undefined || field === false:
             return false;
         case Array.isArray(field) && field.length === 0:
             return false;
@@ -219,18 +222,13 @@ function StoryRulesForm({
             return true;
         }
     };
-    const queryStringValueEnabled = (field) => {
-        // the value__DISPLAYIF field is valid when sendAsEntity is false or undefined
-        const ret = field.value && field.value.length > 0 && !field.sendAsEntity;
-        return ret;
-    };
     
     const optionalFieldRecursion = (model, parentPath) => {
         const currentModel = model;
         const path = parentPath || '';
         Object.keys(currentModel).forEach((key) => {
             const currentPath = path.length === 0 ? key : `${path}.${createPathElem(key)}`;
-            if (toggleFields.includes(currentPath) && (key === 'value' ? queryStringValueEnabled(currentModel) : isEnabled(currentModel[key]))) {
+            if (toggleFields.includes(currentPath) && (key === 'value' ? isEnabled(!currentModel.sendAsEntity) : isEnabled(currentModel[key]))) {
                 currentModel[`${key}__DISPLAYIF`] = true;
             }
             if (typeof currentModel[key] !== 'object') return;
