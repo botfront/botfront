@@ -33,7 +33,7 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('query-string-field').last().find('input').first()
             .click()
             .type('name');
-        cy.dataCy('query-string-field').last().find('input').last()
+        cy.dataCy('query-string-field').last().find('input').eq(1)
             .click()
             .type('value');
         // close the trigger rules editor
@@ -47,7 +47,7 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('website-visits-input').find('input').should('have.value', '3');
         cy.dataCy('page-visits-input').find('input').should('have.value', '4');
         cy.dataCy('query-string-field').find('input').first().should('have.value', 'name');
-        cy.dataCy('query-string-field').find('input').last().should('have.value', 'value');
+        cy.dataCy('query-string-field').find('input').eq(1).should('have.value', 'value');
     });
     
     it('should clear disabled fields on close', function() {
