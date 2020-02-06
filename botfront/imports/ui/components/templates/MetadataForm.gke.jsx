@@ -233,7 +233,7 @@ function ResponseMetadataForm({
                                     <NestField name=''>
                                         <SelectField name='event' options={pageEventOptions} />
                                         <AutoField name='selector' />
-                                        <IntentField name='payload' />
+                                        <IntentField name='payload' label='Callback intent' />
                                     </NestField>
                                 </ListItemField>
                             </ListField>
@@ -264,6 +264,16 @@ function ResponseMetadataForm({
         },
     ];
 
+    const addSlashIfNeeded = (payload) => {
+        // regex for begin with a /
+        if (payload.match(/^\//)) return payload;
+        return `/${payload}`;
+    };
+
+    const removeSlashIfNeeded = (payload) => {
+        if (payload.match(/^\//)) return payload.slice(1);
+        return payload;
+    };
    
     const postProcess = (model) => {
         const newModel = cloneDeep(model);
@@ -277,9 +287,12 @@ function ResponseMetadataForm({
         if (newModel.customCss && newModel.customCss.enabled) delete newModel.customCss.enabled;
         if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) {
             delete newModel.pageChangeCallbacks.enabled;
+            newModel.pageChangeCallbacks.errorIntent = addSlashIfNeeded(newModel.pageChangeCallbacks.errorIntent);
+            newModel.pageChangeCallbacks.pageChanges = newModel.pageChangeCallbacks.pageChanges.map(pageChange => ({ ...pageChange, callbackIntent: addSlashIfNeeded(pageChange.callbackIntent) }));
         }
         if (newModel.pageEventCallbacks && newModel.pageEventCallbacks.enabled) {
             delete newModel.pageEventCallbacks.enabled;
+            newModel.pageEventCallbacks.pageEvents = newModel.pageEventCallbacks.pageEvents.map(pageEvent => ({ ...pageEvent, payload: addSlashIfNeeded(pageEvent.payload) }));
         }
 
         return newModel;
@@ -354,9 +367,17 @@ function ResponseMetadataForm({
     const preprocessModel = (model) => {
         const newModel = cloneDeep(model);
         if (newModel.domHighlight && (newModel.domHighlight.selector)) newModel.domHighlight.enabled = true;
-        if (newModel.pageChangeCallbacks && (newModel.pageChangeCallbacks.pageChanges.length > 0)) newModel.pageChangeCallbacks.enabled = true;
-        if (newModel.pageEventCallbacks && (newModel.pageEventCallbacks.pageEvents.length > 0)) newModel.pageEventCallbacks.enabled = true;
+        if (newModel.pageChangeCallbacks && (newModel.pageChangeCallbacks.pageChanges.length > 0)) {
+            newModel.pageChangeCallbacks.enabled = true;
+            newModel.pageChangeCallbacks.errorIntent = removeSlashIfNeeded(newModel.pageChangeCallbacks.errorIntent);
+            newModel.pageChangeCallbacks.pageChanges = newModel.pageChangeCallbacks.pageChanges.map(pageChange => ({ ...pageChange, callbackIntent: removeSlashIfNeeded(pageChange.callbackIntent) }));
+        }
+        if (newModel.pageEventCallbacks && (newModel.pageEventCallbacks.pageEvents.length > 0)) {
+            newModel.pageEventCallbacks.enabled = true;
+            newModel.pageEventCallbacks.pageEvents = newModel.pageEventCallbacks.pageEvents.map(pageEvent => ({ ...pageEvent, payload: removeSlashIfNeeded(pageEvent.payload) }));
+        }
         if (newModel.customCss && newModel.customCss.css) newModel.customCss.enabled = true;
+       
         return newModel;
     };
 
