@@ -65,7 +65,7 @@ const qrWithText = {
             sequence: [
                 {
                     content:
-                        '__typename: QuickReplyPayload\ntext: q\nbuttons:\n  - title: \'\'\n    type: postback\n    payload: \'\'\n',
+                        '__typename: QuickReplyPayload\ntext: q\nbuttons:\n  - title: \'test\'\n    type: postback\n    payload: \'\'\n',
                 },
             ],
         },
@@ -128,7 +128,7 @@ const customWithContent = {
 // ------------------------
 
 describe('Empty bot responses', () => {
-    it('should recofnize responses with a name or metadata as not empty', () => {
+    it('should recognize responses with a name or metadata as not empty', () => {
         expect(checkResponseEmpty(responseWithName)).to.equal(false);
         expect(checkResponseEmpty(responseWithMetadata)).to.equal(false);
     });
@@ -136,16 +136,16 @@ describe('Empty bot responses', () => {
         expect(checkResponseEmpty(textEmpty)).to.equal(true);
         expect(checkResponseEmpty(textWithContent)).to.equal(false);
     });
-    it('should correctly identify empty text responses', () => {
+    it('should correctly identify empty quick replies', () => {
         expect(checkResponseEmpty(qrEmpty)).to.equal(true);
         expect(checkResponseEmpty(qrWithText)).to.equal(false);
         expect(checkResponseEmpty(qrWithButton)).to.equal(false);
     });
-    it('should correctly identify empty text responses', () => {
+    it('should correctly identify empty images responses', () => {
         expect(checkResponseEmpty(imageEmpty)).to.equal(true);
         expect(checkResponseEmpty(imageWithUrl)).to.equal(false);
     });
-    it('should correctly identify empty text responses', () => {
+    it('should correctly identify empty custom responses', () => {
         expect(checkResponseEmpty(customEmpty)).to.equal(true);
         expect(checkResponseEmpty(customWithContent)).to.equal(false);
     });
