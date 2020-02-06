@@ -208,10 +208,10 @@ function StoryRulesForm({
         const modelWithToggles = model;
         const path = parentPath || '';
         Object.keys(modelWithToggles).forEach((key) => {
+            // console.log(key);
             const currentPath = path.length === 0 ? key : `${path}.${createPathElem(key)}`;
             if (toggleFields.includes(currentPath) && (key === 'value' ? isEnabled(modelWithToggles.sendAsEntity) : isEnabled(modelWithToggles[key]))) {
                 modelWithToggles[`${key}__DISPLAYIF`] = true;
-                return;
             }
             if (typeof modelWithToggles[key] !== 'object') return;
             modelWithToggles[key] = togglesTraverse(modelWithToggles[key], currentPath);
