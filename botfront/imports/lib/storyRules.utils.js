@@ -1,18 +1,27 @@
+const checkQueryString = (field) => {
+    if (!field.sendAsEntity) {
+        return (
+            field && field.param && field.param.length > 0
+            && field.value && field.value.length > 0
+        );
+    }
+    return (field && field.param && field.param.length > 0);
+};
+
+const checkEventListener = field => (
+    field && field.selector && field.selector.length
+    && field.event
+);
+
 const triggerValidators = {
     // for array fields, check that AT LEAST ONE element has been filled out correctly
     url: value => !!value.some(urlString => urlString.length > 0),
     numberOfVisits: value => value || value === 0,
     numberOfPageVisits: value => value || value === 0,
     device: value => value,
-    queryString: v => !!v.some(e => (
-        e && e.param && e.param.length > 0
-        && e.value && e.value.length > 0
-    )),
+    queryString: v => !!v.some(checkQueryString),
     timeOnPage: value => value || value === 0,
-    eventListeners: v => !!v.some(e => (
-        e && e.selector && e.selector.length
-        && e.event
-    )),
+    eventListeners: v => !!v.some(checkEventListener),
     text: value => value && value.length > 0,
 };
 
@@ -20,14 +29,8 @@ export const eachTriggerValidators = {
     // for array fields, check that ALL elements have been filled out correctly
     ...triggerValidators,
     url: value => value && value.length > 0 && !!value.every(urlString => urlString && urlString.length > 0),
-    queryString: v => v && v.length > 0 && !!v.every(e => (
-        e && e.param && e.param.length > 0
-        && e.value && e.value.length > 0
-    )),
-    eventListeners: v => v && v.length > 0 && !!v.every(e => (
-        e && e.selector && e.selector.length
-        && e.event
-    )),
+    queryString: v => v && v.length > 0 && !!v.every(checkQueryString),
+    eventListeners: v => v && v.length > 0 && !!v.every(checkEventListener),
 };
 
 export const hasTrigger = trigger => (

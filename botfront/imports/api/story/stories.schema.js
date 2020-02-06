@@ -33,7 +33,19 @@ const EventListenersSchema = new SimpleSchema({
 
 const QueryStringSchema = new SimpleSchema({
     param: { type: String, trim: true },
-    value: { type: String, trim: true },
+    value: {
+        type: String,
+        optional: true,
+        trim: true,
+        custom() {
+            // eslint-disable-next-line react/no-this-in-sfc
+            if (this.siblingField('sendAsEntity').value || (this.value && this.value.length)) {
+                return undefined;
+            }
+            return SimpleSchema.ErrorTypes.REQUIRED;
+        },
+    },
+    sendAsEntity: { type: Boolean, optional: true },
 });
 
 const TriggerSchema = new SimpleSchema({
