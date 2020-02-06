@@ -39,11 +39,12 @@ export const checkResponseEmpty = (response) => {
 };
 
 export const defaultTemplate = (template) => {
+    let emptyTemplate = null;
     if (template === 'TextPayload') {
-        return { text: '', __typename: 'TextPayload' };
+        emptyTemplate = { text: '', __typename: 'TextPayload' };
     }
     if (template === 'QuickReplyPayload') {
-        return {
+        emptyTemplate = {
             __typename: 'QuickReplyPayload',
             text: '',
             buttons: [
@@ -56,17 +57,17 @@ export const defaultTemplate = (template) => {
         };
     }
     if (template === 'CustomPay load') {
-        return {
+        emptyTemplate = {
             __typename: 'CustomPayload',
         };
     }
     if (template === 'ImagePayload') {
-        return {
+        emptyTemplate = {
             image: '',
             __typename: 'ImagePayload',
         };
     }
-    return false;
+    return emptyTemplate;
 };
 
 export const createResponseFromTemplate = (type, language, options = {}) => {
