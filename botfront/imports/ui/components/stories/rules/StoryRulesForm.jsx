@@ -71,6 +71,12 @@ class RulesForm extends AutoForm {
             valueDisplayIfKey[valueDisplayIfKey.length - 1] = 'value__DISPLAYIF';
             super.onChange(valueDisplayIfKey.join('.'), !value === true);
         }
+        if (fieldName === 'queryString' && Array.isArray(value)) {
+            const oldValue = getModelField(key, this.props.model);
+            if (value.length === oldValue.length + 1) { // added a new element to the array
+                super.onChange(key, [...value.slice(0, value.length - 1), this.getDefaultValue(fieldName)]);
+            }
+        }
         if (value === true
             && (fieldName === 'eventListeners__DISPLAYIF'
                 || fieldName === 'queryString__DISPLAYIF'
@@ -124,7 +130,7 @@ function StoryRulesForm({
                 return SimpleSchema.ErrorTypes.REQUIRED;
             },
         },
-        value__DISPLAYIF: { type: Boolean, optional: true },
+        value__DISPLAYIF: { type: Boolean, optional: true, defaultValue: true },
         sendAsEntity: { type: Boolean, optional: true },
     });
 
@@ -204,13 +210,17 @@ function StoryRulesForm({
         }
     };
 
+    const queryStringValue = (field) => {
+        const ret = field.value && field.value.length > 0 && !field.sendAsEntity;
+        return ret;
+    };
+    
     const togglesTraverse = (model, parentPath) => {
         const modelWithToggles = model;
         const path = parentPath || '';
         Object.keys(modelWithToggles).forEach((key) => {
-            // console.log(key);
             const currentPath = path.length === 0 ? key : `${path}.${createPathElem(key)}`;
-            if (toggleFields.includes(currentPath) && (key === 'value' ? isEnabled(modelWithToggles.sendAsEntity) : isEnabled(modelWithToggles[key]))) {
+            if (toggleFields.includes(currentPath) && (key === 'value' ? queryStringValue(modelWithToggles) : isEnabled(modelWithToggles[key]))) {
                 modelWithToggles[`${key}__DISPLAYIF`] = true;
             }
             if (typeof modelWithToggles[key] !== 'object') return;
@@ -347,11 +357,18 @@ function StoryRulesForm({
                                     >
                                         <AutoField name='' data-cy='query-string-field'>
                                             <AutoField name='$'>
-                                                <AutoField name='param' />
-                                                <OptionalField name='value' getError={getEnabledError} showToggle={false}>
-                                                    <AutoField name='' />
-                                                </OptionalField>
-                                                <AutoField name='sendAsEntity' label='If selected, the query string value will be sent as an entity with the payload' />
+                                                <div className='list-container'>
+                                                    <div className='delete-list-container'>
+                                                        <ListDelField name='' />
+                                                    </div>
+                                                    <div className='list-element-container'>
+                                                        <AutoField name='param' />
+                                                        <OptionalField name='value' getError={getEnabledError} showToggle={false}>
+                                                            <AutoField name='' />
+                                                        </OptionalField>
+                                                        <AutoField name='sendAsEntity' label='If selected, the query string value will be sent as an entity with the payload' />
+                                                    </div>
+                                                </div>
                                             </AutoField>
                                         </AutoField>
                                     </OptionalField>
