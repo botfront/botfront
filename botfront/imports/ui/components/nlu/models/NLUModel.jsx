@@ -20,7 +20,7 @@ import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import { isTraining, getPublishedNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
+import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
 import NluDataTable from './NluDataTable';
 import NLUPlayground from '../../example_editor/NLUPlayground';
@@ -401,7 +401,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         },
     });
     // For handling '/project/:project_id/nlu/models'
-    const models = NLUModels.find({ _id: { $in: nlu_models }, published: true }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
+    const models = NLUModels.find({ _id: { $in: nlu_models } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     if (!modelId || !nlu_models.includes(modelId)) {
         handleDefaultRoute(projectId, models, workingLanguage);
     }
@@ -429,7 +429,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
     const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
 
     if (!name) return browserHistory.replace({ pathname: '/404' });
-    const nluModelLanguages = getPublishedNluModelLanguages(nlu_models, true);
+    const nluModelLanguages = getNluModelLanguages(nlu_models, true);
     const projectDefaultLanguage = defaultLanguage;
     const project = {
         _id: projectId,

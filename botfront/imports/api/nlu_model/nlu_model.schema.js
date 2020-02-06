@@ -82,7 +82,6 @@ export const NLUModelSchema = new SimpleSchema({
         // TODO: make a lighter languages document
         allowedValues: Object.keys(languages),
     },
-    published: { type: Boolean, defaultValue: false, optional: true },
     description: { type: String, optional: true },
     config: { type: String, optional: true },
 

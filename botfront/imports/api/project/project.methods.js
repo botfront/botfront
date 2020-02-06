@@ -75,8 +75,7 @@ if (Meteor.isServer) {
                 createPolicies({ _id, ...item });
                 createIntroStoryGroup(_id);
                 createDefaultStoryGroup(_id);
-                const instance = await createInstance({ _id, ...item });
-                Projects.update({ _id }, { $set: { instance } });
+                await createInstance({ _id, ...item });
                 return _id;
             } catch (e) {
                 if (_id) Meteor.call('project.delete', _id);
