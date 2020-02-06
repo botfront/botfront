@@ -67,10 +67,22 @@ export function getSubBranchesForPath(story, path) {
     }
 }
 
+export const getRulesUtteranceName = (storyId, storyContent) => {
+    if (/^\*/.test(storyContent)) return storyContent.split('\n')[0].substring(2);
+    return `trigger_${storyId}`;
+};
+
+export const getRulesPayload = (storyId, storyContent) => `/${getRulesUtteranceName(storyId, storyContent)}`;
+
 export const insertSmartPayloads = (story) => {
-    if (!story.rules || !(story.rules.length > 0)) return story;
+    if (!story.rules
+        || !(story.rules.length > 0)
+        || /^\*/.test(story.story)
+    ) {
+        return story;
+    }
     const updatedStory = story;
-    const payloadName = story.rules[0].payload.substring(1); // remove the "/" from the start of the payload name
+    const payloadName = getRulesUtteranceName(story._id, story.story);
     updatedStory.story = `* ${payloadName}\n${story.story || ''}`;
     return updatedStory;
 };

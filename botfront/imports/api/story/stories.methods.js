@@ -1,11 +1,23 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
-import { traverseStory, aggregateEvents } from '../../lib/story.utils';
+import { traverseStory, aggregateEvents, getRulesPayload } from '../../lib/story.utils';
 import { Stories } from './stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
+
+const shouldUpdatePayloadNames = (originStory = {}, story = {}, path = {}) => {
+    if (!path.length === 1 || !originStory.rules) return false;
+    if (!originStory.story !== !story.story) return true;
+    const firstLine = originStory.story
+        ? originStory.story.split('\n')[0]
+        : '';
+    const updatedFirstLine = story.story.split('\n')[0];
+    return (
+        firstLine !== updatedFirstLine
+    );
+};
 
 Meteor.methods({
     'stories.insert'(story) {
@@ -36,6 +48,15 @@ Meteor.methods({
                 )),
             )
             : rest;
+        
+        if (shouldUpdatePayloadNames(originStory, story, path)) {
+            //  change the payload name for all rules in this story if the first line changed
+            update.rules = originStory.rules.map(rule => ({
+                ...rule,
+                payload: getRulesPayload(story._id, story.story),
+            }));
+        }
+
         const result = await Stories.update({ _id }, { $set: { ...update, events: newEvents } });
 
         // check if a response was removed
@@ -79,9 +100,15 @@ Meteor.methods({
         check(projectId, String);
         check(storyId, String);
         check(story, Object);
-        const update = {};
 
-        update.rules = story.rules.map(rule => ({ ...rule, payload: `/trigger_${storyId}` }));
+        const { story: storyContent } = Stories.findOne(
+            { projectId, _id: storyId },
+            { fields: { story: 1 } },
+        );
+
+        const payload = getRulesPayload(storyId, storyContent);
+        const update = {};
+        update.rules = story.rules.map(rule => ({ ...rule, payload }));
         Stories.update(
             { projectId, _id: storyId },
             { $set: update },
