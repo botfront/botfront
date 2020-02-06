@@ -220,12 +220,22 @@ const BotResponseEditor = (props) => {
             return <Segment attached><MetadataForm responseMetadata={newBotResponse.metadata} onChange={handleChangeMetadata} /></Segment>;
         }
         return (
-            <SequenceEditor
-                sequence={activeSequence}
-                onChange={handleSequenceChange}
-                onDeleteVariation={handleDeleteVariation}
-                name={name || newBotResponse.key}
-            />
+            <>
+                <SequenceEditor
+                    sequence={activeSequence}
+                    onChange={handleSequenceChange}
+                    onDeleteVariation={handleDeleteVariation}
+                    name={name || newBotResponse.key}
+                />
+                <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
+                    <Button
+                        className='add-variation-button'
+                        data-cy='add-variation'
+                        icon='plus'
+                        onClick={addSequence}
+                    />
+                </Segment>
+            </>
         );
     };
     return (
@@ -256,14 +266,7 @@ const BotResponseEditor = (props) => {
                         <div className='response-editor-topbar-section' />
                     </Segment>
                     {renderActiveTab()}
-                    <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
-                        <Button
-                            className='add-variation-button'
-                            data-cy='add-variation'
-                            icon='plus'
-                            onClick={addSequence}
-                        />
-                    </Segment>
+                  
                 </Segment.Group>
             )}
             open={open}
