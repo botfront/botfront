@@ -44,7 +44,7 @@ class RulesForm extends AutoForm {
         let value = getModelField(valueAccessor.join('.'), this.props.model);
         if (!value || value.length === 0) {
             value = [this.getDefaultValue(key)];
-            this.onChange(valueAccessor.join('.'), value);
+            super.onChange(valueAccessor.join('.'), value);
         }
     }
 
@@ -74,11 +74,13 @@ class RulesForm extends AutoForm {
             super.onChange(valueDisplayIfKey.join('.'), !value === true);
         }
         if (fieldName === 'queryString' && Array.isArray(value)) {
-            // new elements in the queryString field are set to a default value
-            const oldValue = getModelField(key, this.props.model);
-            if (value.length === oldValue.length + 1) { // added a new element to the array
-                super.onChange(key, [...value.slice(0, value.length - 1), this.getDefaultValue(fieldName)]);
-            }
+            // set value__DISPLAYIF fields to NOT sendAsEntity when queryString elements are added or removed
+            super.onChange(key, value.map((elem = {}) => {
+                if (elem.value === undefined && elem.param === undefined && elem.sendAsEntity === undefined) {
+                    return { ...this.getDefaultValue(fieldName) };
+                }
+                return elem;
+            }));
         }
         if (value === true
             && (fieldName === 'eventListeners__DISPLAYIF'
@@ -87,15 +89,6 @@ class RulesForm extends AutoForm {
             )) {
             // when an array field is enabled, add an empty element to the array
             this.addDefaultArrayField([...keyArray]);
-        }
-        if (fieldName === 'queryString' && Array.isArray(value)) {
-            // set value__DISPLAYIF fields to NOT sendAsEntity when queryString elements are added or removed
-            super.onChange(key, value.map((elem = {}) => {
-                if (elem.value === undefined && elem.param === undefined && elem.sendAsEntity === undefined) {
-                    return { ...this.getDefaultValue(fieldName) };
-                }
-                return elem;
-            }));
         }
         if (value === false) {
             // prevent errors in hidden fields
