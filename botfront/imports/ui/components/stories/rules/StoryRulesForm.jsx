@@ -49,9 +49,11 @@ class RulesForm extends AutoForm {
     }
 
     onChange(key, value) {
-        super.onChange(key, value);
+        // DESCRIPTION: handle secondary effects of model updates (eg: enabling timeOnPage disables eventListeners)
+        super.onChange(key, value); // update the model with the new value
         const keyArray = key.split('.');
-        const fieldName = keyArray[keyArray.length - 1];
+        const fieldName = keyArray[keyArray.length - 1]; // the last value is the name of the edited field
+
         if (fieldName === 'timeOnPage__DISPLAYIF' && value === true) {
             // disabled the eventListener field when timeOnPage is enabled
             const eventListenersBoolKey = [...keyArray];
@@ -72,6 +74,7 @@ class RulesForm extends AutoForm {
             super.onChange(valueDisplayIfKey.join('.'), !value === true);
         }
         if (fieldName === 'queryString' && Array.isArray(value)) {
+            // new elements in the queryString field are set to a default value
             const oldValue = getModelField(key, this.props.model);
             if (value.length === oldValue.length + 1) { // added a new element to the array
                 super.onChange(key, [...value.slice(0, value.length - 1), this.getDefaultValue(fieldName)]);
@@ -82,6 +85,7 @@ class RulesForm extends AutoForm {
                 || fieldName === 'queryString__DISPLAYIF'
                 || fieldName === 'url__DISPLAYIF'
             )) {
+            // when an array field is enabled, add an empty element to the array
             this.addDefaultArrayField([...keyArray]);
         }
         if (value === false) {
@@ -135,6 +139,7 @@ function StoryRulesForm({
     });
 
     const TriggerSchema = new SimpleSchema({
+        // NOTE:  __DISPLAYIF fields must be added to the toggleFields array
         url: { type: Array, optional: true },
         'url.$': { type: String, optional: false, regEx: noSpaces },
         url__DISPLAYIF: { type: Boolean, optional: true },
@@ -171,6 +176,11 @@ function StoryRulesForm({
     });
 
     const toggleFields = [
+        /*  add optional fields (ones that have an associated __DISPLAYIF) to this array
+            if a field in this array is valid, a __DISPLAYIF field with the value true will be added to the model
+
+            SEE ALSO: initializeOptionalFields
+        */
         'rules.$.text',
         'rules.$.trigger.url',
         'rules.$.trigger.timeOnPage',
@@ -209,29 +219,30 @@ function StoryRulesForm({
             return true;
         }
     };
-
-    const queryStringValue = (field) => {
+    const queryStringValueEnabled = (field) => {
+        // the value__DISPLAYIF field is valid when sendAsEntity is false or undefined
         const ret = field.value && field.value.length > 0 && !field.sendAsEntity;
         return ret;
     };
     
-    const togglesTraverse = (model, parentPath) => {
-        const modelWithToggles = model;
+    const optionalFieldRecursion = (model, parentPath) => {
+        const currentModel = model;
         const path = parentPath || '';
-        Object.keys(modelWithToggles).forEach((key) => {
+        Object.keys(currentModel).forEach((key) => {
             const currentPath = path.length === 0 ? key : `${path}.${createPathElem(key)}`;
-            if (toggleFields.includes(currentPath) && (key === 'value' ? queryStringValue(modelWithToggles) : isEnabled(modelWithToggles[key]))) {
-                modelWithToggles[`${key}__DISPLAYIF`] = true;
+            if (toggleFields.includes(currentPath) && (key === 'value' ? queryStringValueEnabled(currentModel) : isEnabled(currentModel[key]))) {
+                currentModel[`${key}__DISPLAYIF`] = true;
             }
-            if (typeof modelWithToggles[key] !== 'object') return;
-            modelWithToggles[key] = togglesTraverse(modelWithToggles[key], currentPath);
+            if (typeof currentModel[key] !== 'object') return;
+            currentModel[key] = optionalFieldRecursion(currentModel[key], currentPath);
         });
-        return modelWithToggles;
+        return currentModel;
     };
 
-    const initializeToggles = () => {
+    const initializeOptionalFields = () => {
+        // add __DISPLAYIF fields to the incomming model
         if (rules.hasToggles === true) return rules;
-        const activeModel = togglesTraverse(rules);
+        const activeModel = optionalFieldRecursion(rules);
         activeModel.hasToggles = true;
         if (!activeModel.rules || activeModel.rules.length < 1) {
             activeModel.rules = [{ trigger: { when: 'always' } }];
@@ -239,7 +250,7 @@ function StoryRulesForm({
         return activeModel;
     };
     
-    const activeModel = initializeToggles();
+    const activeModel = initializeOptionalFields(); // add __DISPLAYIF fields to the incomming model
 
     const validateEnabledFields = (model) => {
         let errors = [];
