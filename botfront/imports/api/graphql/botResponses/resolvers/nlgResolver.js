@@ -24,7 +24,10 @@ const chooseTemplateSource = (responses, channel) => {
 const resolveTemplate = async ({
     template, projectId, language, slots, channel = null,
 }) => {
-    const responses = await newGetBotResponses({ projectId, template, language });
+    const responses = await newGetBotResponses({
+        // channel is defined only when called by rasa
+        projectId, template, language, options: { emptyAsDefault: !channel },
+    });
     const source = chooseTemplateSource(responses, channel);
     if (!source) {
         // No response found, return template name

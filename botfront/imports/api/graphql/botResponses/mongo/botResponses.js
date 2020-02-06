@@ -88,7 +88,10 @@ export const deleteVariation = async ({
     );
 };
 
-export const newGetBotResponses = async ({ projectId, template, language }) => {
+export const newGetBotResponses = async ({
+    projectId, template, language, options = {},
+}) => {
+    const { emptyAsDefault } = options;
     // template (optional): str || array
     // language (optional): str || array
     let templateKey = {}; let languageKey = {}; let languageFilter = [];
@@ -125,13 +128,15 @@ export const newGetBotResponses = async ({ projectId, template, language }) => {
         ...aggregationParameters,
     ]).allowDiskUse(true);
 
-    if (!templates || !templates.length > 0) {
+    if ((!templates || !templates.length > 0) && emptyAsDefault) {
+        /* replace empty response content with default content
+           of the correct response type
+        */
         templates = await BotResponses.aggregate([
             { $match: { projectId, ...templateKey } },
             ...aggregationParameters,
         ]).allowDiskUse(true);
         templates = addTemplateLanguage(templates, language);
-        // console.log(templates);
     }
     return templates;
 };
