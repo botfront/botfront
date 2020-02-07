@@ -153,9 +153,15 @@ const ExportProject = ({
             }
             import('../utils/ZipFolder').then(({ ZipFolder }) => {
                 const rasaZip = new ZipFolder();
+                if (rasaData.stories.length > 1) {
+                    rasaData.stories.forEach(s => rasaZip.addFile(
+                        s, `data/stories/${s.split('\n')[0].replace(/^# /, '').replace(/ /g, '_').toLowerCase()}.md`,
+                    ));
+                } else {
+                    rasaZip.addFile(rasaData.stories, 'data/stories.md');
+                }
                 rasaZip.addFile(rasaData.config, 'config.yml');
                 rasaZip.addFile(rasaData.nlu, 'data/nlu.md');
-                rasaZip.addFile(rasaData.stories, 'data/stories.md');
                 rasaZip.addFile(rasaData.endpoints, 'endpoints.yml');
                 rasaZip.addFile(rasaData.credentials, 'credentials.yml');
                 rasaZip.addFile(rasaData.domain, 'domain.yml');

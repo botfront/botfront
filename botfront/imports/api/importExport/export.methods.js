@@ -51,7 +51,7 @@ if (Meteor.isServer) {
             const instance = await Instances.findOne({ projectId });
             const credentials = await Credentials.findOne({ projectId }, { fields: { credentials: 1 } });
             const endpoints = await Endpoints.findOne({ projectId }, { fields: { endpoints: 1 } });
-            const rasaData = await Meteor.callWithPromise('rasa.getTrainingPayload', projectId, instance, language);
+            const rasaData = await Meteor.callWithPromise('rasa.getTrainingPayload', projectId, instance, language, false);
 
             const exportData = {
                 config: rasaData.config[language],
