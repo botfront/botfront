@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
@@ -8,16 +8,20 @@ import {
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
-import { useStoryFileReader } from './fileReaders';
+import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
+import { useStoryFileReader, useDomainFileReader } from './fileReaders';
 import { wrapMeteorCallback } from '../utils/Errors';
+import { ProjectContext } from '../../layouts/context';
 
 const ImportRasaFiles = (props) => {
-    const { existingStoryGroups, projectId } = props;
+    const {
+        existingStoryGroups, projectId, fallbackImportLanguage, defaultDomain,
+    } = props;
+    const { projectLanguages } = useContext(ProjectContext);
 
     const handleFileDrop = async (files, [fileList, setFileList]) => {
-        const validFiles = Array.from(files);
-        const newValidFiles = validFiles.filter(
-            f => !fileList.some(
+        const newValidFiles = Array.from(files).filter(
+            f => f.size && !fileList.some(
                 // index on lastModified and filename
                 cf => cf.lastModified === f.lastModified && cf.filename === f.name,
             ),
@@ -49,8 +53,10 @@ const ImportRasaFiles = (props) => {
                         <Label
                             key={`${f.filename}${f.lastModified}`}
                             {...colorOfLabel(f)}
+                            as='a'
                         >
                             {f.name}
+                            {f.name !== f.filename && <Label.Detail>({f.filename})</Label.Detail>}
                             <Icon name='delete' onClick={() => setFileList({ delete: { filename: f.filename, lastModified: f.lastModified } })} />
                         </Label>
                     ))}
@@ -93,6 +99,7 @@ const ImportRasaFiles = (props) => {
                 className={`${
                     canDrop && isOver && !importingState ? 'upload-target' : ''
                 }`}
+                key={`import-${title}`}
             >
                 <div style={{ minHeight: '150px' }} {...(!importingState ? { ref: drop } : {})}>
                     {importingState
@@ -165,19 +172,41 @@ const ImportRasaFiles = (props) => {
         });
     };
 
-    return renderImportSection({
-        title: 'stories',
-        fileReader: storyFileReader,
-        ...dropStoryFilesIndicators,
-        drop: dropStoryFiles,
-        fileField: useRef(),
-        onImport: handleImportStoryGroups,
-        importingState: storiesImporting,
-    });
+    const [domainImporting, setDomainImporting] = useState(false);
+    const domainFileReader = useDomainFileReader({ defaultDomain, fallbackImportLanguage, projectLanguages: projectLanguages.map(l => l.value) });
+    const [dropDomainFilesIndicators, dropDomainFiles] = useFileDrop(domainFileReader);
+
+    const handleImportDomain = (files) => {
+    };
+
+    const importers = [
+        {
+            title: 'stories',
+            fileReader: storyFileReader,
+            ...dropStoryFilesIndicators,
+            drop: dropStoryFiles,
+            fileField: useRef(),
+            onImport: handleImportStoryGroups,
+            importingState: storiesImporting,
+        },
+        {
+            title: 'domain',
+            fileReader: domainFileReader,
+            ...dropDomainFilesIndicators,
+            drop: dropDomainFiles,
+            fileField: useRef(),
+            onImport: handleImportDomain,
+            importingState: domainImporting,
+        },
+    ];
+
+    return importers.map(renderImportSection);
 };
 
 ImportRasaFiles.propTypes = {
     existingStoryGroups: PropTypes.array.isRequired,
+    fallbackImportLanguage: PropTypes.string.isRequired,
+    defaultDomain: PropTypes.object.isRequired,
 };
 
 ImportRasaFiles.defaultProps = {};
@@ -187,7 +216,8 @@ const ImportRasaFilesContainer = withTracker(({ projectId }) => {
     const existingStoryGroups = storyGroupHandler.ready()
         ? StoryGroups.find({ projectId }).fetch()
         : [];
-    return { existingStoryGroups };
+    const { defaultDomain } = getDefaultDomainAndLanguage(projectId);
+    return { existingStoryGroups, defaultDomain };
 })(ImportRasaFiles);
 
 const mapStateToProps = state => ({

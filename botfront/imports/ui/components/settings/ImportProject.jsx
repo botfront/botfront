@@ -16,10 +16,11 @@ import ImportDropField from './importProjectDropfield';
 import ImportRasaFiles from './ImportRasaFiles';
 
 const ImportProject = ({
-    // projectLanguages,
+    projectLanguages,
     setLoading,
     apiHost,
     projectId,
+    workingLanguage,
 }) => {
     const importTypeOptions = [
         {
@@ -36,7 +37,8 @@ const ImportProject = ({
         },
     ];
 
-    const [importType, setImportType] = useState({});
+    const [importType, setImportType] = useState(importTypeOptions[1]);
+    const [fallbackImportLanguage, setFallbackImportLanguage] = useState(workingLanguage);
     const [botfrontFileSuccess, setBotfrontFileSuccess] = useState(false);
     const [backupSuccess, setbackupSuccess] = useState(undefined);
     const [backupErrorMessage, setBackupErrorMessage] = useState({ header: 'Backup failed!', text: '' });
@@ -231,20 +233,32 @@ const ImportProject = ({
 
     return (
         <>
-            <Dropdown
-                data-cy='import-type-dropdown'
-                key='format'
-                className='export-option'
-                options={importTypeOptions.map(({ value, key, text }) => ({ value, key, text }))}
-                placeholder='Select a format'
-                selection
-                onChange={(x, { value }) => {
-                    setImportType(importTypeOptions.find(options => options.value === value));
-                }}
-            />
+            <div className='side-by-side'>
+                <Dropdown
+                    data-cy='import-type-dropdown'
+                    key='format'
+                    className='export-option'
+                    options={importTypeOptions.map(({ value, key, text }) => ({ value, key, text }))}
+                    placeholder='Select a format'
+                    selection
+                    value={importType.value}
+                    onChange={(x, { value }) => {
+                        setImportType(importTypeOptions.find(options => options.value === value));
+                    }}
+                />{importType.value === 'rasa' && (
+                    <Dropdown
+                        className='export-option'
+                        options={projectLanguages}
+                        placeholder='Select a default import language'
+                        selection
+                        value={fallbackImportLanguage}
+                        onChange={(x, { value }) => setFallbackImportLanguage(value)}
+                    />
+                )}
+            </div>
             <br />
             {importType.value === 'botfront' && renderImportBotfrontProject()}
-            {importType.value === 'rasa' && <ImportRasaFiles />}
+            {importType.value === 'rasa' && <ImportRasaFiles fallbackImportLanguage={fallbackImportLanguage} />}
         </>
     );
 };
@@ -254,6 +268,7 @@ ImportProject.propTypes = {
     projectLanguages: PropTypes.array,
     setLoading: PropTypes.func.isRequired,
     apiHost: PropTypes.string.isRequired,
+    workingLanguage: PropTypes.string.isRequired,
 };
 
 ImportProject.defaultProps = {
@@ -270,6 +285,7 @@ const ImportProjectContainer = withTracker(({ projectId }) => {
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 export default connect(mapStateToProps)(ImportProjectContainer);

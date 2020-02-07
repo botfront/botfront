@@ -3,7 +3,8 @@ import {
     fileToStoryGroup,
     parseStoryGroups,
     generateStories,
-} from '../../../lib/loadStories';
+} from '../../../lib/importers/loadStories';
+import { loadDomain } from '../../../lib/importers/loadDomain';
 
 const validateStories = (storyFiles) => {
     const stories = storyFiles
@@ -49,8 +50,7 @@ export const useStoryFileReader = (existingStoryGroups) => {
             const newFileList = [
                 ...fileList,
                 ...addInstruction.map(f => ({
-                    ...base(f),
-                    name: f.name,
+                    ...base(f), name: f.name,
                 })),
             ];
             addInstruction.forEach((f) => {
@@ -62,7 +62,7 @@ export const useStoryFileReader = (existingStoryGroups) => {
                         return setFileList({
                             update: {
                                 ...base(f),
-                                errors: ['uploaded file is not parseable text'],
+                                errors: ['file is not parseable text'],
                             },
                         });
                     }
@@ -115,4 +115,75 @@ export const useStoryFileReader = (existingStoryGroups) => {
     };
     const storyFileReader = useReducer(reducer, []);
     return storyFileReader;
+};
+
+export const useDomainFileReader = ({ defaultDomain, fallbackImportLanguage, projectLanguages }) => {
+    const reducer = (fileList, instruction) => {
+        // eslint-disable-next-line no-use-before-define
+        const setFileList = ins => domainFileReader[1](ins);
+        const { delete: deleteInstruction, add: addInstruction, update: updateInstruction } = instruction;
+
+        if (deleteInstruction) {
+            const file = fileList.findIndex(
+                cf => cf.filename === deleteInstruction.filename
+                    && cf.lastModified === deleteInstruction.lastModified,
+            );
+            return [
+                ...fileList.slice(0, file),
+                ...fileList.slice(file + 1),
+            ];
+        }
+        if (addInstruction) {
+            // add: array of files
+            const base = f => ({ filename: f.name, lastModified: f.lastModified });
+            const newFileList = [
+                ...fileList,
+                ...addInstruction.map(f => ({
+                    ...base(f), name: f.name,
+                })),
+            ];
+            addInstruction.forEach((f) => {
+                const reader = new FileReader();
+                reader.readAsText(f);
+                reader.onload = () => {
+                    if (/\ufffd/.test(reader.result)) {
+                        // out of range char test
+                        return setFileList({
+                            update: {
+                                ...base(f),
+                                errors: ['file is not parseable text'],
+                            },
+                        });
+                    }
+                    const {
+                        errors, templates, slots, warnings,
+                    } = loadDomain({
+                        rawText: reader.result, defaultDomain, fallbackImportLanguage, projectLanguages,
+                    });
+                    return setFileList({
+                        update: {
+                            ...base(f), templates, slots, warnings, errors,
+                        },
+                    });
+                };
+            });
+            return newFileList;
+        }
+        if (updateInstruction) {
+            // callback for 'add' method
+            const previous = fileList.findIndex(
+                cf => cf.filename === updateInstruction.filename
+                    && cf.lastModified === updateInstruction.lastModified,
+            );
+            if (previous < 0) return fileList;
+            return [
+                ...fileList.slice(0, previous),
+                { ...fileList[previous], ...updateInstruction },
+                ...fileList.slice(previous + 1),
+            ];
+        }
+        return fileList;
+    };
+    const domainFileReader = useReducer(reducer, []);
+    return domainFileReader;
 };

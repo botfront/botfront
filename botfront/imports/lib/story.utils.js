@@ -294,13 +294,17 @@ export const getAllTemplates = async (projectId, language = '') => {
     }, {});
 };
 
-export const getStoriesAndDomain = async (projectId, language) => {
-    const appMethodLogger = storyAppLogger.child({ method: 'getStoriesAndDomain', args: { projectId, language } });
-
+export const getDefaultDomainAndLanguage = (projectId) => {
     const { defaultDomain: yamlDDomain, defaultLanguage } = Projects.findOne({ _id: projectId }, { defaultDomain: 1, defaultLanguage: 1 });
     const defaultDomain = yaml.safeLoad(yamlDDomain.content) || {};
-    
+    return { defaultDomain, defaultLanguage };
+};
+
+export const getStoriesAndDomain = async (projectId, language) => {
+    const appMethodLogger = storyAppLogger.child({ method: 'getStoriesAndDomain', args: { projectId, language } });
     appMethodLogger.debug('Retrieving default domain');
+    const { defaultDomain, defaultLanguage } = getDefaultDomainAndLanguage(projectId);
+
     defaultDomain.slots = {
         ...(defaultDomain.slots || {}),
         fallback_language: { type: 'unfeaturized', initial_value: defaultLanguage },
