@@ -146,19 +146,20 @@ const storiesGenerated = [
         story: '',
         title: 'Farewells',
         storyGroupId: '123',
+        branches: [],
     },
     {
         story: '* get_started\n  - utter_get_started',
         title: 'Get started',
         storyGroupId: '123',
         branches: [
-            { story: '', title: 'New Branch 1' },
+            { story: '', title: 'New Branch 1', branches: [] },
             {
                 story: '',
                 title: 'New Branch 2',
                 branches: [
-                    { story: '', title: 'New Branch 1' },
-                    { story: '', title: 'New Branch 2' },
+                    { story: '', title: 'New Branch 1', branches: [] },
+                    { story: '', title: 'New Branch 2', branches: [] },
                 ],
             },
         ],
@@ -167,6 +168,7 @@ const storiesGenerated = [
         story: '* chitchat.greet\n  - utter_hi',
         title: 'Greetings',
         storyGroupId: '456',
+        branches: [],
     },
 ];
 
@@ -186,7 +188,7 @@ const stripIds = (any) => {
 const navigateToPath = (stories, path) => path.reduce((prev, curr) => {
     const nextLevel = prev.find(s => s._id === curr);
     expect(!!nextLevel).to.be.equal(true);
-    return nextLevel.branches || nextLevel;
+    return nextLevel.branches.length ? nextLevel.branches : nextLevel;
 }, stories);
 
 if (Meteor.isServer) {
@@ -225,10 +227,10 @@ if (Meteor.isServer) {
             expect(checkpointsOne.length).to.be.equal(2);
             expect(
                 stripIds(navigateToPath(storiesToInsert, checkpointsOne[0])),
-            ).to.be.deep.equal({ story: '', title: 'New Branch 1' });
+            ).to.be.deep.equal({ story: '', title: 'New Branch 1', branches: [] });
             expect(
                 stripIds(navigateToPath(storiesToInsert, checkpointsOne[1])),
-            ).to.be.deep.equal({ story: '', title: 'New Branch 2' });
+            ).to.be.deep.equal({ story: '', title: 'New Branch 2', branches: [] });
             const checkpointsTwo = storiesToInsert.find(s => s.title === 'Greetings')
                 .checkpoints;
             expect(checkpointsTwo.length).to.be.equal(1);
@@ -238,6 +240,7 @@ if (Meteor.isServer) {
                 story: '',
                 title: 'Farewells',
                 storyGroupId: '123',
+                branches: [],
             });
         });
         it('Should drop broken checkpoints, and log warning', () => { // to do: log opposite: missing destinations
@@ -257,7 +260,8 @@ if (Meteor.isServer) {
                     },
                 ]),
             );
-            expect(stories[0].branches).to.be.an('undefined');
+            // eslint-disable-next-line no-unused-expressions
+            expect(stories[0].branches).to.be.an('array').that.is.empty;
             expect(warnings[0].message).to.include('branches were not found');
         });
     });

@@ -13,6 +13,7 @@ import { Projects } from '../../../api/project/project.collection';
 import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
 import ImportDropField from './importProjectDropfield';
+import ImportRasaFiles from './ImportRasaFiles';
 
 const ImportProject = ({
     // projectLanguages,
@@ -28,11 +29,11 @@ const ImportProject = ({
             successText: 'Your current project has been overwritten.',
             successHeader: 'Botfront import successful!',
         },
-        // {
-        //     key: 'rasa',
-        //     text: 'Import Rasa/Rasa X project',
-        //     value: 'rasa',
-        // },
+        {
+            key: 'rasa',
+            text: 'Import Rasa/Rasa X project',
+            value: 'rasa',
+        },
     ];
 
     const [importType, setImportType] = useState({});
@@ -134,20 +135,8 @@ const ImportProject = ({
         );
     }
 
-    return (
+    const renderImportBotfrontProject = () => (
         <>
-            <Dropdown
-                data-cy='import-type-dropdown'
-                key='format'
-                className='export-option'
-                options={importTypeOptions.map(({ value, key, text }) => ({ value, key, text }))}
-                placeholder='Select a format'
-                selection
-                onChange={(x, { value }) => {
-                    setImportType(importTypeOptions.find(options => options.value === value));
-                }}
-            />
-            <br />
             {importType.value === 'botfront' && !botfrontFileSuccess && (
                 <ImportDropField
                     onChange={fileAdded}
@@ -237,6 +226,25 @@ const ImportProject = ({
                     {importButtonText()}
                 </Button>
             )}
+        </>
+    );
+
+    return (
+        <>
+            <Dropdown
+                data-cy='import-type-dropdown'
+                key='format'
+                className='export-option'
+                options={importTypeOptions.map(({ value, key, text }) => ({ value, key, text }))}
+                placeholder='Select a format'
+                selection
+                onChange={(x, { value }) => {
+                    setImportType(importTypeOptions.find(options => options.value === value));
+                }}
+            />
+            <br />
+            {importType.value === 'botfront' && renderImportBotfrontProject()}
+            {importType.value === 'rasa' && <ImportRasaFiles />}
         </>
     );
 };
