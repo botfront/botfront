@@ -32,12 +32,12 @@ class RulesForm extends AutoForm {
         case 'url':
             return '';
         case 'queryString':
-            return { value: '', param: '' };
+            return { value: '', param: '', value__DISPLAYIF: true };
         default:
             return undefined;
         }
     }
-
+    
     addDefaultArrayField = (accessor) => {
         const key = accessor[accessor.length - 1].replace(/__DISPLAYIF/, '');
         const valueAccessor = [...accessor.slice(0, accessor.length - 1), key];
@@ -49,9 +49,11 @@ class RulesForm extends AutoForm {
     }
 
     onChange(key, value) {
-        super.onChange(key, value);
+        // DESCRIPTION: handle secondary effects of model updates (eg: enabling timeOnPage disables eventListeners)
+        super.onChange(key, value); // update the model with the new value
         const keyArray = key.split('.');
-        const fieldName = keyArray[keyArray.length - 1];
+        const fieldName = keyArray[keyArray.length - 1]; // the last value is the name of the edited field
+
         if (fieldName === 'timeOnPage__DISPLAYIF' && value === true) {
             // disabled the eventListener field when timeOnPage is enabled
             const eventListenersBoolKey = [...keyArray];
@@ -65,11 +67,27 @@ class RulesForm extends AutoForm {
             timeOnPageBoolKey[timeOnPageBoolKey.length - 1] = 'timeOnPage__DISPLAYIF';
             super.onChange(timeOnPageBoolKey.join('.'), false);
         }
+        if (fieldName === 'sendAsEntity') {
+            // This one hide or shows the value for the query string depending on the value of sendAsEntity
+            const valueDisplayIfKey = [...keyArray];
+            valueDisplayIfKey[valueDisplayIfKey.length - 1] = 'value__DISPLAYIF';
+            super.onChange(valueDisplayIfKey.join('.'), !value === true);
+        }
+        if (fieldName === 'queryString' && Array.isArray(value)) {
+            // set value__DISPLAYIF fields to NOT sendAsEntity when queryString elements are added or removed
+            super.onChange(key, value.map((elem = {}) => {
+                if (elem.value === undefined && elem.param === undefined && elem.sendAsEntity === undefined) {
+                    return { ...this.getDefaultValue(fieldName) };
+                }
+                return elem;
+            }));
+        }
         if (value === true
             && (fieldName === 'eventListeners__DISPLAYIF'
                 || fieldName === 'queryString__DISPLAYIF'
                 || fieldName === 'url__DISPLAYIF'
             )) {
+            // when an array field is enabled, add an empty element to the array
             this.addDefaultArrayField([...keyArray]);
         }
         if (value === false) {
@@ -105,10 +123,25 @@ function StoryRulesForm({
     
     const QueryStringSchema = new SimpleSchema({
         param: { type: String, trim: true, regEx: noSpaces },
-        value: { type: String, trim: true, regEx: noSpaces },
+        value: {
+            type: String,
+            optional: true,
+            trim: true,
+            regEx: noSpaces,
+            custom() {
+                // eslint-disable-next-line react/no-this-in-sfc
+                if (this.siblingField('sendAsEntity').value || (this.value && this.value.length)) {
+                    return undefined;
+                }
+                return SimpleSchema.ErrorTypes.REQUIRED;
+            },
+        },
+        value__DISPLAYIF: { type: Boolean, optional: true, defaultValue: true },
+        sendAsEntity: { type: Boolean, optional: true },
     });
 
     const TriggerSchema = new SimpleSchema({
+        // NOTE:  __DISPLAYIF fields must be added to the toggleFields array
         url: { type: Array, optional: true },
         'url.$': { type: String, optional: false, regEx: noSpaces },
         url__DISPLAYIF: { type: Boolean, optional: true },
@@ -145,6 +178,11 @@ function StoryRulesForm({
     });
 
     const toggleFields = [
+        /*  add optional fields (ones that have an associated __DISPLAYIF) to this array
+            if a field in this array is valid, a __DISPLAYIF field with the value true will be added to the model
+
+            SEE ALSO: initializeOptionalFields
+        */
         'rules.$.text',
         'rules.$.trigger.url',
         'rules.$.trigger.timeOnPage',
@@ -153,6 +191,7 @@ function StoryRulesForm({
         'rules.$.trigger.device',
         'rules.$.trigger.queryString',
         'rules.$.trigger.eventListeners',
+        'rules.$.trigger.queryString.$.value',
     ];
 
     const fieldErrorMessages = {
@@ -174,7 +213,7 @@ function StoryRulesForm({
 
     const isEnabled = (field) => {
         switch (true) {
-        case field === undefined:
+        case field === undefined || field === false:
             return false;
         case Array.isArray(field) && field.length === 0:
             return false;
@@ -182,25 +221,25 @@ function StoryRulesForm({
             return true;
         }
     };
-
-    const togglesTraverse = (model, parentPath) => {
-        const modelWithToggles = model;
+    
+    const optionalFieldRecursion = (model, parentPath) => {
+        const currentModel = model;
         const path = parentPath || '';
-        Object.keys(modelWithToggles).forEach((key) => {
+        Object.keys(currentModel).forEach((key) => {
             const currentPath = path.length === 0 ? key : `${path}.${createPathElem(key)}`;
-            if (toggleFields.includes(currentPath) && isEnabled(modelWithToggles[key])) {
-                modelWithToggles[`${key}__DISPLAYIF`] = true;
-                return;
+            if (toggleFields.includes(currentPath) && (key === 'value' ? isEnabled(!currentModel.sendAsEntity) : isEnabled(currentModel[key]))) {
+                currentModel[`${key}__DISPLAYIF`] = true;
             }
-            if (typeof modelWithToggles[key] !== 'object') return;
-            modelWithToggles[key] = togglesTraverse(modelWithToggles[key], currentPath);
+            if (typeof currentModel[key] !== 'object') return;
+            currentModel[key] = optionalFieldRecursion(currentModel[key], currentPath);
         });
-        return modelWithToggles;
+        return currentModel;
     };
 
-    const initializeToggles = () => {
+    const initializeOptionalFields = () => {
+        // add __DISPLAYIF fields to the incomming model
         if (rules.hasToggles === true) return rules;
-        const activeModel = togglesTraverse(rules);
+        const activeModel = optionalFieldRecursion(rules);
         activeModel.hasToggles = true;
         if (!activeModel.rules || activeModel.rules.length < 1) {
             activeModel.rules = [{ trigger: { when: 'always' } }];
@@ -208,7 +247,7 @@ function StoryRulesForm({
         return activeModel;
     };
     
-    const activeModel = initializeToggles();
+    const activeModel = initializeOptionalFields(); // add __DISPLAYIF fields to the incomming model
 
     const validateEnabledFields = (model) => {
         let errors = [];
@@ -324,7 +363,22 @@ function StoryRulesForm({
                                         data-cy='toggle-query-string'
                                         getError={getEnabledError}
                                     >
-                                        <AutoField name='' data-cy='query-string-field' />
+                                        <AutoField name='' data-cy='query-string-field'>
+                                            <AutoField name='$'>
+                                                <div className='list-container'>
+                                                    <div className='delete-list-container'>
+                                                        <ListDelField name='' />
+                                                    </div>
+                                                    <div className='list-element-container'>
+                                                        <AutoField name='param' />
+                                                        <OptionalField name='value' getError={getEnabledError} showToggle={false}>
+                                                            <AutoField name='' />
+                                                        </OptionalField>
+                                                        <AutoField name='sendAsEntity' label='If selected, the query string value will be sent as an entity with the payload' />
+                                                    </div>
+                                                </div>
+                                            </AutoField>
+                                        </AutoField>
                                     </OptionalField>
                                     <OptionalField
                                         name='timeOnPage'

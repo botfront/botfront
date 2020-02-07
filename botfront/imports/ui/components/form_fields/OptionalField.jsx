@@ -7,10 +7,9 @@ import DisplayIf from '../DisplayIf';
 
 import { getModelField } from '../../../lib/autoForm.utils';
 
-
 const OptionalField = (props) => {
     const {
-        name, children, label, 'data-cy': dataCy, getError,
+        name, children, label, 'data-cy': dataCy, getError, showToggle,
     } = props;
 
     const isEnabled = (context, currentName) => {
@@ -26,35 +25,48 @@ const OptionalField = (props) => {
         ...(element || {}),
         props: {
             ...(element.props || {}),
-            name: (element.props.name ? `${name}.${element.props.name}` : name),
-            error: getError((element.props.name ? `${name}.${element.props.name}` : name)),
+            name: element.props.name ? `${name}.${element.props.name}` : name,
+            error: getError(
+                element.props.name ? `${name}.${element.props.name}` : name,
+            ),
         },
     }));
     return (
-        <>
-            <ToggleField name={`${name}__DISPLAYIF`} {...label ? { label } : {}} {...dataCy ? { 'data-cy': dataCy } : {}} />
-            <DisplayIf
-                condition={context => isEnabled(context, `${name}__DISPLAYIF`)}
-            >
-                <>
-                    {children ? renderChildren() : nothing}
-                </>
-            </DisplayIf>
-        </>
-    ) || nothing;
+        (
+            <>
+                {showToggle && (
+                    <ToggleField
+                        name={`${name}__DISPLAYIF`}
+                        {...(label ? { label } : {})}
+                        {...(dataCy ? { 'data-cy': dataCy } : {})}
+                    />
+                )}
+                <DisplayIf
+                    condition={context => isEnabled(context, `${name}__DISPLAYIF`)}
+                >
+                    <>{children ? renderChildren() : nothing}</>
+                </DisplayIf>
+            </>
+        ) || nothing
+    );
 };
 
 OptionalField.propTypes = {
     name: PropTypes.string.isRequired,
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element).isRequired, PropTypes.element]),
+    children: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.element).isRequired,
+        PropTypes.element,
+    ]),
     label: PropTypes.string,
     'data-cy': PropTypes.string,
     getError: PropTypes.func,
+    showToggle: PropTypes.bool,
 };
 OptionalField.defaultProps = {
     label: null,
     'data-cy': null,
     getError: () => false,
+    showToggle: true,
 };
 
 export default OptionalField;
