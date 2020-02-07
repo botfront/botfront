@@ -5,13 +5,15 @@ const splitBody = (lines) => {
     const header = [];
     const body = [];
     const footer = [];
-    lines.forEach((line) => {
+    lines.forEach((line, idx) => {
         if (line.startsWith('>')) {
             const cleanLine = line.replace(/^> */, '').trim();
             if (!body.length) header.push(cleanLine);
             else footer.push(cleanLine);
         } else if (footer.length) {
             throw new Error('a checkpoint sandwiched between other content: bad form');
+        } else if (!line.trim() && idx === 0) {
+            // ignore first line if empty
         } else body.push(line);
     });
     return { header, body: body.join('\n'), footer };
@@ -88,7 +90,7 @@ export const parseStoryGroup = (storyGroupId, rawText) => `\n${rawText}`
     .split('\n## ')
     .filter(s => s.trim())
     .map((s) => {
-        const [fullTitle, ...lines] = s.replace(/ *<!--.*--> *\n?/gs, '').split('\n');
+        const [fullTitle, ...lines] = s.replace(/ *<!--([\s\S]*?)-->/, '').split('\n');
         return parseStory(storyGroupId, fullTitle, lines);
     });
 
@@ -99,7 +101,7 @@ export const parseStoryGroups = storyGroups => storyGroups.reduce(
 
 const updateLinks = (inputLinks, pathsAndIds) => {
     const {
-        linkTo, ancestorPath, currentPath, _id,
+        linkTo, currentPath, _id,
     } = pathsAndIds;
     let outputLinks = inputLinks;
     if (linkTo) {
@@ -107,15 +109,17 @@ const updateLinks = (inputLinks, pathsAndIds) => {
             ...outputLinks,
             {
                 name: linkTo,
-                path: ancestorPath,
+                path: currentPath,
                 value: [_id],
             },
         ];
     }
     outputLinks
-        .filter(l => l.path.startsWith(currentPath))
         .forEach((l, i) => {
-            outputLinks[i] = { ...l, value: [_id, ...l.value] };
+            const path = (l.path.match(/(.*)__/) || [])[1];
+            if (path === currentPath) {
+                outputLinks[i] = { ...l, path, value: [_id, ...l.value] };
+            }
         });
     return outputLinks;
 };
@@ -148,6 +152,7 @@ export const generateStories = (parsedStories) => {
             if (hasDescendents && !output[currentPath]) {
                 warnings.push({
                     message: `Story '${title}' refers to branches, but branches were not found.`,
+                    storyGroupId,
                 });
             }
 
@@ -157,25 +162,23 @@ export const generateStories = (parsedStories) => {
                 story: body,
                 title,
                 ...(!ancestorOf.length ? { storyGroupId } : {}),
-                ...(hasDescendents && output[currentPath] ? { branches: output[currentPath] } : {}),
+                branches: hasDescendents && output[currentPath] ? output[currentPath] : [],
                 ...(linkFrom.length ? { checkpoints: linkFrom } : {}),
             });
 
             links = updateLinks(links, {
-                linkTo,
-                ancestorPath,
-                currentPath,
-                _id,
+                linkTo, currentPath, _id,
             });
         });
     output = output['']; // only output root stories (with their now embedded children)
-    output.forEach(({ checkpoints = [], title }, index) => {
+    output.forEach(({ checkpoints = [], title, storyGroupId }, index) => {
         const resolvedCheckpoints = [];
         checkpoints.forEach((c) => {
             const link = links.find(l => l.name === c) || {};
             if (!link.value) {
                 warnings.push({
                     message: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
+                    storyGroupId,
                 });
             } else resolvedCheckpoints.push(link.value);
         });
@@ -184,13 +187,19 @@ export const generateStories = (parsedStories) => {
     return { stories: output, warnings };
 };
 
-const injectStoryGroupIds = (existingStoryGroups, storyGroups) => storyGroups.map((sg) => {
-    const existing = existingStoryGroups.find(esg => esg.name === sg.name);
-    const name = existing
-        ? `${sg.name} (${new Date()
+export const fileToStoryGroup = (filename, text, existingStoryGroups = []) => {
+    const [firstLine, ...rest] = text.trim().split('\n');
+    let name = (firstLine.trim().match(/^#[^#](.*)/) || [])[1];
+    let rawText = rest.join('\n');
+    if (!name) {
+        name = filename;
+        rawText = text;
+    }
+    if (existingStoryGroups.find(esg => esg.name === name)) {
+        name = `${name} (${new Date()
             .toISOString()
             .replace('T', ' ')
-            .replace('Z', '')})`
-        : sg.name;
-    return { ...sg, name, _id: uuidv4() };
-});
+            .replace('Z', '')})`;
+    }
+    return { name, rawText, _id: uuidv4() };
+};

@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import { traverseStory, aggregateEvents } from '../../lib/story.utils';
 
 import { Stories } from './stories.collection';
@@ -9,7 +9,8 @@ export const checkStoryNotEmpty = story => story.story && !!story.story.replace(
 
 Meteor.methods({
     'stories.insert'(story) {
-        check(story, Object);
+        check(story, Match.OneOf(Object, [Object]));
+        if (Array.isArray(story)) return Stories.rawCollection().insertMany(story);
         return Stories.insert(story);
     },
 
