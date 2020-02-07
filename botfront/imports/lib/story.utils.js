@@ -283,14 +283,14 @@ export const getStoriesAndDomain = async (projectId, language) => {
                 },
             },
         ).fetch();
-        const storiesForThisSG = addlinkCheckpoints(stories)
+        storiesForDomainExtraction = storiesForDomainExtraction.concat(stories
+            .reduce((acc, story) => [...acc, ...flattenStory(story)], []));
+        const storiesForThisSG = addlinkCheckpoints(stories) // addlinkCheckpoints modified original story objects
             .map(story => appendBranchCheckpoints(story))
             .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
             .map(story => `## ${story.title}\n${story.story}`)
             .join('\n');
         storiesByStoryGroup.push(`# ${name}\n\n${storiesForThisSG}`);
-        storiesForDomainExtraction = storiesForDomainExtraction.concat(stories
-            .reduce((acc, story) => [...acc, ...flattenStory(story)], []));
     });
 
     const templates = await getAllTemplates(projectId, language);
