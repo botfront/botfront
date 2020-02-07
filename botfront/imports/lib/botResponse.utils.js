@@ -52,7 +52,7 @@ export const defaultTemplate = (template) => {
                 },
             ],
         };
-    case 'CustomPay load':
+    case 'CustomPayload':
         return { __typename: 'CustomPayload' };
     case 'ImagePayload':
         return {
