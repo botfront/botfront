@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.1-ee.3](https://github.com/botfront/botfront/compare/v0.19.1-ee.2...v0.19.1-ee.3) (2020-02-07)
+
+
+### Features
+
+* send query trigger as entity ([9353b23](https://github.com/botfront/botfront/commit/9353b2344bb01158f54c4bbf6650b40853fa81e4))
+* send query trigger as entity ([6a2499d](https://github.com/botfront/botfront/commit/6a2499d0f0f1cbe4ff2b69c2b85ce8b01584f4f6))
+
 ### [0.19.1-ee.2](https://github.com/botfront/botfront/compare/v0.19.1-ee.1...v0.19.1-ee.2) (2020-02-03)
 
 
