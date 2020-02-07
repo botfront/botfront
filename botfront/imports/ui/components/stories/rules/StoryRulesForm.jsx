@@ -334,7 +334,9 @@ function StoryRulesForm({
                                     ]}
                                 />
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
-                                    <AutoField name='' label='Trigger when the user visits all of the following URLs' />
+                                    <ListField name=''>
+                                        <ListItemField name='$' />
+                                    </ListField>
                                 </OptionalField>
                                 <OptionalField
                                     name='numberOfVisits'
@@ -370,22 +372,6 @@ function StoryRulesForm({
                                             </NestField>
                                         </ListItemField>
                                     </ListField>
-                                    {/* <AutoField name='' data-cy='query-string-field'>
-                                            <AutoField name='$'>
-                                                <div className='list-container'>
-                                                    <div className='delete-list-container'>
-                                                        <ListDelField name='' />
-                                                    </div>
-                                                    <div className='list-element-container'>
-                                                        <AutoField name='param' />
-                                                        <OptionalField name='value' getError={getEnabledError} showToggle={false}>
-                                                            <AutoField name='' />
-                                                        </OptionalField>
-                                                        <AutoField name='sendAsEntity' label='If selected, the query string value will be sent as an entity with the payload' />
-                                                    </div>
-                                                </div>
-                                            </AutoField>
-                                        </AutoField> */}
                                 </OptionalField>
                                 <OptionalField
                                     name='timeOnPage'
