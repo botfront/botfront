@@ -77,13 +77,28 @@ export const getRulesPayload = (storyId, storyContent) => `/${getRulesUtteranceN
 export const insertSmartPayloads = (story) => {
     if (!story.rules
         || !(story.rules.length > 0)
-        || /^\*/.test(story.story)
     ) {
         return story;
     }
     const updatedStory = story;
-    const payloadName = getRulesUtteranceName(story._id, story.story);
-    updatedStory.story = `* ${payloadName}\n${story.story || ''}`;
+    const additionalPayloads = [];
+    let payloadName = getRulesUtteranceName(story._id, story.story);
+    story.rules.forEach((rules) => {
+        if (!rules.trigger || !rules.trigger.queryString) return;
+        rules.trigger.queryString.forEach((queryString) => {
+            if (queryString.sendAsEntity) additionalPayloads.push(`${payloadName}{"${queryString.param}":"whatever"}`);
+        });
+    });
+    additionalPayloads.forEach((payload) => {
+        payloadName += ` OR ${payload}`;
+    });
+    if (/^\*/.test(story.story)) {
+        // For this one we need not update it.
+        updatedStory.story = `* ${payloadName}\n${story.story.split('\n').slice(1) || ''}`;
+    } else {
+        updatedStory.story = `* ${payloadName}\n${story.story || ''}`;
+    }
+
     return updatedStory;
 };
 
