@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import SimpleSchema from 'simpl-schema';
 import {
-    AutoForm, AutoField, ErrorsField, SubmitField, ListDelField, ListAddField,
+    AutoForm, AutoField, ErrorsField, SubmitField, ListAddField, ListField, ListItemField, NestField,
 } from 'uniforms-semantic';
 import { Button } from 'semantic-ui-react';
 
@@ -141,7 +141,7 @@ function StoryRulesForm({
     });
 
     const TriggerSchema = new SimpleSchema({
-        // NOTE:  __DISPLAYIF fields must be added to the toggleFields array
+        // NOTE:  __DISPLAYIF fields must be added to the optionalFields array
         url: { type: Array, optional: true },
         'url.$': { type: String, optional: false, regEx: noSpaces },
         url__DISPLAYIF: { type: Boolean, optional: true },
@@ -177,7 +177,7 @@ function StoryRulesForm({
         hasToggles: { type: Boolean, optional: true },
     });
 
-    const toggleFields = [
+    const optionalFields = [
         /*  add optional fields (ones that have an associated __DISPLAYIF) to this array
             if a field in this array is valid, a __DISPLAYIF field with the value true will be added to the model
 
@@ -227,7 +227,7 @@ function StoryRulesForm({
         const path = parentPath || '';
         Object.keys(currentModel).forEach((key) => {
             const currentPath = path.length === 0 ? key : `${path}.${createPathElem(key)}`;
-            if (toggleFields.includes(currentPath) && (key === 'value' ? isEnabled(!currentModel.sendAsEntity) : isEnabled(currentModel[key]))) {
+            if (optionalFields.includes(currentPath) && (key === 'value' ? isEnabled(!currentModel.sendAsEntity) : isEnabled(currentModel[key]))) {
                 currentModel[`${key}__DISPLAYIF`] = true;
             }
             if (typeof currentModel[key] !== 'object') return;
@@ -258,7 +258,7 @@ function StoryRulesForm({
                     { name: 'trigger', type: 'required', message: `Ruleset ${ruleIndex + 1}: ${fieldErrorMessages.trigger}` },
                 ];
             }
-            toggleFields.forEach((fieldName) => {
+            optionalFields.forEach((fieldName) => {
                 const valueAccessor = fieldName.split('.').slice(2).join('.');
                 const toggleAccessor = `${valueAccessor}__DISPLAYIF`;
                 const fieldValue = getModelField(valueAccessor, rule);
@@ -321,49 +321,56 @@ function StoryRulesForm({
         <div className='story-trigger-form-container' data-cy='story-rules-editor'>
             <RulesForm model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={onSave} onValidate={handleValidate}>
                 <ListAddField name='rules.$' className='add-trigger-field' />
-                <AutoField name='rules' label=''>
-                    <AutoField name='$'>
-                        <div className='list-container'>
-                            <div className='delete-list-container'>
-                                <ListDelField name='' />
-                            </div>
-                            <div className='list-element-container'>
-                                <AutoField name='trigger' label='Conditions'>
-                                    <SelectField
-                                        name='when'
-                                        label='When should this event be triggered?'
-                                        options={[
-                                            { value: 'always', text: 'Always' },
-                                            { value: 'init', text: 'Only if no conversation has started' },
-                                        ]}
-                                    />
-                                    <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
-                                        <AutoField name='' label='Trigger when the user visits all of the following URLs' />
-                                    </OptionalField>
-                                    <OptionalField
-                                        name='numberOfVisits'
-                                        label='Trigger based on the number of times the user has visited the website'
-                                        data-cy='toggle-website-visits'
-                                        getError={getEnabledError}
-                                    >
-                                        <AutoField name='' label='Trigger based on number of website visits' data-cy='website-visits-input' step={1} min={0} />
-                                    </OptionalField>
-                                    <OptionalField
-                                        name='numberOfPageVisits'
-                                        label='Trigger based on the number of times the user has visited this specific page'
-                                        data-cy='toggle-page-visits'
-                                        getError={getEnabledError}
-                                    >
-                                        <AutoField name='' label='Trigger based on number of page visits' data-cy='page-visits-input' step={1} min={0} />
-                                    </OptionalField>
+                <ListField name='rules' label=''>
+                    <ListItemField name='$'>
+                        <NestField>
+                            <AutoField name='trigger' label='Conditions'>
+                                <SelectField
+                                    name='when'
+                                    label='When should this event be triggered?'
+                                    options={[
+                                        { value: 'always', text: 'Always' },
+                                        { value: 'init', text: 'Only if no conversation has started' },
+                                    ]}
+                                />
+                                <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
+                                    <AutoField name='' label='Trigger when the user visits all of the following URLs' />
+                                </OptionalField>
+                                <OptionalField
+                                    name='numberOfVisits'
+                                    label='Trigger based on the number of times the user has visited the website'
+                                    data-cy='toggle-website-visits'
+                                    getError={getEnabledError}
+                                >
+                                    <AutoField name='' label='Trigger based on number of website visits' data-cy='website-visits-input' step={1} min={0} />
+                                </OptionalField>
+                                <OptionalField
+                                    name='numberOfPageVisits'
+                                    label='Trigger based on the number of times the user has visited this specific page'
+                                    data-cy='toggle-page-visits'
+                                    getError={getEnabledError}
+                                >
+                                    <AutoField name='' label='Trigger based on number of page visits' data-cy='page-visits-input' step={1} min={0} />
+                                </OptionalField>
                                     
-                                    <OptionalField
-                                        name='queryString'
-                                        label='Trigger if specific query string parameters are present in the URL'
-                                        data-cy='toggle-query-string'
-                                        getError={getEnabledError}
-                                    >
-                                        <AutoField name='' data-cy='query-string-field'>
+                                <OptionalField
+                                    name='queryString'
+                                    label='Trigger if specific query string parameters are present in the URL'
+                                    data-cy='toggle-query-string'
+                                    getError={getEnabledError}
+                                >
+                                    <ListField name=''>
+                                        <ListItemField name='$'>
+                                            <NestField>
+                                                <AutoField name='param' />
+                                                <OptionalField name='value' getError={getEnabledError} showToggle={false}>
+                                                    <AutoField name='' />
+                                                </OptionalField>
+                                                <AutoField name='sendAsEntity' label='If selected, the query string value will be sent as an entity with the payload' />
+                                            </NestField>
+                                        </ListItemField>
+                                    </ListField>
+                                    {/* <AutoField name='' data-cy='query-string-field'>
                                             <AutoField name='$'>
                                                 <div className='list-container'>
                                                     <div className='delete-list-container'>
@@ -378,68 +385,62 @@ function StoryRulesForm({
                                                     </div>
                                                 </div>
                                             </AutoField>
-                                        </AutoField>
-                                    </OptionalField>
-                                    <OptionalField
-                                        name='timeOnPage'
-                                        label='Trigger based on time on page'
-                                        data-cy='toggle-time-on-page'
-                                        getError={getEnabledError}
-                                    >
-                                        <AutoField name='' label='Number of seconds after which this conversation should be triggered' step={1} min={0} />
-                                    </OptionalField>
-                                    <OptionalField name='eventListeners' label='Trigger based on user actions' data-cy='toggle-event-listeners' getError={getEnabledError}>
-                                        <AutoField name=''>
-                                            <AutoField name='$'>
-                                                <div className='list-container'>
-                                                    <div className='delete-list-container'>
-                                                        <ListDelField name='' />
-                                                    </div>
-                                                    <div className='list-element-container'>
-                                                        <AutoField name='selector' label='CSS selector' />
-                                                        <SelectField
-                                                            name='event'
-                                                            placeholder='Select an event type'
-                                                            options={[
-                                                                { value: 'click', text: 'click' },
-                                                                { value: 'dblclick', text: 'dblclick' },
-                                                                { value: 'mouseenter', text: 'mouseenter' },
-                                                                { value: 'mouseleave', text: 'mouseleave' },
-                                                                { value: 'mouseover', text: 'mouseover' },
-                                                                { value: 'mousemove', text: 'mousemove' },
-                                                                { value: 'change', text: 'change' },
-                                                                { value: 'blur', text: 'blur' },
-                                                                { value: 'focus', text: 'focus' },
-                                                                { value: 'focusin', text: 'focusin' },
-                                                                { value: 'focusout', text: 'focusout' },
-                                                            ]}
-                                                        />
-                                                        <ToggleField name='once' label='Trigger only the first time this event occurs' />
-                                                    </div>
-                                                </div>
-                                            </AutoField>
-                                        </AutoField>
-                                    </OptionalField>
-                                    <OptionalField name='device' label='Restrict to a specific device type' getError={getEnabledError}>
-                                        <SelectField
-                                            name=''
-                                            placeholder='Select device type'
-                                            label='Trigger if the user is using a certain type of device'
-                                            options={[
-                                                { value: 'all', text: 'All' },
-                                                { value: 'mobile', text: 'Mobile' },
-                                                { value: 'desktop', text: 'Desktop' },
-                                            ]}
-                                        />
-                                    </OptionalField>
-                                </AutoField>
-                                <OptionalField name='text' label='Display a user message' data-cy='toggle-payload-text' getError={getEnabledError}>
-                                    <AutoField name='' label='User message to display' data-cy='payload-text-input' />
+                                        </AutoField> */}
                                 </OptionalField>
-                            </div>
-                        </div>
-                    </AutoField>
-                </AutoField>
+                                <OptionalField
+                                    name='timeOnPage'
+                                    label='Trigger based on time on page'
+                                    data-cy='toggle-time-on-page'
+                                    getError={getEnabledError}
+                                >
+                                    <AutoField name='' label='Number of seconds after which this conversation should be triggered' step={1} min={0} />
+                                </OptionalField>
+                                <OptionalField name='eventListeners' label='Trigger based on user actions' data-cy='toggle-event-listeners' getError={getEnabledError}>
+                                    <ListField name=''>
+                                        <ListItemField name='$'>
+                                            <NestField>
+                                                <AutoField name='selector' label='CSS selector' />
+                                                <SelectField
+                                                    name='event'
+                                                    placeholder='Select an event type'
+                                                    options={[
+                                                        { value: 'click', text: 'click' },
+                                                        { value: 'dblclick', text: 'dblclick' },
+                                                        { value: 'mouseenter', text: 'mouseenter' },
+                                                        { value: 'mouseleave', text: 'mouseleave' },
+                                                        { value: 'mouseover', text: 'mouseover' },
+                                                        { value: 'mousemove', text: 'mousemove' },
+                                                        { value: 'change', text: 'change' },
+                                                        { value: 'blur', text: 'blur' },
+                                                        { value: 'focus', text: 'focus' },
+                                                        { value: 'focusin', text: 'focusin' },
+                                                        { value: 'focusout', text: 'focusout' },
+                                                    ]}
+                                                />
+                                                <ToggleField name='once' label='Trigger only the first time this event occurs' />
+                                            </NestField>
+                                        </ListItemField>
+                                    </ListField>
+                                </OptionalField>
+                                <OptionalField name='device' label='Restrict to a specific device type' getError={getEnabledError}>
+                                    <SelectField
+                                        name=''
+                                        placeholder='Select device type'
+                                        label='Trigger if the user is using a certain type of device'
+                                        options={[
+                                            { value: 'all', text: 'All' },
+                                            { value: 'mobile', text: 'Mobile' },
+                                            { value: 'desktop', text: 'Desktop' },
+                                        ]}
+                                    />
+                                </OptionalField>
+                            </AutoField>
+                            <OptionalField name='text' label='Display a user message' data-cy='toggle-payload-text' getError={getEnabledError}>
+                                <AutoField name='' label='User message to display' data-cy='payload-text-input' />
+                            </OptionalField>
+                        </NestField>
+                    </ListItemField>
+                </ListField>
                 <br />
                 <ErrorsField />
                 <br />
