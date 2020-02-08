@@ -17,7 +17,7 @@ export default function SlotLabel({ value, onChange }) {
             trigger={(
                 <div className='label-container orange'>
                     <div>
-                        {type}
+                        {type || 'slot'}
                     </div>
                     <div>
                         {name}:&nbsp; <span className='slot-content'>{slotValueToLabel(slotValue)}</span>
