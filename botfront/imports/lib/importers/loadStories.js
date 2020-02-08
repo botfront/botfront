@@ -88,6 +88,10 @@ const parseStory = (storyGroupId, fullTitle, lines) => {
 
 export const parseStoryGroup = (storyGroupId, rawText) => `\n${rawText}`
     .split('\n## ')
+    .filter((_, __, array) => { // no '## *' line detected, not a story file
+        if (array.length < 2) return false;
+        return true;
+    })
     .filter(s => s.trim())
     .map((s) => {
         const [fullTitle, ...lines] = s.replace(/ *<!--([\s\S]*?)-->/, '').split('\n');
