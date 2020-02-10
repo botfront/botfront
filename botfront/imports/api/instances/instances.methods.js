@@ -84,6 +84,11 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
 };
 
 if (Meteor.isServer) {
+    import { auditLogger, appLogger } from '../../../server/logger';
+
+    const trainingAuditLogger = auditLogger.child({ label: 'training' });
+    const trainingAppLogger = appLogger.child({ fileName: 'instance.methods.js' });
+
     export const parseNlu = async (instance, examples) => {
         check(instance, Object);
         check(examples, Array);
@@ -159,6 +164,10 @@ if (Meteor.isServer) {
             check(language, String);
             check(instance, Object);
             const modelIds = await getModelIdsFromProjectId(projectId);
+
+            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'rasa.getTrainingPayload', callingArgs: { projectId, instance, language } });
+
+            appMethodLogger.debug('retreiving training payload');
             const nluModels = NLUModels.find(
                 { _id: { $in: modelIds } },
                 {
@@ -184,6 +193,7 @@ if (Meteor.isServer) {
                 });
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < nluModels.length; ++i) {
+                    appMethodLogger.debug(`POST request to convert the data for the language ${nluModels[i].language}`);
                     // eslint-disable-next-line no-await-in-loop
                     const { data } = await client.post('/data/convert/', {
                         data: getTrainingDataInRasaFormat(nluModels[i]),
@@ -193,7 +203,6 @@ if (Meteor.isServer) {
                     nlu[nluModels[i].language] = data;
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
-
                 const { stories, domain } = await getStoriesAndDomain(projectId, language);
                 const payload = {
                     domain,
@@ -204,6 +213,7 @@ if (Meteor.isServer) {
                 };
                 return payload;
             } catch (e) {
+                appMethodLogger.error('retreiving training payload failed', { status: e.status });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw getAxiosError(e);
             }
@@ -212,30 +222,35 @@ if (Meteor.isServer) {
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
+            const auditMethodLogger = trainingAuditLogger.child({ userId: Meteor.userId(), type: 'create' });
+            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'rasa.train', callingArgs: { projectId, instance } });
 
+            auditMethodLogger.debug('preparing data for training');
             try {
                 const client = axios.create({
                     baseURL: instance.host,
                     timeout: 3 * 60 * 1000,
                 });
-
+                appMethodLogger.debug('retrieving training payload');
                 const payload = await Meteor.call('rasa.getTrainingPayload', projectId, instance);
-
                 const trainingClient = axios.create({
                     baseURL: instance.host,
                     timeout: 30 * 60 * 1000,
                     responseType: 'arraybuffer',
                 });
-                const trainingResponse = await trainingClient.post('/model/train', payload);
 
+                appMethodLogger.debug('training POST request', { data: payload });
+                const trainingResponse = await trainingClient.post('/model/train', payload);
                 if (trainingResponse.status === 200) {
+                    appMethodLogger.debug('training succeded', { status: 200 });
                     const { headers: { filename } } = trainingResponse;
                     const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
                     try {
+                        appMethodLogger.debug(`Saving model at ${trainedModelPath}`);
                         await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
                     } catch (e) {
                         // eslint-disable-next-line no-console
-                        console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
+                        appMethodLogger.error(`Could not save trained model to  ${trainedModelPath}:${e}`);
                     }
 
                     await client.put('/model', { model_file: trainedModelPath });
@@ -243,7 +258,9 @@ if (Meteor.isServer) {
                     Activity.update({ modelId: { $in: modelIds }, validated: true }, { $set: { validated: false } }, { multi: true }).exec();
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
+                auditMethodLogger.debug('training sucessfull', { status: 200 });
             } catch (e) {
+                auditMethodLogger.error('error during training', { status: getAxiosError(e).status });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw getAxiosError(e);
             }

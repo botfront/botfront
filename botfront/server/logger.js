@@ -4,32 +4,47 @@ const {
     combine, timestamp, printf,
 } = format;
 
-const myFormat = printf(({
-    level, message, result, userId, label, type, timestamp, before, after,
+const spaceBeforeIfExist = prop => (prop ? ` ${prop}` : '');
+
+
+const auditFormat = printf(({
+    // eslint-disable-next-line no-shadow
+    level, message, status, userId, label, type, timestamp, before, after,
 }) => {
     let additionalInfo = '';
     if (before) additionalInfo = `before: ${before}`;
     if (after) additionalInfo = additionalInfo.concat(`after: ${after}`);
-
-    return `${timestamp} [${label.toUpperCase()}] ${level}: ${userId ? `user: ${userId}` : ''} ${type || ''} ${result || ''} ${message} ${additionalInfo}`;
+    return `${timestamp} [${label.toUpperCase()}] ${level}:${userId ? ` userId: ${userId}` : ''}${spaceBeforeIfExist(type)}${spaceBeforeIfExist(status)}${spaceBeforeIfExist(message)}${spaceBeforeIfExist(additionalInfo)}`;
 });
 
 
+const appFormat = printf(arg => JSON.stringify(arg));
+
 let level = 'silly';
 if (process.env.NODE_ENV === 'production') {
-    level = 'error';
+    level = 'info';
 }
 
 
-const logger = winston.createLogger({
+export const appLogger = winston.createLogger({
     level,
     format: combine(
         timestamp(),
-        myFormat,
+        appFormat,
     ),
     transports: [
         new winston.transports.Console(),
     ],
 });
-  
-export default logger;
+
+
+export const auditLogger = winston.createLogger({
+    level,
+    format: combine(
+        timestamp(),
+        auditFormat,
+    ),
+    transports: [
+        new winston.transports.Console(),
+    ],
+});
