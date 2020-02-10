@@ -193,7 +193,7 @@ if (Meteor.isServer) {
                 });
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < nluModels.length; ++i) {
-                    appMethodLogger.debug(`POST request to convert the data for the language ${nluModels[i].language}`);
+                    appMethodLogger.info(`POST request to convert the data for the language ${nluModels[i].language}`);
                     // eslint-disable-next-line no-await-in-loop
                     const { data } = await client.post('/data/convert/', {
                         data: getTrainingDataInRasaFormat(nluModels[i]),
@@ -239,7 +239,7 @@ if (Meteor.isServer) {
                     responseType: 'arraybuffer',
                 });
 
-                appMethodLogger.debug('training POST request', { data: payload });
+                appMethodLogger.info('training POST request', { data: payload });
                 const trainingResponse = await trainingClient.post('/model/train', payload);
                 if (trainingResponse.status === 200) {
                     appMethodLogger.debug('training succeded', { status: 200 });

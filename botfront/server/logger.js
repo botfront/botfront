@@ -1,5 +1,11 @@
 import winston, { format } from 'winston';
 
+const { LoggingWinston } = require('@google-cloud/logging-winston');
+ 
+const loggingWinston = new LoggingWinston({
+    logName: 'botfront-log',
+});
+
 const {
     combine, timestamp, printf,
 } = format;
@@ -28,12 +34,10 @@ if (process.env.NODE_ENV === 'production') {
 
 export const appLogger = winston.createLogger({
     level,
-    format: combine(
-        timestamp(),
-        appFormat,
-    ),
+    format: combine(timestamp(), appFormat),
     transports: [
         new winston.transports.Console(),
+        loggingWinston,
     ],
 });
 
