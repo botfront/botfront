@@ -4,6 +4,7 @@ import {
     parseStoryGroups,
     generateStories,
 } from '../../../lib/importers/loadStories';
+import languages from '../../../lib/languages';
 import { loadDomain } from '../../../lib/importers/loadDomain';
 
 const validateStories = (storyFiles) => {
@@ -113,9 +114,7 @@ export const useStoryFileReader = (existingStoryGroups) => {
 };
 
 export const useDomainFileReader = ({
-    defaultDomain,
-    fallbackImportLanguage,
-    projectLanguages,
+    defaultDomain, fallbackImportLanguage, projectLanguages,
 }) => {
     const reducer = (fileList, instruction) => {
         // eslint-disable-next-line no-use-before-define
@@ -160,4 +159,65 @@ export const useDomainFileReader = ({
     };
     const domainFileReader = useReducer(reducer, []);
     return domainFileReader;
+};
+
+export const useDatasetFileReader = ({
+    instanceHost, fallbackImportLanguage, projectLanguages,
+}) => {
+    const reducer = (fileList, instruction) => {
+        // eslint-disable-next-line no-use-before-define
+        const setFileList = ins => datasetFileReader[1](ins);
+        const {
+            delete: deleteInstruction,
+            add: addInstruction,
+            update: updateInstruction,
+        } = instruction;
+
+        if (deleteInstruction) {
+            const index = findFileInFileList(fileList, deleteInstruction);
+            if (index < 0) return fileList;
+            return deleteAtIndex(fileList, index);
+        }
+        if (addInstruction) {
+            // add: array of files
+            addInstruction.forEach((f) => {
+                const reader = new FileReader();
+                reader.readAsText(f);
+                reader.onload = () => {
+                    if (/\ufffd/.test(reader.result)) { // out of range char test
+                        return update(setFileList, f, { errors: ['file is not parseable text'] });
+                    }
+                    const languageFromFilename = f.name.replace('.md', '');
+                    const language = Object.keys(languages).includes(languageFromFilename)
+                        ? languageFromFilename : fallbackImportLanguage;
+                    if (!projectLanguages.includes(language)) {
+                        return update(setFileList, f, { errors: [`Dataset detected for language ${language}, but no such language used by project.`] });
+                    }
+                    
+                    Meteor.call('rasa.convertToJson', reader.result, language, 'json', instanceHost, (err, res) => {
+                        if (err || !res.data || !res.data.rasa_nlu_data) {
+                            return update(setFileList, f, { errors: [`File could not be parsed by Rasa at ${instanceHost}.`] });
+                        }
+                        const { rasa_nlu_data: data } = res.data;
+                        // to do: non-lossy format for metadata e.g. canonical status
+                        delete data.lookup_tables; // to do: gazette from look up tables,
+                        // caveat: conversion route can't be used since tables are found in external text files
+                        delete data.regex_features; // to do: regex features
+                        return update(setFileList, f, { language, rasa_nlu_data: data });
+                    });
+                    return update(setFileList, f, { language, rawText: reader.result });
+                };
+            });
+            return [...fileList, ...addInstruction.map(f => base(f))];
+        }
+        if (updateInstruction) {
+            // callback for 'add' method
+            const index = findFileInFileList(fileList, updateInstruction);
+            if (index < 0) return fileList;
+            return updateAtIndex(fileList, index, updateInstruction);
+        }
+        return fileList;
+    };
+    const datasetFileReader = useReducer(reducer, []);
+    return datasetFileReader;
 };

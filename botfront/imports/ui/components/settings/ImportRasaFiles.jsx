@@ -16,7 +16,7 @@ import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
-import { useStoryFileReader, useDomainFileReader } from './fileReaders';
+import { useStoryFileReader, useDomainFileReader, useDatasetFileReader } from './fileReaders';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { CREATE_AND_OVERWRITE_RESPONSES as createResponses } from '../templates/mutations';
 import apolloClient from '../../../startup/client/apollo';
@@ -29,7 +29,7 @@ const ImportRasaFiles = (props) => {
         fallbackImportLanguage,
         defaultDomain,
     } = props;
-    const { projectLanguages } = useContext(ProjectContext);
+    const { projectLanguages, instance } = useContext(ProjectContext);
 
     const handleFileDrop = async (files, [fileList, setFileList]) => {
         const newValidFiles = Array.from(files).filter(
@@ -207,7 +207,7 @@ const ImportRasaFiles = (props) => {
         }, idx) => {
             const callback = (error) => {
                 if (!error) storyFileReader[1]({ delete: { filename, lastModified } });
-                if (idx === files.length - 1) setStoriesImporting(false);
+                if (error || idx === files.length - 1) setStoriesImporting(false);
             };
             Meteor.call(
                 'storyGroups.insert',
@@ -239,7 +239,7 @@ const ImportRasaFiles = (props) => {
         }, idx) => {
             const callback = (error) => {
                 if (!error) domainFileReader[1]({ delete: { filename, lastModified } });
-                if (idx === files.length - 1) setDomainImporting(false);
+                if (error || idx === files.length - 1) setDomainImporting(false);
             };
             Meteor.call(
                 'slots.upsert',
@@ -277,6 +277,24 @@ const ImportRasaFiles = (props) => {
         });
     };
 
+    const [datasetImporting, setDatasetImporting] = useState(false);
+    const datasetFileReader = useDatasetFileReader({
+        instanceHost: instance.host,
+        fallbackImportLanguage,
+        projectLanguages: projectLanguages.map(l => l.value),
+    });
+    const [dropDatasetFilesIndicators, dropDatasetFiles] = useFileDrop(datasetFileReader);
+
+    const handleImportDataset = (files) => {
+        setDatasetImporting(true);
+        files.forEach((f, idx) => {
+            Meteor.call('nlu.import', f.rasa_nlu_data, projectId, f.language, false, wrapMeteorCallback((err) => {
+                if (!err) datasetFileReader[1]({ delete: { filename: f.filename, lastModified: f.lastModified } });
+                if (err || idx === files.length - 1) setDatasetImporting(false);
+            }));
+        });
+    };
+
     const importers = [
         {
             title: 'stories',
@@ -295,6 +313,15 @@ const ImportRasaFiles = (props) => {
             fileField: useRef(),
             onImport: handleImportDomain,
             importingState: domainImporting,
+        },
+        {
+            title: 'NLU data',
+            fileReader: datasetFileReader,
+            ...dropDatasetFilesIndicators,
+            drop: dropDatasetFiles,
+            fileField: useRef(),
+            onImport: handleImportDataset,
+            importingState: datasetImporting,
         },
     ];
 
