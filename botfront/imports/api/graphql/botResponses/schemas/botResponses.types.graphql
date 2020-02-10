@@ -23,6 +23,10 @@ type Mutation {
         _id: String!
         response: BotResponseInput
     ): updateResponse!
+    createAndOverwriteResponses(
+        projectId: String!
+        responses: [BotResponseInput]
+    ): [BotResponse]
 
     upsertResponse(
         projectId: String!

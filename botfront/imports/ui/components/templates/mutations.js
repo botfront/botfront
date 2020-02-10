@@ -21,6 +21,13 @@ mutation updateResponse($projectId: String!, $_id: String!, $response: BotRespon
     }
 }`;
 
+export const CREATE_AND_OVERWRITE_RESPONSES = gql`
+mutation createAndOverwriteResponses($projectId: String!, $responses: [BotResponseInput]) {
+  createAndOverwriteResponses(projectId: $projectId, responses: $responses){
+      key
+    }
+}`;
+
 export const DELETE_VARIATION = gql`
 mutation deleteVariation($projectId: String!, $key: String!, $language: String!, $index: Int!) {
   deleteVariation(projectId: $projectId, key: $key, language: $language, index: $index){

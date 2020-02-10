@@ -27,6 +27,12 @@ export const createResponse = async (projectId, newResponse) => BotResponses.cre
     projectId,
 });
 
+export const createAndOverwriteResponses = async (projectId, responses) => Promise.all(
+    responses.map(({ key, _id, ...rest }) => BotResponses.findOneAndUpdate(
+        { projectId, key }, { projectId, key, ...rest }, { new: true, lean: true, upsert: true },
+    )),
+);
+
 export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
