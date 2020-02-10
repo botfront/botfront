@@ -14,6 +14,7 @@ import { saveAs } from 'file-saver';
 import moment from 'moment';
 import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.methods';
 import { wrapMeteorCallback } from '../../utils/Errors';
+import { ProjectContext } from '../../../layouts/context';
 
 export default class DataImport extends React.Component {
     constructor(props) {
@@ -40,7 +41,7 @@ export default class DataImport extends React.Component {
     }
 
     onDrop = (files) => {
-        const { model, instanceHost } = this.props;
+        const { language, instance: { host: instanceHost } } = this.context;
         files.forEach((file) => {
             const reader = new FileReader();
             reader.onload = () => {
@@ -55,7 +56,7 @@ export default class DataImport extends React.Component {
                         this.setState({ values: null });
                     }
                 } else {
-                    Meteor.call('rasa.convertToJson', reader.result, model.language, 'json', instanceHost, (err, result) => {
+                    Meteor.call('rasa.convertToJson', reader.result, language, 'json', instanceHost, (err, result) => {
                         if (err) {
                             this.errorAlert('Error: invalid schema');
                         } else {
@@ -94,10 +95,9 @@ export default class DataImport extends React.Component {
             const importObject = JSON.parse(values);
 
             if (importObject && importObject.rasa_nlu_data) {
-                const { model } = this.props;
+                const { project: { _id: projectId }, language } = this.context;
                 const { overwrite } = this.state;
-                // TODO handle .rasa_nlu_data in nlu.import directly
-                Meteor.call('nlu.import', importObject.rasa_nlu_data, model._id, overwrite, wrapMeteorCallback((err) => {
+                Meteor.call('nlu.import', importObject.rasa_nlu_data, projectId, language, overwrite, wrapMeteorCallback((err) => {
                     if (!err) this.setState(this.getInitialState);
                     this.setState({ uploading: false });
                 }, 'Data successfully imported'));
@@ -119,6 +119,8 @@ export default class DataImport extends React.Component {
         const { overwrite } = this.state;
         this.setState({ overwrite: !overwrite });
     };
+
+    static contextType = ProjectContext;
 
     render() {
         const {
@@ -212,5 +214,4 @@ export default class DataImport extends React.Component {
 
 DataImport.propTypes = {
     model: PropTypes.object.isRequired,
-    instanceHost: PropTypes.string.isRequired,
 };
