@@ -1,13 +1,31 @@
 import { safeLoad, safeDump } from 'js-yaml';
 
-const checkContentEmpty = content => (
-    content.image
-    || content.custom
-    || (content.text && content.text.length > 0 && content.buttons && content.buttons.length && content.buttons[0].title)
-    || (content.text && content.text.length > 0 && !content.buttons));
+const checkContentEmpty = (content) => {
+    switch (true) {
+    case content.custom && Object.keys(content.custom).length > 0:
+        // custom response
+        return true;
+    case content.image && content.image.length > 0:
+        // image response
+        return true;
+    case !!(content.text && content.text.length > 0 && content.buttons):
+        // quick reply response with text
+        return true;
+    case !!(content.buttons && content.buttons.length > 0 && content.buttons[0].title && content.buttons[0].title.length):
+        // quick reply response with buttons
+        return true;
+    case content.text && content.text.length > 0 && !content.buttons:
+        // text response
+        return true;
+    default:
+        return false;
+    }
+};
 
 export const checkResponseEmpty = (response) => {
     let isEmpty = true;
+    if (response.metadata) isEmpty = false;
+    if (response.key !== 'utter_') isEmpty = false;
     response.values.forEach((value) => {
         if (!isEmpty) return;
         value.sequence.forEach((variation) => {
