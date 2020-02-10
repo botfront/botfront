@@ -3,7 +3,14 @@ import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import {
-    Button, Segment, Label, Icon, Message, Divider, Dimmer, Loader,
+    Button,
+    Segment,
+    Label,
+    Icon,
+    Message,
+    Divider,
+    Dimmer,
+    Loader,
 } from 'semantic-ui-react';
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
@@ -11,20 +18,26 @@ import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
 import { useStoryFileReader, useDomainFileReader } from './fileReaders';
 import { wrapMeteorCallback } from '../utils/Errors';
+import { CREATE_AND_OVERWRITE_RESPONSES as createResponses } from '../templates/mutations';
+import apolloClient from '../../../startup/client/apollo';
 import { ProjectContext } from '../../layouts/context';
 
 const ImportRasaFiles = (props) => {
     const {
-        existingStoryGroups, projectId, fallbackImportLanguage, defaultDomain,
+        existingStoryGroups,
+        projectId,
+        fallbackImportLanguage,
+        defaultDomain,
     } = props;
     const { projectLanguages } = useContext(ProjectContext);
 
     const handleFileDrop = async (files, [fileList, setFileList]) => {
         const newValidFiles = Array.from(files).filter(
-            f => f.size && !fileList.some(
-                // index on lastModified and filename
-                cf => cf.lastModified === f.lastModified && cf.filename === f.name,
-            ),
+            f => f.size
+                && !fileList.some(
+                    // index on lastModified and filename
+                    cf => cf.lastModified === f.lastModified && cf.filename === f.name,
+                ),
         );
         setFileList({ add: newValidFiles });
     };
@@ -56,14 +69,29 @@ const ImportRasaFiles = (props) => {
                             as='a'
                         >
                             {f.name}
-                            {f.name !== f.filename && <Label.Detail>({f.filename})</Label.Detail>}
-                            <Icon name='delete' onClick={() => setFileList({ delete: { filename: f.filename, lastModified: f.lastModified } })} />
+                            {f.name !== f.filename && (
+                                <Label.Detail>({f.filename})</Label.Detail>
+                            )}
+                            <Icon
+                                name='delete'
+                                onClick={() => setFileList({
+                                    delete: {
+                                        filename: f.filename,
+                                        lastModified: f.lastModified,
+                                    },
+                                })
+                                }
+                            />
                         </Label>
                     ))}
-                    {(filesWithErrors.length > 0 || filesWithWarnings.length > 0) && <Divider />}
+                    {(filesWithErrors.length > 0 || filesWithWarnings.length > 0) && (
+                        <Divider />
+                    )}
                     {filesWithErrors.length > 0 && (
                         <>
-                            <h4>The following files cannot be parsed and will be ignored:</h4>
+                            <h4>
+                                The following files cannot be parsed and will be ignored:
+                            </h4>
                             {filesWithErrors.map(f => (
                                 <Message color='red' key={`errors-${f.name}`}>
                                     <Message.Header>{f.name}</Message.Header>
@@ -74,7 +102,9 @@ const ImportRasaFiles = (props) => {
                     )}
                     {filesWithWarnings.length > 0 && (
                         <>
-                            <h4>The following files have warnings associated with them:</h4>
+                            <h4>
+                                The following files have warnings associated with them:
+                            </h4>
                             {filesWithWarnings.map(f => (
                                 <Message color='yellow' key={`warnings-${f.name}`}>
                                     <Message.Header>{f.name}</Message.Header>
@@ -90,10 +120,20 @@ const ImportRasaFiles = (props) => {
 
     const renderImportSection = (params) => {
         const {
-            title, fileReader, canDrop, isOver, drop, fileField, onImport, importingState,
+            title,
+            fileReader,
+            canDrop,
+            isOver,
+            drop,
+            fileField,
+            onImport,
+            importingState,
         } = params;
         const validFiles = fileReader[0].filter(f => !f.errors);
-        const numberStories = validFiles.reduce((acc, curr) => acc + (curr.parsedStories ? curr.parsedStories.length : 0), 0);
+        const numberStories = validFiles.reduce(
+            (acc, curr) => acc + (curr.parsedStories ? curr.parsedStories.length : 0),
+            0,
+        );
         return (
             <Segment
                 className={`${
@@ -101,48 +141,60 @@ const ImportRasaFiles = (props) => {
                 }`}
                 key={`import-${title}`}
             >
-                <div style={{ minHeight: '150px' }} {...(!importingState ? { ref: drop } : {})}>
-                    {importingState
-                        ? (
-                            <Dimmer active inverted>
-                                <Loader>{`Importing ${title}...`}</Loader>
-                            </Dimmer>
-                        )
-                        : (
-                            <>
-                                <div className='side-by-side'>
-                                    <h3>{`Import ${title.replace(/^\w/, c => c.toUpperCase())}`}</h3>
-                                    <div>
-                                        <Button
-                                            content={<><Icon name='add' /> Add file</>}
-                                            icon
-                                            onClick={() => fileField.current.click()}
-                                        />
-                                        <Button
-                                            icon
-                                            disabled={!validFiles.length}
-                                            content={<><Icon name='flag checkered' /> Import{numberStories ? ` ${numberStories} stories` : ''}</>}
-                                            onClick={() => onImport(validFiles)}
-                                        />
-                                    </div>
+                <div
+                    style={{ minHeight: '150px' }}
+                    {...(!importingState ? { ref: drop } : {})}
+                >
+                    {importingState ? (
+                        <Dimmer active inverted>
+                            <Loader>{`Importing ${title}...`}</Loader>
+                        </Dimmer>
+                    ) : (
+                        <>
+                            <div className='side-by-side'>
+                                <h3>
+                                    {`Import ${title.replace(/^\w/, c => c.toUpperCase())}`}
+                                </h3>
+                                <div>
+                                    <Button
+                                        content={(
+                                            <>
+                                                <Icon name='add' /> Add file
+                                            </>
+                                        )}
+                                        icon
+                                        onClick={() => fileField.current.click()}
+                                    />
+                                    <Button
+                                        icon
+                                        disabled={!validFiles.length}
+                                        content={(
+                                            <>
+                                                <Icon name='flag checkered' /> Import
+                                                {numberStories
+                                                    ? ` ${numberStories} stories`
+                                                    : ''}
+                                            </>
+                                        )}
+                                        onClick={() => onImport(validFiles)}
+                                    />
                                 </div>
-                                <input
-                                    type='file'
-                                    ref={fileField}
-                                    style={{ display: 'none' }}
-                                    multiple
-                                    onChange={e => handleFileDrop(e.target.files, fileReader)}
-                                />
-                                {renderFileList(fileReader)}
-                            </>
-                        )
-                    }
-
+                            </div>
+                            <input
+                                type='file'
+                                ref={fileField}
+                                style={{ display: 'none' }}
+                                multiple
+                                onChange={e => handleFileDrop(e.target.files, fileReader)
+                                }
+                            />
+                            {renderFileList(fileReader)}
+                        </>
+                    )}
                 </div>
             </Segment>
         );
     };
-
 
     const [storiesImporting, setStoriesImporting] = useState(false);
     const storyFileReader = useStoryFileReader(existingStoryGroups);
@@ -173,10 +225,56 @@ const ImportRasaFiles = (props) => {
     };
 
     const [domainImporting, setDomainImporting] = useState(false);
-    const domainFileReader = useDomainFileReader({ defaultDomain, fallbackImportLanguage, projectLanguages: projectLanguages.map(l => l.value) });
+    const domainFileReader = useDomainFileReader({
+        defaultDomain,
+        fallbackImportLanguage,
+        projectLanguages: projectLanguages.map(l => l.value),
+    });
     const [dropDomainFilesIndicators, dropDomainFiles] = useFileDrop(domainFileReader);
 
     const handleImportDomain = (files) => {
+        setDomainImporting(true);
+        files.forEach(({
+            slots, templates, filename, lastModified,
+        }, idx) => {
+            const callback = (error) => {
+                if (!error) domainFileReader[1]({ delete: { filename, lastModified } });
+                if (idx === files.length - 1) setDomainImporting(false);
+            };
+            Meteor.call(
+                'slots.upsert',
+                slots,
+                projectId,
+                wrapMeteorCallback((err) => {
+                    if (err) return callback(err);
+                    return apolloClient
+                        .mutate({
+                            mutation: createResponses,
+                            variables: { projectId, responses: templates },
+                        })
+                        .then((res) => {
+                            if (!res || !res.data) {
+                                return wrapMeteorCallback(callback)({
+                                    message: 'Templates not inserted',
+                                });
+                            }
+                            const notUpserted = templates.filter(
+                                ({ key }) => !res.data.createAndOverwriteResponses
+                                    .map(d => d.key)
+                                    .includes(key),
+                            );
+                            if (notUpserted.length) {
+                                wrapMeteorCallback(callback)({
+                                    message: `Templates ${notUpserted.join(
+                                        ', ',
+                                    )} not inserted.`,
+                                });
+                            }
+                            return callback();
+                        });
+                }),
+            );
+        });
     };
 
     const importers = [
