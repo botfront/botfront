@@ -14,7 +14,7 @@ import { GlobalSettings } from '../../../api/globalSettings/globalSettings.colle
 class ProjectSidebar extends React.Component {
     render() {
         const {
-            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom, renderLegacyModels,
+            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom,
         } = this.props;
         const intercomId = settingsReady ? settings.settings.public.intercomAppId : null;
 
@@ -31,16 +31,9 @@ class ProjectSidebar extends React.Component {
                         </Link>
                     </Can>
                     <Can I='nlu-data:r' projectId={projectId}>
-                        <>
-                            <Link to={`/project/${projectId}/nlu/models`}>
-                                <Menu.Item name='NLU' icon='grid layout' data-cy='nlu-sidebar-link' />
-                            </Link>
-                            {renderLegacyModels && (
-                                <Link to={`/project/${projectId}/nlu/legacy-models`}>
-                                    <Menu.Item name='Legacy NLU' icon='history' />
-                                </Link>
-                            )}
-                        </>
+                        <Link to={`/project/${projectId}/nlu/models`}>
+                            <Menu.Item name='NLU' icon='grid layout' data-cy='nlu-sidebar-link' />
+                        </Link>
                     </Can>
                     <Can I='nlu-data:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/incoming`}>
@@ -93,7 +86,6 @@ ProjectSidebar.propTypes = {
     settingsReady: PropTypes.bool.isRequired,
     settings: PropTypes.object,
     triggerIntercom: PropTypes.func.isRequired,
-    renderLegacyModels: PropTypes.bool.isRequired,
 };
 
 ProjectSidebar.defaultProps = {

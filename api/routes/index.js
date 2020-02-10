@@ -12,7 +12,6 @@ const utteranceCtrl = require('../server/activity/activity.controller');
 const { getSenderEventCount, insertConversation, updateConversation } = require('./conversations');
 const { getProjectCredentials } = require('../server/credentials/credentials.controller');
 const { getProjectEndpoints } = require('../server/endpoints/endpoints.controller');
-const { getPublishedModels } = require('../server/nlu_models/nlu_models.controller');
 const { importConversation, importConversationValidator, lastestImport, lastestImportValidator } = require('../server/imports/imports.controller');
 const {
     exportProject,
@@ -48,7 +47,6 @@ router.put('/project/:project_id/import', importProject);
 router.post('/image/upload', uploadImageValidator, uploadImage);
 router.delete('/image/delete', deleteImageValidator, deleteImage);
 
-router.get('/project/:project_id/models/published', getPublishedModels);
 router.get('/health-check', (req, res) => res.status(200).json());
 
 router.post('/conversations/:project_id/environment/:env', importConversationValidator, importConversation);

@@ -2,7 +2,7 @@ import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
 import {
-    uniq, uniqBy, sortBy, intersectionBy, find,
+    uniq, uniqBy, sortBy, intersectionBy,
 } from 'lodash';
 import {
     formatError, getModelIdsFromProjectId, getProjectIdFromModelId,
@@ -205,7 +205,6 @@ if (Meteor.isServer) {
 
             // Check if the model with the langauge already exists in project
             // eslint-disable-next-line no-param-reassign
-            item.published = true; // a model should be published as soon as it is created
             const { nlu_models: nluModels } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
             const nluModelLanguages = getNluModelLanguages(nluModels, true);
             if (nluModelLanguages.some(lang => (lang.value === item.language))) {
@@ -404,55 +403,6 @@ if (Meteor.isServer) {
 
             try {
                 NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { intent: { $in: intents } } } });
-            } catch (e) {
-                throw formatError(e);
-            }
-        },
-
-        'nlu.publish'(modelId, projectId) {
-            check(modelId, String);
-            check(projectId, String);
-            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
-            try {
-                const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-                const models = NLUModels.find({ _id: { $in: project.nlu_models } }, { fields: { published: 1, language: 1, name: 1 } }).fetch();
-                const modelToPublish = find(models, { _id: modelId });
-                if (!modelToPublish) throw new Meteor.Error('404', 'Model not found!');
-                const currentModel = find(models, { language: modelToPublish.language, published: true });
-                if (!currentModel || currentModel._id !== modelToPublish._id) {
-                    if (currentModel) {
-                        NLUModels.update({ _id: currentModel._id }, { $set: { published: false } });
-                    }
-                    return NLUModels.update({ _id: modelToPublish._id }, { $set: { published: true } });
-                }
-                return 0;
-            } catch (e) {
-                throw formatError(e);
-            }
-        },
-
-        'nlu.getPublishedModelsLanguages'(projectId) {
-            check(projectId, String);
-            checkIfCan(['nlu-data:r', 'responses:r', 'conversations:r', 'project-settings:r'], projectId);
-            try {
-                const project = Projects.findOne(
-                    { _id: projectId },
-                    {
-                        fields: {
-                            nlu_models: 1,
-                            defaultLanguage: 1,
-                        },
-                    },
-                );
-                if (!project) throw new Meteor.Error('400', 'Bad Request');
-                const models = NLUModels.find(
-                    {
-                        _id: { $in: project.nlu_models },
-                        published: true,
-                    },
-                    { fields: { language: 1 } },
-                ).fetch();
-                return models;
             } catch (e) {
                 throw formatError(e);
             }

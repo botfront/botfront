@@ -306,11 +306,6 @@ describe('nlu-data:w role permissions', function() {
             },
             this.bf_project_id,
         ]).then(err => expect(err.error).to.equal('403'));
-
-        cy.MeteorCall('nlu.publish', [
-            this.bf_model_id,
-            this.bf_project_id,
-        ]).then(err => expect(err.error).to.equal('403'));
         
         cy.MeteorCall('nlu.train', [
             this.bf_model_id,

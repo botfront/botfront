@@ -8,8 +8,7 @@ const { NLUModels } = require('../../models/models');
 
 before(function(done) {
     const fs = require('fs');
-    const modelsFile = __dirname + '/../nlu_models/test_data/nlu_models.json';
-    const models = JSON.parse(fs.readFileSync(modelsFile, 'utf8'));
+    const models = [{ _id: '123' }];
     NLUModels.insertMany(models).then(function() {
         done();
     }).catch(e => console.log(e));

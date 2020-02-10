@@ -11,7 +11,7 @@ import { uniq, sortBy } from 'lodash';
 import { Loading } from '../utils/Utils';
 import { Projects } from '../../../api/project/project.collection';
 import { NLUModels } from '../../../api/nlu_model/nlu_model.collection';
-import { getPublishedNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../api/instances/instances.collection';
 import TopMenu from './TopMenu';
 import { extractEntities } from '../nlu/models/nluModel.utils';
@@ -199,7 +199,7 @@ const IncomingContainer = withTracker((props) => {
 
     // get project and projectLanguages
     const project = Projects.findOne({ _id: projectId }) || {};
-    const projectLanguages = getPublishedNluModelLanguages(project.nlu_models, true);
+    const projectLanguages = getNluModelLanguages(project.nlu_models, true);
 
     // get instance and instanced
     const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
@@ -210,7 +210,7 @@ const IncomingContainer = withTracker((props) => {
 
     // get models and current model
     const models = NLUModels.find(
-        { _id: { $in: project.nlu_models }, published: true },
+        { _id: { $in: project.nlu_models } },
         { sort: { language: 1 } },
         { fields: { language: 1, _id: 1 } },
     ).fetch();

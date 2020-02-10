@@ -6,11 +6,11 @@ import React from 'react';
 import {
     Menu, Icon, Dropdown, Popup, Message, Label,
 } from 'semantic-ui-react';
-import { wrapMeteorCallback } from '../utils/Errors';
 import Chat from './Chat';
 import { Stories } from '../../../api/story/stories.collection';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { checkStoryNotEmpty } from '../../../api/story/stories.methods';
+import { getLanguagesFromProjectId } from '../../../lib/utils';
 
 class ProjectChat extends React.Component {
     constructor(props) {
@@ -46,24 +46,14 @@ class ProjectChat extends React.Component {
         });
     };
 
-    loadAvailableLanguages = () => {
+    loadAvailableLanguages = async () => {
         const { projectId } = this.props;
-        Meteor.call(
-            'nlu.getPublishedModelsLanguages',
-            projectId,
-            wrapMeteorCallback((err, res) => {
-                this.setState({
-                    languageOptions: res.map(model => ({
-                        text: model.language,
-                        value: model.language,
-                    })),
-                    selectedLanguage: res[0] ? res[0].language : '',
-                });
-                // When it renders for the first time,  language is not passed to the widget and thus not associated
-                // to the message. Hence Rasa fails adding the language param to the NLG request. So we (shouldn't) need to...
-                this.rerenderChatComponent();
-            }),
-        );
+        const languages = await getLanguagesFromProjectId(projectId);
+        this.setState({
+            languageOptions: languages.map(l => ({ text: l, value: l })),
+            selectedLanguage: languages[0] ? languages[0] : '',
+        });
+        this.rerenderChatComponent();
     };
 
     handleReloadChat = () => {

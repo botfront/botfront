@@ -1,6 +1,6 @@
 import '../../../../lib/dynamic_import';
 import {
-    Container, Tab, Message, Grid, Menu 
+    Container, Tab, Message, Grid, Menu,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -8,7 +8,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import {
-    AutoForm, ErrorsField, SubmitField, AutoField 
+    AutoForm, ErrorsField, SubmitField, AutoField,
 } from 'uniforms-semantic';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
@@ -26,7 +26,8 @@ class Settings extends React.Component {
     async componentDidMount() {
         const orchestrator = await Meteor.callWithPromise('orchestration.type');
         const { GlobalSettingsSchema: schema } = await import(
-            `../../../../api/globalSettings/globalSettings.schema.${orchestrator}`,
+            // eslint-disable-next-line comma-dangle
+            `../../../../api/globalSettings/globalSettings.schema.${orchestrator}`
         );
         let orchestratorSettingsComponent = null;
         if (orchestrator !== 'default') {
@@ -242,8 +243,8 @@ class Settings extends React.Component {
                             grid={{ paneWidth: 13, tabWidth: 3 }}
                             panes={this.getSettingsPanes()}
                             onTabChange={(_e, { activeIndex }) => this.setState({
-                                    activePane: this.getSettingsPanes()[activeIndex].menuItem,
-                                })
+                                activePane: this.getSettingsPanes()[activeIndex].menuItem,
+                            })
                             }
                         />
                         <br />
@@ -259,7 +260,7 @@ class Settings extends React.Component {
                     </AutoForm>
                 </Container>
             </>
-        )
+        );
     };
 
     renderLoading = () => <div />;

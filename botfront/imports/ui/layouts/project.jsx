@@ -20,7 +20,7 @@ import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { setProjectId, setWorkingLanguage, setAnalyticsLanguages } from '../store/actions/actions';
-import { getPublishedNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
+import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
@@ -234,7 +234,6 @@ class Project extends React.Component {
             projectId,
             loading,
             channel,
-            renderLegacyModels,
             settings,
             project,
             instance,
@@ -274,7 +273,6 @@ class Project extends React.Component {
                             projectId={projectId}
                             handleChangeProject={this.handleChangeProject}
                             triggerIntercom={this.handleTriggerIntercom}
-                            renderLegacyModels={renderLegacyModels}
                         />
                     )}
                 </div>
@@ -359,6 +357,7 @@ class Project extends React.Component {
 }
 
 Project.propTypes = {
+    children: PropTypes.any.isRequired,
     router: PropTypes.object.isRequired,
     windowHeight: PropTypes.number.isRequired,
     project: PropTypes.object,
@@ -384,7 +383,6 @@ const ProjectContainer = withTracker((props) => {
     const {
         params: { project_id: projectId }, projectId: storeProjectId, changeWorkingLanguage, changeProjectId, changeAnalyticsLanguages,
     } = props;
-    let renderLegacyModels;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
@@ -416,10 +414,6 @@ const ProjectContainer = withTracker((props) => {
         return browserHistory.replace({ pathname: '/404' });
     }
 
-    if (project) {
-        renderLegacyModels = false;
-    }
-
     let channel = null;
     if (ready) {
         let credentials = Credentials.findOne({ $or: [{ projectId, environment: { $exists: false } }, { projectId, environment: 'development' }] });
@@ -435,7 +429,7 @@ const ProjectContainer = withTracker((props) => {
         changeProjectId(projectId);
     }
 
-    const projectLanguages = ready ? getPublishedNluModelLanguages(project.nlu_models, true) : [];
+    const projectLanguages = ready ? getNluModelLanguages(project.nlu_models, true) : [];
 
     // update working language
     if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {
@@ -454,7 +448,6 @@ const ProjectContainer = withTracker((props) => {
         instance,
         slots: Slots.find({}).fetch(),
         projectLanguages,
-        renderLegacyModels,
         settings,
     };
 })(windowSize(Project));

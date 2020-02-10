@@ -19,7 +19,6 @@ import StoriesContainer from '../../ui/components/stories/StoriesContainer';
 import ConfigurationContainer from '../../ui/components/settings/Settings';
 import ResetPassword from '../../ui/components/account/ResetPassword.jsx';
 import NLUModelComponent from '../../ui/components/nlu/models/NLUModel';
-import NLUModels from '../../ui/components/nlu/models/NLUModels';
 import SetupSteps from '../../ui/components/setup/SetupSteps';
 import Welcome from '../../ui/components/setup/Welcome';
 import Login from '../../ui/components/account/Login';
@@ -97,7 +96,6 @@ Meteor.startup(() => {
                                 <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
                             </Route>
                             <Route exact path='/project' component={Project}>
-                                <Route path='/project/:project_id/nlu/legacy-models' component={NLUModels} name='NLU Models' onEnter={authenticate} />
                                 <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
                                 <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
                                 <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticate} />

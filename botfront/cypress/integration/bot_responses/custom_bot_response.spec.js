@@ -41,8 +41,8 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
         cy.dataCy('edit-response-0').click();
-        cy.dataCy('variation-container').click().find('textarea').clear()
-            .type('success: true')
+        cy.dataCy('variation-container').click().find('textarea')
+            .type('{selectAll}{del}success: true')
             .blur();
         cy.wait(250);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
@@ -62,7 +62,7 @@ describe('Bot responses', function() {
         cy.wait(100);
         cy.dataCy('icon-trash').first().click();
         cy.dataCy('custom-response-editor').contains('doesNotExist: true').should('not.exist');
-        cy.dataCy('custom-response-editor').click().find('textarea').type('test: A');
+        cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}test: A');
         cy.dataCy('add-variation').click();
         cy.dataCy('custom-response-editor').should('have.length', 2);
         cy.dataCy('custom-response-editor').last().click().find('textarea')

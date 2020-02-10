@@ -53,14 +53,6 @@ export const getNluModelLanguages = (modelIds, asOptions = false) => {
     return languageCodes;
 };
 
-export const getPublishedNluModelLanguages = (modelIds, asOptions = false) => {
-    check(modelIds, Array);
-    const models = NLUModels.find({ _id: { $in: modelIds }, published: true }, { fields: { language: 1 } }).fetch();
-    const languageCodes = sortBy(uniq(models.map(m => m.language)));
-    if (asOptions) return languageCodes.map(value => ({ text: languages[value].name, value }));
-    return languageCodes;
-};
-
 export const renameIntentsInTemplates = (templates, oldIntent, newIntent) => {
     const newTemplate = templates;
     templates.forEach((template, index) => {

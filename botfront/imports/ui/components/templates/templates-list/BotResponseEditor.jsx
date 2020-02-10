@@ -128,7 +128,7 @@ const BotResponseEditor = (props) => {
     };
 
     const handleChangeMetadata = (updatedMetadata) => {
-        if (isNew) {
+        if (isNew || !newBotResponse._id) {
             setNewBotResponse(
                 { ...newBotResponse, metadata: updatedMetadata },
             );
@@ -180,20 +180,22 @@ const BotResponseEditor = (props) => {
     const handleModalClose = () => {
         const validResponse = newBotResponse;
         if (!open) return;
-        if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
-            const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
-            upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
-                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
-                closeModal();
-            });
-            return;
-        }
-        if (isNew && !checkResponseEmpty(validResponse)) {
+        // the response is new
+        if ((isNew && !checkResponseEmpty(validResponse))
+        // the response was one of the default defined one and thus does not really exist in db
+        || (!isNew && validResponse._id === undefined && checkResponseEmpty(validResponse))) {
             insertResponse(validResponse, (err) => {
                 validateResponseName(err);
                 if (!err) {
                     closeModal();
                 }
+            });
+            return;
+        } if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
+            const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
+            upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
+                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
+                closeModal();
             });
         }
     };
@@ -218,12 +220,22 @@ const BotResponseEditor = (props) => {
             return <Segment attached><MetadataForm responseMetadata={newBotResponse.metadata} onChange={handleChangeMetadata} /></Segment>;
         }
         return (
-            <SequenceEditor
-                sequence={activeSequence}
-                onChange={handleSequenceChange}
-                onDeleteVariation={handleDeleteVariation}
-                name={name || newBotResponse.key}
-            />
+            <>
+                <SequenceEditor
+                    sequence={activeSequence}
+                    onChange={handleSequenceChange}
+                    onDeleteVariation={handleDeleteVariation}
+                    name={name || newBotResponse.key}
+                />
+                <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
+                    <Button
+                        className='add-variation-button'
+                        data-cy='add-variation'
+                        icon='plus'
+                        onClick={addSequence}
+                    />
+                </Segment>
+            </>
         );
     };
     return (
@@ -254,14 +266,7 @@ const BotResponseEditor = (props) => {
                         <div className='response-editor-topbar-section' />
                     </Segment>
                     {renderActiveTab()}
-                    <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
-                        <Button
-                            className='add-variation-button'
-                            data-cy='add-variation'
-                            icon='plus'
-                            onClick={addSequence}
-                        />
-                    </Segment>
+                  
                 </Segment.Group>
             )}
             open={open}
