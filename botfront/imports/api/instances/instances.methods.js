@@ -222,10 +222,10 @@ if (Meteor.isServer) {
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
-            const auditMethodLogger = trainingAuditLogger.child({ userId: Meteor.userId(), type: 'create' });
+            const auditMethodLogger = trainingAuditLogger.child({ userId: Meteor.userId(), type: 'execute' });
             const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'rasa.train', callingArgs: { projectId, instance } });
 
-            auditMethodLogger.debug('preparing data for training');
+            auditMethodLogger.debug('training requested');
             try {
                 const client = axios.create({
                     baseURL: instance.host,

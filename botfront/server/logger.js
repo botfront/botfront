@@ -1,17 +1,13 @@
 import winston, { format } from 'winston';
 
 const { LoggingWinston } = require('@google-cloud/logging-winston');
- 
-const loggingWinston = new LoggingWinston({
-    logName: 'botfront-log',
-});
 
 const {
     combine, timestamp, printf,
 } = format;
+ 
 
 const spaceBeforeIfExist = prop => (prop ? ` ${prop}` : '');
-
 
 const auditFormat = printf(({
     // eslint-disable-next-line no-shadow
@@ -23,32 +19,54 @@ const auditFormat = printf(({
     return `${timestamp} [${label.toUpperCase()}] ${level}:${userId ? ` userId: ${userId}` : ''}${spaceBeforeIfExist(type)}${spaceBeforeIfExist(status)}${spaceBeforeIfExist(message)}${spaceBeforeIfExist(additionalInfo)}`;
 });
 
-
 const appFormat = printf(arg => JSON.stringify(arg));
 
+const {
+    APPLICATION_LOG_LEVEL, APPLICATION_LOG_TRANSPORT, AUDIT_LOG_TRANSPORT, APPLICATION_LOGGER_NAME, AUDIT_LOGGER_NAME,
+} = process.env;
+
+const appStackDriver = new LoggingWinston({
+    logName: `${APPLICATION_LOGGER_NAME || 'botfront-log-app'}`,
+});
+ 
+const auditStackDriver = new LoggingWinston({
+    logName: `${AUDIT_LOGGER_NAME || 'botfront-log-audit'}`,
+});
+
 let level = 'silly';
-if (process.env.NODE_ENV === 'production') {
-    level = 'info';
+if (!!APPLICATION_LOG_LEVEL) {
+    level = APPLICATION_LOG_LEVEL;
+}
+
+const appLogTransport = [];
+if (!!APPLICATION_LOG_TRANSPORT) {
+    if (APPLICATION_LOG_TRANSPORT.includes('console')) appLogTransport.push(new winston.transports.Console());
+    if (APPLICATION_LOG_TRANSPORT.includes('stackdriver')) appLogTransport.push(appStackDriver);
+} else {
+    appLogTransport.push(new winston.transports.Console());
+}
+
+const auditLogTransport = [];
+if (!!AUDIT_LOG_TRANSPORT) {
+    if (AUDIT_LOG_TRANSPORT.includes('console')) auditLogTransport.push(new winston.transports.Console());
+    if (AUDIT_LOG_TRANSPORT.includes('stackdriver')) auditLogTransport.push(auditStackDriver);
+} else {
+    auditLogTransport.push(new winston.transports.Console());
 }
 
 
 export const appLogger = winston.createLogger({
     level,
     format: combine(timestamp(), appFormat),
-    transports: [
-        new winston.transports.Console(),
-        loggingWinston,
-    ],
+    transports: appLogTransport,
 });
 
 
 export const auditLogger = winston.createLogger({
-    level,
+    level: 'silly',
     format: combine(
         timestamp(),
         auditFormat,
     ),
-    transports: [
-        new winston.transports.Console(),
-    ],
+    transports: auditLogTransport,
 });
