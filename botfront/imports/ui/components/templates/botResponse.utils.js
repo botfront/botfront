@@ -97,3 +97,18 @@ export const addResponseLanguage = (response, language) => {
     updatedResponse.values = [...response.values, newValue];
     return updatedResponse;
 };
+
+export const checkMetadataSet = (metadata) => {
+    if (!metadata) return false;
+    const {
+        linkTarget, userInput, forceOpen, forceClose,
+    } = metadata;
+    if (linkTarget === '_blank'
+        && userInput === 'show'
+        && forceOpen === false
+        && forceClose === false
+    ) {
+        return false;
+    }
+    return true;
+};
