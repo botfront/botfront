@@ -1,16 +1,14 @@
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
+import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {
-    Menu, Icon, Dropdown, Popup, Message, Label,
+    Menu, Icon, Dropdown, Popup, Message,
 } from 'semantic-ui-react';
 import Chat from './Chat';
-import { Stories } from '../../../api/story/stories.collection';
-import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
-import { checkStoryNotEmpty } from '../../../api/story/stories.methods';
 import { getLanguagesFromProjectId } from '../../../lib/utils';
+import { setShouldRefreshChat } from '../../store/actions/actions';
 
 class ProjectChat extends React.Component {
     constructor(props) {
@@ -19,7 +17,6 @@ class ProjectChat extends React.Component {
             key: 0,
             languageOptions: null,
             selectedLanguage: null,
-            selectedPayload: null,
         };
     }
 
@@ -30,10 +27,10 @@ class ProjectChat extends React.Component {
 
     componentWillReceiveProps(props) {
         this.props = props;
-        const { initPayloads } = this.props;
-        const { selectedPayload } = this.state;
-        if (initPayloads && initPayloads.length > 0 && !selectedPayload) {
-            this.setState({ selectedPayload: initPayloads[0].stringPayload });
+        const { shouldRefreshChat, changeShouldRefreshChat } = this.props;
+        if (shouldRefreshChat) {
+            changeShouldRefreshChat(false);
+            this.handleReloadChat();
         }
     }
 
@@ -79,63 +76,6 @@ class ProjectChat extends React.Component {
         }));
     };
 
-    handleChangePayload = (e, { value }) => {
-        this.setState({ selectedPayload: value }, () => this.handleReloadChat());
-    };
-
-    getEntityDisplayValues = (stringPayLoad) => {
-        let entities = /([^{]*) *({.*}|)/.exec(stringPayLoad)[2];
-        const entitiesDisplay = [];
-        if (!!entities) {
-            entities = JSON.parse(entities);
-            const entitiesParsed = Object.keys(entities);
-            entitiesParsed.forEach((key) => {
-                entitiesDisplay.push(
-                    <Label key={key}>
-                        {key}
-                        <Label.Detail>{entities[key]}</Label.Detail>
-                    </Label>,
-                );
-            });
-        }
-        return entitiesDisplay;
-    };
-
-    getIntentDisplayValue = (stringPayLoad) => {
-        const intent = /([^{]*) *({.*}|)/.exec(stringPayLoad)[1];
-        return <Label color='purple'>{intent.substring(1, intent.length)}</Label>;
-    };
-
-    // TODO add unit tests for this funtion
-    getUniquePayloads = (payLoads) => {
-        const result = Array.from(new Set(payLoads.map(p => p.stringPayload))).map(stringPayload => (
-            {
-                stringPayload,
-                objectPayload: payLoads.find(p => p.stringPayload === stringPayload).objectPayload,
-            }
-        ));
-        return result;
-    };
-
-    renderPayloadOptions = () => {
-        const { initPayloads } = this.props;
-        const { selectedPayload } = this.state;
-        const uniquePayloads = this.getUniquePayloads(initPayloads);
-        const items = uniquePayloads.map(p => (
-            <Dropdown.Item
-                key={p.stringPayload}
-                onClick={this.handleChangePayload}
-                value={p.stringPayload}
-                selected={p.stringPayload === selectedPayload}
-            >
-                <>
-                    {this.getIntentDisplayValue(p.stringPayload)}
-                    {this.getEntityDisplayValues(p.stringPayload)}
-                </>
-            </Dropdown.Item>
-        ));
-        return items;
-    };
 
     render() {
         const {
@@ -145,23 +85,15 @@ class ProjectChat extends React.Component {
             selectedLanguage,
             noChannel,
             path,
-            selectedPayload,
         } = this.state;
-        const { triggerChatPane, projectId, loading } = this.props;
+        const {
+            triggerChatPane, projectId, initPayload,
+        } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
-                    <Dropdown item icon='bolt' data-cy='initial-payload-select'>
-                        <Dropdown.Menu>
-                            {' '}
-                            <Dropdown.Header
-                                content='Select initial payload'
-                                icon='bolt'
-                            />
-                            {!loading && this.renderPayloadOptions()}
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    <Menu.Item>
+
+                    <Menu.Item position='right'>
                         {selectedLanguage && (
                             <Dropdown
                                 options={languageOptions}
@@ -215,7 +147,7 @@ class ProjectChat extends React.Component {
                         key={key}
                         language={selectedLanguage}
                         path={path}
-                        initialPayLoad={selectedPayload || ''}
+                        initialPayLoad={initPayload || ''}
                     />
                 )}
                 {noChannel && (
@@ -249,74 +181,22 @@ ProjectChat.propTypes = {
     projectId: PropTypes.string.isRequired,
     triggerChatPane: PropTypes.func.isRequired,
     channel: PropTypes.object.isRequired,
-    initPayloads: PropTypes.array,
-    loading: PropTypes.bool,
+    initPayload: PropTypes.string,
+    shouldRefreshChat: PropTypes.bool.isRequired,
+    changeShouldRefreshChat: PropTypes.func.isRequired,
 };
 
 ProjectChat.defaultProps = {
-    initPayloads: [],
-    loading: true,
+    initPayload: [],
 };
 
-const ProjectChatContainer = withTracker(({ projectId }) => {
-    const storiesHandler = Meteor.subscribe('stories.intro', projectId);
-    let initPayloads = [];
-    const { _id: IntroGroupId } = StoryGroups.findOne(
-        { introStory: true, projectId },
-        { fields: { _id: 1 } },
-    );
+const mapStateToProps = state => ({
+    initPayload: state.settings.get('chatInitPayload'),
+    shouldRefreshChat: state.settings.get('shouldRefreshChat'),
+});
 
-    const extractPayload = (story) => {
-        const initRegex = /^\* *(.*)/;
-        const initPayload = initRegex.exec(story)[1];
-        const payloads = initPayload.split(' OR ').map(disj => disj.trim());
-        const payloadRegex = /([^{]*) *({.*}|)/;
-        const output = [];
-        try {
-            payloads.forEach((stringPayload) => {
-                const matches = payloadRegex.exec(stringPayload);
-                const intent = matches[1];
-                let entities = matches[2];
-                const objectPayload = {
-                    intent,
-                    entities: [],
-                };
-                if (entities && entities !== '') {
-                    const parsed = JSON.parse(entities);
-                    entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
-                } else {
-                    entities = [];
-                }
-                objectPayload.entities = entities;
-                output.push({ objectPayload, stringPayload: `/${stringPayload}` });
-            });
-        } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log(e);
-        }
-        return output;
-    };
+const mapDispatchToProps = {
+    changeShouldRefreshChat: setShouldRefreshChat,
+};
 
-    if (storiesHandler.ready()) {
-        const initStories = Stories.find({ storyGroupId: IntroGroupId }).fetch();
-        initStories
-            .filter(checkStoryNotEmpty)
-            .forEach((s) => {
-                try {
-                    initPayloads = [
-                        ...initPayloads,
-                        ...extractPayload(s.story),
-                    ];
-                } catch (e) {
-                    // eslint-disable-next-line no-console
-                    console.log('An intro story was not valid and could not be parsed.');
-                }
-            });
-    }
-    return {
-        loading: !storiesHandler.ready(),
-        initPayloads,
-    };
-})(ProjectChat);
-
-export default ProjectChatContainer;
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectChat);

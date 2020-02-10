@@ -17,8 +17,8 @@ import { Query } from '@apollo/react-components';
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
-import { setProjectId, setWorkingLanguage } from '../store/actions/actions';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
+import { setProjectId, setWorkingLanguage, setShowChat } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
@@ -140,9 +140,9 @@ class Project extends React.Component {
         replace(pathname.replace(/\/project\/.*?\//, `/project/${projectId}/`));
     };
 
-    triggerChatPane = () => {
+    triggerChatPane = (value) => {
         this.setState(state => ({
-            showChatPane: !state.showChatPane,
+            showChatPane: value === true || value === false ? value : !state.showChatPane,
         }));
     };
 
@@ -236,9 +236,11 @@ class Project extends React.Component {
             workingLanguage,
             projectLanguages,
             slots,
+            showChat,
+            changeShowChat,
         } = this.props;
         const {
-            showIntercom, intercomId, showChatPane, resizingChatPane, intents, entities,
+            showIntercom, intercomId, resizingChatPane, intents, entities,
         } = this.state;
 
         return (
@@ -263,11 +265,11 @@ class Project extends React.Component {
                 <div className='project-children'>
                     <SplitPane
                         split='vertical'
-                        minSize={showChatPane ? 300 : 0}
-                        defaultSize={showChatPane ? 300 : 0}
-                        maxSize={showChatPane ? 600 : 0}
+                        minSize={showChat ? 300 : 0}
+                        defaultSize={showChat ? 300 : 0}
+                        maxSize={showChat ? 600 : 0}
                         primary='second'
-                        allowResize={showChatPane}
+                        allowResize={showChat}
                         className={resizingChatPane ? '' : 'width-transition'}
                         onDragStarted={() => this.setState({ resizingChatPane: true })}
                         onDragFinished={() => this.setState({ resizingChatPane: false })}
@@ -291,6 +293,7 @@ class Project extends React.Component {
                                             entities,
                                             slots,
                                             language: workingLanguage,
+                                            triggerChatPane: this.triggerChatPane,
                                             upsertResponse: this.upsertResponse,
                                             getResponse: this.getResponse,
                                             addEntity: this.addEntity,
@@ -313,9 +316,9 @@ class Project extends React.Component {
                                     >
                                         <div data-cy='left-pane'>
                                             {children}
-                                            {!showChatPane && channel && (
+                                            {!showChat && channel && (
                                                 <Popup
-                                                    trigger={<Button size='big' circular onClick={this.triggerChatPane} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
+                                                    trigger={<Button size='big' circular onClick={() => { changeShowChat(!showChat); }} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
                                                     content='Try out your chatbot'
                                                 />
                                             )}
@@ -324,9 +327,9 @@ class Project extends React.Component {
                                 )}
                             </Query>
                         )}
-                        {!loading && showChatPane && (
+                        {!loading && showChat && (
                             <React.Suspense fallback={<Loader active />}>
-                                <ProjectChat channel={channel} triggerChatPane={this.triggerChatPane} projectId={projectId} />
+                                <ProjectChat channel={channel} triggerChatPane={() => changeShowChat(!showChat)} projectId={projectId} />
                             </React.Suspense>
                         )}
                     </SplitPane>
@@ -349,6 +352,8 @@ Project.propTypes = {
     slots: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
+    showChat: PropTypes.bool.isRequired,
+    changeShowChat: PropTypes.func.isRequired,
 };
 
 Project.defaultProps = {
@@ -421,11 +426,13 @@ const ProjectContainer = withTracker((props) => {
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),
     projectId: state.settings.get('projectId'),
+    showChat: state.settings.get('showChat'),
 });
 
 const mapDispatchToProps = {
     changeWorkingLanguage: setWorkingLanguage,
     changeProjectId: setProjectId,
+    changeShowChat: setShowChat,
 };
 
 export default connect(
