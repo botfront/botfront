@@ -62,24 +62,34 @@ accountSetupSchema.messageBox.messages({
 
 export { accountSetupSchema, newProjectSchema };
 
-const requestMailSubscription = async (email, firstName, lastName) => {
-    const mailChimpUrl = process.env.MAILING_LIST_URI || 'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
-
-    try {
-        await axios.post(mailChimpUrl, {
-            email_address: email,
-            status: 'subscribed',
-            merge_fields: {
-                FNAME: firstName,
-                LNAME: lastName,
-            },
-        });
-    } catch (e) {
-        console.log('Email subscription failed, probably because you\'ve already subscribed');
-    }
-};
 
 if (Meteor.isServer) {
+    import { appLogger, addLoggingInterceptors } from '../../server/logger';
+
+   
+    const requestMailSubscription = async (email, firstName, lastName) => {
+        const mailChimpUrl = process.env.MAILING_LIST_URI || 'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
+        const appMethodLogger = appLogger.child({
+            fileName: 'setup.js',
+            methodName: 'requestMailSubscription',
+            userId: Meteor.userId(),
+            callingArgs: { email, firstName, lastName },
+        });
+        try {
+            const mailAxios = axios.create();
+            addLoggingInterceptors(mailAxios, appMethodLogger);
+            await mailAxios.post(mailChimpUrl, {
+                email_address: email,
+                status: 'subscribed',
+                merge_fields: {
+                    FNAME: firstName,
+                    LNAME: lastName,
+                },
+            });
+        } catch (e) {
+            appMethodLogger('Email subscription failed, probably because you\'ve already subscribed');
+        }
+    };
     Meteor.methods({
         async 'initialSetup.firstStep'(accountData, consent) {
             check(accountData, Object);

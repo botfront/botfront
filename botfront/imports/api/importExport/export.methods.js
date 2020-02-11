@@ -12,16 +12,22 @@ import { generateErrorText } from './importExport.utils';
 
 
 if (Meteor.isServer) {
+    import { appLogger, addLoggingInterceptors } from '../../../server/logger';
+
+    const trainingAppLogger = appLogger.child({ fileName: 'export.methods.js' });
+    
     Meteor.methods({
         'exportProject'(apiHost, projectId, options) {
             check(apiHost, String);
             check(projectId, String);
             check(options, Object);
+            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'exportProject', callingArgs: { apiHost, projectId, options } });
 
             const params = { ...options };
             params.output = 'json';
-
-            const exportRequest = axios.get(
+            const exportAxios = axios.create();
+            addLoggingInterceptors(exportAxios, appMethodLogger);
+            const exportRequest = exportAxios.get(
                 `${apiHost}/project/${projectId}/export`,
                 { params },
             )
@@ -29,13 +35,11 @@ if (Meteor.isServer) {
                 .catch(err => (
                     { error: { header: 'Export Failed', text: generateErrorText(err) } }
                 ));
-
             return exportRequest;
         },
         async 'exportRasa'(projectId, language) {
             check(projectId, String);
             check(language, String);
-
             const instance = await Instances.findOne({ projectId });
             const credentials = await Credentials.findOne({ projectId }, { fields: { credentials: 1 } });
             const endpoints = await Endpoints.findOne({ projectId }, { fields: { endpoints: 1 } });

@@ -99,26 +99,30 @@ function logAfterSuccessApiCall(logger, text, meta) {
 
 export function addLoggingInterceptors(axios, logger) {
     axios.interceptors.request.use(function (config) {
-        const fullUrl = config.baseURL.concat(config.url);
-        logBeforeApiCall(logger, `${config.method.toUpperCase()} at ${fullUrl}`, { url: fullUrl, data: config.data });
+        const { url, data = null, method } = config;
+        logBeforeApiCall(logger, `${method.toUpperCase()} at ${url}`, { url, data });
         return config;
     }, function (error) {
-        const fullUrl = error.baseURL.concat(error.url);
-        logger.error(`${error.method} at ${fullUrl} failed`, { error });
+        const { url, method } = error;
+        logger.error(`${method} at ${url} failed`, { error });
         return Promise.reject(error);
     });
     
     
     axios.interceptors.response.use(function (response) {
-        const { config, status, data } = response;
+        const { config, status, data = null } = response;
         logAfterSuccessApiCall(logger, `${config.method.toUpperCase()} at ${config.url} succeeded`, { status, data });
         return response;
     }, function (error) {
-        const { config } = error;
-        const {
-            data, status, url, method,
-        } = config;
-        logger.error(`${method.toUpperCase()} at ${url} failed`, { data, status });
+        if (Object.keys(error).length > 0) {
+            const { config } = error;
+            const {
+                data, status, url, method,
+            } = config;
+            logger.error(`${method.toUpperCase()} at ${url} failed`, { data, status });
+        } else {
+            logger.error(error.toString());
+        }
         return Promise.reject(error);
     });
 }

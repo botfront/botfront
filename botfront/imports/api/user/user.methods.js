@@ -11,6 +11,10 @@ import { checkIfCan, can, setScopes } from '../../lib/scopes';
 export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W])|(?=.*\W)(?=.*\d))|(?=.*\W)(?=.*[A-Z])(?=.*\d)).{9,}$/;
 
 if (Meteor.isServer) {
+    import { appLogger, addLoggingInterceptors } from '../../../server/logger';
+
+    const userAppLogger = appLogger.child({ fileName: 'user.methods.js' });
+
     Meteor.publish('userData', function() {
         if (can('global-admin')) {
             return Meteor.users.find({}, { fields: { emails: 1, profile: 1 } });
@@ -92,6 +96,8 @@ if (Meteor.isServer) {
         },
 
         'user.verifyReCaptcha'(response) {
+            const appMethodLogger = userAppLogger.child({ userId: Meteor.userId(), methodName: 'user.verifyReCaptchat', callingArgs: { response } });
+
             check(response, String);
             const {
                 settings: { private: { reCatpchaSecretServerKey: secret = null } = {} } = {},
@@ -103,6 +109,8 @@ if (Meteor.isServer) {
             try {
                 this.unblock();
                 const url = `https://www.google.com/recaptcha/api/siteverify?${qs}`;
+                const reCaptchaAxios = axios.create();
+                addLoggingInterceptors(reCaptchaAxios, appMethodLogger);
                 const result = Promise.await(axios.post(url));
                 if (result.data.success) return 'OK';
                 throw new Meteor.Error(
