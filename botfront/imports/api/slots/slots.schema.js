@@ -70,11 +70,16 @@ export const slotSchemas = {
     }).extend(SlotSchema),
 
     text: new SimpleSchema({
-        initialValue: { type: String, defaultValue: '', optional: true },
+        initialValue: { type: String, defaultValue: null, optional: true },
     }).extend(SlotSchema),
 
     unfeaturized: new SimpleSchema({
-        initialValue: { type: String, defaultValue: '', optional: true }, // should allow any type
+        initialValue: SimpleSchema.oneOf(
+            { type: String, defaultValue: null, optional: true },
+            { type: Boolean, defaultValue: false, optional: true },
+            { type: Number, defaultValue: null, optional: true },
+            { type: Object, defaultValue: null, optional: true },
+        ),
     }).extend(SlotSchema),
 };
 
