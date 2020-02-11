@@ -39,34 +39,28 @@ export const checkResponseEmpty = (response) => {
 };
 
 export const defaultTemplate = (template) => {
-    if (template === 'TextPayload') {
+    switch (template) {
+    case 'TextPayload':
         return { text: '', __typename: 'TextPayload' };
-    }
-    if (template === 'QuickReplyPayload') {
+    case 'QuickReplyPayload':
         return {
             __typename: 'QuickReplyPayload',
             text: '',
             buttons: [
                 {
-                    title: '',
-                    type: 'postback',
-                    payload: '',
+                    title: '', type: 'postback', payload: '',
                 },
             ],
         };
-    }
-    if (template === 'CustomPayload') {
+    case 'CustomPayload':
+        return { __typename: 'CustomPayload' };
+    case 'ImagePayload':
         return {
-            __typename: 'CustomPayload',
+            image: '', __typename: 'ImagePayload',
         };
+    default:
+        return null;
     }
-    if (template === 'ImagePayload') {
-        return {
-            image: '',
-            __typename: 'ImagePayload',
-        };
-    }
-    return false;
 };
 
 export const createResponseFromTemplate = (type, language, options = {}) => {
@@ -86,7 +80,7 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
 
 export const parseContentType = (content) => {
     switch (true) {
-    case Object.keys(content).includes('custom'):
+    case Object.keys(content).includes('custom') || Object.keys(content).includes('attachment') || Object.keys(content).includes('elements'):
         return 'CustomPayload';
     case Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
         return 'ImagePayload';
@@ -130,3 +124,14 @@ export const checkMetadataSet = (metadata) => {
     }
     return true;
 };
+
+export const addTemplateLanguage = (templates, language) => templates
+    .map((template) => {
+        const type = parseContentType(safeLoad(template.payload));
+        const payload = safeDump(defaultTemplate(type));
+        return {
+            ...template,
+            language,
+            payload,
+        };
+    });

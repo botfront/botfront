@@ -8,7 +8,7 @@ import BotResponseEditor from '../../templates/templates-list/BotResponseEditor'
 import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
 
-import { checkMetadataSet } from '../../templates/botResponse.utils';
+import { checkMetadataSet } from '../../../../lib/botResponse.utils';
 
 const BotResponsesContainer = (props) => {
     const {

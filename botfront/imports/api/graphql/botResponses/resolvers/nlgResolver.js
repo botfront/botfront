@@ -2,6 +2,7 @@ import { safeLoad } from 'js-yaml';
 import { sample } from 'lodash';
 import { newGetBotResponses } from '../mongo/botResponses';
 import { getLanguagesFromProjectId } from '../../../../lib/utils';
+import { parseContentType } from '../../../../lib/botResponse.utils';
 
 const interpolateSlots = (text, slots) => {
     // fills in {slotname} in templates
@@ -23,16 +24,16 @@ const chooseTemplateSource = (responses, channel) => {
 const resolveTemplate = async ({
     template, projectId, language, slots, channel = null,
 }) => {
-    const responses = await newGetBotResponses({ projectId, template, language });
+    const responses = await newGetBotResponses({
+        // channel is defined only when called by rasa
+        projectId, template, language, options: { emptyAsDefault: !channel },
+    });
     const source = chooseTemplateSource(responses, channel);
     if (!source) {
         // No response found, return template name
         return { text: template };
     }
     
-    // const payload = slots // slots are passed only when  resolveTemplate is called by rasa
-    // ? safeLoad(sample(source).payload) // if called by rasa get a random variation
-    // : safeLoad(source[0].payload); // if called anywhere else get the first variation
 
     const { payload: rawPayload, metadata } = slots ? sample(source) : source[0];
     const payload = safeLoad(rawPayload);
@@ -60,13 +61,7 @@ export default {
         },
     },
     BotResponsePayload: {
-        __resolveType: (v) => {
-            if (v.elements || v.attachment || v.custom) return 'CustomPayload';
-            if (Object.keys(v).includes('image') && !Object.keys(v).includes('buttons')) return 'ImagePayload';
-            if (Object.keys(v).includes('buttons') && !Object.keys(v).includes('image')) return 'QuickReplyPayload';
-            if (Object.keys(v).includes('text') && !Object.keys(v).includes('image') && !Object.keys(v).includes('buttons')) return 'TextPayload';
-            return 'CustomPayload';
-        },
+        __resolveType: parseContentType,
         text: ({ text }) => text,
         metadata: ({ metadata }) => metadata,
     },

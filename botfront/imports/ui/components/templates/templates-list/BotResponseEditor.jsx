@@ -22,7 +22,7 @@ import {
     addResponseLanguage,
     getDefaultTemplateFromSequence,
     addContentType,
-} from '../botResponse.utils';
+} from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
 
