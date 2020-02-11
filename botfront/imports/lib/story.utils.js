@@ -1,4 +1,5 @@
 import yaml from 'js-yaml';
+import { set } from 'mongoose';
 import { StoryController } from './story_controller';
 import { Stories } from '../api/story/stories.collection';
 import { Projects } from '../api/project/project.collection';
@@ -68,13 +69,14 @@ export function getSubBranchesForPath(story, path) {
 }
 
 export const getRulesUtteranceName = (storyId, storyContent) => {
-    if (/^\*/.test(storyContent)) {
+    if (typeof storyContent === 'string' && /^\*/.test(storyContent)) {
         return storyContent.split('\n')[0].substring(2).split('{')[0];
     }
     return `trigger_${storyId}`;
 };
 
 export const getUtteranceEntities = (storyContent) => {
+    if (typeof storyContent !== 'string') return '';
     const firstLine = storyContent.split('\n')[0];
     if (/^\*/.test(storyContent) && /{/.test(firstLine)) {
         return `{${firstLine.split('{')[1]}`; // re-add the curly bracket that was removed by .split
@@ -85,6 +87,53 @@ export const getUtteranceEntities = (storyContent) => {
 export const getRulesPayload = (storyId, storyContent) => `/${getRulesUtteranceName(storyId, storyContent)}`;
 
 export const insertSmartPayloads = (story) => {
+    if (!story.rules || !story.rules.length) return story;
+    const updatedStory = story;
+    const hasStartingPayload = /^\*/.test(story.story);
+    const payloadName = getRulesUtteranceName(story._id, story.story);
+    const payloadEntities = getUtteranceEntities(story.story);
+    let newPayload = hasStartingPayload ? `${payloadName}${payloadEntities}` : '';
+
+    const additionalPayloads = new Set();
+
+    story.rules.forEach((rules) => {
+        if (!rules.trigger) return;
+        if (!rules.trigger.queryString) {
+            additionalPayloads.add(payloadName);
+            return;
+        }
+        const entityList = [];
+        rules.trigger.queryString.forEach((queryString) => {
+            if (queryString.sendAsEntity) {
+                console.log('A');
+                entityList.push(`"${queryString.param}":"whatever"`);
+            }
+        });
+        if (entityList.length > 0) additionalPayloads.add(`${payloadName}{${entityList.join(',')}}`);
+        else additionalPayloads.add(payloadName);
+    });
+    
+    additionalPayloads.delete(newPayload);
+    additionalPayloads.forEach((payload) => {
+        if (newPayload.length === 0) {
+            newPayload = payload;
+            return;
+        }
+        newPayload += ` OR ${payload}`;
+    });
+    if (hasStartingPayload) {
+        // For this one we need not update it.
+        console.log(`||${story.story}||`);
+        updatedStory.story = `* ${newPayload}\n${(story.story || '').split('\n').slice(1).join('\n') || ''}`;
+        console.log(updatedStory.story);
+    } else {
+        updatedStory.story = `* ${newPayload}\n${story.story || ''}`;
+    }
+    console.log(updatedStory.story.split('\n')[0]);
+    return updatedStory;
+};
+
+export const insertSmartPayloadsB = (story) => {
     if (!story.rules
         || !(story.rules.length > 0)
     ) {
@@ -110,11 +159,15 @@ export const insertSmartPayloads = (story) => {
     });
     additionalPayloads.delete(newPayload);
     additionalPayloads.forEach((payload) => {
+        if (newPayload.length === 0) {
+            newPayload = payload;
+            return;
+        }
         newPayload += ` OR ${payload}`;
     });
     if (/^\*/.test(story.story)) {
         // For this one we need not update it.
-        updatedStory.story = `* ${newPayload}\n${story.story.split('\n').slice(1).join('\n') || ''}`;
+        updatedStory.story = `* ${newPayload}\n${(story.story || '').split('\n').slice(1).join('\n') || ''}`;
     } else {
         updatedStory.story = `* ${newPayload}\n${story.story || ''}`;
     }
