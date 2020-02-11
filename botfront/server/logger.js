@@ -84,3 +84,41 @@ export const auditLogger = winston.createLogger({
     ),
     transports: auditLogTransport,
 });
+
+function logBeforeApiCall(logger, text, meta) {
+    logger.info(text, { url: meta.url });
+    logger.debug(`${text} data`, { data: meta.data });
+}
+
+function logAfterSuccessApiCall(logger, text, meta) {
+    const { status, data } = meta;
+    logger.info(text, { status });
+    logger.debug(`${text} data`, { data });
+}
+
+
+export function addLoggingInterceptors(axios, logger) {
+    axios.interceptors.request.use(function (config) {
+        const fullUrl = config.baseURL.concat(config.url);
+        logBeforeApiCall(logger, `${config.method.toUpperCase()} at ${fullUrl}`, { url: fullUrl, data: config.data });
+        return config;
+    }, function (error) {
+        const fullUrl = error.baseURL.concat(error.url);
+        logger.error(`${error.method} at ${fullUrl} failed`, { error });
+        return Promise.reject(error);
+    });
+    
+    
+    axios.interceptors.response.use(function (response) {
+        const { config, status, data } = response;
+        logAfterSuccessApiCall(logger, `${config.method.toUpperCase()} at ${config.url} succeeded`, { status, data });
+        return response;
+    }, function (error) {
+        const { config } = error;
+        const {
+            data, status, url, method,
+        } = config;
+        logger.error(`${method.toUpperCase()} at ${url} failed`, { data, status });
+        return Promise.reject(error);
+    });
+}
