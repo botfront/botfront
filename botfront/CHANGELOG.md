@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.2-ee.0](https://github.com/botfront/botfront/compare/v0.19.1-ee.3...v0.19.2-ee.0) (2020-02-11)
+
+
+### Features
+
+* trigger stories from the editor ([5bb73cd](https://github.com/botfront/botfront/commit/5bb73cd6329d124c49cc73c02deaec3f814cf232))
+
+
+### Bug Fixes
+
+* **triggers:** wrong payload sent when entities are passed ([#56](https://github.com/botfront/botfront/issues/56)) ([54ecc15](https://github.com/botfront/botfront/commit/54ecc15e273ff141842463d968a47eaafcea4798))
+
 ### [0.19.1-ee.3](https://github.com/botfront/botfront/compare/v0.19.1-ee.2...v0.19.1-ee.3) (2020-02-07)
 
 
