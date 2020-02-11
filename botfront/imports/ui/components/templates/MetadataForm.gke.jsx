@@ -184,10 +184,10 @@ function ResponseMetadataForm({
             ),
         },
         {
-            menuItem: 'Callbacks',
+            menuItem: 'Observe',
             render: () => (
                 <>
-                    <ToggleField name='pageChangeCallbacks.enabled' className='toggle' label='Enable page change callbacks' />
+                    <ToggleField name='pageChangeCallbacks.enabled' className='toggle' label='Observe page changes' />
                     <DisplayIf condition={context => context.model.pageChangeCallbacks && context.model.pageChangeCallbacks.enabled}>
                         <>
                             <Message
@@ -206,7 +206,7 @@ function ResponseMetadataForm({
                             <AutoField name='pageChangeCallbacks.errorIntent' />
                         </>
                     </DisplayIf>
-                    <ToggleField name='pageEventCallbacks.enabled' className='toggle' label='Enable page event callbacks' />
+                    <ToggleField name='pageEventCallbacks.enabled' className='toggle' label='Observe interactions' />
                     <DisplayIf condition={context => context.model.pageEventCallbacks && context.model.pageEventCallbacks.enabled}>
                         <>
                             <Message
