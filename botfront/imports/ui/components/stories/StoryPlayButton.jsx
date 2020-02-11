@@ -15,6 +15,7 @@ const StoryPlayButton = (props) => {
         initPayload,
         className,
     } = props;
+    console.log(initPayload);
     return (
         <Popup
             trigger={(
