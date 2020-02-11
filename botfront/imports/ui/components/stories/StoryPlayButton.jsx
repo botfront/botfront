@@ -33,7 +33,7 @@ const StoryPlayButton = (props) => {
             )}
             content={(
                 <>
-                    To start a conversation from the story editor the story must start with a user utterance
+                    To start a conversation from the story editor, the story must start with a user utterance.
                 </>
             )}
             disabled={!!initPayload}
