@@ -4,7 +4,7 @@ import {
     parseStoryGroups,
     generateStories,
 } from '../../../lib/importers/loadStories';
-import languages from '../../../lib/languages';
+import { languages } from '../../../lib/languages';
 import { loadDomain } from '../../../lib/importers/loadDomain';
 
 const validateStories = (storyFiles) => {
@@ -123,7 +123,15 @@ export const useDomainFileReader = ({
             delete: deleteInstruction,
             add: addInstruction,
             update: updateInstruction,
+            changeLang: changeLangInstruction,
         } = instruction;
+
+        const doLoadDomain = (rawText, newFallbackImportlanguage) => loadDomain({
+            rawText,
+            defaultDomain,
+            fallbackImportLanguage: newFallbackImportlanguage || fallbackImportLanguage,
+            projectLanguages,
+        });
 
         if (deleteInstruction) {
             const index = findFileInFileList(fileList, deleteInstruction);
@@ -139,15 +147,13 @@ export const useDomainFileReader = ({
                     if (/\ufffd/.test(reader.result)) { // out of range char test
                         return update(setFileList, f, { errors: ['file is not parseable text'] });
                     }
-                    return update(setFileList, f, loadDomain({
-                        rawText: reader.result,
-                        defaultDomain,
-                        fallbackImportLanguage,
-                        projectLanguages,
-                    }));
+                    return update(setFileList, f, doLoadDomain(reader.result));
                 };
             });
             return [...fileList, ...addInstruction.map(f => base(f))];
+        }
+        if (changeLangInstruction) {
+            return fileList.map(f => ({ ...f, ...doLoadDomain(f.rawText, changeLangInstruction) }));
         }
         if (updateInstruction) {
             // callback for 'add' method
@@ -171,8 +177,19 @@ export const useDatasetFileReader = ({
             delete: deleteInstruction,
             add: addInstruction,
             update: updateInstruction,
+            changeLang: changeLangInstruction,
         } = instruction;
 
+        const getLanguage = (rawText, newFallbackImportLanguage) => {
+            const languageFromFirstLine = (
+                rawText
+                    .split('\n', 1)[0]
+                    .match(/^#[^#]lang:(.*)/)
+                || [])[1];
+            return Object.keys(languages).includes(languageFromFirstLine)
+                ? languageFromFirstLine
+                : (newFallbackImportLanguage || fallbackImportLanguage);
+        };
         if (deleteInstruction) {
             const index = findFileInFileList(fileList, deleteInstruction);
             if (index < 0) return fileList;
@@ -187,9 +204,7 @@ export const useDatasetFileReader = ({
                     if (/\ufffd/.test(reader.result)) { // out of range char test
                         return update(setFileList, f, { errors: ['file is not parseable text'] });
                     }
-                    const languageFromFilename = f.name.replace('.md', '');
-                    const language = Object.keys(languages).includes(languageFromFilename)
-                        ? languageFromFilename : fallbackImportLanguage;
+                    const language = getLanguage(reader.result);
                     if (!projectLanguages.includes(language)) {
                         return update(setFileList, f, { errors: [`Dataset detected for language ${language}, but no such language used by project.`] });
                     }
@@ -209,6 +224,9 @@ export const useDatasetFileReader = ({
                 };
             });
             return [...fileList, ...addInstruction.map(f => base(f))];
+        }
+        if (changeLangInstruction) {
+            return fileList.map(f => ({ ...f, language: getLanguage(f.rawText, changeLangInstruction) }));
         }
         if (updateInstruction) {
             // callback for 'add' method

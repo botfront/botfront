@@ -1,9 +1,12 @@
-import React, { useRef, useState, useContext } from 'react';
+import React, {
+    useRef, useState, useContext, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import {
     Button,
+    Dropdown,
     Segment,
     Label,
     Icon,
@@ -11,25 +14,29 @@ import {
     Divider,
     Dimmer,
     Loader,
+    Popup,
 } from 'semantic-ui-react';
+import { get as _get } from 'lodash';
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
-import { useStoryFileReader, useDomainFileReader, useDatasetFileReader } from './fileReaders';
-import { wrapMeteorCallback } from '../utils/Errors';
-import { CREATE_AND_OVERWRITE_RESPONSES as createResponses } from '../templates/mutations';
-import apolloClient from '../../../startup/client/apollo';
+import {
+    useStoryFileReader,
+    useDomainFileReader,
+    useDatasetFileReader,
+} from './fileReaders';
+import {
+    handleImportStoryGroups,
+    handleImportDomain,
+    handleImportDataset,
+} from './fileImporters';
 import { ProjectContext } from '../../layouts/context';
 
 const ImportRasaFiles = (props) => {
-    const {
-        existingStoryGroups,
-        projectId,
-        fallbackImportLanguage,
-        defaultDomain,
-    } = props;
-    const { projectLanguages, instance } = useContext(ProjectContext);
+    const { existingStoryGroups, projectId, defaultDomain } = props;
+    const { projectLanguages, instance, language } = useContext(ProjectContext);
+    const [fallbackImportLanguage, setFallbackImportLanguage] = useState(language);
 
     const handleFileDrop = async (files, [fileList, setFileList]) => {
         const newValidFiles = Array.from(files).filter(
@@ -57,64 +64,60 @@ const ImportRasaFiles = (props) => {
         const colorOfLabel = (f) => {
             if (f.errors && f.errors.length) return { color: 'red' };
             if (f.warnings && f.warnings.length) return { color: 'yellow' };
-            return {};
+            return { color: 'green' };
         };
         return (
-            <>
-                <div>
-                    {fileList.map(f => (
-                        <Label
-                            key={`${f.filename}${f.lastModified}`}
-                            {...colorOfLabel(f)}
-                            as='a'
-                        >
-                            {f.name}
-                            {f.name !== f.filename && (
-                                <Label.Detail>({f.filename})</Label.Detail>
-                            )}
-                            <Icon
-                                name='delete'
-                                onClick={() => setFileList({
-                                    delete: {
-                                        filename: f.filename,
-                                        lastModified: f.lastModified,
-                                    },
-                                })
-                                }
-                            />
-                        </Label>
-                    ))}
-                    {(filesWithErrors.length > 0 || filesWithWarnings.length > 0) && (
-                        <Divider />
-                    )}
-                    {filesWithErrors.length > 0 && (
-                        <>
-                            <h4>
-                                The following files cannot be parsed and will be ignored:
-                            </h4>
-                            {filesWithErrors.map(f => (
-                                <Message color='red' key={`errors-${f.name}`}>
-                                    <Message.Header>{f.name}</Message.Header>
-                                    <Message.List items={f.errors} />
-                                </Message>
-                            ))}
-                        </>
-                    )}
-                    {filesWithWarnings.length > 0 && (
-                        <>
-                            <h4>
-                                The following files have warnings associated with them:
-                            </h4>
-                            {filesWithWarnings.map(f => (
-                                <Message color='yellow' key={`warnings-${f.name}`}>
-                                    <Message.Header>{f.name}</Message.Header>
-                                    <Message.List items={f.warnings} />
-                                </Message>
-                            ))}
-                        </>
-                    )}
-                </div>
-            </>
+            <div>
+                {fileList.map(f => (
+                    <Label
+                        key={`${f.filename}${f.lastModified}`}
+                        className='file-label'
+                        {...colorOfLabel(f)}
+                        as='a'
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {f.name}
+                        {f.name !== f.filename && (
+                            <Label.Detail>({f.filename})</Label.Detail>
+                        )}
+                        <Icon
+                            name='delete'
+                            onClick={() => setFileList({
+                                delete: {
+                                    filename: f.filename,
+                                    lastModified: f.lastModified,
+                                },
+                            })
+                            }
+                        />
+                    </Label>
+                ))}
+                {(filesWithErrors.length > 0 || filesWithWarnings.length > 0) && (
+                    <Divider />
+                )}
+                {filesWithErrors.length > 0 && (
+                    <>
+                        <h4>The following files cannot be parsed and will be ignored:</h4>
+                        {filesWithErrors.map(f => (
+                            <Message color='red' key={`errors-${f.name}`}>
+                                <Message.Header>{f.name}</Message.Header>
+                                <Message.List items={f.errors} />
+                            </Message>
+                        ))}
+                    </>
+                )}
+                {filesWithWarnings.length > 0 && (
+                    <>
+                        <h4>The following files have warnings associated with them:</h4>
+                        {filesWithWarnings.map(f => (
+                            <Message color='yellow' key={`warnings-${f.name}`}>
+                                <Message.Header>{f.name}</Message.Header>
+                                <Message.List items={f.warnings} />
+                            </Message>
+                        ))}
+                    </>
+                )}
+            </div>
         );
     };
 
@@ -126,23 +129,20 @@ const ImportRasaFiles = (props) => {
             isOver,
             drop,
             fileField,
-            onImport,
             importingState,
+            icon,
+            tooltip,
         } = params;
-        const validFiles = fileReader[0].filter(f => !f.errors);
-        const numberStories = validFiles.reduce(
-            (acc, curr) => acc + (curr.parsedStories ? curr.parsedStories.length : 0),
-            0,
-        );
+
         return (
             <Segment
-                className={`${
+                className={`import-box ${
                     canDrop && isOver && !importingState ? 'upload-target' : ''
                 }`}
                 key={`import-${title}`}
             >
                 <div
-                    style={{ minHeight: '150px' }}
+                    style={{ minHeight: '125px' }}
                     {...(!importingState ? { ref: drop } : {})}
                 >
                     {importingState ? (
@@ -155,30 +155,15 @@ const ImportRasaFiles = (props) => {
                                 <h3>
                                     {`Import ${title.replace(/^\w/, c => c.toUpperCase())}`}
                                 </h3>
+                                {/* <div className='floated right'> */}
                                 <div>
-                                    <Button
-                                        content={(
-                                            <>
-                                                <Icon name='add' /> Add file
-                                            </>
-                                        )}
-                                        icon
-                                        onClick={() => fileField.current.click()}
-                                    />
-                                    <Button
-                                        icon
-                                        disabled={!validFiles.length}
-                                        content={(
-                                            <>
-                                                <Icon name='flag checkered' /> Import
-                                                {numberStories
-                                                    ? ` ${numberStories} stories`
-                                                    : ''}
-                                            </>
-                                        )}
-                                        onClick={() => onImport(validFiles)}
+                                    <Popup
+                                        content={tooltip}
+                                        inverted
+                                        trigger={<Icon name='question circle' color='grey' size='large' />}
                                     />
                                 </div>
+                                {/* </div> */}
                             </div>
                             <input
                                 type='file'
@@ -188,7 +173,25 @@ const ImportRasaFiles = (props) => {
                                 onChange={e => handleFileDrop(e.target.files, fileReader)
                                 }
                             />
-                            {renderFileList(fileReader)}
+                            {fileReader[0].length ? (
+                                renderFileList(fileReader)
+                            ) : (
+                                <>
+                                    <div className='align-center'>
+                                        <Icon name={icon} size='huge' color='grey' style={{ marginBottom: '8px' }} />
+                                        <Button
+                                            primary
+                                            basic
+                                            content={`Upload ${title}`}
+                                            size='small'
+                                            onClick={() => fileField.current.click()}
+                                        />
+                                        <span className='small grey'>
+                                            or drop files to upload
+                                        </span>
+                                    </div>
+                                </>
+                            )}
                         </>
                     )}
                 </div>
@@ -200,30 +203,6 @@ const ImportRasaFiles = (props) => {
     const storyFileReader = useStoryFileReader(existingStoryGroups);
     const [dropStoryFilesIndicators, dropStoryFiles] = useFileDrop(storyFileReader);
 
-    const handleImportStoryGroups = (files) => {
-        setStoriesImporting(true);
-        files.forEach(({
-            _id, name, parsedStories, filename, lastModified,
-        }, idx) => {
-            const callback = (error) => {
-                if (!error) storyFileReader[1]({ delete: { filename, lastModified } });
-                if (error || idx === files.length - 1) setStoriesImporting(false);
-            };
-            Meteor.call(
-                'storyGroups.insert',
-                { _id, name, projectId },
-                wrapMeteorCallback((err) => {
-                    if (!parsedStories.length || err) return callback(err);
-                    return Meteor.call(
-                        'stories.insert',
-                        parsedStories.map(s => ({ ...s, projectId })),
-                        wrapMeteorCallback(callback),
-                    );
-                }),
-            );
-        });
-    };
-
     const [domainImporting, setDomainImporting] = useState(false);
     const domainFileReader = useDomainFileReader({
         defaultDomain,
@@ -232,51 +211,6 @@ const ImportRasaFiles = (props) => {
     });
     const [dropDomainFilesIndicators, dropDomainFiles] = useFileDrop(domainFileReader);
 
-    const handleImportDomain = (files) => {
-        setDomainImporting(true);
-        files.forEach(({
-            slots, templates, filename, lastModified,
-        }, idx) => {
-            const callback = (error) => {
-                if (!error) domainFileReader[1]({ delete: { filename, lastModified } });
-                if (error || idx === files.length - 1) setDomainImporting(false);
-            };
-            Meteor.call(
-                'slots.upsert',
-                slots,
-                projectId,
-                wrapMeteorCallback((err) => {
-                    if (err) return callback(err);
-                    return apolloClient
-                        .mutate({
-                            mutation: createResponses,
-                            variables: { projectId, responses: templates },
-                        })
-                        .then((res) => {
-                            if (!res || !res.data) {
-                                return wrapMeteorCallback(callback)({
-                                    message: 'Templates not inserted',
-                                });
-                            }
-                            const notUpserted = templates.filter(
-                                ({ key }) => !res.data.createAndOverwriteResponses
-                                    .map(d => d.key)
-                                    .includes(key),
-                            );
-                            if (notUpserted.length) {
-                                wrapMeteorCallback(callback)({
-                                    message: `Templates ${notUpserted.join(
-                                        ', ',
-                                    )} not inserted.`,
-                                });
-                            }
-                            return callback();
-                        });
-                }),
-            );
-        });
-    };
-
     const [datasetImporting, setDatasetImporting] = useState(false);
     const datasetFileReader = useDatasetFileReader({
         instanceHost: instance.host,
@@ -284,16 +218,6 @@ const ImportRasaFiles = (props) => {
         projectLanguages: projectLanguages.map(l => l.value),
     });
     const [dropDatasetFilesIndicators, dropDatasetFiles] = useFileDrop(datasetFileReader);
-
-    const handleImportDataset = (files) => {
-        setDatasetImporting(true);
-        files.forEach((f, idx) => {
-            Meteor.call('nlu.import', f.rasa_nlu_data, projectId, f.language, false, wrapMeteorCallback((err) => {
-                if (!err) datasetFileReader[1]({ delete: { filename: f.filename, lastModified: f.lastModified } });
-                if (err || idx === files.length - 1) setDatasetImporting(false);
-            }));
-        });
-    };
 
     const importers = [
         {
@@ -304,6 +228,14 @@ const ImportRasaFiles = (props) => {
             fileField: useRef(),
             onImport: handleImportStoryGroups,
             importingState: storiesImporting,
+            setImportingState: setStoriesImporting,
+            icon: 'book',
+            tooltip: (
+                <p>
+                    Import stories, one story group per file. The contents of existing story groups
+                    is never overwritten.
+                </p>
+            ),
         },
         {
             title: 'domain',
@@ -313,6 +245,14 @@ const ImportRasaFiles = (props) => {
             fileField: useRef(),
             onImport: handleImportDomain,
             importingState: domainImporting,
+            setImportingState: setDomainImporting,
+            icon: 'globe',
+            tooltip: (
+                <p>
+                    Import slots and bot response templates. Existing slots and templates are
+                    completely overwritten.
+                </p>
+            ),
         },
         {
             title: 'NLU data',
@@ -322,15 +262,123 @@ const ImportRasaFiles = (props) => {
             fileField: useRef(),
             onImport: handleImportDataset,
             importingState: datasetImporting,
+            setImportingState: setDatasetImporting,
+            icon: 'grid layout',
+            tooltip: (
+                <p>
+                    Import NLU examples, synonyms and gazettes. Items are added to your current collection.
+                </p>
+            ),
         },
     ];
+    const valid = (reader, filter = () => true) => reader[0].filter(f => !f.errors && filter(f));
 
-    return importers.map(renderImportSection);
+    const handleImport = () => {
+        importers.forEach(({ fileReader, onImport, setImportingState }) => onImport(valid(fileReader), { projectId, fileReader, setImportingState }));
+    };
+
+    const renderTotals = () => {
+        const countAcrossFiles = (reader, path, filter = () => true) => valid(reader, filter).reduce(
+            (acc, curr) => acc + _get(curr, path, []).length,
+            0,
+        );
+        const numbers = {
+            story: countAcrossFiles(storyFileReader, 'parsedStories'),
+            slot: countAcrossFiles(domainFileReader, 'slots'),
+            response: countAcrossFiles(domainFileReader, 'templates'),
+        };
+        projectLanguages.forEach((l) => {
+            numbers[`${l.text} example`] = countAcrossFiles(
+                datasetFileReader,
+                'rasa_nlu_data.common_examples',
+                f => f.language === l.value,
+            );
+            numbers[`${l.text} synonym`] = countAcrossFiles(
+                datasetFileReader,
+                'rasa_nlu_data.entity_synonyms',
+                f => f.language === l.value,
+            );
+            numbers[`${l.text} gazette`] = countAcrossFiles(
+                datasetFileReader,
+                'rasa_nlu_data.gazette',
+                f => f.language === l.value,
+            );
+        });
+
+        const pluralizeUnit = unit => (unit.slice(-1) === 'y' ? `${unit.slice(0, -1)}ies` : `${unit}s`);
+        const printCount = (number, unit) => (number ? `${number} ${number < 2 ? unit : pluralizeUnit(unit)}` : null);
+        return Object.keys(numbers)
+            .map(n => printCount(numbers[n], n))
+            .filter(c => c)
+            .join(', ');
+    };
+
+    const counts = useMemo(renderTotals, importers);
+
+    const renderBottom = () => {
+        if (!counts) return null;
+        return (
+            <Message info>
+                <div>Importing {counts}.</div>
+                <div className='side-by-side middle'>
+                    <div className='side-by-side narrow left middle'>
+                        <Popup
+                            content={(
+                                <>
+                                    <p>
+                                        Bot responses found in domain files will use the &apos;language&apos;
+                                        attribute if it exists; if not, the fallback import language will be used.
+                                    </p>
+                            
+                                    <p>
+                                        Likewise, the language of a NLU file can be specified in its first line; if
+                                        it isn&apos;t, the fallback import language will be used.
+                                    </p>
+                                
+                                    <p>For more information, read the docs.</p>
+                                </>
+                            )}
+                            inverted
+                            trigger={(
+                                <div>
+                                    <Icon name='question circle' /><strong>Fallback import language: </strong>
+                                </div>
+                            )}
+                        />
+                        <Dropdown
+                            className='export-option'
+                            options={projectLanguages}
+                            selection
+                            value={fallbackImportLanguage}
+                            onChange={(_e, { value }) => {
+                                importers.forEach(i => i.fileReader[1]({ changeLang: value }));
+                                setFallbackImportLanguage(value);
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <Button
+                            content='Import'
+                            primary
+                            onClick={handleImport}
+                        />
+                    </div>
+                </div>
+            </Message>
+        );
+    };
+
+    return (
+        <>
+            {importers.map(renderImportSection)}
+            {renderBottom()}
+        </>
+    );
 };
 
 ImportRasaFiles.propTypes = {
+    projectId: PropTypes.string.isRequired,
     existingStoryGroups: PropTypes.array.isRequired,
-    fallbackImportLanguage: PropTypes.string.isRequired,
     defaultDomain: PropTypes.object.isRequired,
 };
 
