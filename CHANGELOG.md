@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.2](https://github.com/botfront/botfront/compare/v0.19.1...v0.19.2) (2020-02-11)
+
+
+### Bug Fixes
+
+* it was not posible to have more than one entity in payload editor ([61cf096](https://github.com/botfront/botfront/commit/61cf096))
+* **cli:** correct path in production Dockerfile for actions ([dd535a9](https://github.com/botfront/botfront/commit/dd535a9))
+* metadata lost at import, add the metadata model in the api ([2728b58](https://github.com/botfront/botfront/commit/2728b58))
+
+
+### Features
+
+* trigger stories from the editor ([5bb73cd](https://github.com/botfront/botfront/commit/5bb73cd))
+* **cli:** add a .gitignore file to project template ([65f7d84](https://github.com/botfront/botfront/commit/65f7d84))
+
+
+### Tests
+
+* fix custom response test ([#460](https://github.com/botfront/botfront/issues/460)) ([cf56b10](https://github.com/botfront/botfront/commit/cf56b10))
+* responses in a new language ([2b7a70f](https://github.com/botfront/botfront/commit/2b7a70f))
+* stories play button ([15b62f4](https://github.com/botfront/botfront/commit/15b62f4))
+
+
+
 ### [0.19.1](https://github.com/botfront/botfront/compare/v0.19.0...v0.19.1) (2020-01-23)
 
 
