@@ -616,9 +616,9 @@ const withStartingPayload = {
     branches: [],
     events: [],
     story: '* test\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
-    rules: [{ trigger: { when: 'always', timeOnPage: 10 }, payload: '/test' }],
+    rules: [{ trigger: { when: 'always', timeOnPage: 10 }, payload: '/trigger_gHzjvbioYe453bMqr' }],
 };
-const withStartingPayloadResult = '* test\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const withStartingPayloadResult = '* test OR trigger_gHzjvbioYe453bMqr\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
 const startingPayloadEntities = {
     _id: 'QTN3t63qyPW3vE6py',
     title: 'Test Group 6',
@@ -626,10 +626,10 @@ const startingPayloadEntities = {
     storyGroupId: 'A74ZdgkfsYKA8hai2',
     branches: [],
     events: [],
-    rules: [{ trigger: { when: 'always', timeOnPage: 12 }, payload: '/test' }],
+    rules: [{ trigger: { when: 'always', timeOnPage: 12 }, payload: '/trigger_QTN3t63qyPW3vE6py' }],
     story: '* test{"shape": "circle"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
 };
-const startingPayloadEntitiesResult = '* test{"shape": "circle"} OR test\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const startingPayloadEntitiesResult = '* test{"shape": "circle"} OR trigger_QTN3t63qyPW3vE6py\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
 const triggerEntities = {
     _id: 'HqxFAkp68L6hTtaFf',
     title: 'Test Group 3',
@@ -662,12 +662,12 @@ const triggerEntitiesAndStartingPayload = {
                 when: 'always',
                 queryString: [{ param: 'color', sendAsEntity: true }],
             },
-            payload: '/test',
+            payload: '/trigger_EoTK7EB8eHwZ2gbW8',
         },
     ],
     story: '* test\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
 };
-const triggerEntitiesAndStartingPayloadResult = '* test OR test{"color":"whatever"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const triggerEntitiesAndStartingPayloadResult = '* test OR trigger_EoTK7EB8eHwZ2gbW8{"color":"whatever"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
 const triggerEntitiesandStartingPayloadEntities = {
     _id: '3WB4hSdny9cj7gevc',
     title: 'Test Group 5',
@@ -681,12 +681,12 @@ const triggerEntitiesandStartingPayloadEntities = {
                 when: 'always',
                 queryString: [{ param: 'color', sendAsEntity: true }],
             },
-            payload: '/test',
+            payload: '/trigger_3WB4hSdny9cj7gevc',
         },
     ],
     story: '* test{"shape": "circle"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
 };
-const triggerEntitiesandStartingPayloadEntitiesResult = '* test{"shape": "circle"} OR test{"color":"whatever"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const triggerEntitiesandStartingPayloadEntitiesResult = '* test{"shape": "circle"} OR trigger_3WB4hSdny9cj7gevc{"color":"whatever"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
 const multipleTriggers = {
     _id: '8W4baSfifckG5NkuR',
     title: 'Test Group 7',
