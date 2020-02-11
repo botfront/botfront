@@ -78,5 +78,7 @@ export const loadDomain = ({
         });
     });
 
-    return { warnings, slots, templates };
+    return {
+        rawText, warnings, slots, templates,
+    };
 };
