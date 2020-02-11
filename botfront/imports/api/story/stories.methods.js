@@ -7,8 +7,8 @@ import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
-const shouldUpdatePayloadNames = (originStory = {}, story = {}, path = {}) => {
-    if (!path.length === 1 || !originStory.rules) return false;
+const shouldUpdatePayloadNames = (originStory = {}, story = {}, path = []) => {
+    if (path[path.length - 1] !== originStory._id || !originStory.rules) return false;
     if (!originStory.story !== !story.story) return true;
     const firstLine = originStory.story
         ? originStory.story.split('\n')[0]
@@ -48,12 +48,11 @@ Meteor.methods({
                 )),
             )
             : rest;
-        
         if (shouldUpdatePayloadNames(originStory, story, path)) {
             //  change the payload name for all rules in this story if the first line changed
             update.rules = originStory.rules.map(rule => ({
                 ...rule,
-                payload: getRulesPayload(story._id, story.story),
+                payload: getRulesPayload(originStory._id, story.story),
             }));
         }
 

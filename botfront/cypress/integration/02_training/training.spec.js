@@ -6,21 +6,19 @@ describe('Training', function() {
     }
 
     function createStories() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('toggle-md').click({ force: true });
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('Group{enter}');
-        clickStoryGroup('Group');
-        cy.dataCy('story-editor')
-            .get('textarea')
-            .focus()
-            .type('{selectAll}{backSpace}{backSpace}{backSpace}{backSpace}', { force: true });
-        cy.dataCy('story-editor')
-            .get('textarea')
-            .focus()
-            .type('{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true });
+        // cy.visit('/project/bf/stories');
+        // cy.dataCy('toggle-md').click({ force: true });
+        // cy.dataCy('add-item').click({ force: true });
+        // cy.dataCy('add-item-input')
+        //     .find('input')
+        //     .type('Test Group{enter}');
+        // cy.dataCy('browser-item').contains('Test Group').click();
+        // cy.dataCy('story-title').should('have.value', 'Test Group');
+        // cy.dataCy('single-story-editor')
+        //     .click()
+        //     .find('textarea')
+        //     .type('{selectAll}{del}* chitchat.greet\n  - utter_hi', { force: true })
+        //     .blur();
     }
 
     before(function() {
@@ -38,6 +36,7 @@ describe('Training', function() {
     });
 
     afterEach(function() {
+        cy.logout();
         cy.deleteProject('bf');
     });
 

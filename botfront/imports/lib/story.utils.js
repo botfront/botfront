@@ -68,8 +68,18 @@ export function getSubBranchesForPath(story, path) {
 }
 
 export const getRulesUtteranceName = (storyId, storyContent) => {
-    if (/^\*/.test(storyContent)) return storyContent.split('\n')[0].substring(2);
+    if (/^\*/.test(storyContent)) {
+        return storyContent.split('\n')[0].substring(2).split('{')[0];
+    }
     return `trigger_${storyId}`;
+};
+
+export const getUtteranceEntities = (storyContent) => {
+    const firstLine = storyContent.split('\n')[0];
+    if (/^\*/.test(storyContent) && /{/.test(firstLine)) {
+        return `{${firstLine.split('{')[1]}`; // re-add the curly bracket that was removed by .split
+    }
+    return '';
 };
 
 export const getRulesPayload = (storyId, storyContent) => `/${getRulesUtteranceName(storyId, storyContent)}`;
@@ -81,24 +91,33 @@ export const insertSmartPayloads = (story) => {
         return story;
     }
     const updatedStory = story;
-    const additionalPayloads = [];
-    let payloadName = getRulesUtteranceName(story._id, story.story);
+    
+    const additionalPayloads = new Set();
+    const payloadName = getRulesUtteranceName(story._id, story.story);
+    const originalEntities = getUtteranceEntities(story.story);
+    let newPayload = `${payloadName}${originalEntities}`;
     story.rules.forEach((rules) => {
-        if (!rules.trigger || !rules.trigger.queryString) return;
+        if (!rules.trigger || !rules.trigger.queryString) {
+            additionalPayloads.add(payloadName);
+            return;
+        }
+        const entityList = [];
         rules.trigger.queryString.forEach((queryString) => {
-            if (queryString.sendAsEntity) additionalPayloads.push(`${payloadName}{"${queryString.param}":"whatever"}`);
+            if (queryString.sendAsEntity) entityList.push(`"${queryString.param}":"whatever"`);
+            else additionalPayloads.add(payloadName);
         });
+        additionalPayloads.add(`${payloadName}{${entityList.join(',')}}`);
     });
+    additionalPayloads.delete(newPayload);
     additionalPayloads.forEach((payload) => {
-        payloadName += ` OR ${payload}`;
+        newPayload += ` OR ${payload}`;
     });
     if (/^\*/.test(story.story)) {
         // For this one we need not update it.
-        updatedStory.story = `* ${payloadName}\n${story.story.split('\n').slice(1) || ''}`;
+        updatedStory.story = `* ${newPayload}\n${story.story.split('\n').slice(1).join('\n') || ''}`;
     } else {
-        updatedStory.story = `* ${payloadName}\n${story.story || ''}`;
+        updatedStory.story = `* ${newPayload}\n${story.story || ''}`;
     }
-
     return updatedStory;
 };
 

@@ -10,6 +10,7 @@ describe('stories', function() {
     });
 
     afterEach(function() {
+        cy.logout();
         cy.deleteProject('bf');
     });
 
