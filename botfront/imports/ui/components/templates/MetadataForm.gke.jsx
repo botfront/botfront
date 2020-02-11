@@ -249,7 +249,7 @@ function ResponseMetadataForm({
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable custom message style' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
-                            <SelectField name='customCss.style' />
+                            <SelectField name='customCss.style' data-cy='style-dropdown' />
                             <DisplayIf condition={context => context.model.customCss && context.model.customCss.style === 'custom'}>
                                 <LongTextField className='monospaced' name='customCss.css' label='Custom CSS' data-cy='custom-message-css' />
                             </DisplayIf>
