@@ -361,7 +361,7 @@ function StoryRulesForm({
                                     data-cy='toggle-query-string'
                                     getError={getEnabledError}
                                 >
-                                    <ListField name=''>
+                                    <ListField name='' data-cy='query-string-field'>
                                         <ListItemField name='$'>
                                             <NestField>
                                                 <AutoField name='param' />
