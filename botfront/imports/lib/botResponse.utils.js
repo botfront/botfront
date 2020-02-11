@@ -1,13 +1,31 @@
 import { safeLoad, safeDump } from 'js-yaml';
 
-const checkContentEmpty = content => (
-    content.image
-    || content.custom
-    || (content.text && content.text.length > 0 && content.buttons && content.buttons.length && content.buttons[0].title)
-    || (content.text && content.text.length > 0 && !content.buttons));
+const checkContentEmpty = (content) => {
+    switch (true) {
+    case content.custom && Object.keys(content.custom).length > 0:
+        // custom response
+        return true;
+    case content.image && content.image.length > 0:
+        // image response
+        return true;
+    case !!(content.text && content.text.length > 0 && content.buttons):
+        // quick reply response with text
+        return true;
+    case !!(content.buttons && content.buttons.length > 0 && content.buttons[0].title && content.buttons[0].title.length):
+        // quick reply response with buttons
+        return true;
+    case content.text && content.text.length > 0 && !content.buttons:
+        // text response
+        return true;
+    default:
+        return false;
+    }
+};
 
 export const checkResponseEmpty = (response) => {
     let isEmpty = true;
+    if (response.metadata) isEmpty = false;
+    if (response.key !== 'utter_') isEmpty = false;
     response.values.forEach((value) => {
         if (!isEmpty) return;
         value.sequence.forEach((variation) => {
@@ -21,34 +39,28 @@ export const checkResponseEmpty = (response) => {
 };
 
 export const defaultTemplate = (template) => {
-    if (template === 'TextPayload') {
+    switch (template) {
+    case 'TextPayload':
         return { text: '', __typename: 'TextPayload' };
-    }
-    if (template === 'QuickReplyPayload') {
+    case 'QuickReplyPayload':
         return {
             __typename: 'QuickReplyPayload',
             text: '',
             buttons: [
                 {
-                    title: '',
-                    type: 'postback',
-                    payload: '',
+                    title: '', type: 'postback', payload: '',
                 },
             ],
         };
-    }
-    if (template === 'CustomPayload') {
+    case 'CustomPayload':
+        return { __typename: 'CustomPayload' };
+    case 'ImagePayload':
         return {
-            __typename: 'CustomPayload',
+            image: '', __typename: 'ImagePayload',
         };
+    default:
+        return null;
     }
-    if (template === 'ImagePayload') {
-        return {
-            image: '',
-            __typename: 'ImagePayload',
-        };
-    }
-    return false;
 };
 
 export const createResponseFromTemplate = (type, language, options = {}) => {
@@ -68,7 +80,7 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
 
 export const parseContentType = (content) => {
     switch (true) {
-    case Object.keys(content).includes('custom'):
+    case Object.keys(content).includes('custom') || Object.keys(content).includes('attachment') || Object.keys(content).includes('elements'):
         return 'CustomPayload';
     case Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
         return 'ImagePayload';
@@ -97,3 +109,29 @@ export const addResponseLanguage = (response, language) => {
     updatedResponse.values = [...response.values, newValue];
     return updatedResponse;
 };
+
+export const checkMetadataSet = (metadata) => {
+    if (!metadata) return false;
+    const {
+        linkTarget, userInput, forceOpen, forceClose,
+    } = metadata;
+    if (linkTarget === '_blank'
+        && userInput === 'show'
+        && forceOpen === false
+        && forceClose === false
+    ) {
+        return false;
+    }
+    return true;
+};
+
+export const addTemplateLanguage = (templates, language) => templates
+    .map((template) => {
+        const type = parseContentType(safeLoad(template.payload));
+        const payload = safeDump(defaultTemplate(type));
+        return {
+            ...template,
+            language,
+            payload,
+        };
+    });

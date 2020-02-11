@@ -188,6 +188,16 @@ const StoryEditorContainer = ({
         storyControllers[story._id].updateRules(story.rules);
         storyControllers[story._id].validateStory();
     }, [story.rules]);
+    
+    const getInitIntent = () => {
+        try {
+            return (storyControllers[story._id].lines[0].gui.type === 'user'
+                ? storyControllers[story._id].lines[0].gui.data[0].intent
+                : undefined);
+        } catch (err) {
+            return undefined;
+        }
+    };
 
     const renderTopMenu = () => (
         <StoryTopMenu
@@ -206,8 +216,10 @@ const StoryEditorContainer = ({
             originStories={story.checkpoints}
             rules={story.rules}
             isInSmartStories={isInSmartStories}
+            initPayload={getInitIntent()}
         />
     );
+
 
     const convertToAnnotations = (pathAsString) => {
         if (!storyControllers[pathAsString]) {

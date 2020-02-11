@@ -11,6 +11,7 @@ import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
 import StoryRulesEditor from './rules/StoryRulesEditor';
 import { setStoryCollapsed } from '../../store/actions/actions';
+import StoryPlayButton from './StoryPlayButton';
 
 import { ConversationOptionsContext } from './Context';
 
@@ -32,6 +33,7 @@ const StoryTopMenu = ({
     isLinked,
     rules,
     isInSmartStories,
+    initPayload,
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
@@ -167,6 +169,7 @@ const StoryTopMenu = ({
                         disabled={isDestinationStory || isLinked || isInSmartStories}
                         name='trash'
                         data-cy='delete-story'
+                        className='top-menu-clickable'
                     />
                 )}
                 toolTipText={toolTipText}
@@ -179,6 +182,7 @@ const StoryTopMenu = ({
                         disabled={isDestinationStory || isLinked}
                         name='trash'
                         data-cy='delete-story'
+                        className='top-menu-clickable'
                     />
                 )}
                 disabled={isDestinationStory || isLinked}
@@ -253,6 +257,10 @@ const StoryTopMenu = ({
                         open={triggerEditorOpen}
                         setOpen={setTriggerEditorOpen}
                         isDestinationStory={isDestinationStory}
+                    />
+                    <StoryPlayButton
+                        initPayload={initPayload}
+                        className='top-menu-clickable'
                     />
                     <Popup
                         trigger={(
@@ -373,6 +381,7 @@ StoryTopMenu.propTypes = {
     isLinked: PropTypes.bool,
     rules: PropTypes.array,
     isInSmartStories: PropTypes.bool,
+    initPayload: PropTypes.string,
 };
 
 StoryTopMenu.defaultProps = {
@@ -381,6 +390,7 @@ StoryTopMenu.defaultProps = {
     originStories: [],
     rules: [],
     isInSmartStories: false,
+    initPayload: null,
 };
 
 const mapStateToProps = (state, ownProps) => ({

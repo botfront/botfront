@@ -22,7 +22,7 @@ import {
     addResponseLanguage,
     getDefaultTemplateFromSequence,
     addContentType,
-} from '../botResponse.utils';
+} from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 
 
@@ -159,7 +159,8 @@ const BotResponseEditor = (props) => {
     };
 
     const handleSequenceChange = (updatedSequence, index) => {
-        const content = safeDump(updatedSequence);
+        const { metadata, ...rest } = updatedSequence;
+        const content = safeDump(rest);
         if (isNew) {
             const tempvar = updateSequence(newBotResponse, content, index);
             setNewBotResponse(tempvar);
@@ -177,13 +178,23 @@ const BotResponseEditor = (props) => {
         return activeValue.sequence;
     };
 
+    const getRefreshData = () => {
+        const ret = addContentType(safeLoad(getActiveSequence()[0].content));
+        const { metadata } = newBotResponse;
+        return { ...ret, metadata };
+    };
+
     const handleModalClose = () => {
         const validResponse = newBotResponse;
         if (!open) return;
+        if (isNew && checkResponseEmpty(validResponse)) {
+            closeModal();
+            return;
+        }
         // the response is new
         if ((isNew && !checkResponseEmpty(validResponse))
         // the response was one of the default defined one and thus does not really exist in db
-        || (!isNew && validResponse._id === undefined && checkResponseEmpty(validResponse))) {
+        || (!isNew && validResponse._id === undefined && !checkResponseEmpty(validResponse))) {
             insertResponse(validResponse, (err) => {
                 validateResponseName(err);
                 if (!err) {
@@ -192,9 +203,9 @@ const BotResponseEditor = (props) => {
             });
             return;
         } if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
-            const newPayload = addContentType(safeLoad(getActiveSequence()[0].content));
+            const newPayload = getRefreshData();
             upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
-                refreshBotResponse(`${language}-${name}`, addContentType(safeLoad(getActiveSequence()[0].content))); // refresh the content of the response in the visual story editor
+                refreshBotResponse(`${language}-${name}`, newPayload); // refresh the content of the response in the visual story editor
                 closeModal();
             });
         }

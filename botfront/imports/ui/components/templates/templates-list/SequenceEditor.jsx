@@ -8,7 +8,7 @@ import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
 import IconButton from '../../common/IconButton';
 
-import { addContentType, defaultTemplate } from '../botResponse.utils';
+import { addContentType, defaultTemplate } from '../../../../lib/botResponse.utils';
 
 const SequenceEditor = (props) => {
     const {

@@ -22,6 +22,7 @@ query getResponse($template: StringOrListOfStrings!, $arguments: Any!) {
     ) {
         __typename
         text
+        metadata
         ...on QuickReplyPayload { buttons { title, type, ...on WebUrlButton { url } ...on PostbackButton { payload } } }
         ...on ImagePayload { image }
         ...on CustomPayload { buttons { title, type, ...on WebUrlButton { url } ...on PostbackButton { payload } }, elements, attachment, image, custom }

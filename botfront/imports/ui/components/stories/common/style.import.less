@@ -8,6 +8,14 @@
             color: #8d99a2 !important;
         }
     }
+    &.light-green {
+        background-color: rgb(224, 247, 224);
+        color: rgb(136, 173, 136);
+        &:hover {
+            background-color: rgb(219, 243, 219);
+            color: rgb(110, 143, 110);
+        }
+    }
 }
 
 .responses-container {
@@ -177,6 +185,29 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.single-story-container{ 
+    .story-line {
+        .responses-container {
+            .flex-right {
+                .utterance-container.metadata-response {
+                    // only color metadata responses in the story editor
+                    &:not(.image) {
+                        background-color: rgb(224, 247, 224);
+                    }
+                    &.image{
+                        .inner {
+                            img{
+                                background-color: rgb(224, 247, 224);
+                                padding: 0.5em;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 .responses-container {

@@ -9,6 +9,8 @@ import BotResponseContainer from './BotResponseContainer';
 import ExceptionWrapper from './ExceptionWrapper';
 import { useUpload } from '../hooks/image.hooks';
 
+import { checkMetadataSet } from '../../../../lib/botResponse.utils';
+
 const BotResponsesContainer = (props) => {
     const {
         name,
@@ -47,6 +49,7 @@ const BotResponsesContainer = (props) => {
             const newTemplate = {
                 __typename: 'TextPayload',
                 text: newSequence.map(seq => seq.text).join('\n\n'),
+                metadata: template.metadata,
             };
             onChange(newTemplate);
             return setTemplate(newTemplate);
@@ -104,6 +107,7 @@ const BotResponsesContainer = (props) => {
                     onFocus={() => setFocus(index)}
                     editCustom={() => setEditorOpen(true)}
                     uploadImage={uploadImage}
+                    hasMetadata={template && checkMetadataSet(template.metadata)}
                 />
                 {index === sequenceArray.length - 1 && name && (
                     <div className='response-name'>{name}</div>
@@ -126,7 +130,13 @@ const BotResponsesContainer = (props) => {
                     {enableEditPopup && (
                         <BotResponseEditor
                             trigger={(
-                                <IconButton icon='ellipsis vertical' onClick={() => setEditorOpen(true)} data-cy='edit-responses' />
+                                <IconButton
+                                    icon='ellipsis vertical'
+                                    onClick={() => setEditorOpen(true)}
+                                    data-cy='edit-responses'
+                                    className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
+                                    color={null} // prevent default color overiding the color set by the class
+                                />
                             )}
                             open={editorOpen}
                             name={name}

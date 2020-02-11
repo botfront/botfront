@@ -14,6 +14,9 @@ const initialState = Map({
     templatesTableShowMatching: false,
     workingDeploymentEnvironment: 'development',
     workingLanguage: null,
+    chatInitPayload: '/get_started',
+    showChat: false,
+    shouldRefreshChat: false,
 });
 
 function settings(state = initialState, action) {
@@ -33,6 +36,12 @@ function settings(state = initialState, action) {
             return state.set('workingLanguage', action.workingLanguage);
         case types.SET_WORKING_DEPLOYMENT_ENVIRONMENT:
             return state.set('workingDeploymentEnvironment', action.env);
+        case types.SET_CHAT_INIT_PAYLOAD:
+            return state.set('chatInitPayload', action.payload);
+        case types.SET_SHOW_CHAT:
+            return state.set('showChat', action.showChat);
+        case types.SET_SHOULD_REFRESH_CHAT:
+            return state.set('shouldRefreshChat', action.shouldRefreshChat);
         default:
             return state;
     }
