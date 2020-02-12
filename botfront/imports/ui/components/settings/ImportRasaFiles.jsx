@@ -155,15 +155,19 @@ const ImportRasaFiles = (props) => {
                                 <h3>
                                     {`Import ${title.replace(/^\w/, c => c.toUpperCase())}`}
                                 </h3>
-                                {/* <div className='floated right'> */}
                                 <div>
                                     <Popup
                                         content={tooltip}
                                         inverted
-                                        trigger={<Icon name='question circle' color='grey' size='large' />}
+                                        trigger={(
+                                            <Icon
+                                                name='question circle'
+                                                color='grey'
+                                                size='large'
+                                            />
+                                        )}
                                     />
                                 </div>
-                                {/* </div> */}
                             </div>
                             <input
                                 type='file'
@@ -178,7 +182,12 @@ const ImportRasaFiles = (props) => {
                             ) : (
                                 <>
                                     <div className='align-center'>
-                                        <Icon name={icon} size='huge' color='grey' style={{ marginBottom: '8px' }} />
+                                        <Icon
+                                            name={icon}
+                                            size='huge'
+                                            color='grey'
+                                            style={{ marginBottom: '8px' }}
+                                        />
                                         <Button
                                             primary
                                             basic
@@ -232,8 +241,8 @@ const ImportRasaFiles = (props) => {
             icon: 'book',
             tooltip: (
                 <p>
-                    Import stories, one story group per file. The contents of existing story groups
-                    is never overwritten.
+                    Import stories, one story group per file. The contents of existing
+                    story groups is never overwritten.
                 </p>
             ),
         },
@@ -248,10 +257,21 @@ const ImportRasaFiles = (props) => {
             setImportingState: setDomainImporting,
             icon: 'globe',
             tooltip: (
-                <p>
-                    Import slots and bot response templates. Existing slots and templates are
-                    completely overwritten.
-                </p>
+                <>
+                    <p>
+                        Import slots and bot response templates. Existing slots and
+                        templates are completely overwritten. Slots in your current
+                        default domain are not imported.
+                    </p>
+
+                    <p>
+                        Actions and forms are not currently imported. If your actions and
+                        forms are mentioned in stories, they will automatically be
+                        infered on training.
+                    </p>
+
+                    <p>For more information, read the docs.</p>
+                </>
             ),
         },
         {
@@ -265,9 +285,18 @@ const ImportRasaFiles = (props) => {
             setImportingState: setDatasetImporting,
             icon: 'grid layout',
             tooltip: (
-                <p>
-                    Import NLU examples, synonyms and gazettes. Items are added to your current collection.
-                </p>
+                <>
+                    <p>
+                        Import NLU examples, synonyms and gazettes. Items are added to
+                        your current collection.
+                    </p>
+
+                    <p>
+                        Note that examples previously exported from Botfront and
+                        reimported here will lose their canonical specification. This will
+                        be addressed in a future release.
+                    </p>
+                </>
             ),
         },
     ];
@@ -326,22 +355,25 @@ const ImportRasaFiles = (props) => {
                             content={(
                                 <>
                                     <p>
-                                        Bot responses found in domain files will use the &apos;language&apos;
-                                        attribute if it exists; if not, the fallback import language will be used.
+                                        Bot responses found in domain files will use the
+                                        &apos;language&apos; attribute if it exists; if
+                                        not, the fallback import language will be used.
                                     </p>
-                            
+
                                     <p>
-                                        Likewise, the language of a NLU file can be specified in its first line; if
-                                        it isn&apos;t, the fallback import language will be used.
+                                        Likewise, the language of a NLU file can be
+                                        specified in its first line; if it isn&apos;t, the
+                                        fallback import language will be used.
                                     </p>
-                                
+
                                     <p>For more information, read the docs.</p>
                                 </>
                             )}
                             inverted
                             trigger={(
                                 <div>
-                                    <Icon name='question circle' /><strong>Fallback import language: </strong>
+                                    <Icon name='question circle' />
+                                    <strong>Fallback import language: </strong>
                                 </div>
                             )}
                         />
@@ -357,11 +389,7 @@ const ImportRasaFiles = (props) => {
                         />
                     </div>
                     <div>
-                        <Button
-                            content='Import'
-                            primary
-                            onClick={handleImport}
-                        />
+                        <Button content='Import' primary onClick={handleImport} />
                     </div>
                 </div>
             </Message>
