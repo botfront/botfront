@@ -70,10 +70,10 @@ if (Meteor.isServer) {
     const requestMailSubscription = async (email, firstName, lastName) => {
         const mailChimpUrl = process.env.MAILING_LIST_URI || 'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
         const appMethodLogger = appLogger.child({
-            fileName: 'setup.js',
-            methodName: 'requestMailSubscription',
+            file: 'setup.js',
+            method: 'requestMailSubscription',
             userId: Meteor.userId(),
-            callingArgs: { email, firstName, lastName },
+            args: { email, firstName, lastName },
         });
         try {
             const mailAxios = axios.create();

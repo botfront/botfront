@@ -7,6 +7,7 @@ import axios from 'axios';
 import fs from 'fs';
 import { promisify } from 'util';
 import path from 'path';
+
 import {
     getAxiosError, getModelIdsFromProjectId, getProjectModelLocalFolder, getProjectModelFileName,
 } from '../../lib/utils';
@@ -17,6 +18,7 @@ import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
+
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -84,16 +86,17 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
 };
 
 if (Meteor.isServer) {
-    import { auditLogger, appLogger, addLoggingInterceptors } from '../../../server/logger';
+    import { appLogger, addLoggingInterceptors } from '../../../server/logger';
+    // eslint-disable-next-line import/order
+    import { performance } from 'perf_hooks';
 
-    const trainingAuditLogger = auditLogger.child({ label: 'training' });
-    const trainingAppLogger = appLogger.child({ fileName: 'instance.methods.js' });
+    const trainingAppLogger = appLogger.child({ file: 'instance.methods.js' });
 
     export const parseNlu = async (instance, examples) => {
         check(instance, Object);
         check(examples, Array);
-        const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'parseNlu', callingArgs: { instance, examples } });
-        appMethodLogger.debug('parsing nlu');
+        const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'parseNlu', args: { instance, examples } });
+        appMethodLogger.debug('Parsing nlu');
         try {
             const client = axios.create({
                 baseURL: instance.host,
@@ -152,8 +155,8 @@ if (Meteor.isServer) {
             check(host, String);
             const appMethodLogger = trainingAppLogger.child({
                 userId: Meteor.userId(),
-                methodName: 'rasa.convertToJson',
-                callingArgs: {
+                method: 'rasa.convertToJson',
+                args: {
                     file, language, outputFormat, host,
                 },
             });
@@ -175,9 +178,10 @@ if (Meteor.isServer) {
             check(instance, Object);
             const modelIds = await getModelIdsFromProjectId(projectId);
 
-            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'rasa.getTrainingPayload', callingArgs: { projectId, instance, language } });
+            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'rasa.getTrainingPayload', args: { projectId, instance, language } });
 
-            appMethodLogger.debug('retreiving training payload');
+            appMethodLogger.info('Building training payload ...');
+            const t0 = performance.now();
             const nluModels = NLUModels.find(
                 { _id: { $in: modelIds } },
                 {
@@ -221,9 +225,12 @@ if (Meteor.isServer) {
                     config,
                     fixed_model_name: getProjectModelFileName(projectId),
                 };
+                const t1 = performance.now();
+                appMethodLogger.info(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
                 return payload;
             } catch (e) {
-                appMethodLogger.error('retreiving training payload failed', { status: e.status });
+                const t1 = performance.now();
+                appMethodLogger.error(`Building training payload failed - ${(t1 - t0).toFixed(2)} ms`, { status: e.status });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw getAxiosError(e);
             }
@@ -232,17 +239,16 @@ if (Meteor.isServer) {
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
-            const auditMethodLogger = trainingAuditLogger.child({ userId: Meteor.userId(), type: 'execute' });
-            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'rasa.train', callingArgs: { projectId, instance } });
-
-            auditMethodLogger.debug('training requested');
+            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'rasa.train', args: { projectId, instance } });
+            
+            appMethodLogger.info(`Training project ${projectId}...`);
+            const t0 = performance.now();
             try {
                 const client = axios.create({
                     baseURL: instance.host,
                     timeout: 3 * 60 * 1000,
                 });
                 addLoggingInterceptors(client, appMethodLogger);
-                appMethodLogger.debug('retrieving training payload');
                 const payload = await Meteor.call('rasa.getTrainingPayload', projectId, instance);
                 const trainingClient = axios.create({
                     baseURL: instance.host,
@@ -252,6 +258,8 @@ if (Meteor.isServer) {
                 addLoggingInterceptors(trainingClient, appMethodLogger);
                 const trainingResponse = await trainingClient.post('/model/train', payload);
                 if (trainingResponse.status === 200) {
+                    const t1 = performance.now();
+                    appMethodLogger.info(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`);
                     const { headers: { filename } } = trainingResponse;
                     const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
                     try {
@@ -259,7 +267,7 @@ if (Meteor.isServer) {
                         await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
                     } catch (e) {
                         // eslint-disable-next-line no-console
-                        appMethodLogger.error(`Could not save trained model to  ${trainedModelPath}:${e}`);
+                        appMethodLogger.error(`Could not save trained model to ${trainedModelPath}`, { error: e });
                     }
 
                     await client.put('/model', { model_file: trainedModelPath });
@@ -268,7 +276,8 @@ if (Meteor.isServer) {
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
-                auditMethodLogger.error('error during training', { status: getAxiosError(e).status });
+                const t1 = performance.now();
+                appMethodLogger.error(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`, { error: e });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw getAxiosError(e);
             }
@@ -278,7 +287,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));
-            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'rasa.evaluate.nlu', callingArgs: { modelId, projectId, testData } });
+            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'rasa.evaluate.nlu', args: { modelId, projectId, testData } });
             try {
                 this.unblock();
                 const model = NLUModels.findOne({ _id: modelId });

@@ -10,7 +10,7 @@ let storyAppLogger;
 if (Meteor.isServer) {
     import { appLogger } from '../../server/logger';
 
-    storyAppLogger = appLogger.child({ fileName: 'story.utils.js' });
+    storyAppLogger = appLogger.child({ file: 'story.utils.js' });
 }
 
 
@@ -182,7 +182,12 @@ export const addlinkCheckpoints = (stories) => {
 };
 
 export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}, crashOnStoryWithErrors = true) => {
-    const appMethodLogger = storyAppLogger.child({ methodName: 'extractDomain' });
+    const appMethodLogger = storyAppLogger.child({
+        method: 'extractDomain',
+        args: {
+            stories, slots, templates, defaultDomain, crashOnStoryWithErrors,
+        },
+    });
     const initialDomain = {
         actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
         intents: new Set(defaultDomain.intents || []),
@@ -269,12 +274,12 @@ export const getAllTemplates = async (projectId, language = '') => {
 };
 
 export const getStoriesAndDomain = async (projectId, language) => {
-    const appMethodLogger = storyAppLogger.child({ methodName: 'getStoriesAndDomain', callingArgs: { projectId, language } });
+    const appMethodLogger = storyAppLogger.child({ method: 'getStoriesAndDomain', args: { projectId, language } });
 
     const { defaultDomain: yamlDDomain, defaultLanguage } = Projects.findOne({ _id: projectId }, { defaultDomain: 1, defaultLanguage: 1 });
     const defaultDomain = yaml.safeLoad(yamlDDomain.content) || {};
-
-    appMethodLogger.debug('retrieving default domain');
+    
+    appMethodLogger.debug('Retrieving default domain');
     defaultDomain.slots = {
         ...(defaultDomain.slots || {}),
         fallback_language: { type: 'unfeaturized', initial_value: defaultLanguage },
@@ -284,7 +289,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
         { projectId, selected: true },
         { fields: { _id: 1 } },
     ).fetch().map(storyGroup => storyGroup._id);
-    appMethodLogger.debug('fetching stories');
+    appMethodLogger.debug('Fetching stories');
     const stories = selectedStoryGroupsIds.length > 0
         ? Stories.find(
             { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
@@ -299,18 +304,18 @@ export const getStoriesAndDomain = async (projectId, language) => {
                 story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
             },
         }).fetch();
-    appMethodLogger.debug('flatening stories');
+    appMethodLogger.debug('Flatening stories');
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
-    appMethodLogger.debug('adding branch checkpoints');
+    appMethodLogger.debug('Adding branch checkpoints');
     let storiesForRasa = stories
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
         .map(story => appendBranchCheckpoints(story));
-    appMethodLogger.debug('adding links checkpoints');
+    appMethodLogger.debug('Adding links checkpoints');
     storiesForRasa = addlinkCheckpoints(storiesForRasa)
         .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
-    appMethodLogger.debug('fetching templates');
+    appMethodLogger.debug('Fetching templates');
     const templates = await getAllTemplates(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     return {

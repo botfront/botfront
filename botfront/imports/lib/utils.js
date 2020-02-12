@@ -95,7 +95,7 @@ if (Meteor.isServer) {
         
         async 'axios.requestWithJsonBody'(url, method, data) {
             const appMethodLogger = appLogger.child({
-                userId: Meteor.userId(), fileName: 'utils.js', methodName: 'axios.requestWithJsonBody', callingArgs: { url, method, data },
+                userId: Meteor.userId(), file: 'utils.js', method: 'axios.requestWithJsonBody', args: { url, method, data },
             });
 
             check(url, String);

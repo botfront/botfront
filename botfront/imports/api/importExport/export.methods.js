@@ -14,14 +14,14 @@ import { generateErrorText } from './importExport.utils';
 if (Meteor.isServer) {
     import { appLogger, addLoggingInterceptors } from '../../../server/logger';
 
-    const trainingAppLogger = appLogger.child({ fileName: 'export.methods.js' });
+    const trainingAppLogger = appLogger.child({ file: 'export.methods.js' });
     
     Meteor.methods({
         'exportProject'(apiHost, projectId, options) {
             check(apiHost, String);
             check(projectId, String);
             check(options, Object);
-            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), methodName: 'exportProject', callingArgs: { apiHost, projectId, options } });
+            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'exportProject', args: { apiHost, projectId, options } });
 
             const params = { ...options };
             params.output = 'json';

@@ -13,7 +13,7 @@ export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W]
 if (Meteor.isServer) {
     import { appLogger, addLoggingInterceptors } from '../../../server/logger';
 
-    const userAppLogger = appLogger.child({ fileName: 'user.methods.js' });
+    const userAppLogger = appLogger.child({ file: 'user.methods.js' });
 
     Meteor.publish('userData', function() {
         if (can('global-admin')) {
@@ -96,7 +96,7 @@ if (Meteor.isServer) {
         },
 
         'user.verifyReCaptcha'(response) {
-            const appMethodLogger = userAppLogger.child({ userId: Meteor.userId(), methodName: 'user.verifyReCaptchat', callingArgs: { response } });
+            const appMethodLogger = userAppLogger.child({ userId: Meteor.userId(), method: 'user.verifyReCaptchat', args: { response } });
 
             check(response, String);
             const {
