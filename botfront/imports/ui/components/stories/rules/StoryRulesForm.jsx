@@ -368,7 +368,7 @@ function StoryRulesForm({
                                                 <OptionalField name='value' getError={getEnabledError} showToggle={false}>
                                                     <AutoField name='' />
                                                 </OptionalField>
-                                                <AutoField name='sendAsEntity' label='If selected, the query string value will be sent as an entity with the payload' />
+                                                <AutoField name='sendAsEntity' label='If selected, the query string value will be sent as an entity with the payload' data-cy='send-as-entity-checkbox' />
                                             </NestField>
                                         </ListItemField>
                                     </ListField>

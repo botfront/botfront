@@ -73,7 +73,7 @@ describe('Story play button', function() {
         cy.dataCy('play-story').click();
         cy.dataCy('chat-pane').find('p').contains('utter_play_success');
     });
-    it('should open and start a new story in the chat when the play button is pressed', () => {
+    it('trigger a smart story with query string entities using the play button', () => {
         cy.MeteorCall('storyGroups.insert', [
             {
                 _id: 'PLAY_BUTTON',
@@ -99,7 +99,7 @@ describe('Story play button', function() {
         cy.dataCy('toggle-query-string').find('[data-cy=toggled-true]');
         cy.dataCy('query-string-field').find('input').first().click()
             .type('2');
-        cy.dataCy('query-string-field').find('checkbox').click();
+        cy.dataCy('query-string-field').find('[data-cy=send-as-entity-checkbox]').click();
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
         // train and play the story
@@ -129,9 +129,10 @@ describe('Story play button', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('browser-item').contains('Test Group').click();
         cy.dataCy('story-title').should('have.value', 'Test Story');
-        cy.dataCy('icon-trash').first().click({ force: true });
+        cy.dataCy('bot-response-input').should('have.text', 'utter_play_success'); // wait for the story to load
+        cy.dataCy('single-story-editor').find('[data-cy=icon-trash]').first().click({ force: true });
+        cy.dataCy('play-story').should('have.class', 'disabled');
         cy.dataCy('play-story').click();
         cy.dataCy('chat-pane').should('not.exist');
-        cy.dataCy('play-story').should('have.class', 'disabled');
     });
 });
