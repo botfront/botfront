@@ -20,7 +20,7 @@ import EntityReport from './EntityReport';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { InputButtons } from './InputButtons.jsx';
 import { Evaluations } from '../../../../api/nlu_evaluation';
-import { TestImport } from '../import-export/TestImport';
+import { TestImport } from './TestImport';
 import { Loading } from '../../utils/Utils';
 
 import 'react-select/dist/react-select.css';

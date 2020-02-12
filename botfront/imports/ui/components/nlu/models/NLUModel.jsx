@@ -30,11 +30,9 @@ import IntentBulkInsert from './IntentBulkInsert';
 import Synonyms from '../../synonyms/Synonyms';
 import Gazette from '../../synonyms/Gazette';
 import NLUPipeline from './settings/NLUPipeline';
-import DataImport from '../import-export/DataImport';
-import DataExport from '../import-export/DataExport';
 import TrainButton from '../../utils/TrainButton';
 import Statistics from './Statistics';
-import DeleteModel from '../import-export/DeleteModel';
+import DeleteModel from './DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
 import LanguageDropdown from '../../common/LanguageDropdown';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
@@ -176,17 +174,13 @@ class NLUModel extends React.Component {
     getSettingsSecondaryPanes = () => {
         const {
             model,
-            intents,
             projectDefaultLanguage,
             nluModelLanguages,
         } = this.props;
-        const { instance } = this.state;
         const languageName = nluModelLanguages.find(language => (language.value === model.language));
         const cannotDelete = model.language !== projectDefaultLanguage;
         return [
             { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
-            { menuItem: 'Import', render: () => <DataImport model={model} instanceHost={instance.host} /> },
-            { menuItem: 'Export', render: () => <DataExport intents={intents} model={model} /> },
             { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} cannotDelete={cannotDelete} language={languageName.text} /> },
         ];
     };
