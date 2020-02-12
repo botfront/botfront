@@ -1,14 +1,13 @@
 'use strict';
 const mongoose = require('mongoose');
 const expressWinston = require('express-winston');
-const winston = require('winston');
 const config = require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const port = process.env.PORT || 8080;
 const app = express();
-
+const { logsTransport } = require('./loggerConfig')
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.raw({ limit: '100mb' }));
@@ -31,15 +30,18 @@ if (process.env.CORS === '*') {
 config().then(async config => {
 
     const routes = require('./routes/index.js');
+    app.use(
+        expressWinston.logger({
+            transports: logsTransport,
+            statusLevels: true,
+        }),
+    );
     app.use('/', routes);
+ 
     // Setup swagger UI
     require('./config/swagger')(app);
 
-    app.use(
-        expressWinston.logger({
-            transports: [new winston.transports.Console()],
-        }),
-    );
+  
     let retries = 0;
     const mongoConnectInterval = setInterval(async () => {
         retries += 1;
