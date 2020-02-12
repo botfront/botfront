@@ -6,7 +6,7 @@ const testText = '* my_intent';
 
 describe('stories', function() {
     afterEach(function() {
-        cy.deleteProject('bf');
+        // cy.deleteProject('bf');
     });
 
     beforeEach(function() {
@@ -251,6 +251,26 @@ describe('stories', function() {
         cy.contains('NLU').click({ force: true });
         cy.contains('Stories').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
+    });
+
+    it('should be able to collapse and expand all stories', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('add-story').click();
+        cy.dataCy('single-story-editor').should('have.length', 2); // wait for the second story to be added
+        cy.dataCy('collapse-story-button').first().dblclick({ force: true });
+        cy.dataCy('single-story-editor').should('not.exist');
+        cy.contains('NLU').click({ force: true });
+        cy.contains('Stories').click({ force: true });
+        cy.dataCy('single-story-editor').should('not.exist');
+        cy.dataCy('collapse-story-button').first().click({ force: true });
+        cy.dataCy('single-story-editor').should('have.length', 1);
+        cy.dataCy('collapse-story-button').first().dblclick({ force: true });
+        cy.dataCy('single-story-editor').should('have.length', 0);
+        cy.dataCy('collapse-story-button').last().click({ force: true });
+        cy.dataCy('single-story-editor').should('have.length', 1);
+        cy.dataCy('collapse-story-button').first().dblclick({ force: true });
+        cy.dataCy('single-story-editor').should('have.length', 2);
     });
 
     it('should list all linkable stories', function() {
