@@ -76,7 +76,6 @@ export const insertSmartPayloads = (story) => {
     if (!story.rules || !story.rules.length) return story;
     const updatedStory = story;
     const hasStartingPayload = /^\*/.test(story.story);
-    const payloadName = `trigger_${story._id}`;
     let newPayload = hasStartingPayload ? getStartingPayload(story.story) : '';
 
     const additionalPayloads = new Set();
@@ -84,17 +83,17 @@ export const insertSmartPayloads = (story) => {
     story.rules.forEach((rules) => {
         if (!rules.trigger) return;
         if (!rules.trigger.queryString) {
-            additionalPayloads.add(payloadName);
+            additionalPayloads.add(rules.payload);
             return;
         }
         const entityList = [];
         rules.trigger.queryString.forEach((queryString) => {
             if (queryString.sendAsEntity) {
-                entityList.push(`"${queryString.param}":"whatever"`);
+                entityList.push(`"${queryString.param}":"${queryString.param}"`);
             }
         });
-        if (entityList.length > 0) additionalPayloads.add(`${payloadName}{${entityList.join(',')}}`);
-        else additionalPayloads.add(payloadName);
+        if (entityList.length > 0) additionalPayloads.add(`${rules.payload}{${entityList.join(',')}}`);
+        else additionalPayloads.add(rules.payload);
     });
     
     additionalPayloads.delete(newPayload);
