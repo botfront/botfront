@@ -104,7 +104,7 @@ export function addLoggingInterceptors(axios, logger) {
         return config;
     }, function (error) {
         const { url, method } = error;
-        logger.error(`${method} at ${url} failed`, { error });
+        logger.error(`${method} at ${url} failed at request time`, { error });
         return Promise.reject(error);
     });
     
@@ -119,7 +119,7 @@ export function addLoggingInterceptors(axios, logger) {
             const {
                 data, status, url, method,
             } = config;
-            logger.error(`${method.toUpperCase()} at ${url} failed`, { data, status });
+            logger.error(`${method.toUpperCase()} at ${url} failed at response time`, { data, status, error });
         } else {
             logger.error(error.toString());
         }

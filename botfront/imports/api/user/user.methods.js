@@ -111,7 +111,7 @@ if (Meteor.isServer) {
                 const url = `https://www.google.com/recaptcha/api/siteverify?${qs}`;
                 const reCaptchaAxios = axios.create();
                 addLoggingInterceptors(reCaptchaAxios, appMethodLogger);
-                const result = Promise.await(axios.post(url));
+                const result = Promise.await(reCaptchaAxios.post(url));
                 if (result.data.success) return 'OK';
                 throw new Meteor.Error(
                     '403',
