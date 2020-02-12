@@ -33,6 +33,7 @@ const StoryTopMenu = ({
     originStories,
     isLinked,
     initPayload,
+    collapseAllStories,
 }) => {
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
@@ -209,6 +210,9 @@ const StoryTopMenu = ({
                         onClick={() => {
                             collapseStory(storyId, !collapsed);
                         }}
+                        onDoubleClick={() => {
+                            collapseAllStories(!collapsed);
+                        }}
                         data-cy='collapse-story-button'
                     />
                     {isDestinationStory ? (
@@ -327,6 +331,7 @@ StoryTopMenu.propTypes = {
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
     initPayload: PropTypes.string,
+    collapseAllStories: PropTypes.func.isRequired,
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,

@@ -64,6 +64,13 @@ export function setStoryCollapsed(storyId, collapsed) {
     };
 }
 
+export function setStoriesCollapsed(stories) {
+    return {
+        type: types.SET_STORIES_COLLAPSED,
+        stories,
+    };
+}
+
 export function setChatInitPayload (payload) {
     return {
         type: types.SET_CHAT_INIT_PAYLOAD,

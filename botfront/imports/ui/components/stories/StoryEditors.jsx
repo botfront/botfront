@@ -2,10 +2,12 @@ import { Container, Button } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import { Stories } from '../../../api/story/stories.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditorContainer from './StoryEditorContainer';
+import { setStoriesCollapsed } from '../../store/actions/actions';
 
 function StoryEditors(props) {
     const {
@@ -14,6 +16,7 @@ function StoryEditors(props) {
         projectId,
         storyGroups,
         storyGroup,
+        collapseAllStories,
     } = props;
 
     const groupNames = storyGroups
@@ -92,6 +95,12 @@ function StoryEditors(props) {
         );
     }
 
+    const handleCollapseAllStories = (collapsed) => {
+        const storiesCollapsed = {};
+        stories.forEach(({ _id }) => { storiesCollapsed[_id] = collapsed; });
+        collapseAllStories(storiesCollapsed);
+    };
+
     const editors = stories.map((story, index) => (
         <StoryEditorContainer
             story={story}
@@ -105,6 +114,7 @@ function StoryEditors(props) {
             onClone={() => handleDuplicateStory(index)}
             onSaving={() => {}}
             onSaved={() => {}}
+            collapseAllStories={handleCollapseAllStories}
         />
     ));
 
@@ -133,13 +143,14 @@ StoryEditors.propTypes = {
     stories: PropTypes.array,
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
+    collapseAllStories: PropTypes.func.isRequired,
 };
 
 StoryEditors.defaultProps = {
     stories: [],
 };
 
-export default withTracker((props) => {
+const StoryEditorsTracker = withTracker((props) => {
     const { projectId, storyGroup } = props;
     // We're using a specific subscription so we don't fetch too much at once
     const storiesHandler = Meteor.subscribe('stories.inGroup', projectId, storyGroup._id);
@@ -152,3 +163,13 @@ export default withTracker((props) => {
         }).fetch(),
     };
 })(StoryEditors);
+
+const mapStateToProps = (state, ownProps) => ({
+    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.storyId], false),
+});
+
+const mapDispatchToProps = {
+    collapseAllStories: setStoriesCollapsed,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(StoryEditorsTracker);
