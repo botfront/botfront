@@ -11,13 +11,7 @@ describe('nlu tagging in training data', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => {
             cy.login();
-            cy.visit('/project/bf/nlu/models');
-            cy.dataCy('nlu-menu-settings').click();
-            cy.contains('Import').click();
-            cy.fixture('nlu_import.json', 'utf8').then((content) => {
-                cy.get('.file-dropzone').upload(content, 'data.json');
-            });
-            cy.contains('Import Training Data').click();
+            cy.importNluData('bf', 'nlu_import.json', 'fr');
         });
     });
 

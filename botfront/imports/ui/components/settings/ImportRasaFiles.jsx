@@ -144,6 +144,7 @@ const ImportRasaFiles = (props) => {
                 <div
                     style={{ minHeight: '125px' }}
                     {...(!importingState ? { ref: drop } : {})}
+                    data-cy={`drop-zone-${title.replace(' ', '-').toLowerCase()}`}
                 >
                     {importingState ? (
                         <Dimmer active inverted>

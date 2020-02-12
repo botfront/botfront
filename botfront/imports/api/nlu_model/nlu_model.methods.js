@@ -473,7 +473,7 @@ if (Meteor.isServer) {
                 // eslint-disable-next-line no-restricted-syntax
                 for (const lang of Object.keys(data)) {
                     // eslint-disable-next-line no-await-in-loop
-                    const modelId = await Meteor.callWithPromise(
+                    await Meteor.callWithPromise(
                         'nlu.insert',
                         {
                             name: `chitchat-${lang}`,
@@ -482,7 +482,7 @@ if (Meteor.isServer) {
                         projectId,
                     );
                     // eslint-disable-next-line no-await-in-loop
-                    await Meteor.callWithPromise('nlu.import', data[lang].rasa_nlu_data, modelId, true);
+                    await Meteor.callWithPromise('nlu.import', data[lang].rasa_nlu_data, projectId, lang, true);
                 }
 
                 GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.public.chitChatProjectId': projectId } });

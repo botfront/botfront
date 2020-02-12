@@ -27,7 +27,7 @@ describe('story visual editor', function () {
     });
 
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
-        cy.importNluData('bf', 'nlu_sample_en.json', 'English');
+        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.train();
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click({ force: true });
