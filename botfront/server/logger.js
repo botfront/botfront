@@ -4,32 +4,64 @@ import { cloneDeep } from 'lodash';
 const { LoggingWinston } = require('@google-cloud/logging-winston');
 
 const {
-    combine, timestamp, printf,
+    combine, timestamp: timestampfn, printf, colorize,
 } = format;
 
 const {
-    APPLICATION_LOG_LEVEL, APPLICATION_LOG_TRANSPORT, AUDIT_LOG_TRANSPORT, APPLICATION_LOGGER_NAME, AUDIT_LOGGER_NAME, MAX_LOGGED_ARG_LENGHT = 1000,
+    APPLICATION_LOG_LEVEL,
+    APPLICATION_LOG_TRANSPORT,
+    AUDIT_LOG_TRANSPORT,
+    APPLICATION_LOGGER_NAME,
+    AUDIT_LOGGER_NAME,
+    MAX_LOGGED_ARG_LENGTH = 1000,
 } = process.env;
 
-const allowdKeysApp = ['message', 'level', 'userId', 'fileName', 'methodName', 'url', 'data', 'timestamp', 'callingArgs', 'status', 'error'];
+const allowdKeysApp = [
+    'message',
+    'level',
+    'userId',
+    'file',
+    'method',
+    'url',
+    'data',
+    'timestamp',
+    'args',
+    'status',
+    'error',
+];
 
-const allowdKeysAudit = ['level', 'message', 'status', 'userId', 'label', 'type', 'timestamp', 'before', 'after'];
- 
+const allowdKeysAudit = [
+    'level',
+    'message',
+    'status',
+    'userId',
+    'label',
+    'type',
+    'timestamp',
+    'before',
+    'after',
+];
 
 const spaceBeforeIfExist = prop => (prop ? ` ${prop}` : '');
 
 const auditFormat = printf((arg) => {
     Object.keys(arg).forEach((key) => {
-        if (!allowdKeysAudit.includes(key)) throw new Error(`${key} not allowed in audit logs`);
+        if (!allowdKeysAudit.includes(key)) {
+            throw new Error(`${key} not allowed in audit logs`);
+        }
     });
     const {
         level, message, status, userId, label, type, timestamp, before, after,
     } = arg;
-    
+
     let additionalInfo = '';
     if (before) additionalInfo = `before: ${before}`;
     if (after) additionalInfo = additionalInfo.concat(`after: ${after}`);
-    return `${timestamp} [${label.toUpperCase()}] ${level}:${userId ? ` userId: ${userId}` : ''}${spaceBeforeIfExist(type)}${spaceBeforeIfExist(status)}${spaceBeforeIfExist(message)}${spaceBeforeIfExist(additionalInfo)}`;
+    return `${timestamp} [${label.toUpperCase()}] ${level}:${
+        userId ? ` userId: ${userId}` : ''
+    }${spaceBeforeIfExist(type)}${spaceBeforeIfExist(status)}${spaceBeforeIfExist(
+        message,
+    )}${spaceBeforeIfExist(additionalInfo)}`;
 });
 
 const logToString = (arg) => {
@@ -77,7 +109,7 @@ const appFormat = printf((arg) => {
 const appStackDriver = new LoggingWinston({
     logName: `${APPLICATION_LOGGER_NAME || 'botfront_log_app'}`,
 });
- 
+
 const auditStackDriver = new LoggingWinston({
     logName: `${AUDIT_LOGGER_NAME || 'botfront_log_audit'}`,
 });
@@ -109,67 +141,96 @@ if (!!APPLICATION_LOG_TRANSPORT) {
 
 const auditLogTransport = [];
 if (!!AUDIT_LOG_TRANSPORT) {
-    if (AUDIT_LOG_TRANSPORT.includes('console')) auditLogTransport.push(new winston.transports.Console());
-    if (AUDIT_LOG_TRANSPORT.includes('stackdriver')) auditLogTransport.push(auditStackDriver);
+    if (AUDIT_LOG_TRANSPORT.includes('console')) {
+        auditLogTransport.push(new winston.transports.Console());
+    }
+    if (AUDIT_LOG_TRANSPORT.includes('stackdriver')) {
+        auditLogTransport.push(auditStackDriver);
+    }
 } else {
     auditLogTransport.push(new winston.transports.Console());
 }
 
-
 export const appLogger = winston.createLogger({
     level,
-    format: combine(timestamp(), appFormat),
+    format: combine(timestampfn(), appFormat),
     transports: appLogTransport,
 });
 
-
 export const auditLogger = winston.createLogger({
     level: 'silly',
-    format: combine(
-        timestamp(),
-        auditFormat,
-    ),
+    format: combine(timestampfn(), auditFormat),
     transports: auditLogTransport,
 });
 
 function logBeforeApiCall(logger, text, meta) {
-    logger.info(text, { url: meta.url });
-    logger.debug(`${text} data`, { data: meta.data });
+    const { data, url } = meta;
+    logger.info(text, { url });
+    logger.debug(`${text} data`, { data, url });
 }
 
 function logAfterSuccessApiCall(logger, text, meta) {
-    const { status, data } = meta;
-    logger.info(text, { status });
-    logger.debug(`${text} data`, { data });
+    const { status, data, url } = meta;
+    logger.info(text, { status, url });
+    if (data) {
+        logger.debug(`${text} data`, { status, url, data });
+    }
 }
 
-
 export function addLoggingInterceptors(axios, logger) {
-    axios.interceptors.request.use(function (config) {
-        const { url, data = null, method } = config;
-        logBeforeApiCall(logger, `${method.toUpperCase()} at ${url}`, { url, data });
-        return config;
-    }, function (error) {
-        const { url, method } = error;
-        logger.error(`${method} at ${url} failed at request time`, { error });
-        return Promise.reject(error);
-    });
-    
-    
-    axios.interceptors.response.use(function (response) {
-        const { config, status, data = null } = response;
-        logAfterSuccessApiCall(logger, `${config.method.toUpperCase()} at ${config.url} succeeded`, { status, data });
-        return response;
-    }, function (error) {
-        if (Object.keys(error).length > 0) {
-            const { config } = error;
-            const {
-                data, status, url, method,
-            } = config;
-            logger.error(`${method.toUpperCase()} at ${url} failed at response time`, { data, status, error });
-        } else {
-            logger.error(error.toString());
-        }
-        return Promise.reject(error);
-    });
+    axios.interceptors.request.use(
+        function(config) {
+            const { url, data = null, method } = config;
+            logBeforeApiCall(logger, `${method.toUpperCase()} at ${url}`, { url, data });
+            return config;
+        },
+        function(error) {
+            const { url, method } = error;
+            logger.error(`${method} at ${url} failed at request time`, { error, url });
+            return Promise.reject(error);
+        },
+    );
+
+    axios.interceptors.response.use(
+        function(response) {
+            const { config, status, data = null } = response;
+            const { url } = config;
+            // we don't log files or others data type that are not json
+            if (response.headers['content-type'] !== 'application/json') {
+                logAfterSuccessApiCall(
+                    logger,
+                    `${config.method.toUpperCase()} at ${url} succeeded`,
+                    { status, url },
+                );
+            } else {
+                logAfterSuccessApiCall(
+                    logger,
+                    `${config.method.toUpperCase()} at ${url} succeeded`,
+                    { status, data, url },
+                );
+            }
+
+            return response;
+        },
+        function(error) {
+            if (Object.keys(error).length > 0) {
+                const { config } = error;
+                const {
+                    data, status, url, method,
+                } = config;
+                logger.error(
+                    `${method.toUpperCase()} at ${url} failed at response time`,
+                    {
+                        data,
+                        status,
+                        error,
+                        url,
+                    },
+                );
+            } else {
+                logger.error(error.toString());
+            }
+            return Promise.reject(error);
+        },
+    );
 }
