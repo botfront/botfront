@@ -1,16 +1,12 @@
 /* global cy expect:true */
 
 describe('NLU Batch Insert', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'fr');
+    beforeEach(() => {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
-
-    beforeEach(function() {
-        cy.visit('/login');
-        cy.login();
-    });
-
-    after(function() {
+    afterEach(() => {
+        cy.logout();
         cy.deleteProject('bf');
     });
 
@@ -24,6 +20,7 @@ describe('NLU Batch Insert', function() {
             .type('intent1{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
+        cy.get('.black.gem').click();
         cy.contains('hello')
             .closest('.rt-tr')
             .find('[data-cy=trash] .viewOnHover')
@@ -53,7 +50,7 @@ describe('NLU Synonyms', function() {
     before(function() {
         cy.visit('/')
             // .then(() => cy.deleteProject('bf'))
-            .then(() => cy.createProject('bf', 'My Project', 'fr'))
+            .then(() => cy.createProject('bf', 'My Project', 'fr'));
     });
 
     after(function() {
