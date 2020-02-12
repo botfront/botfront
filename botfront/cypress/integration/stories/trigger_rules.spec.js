@@ -186,6 +186,22 @@ describe('Smart story trigger rules', function() {
     });
 
     it('should trigger a story with the rules payload', () => {
+        cy.MeteorCall('storyGroups.insert', [
+            {
+                _id: 'RULES',
+                name: 'Test Group',
+                projectId: 'bf',
+            },
+        ]);
+        cy.MeteorCall('stories.insert', [
+            {
+                _id: 'TESTSTORY',
+                projectId: 'bf',
+                storyGroupId: 'RULES',
+                story: '  - utter_smart_payload',
+                title: 'Test Story',
+            },
+        ]);
         cy.logout();
         cy.login();
         cy.visit('/project/bf/stories');
