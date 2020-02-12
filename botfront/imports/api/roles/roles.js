@@ -1,4 +1,4 @@
-import { Roles } from 'meteor/modweb:roles';
+import { Roles } from 'meteor/alanning:roles';
 
 export const can = (permission, projectId, userId, options) => {
     const bypassWithCI = { options };
@@ -91,5 +91,13 @@ if (Meteor.isServer) {
 
     Meteor.startup(function() {
         setUpRoles();
+    });
+    
+    // eslint-disable-next-line consistent-return
+    Meteor.publish(null, function () {
+        if (this.userId) {
+            return Meteor.roleAssignment.find({ 'user._id': this.userId });
+        }
+        this.ready();
     });
 }

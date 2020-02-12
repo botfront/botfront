@@ -1,4 +1,4 @@
-import { Roles } from 'meteor/modweb:roles';
+import { Roles } from 'meteor/alanning:roles';
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
 import { Instances } from '../imports/api/instances/instances.collection';
@@ -229,6 +229,19 @@ Migrations.add({
         const globalSettings = JSON.parse(Assets.getText('default-settings.json'));
         const { webhooks } = globalSettings.settings.private;
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks': webhooks } });
+    },
+});
+
+Migrations.add({
+    version: 9,
+    // Migrates to roles v3
+    up: () => {
+        // eslint-disable-next-line no-underscore-dangle
+        Roles._forwardMigrate2();
+    },
+    down: () => {
+        // eslint-disable-next-line no-underscore-dangle
+        Roles._backwardMigrate2();
     },
 });
 

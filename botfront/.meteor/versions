@@ -1,5 +1,6 @@
 accounts-base@1.4.3
 accounts-password@1.5.1
+alanning:roles@3.2.0
 aldeed:collection2@3.0.2
 aldeed:schema-index@3.0.0
 allow-deny@1.1.0
@@ -60,7 +61,6 @@ mobile-status-bar@1.0.14
 modern-browsers@0.1.4
 modules@0.13.0
 modules-runtime@0.10.3
-modweb:roles@2.0.0
 mongo@1.6.2
 mongo-decimal@0.1.1
 mongo-dev-server@1.1.0

@@ -17,7 +17,7 @@ let CanExport = props => (
 // eslint-disable-next-line import/first
 import { can as canEE, checkIfCan as checkIfCanEE } from '../api/roles/roles';
 // eslint-disable-next-line import/first
-import { Roles } from 'meteor/modweb:roles';
+import { Roles } from 'meteor/alanning:roles';
 // eslint-disable-next-line import/first
 import { connect } from 'react-redux';
 // eslint-disable-next-line import/first
