@@ -1,15 +1,19 @@
 import winston, { format } from 'winston';
+import { cloneDeep } from 'lodash';
 
 const { LoggingWinston } = require('@google-cloud/logging-winston');
-
-const allowdKeysApp = ['message', 'level', 'userId', 'fileName', 'methodName', 'url', 'data', 'timestamp', 'callingArgs', 'status', 'error'];
-
-const allowdKeysAudit = ['level', 'message', 'status', 'userId', 'label', 'type', 'timestamp', 'before', 'after'];
-
 
 const {
     combine, timestamp, printf,
 } = format;
+
+const {
+    APPLICATION_LOG_LEVEL, APPLICATION_LOG_TRANSPORT, AUDIT_LOG_TRANSPORT, APPLICATION_LOGGER_NAME, AUDIT_LOGGER_NAME, MAX_LOGGED_ARG_LENGHT = 1000,
+} = process.env;
+
+const allowdKeysApp = ['message', 'level', 'userId', 'fileName', 'methodName', 'url', 'data', 'timestamp', 'callingArgs', 'status', 'error'];
+
+const allowdKeysAudit = ['level', 'message', 'status', 'userId', 'label', 'type', 'timestamp', 'before', 'after'];
  
 
 const spaceBeforeIfExist = prop => (prop ? ` ${prop}` : '');
@@ -32,19 +36,26 @@ const appFormat = printf((arg) => {
     Object.keys(arg).forEach((key) => {
         if (!allowdKeysApp.includes(key)) throw new Error(`${key} not allowed in application logs`);
     });
+    if (arg.callingArgs && arg.level === 'info' && APPLICATION_LOG_LEVEL === 'info') {
+        const argLite = cloneDeep(arg);
+        Object.keys(argLite.callingArgs).forEach((key) => {
+            if (JSON.stringify(argLite.callingArgs[key]).length > MAX_LOGGED_ARG_LENGHT) {
+                // eslint-disable-next-line no-param-reassign
+                argLite.callingArgs[key] = `${key} is too long for to be logged at info level`;
+            }
+        });
+        return JSON.stringify(argLite);
+    }
     return JSON.stringify(arg);
 });
 
-const {
-    APPLICATION_LOG_LEVEL, APPLICATION_LOG_TRANSPORT, AUDIT_LOG_TRANSPORT, APPLICATION_LOGGER_NAME, AUDIT_LOGGER_NAME,
-} = process.env;
 
 const appStackDriver = new LoggingWinston({
-    logName: `${APPLICATION_LOGGER_NAME || 'botfront-log-app'}`,
+    logName: `${APPLICATION_LOGGER_NAME || 'botfront_log_app'}`,
 });
  
 const auditStackDriver = new LoggingWinston({
-    logName: `${AUDIT_LOGGER_NAME || 'botfront-log-audit'}`,
+    logName: `${AUDIT_LOGGER_NAME || 'botfront_log_audit'}`,
 });
 
 let level = 'silly';
