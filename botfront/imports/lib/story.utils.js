@@ -82,8 +82,9 @@ export const insertSmartPayloads = (story) => {
 
     story.rules.forEach((rules) => {
         if (!rules.trigger) return;
+        const payloadName = rules.payload.substring(1);
         if (!rules.trigger.queryString) {
-            additionalPayloads.add(rules.payload);
+            additionalPayloads.add(payloadName);
             return;
         }
         const entityList = [];
@@ -92,8 +93,8 @@ export const insertSmartPayloads = (story) => {
                 entityList.push(`"${queryString.param}":"${queryString.param}"`);
             }
         });
-        if (entityList.length > 0) additionalPayloads.add(`${rules.payload}{${entityList.join(',')}}`);
-        else additionalPayloads.add(rules.payload);
+        if (entityList.length > 0) additionalPayloads.add(`${payloadName}{${entityList.join(',')}}`);
+        else additionalPayloads.add(payloadName);
     });
     
     additionalPayloads.delete(newPayload);

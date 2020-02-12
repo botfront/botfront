@@ -648,7 +648,7 @@ const triggerEntities = {
     ],
     story: '  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
 };
-const triggerEntitiesResult = '* trigger_HqxFAkp68L6hTtaFf{"color":"whatever"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const triggerEntitiesResult = '* trigger_HqxFAkp68L6hTtaFf{"color":"color"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
 const triggerEntitiesAndStartingPayload = {
     _id: 'EoTK7EB8eHwZ2gbW8',
     title: 'Test Group 4',
@@ -667,7 +667,7 @@ const triggerEntitiesAndStartingPayload = {
     ],
     story: '* test\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
 };
-const triggerEntitiesAndStartingPayloadResult = '* test OR trigger_EoTK7EB8eHwZ2gbW8{"color":"whatever"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const triggerEntitiesAndStartingPayloadResult = '* test OR trigger_EoTK7EB8eHwZ2gbW8{"color":"color"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
 const triggerEntitiesandStartingPayloadEntities = {
     _id: '3WB4hSdny9cj7gevc',
     title: 'Test Group 5',
@@ -686,7 +686,7 @@ const triggerEntitiesandStartingPayloadEntities = {
     ],
     story: '* test{"shape": "circle"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
 };
-const triggerEntitiesandStartingPayloadEntitiesResult = '* test{"shape": "circle"} OR trigger_3WB4hSdny9cj7gevc{"color":"whatever"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const triggerEntitiesandStartingPayloadEntitiesResult = '* test{"shape": "circle"} OR trigger_3WB4hSdny9cj7gevc{"color":"color"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
 const multipleTriggers = {
     _id: '8W4baSfifckG5NkuR',
     title: 'Test Group 7',
@@ -728,7 +728,7 @@ const multipleTriggers = {
 };
 
 // eslint-disable-next-line max-len
-const multipleTriggersResult = '* trigger_8W4baSfifckG5NkuR{"A":"whatever","B":"whatever"} OR trigger_8W4baSfifckG5NkuR{"C":"whatever"} OR trigger_8W4baSfifckG5NkuR\n  - utter_L2VQBkDA\n  - utter_L2VQBkDA';
+const multipleTriggersResult = '* trigger_8W4baSfifckG5NkuR{"A":"A","B":"B"} OR trigger_8W4baSfifckG5NkuR{"C":"C"} OR trigger_8W4baSfifckG5NkuR\n  - utter_L2VQBkDA\n  - utter_L2VQBkDA';
 const triggerNoStory = {
     _id: 'HqxFAkp68L6hTtaFf',
     title: 'Test Group 3',
@@ -746,7 +746,7 @@ const triggerNoStory = {
         },
     ],
 };
-const triggerNoStoryResult = '* trigger_HqxFAkp68L6hTtaFf{"color":"whatever"}\n';
+const triggerNoStoryResult = '* trigger_HqxFAkp68L6hTtaFf{"color":"color"}\n';
 
 describe('proper traversal of story', function() {
     it('should resolve an existing path', function() {
