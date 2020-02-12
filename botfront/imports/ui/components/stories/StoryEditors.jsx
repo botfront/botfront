@@ -164,8 +164,7 @@ const StoryEditorsTracker = withTracker((props) => {
     };
 })(StoryEditors);
 
-const mapStateToProps = (state, ownProps) => ({
-    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.storyId], false),
+const mapStateToProps = () => ({
 });
 
 const mapDispatchToProps = {
