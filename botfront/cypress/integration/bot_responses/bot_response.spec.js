@@ -153,6 +153,7 @@ describe('Bot responses', function() {
         cy.wait(100);
         cy.dataCy('response-name-error').should('exist');
     });
+
     it('should disable response name input if the response is used in a story', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click();
@@ -178,6 +179,7 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').parents('.rt-tr-group').find('.edit.icon').click();
         cy.dataCy('response-name-input').should('have.class', 'disabled');
     });
+    
     it('should create a response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
         addTextResponse('test_A', 'text content A');
