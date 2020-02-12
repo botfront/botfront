@@ -32,23 +32,47 @@ const auditFormat = printf((arg) => {
     return `${timestamp} [${label.toUpperCase()}] ${level}:${userId ? ` userId: ${userId}` : ''}${spaceBeforeIfExist(type)}${spaceBeforeIfExist(status)}${spaceBeforeIfExist(message)}${spaceBeforeIfExist(additionalInfo)}`;
 });
 
+const logToString = (arg) => {
+    const {
+        message,
+        level,
+        userId,
+        file,
+        method,
+        url,
+        data,
+        timestamp,
+        args,
+        status,
+        error,
+    } = arg;
+    return `${timestamp} [${level}] : ${message} ${
+        userId ? `user: ${userId}` : ''
+    } ${file} - ${method} with ${JSON.stringify(args)} ${
+        url ? `url: ${url}` : ''
+    }${spaceBeforeIfExist(status)} ${data ? `data: ${JSON.stringify(data)}` : ''} ${
+        error ? `error: ${error}` : ''
+    }`;
+};
 const appFormat = printf((arg) => {
     Object.keys(arg).forEach((key) => {
-        if (!allowdKeysApp.includes(key)) throw new Error(`${key} not allowed in application logs`);
+        if (!allowdKeysApp.includes(key)) {
+            throw new Error(`${key} not allowed in application logs`);
+        }
     });
-    if (arg.callingArgs && arg.level === 'info' && APPLICATION_LOG_LEVEL === 'info') {
+    if (arg.args && arg.level === 'info' && APPLICATION_LOG_LEVEL === 'info') {
         const argLite = cloneDeep(arg);
-        Object.keys(argLite.callingArgs).forEach((key) => {
-            if (JSON.stringify(argLite.callingArgs[key]).length > MAX_LOGGED_ARG_LENGHT) {
+        Object.keys(argLite.args).forEach((key) => {
+            if (JSON.stringify(argLite.args[key]).length > MAX_LOGGED_ARG_LENGTH) {
                 // eslint-disable-next-line no-param-reassign
-                argLite.callingArgs[key] = `${key} is too long for to be logged at info level`;
+                argLite.args[key] = `${key} is too long for to be logged at info level`;
             }
         });
-        return JSON.stringify(argLite);
+        return logToString(argLite);
     }
-    return JSON.stringify(arg);
-});
 
+    return logToString(arg);
+});
 
 const appStackDriver = new LoggingWinston({
     logName: `${APPLICATION_LOGGER_NAME || 'botfront_log_app'}`,
@@ -65,10 +89,22 @@ if (!!APPLICATION_LOG_LEVEL) {
 
 const appLogTransport = [];
 if (!!APPLICATION_LOG_TRANSPORT) {
-    if (APPLICATION_LOG_TRANSPORT.includes('console')) appLogTransport.push(new winston.transports.Console());
-    if (APPLICATION_LOG_TRANSPORT.includes('stackdriver')) appLogTransport.push(appStackDriver);
+    if (APPLICATION_LOG_TRANSPORT.includes('console')) {
+        appLogTransport.push(
+            new winston.transports.Console({
+                format: combine(timestampfn(), colorize(), appFormat),
+            }),
+        );
+    }
+    if (APPLICATION_LOG_TRANSPORT.includes('stackdriver')) {
+        appLogTransport.push(appStackDriver);
+    }
 } else {
-    appLogTransport.push(new winston.transports.Console());
+    appLogTransport.push(
+        new winston.transports.Console({
+            format: combine(timestampfn(), colorize(), appFormat),
+        }),
+    );
 }
 
 const auditLogTransport = [];
