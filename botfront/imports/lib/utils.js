@@ -124,7 +124,7 @@ if (Meteor.isServer) {
     });
 }
 
-export const getModelIdsFromProjectId = projectId => Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {}).nlu_models;
 
 export const getLanguagesFromProjectId = projectId => getNluModelLanguages(getModelIdsFromProjectId(projectId));
 

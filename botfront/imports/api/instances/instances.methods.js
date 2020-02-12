@@ -186,7 +186,7 @@ if (Meteor.isServer) {
             });
             return data;
         },
-        async 'rasa.getTrainingPayload'(projectId, instance, { language = '', joinStoryFiles = true }) {
+        async 'rasa.getTrainingPayload'(projectId, instance, { language = '', joinStoryFiles = true } = {}) {
             check(projectId, String);
             check(language, String);
             check(instance, Object);
