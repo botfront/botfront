@@ -51,7 +51,7 @@ const BotResponseEditor = (props) => {
     const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
     const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
     const [deleteVariation] = useMutation(DELETE_VARIATION);
-
+    
     const [newBotResponse, setNewBotResponse] = useState(botResponse);
     const [activeTab, setActiveTab] = useState(0);
     const [responseKey, setResponseKey] = useState(botResponse.key);
