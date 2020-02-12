@@ -379,7 +379,7 @@ function StoryRulesForm({
                                     data-cy='toggle-time-on-page'
                                     getError={getEnabledError}
                                 >
-                                    <AutoField name='' label='Number of seconds after which this conversation should be triggered' step={1} min={0} />
+                                    <AutoField name='' label='Number of seconds after which this conversation should be triggered' step={1} min={0} data-cy='time-on-page-input' />
                                 </OptionalField>
                                 <OptionalField name='eventListeners' label='Trigger based on user actions' data-cy='toggle-event-listeners' getError={getEnabledError}>
                                     <ListField name=''>

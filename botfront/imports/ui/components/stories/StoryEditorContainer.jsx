@@ -192,10 +192,12 @@ const StoryEditorContainer = ({
 
     const getRulesPayload = (index) => {
         const entities = [];
+        const payloadName = story.rules[index].payload.substring(1).trim();
+        if (!story.rules[index].trigger.queryString) return payloadName;
         story.rules[index].trigger.queryString.forEach((queryString) => {
             if (queryString.sendAsEntity === true) entities.push(`"${queryString.param}":"query string value"`);
         });
-        return `${story.rules[index].payload.substring(1).trim()}{${entities.join()}}`;
+        return `${payloadName}{${entities.join()}}`;
     };
     
     const getInitIntent = () => {
