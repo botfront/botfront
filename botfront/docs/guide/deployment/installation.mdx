@@ -143,6 +143,19 @@ The following table shows the environment variables required by each service. Be
 | `API_KEY`            | GraphQL API key. You can then set the `authorization` header to the `API_KEY` value to perform GraphQL operations                                                                                        | `botfront`                |
 | `MODELS_LOCAL_PATH`  | Where the trained model returned by Rasa is stored locally. Defaults to `/app/models/` and should not be changed in a containerized environment. The Botfront Dockerfile exposes a volume with that path | `botfront` (optional)     |
 
+The following table list environment variables used to configure logging within botfront and botfront-api. Make those available as arguments or in the manifest files of your deployment
+
+| Environment variable            | Description                                                                                                                                                                | Allowed values                     | default              |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------|----------------------|
+| `APPLICATION_LOG_TRANSPORT`     | Where the application log are written                                                                                                                                      | console, stackdriver               | console              |
+| `APPLICATION_LOG_LEVEL`         | From witch level the log are logged                                                                                                                                        | critical, error, warn, info, debug | info                 |
+| `APPLICATION_LOGGER_NAME`       | The name of the application logger on stackdriver                                                                                                                          | Any string                         | botfront_log_app     |
+| `MAX_LOGGED_ARG_LENGHT`         | Maximum lenght of a stringified callingArgs entry, for readability/data usage concerns. Used only when logging at info level and when APPLICATION_LOG_LEVEL is set to info | Any positive integer               | 1000                 |
+| `AUDIT_LOG_TRANSPORT`           | Where the audit log are written                                                                                                                                            | console, stackdriver               | console              |
+| `AUDIT_LOGGER_NAME`             | The name of the  audit logger on stackdriver                                                                                                                               | Any string                         | botfront_log_audit   |
+| `APPLICATION_API_LOGGER_NAME`   | The name of the api application logger on stackdriver                                                                                                                      | Any string                         | botfront-api_log_app |
+| `APPLICATION_API_LOG_TRANSPORT` | Where the api application log are written                                                                                                                                  | console, stackdriver               | console              |
+
 ## Volumes
 
 Although volumes are technically not required for Botfront to run and work, if you do not mount them your data will be gone when containers are destroyed.
@@ -194,7 +207,6 @@ tracker_store:
   url: "https://<botfront-api-host>"
   project_id: "bf"
 ```
-
 ## Tracker store configuration
 
 Botfront comes with a custom tracker store called `AnalyticsTrackerStore`, which serves as a regular tracker store and provides a Chatbase integration. All you need to do is provide your chatbase API key.
