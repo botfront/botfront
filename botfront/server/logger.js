@@ -58,7 +58,7 @@ const auditStackDriver = new LoggingWinston({
     logName: `${AUDIT_LOGGER_NAME || 'botfront_log_audit'}`,
 });
 
-let level = 'silly';
+let level = 'info';
 if (!!APPLICATION_LOG_LEVEL) {
     level = APPLICATION_LOG_LEVEL;
 }
