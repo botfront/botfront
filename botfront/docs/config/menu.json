@@ -18,6 +18,12 @@
     ]
   },
   {
+    "name": "Proactive conversations",
+    "menu": [
+      "Proactive conversations"
+    ]
+  },
+  {
     "name": "NLU",
     "menu": [
       "Intents and Entities",
