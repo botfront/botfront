@@ -92,7 +92,9 @@ if (Meteor.isServer) {
                 },
             });
         } catch (e) {
-            appMethodLogger('Email subscription failed, probably because you\'ve already subscribed');
+            appMethodLogger.info(
+                'Email subscription failed, probably because you\'ve already subscribed',
+            );
         }
     };
     Meteor.methods({
