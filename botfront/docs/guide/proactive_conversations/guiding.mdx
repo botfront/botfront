@@ -27,14 +27,20 @@ All this, without having to change your website, all happens in Botfront. Here i
 Suppose you're helping users to find out how to change a password.
 In your story, give your first instruction in a response then click the <FaEllipsisV size="11"/> to open the response options.
 
+<div data-bf="guiding_story_step1">
 
 ![](../../images/guiding/guiding_story_step1.png)
+
+</div>
 
 Then select the **Behaviour** tab and enable **Highligh element on page**.
 Just paste the CSS selector of the DOM element you want to highlight on the page. Leave the style to default for now.
 
+<div data-bf="guiding_story_step3">
+
 ![](../../images/guiding/guiding_story_step3.png)
 
+</div>
 Now, train and talk to your bot on your website. You should see a blinking green rectangle around the element your want to highlight.
 
 #### Customizing the style of the highlight
@@ -59,13 +65,19 @@ When the user lands on a new page (e.g.`https://your.site/account`) you can obse
 2. Enable **Observe page changes**.
 3. Add a page change listener.
 
+<div data-bf="guiding_story_step4">
+
 ![](../../images/guiding/guiding_story_step4.png)
+
+
 
 - Specify the **URL** where you expect the user to lands if they followed your first intruction (e.g.`https://your.site/account`). You can use a regular expression if the URL contains a dynamic parameter.
 - Specify the intent that should be triggered if the user completes this step succesfully.
 - (optional) Specify the error intent that should be triggered if the user lands on a different page.
 
+
 ![](../../images/guiding/guiding_story_step5.png)
+
 
 Then you can simply branch your conversation using those intents.
 When the user clicks on **Account**, the chat widget will send a message containing the **success** intent to the bot who will respond with the next instruction.
@@ -75,6 +87,8 @@ When the user clicks on **Account**, the chat widget will send a message contain
 And you can handle the error in a different branch.
 
 ![](../../images/guiding/guiding_story_step7.png)
+
+</div>
 
 Now, let's suppose that the next instruction, _Click on the password tab_ does not involve a page change: the user stays on the exact same page, only the state changes (the content of the **Password** tab is displayed).
 
