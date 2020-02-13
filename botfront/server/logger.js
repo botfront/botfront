@@ -163,7 +163,17 @@ export const auditLogger = winston.createLogger({
     transports: auditLogTransport,
 });
 
-function logBeforeApiCall(logger, text, meta) {
+
+export const getAppLoggerForFile = filename => appLogger.child({ file: filename });
+
+export const getAuditLoggerForFile = filename => auditLogger.child({ file: filename });
+
+export const getAppLoggerForMethod = (fileLogger, method, userId, args) => fileLogger.child({ method, userId, args });
+   
+export const getAuditLoggerForMethod = (fileLogger, method, userId, args) => fileLogger.child({ method, userId, args });
+
+
+const logBeforeApiCall = (logger, text, meta) => {
     const { data, url } = meta;
     logger.info(text, { url });
     logger.debug(`${text} data`, { data, url });
