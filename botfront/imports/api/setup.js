@@ -92,7 +92,7 @@ if (Meteor.isServer) {
                 },
             });
         } catch (e) {
-            appMethodLogger.info(
+            appMethodLogger.error(
                 'Email subscription failed, probably because you\'ve already subscribed',
             );
         }
