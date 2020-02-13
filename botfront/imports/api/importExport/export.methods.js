@@ -8,6 +8,7 @@ import { Credentials } from '../credentials';
 import { Instances } from '../instances/instances.collection';
 
 import { generateErrorText } from './importExport.utils';
+import { checkIfCan } from '../roles/roles';
 
 if (Meteor.isServer) {
     import {
@@ -20,6 +21,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         exportProject(apiHost, projectId, options) {
+            checkIfCan('projects:r', projectId);
             check(apiHost, String);
             check(projectId, String);
             check(options, Object);
@@ -44,10 +46,12 @@ if (Meteor.isServer) {
             return exportRequest;
         },
         async exportRasa(projectId, language) {
+            checkIfCan('projects:r', projectId);
             check(projectId, String);
             check(language, String);
 
             const passedLang = language === 'all' ? {} : { language };
+
             const instance = await Instances.findOne({ projectId });
             const credentials = await Credentials.findOne(
                 { projectId },

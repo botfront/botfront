@@ -1,12 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Accounts } from 'meteor/accounts-base';
-import util from 'util';
 
 import queryString from 'query-string';
 import axios from 'axios';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-import { checkIfCan, can, setScopes } from '../../lib/scopes';
+import { checkIfCan, setScopes } from '../../lib/scopes';
 
 export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W])|(?=.*\W)(?=.*\d))|(?=.*\W)(?=.*[A-Z])(?=.*\d)).{9,}$/;
 
@@ -16,17 +15,19 @@ if (Meteor.isServer) {
     const userAppLogger = getAppLoggerForFile(__filename);
 
     Meteor.publish('userData', function() {
-        if (can('global-admin')) {
+        try {
+            checkIfCan('users:r');
             return Meteor.users.find({}, { fields: { emails: 1, profile: 1, roles: 1 } });
+        } catch (err) {
+            return TouchList.ready();
         }
-        return [];
     });
 
     Meteor.methods({
         'user.create'(user, sendInviteEmail) {
             check(user, Object);
             check(sendInviteEmail, Boolean);
-            checkIfCan('global-admin');
+            checkIfCan('users:w');
             try {
                 const userId = Accounts.createUser({
                     email: user.email.trim(),
@@ -46,7 +47,7 @@ if (Meteor.isServer) {
         },
 
         'user.update'(user) {
-            checkIfCan('global-admin');
+            checkIfCan('users:w');
             check(user, Object);
             try {
                 Meteor.users.update(
@@ -57,7 +58,7 @@ if (Meteor.isServer) {
                             'emails.0.address': user.emails[0].address,
                             'emails.0.verified': true,
                             roles: [], // re-added after
-                        }
+                        },
                     },
                 );
                 setScopes(user, user._id);
@@ -67,7 +68,7 @@ if (Meteor.isServer) {
         },
         // eslint-disable-next-line consistent-return
         'user.remove'(userId, options = {}) {
-            checkIfCan('global-admin');
+            checkIfCan('users:w');
             check(userId, String);
             check(options, Object);
             const { failSilently } = options;
@@ -79,7 +80,7 @@ if (Meteor.isServer) {
         },
 
         'user.removeByEmail'(email) {
-            checkIfCan('global-admin');
+            checkIfCan('users:w');
             check(email, String);
             try {
                 return Meteor.users.remove({
@@ -94,7 +95,7 @@ if (Meteor.isServer) {
         },
 
         'user.changePassword'(userId, newPassword) {
-            checkIfCan('global-admin');
+            checkIfCan('users:w');
             check(userId, String);
             check(newPassword, String);
 

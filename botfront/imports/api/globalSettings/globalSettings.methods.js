@@ -9,7 +9,7 @@ if (Meteor.isServer) {
     Meteor.methods({
         'settings.save'(settings) {
             check(settings, Object);
-            checkIfCan('global-admin');
+            checkIfCan('global-settings:w');
             try {
                 return GlobalSettings.update({ _id: 'SETTINGS' }, { $set: settings });
             } catch (e) {

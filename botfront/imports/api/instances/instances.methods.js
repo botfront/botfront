@@ -9,7 +9,7 @@ import { promisify } from 'util';
 import path from 'path';
 
 import {
-    getAxiosError, getModelIdsFromProjectId, uploadFileToGcs, getProjectModelLocalFolder, getProjectModelFileName,
+    getAxiosError, getModelIdsFromProjectId, uploadFileToGcs, getProjectModelLocalFolder, getProjectModelFileName, getProjectIdFromModelId,
 } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
@@ -61,6 +61,7 @@ const getConfig = (model) => {
 };
 
 export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
+    checkIfCan('nlu-model:r', getProjectIdFromModelId(model._id));
     if (!model.training_data) {
         throw Error('Property training_data of model argument is required');
     }
@@ -101,6 +102,7 @@ if (Meteor.isServer) {
 
     export const parseNlu = async (instance, examples) => {
         check(instance, Object);
+        checkIfCan('nlu-data:r', instance.projectId);
         check(examples, Array);
         const appMethodLogger = getAppLoggerForMethod(
             trainingAppLogger,
@@ -156,15 +158,18 @@ if (Meteor.isServer) {
         'rasa.parse'(instance, params) {
             check(instance, Object);
             check(params, Array);
+            checkIfCan('nlu-data:r', instance.projectId);
             this.unblock();
             return parseNlu(instance, params);
         },
 
-        async 'rasa.convertToJson'(file, language, outputFormat, host) {
+        async 'rasa.convertToJson'(file, model, outputFormat, host) {
+            check(model, Object);
             check(file, String);
-            check(language, String);
             check(outputFormat, String);
             check(host, String);
+            const { language, modelId } = model;
+            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.convertToJson',
@@ -275,6 +280,7 @@ if (Meteor.isServer) {
 
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
+            checkIfCan('nlu-model:x', projectId);
             try {
                 const client = axios.create({
                     baseURL: instance.host,
@@ -333,6 +339,7 @@ if (Meteor.isServer) {
                 Meteor.userId(),
                 { modelId, projectId, testData },
             );
+            checkIfCan('nlu-model:x', projectId);
             try {
                 this.unblock();
                 const model = NLUModels.findOne({ _id: modelId });

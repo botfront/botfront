@@ -77,6 +77,7 @@ Meteor.methods({
     'stories.addCheckpoints'(destinationStory, branchPath) {
         check(destinationStory, String);
         check(branchPath, Array);
+        checkIfCan('stories:w');
         return Stories.update(
             { _id: destinationStory },
             { $addToSet: { checkpoints: branchPath } },
@@ -85,6 +86,7 @@ Meteor.methods({
     'stories.removeCheckpoints'(destinationStory, branchPath) {
         check(destinationStory, String);
         check(branchPath, Array);
+        checkIfCan('stories:w');
         return Stories.update(
             { _id: destinationStory },
             { $pullAll: { checkpoints: [branchPath] } },
@@ -94,6 +96,7 @@ Meteor.methods({
         check(projectId, String);
         check(storyId, String);
         check(story, Object);
+        checkIfCan('triggers:w');
 
         const update = {};
         update.rules = story.rules.map(rule => (
@@ -107,6 +110,7 @@ Meteor.methods({
     async 'stories.deleteRules'(projectId, storyId) {
         check(projectId, String);
         check(storyId, String);
+        checkIfCan('triggers:w');
         Stories.update(
             { projectId, _id: storyId },
             { $set: { rules: [] } },

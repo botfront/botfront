@@ -11,6 +11,7 @@ import {
     getBotResponseById,
     upsertResponse,
 } from '../mongo/botResponses';
+import { checkIfCan } from '../../../roles/roles';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -34,18 +35,22 @@ export default {
         },
     },
     Query: {
-        async botResponses(_, args, __) {
+        async botResponses(_, args, auth) {
+            checkIfCan('responses:r', args.projectId, auth.user._id);
             return getBotResponses(args.projectId);
         },
-        async botResponse(_, args, __) {
+        async botResponse(_, args, auth) {
+            checkIfCan('responses:r', args.projectId, auth.user._id);
             return getBotResponse(args.projectId, args.key);
         },
-        async botResponseById(_, args, __) {
+        async botResponseById(_, args, auth) {
+            checkIfCan('responses:r', args.projectId, auth.user._id);
             return getBotResponseById(args._id);
         },
     },
     Mutation: {
-        async deleteResponse(_, args, __) {
+        async deleteResponse(_, args, auth) {
+            checkIfCan('responses:w', args.projectId, auth.user._id);
             const botResponseDeleted = await deleteResponse(args.projectId, args.key);
             pubsub.publish(RESPONSE_DELETED, {
                 projectId: args.projectId,
@@ -53,7 +58,8 @@ export default {
             });
             return { success: !!botResponseDeleted };
         },
-        async updateResponse(_, args, __) {
+        async updateResponse(_, args, auth) {
+            checkIfCan('responses:w', args.projectId, auth.user._id);
             const response = await updateResponse(
                 args.projectId,
                 args._id,
@@ -65,20 +71,23 @@ export default {
             });
             return { success: response.ok === 1 };
         },
-        createAndOverwriteResponses: async (_, { projectId: pid, responses }) => {
+        createAndOverwriteResponses: async (_, { projectId: pid, responses }, auth) => {
+            checkIfCan('responses:w', pid, auth.user._id);
             const response = await createAndOverwriteResponses(pid, responses);
             response.forEach(({ projectId, ...botResponsesModified }) => pubsub.publish(
                 RESPONSES_MODIFIED, { projectId, botResponsesModified },
             ));
             return response;
         },
-        upsertResponse: async (_, args) => {
+        upsertResponse: async (_, args, auth) => {
+            checkIfCan('responses:w', args.projectId, auth.user._id);
             const response = await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
             pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
         },
-        async createResponse(_, args, __) {
+        async createResponse(_, args, auth) {
+            checkIfCan('responses:w', args.projectId, auth.user._id);
             const response = await createResponse(args.projectId, args.response);
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
@@ -86,11 +95,13 @@ export default {
             });
             return { success: !!response.id };
         },
-        async createResponses(_, args, __) {
+        async createResponses(_, args, auth) {
+            checkIfCan('responses:w', args.projectId, auth.user._id);
             const response = await createResponses(args.projectId, args.responses);
             return { success: !!response.id };
         },
-        async deleteVariation(_, args, __) {
+        async deleteVariation(_, args, auth) {
+            checkIfCan('responses:w', args.projectId, auth.user._id);
             const response = await deleteVariation(args);
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,

@@ -1,7 +1,7 @@
 import '../../lib/dynamic_import';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { can } from '../../lib/scopes';
+import { checkIfCan } from '../roles/roles';
 // import { GlobalSettingsSchema } from './globalSettings.schema';
 
 export const GlobalSettings = new Mongo.Collection('admin_settings');
@@ -24,8 +24,12 @@ import(`./globalSettings.schema.${orchestration}`)
         GlobalSettings.attachSchema(GlobalSettingsSchema);
         if (Meteor.isServer) {
             Meteor.publish('settings', function() {
-                if (can('global-admin', this.userId)) return GlobalSettings.find({ _id: 'SETTINGS' });
-                return GlobalSettings.find({ _id: 'SETTINGS' }, { fields: { 'settings.public': 1, 'settings.private.webhooks': 1 } });
+                try {
+                    checkIfCan('global-settings:r');
+                    return GlobalSettings.find({ _id: 'SETTINGS' });
+                } catch (err) {
+                    return GlobalSettings.find({ _id: 'SETTINGS' }, { fields: { 'settings.public': 1, 'settings.private.webhooks': 1 } });
+                }
             });
         }
     });

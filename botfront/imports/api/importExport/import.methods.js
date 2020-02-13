@@ -4,6 +4,7 @@ import axios from 'axios';
 import { check } from 'meteor/check';
 
 import { generateErrorText, generateImportResponse } from './importExport.utils';
+import { checkIfCan } from '../roles/roles';
 
 if (Meteor.isServer) {
     import {
@@ -15,9 +16,10 @@ if (Meteor.isServer) {
     const importAppLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
         async importProject(projectFile, apiHost, projectId) {
+            check(projectId, String);
+            checkIfCan('projects:w', projectId);
             check(projectFile, Object);
             check(apiHost, String);
-            check(projectId, String);
             const appMethodLogger = getAppLoggerForMethod(
                 importAppLogger,
                 'importProject',

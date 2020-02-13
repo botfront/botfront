@@ -73,14 +73,18 @@ Credentials.attachSchema(CredentialsSchema);
 if (Meteor.isServer) {
     Meteor.publish('credentials', function(projectId) {
         check(projectId, String);
-        if (can(['project-settings:r', 'nlu-data:r', 'responses:r', 'conversations:r'], projectId, this.userId)) return Credentials.find({ projectId });
-        return this.ready();
+        try {
+            checkIfCan(['nlu-data:r', 'projects:r', 'responses-r'], projectId);
+            return Credentials.find({ projectId });
+        } catch (err) {
+            return this.ready();
+        }
     });
 
     Meteor.methods({
         'credentials.save'(credentials) {
             check(credentials, Object);
-            checkIfCan('project-settings:w', credentials.projectId);
+            checkIfCan('projects:w', credentials.projectId);
             try {
                 return Credentials.upsert(
                     { projectId: credentials.projectId, _id: credentials._id },

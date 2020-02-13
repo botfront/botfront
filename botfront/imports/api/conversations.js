@@ -37,7 +37,7 @@ if (Meteor.isServer) {
             envSelector = { env: { $in: ['development', null] } };
         }
         try {
-            checkIfCan('conversations:r', projectId);
+            checkIfCan('incoming:r', projectId);
             return Conversations.find({ projectId, ...envSelector }, options);
         } catch (e) {
             return this.ready();
@@ -49,7 +49,7 @@ if (Meteor.isServer) {
         check(projectId, String);
         
         try {
-            checkIfCan('conversations:r', projectId);
+            checkIfCan('incoming:r', projectId);
             return Conversations.find({ _id, projectId });
         } catch (e) {
             return this.ready();
@@ -72,20 +72,20 @@ if (Meteor.isServer) {
     Meteor.methods({
         'conversations.markAsRead'(senderId) {
             check(senderId, String);
-            checkIfCan('conversations:r', findConversationProject(senderId));
+            checkIfCan('incoming:r', findConversationProject(senderId));
             return Conversations.update({ _id: senderId }, { $set: { status: 'read' } });
         },
 
         'conversations.updateStatus'(senderId, status) {
             check(senderId, String);
             check(status, String);
-            checkIfCan('conversations:w', findConversationProject(senderId));
+            checkIfCan('incoming:w', findConversationProject(senderId));
             return Conversations.update({ _id: senderId }, { $set: { status } });
         },
 
         'conversations.delete'(senderId) {
             check(senderId, String);
-            checkIfCan('conversations:w', findConversationProject(senderId));
+            checkIfCan('incoming:w', findConversationProject(senderId));
             return Conversations.remove({ _id: senderId });
         },
     });

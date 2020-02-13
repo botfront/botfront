@@ -65,7 +65,7 @@ if (Meteor.isServer) {
         async 'project.insert'(item, bypassWithCI) {
             check(item, Object);
             check(bypassWithCI, Match.Optional(Boolean));
-            checkIfCan('global-admin', null, null, { bypassWithCI });
+            checkIfCan('projects:w', null, null, { bypassWithCI });
             let _id;
             try {
                 _id = createProject(item);
@@ -84,7 +84,7 @@ if (Meteor.isServer) {
 
         'project.update'(item) {
             check(item, Match.ObjectIncluding({ _id: String }));
-            checkIfCan('project-settings:w', item._id);
+            checkIfCan('projects:w', item._id);
             try {
                 // eslint-disable-next-line no-param-reassign
                 delete item.createdAt;
@@ -97,7 +97,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(options, Object);
             const { failSilently, bypassWithCI } = options;
-            checkIfCan('global-admin', null, null, { bypassWithCI });
+            checkIfCan('projects:w', null, null, { bypassWithCI });
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
 
             try {
@@ -177,7 +177,7 @@ if (Meteor.isServer) {
 
         async 'project.getActions'(projectId) {
             check(projectId, String);
-            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
+            checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
             defaultDomain = yamlLoad(defaultDomain.content);
             const templates = await getAllTemplates(projectId);
@@ -203,7 +203,7 @@ if (Meteor.isServer) {
 
         async 'project.getDefaultLanguage'(projectId) {
             check(projectId, String);
-            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
+            checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             try {
                 const { defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { defaultLanguage: 1 } });
                 return defaultLanguage;
@@ -214,6 +214,7 @@ if (Meteor.isServer) {
 
         async 'project.getDeploymentEnvironments'(projectId) {
             check(projectId, String);
+            checkIfCan('incoming:r', 'projects:r', projectId);
             try {
                 const project = Projects.findOne({ _id: projectId }, { fields: { deploymentEnvironments: 1 } });
                 const { deploymentEnvironments } = project;
