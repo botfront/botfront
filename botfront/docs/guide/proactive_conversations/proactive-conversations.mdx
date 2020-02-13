@@ -1,7 +1,7 @@
 ---
-name: Proactive conversations
-route: /docs/proactive-conversations
-menu: Proactive conversations
+name: Trigger proactive conversations
+route: /docs/conversational-interactions/proactive-conversations
+menu: Conversational interactions
 meta:
   - name: description
     content: "Proactive conversations"
@@ -24,13 +24,37 @@ In Botfront you can do this by associating **triggers** to a story. You can open
 It's important to stress that this features only works with with the chat widget installed on your website. This is feature is not available in the open source edition.
 The chat widget observes the behavior of users and stores information it in the user's browser's local storage, and is not sent to the server.
 
-## Trigger types
-
 ### Starting conditions
 ![](../../images/proactive_conversations/triggers_modal_when.png)
 
 - **Always:** the story will be triggered each time the condition set in this trigger are met.
 - **Only if no conversation has started:** the story will be triggered only if the conversation history is empty.
+
+## Trigger a conversation based on landing parameters
+
+You can trigger a conversation tailored to parameters set from an originating link, such as a campaign.
+Suppose your visitor comes from a banner click to a url like: `https://your.site/?utm_source=media1`. You may want to start the conversation in a different way than if they came to `https://your.site/?utm_source=media1`.
+
+
+![](../../images/proactive_conversations/triggers_modal_query_string.png)
+
+You would set `param` to **utm_source** and `value` to **media1** for one story, and `value` to **media2** for another story.
+
+> Don't forget to define slots accordingly.
+
+#### Using the value in the conversation
+
+In other situations you may want to just use the value of a parameter to make the conversation more personal. In that case you can pass the value of the parameter as an entity.
+You can then re-use it directly in your conversation.
+
+![](../../images/proactive_conversations/triggers_modal_query_string_1.png)
+
+For example, you could send an email to a list of clients with a link to your site, and your bot could greet them by their name.
+To do this, the link in the email could have this form: `http://your.site/?first_name=James`. Then you can start by greeting your users like this:
+
+![](../../images/proactive_conversations/story_with_greetings.png)
+
+## Trigger a conversation based on a user behavior
 
 ### Browsing history
 ![](../../images/proactive_conversations/triggers_modal_browsing_history_1.png)
@@ -67,6 +91,8 @@ The story will be triggered if the user has visited a specific page a certain nu
 
 #### Combining with starting conditions
 If **Always** is set, this trigger will apply each time the number of visits is greater or equal to the specified number if visits.
+
+
 
 ### Time on page
 ![](../../images/proactive_conversations/triggers_modal_time_on_page.png)
