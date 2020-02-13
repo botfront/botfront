@@ -92,7 +92,7 @@ const appFormat = printf((arg) => {
             throw new Error(`${key} not allowed in application logs`);
         }
     });
-    if (arg.args && arg.level === 'info' && APPLICATION_LOG_LEVEL === 'info') {
+    if (arg.args && (/info/).test(arg.level) && APPLICATION_LOG_LEVEL === 'info') {
         const argLite = cloneDeep(arg);
         Object.keys(argLite.args).forEach((key) => {
             if (JSON.stringify(argLite.args[key]).length > MAX_LOGGED_ARG_LENGTH) {
