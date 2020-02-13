@@ -8,7 +8,7 @@ const {
 } = format;
 
 const {
-    APPLICATION_LOG_LEVEL,
+    APPLICATION_LOG_LEVEL = 'info',
     APPLICATION_LOG_TRANSPORT,
     AUDIT_LOG_TRANSPORT,
     APPLICATION_LOGGER_NAME,
@@ -113,10 +113,6 @@ const auditStackDriver = new LoggingWinston({
     logName: `${AUDIT_LOGGER_NAME || 'botfront_log_audit'}`,
 });
 
-let level = 'info';
-if (!!APPLICATION_LOG_LEVEL) {
-    level = APPLICATION_LOG_LEVEL;
-}
 
 const appLogTransport = [];
 if (!!APPLICATION_LOG_TRANSPORT) {
@@ -151,7 +147,7 @@ if (!!AUDIT_LOG_TRANSPORT) {
 }
 
 const appLogger = winston.createLogger({
-    level,
+    APPLICATION_LOG_LEVEL,
     format: combine(timestampfn(), appFormat),
     transports: appLogTransport,
 });
