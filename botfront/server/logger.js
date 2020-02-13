@@ -223,10 +223,12 @@ export const addLoggingInterceptors = (axios, logger) => {
                 const {
                     data, status, url, method,
                 } = config;
+                let loggedData = data;
+                if (data.mimeType && data.mimeType !== 'application/json') loggedData = `Data is ${data.mimeType} and is not logged`;
                 logger.error(
                     `${method.toUpperCase()} at ${url} failed at response time`,
                     {
-                        data,
+                        data: loggedData,
                         status,
                         error,
                         url,
