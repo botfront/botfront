@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import { createGraphQLPublication } from 'meteor/swydo:ddp-apollo';
 import { makeExecutableSchema } from 'graphql-tools';
 import { typeDefs, resolvers } from '../imports/api/graphql/index';
-import { auditLogger } from './logger';
 
 
 Meteor.startup(function() {
@@ -44,8 +43,5 @@ Meteor.startup(function() {
             5,
             300000,
         );
-        auditLogger.debug(`Botfront ${process.env.npm_package_version}`, {
-            label: 'startup',
-        });
     }
 });
