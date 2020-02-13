@@ -193,7 +193,7 @@ export const extractDomain = (
     const appMethodLogger = getAppLoggerForMethodExport(
         storyAppLogger,
         'extractDomain',
-        Meteor.userId(),
+        'Can\'t get userId here',
         {
             stories,
             slots,
