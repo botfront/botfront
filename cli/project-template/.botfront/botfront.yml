@@ -5,7 +5,7 @@ images:
     rasa: botfront/rasa-for-botfront:v1.7.1-bf.1
     duckling: botfront/duckling:latest
     mongo: mongo:latest
-    actions: rasa/rasa-sdk:1.5.2
+    actions: rasa/rasa-sdk:1.7.0
 
 # The .env file is generated from the following section.
 # You can add/edit environment variable here.
