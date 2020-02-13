@@ -157,7 +157,7 @@ const appLogger = winston.createLogger({
 });
 
 const auditLogger = winston.createLogger({
-    level: 'silly',
+    level: 'info',
     format: combine(timestampfn(), auditFormat),
     transports: auditLogTransport,
 });
