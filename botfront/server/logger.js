@@ -64,7 +64,7 @@ const auditFormat = printf((arg) => {
     )}${spaceBeforeIfExist(additionalInfo)}`;
 });
 
-const logToString = (arg) => {
+const appLogToString = (arg) => {
     const {
         message,
         level,
@@ -96,14 +96,13 @@ const appFormat = printf((arg) => {
         const argLite = cloneDeep(arg);
         Object.keys(argLite.args).forEach((key) => {
             if (JSON.stringify(argLite.args[key]).length > MAX_LOGGED_ARG_LENGTH) {
-                // eslint-disable-next-line no-param-reassign
                 argLite.args[key] = `${key} is too long for to be logged at info level`;
             }
         });
-        return logToString(argLite);
+        return appLogToString(argLite);
     }
 
-    return logToString(arg);
+    return appLogToString(arg);
 });
 
 const appStackDriver = new LoggingWinston({
@@ -151,13 +150,13 @@ if (!!AUDIT_LOG_TRANSPORT) {
     auditLogTransport.push(new winston.transports.Console());
 }
 
-export const appLogger = winston.createLogger({
+const appLogger = winston.createLogger({
     level,
     format: combine(timestampfn(), appFormat),
     transports: appLogTransport,
 });
 
-export const auditLogger = winston.createLogger({
+const auditLogger = winston.createLogger({
     level: 'silly',
     format: combine(timestampfn(), auditFormat),
     transports: auditLogTransport,
@@ -177,24 +176,24 @@ const logBeforeApiCall = (logger, text, meta) => {
     const { data, url } = meta;
     logger.info(text, { url });
     logger.debug(`${text} data`, { data, url });
-}
+};
 
-function logAfterSuccessApiCall(logger, text, meta) {
+const logAfterSuccessApiCall = (logger, text, meta) => {
     const { status, data, url } = meta;
     logger.info(text, { status, url });
     if (data) {
         logger.debug(`${text} data`, { status, url, data });
     }
-}
+};
 
-export function addLoggingInterceptors(axios, logger) {
+export const addLoggingInterceptors = (axios, logger) => {
     axios.interceptors.request.use(
-        function(config) {
+        (config) => {
             const { url, data = null, method } = config;
             logBeforeApiCall(logger, `${method.toUpperCase()} at ${url}`, { url, data });
             return config;
         },
-        function(error) {
+        (error) => {
             const { url, method } = error;
             logger.error(`${method} at ${url} failed at request time`, { error, url });
             return Promise.reject(error);
@@ -202,7 +201,7 @@ export function addLoggingInterceptors(axios, logger) {
     );
 
     axios.interceptors.response.use(
-        function(response) {
+        (response) => {
             const { config, status, data = null } = response;
             const { url } = config;
             // we don't log files or others data type that are not json
@@ -222,7 +221,7 @@ export function addLoggingInterceptors(axios, logger) {
 
             return response;
         },
-        function(error) {
+        (error) => {
             if (Object.keys(error).length > 0) {
                 const { config } = error;
                 const {
@@ -243,4 +242,4 @@ export function addLoggingInterceptors(axios, logger) {
             return Promise.reject(error);
         },
     );
-}
+};
