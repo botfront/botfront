@@ -97,11 +97,14 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         async 'axios.requestWithJsonBody'(url, method, data) {
+            let loggedData = data;
+            // remplace data by placeholder for images or everything not json
+            if (data.mimeType && data.mimeType !== 'application/json') loggedData = 'Data is not a json and is not logged';
             const appMethodLogger = getAppLoggerForMethod(
                 getAppLoggerForFile(__filename),
                 'axios.requestWithJsonBody',
                 Meteor.userId(),
-                { url, method, data },
+                { url, method, data: loggedData },
             );
 
             check(url, String);
