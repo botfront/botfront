@@ -190,10 +190,17 @@ export const extractDomain = (
     defaultDomain = {},
     crashOnStoryWithErrors = true,
 ) => {
+    // extractDomain can be called from outside a Meteor method so Meteor.userId() might not be available
+    let userId;
+    try {
+        userId = Meteor.userId();
+    } catch (error) {
+        userId = 'Can not get userId here';
+    }
     const appMethodLogger = getAppLoggerForMethodExport(
         storyAppLogger,
         'extractDomain',
-        'Can\'t get userId here',
+        userId,
         {
             stories,
             slots,
