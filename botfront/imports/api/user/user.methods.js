@@ -11,9 +11,9 @@ import { checkIfCan, can, setScopes } from '../../lib/scopes';
 export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W])|(?=.*\W)(?=.*\d))|(?=.*\W)(?=.*[A-Z])(?=.*\d)).{9,}$/;
 
 if (Meteor.isServer) {
-    import { appLogger, addLoggingInterceptors } from '../../../server/logger';
+    import { getAppLoggerForMethod, getAppLoggerForFile, addLoggingInterceptors } from '../../../server/logger';
 
-    const userAppLogger = appLogger.child({ file: 'user.methods.js' });
+    const userAppLogger = getAppLoggerForFile(__filename);
 
     Meteor.publish('userData', function() {
         if (can('global-admin')) {
@@ -96,7 +96,12 @@ if (Meteor.isServer) {
         },
 
         'user.verifyReCaptcha'(response) {
-            const appMethodLogger = userAppLogger.child({ userId: Meteor.userId(), method: 'user.verifyReCaptchat', args: { response } });
+            const appMethodLogger = getAppLoggerForMethod(
+                userAppLogger,
+                'user.verifyReCaptcha',
+                Meteor.userId(),
+                { response },
+            );
 
             check(response, String);
             const {

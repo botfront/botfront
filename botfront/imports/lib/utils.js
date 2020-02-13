@@ -89,14 +89,20 @@ export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProp
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
 
 if (Meteor.isServer) {
-    import { appLogger, addLoggingInterceptors } from '../../server/logger';
+    import {
+        getAppLoggerForMethod,
+        getAppLoggerForFile,
+        addLoggingInterceptors,
+    } from '../../server/logger';
 
     Meteor.methods({
-        
         async 'axios.requestWithJsonBody'(url, method, data) {
-            const appMethodLogger = appLogger.child({
-                userId: Meteor.userId(), file: 'utils.js', method: 'axios.requestWithJsonBody', args: { url, method, data },
-            });
+            const appMethodLogger = getAppLoggerForMethod(
+                getAppLoggerForFile(__filename),
+                'axios.requestWithJsonBody',
+                Meteor.userId(),
+                { url, method, data },
+            );
 
             check(url, String);
             check(method, String);

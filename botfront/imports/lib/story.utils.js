@@ -7,10 +7,12 @@ import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { newGetBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
 let storyAppLogger;
+let getAppLoggerForMethodExport;
 if (Meteor.isServer) {
-    import { appLogger } from '../../server/logger';
+    import { getAppLoggerForMethod, getAppLoggerForFile } from '../../server/logger';
 
-    storyAppLogger = appLogger.child({ file: 'story.utils.js' });
+    getAppLoggerForMethodExport = getAppLoggerForMethod;
+    storyAppLogger = getAppLoggerForFile(__filename);
 }
 
 
@@ -181,13 +183,25 @@ export const addlinkCheckpoints = (stories) => {
     return storiesCheckpointed;
 };
 
-export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}, crashOnStoryWithErrors = true) => {
-    const appMethodLogger = storyAppLogger.child({
-        method: 'extractDomain',
-        args: {
-            stories, slots, templates, defaultDomain, crashOnStoryWithErrors,
+export const extractDomain = (
+    stories,
+    slots,
+    templates = {},
+    defaultDomain = {},
+    crashOnStoryWithErrors = true,
+) => {
+    const appMethodLogger = getAppLoggerForMethodExport(
+        storyAppLogger,
+        'extractDomain',
+        Meteor.userId(),
+        {
+            stories,
+            slots,
+            templates,
+            defaultDomain,
+            crashOnStoryWithErrors,
         },
-    });
+    );
     const initialDomain = {
         actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
         intents: new Set(defaultDomain.intents || []),

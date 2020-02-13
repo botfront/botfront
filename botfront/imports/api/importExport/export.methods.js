@@ -10,19 +10,27 @@ import { Instances } from '../instances/instances.collection';
 
 import { generateErrorText } from './importExport.utils';
 
-
 if (Meteor.isServer) {
-    import { appLogger, addLoggingInterceptors } from '../../../server/logger';
+    import {
+        getAppLoggerForFile,
+        getAppLoggerForMethod,
+        addLoggingInterceptors,
+    } from '../../../server/logger';
 
-    const trainingAppLogger = appLogger.child({ file: 'export.methods.js' });
-    
+    const exportAppLogger = getAppLoggerForFile(__filename);
+
     Meteor.methods({
-        'exportProject'(apiHost, projectId, options) {
+        exportProject(apiHost, projectId, options) {
             check(apiHost, String);
             check(projectId, String);
             check(options, Object);
-            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'exportProject', args: { apiHost, projectId, options } });
 
+            const appMethodLogger = getAppLoggerForMethod(
+                exportAppLogger,
+                'exportProject',
+                Meteor.userId,
+                { apiHost, projectId, options },
+            );
             const params = { ...options };
             params.output = 'json';
             const exportAxios = axios.create();

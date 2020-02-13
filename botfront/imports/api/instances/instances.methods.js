@@ -86,16 +86,25 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
 };
 
 if (Meteor.isServer) {
-    import { appLogger, addLoggingInterceptors } from '../../../server/logger';
+    import {
+        getAppLoggerForFile,
+        getAppLoggerForMethod,
+        addLoggingInterceptors,
+    } from '../../../server/logger';
     // eslint-disable-next-line import/order
     import { performance } from 'perf_hooks';
 
-    const trainingAppLogger = appLogger.child({ file: 'instance.methods.js' });
+    const trainingAppLogger = getAppLoggerForFile(__filename);
 
     export const parseNlu = async (instance, examples) => {
         check(instance, Object);
         check(examples, Array);
-        const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'parseNlu', args: { instance, examples } });
+        const appMethodLogger = getAppLoggerForMethod(
+            trainingAppLogger,
+            'parseNlu',
+            Meteor.userId(),
+            { instance, examples },
+        );
         appMethodLogger.debug('Parsing nlu');
         try {
             const client = axios.create({
@@ -153,13 +162,18 @@ if (Meteor.isServer) {
             check(language, String);
             check(outputFormat, String);
             check(host, String);
-            const appMethodLogger = trainingAppLogger.child({
-                userId: Meteor.userId(),
-                method: 'rasa.convertToJson',
-                args: {
-                    file, language, outputFormat, host,
+            const appMethodLogger = getAppLoggerForMethod(
+                trainingAppLogger,
+                'rasa.convertToJson',
+                Meteor.userId(),
+                {
+                    file,
+                    language,
+                    outputFormat,
+                    host,
                 },
-            });
+            );
+           
             const client = axios.create({
                 baseURL: host,
                 timeout: 100 * 1000,
@@ -177,8 +191,12 @@ if (Meteor.isServer) {
             check(language, String);
             check(instance, Object);
             const modelIds = await getModelIdsFromProjectId(projectId);
-
-            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'rasa.getTrainingPayload', args: { projectId, instance, language } });
+            const appMethodLogger = getAppLoggerForMethod(
+                trainingAppLogger,
+                'rasa.getTrainingPayload',
+                Meteor.userId(),
+                { projectId, instance, language },
+            );
 
             appMethodLogger.info('Building training payload ...');
             const t0 = performance.now();
@@ -239,8 +257,13 @@ if (Meteor.isServer) {
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
-            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'rasa.train', args: { projectId, instance } });
-            
+            const appMethodLogger = getAppLoggerForMethod(
+                trainingAppLogger,
+                'rasa.train',
+                Meteor.userId(),
+                { projectId, instance },
+            );
+
             appMethodLogger.info(`Training project ${projectId}...`);
             const t0 = performance.now();
             try {
@@ -287,7 +310,13 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));
-            const appMethodLogger = trainingAppLogger.child({ userId: Meteor.userId(), method: 'rasa.evaluate.nlu', args: { modelId, projectId, testData } });
+            
+            const appMethodLogger = getAppLoggerForMethod(
+                trainingAppLogger,
+                'rasa.evaluate.nlu',
+                Meteor.userId(),
+                { modelId, projectId, testData },
+            );
             try {
                 this.unblock();
                 const model = NLUModels.findOne({ _id: modelId });
