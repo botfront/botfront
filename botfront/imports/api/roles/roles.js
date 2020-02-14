@@ -9,7 +9,7 @@ export const can = (permission, projectId, userId, options) => {
 };
 
 export const checkIfCan = (permission, projectId, userId, options) => {
-    if (!can(permission, projectId, userId, options)) throw new Meteor.Error('403', 'Forbidden');
+    if (!can(permission, projectId, userId, options)) throw new Meteor.Error('403', `${permission} Forbidden`);
 };
 
 const ue = { unlessExists: true };

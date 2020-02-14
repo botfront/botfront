@@ -471,7 +471,6 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.chitChatSetup'() {
-            // -permission- what permission here
             checkIfCan('projects:w');
             try {
                 const data = {
