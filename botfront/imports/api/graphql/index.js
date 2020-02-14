@@ -12,6 +12,8 @@ import configResolver from './config/configResolver';
 import configTypes from './config/config.types.graphql';
 import nluResolvers from './nlu/resolvers';
 import nluTypes from './nlu/schemas';
+import rolesDataTypes from './rolesData/schemas';
+import rolesDataResolver from './rolesData/resolvers/rolesDataResolver';
 
 
 export const resolvers = [
@@ -19,6 +21,7 @@ export const resolvers = [
     ...nluResolvers,
     ...botResponsesResolvers,
     ...nluResolvers,
+    rolesDataResolver,
     activityResolver,
     commonResolver,
     configResolver,
@@ -30,6 +33,7 @@ export const typeDefs = mergeTypes([
     ...nluTypes,
     ...activityTypes,
     ...nluTypes,
+    ...rolesDataTypes,
     commonTypes,
     configTypes,
 ], { all: true });

@@ -1,0 +1,14 @@
+type RolesData {
+    name: String
+    description: String
+    deletable: Boolean
+}
+
+type Query {
+    getRolesData: [RolesData]
+}
+
+type Mutation {
+    upsertRolesData(name: String!, description: String!): RolesData
+    deleteRolesData(name: String!): Boolean
+}

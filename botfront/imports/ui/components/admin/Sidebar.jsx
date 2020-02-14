@@ -32,6 +32,9 @@ class AdminSidebar extends React.Component {
                     <Link to='/admin/settings'>
                         <Menu.Item name='Settings'> Settings</Menu.Item>
                     </Link>
+                    <Link to='/admin/roles'>
+                        <Menu.Item name='Roles'> Roles</Menu.Item>
+                    </Link>
                 </Menu.Item>
                 <Menu.Item>
                     <Menu.Header>Account</Menu.Header>
