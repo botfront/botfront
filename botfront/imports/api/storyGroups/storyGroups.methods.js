@@ -75,11 +75,11 @@ Meteor.methods({
         check(storyGroup, Object);
         checkIfCan('stories:w', storyGroup.projectId);
         let eventstoRemove = [];
-        Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
-            .fetch()
-            .forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-        const result = await StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id });
-        deleteResponsesRemovedFromStories(eventstoRemove, storyGroup.projectId);
+        const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
+            .fetch();
+        childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
+
+        const result = await StoryGroups.remove(storyGroup) && await Meteor.callWithPromise('storyGroups.deleteChildStories', storyGroup._id, storyGroup.projectId);
         return result;
     },
 
@@ -115,3 +115,21 @@ Meteor.methods({
         );
     },
 });
+
+if (Meteor.isServer) {
+    Meteor.methods({
+        async 'storyGroups.deleteChildStories'(storyGroupId, projectId) {
+            check(storyGroupId, String);
+            check(projectId, String);
+            checkIfCan('stories:w', projectId);
+            let eventstoRemove = [];
+            const childStories = Stories.find({ storyGroupId }, { fields: { events: true } })
+                .fetch();
+            childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
+
+            const result = await Stories.remove({ storyGroupId });
+            deleteResponsesRemovedFromStories(eventstoRemove, projectId);
+            return result;
+        },
+    });
+}
