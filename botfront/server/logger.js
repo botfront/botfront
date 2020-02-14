@@ -65,7 +65,7 @@ const auditFormat = printf((arg) => {
 });
 
 const checkDataType = (dataType, data) => {
-    if (dataType && dataType !== 'application/json') return `Data is ${data.mimeType} and is not logged`;
+    if (dataType && dataType !== 'application/json') return `Data is ${dataType} and is not logged`;
     return data;
 };
 
@@ -84,7 +84,7 @@ const appLogToString = (arg) => {
         error,
     } = arg;
     let loggedData = data;
-    if (data.mimeType) loggedData = checkDataType(data.mimeType, data);
+    if (data && data.mimeType) loggedData = checkDataType(data.mimeType, data);
     return `${timestamp} [${level}] : ${message} ${
         userId ? `user: ${userId}` : ''
     } ${file} - ${method} with ${JSON.stringify(args)} ${
