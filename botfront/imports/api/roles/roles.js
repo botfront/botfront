@@ -14,9 +14,9 @@ export const checkIfCan = (permission, projectId, userId, options) => {
 
 const ue = { unlessExists: true };
 
-const createRole = (name) => {
+const createRole = (name, description = 'some text') => {
     Roles.createRole(name, ue);
-    upsertRolesData({ name, description: 'some random text', deletable: false });
+    upsertRolesData({ name, description, deletable: false });
 };
 
 if (Meteor.isServer) {
