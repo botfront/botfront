@@ -21,78 +21,78 @@ const createRole = (name, description = 'some text') => {
 
 if (Meteor.isServer) {
     export const setUpRoles = () => {
-        createRole('nlu-data:r', ue);
-        createRole('nlu-data:w', ue);
+        createRole('nlu-data:r');
+        createRole('nlu-data:w');
         Roles.addRolesToParent('nlu-data:r', 'nlu-data:w');
     
-        createRole('nlu-model:r', ue);
+        createRole('nlu-model:r');
         Roles.addRolesToParent('nlu-data:r', 'nlu-model:r');
-        createRole('nlu-model:w', ue);
+        createRole('nlu-model:w');
         Roles.addRolesToParent('nlu-model:r', 'nlu-model:w');
         
         
-        createRole('nlu-viewer', ue);
+        createRole('nlu-viewer');
         Roles.addRolesToParent(['nlu-data:r', 'nlu-model:r'], 'nlu-viewer');
         
-        createRole('nlu-model:x', ue);
+        createRole('nlu-model:x');
     
         Roles.addRolesToParent('nlu-viewer', 'nlu-model:x');
 
-        createRole('nlu-editor', ue);
+        createRole('nlu-editor');
         Roles.addRolesToParent(['nlu-data:w', 'nlu-model:x'], 'nlu-editor');
     
-        createRole('responses:r', ue);
-        createRole('responses:w', ue);
+        createRole('responses:r');
+        createRole('responses:w');
         Roles.addRolesToParent('responses:r', 'responses:w');
 
-        createRole('stories:r', ue);
-        createRole('stories:w', ue);
+        createRole('stories:r');
+        createRole('stories:w');
         Roles.addRolesToParent('stories:r', 'stories:w');
     
-        createRole('copy-viewer', ue);
+        createRole('copy-viewer');
         Roles.addRolesToParent(['responses:r', 'stories:r'], 'copy-viewer');
     
-        createRole('copy-editor', ue);
+        createRole('copy-editor');
         Roles.addRolesToParent(['responses:w', 'stories:w'], 'copy-editor');
     
-        createRole('conversations:r', ue);
-        createRole('conversations-viewer', ue);
+        createRole('conversations:r');
+        createRole('conversations-viewer');
         Roles.addRolesToParent('conversations:r', 'conversations-viewer');
 
-        createRole('conversations:w', ue);
+        createRole('conversations:w');
         Roles.addRolesToParent('conversations:r', 'conversations:w');
-        createRole('conversations-editor', ue);
+        createRole('conversations-editor');
         Roles.addRolesToParent('conversations:w', 'conversations-editor');
     
-        createRole('project-settings:r', ue);
-        createRole('project-settings:w', ue);
+        createRole('project-settings:r');
+        createRole('project-settings:w');
         Roles.addRolesToParent('project-settings:r', 'project-settings:w');
         
-        createRole('project-viewer', ue);
+        createRole('project-viewer');
         Roles.addRolesToParent(['nlu-viewer', 'copy-viewer', 'conversations-viewer', 'project-settings:r'], 'project-viewer');
     
 
-        createRole('analytics:r', ue);
-        createRole('project-admin', ue);
+        createRole('analytics:r');
+        createRole('project-admin');
         Roles.addRolesToParent(['nlu-editor', 'nlu-model:w', 'copy-editor', 'conversations-editor', 'project-settings:w', 'project-viewer', 'analytics:r'], 'project-admin');
     
         // Legacy owner role
-        createRole('owner', ue);
+        createRole('owner');
         Roles.addRolesToParent('project-admin', 'owner');
         
-        createRole('global-settings:r', ue);
-        createRole('global-settings:w', ue);
+        createRole('global-settings:r');
+        createRole('global-settings:w');
         Roles.addRolesToParent('global-settings:r', 'global-settings:w');
     
-        createRole('projects:r', ue);
-        createRole('projects:w', ue);
+        createRole('projects:r');
+        createRole('projects:w');
         Roles.addRolesToParent('projects:r', 'projects:w');
     
-        createRole('users:r', ue);
-        createRole('users:w', ue);
+        createRole('users:r');
+        createRole('users:w');
         Roles.addRolesToParent('users:r', 'users:w');
     
-        createRole('global-admin', ue);
+        createRole('global-admin');
         Roles.addRolesToParent(['users:w', 'projects:w', 'project-admin'], 'global-admin');
     };
 
