@@ -19,12 +19,8 @@ NLUModels.deny({
 if (Meteor.isServer) {
     Meteor.publish('nlu_models', function (modelId) {
         check(modelId, String);
-        if (can('global-admin')) return NLUModels.find({ _id: modelId });
-
         const projectId = getProjectIdFromModelId(modelId);
-
         checkIfCan('nlu-data:r', projectId);
-
         return NLUModels.find({ _id: modelId });
     });
 
@@ -33,36 +29,51 @@ if (Meteor.isServer) {
     // Thus greatly reducing the load times
     Meteor.publish('nlu_models.lite', function (projectId) {
         check(projectId, String);
-        if (can(['nlu-data:r', 'responses:r', 'project-settings:r'], projectId)) {
-            return NLUModels.find({}, {
-                fields: {
-                    language: 1,
-                    name: 1,
-                    description: 1,
-                    training: 1,
-                    published: 1,
-                    instance: 1,
-                },
-            });
-        }
-
-        const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-model:r']);
-        const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
-        const modelIdArrays = models.map(m => m.nlu_models);
-        const modelIds = [].concat(...modelIdArrays);
-        return NLUModels.find(
-            { _id: { $in: modelIds } },
-            {
-                fields: {
-                    language: 1,
-                    name: 1,
-                    description: 1,
-                    training: 1,
-                    published: 1,
-                },
+        checkIfCan(['nlu-model:r', 'responses:r', 'projects:r'], projectId);
+        const models = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
+        return NLUModels.find({ _id: { $in: models.nlu_models } }, {
+            fields: {
+                language: 1,
+                name: 1,
+                description: 1,
+                training: 1,
+                published: 1,
+                instance: 1,
             },
-        );
+        });
+        // if (can(['nlu-data:r', 'responses:r', 'project-settings:r'], projectId)) {
+        //     return NLUModels.find({}, {
+        //         fields: {
+        //             language: 1,
+        //             name: 1,
+        //             description: 1,
+        //             training: 1,
+        //             published: 1,
+        //             instance: 1,
+        //         },
+        //     });
+        // }
+
+        // const projectIds = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-model:r']);
+        // const models = Projects.find({ _id: { $in: projectIds } }, { fields: { nlu_models: 1 } }).fetch();
+        // const modelIdArrays = models.map(m => m.nlu_models);
+        // const modelIds = [].concat(...modelIdArrays);
+        // return NLUModels.find(
+        //     { _id: { $in: modelIds } },
+        //     {
+        //         fields: {
+        //             language: 1,
+        //             name: 1,
+        //             description: 1,
+        //             training: 1,
+        //             published: 1,
+        //         },
+        //     },
+        // );
     });
+
+    // -permission-
+    // NO LONGER USED
 
     Meteor.publish('nlu_models.project.training_data', function (projectId) {
         check(projectId, String);

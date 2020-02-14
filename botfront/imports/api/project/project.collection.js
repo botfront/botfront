@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { can, getScopesForUser } from '../../lib/scopes';
+import { checkIfCan } from '../roles/roles';
 
 export const Projects = new Mongo.Collection('projects');
 
@@ -21,7 +22,10 @@ const getDefaultDefaultDomain = () => {
     return defaultDefaultDomain;
 };
 
-export const createProject = item => Projects.insert({ ...item, defaultDomain: { content: getDefaultDefaultDomain() } });
+export const createProject = (item) => {
+    checkIfCan('projects:w');
+    Projects.insert({ ...item, defaultDomain: { content: getDefaultDefaultDomain() } });
+};
 
 
 if (Meteor.isServer) {
@@ -62,10 +66,10 @@ Meteor.startup(() => {
 if (Meteor.isServer) {
     Meteor.publish('projects', function (projectId) {
         check(projectId, Match.Optional(String));
-        if (can(['project-settings:r', 'responses:r'], projectId)) {
+        if (can(['projects:r'], projectId)) {
             return Projects.find({ _id: projectId });
         }
-        if (can(['nlu-data:r', 'conversations:r'], projectId)) {
+        if (can(['nlu-data:r', 'incoming:r'], projectId)) {
             return Projects.find({ _id: projectId }, {
                 fields: {
                     name: 1,
@@ -83,13 +87,14 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('projects.names', function () {
-        if (can('global-admin', this.userId)) {
+        if (can(['projects:w', 'users:r'], this.userId)) {
             return Projects.find({}, { fields: { name: 1 } });
         }
-        const projects = getScopesForUser(this.userId, 'project-viewer');
+        const projects = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-model:x', 'responses:r', 'projects:r']);
         return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
     });
 
+    // -permission- this is unused
     Meteor.publish('template-keys', function (projectId) {
         check(projectId, String);
         return Projects.find({ _id: projectId },

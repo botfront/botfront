@@ -267,6 +267,7 @@ if (Meteor.isServer) {
 
         'nlu.getChitChatIntents'(language) {
             check(language, String);
+            checkIfCan('nlu-data:r');
             const chitChatProjectId = getChitChatProjectid();
             if (!chitChatProjectId) {
                 throw ReferenceError('Chitchat project not set in global settings');
@@ -470,7 +471,8 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.chitChatSetup'() {
-            checkIfCan('global-admin');
+            // -permission- what permission here
+            checkIfCan('projects:w');
             try {
                 const data = {
                     fr: JSON.parse(Assets.getText('nlu/nlu-chitchat-fr.json')),
