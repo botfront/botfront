@@ -41,7 +41,7 @@ if (Meteor.isServer) {
         Roles.addRolesToParent(['stories:r'], 'stories:w');
 
         createRole('triggers:r', 'Can access story triggers. Extends `stories:r`');
-        Roles.addRolesToParent('stories-r', 'triggers:r');
+        Roles.addRolesToParent('stories:r', 'triggers:r');
         createRole('triggers:w', 'Can add, edit, or delete story triggers. Extends `triggers:r`.');
         Roles.addRolesToParent('triggers:r', 'triggers:w');
 
