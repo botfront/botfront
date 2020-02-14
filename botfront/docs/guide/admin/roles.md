@@ -19,20 +19,24 @@ While you can create arbitrary roles and permissions in the UI, you can only ass
 | `nlu-model:r`       | Can read NLU model data and meta information (language). Extends `nlu-data:r`.                                                                                                        | `[projectId]` |
 | `nlu-model:w`       | Can add, edit and remove NLU data and models (add or remove languages to a project). Extends `nlu-model:r`, `nlu-data:w`.                                                             | `[projectId]` |
 | `nlu-model:x`       | Can train a model.                                                                                                                                                                    | `[projectId]` |
-| `responses:r`       | Can read bot responses.                                                                                                                                                            | `[projectId]` |
-| `responses:w`       | Can create, delete and edit bot responses. Extends `responses:r`.                                                                                                                  | `[projectId]` |
+| `responses:r`       | Can read bot responses.                                                                                                                                                               | `[projectId]` |
+| `responses:w`       | Can create, delete and edit bot responses. Extends `responses:r`.                                                                                                                     | `[projectId]` |
 | `stories:r`         | Can read story content. Extends `nlu-data:r`, `nlu-model:r`, `responses:r`.                                                                                                           | `[projectId]` |
 | `stories:w`         | Can read story content. Extends `stories:r`.                                                                                                                                          | `[projectId]` |
 | `triggers:r`        | Can access story triggers. Extends `stories:r`.                                                                                                                                       | `[projectId]` |
 | `triggers:w`        | Can add, edit, or delete story triggers. Extends `triggers:r`.                                                                                                                        | `[projectId]` |
 | `incoming:r`        | Can read incoming data. Extends `stories:r`.                                                                                                                                          | `[projectId]` |
-| `incoming:w`        | Can process incoming data. Extends `stories:r`, `nlu-data:w`, `incoming:r`.                                                                                               | `[projectId]` |
+| `incoming:w`        | Can process incoming data. Extends `stories:r`, `nlu-data:w`, `incoming:r`.                                                                                                           | `[projectId]` |
+| `analyics:r`        | Can view and download analytics data. Extends `incoming:r`.                                                                                                                           | `[projectId]` |
 | `projects:r`        | Can access project settings.                                                                                                                                                          | `[projectId]` |
 | `projects:w`        | Can edit project meta information andsettings. Extends `project-settings:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects. | `[projectId]` |
-| `users:r`           | Can access user information.                                                                                                                                                          | `[projectId]` |
+| `users:r`           | Can access user information. Extends `roles:r`                                                                                                                                        | `[projectId]` |
 | `users:w`           | Can add, edit, or remove user details and roles. Extends `users:r`.                                                                                                                   | `[projectId]` |
 | `global-settings:r` | Can access global settings.                                                                                                                                                           |               |
 | `global-settings:w` | Can edit global settings. Extends `global-settings:r`.                                                                                                                                |               |
+| `roles:r`           | Can view roles.                                                                                                                                                                       |               |
+| `roles:w`           | Can add, edit, or remove roles.                                                                                                                                                       |               |
+
 
 > If no `projectId` constraint is specified the permission applies to al projects.
 

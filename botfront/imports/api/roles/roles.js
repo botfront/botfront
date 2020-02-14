@@ -49,7 +49,10 @@ if (Meteor.isServer) {
         Roles.addRolesToParent('stories:r', 'incoming:r');
         createRole('incoming:w', 'Can process incoming data. Extends `stories:r`, `nlu-data:w`, `incoming:r`');
         Roles.addRolesToParent(['incoming:r', 'nlu-data:w'], 'incoming:w');
-    
+
+        createRole('analytics:r', 'Can read analytics data. Extends `incoming:r`');
+        Roles.addRolesToParent('incoming:r', 'analytics:r');
+
         createRole('project-settings:r');
         createRole('project-settings:w');
         Roles.addRolesToParent('project-settings:r', 'project-settings:w');
@@ -64,50 +67,18 @@ if (Meteor.isServer) {
         createRole('global-settings:r', 'Can access global settings.');
         createRole('global-settings:w', 'Can edit global settings. Extends `global-settings:r.`');
         Roles.addRolesToParent('global-settings:r', 'global-settings:w');
+
+        createRole('roles:r', 'Can view roles');
+        createRole('roles:w', 'Can add, edit, and remove roles. Extends `roles:r`');
+        Roles.addRolesToParent('roles:r', 'roles:w');
     
         createRole('users:r', 'Can access user information.');
         createRole('users:w', 'Can add, edit, or remove user details and roles. Extends `users:r`');
-        Roles.addRolesToParent('users:r', 'users:w');
+        Roles.addRolesToParent(['users:r', 'roles:r'], 'users:w');
+
 
         createRole('global-admin');
-        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-model:x', 'triggers:w', 'stories:w'], 'global-admin');
-
-        // -- legacy roles --
-        // createRole('copy-viewer');
-        // Roles.addRolesToParent(['responses:r', 'stories:r'], 'copy-viewer');
-        // createRole('copy-editor');
-        // Roles.addRolesToParent(['responses:w', 'stories:w'], 'copy-editor');
-    
-        // createRole('conversations:r');
-        // createRole('conversations-viewer');
-        // Roles.addRolesToParent('conversations:r', 'conversations-viewer');
-
-        // createRole('conversations:w');
-        // Roles.addRolesToParent('conversations:r', 'conversations:w');
-        // createRole('conversations-editor');
-        // Roles.addRolesToParent('conversations:w', 'conversations-editor');
-
-        // createRole('global-admin');
-        // Roles.addRolesToParent(['users:w', 'projects:w', 'project-admin'], 'global-admin');
-
-        // createRole('project-viewer');
-        // Roles.addRolesToParent(['nlu-viewer', 'copy-viewer', 'conversations-viewer', 'project-settings:r'], 'project-viewer');
-    
-
-        // createRole('analytics:r');
-        // createRole('project-admin');
-        // Roles.addRolesToParent(['nlu-editor', 'nlu-model:w', 'copy-editor', 'conversations-editor', 'project-settings:w', 'project-viewer', 'analytics:r'], 'project-admin');
-    
-        // // Legacy owner role
-        // createRole('owner');
-        // Roles.addRolesToParent('project-admin', 'owner');
-        
-        // createRole('nlu-viewer');
-        // Roles.addRolesToParent(['nlu-data:r', 'nlu-model:r'], 'nlu-viewer');
-        // Roles.addRolesToParent('nlu-viewer', 'nlu-model:x');
-
-        // createRole('nlu-editor');
-        // Roles.addRolesToParent(['nlu-data:w', 'nlu-model:x'], 'nlu-editor');
+        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-model:x', 'triggers:w', 'stories:w', 'roles:r'], 'global-admin');
     };
 
     Meteor.startup(function() {
