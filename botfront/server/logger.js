@@ -64,6 +64,11 @@ const auditFormat = printf((arg) => {
     )}${spaceBeforeIfExist(additionalInfo)}`;
 });
 
+const checkDataType = (dataType, data) => {
+    if (dataType && dataType !== 'application/json') return `Data is ${data.mimeType} and is not logged`;
+    return data;
+};
+
 const appLogToString = (arg) => {
     const {
         message,
@@ -78,14 +83,18 @@ const appLogToString = (arg) => {
         status,
         error,
     } = arg;
+    let loggedData = data;
+    if (data.mimeType) loggedData = checkDataType(data.mimeType, data);
     return `${timestamp} [${level}] : ${message} ${
         userId ? `user: ${userId}` : ''
     } ${file} - ${method} with ${JSON.stringify(args)} ${
         url ? `url: ${url}` : ''
-    }${spaceBeforeIfExist(status)} ${data ? `data: ${JSON.stringify(data)}` : ''} ${
+    }${spaceBeforeIfExist(status)} ${loggedData ? `data: ${JSON.stringify(loggedData)}` : ''} ${
         error ? `error: ${error}` : ''
     }`;
 };
+
+
 const appFormat = printf((arg) => {
     Object.keys(arg).forEach((key) => {
         if (!allowdKeysApp.includes(key)) {
@@ -183,9 +192,14 @@ const logAfterSuccessApiCall = (logger, text, meta) => {
 };
 
 export const addLoggingInterceptors = (axios, logger) => {
+    let dataType; // this variable will receive a value at request time
+    /* data type is stringified in the response object
+    keeping it outside allow us to properly handle the type of the data in the response without having to parse it everytime
+    */
     axios.interceptors.request.use(
         (config) => {
             const { url, data = null, method } = config;
+            dataType = data && data.mimeType;
             logBeforeApiCall(logger, `${method.toUpperCase()} at ${url}`, { url, data });
             return config;
         },
@@ -195,7 +209,9 @@ export const addLoggingInterceptors = (axios, logger) => {
             return Promise.reject(error);
         },
     );
-
+    
+    /* Sometimes the content headers are set to json
+    however the content in the data property could have another mimeType, that's why there is a double check of the type */
     axios.interceptors.response.use(
         (response) => {
             const { config, status, data = null } = response;
@@ -208,10 +224,11 @@ export const addLoggingInterceptors = (axios, logger) => {
                     { status, url },
                 );
             } else {
+                const loggedData = checkDataType(dataType, data);
                 logAfterSuccessApiCall(
                     logger,
                     `${config.method.toUpperCase()} at ${url} succeeded`,
-                    { status, data, url },
+                    { status, data: loggedData, url },
                 );
             }
 
@@ -223,8 +240,7 @@ export const addLoggingInterceptors = (axios, logger) => {
                 const {
                     data, status, url, method,
                 } = config;
-                let loggedData = data;
-                if (data.mimeType && data.mimeType !== 'application/json') loggedData = `Data is ${data.mimeType} and is not logged`;
+                const loggedData = checkDataType(dataType, data);
                 logger.error(
                     `${method.toUpperCase()} at ${url} failed at response time`,
                     {
