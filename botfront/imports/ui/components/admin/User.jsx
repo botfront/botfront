@@ -24,10 +24,10 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import ChangePassword from './ChangePassword';
 import { PageMenu } from '../utils/Utils';
 
-//ee
+// ee
 import { Projects } from '../../../api/project/project.collection';
 import SelectField from '../form_fields/SelectField';
-//ee
+// ee
 
 class User extends React.Component {
     constructor(props) {
@@ -128,7 +128,7 @@ class User extends React.Component {
             },
         ];
 
-        if (can('global-admin')) {
+        if (can('users:w')) {
             panes.push({
                 menuItem: 'User deletion',
                 render: () => (

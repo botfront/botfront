@@ -131,7 +131,7 @@ class ProjectInfo extends React.Component {
         const { project, modelLanguages, ready } = this.props;
         const { saving, value } = this.state;
         const projectsSchema = Projects.simpleSchema();
-        const hasProjectWritePermission = !can('project-settings:w', project._id);
+        const hasProjectWritePermission = !can('projects:w', project._id);
         const bridge = projectsSchema ? new SimpleSchema2Bridge(projectsSchema) : new SimpleSchema2Bridge(projectsSchemaDefault);
         return (
             <>

@@ -63,7 +63,7 @@ class Settings extends React.Component {
             },
         ];
 
-        if (can('global-admin', projectId)) {
+        if (can('projects:r', projectId)) {
             panes = [...panes,
                 {
                     menuItem: <Menu.Item data-cy='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,

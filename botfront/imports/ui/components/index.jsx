@@ -27,10 +27,10 @@ class Index extends React.Component {
         if (can('responses:r', pId)) {
             return `/project/${pId}/dialogue/templates`;
         }
-        if (can('conversations:r', pId)) {
+        if (can('incoming:r', pId)) {
             return `/project/${pId}/dialogue/conversations/env/development/p/1`;
         }
-        if (can('project-settings:r', pId)) {
+        if (can('projects:r', pId)) {
             return `/project/${pId}/settings`;
         }
         return ('/404');

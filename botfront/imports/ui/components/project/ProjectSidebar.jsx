@@ -36,7 +36,7 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='NLU' icon='grid layout' data-cy='nlu-sidebar-link' />
                         </Link>
                     </Can>
-                    <Can I='nlu-data:r' projectId={projectId}>
+                    <Can I='incoming:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/incoming`}>
                             <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-page' />
                         </Link>
@@ -46,12 +46,12 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='Responses' icon='comment' />
                         </Link>
                     </Can>
-                    <Can I='conversations:r' projectId={projectId}>
+                    <Can I='analytics:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/analytics`}>
                             <Menu.Item name='Analytics' icon='chart line' />
                         </Link>
                     </Can>
-                    <Can I='project-settings:r' projectId={projectId}>
+                    <Can I='projects:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/settings`}>
                             <Menu.Item name='Settings' icon='setting' />
                         </Link>
@@ -65,7 +65,7 @@ class ProjectSidebar extends React.Component {
                         </span>
                     )}
                     <Divider inverted />
-                    {can('global-admin') && (
+                    {can(['project:w', 'users:r', 'roles:r']) && (
                         <Link to='/admin/'>
                             <Menu.Item name='Admin' icon='key' />
                         </Link>

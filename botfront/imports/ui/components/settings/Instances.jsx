@@ -28,7 +28,7 @@ class Instances extends React.Component {
 
     render() {
         const { ready, instance, projectId } = this.props;
-        const hasProjectWritePermission = !can('project-settings:w', projectId);
+        const hasProjectWritePermission = !can('projects:w', projectId);
         return (
             <>
                 {ready && (

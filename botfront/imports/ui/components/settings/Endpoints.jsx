@@ -65,7 +65,7 @@ class Endpoints extends React.Component {
         return (
             <AutoForm
                 key={selectedEnvironment}
-                disabled={!!saving || !can('project-settings:w', projectId)}
+                disabled={!!saving || !can('projects:w', projectId)}
                 schema={new SimpleSchema2Bridge(EndpointsSchema)}
                 model={endpoints}
                 onSubmit={this.onSave}
@@ -94,7 +94,7 @@ class Endpoints extends React.Component {
                         )}
                     />
                 )}
-                <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('project-settings:w', projectId)} />
+                <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('projects:w', projectId)} />
             </AutoForm>
         );
     };

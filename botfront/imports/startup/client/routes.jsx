@@ -51,7 +51,7 @@ const authenticate = role => (nextState, replace, callback) => {
                     state: { nextPathname: nextState.location.pathname },
                 });
             } else if (
-                !can(role || 'project-viewer', nextState.params.project_id)
+                !can(role, nextState.params.project_id)
                 && !can('global-admin')
             ) {
                 replace({
