@@ -3,9 +3,9 @@ import { checkIfCan } from '../../../../lib/scopes';
 
 export default {
     Query: {
-        async conversationDurations(parent, args, context, info) {
+        async conversationDurations(parent, args, context) {
             if (!args.projectId) throw new Error('ProjectId is required');
-            if (context.user) checkIfCan('analytics:r', args.projectId, context.user._id);
+            checkIfCan('analytics:r', args.projectId, context.user._id);
             return getConversationDurations(args);
         },
     },

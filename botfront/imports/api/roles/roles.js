@@ -78,7 +78,7 @@ if (Meteor.isServer) {
 
 
         createRole('global-admin');
-        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-model:w', 'nlu-model:x', 'triggers:w', 'stories:w', 'roles:r'], 'global-admin');
+        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-model:w', 'nlu-model:x', 'triggers:w', 'responses:w', 'stories:w', 'roles:r', 'analytics:r', 'incoming:w'], 'global-admin');
     };
 
     Meteor.startup(function() {

@@ -3,10 +3,13 @@ import {
     upsertActivity,
     deleteActivity,
 } from '../mongo/activity';
+import { checkIfCan } from '../../../roles/roles';
+import { getProjectIdFromModelId } from '../../../../lib/utils';
 
 export default {
     Query: {
-        getActivity: async (_root, args) => {
+        getActivity: async (_root, args, context) => {
+            checkIfCan('incoming:r', getProjectIdFromModelId(args.modelId), context.user._id);
             const { cursor, pageSize } = args;
             const data = await getActivity(args);
             const cursorIndex = !cursor

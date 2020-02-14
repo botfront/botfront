@@ -38,7 +38,7 @@ if (Meteor.isServer) {
     Meteor.methods({
         'endpoints.save'(endpoints) {
             check(endpoints, Object);
-            checkIfCan('project-settings:w', endpoints.projectId);
+            checkIfCan('projects:w', endpoints.projectId);
             return saveEndpoints(endpoints);
         },
     });
