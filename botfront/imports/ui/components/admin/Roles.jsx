@@ -1,19 +1,10 @@
 import { Menu, Button, Container } from 'semantic-ui-react';
 import { useQuery } from '@apollo/react-hooks';
 import ReactTable from 'react-table-v6';
-import gql from 'graphql-tag';
 import React from 'react';
 
+import { GET_ROLES_DATA } from '../utils/queries';
 import { PageMenu } from '../utils/Utils';
-
-const GET_ROLES_DATA = gql`
-    {
-        getRolesData {
-            name
-            description
-        }
-    }
-`;
 
 const columns = [
     { id: 'name', accessor: 'name', Header: 'Name' },
@@ -21,7 +12,7 @@ const columns = [
 ];
 const RolesList = () => {
     const { loading, data } = useQuery(GET_ROLES_DATA);
-
+    console.log(data);
     return (
         <div>
             <PageMenu icon='sitemap' title='Roles'>

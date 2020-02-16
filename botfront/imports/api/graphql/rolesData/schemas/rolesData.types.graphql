@@ -2,6 +2,7 @@ type RolesData {
     name: String
     description: String
     deletable: Boolean
+    children: [String]
 }
 
 type Query {
