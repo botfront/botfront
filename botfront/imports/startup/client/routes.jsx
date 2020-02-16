@@ -36,6 +36,7 @@ import ProjectsListContainer from '../../ui/components/admin/Projects';
 import ProjectContainer from '../../ui/components/admin/Project';
 import UsersListContainer from '../../ui/components/admin/Users';
 import UserContainer from '../../ui/components/admin/User';
+import RoleContainer from '../../ui/components/admin/Role';
 import RolesList from '../../ui/components/admin/Roles';
 import AdminLayout from '../../ui/layouts/admin';
 
@@ -142,6 +143,7 @@ Meteor.startup(() => {
                                 <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticateAdmin} />
                                 <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticateAdmin} />
                                 <Route path='/admin/roles' component={RolesList} name='Roles' onEnter={authenticateAdmin} />
+                                <Route path='/admin/role/:role_name' component={RoleContainer} name='Edit Role' onEnter={authenticateAdmin} />
                                 <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticateAdmin} />
                             </Route>
                             <Route path='*' exact component={NotFound} />
