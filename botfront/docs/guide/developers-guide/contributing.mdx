@@ -52,21 +52,21 @@ The test suite starts by testing the setup process **and will wipe the database*
 
 </Important>
 
+
 ## Using the logger
 
 When contributing you will most certainly need to log some information.
-Under the hood, we use winston logger. Creating an instance is done throught 3 helper functions (see [Creating a logger](#createlogger)).
-We use a logger instance per file and per method.
-Once you have acces logger instance in the methods you working in you can refer to the winston docs if you need more details on available methods.
+Under the hood, we use Winston. You can create an instance of a logger with one of the helper functions  [found here](#createlogger).
+We use one logger instance per file and one per method.
 
 The logging is only done on the server-side part of the application.
-using our logger you can log at 4 criticality levels :
+Our logger supports 4 severity levels:
 - error
 - warn
 - info
 - debug
 
-You can also add metadata to be logged statement to provide more details. However, we limit the metadata you can log to: 
+You can also add metadata to the log statement to provide more details. However, we limit the metadata you can log to: 
 - userId (prefilled by helper)
 - file (prefilled by helper)
 - method (prefilled by helper)
@@ -91,7 +91,7 @@ logger.info('Everything is alright !', {status: 200});
 logger.error('Oh no, something went wrong', {status: 500});
 ```
 
-Log statement are formated following this format, empty fields do not appear
+Log statement are formated as follows. Empty fields do not appear.
 ```
 <timestamp> [<level>] : <message> user: <userId> <file> - <method> with <args> url: <url> <status> data: <data>  error: <error> 
 ```
@@ -109,16 +109,16 @@ To create a logger instance we have three helper functions, `getAppLoggerForFile
         getAppLoggerForFile,
         getAppLoggerForMethod,
         addLoggingInterceptors,
-    } from 'botfront/server/logger.js';
+    } from 'botfront/server/logger.js'; // change to yours
 ```
-Don't forget to change the path to the correct one for the file you wish to log from.
+
 
 If you want to see some real usage you can look into the `botfront/botfront/imports/api/instances/instances.methods.js` file
 
-Here are the details of each function. 
+Here are the details for each function. 
 
 ### getAppLoggerForFile(filename)
-This method will create a logger for the whole file, it just create a logger with the file metadata prefilled
+This method will create a logger for the whole file, it just creates a logger with the file metadata prefilled
 - filename: the name of the file your logging from, should be `__filename` most of the time
 
 the returned instance will most likely be used in the next method. It's very unlikely that you log using this instance.
@@ -128,7 +128,7 @@ the returned instance will most likely be used in the next method. It's very unl
 This method will create a logger for a specific method, and it is from this one that you will get the instance for logging
 - fileLogger: an logger instance previously created with the above function 
 - method: the method name your are in
-- userId: userId most of the time it will be Meteor.userId()
+- userId: userId, most of the time it will be Meteor.userId()
 - callingArgs: arguments used to call the method you are in
 
 
@@ -155,6 +155,3 @@ const client = axios.create();
 addLoggingInterceptors(client, logger);
 client.post(url, payload); // this call will create reponse and request logs
 ```
-
-
-
