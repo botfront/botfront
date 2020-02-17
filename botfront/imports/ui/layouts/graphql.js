@@ -1,25 +1,7 @@
 import gql from 'graphql-tag';
 
-export const RESPONSE_ADDED = gql`
-subscription newResponse($projectId: String!) {
-    botResponseAdded(projectId: $projectId) {
-        key
-    }
-}`;
-
-export const GET_BOT_RESPONSES = gql`
-query retreiveBotResponses($projectId: String!) {
-    botResponses(projectId: $projectId) {
-        key
-    }
-}`;
-
-export const GET_BOT_RESPONSE = gql`
-query getResponse($template: StringOrListOfStrings!, $arguments: Any!) {
-    getResponse(
-        template: $template
-        arguments: $arguments
-    ) {
+const botResponseFields = gql`
+    fragment BotResponseFields on BotResponsePayload {
         __typename
         text
         metadata
@@ -27,7 +9,17 @@ query getResponse($template: StringOrListOfStrings!, $arguments: Any!) {
         ...on ImagePayload { image }
         ...on CustomPayload { buttons { title, type, ...on WebUrlButton { url } ...on PostbackButton { payload } }, elements, attachment, image, custom }
     }
-}`;
+`;
+
+export const GET_BOT_RESPONSES = gql`
+    query getResponses($templates: [String]!, $language: String!, $projectId: String!) {
+        getResponses(projectId: $projectId, language: $language, templates: $templates) {
+            key
+            ...BotResponseFields
+        }
+    }
+    ${botResponseFields}
+`;
 
 export const UPSERT_BOT_RESPONSE = gql`
 mutation upsertResponse($projectId: String!, $key: String!, $language: String!, $newPayload: Any, $index: Int = -1) {
@@ -35,15 +27,3 @@ mutation upsertResponse($projectId: String!, $key: String!, $language: String!, 
         key
     }
 }`;
-
-export const UPSERT_BOT_RESPONSE_CACHE = variables => (cache, { data: { upsertResponse: updated } }) => {
-    if (updated.key !== variables.key) return; // check if update returned key ie. was succesful
-    const {
-        projectId, key: template, language, newPayload,
-    } = variables;
-    cache.writeQuery({
-        query: GET_BOT_RESPONSE,
-        variables: { template, arguments: { projectId, language } },
-        data: { getResponse: newPayload },
-    });
-};

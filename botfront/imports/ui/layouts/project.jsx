@@ -15,7 +15,7 @@ import React from 'react';
 import {
     Placeholder, Header, Menu, Container, Button, Loader, Popup,
 } from 'semantic-ui-react';
-import { Query } from '@apollo/react-components';
+import gql from 'graphql-tag';
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
@@ -30,10 +30,7 @@ import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';
 import {
     GET_BOT_RESPONSES,
-    GET_BOT_RESPONSE,
-    UPSERT_BOT_RESPONSE_CACHE,
     UPSERT_BOT_RESPONSE,
-    RESPONSE_ADDED,
 } from './graphql';
 import apolloClient from '../../startup/client/apollo';
 
@@ -170,31 +167,75 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    upsertResponse = (key, newPayload, index) => {
+    upsertResponse = (key, payload, index) => {
         const { projectId, workingLanguage: language } = this.props;
+        const { isNew, ...newPayload } = payload; // don't pass isNew to mutation
         const variables = {
             projectId, language, newPayload, key, index,
         };
         return apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,
             variables,
-            update: UPSERT_BOT_RESPONSE_CACHE({ ...variables, index: 0 }),
+            update: () => this.setResponse(key, { isNew, ...newPayload }),
         });
     }
 
-    getResponse = async (template) => {
-        const channel = null;
+    responsesFrag = () => {
         const { projectId, workingLanguage } = this.props;
+        return {
+            id: `${projectId}-${workingLanguage}`,
+            fragment: gql`
+                fragment C on Cached {
+                    responses
+                }
+            `,
+        };
+    }
+
+    readResponsesFrag = () => apolloClient.readFragment(this.responsesFrag()) || { responses: {} };
+
+    writeResponsesFrag = responses => apolloClient.writeFragment({
+        ...this.responsesFrag(),
+        data: {
+            responses,
+            __typename: 'Cached',
+        },
+    });
+
+    getResponse = async (template) => {
+        const { responses } = await this.readResponsesFrag();
+        return responses[template];
+    }
+
+    setResponse = async (template, content) => {
+        const { responses } = this.readResponsesFrag();
+        return this.writeResponsesFrag({ ...responses, [template]: content });
+    }
+
+    setResponses = async (data) => {
+        const { responses } = this.readResponsesFrag();
+        return this.writeResponsesFrag({ ...responses, ...data });
+    }
+
+    addResponses = async (templates) => {
+        const { projectId, workingLanguage } = this.props;
+        const { responses } = this.readResponsesFrag();
+        const newTemplates = templates.filter(r => !(Object.keys(responses).includes(r)));
+        if (!newTemplates.length) return false;
         const result = await apolloClient.query({
-            query: GET_BOT_RESPONSE,
+            query: GET_BOT_RESPONSES,
             variables: {
-                template,
-                arguments: { projectId, language: workingLanguage },
-                ...(channel ? { channel } : {}),
+                templates: newTemplates,
+                projectId,
+                language: workingLanguage,
             },
         });
-        if (!result.data) return null;
-        return result.data.getResponse;
+        if (!result.data) return false;
+        return this.setResponses(
+            result.data.getResponses.reduce(
+                (acc, { key, ...rest }) => ({ ...acc, ...(key in acc ? {} : { [key]: rest }) }), {},
+            ),
+        );
     }
 
     addUtteranceToTrainingData = (utterance, callback = () => { }) => {
@@ -283,53 +324,41 @@ class Project extends React.Component {
                             </div>
                         )}
                         {!loading && (
-                            <Query query={GET_BOT_RESPONSES} variables={{ projectId }}>
-                                {({ loadingResponses, data, subscribeToMore }) => (
-                                    <ProjectContext.Provider
-                                        value={{
-                                            project,
-                                            instance,
-                                            projectLanguages,
-                                            templates: data && !loadingResponses ? data.botResponses : [],
-                                            intents,
-                                            entities,
-                                            slots,
-                                            language: workingLanguage,
-                                            triggerChatPane: this.triggerChatPane,
-                                            upsertResponse: this.upsertResponse,
-                                            getResponse: this.getResponse,
-                                            addEntity: this.addEntity,
-                                            addIntent: this.addIntent,
-                                            getUtteranceFromPayload: this.getUtteranceFromPayload,
-                                            parseUtterance: this.parseUtterance,
-                                            addUtteranceToTrainingData: this.addUtteranceToTrainingData,
-                                            getCanonicalExamples: this.getCanonicalExamples,
-                                            refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
-                                            subscribeToNewBotResponses: () => subscribeToMore({
-                                                document: RESPONSE_ADDED,
-                                                variables: { projectId },
-                                                updateQuery: (prev, { subscriptionData }) => {
-                                                    if (!subscriptionData.data) return prev;
-                                                    const newBotResponse = subscriptionData.data.botResponseAdded;
-                                                    return { prev, botResponses: [...prev.botResponses, newBotResponse] };
-                                                },
-                                            }),
-                                        }}
-                                    >
-                                        <DndProvider backend={HTML5Backend}>
-                                            <div data-cy='left-pane'>
-                                                {children}
-                                                {!showChat && channel && (
-                                                    <Popup
-                                                        trigger={<Button size='big' circular onClick={() => { changeShowChat(!showChat); }} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
-                                                        content='Try out your chatbot'
-                                                    />
-                                                )}
-                                            </div>
-                                        </DndProvider>
-                                    </ProjectContext.Provider>
-                                )}
-                            </Query>
+                            <ProjectContext.Provider
+                                value={{
+                                    project,
+                                    instance,
+                                    projectLanguages,
+                                    intents,
+                                    entities,
+                                    slots,
+                                    language: workingLanguage,
+                                    triggerChatPane: this.triggerChatPane,
+                                    upsertResponse: this.upsertResponse,
+                                    getResponse: this.getResponse,
+                                    setResponse: this.setResponse,
+                                    addResponses: this.addResponses,
+                                    addEntity: this.addEntity,
+                                    addIntent: this.addIntent,
+                                    getUtteranceFromPayload: this.getUtteranceFromPayload,
+                                    parseUtterance: this.parseUtterance,
+                                    addUtteranceToTrainingData: this.addUtteranceToTrainingData,
+                                    getCanonicalExamples: this.getCanonicalExamples,
+                                    refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
+                                }}
+                            >
+                                <DndProvider backend={HTML5Backend}>
+                                    <div data-cy='left-pane'>
+                                        {children}
+                                        {!showChat && channel && (
+                                            <Popup
+                                                trigger={<Button size='big' circular onClick={() => { changeShowChat(!showChat); }} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
+                                                content='Try out your chatbot'
+                                            />
+                                        )}
+                                    </div>
+                                </DndProvider>
+                            </ProjectContext.Provider>
                         )}
                         {!loading && showChat && (
                             <React.Suspense fallback={<Loader active />}>

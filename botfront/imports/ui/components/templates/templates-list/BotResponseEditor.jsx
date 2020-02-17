@@ -43,7 +43,6 @@ const BotResponseEditor = (props) => {
         isNew,
         language,
         projectId,
-        refreshBotResponse,
         name,
     } = props;
 
@@ -206,7 +205,6 @@ const BotResponseEditor = (props) => {
         } if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
             const newPayload = getRefreshData();
             upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
-                refreshBotResponse(`${language}-${name}`, newPayload); // refresh the content of the response in the visual story editor
                 closeModal();
             });
         }
@@ -225,7 +223,7 @@ const BotResponseEditor = (props) => {
         const template = getDefaultTemplateFromSequence(activeSequence);
         handleSequenceChange(template);
     };
-   
+
     const renderActiveTab = () => {
         const activeSequence = getActiveSequence();
         if (activeTab === 1) {
@@ -260,9 +258,7 @@ const BotResponseEditor = (props) => {
                         <div className='response-editor-topbar-section'>
                             <ResponseNameInput
                                 renameable={renameable}
-                                onChange={(e, target) => {
-                                    setResponseKey(target.value);
-                                }}
+                                onChange={(_e, target) => setResponseKey(target.value)}
                                 saveResponseName={handleChangeKey}
                                 errorMessage={renameError}
                                 responseName={responseKey}
@@ -278,7 +274,7 @@ const BotResponseEditor = (props) => {
                         <div className='response-editor-topbar-section' />
                     </Segment>
                     {renderActiveTab()}
-                  
+
                 </Segment.Group>
             )}
             open={open}
@@ -297,7 +293,6 @@ BotResponseEditor.propTypes = {
     isNew: PropTypes.bool,
     language: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
-    refreshBotResponse: PropTypes.func,
     name: PropTypes.string,
 };
 
@@ -305,7 +300,6 @@ BotResponseEditor.defaultProps = {
     botResponse: {},
     renameable: true,
     isNew: false,
-    refreshBotResponse: () => {},
     name: null,
 };
 
@@ -377,7 +371,6 @@ BotResponseEditorWrapper.propTypes = {
     responseType: PropTypes.string,
     language: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
-    refreshBotResponse: PropTypes.func,
     name: PropTypes.string,
 };
 
@@ -386,7 +379,6 @@ BotResponseEditorWrapper.defaultProps = {
     renameable: true,
     isNew: false,
     responseType: '',
-    refreshBotResponse: () => {},
     name: null,
 };
 
