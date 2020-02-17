@@ -2,14 +2,14 @@ import {
     AutoForm, AutoField, ErrorsField, SubmitField,
 } from 'uniforms-semantic';
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { Container, Segment } from 'semantic-ui-react';
 import SimpleSchema from 'simpl-schema';
 import PropTypes from 'prop-types';
 
 import { rolesDataSimpleSchema as rolesDataSchema } from '../../../api/graphql/rolesData/rolesData.model';
+import { GET_ROLES_DATA, UPSERT_ROLES_DATA } from '../utils/queries';
 import SelectField from '../form_fields/SelectField';
-import { GET_ROLES_DATA } from '../utils/queries';
 import { PageMenu } from '../utils/Utils';
 
 const children = new SimpleSchema({
@@ -24,22 +24,32 @@ const Role = (props) => {
     const [roleData, setRoleData] = useState(null);
     const [rolesOptions, setRolesOptions] = useState([]);
     const { loading, data: rolesData } = useQuery(GET_ROLES_DATA);
+    const [upsertRolesData] = useMutation(UPSERT_ROLES_DATA);
 
     useEffect(() => {
         if (!loading) {
             const fetchedRolesData = rolesData.getRolesData;
             setRoleData(fetchedRolesData.find(role => role.name === roleName));
-            setRolesOptions(fetchedRolesData.map(role => ({
-                value: role.name,
-                text: role.name,
-                key: role.name,
-                description: role.description,
-            })));
+            setRolesOptions(
+                fetchedRolesData.map(role => ({
+                    value: role.name,
+                    text: role.name,
+                    key: role.name,
+                    description: role.description,
+                })),
+            );
         }
     }, [rolesData]);
 
     const handleSubmit = (role) => {
-
+        upsertRolesData({
+            variables: {
+                roleData: {
+                    name: role.name,
+                    description: role.description,
+                },
+            },
+        });
     };
 
     return (
@@ -48,10 +58,7 @@ const Role = (props) => {
             <Container>
                 <Segment>
                     {!!roleData && (
-                        <AutoForm
-                            schema={rolesDataSchemaWithChildren}
-                            model={roleData}
-                        >
+                        <AutoForm schema={rolesDataSchemaWithChildren} model={roleData} onSubmit={handleSubmit}>
                             <AutoField name='name' />
                             <AutoField name='description' />
                             <SelectField name='children' options={rolesOptions} />

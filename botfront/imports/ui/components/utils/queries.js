@@ -10,3 +10,11 @@ export const GET_ROLES_DATA = gql`
         }
     }
 `;
+
+export const UPSERT_ROLES_DATA = gql`
+    mutation upsertRolesData($roleData: RoleDataInput!) {
+        upsertRolesData(roleData: $roleData) {
+            name
+        }
+    }
+`;

@@ -24,7 +24,7 @@ export default {
         },
     },
     Mutation: {
-        upsertRolesData: (_parent, args) => upsertRolesData(args),
+        upsertRolesData: (_parent, args) => upsertRolesData(args.roleData),
         deleteRolesData: (_parent, args) => deleteRolesData(args),
     },
 };

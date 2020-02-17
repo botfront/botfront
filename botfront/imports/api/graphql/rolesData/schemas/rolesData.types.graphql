@@ -5,11 +5,18 @@ type RolesData {
     children: [String]
 }
 
+input RoleDataInput {
+    name: String
+    description: String
+    deletable: Boolean
+    children: [String]
+}
+
 type Query {
     getRolesData: [RolesData]
 }
 
 type Mutation {
-    upsertRolesData(name: String!, description: String!): RolesData
+    upsertRolesData(roleData: RoleDataInput!): RolesData
     deleteRolesData(name: String!): Boolean
 }
