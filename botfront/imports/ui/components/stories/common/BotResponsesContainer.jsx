@@ -18,18 +18,20 @@ const BotResponsesContainer = (props) => {
         onDeleteAllResponses,
         deletable,
         exceptions,
-        isNew,
-        refreshBotResponse,
         enableEditPopup,
         tag,
     } = props;
-    const [template, setTemplate] = useState(initialValue || null);
+    const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
-    const [focus, setFocus] = useState(isNew ? 0 : null);
+    const [focus, setFocus] = useState(null);
 
     useEffect(() => {
-        setTemplate(initialValue);
+        Promise.resolve(initialValue).then((res) => {
+            if (!res) return;
+            setTemplate(res);
+            if (res.isNew) setFocus(0);
+        });
     }, [initialValue]);
 
     const newText = { __typename: 'TextPayload', text: '' };
@@ -139,7 +141,6 @@ const BotResponsesContainer = (props) => {
                             name={name}
                             closeModal={() => setEditorOpen(false)}
                             renameable={false}
-                            refreshBotResponse={refreshBotResponse} // required to update the response in the visual story editor
                         />
                     )}
                     { deletable && onDeleteAllResponses && (
@@ -158,8 +159,6 @@ BotResponsesContainer.propTypes = {
     onChange: PropTypes.func,
     onDeleteAllResponses: PropTypes.func,
     exceptions: PropTypes.array,
-    isNew: PropTypes.bool.isRequired,
-    refreshBotResponse: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
 };
@@ -171,7 +170,6 @@ BotResponsesContainer.defaultProps = {
     onChange: () => {},
     onDeleteAllResponses: null,
     exceptions: [{ type: null }],
-    refreshBotResponse: () => {},
     enableEditPopup: true,
     tag: null,
 };

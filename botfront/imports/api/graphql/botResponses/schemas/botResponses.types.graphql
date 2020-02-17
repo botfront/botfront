@@ -8,6 +8,11 @@ type Query {
         tracker: ConversationInput
         channel: NlgRequestChannel
     ): BotResponsePayload,
+    getResponses(
+        templates: [String]!
+        language: String
+        projectId: String
+    ): [BotResponsePayload]
 }
 
 type Subscription {
@@ -23,7 +28,10 @@ type Mutation {
         _id: String!
         response: BotResponseInput
     ): updateResponse!
-
+    createAndOverwriteResponses(
+        projectId: String!
+        responses: [BotResponseInput]
+    ): [BotResponse]
     upsertResponse(
         projectId: String!
         language: String!
@@ -76,11 +84,6 @@ input ContentContainerInput {
     content: String
 }
 
-input NlgRequestArguments {
-    projectId: String!
-    language: StringOrListOfStrings!
-}
-
 input NlgRequestChannel {
     name: String
 }
@@ -100,28 +103,33 @@ type BotResponseVariant {
 }
 
 interface BotResponsePayload {
+    key: String
     metadata: Any
     text: String
 }
 
 type TextPayload implements BotResponsePayload {
+    key: String
     text: String!
     metadata: Any
 }
 
 type QuickReplyPayload implements BotResponsePayload {
+    key: String
     text: String
     buttons: [Button!]
     metadata: Any
 }
 
 type ImagePayload implements BotResponsePayload {
+    key: String
     text: String
     image: String
     metadata: Any
 }
 
 type CustomPayload implements BotResponsePayload {
+    key: String
     text: String
     buttons: [Button!]
     elements: [Any!]

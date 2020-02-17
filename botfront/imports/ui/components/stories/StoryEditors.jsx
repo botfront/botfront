@@ -1,6 +1,8 @@
 import { Container, Button } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React from 'react';
+import React, {
+    useContext, useState, useEffect,
+} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -8,6 +10,7 @@ import { Stories } from '../../../api/story/stories.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditorContainer from './StoryEditorContainer';
 import { setStoriesCollapsed } from '../../store/actions/actions';
+import { ProjectContext } from '../../layouts/context';
 
 function StoryEditors(props) {
     const {
@@ -17,7 +20,21 @@ function StoryEditors(props) {
         storyGroups,
         storyGroup,
         collapseAllStories,
+        responsesInFetchedStories,
     } = props;
+
+    const { addResponses } = useContext(ProjectContext);
+    const [lastUpdate, setLastUpdate] = useState(0);
+
+    useEffect(() => {
+        if (responsesInFetchedStories.length) {
+            addResponses(responsesInFetchedStories)
+                .then((res) => {
+                    // undefined is fine, false means nothing happened
+                    if (res !== false) setLastUpdate(Date.now());
+                });
+        }
+    }, [responsesInFetchedStories]);
 
     const groupNames = storyGroups
         .map(group => ({
@@ -107,13 +124,11 @@ function StoryEditors(props) {
             disabled={false}
             onRename={newTitle => handleStoryRenaming(newTitle, index)}
             onDelete={() => handleStoryDeletion(index)}
-            key={story._id}
+            key={`${story._id}-${lastUpdate}`}
             title={story.title}
             groupNames={groupNames}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
             onClone={() => handleDuplicateStory(index)}
-            onSaving={() => {}}
-            onSaved={() => {}}
             collapseAllStories={handleCollapseAllStories}
         />
     ));
@@ -144,23 +159,31 @@ StoryEditors.propTypes = {
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
     collapseAllStories: PropTypes.func.isRequired,
+    responsesInFetchedStories: PropTypes.array,
 };
 
 StoryEditors.defaultProps = {
     stories: [],
+    responsesInFetchedStories: [],
 };
 
 const StoryEditorsTracker = withTracker((props) => {
     const { projectId, storyGroup } = props;
     // We're using a specific subscription so we don't fetch too much at once
     const storiesHandler = Meteor.subscribe('stories.inGroup', projectId, storyGroup._id);
+    const stories = Stories.find({
+        projectId,
+        storyGroupId: storyGroup._id,
+    }).fetch();
+
+    const responsesInFetchedStories = stories.reduce((acc, curr) => [...acc, ...curr.events.filter(
+        event => event.match(/^utter_/) && !acc.includes(event),
+    )], []);
 
     return {
         ready: storiesHandler.ready(),
-        stories: Stories.find({
-            projectId,
-            storyGroupId: storyGroup._id,
-        }).fetch(),
+        stories,
+        responsesInFetchedStories,
     };
 })(StoryEditors);
 

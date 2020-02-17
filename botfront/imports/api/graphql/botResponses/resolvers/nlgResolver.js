@@ -25,17 +25,12 @@ const resolveTemplate = async ({
     template, projectId, language, slots, channel = null,
 }) => {
     const responses = await newGetBotResponses({
-        // channel is defined only when called by rasa
-        projectId, template, language, options: { emptyAsDefault: !channel },
+        projectId, template, language,
     });
     const source = chooseTemplateSource(responses, channel);
-    if (!source) {
-        // No response found, return template name
-        return { text: template };
-    }
-    
+    if (!source) return { text: template }; // No response found, return template name
 
-    const { payload: rawPayload, metadata } = slots ? sample(source) : source[0];
+    const { payload: rawPayload, metadata } = sample(source);
     const payload = safeLoad(rawPayload);
     if (payload.key) delete payload.key;
     if (payload.text) payload.text = interpolateSlots(payload.text, slots || {});
@@ -58,6 +53,19 @@ export default {
             return resolveTemplate({
                 template, projectId, language, slots, channel,
             });
+        },
+        getResponses: async (_root, {
+            projectId, templates, language,
+        }) => {
+            const responses = await newGetBotResponses({
+                projectId,
+                template: templates,
+                options: { emptyAsDefault: true },
+                language,
+            });
+            const noMatch = templates.filter(t => !responses.map(r => r.key).includes(t))
+                .map(r => ({ key: r, payload: 'text: \'\'' }));
+            return [...responses, ...noMatch].map(r => ({ key: r.key, ...safeLoad(r.payload) }));
         },
     },
     BotResponsePayload: {
