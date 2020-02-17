@@ -51,3 +51,110 @@ You can run our integration test suite with `npx cypress run` or interactively w
 The test suite starts by testing the setup process **and will wipe the database**.
 
 </Important>
+
+## Using the logger
+
+When contributing you will most certainly need to log some information.
+Under the hood, we use winston logger. Creating an instance is done throught 3 helper functions (see [Creating a logger](#createlogger)).
+We use a logger instance per file and per method.
+Once you have acces logger instance in the methods you working in you can refer to the winston docs if you need more details on available methods.
+
+The logging is only done on the server-side part of the application.
+using our logger you can log at 4 criticality levels :
+- error
+- warn
+- info
+- debug
+
+You can also add metadata to be logged statement to provide more details. However, we limit the metadata you can log to: 
+- userId (prefilled by helper)
+- file (prefilled by helper)
+- method (prefilled by helper)
+- url
+- data
+- args (prefilled by helper)
+- status
+- error
+
+If you already have access to a logger instance in your method, here is a quick extract of the winston doc showing usage. Otherwise, refer to [Creating a logger](#createlogger)
+```javascript
+logger.log({
+  level: 'info',
+  message: 'Hello log files!'
+});
+// Synonym with te previous statement
+logger.info('Hello again logs');
+
+// a logging statement with metadata
+logger.info('Everything is alright !', {status: 200});
+
+logger.error('Oh no, something went wrong', {status: 500});
+```
+
+Log statement are formated following this format, empty fields do not appear
+```
+<timestamp> [<level>] : <message> user: <userId> <file> - <method> with <args> url: <url> <status> data: <data>  error: <error> 
+```
+For example, it looks like this
+```
+2020-02-14T17:23:28.025Z [info] : Training project bf... user: Hv45jp24J7i3ncaZW /imports/api/instances/instances.methods.js - rasa.train with {"projectId":"bf","instance":{"_id":"vcS4JMdx4LTTr9T65","name":"Default","host":"http://rasa:5005","projectId":"bf","type":"server"}}
+```
+
+
+## Creating a logger <a name="createlogger"></a>
+To create a logger instance we have three helper functions, `getAppLoggerForFile`, `getAppLoggerForMethod` and `addLoggingInterceptors`
+
+```javascript
+ import {
+        getAppLoggerForFile,
+        getAppLoggerForMethod,
+        addLoggingInterceptors,
+    } from 'botfront/server/logger.js';
+```
+Don't forget to change the path to the correct one for the file you wish to log from.
+
+If you want to see some real usage you can look into the `botfront/botfront/imports/api/instances/instances.methods.js` file
+
+Here are the details of each function. 
+
+### getAppLoggerForFile(filename)
+This method will create a logger for the whole file, it just create a logger with the file metadata prefilled
+- filename: the name of the file your logging from, should be `__filename` most of the time
+
+the returned instance will most likely be used in the next method. It's very unlikely that you log using this instance.
+
+### getAppLoggerForMethod(fileLogger, method, userId, callingArgs)
+
+This method will create a logger for a specific method, and it is from this one that you will get the instance for logging
+- fileLogger: an logger instance previously created with the above function 
+- method: the method name your are in
+- userId: userId most of the time it will be Meteor.userId()
+- callingArgs: arguments used to call the method you are in
+
+
+```javascript
+const filelogger = getAppLoggerForMethod(__filename);
+
+const aMethod = (a,b) => {
+    const methodLogger = getAppLoggerForMethod(fileLogger, 'aMethod', Meteor.userId(), {a,b});
+    methodLogger.info('Stated to work')
+    // 2020-01-01T12:00:00.00Z [info] : Stated to work user: user1 .../example.js - aMethod with {a: 'a', b: 'b'}
+}
+```
+
+
+### addLoggingInterceptors(axiosClient, logger)
+
+This helper is specificatly designed to be used with axios, and it will log at request time and response time.
+ - axiosClient: the instance of axios that you want to log data from created throught `axios.create()`
+ - logger: an instance of a logger created throught `getAppLoggerForMethod`
+
+```javascript
+const logger = getAppLoggerForMethod(...);
+const client = axios.create();
+addLoggingInterceptors(client, logger);
+client.post(url, payload); // this call will create reponse and request logs
+```
+
+
+
