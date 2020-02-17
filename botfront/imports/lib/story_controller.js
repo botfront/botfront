@@ -39,6 +39,11 @@ export class StoryController {
         return slotsToAdd;
     }
 
+    updateSlots = (slots) => {
+        this.domain.slots = this.getSlots(slots);
+        this.validateStory();
+    }
+
     splitLines = () => (
         this.md.split('\n')
             .filter(l => l.trim() !== '')
