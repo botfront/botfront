@@ -87,12 +87,16 @@ const StoryEditorContainer = ({
             isABranch: story.checkpoints && story.checkpoints.length > 0,
         }),
     });
+
+    useEffect(() => {
+        Object.values(storyControllers).forEach(sc => sc.updateSlots(slots));
+    }, [slots]);
     
     useEffect(() => {
         if (storyControllers[story._id]) {
             const change = storyControllers[story._id].isABranch !== (story.checkpoints && story.checkpoints.length > 0);
-            storyControllers[story._id].isABranch = story.checkpoints && story.checkpoints.length > 0;
             if (change) {
+                storyControllers[story._id].isABranch = story.checkpoints && story.checkpoints.length > 0;
                 storyControllers[story._id].validateStory();
             }
         }
