@@ -18,5 +18,9 @@ export default function GenericLabel({ color, label, value }) {
 GenericLabel.propTypes = {
     color: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
+    value: PropTypes.string,
+};
+
+GenericLabel.defaultProps = {
+    value: null,
 };
