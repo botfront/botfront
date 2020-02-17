@@ -52,6 +52,7 @@ const StoryEditorContainer = ({
     changeStoryPath,
     collapsed,
     projectId,
+    collapseAllStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots, templates } = useContext(ProjectContext);
@@ -208,6 +209,7 @@ const StoryEditorContainer = ({
             isLinked={destinationStories.length > 0}
             originStories={story.checkpoints}
             initPayload={getInitIntent()}
+            collapseAllStories={collapseAllStories}
         />
     );
 
@@ -503,6 +505,7 @@ StoryEditorContainer.propTypes = {
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
+    collapseAllStories: PropTypes.func.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {
