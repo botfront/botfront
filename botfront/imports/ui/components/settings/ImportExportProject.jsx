@@ -4,6 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 
 import { Menu, Tab } from 'semantic-ui-react';
 
+import { connect } from 'react-redux';
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 import ImportProject from './ImportProject.jsx';
@@ -72,7 +73,8 @@ ImportExportProject.defaultProps = {
     apiHost: '',
 };
 
-export default withTracker(() => {
+const ImportExportProjectTracker = withTracker(({ projectId }) => {
+    const modelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
     const settingsHandler = Meteor.subscribe('settings');
     const settings = GlobalSettings
         .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': true } });
@@ -81,7 +83,13 @@ export default withTracker(() => {
         api = settings.settings.private.bfApiHost;
     }
     return {
-        ready: settingsHandler.ready(),
+        ready: settingsHandler.ready() && modelsHandler.ready(),
         apiHost: api,
     };
 })(ImportExportProject);
+
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(ImportExportProjectTracker);
