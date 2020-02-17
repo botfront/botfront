@@ -23,7 +23,7 @@ import {
 } from './MetadataForm';
 
 function ResponseMetadataForm({
-    responseMetadata, onChange,
+    responseMetadata, onChange, editable,
 }) {
     const pageEventOptions = [
         {
@@ -161,12 +161,12 @@ function ResponseMetadataForm({
             ],
         },
     };
-
+    const readOnlyClass = editable ? '' : 'read-only';
     const panesAdvanced = [
         {
             menuItem: 'General',
             render: () => (
-                <> {panes[0].render()}
+                <div className={readOnlyClass}> {panes[0].render()}
                     <ToggleField name='domHighlight.enabled' className='toggle' label='Highlight element on page' />
                     <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.enabled}>
                         <>
@@ -181,13 +181,13 @@ function ResponseMetadataForm({
                             </DisplayIf>
                         </>
                     </DisplayIf>
-                </>
+                </div>
             ),
         },
         {
             menuItem: 'Observe',
             render: () => (
-                <>
+                <div className={readOnlyClass}>
                     <ToggleField name='pageChangeCallbacks.enabled' className='toggle' label='Observe page changes' />
                     <DisplayIf condition={context => context.model.pageChangeCallbacks && context.model.pageChangeCallbacks.enabled}>
                         <>
@@ -239,13 +239,13 @@ function ResponseMetadataForm({
                             </ListField>
                         </>
                     </DisplayIf>
-                </>
+                </div>
             ),
         },
         {
             menuItem: 'Message appearance',
             render: () => (
-                <>
+                <div className={readOnlyClass}>
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable custom message style' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
@@ -258,8 +258,7 @@ function ResponseMetadataForm({
                             </DisplayIf>
                         </>
                     </DisplayIf>
-                    
-                </>
+                </div>
             ),
         },
     ];
@@ -398,6 +397,7 @@ function ResponseMetadataForm({
 ResponseMetadataForm.propTypes = {
     responseMetadata: PropTypes.object,
     onChange: PropTypes.func.isRequired,
+    editable: PropTypes.bool,
 };
 ResponseMetadataForm.defaultProps = {
     responseMetadata: {
@@ -407,5 +407,6 @@ ResponseMetadataForm.defaultProps = {
         customCss: {},
         pageChangeCallbacks: null,
     },
+    editable: true,
 };
 export default ResponseMetadataForm;

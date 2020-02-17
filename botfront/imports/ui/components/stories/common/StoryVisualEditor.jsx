@@ -119,9 +119,14 @@ class StoryVisualEditor extends React.Component {
         }
     };
 
+    getReadOnlyClass = () => {
+        const { projectId } = this.props;
+        return can('stories:w', projectId) ? '' : 'read-only';
+    }
+
     renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.data.name}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+            <div className={`utterance-container ${exceptions.severity} ${this.getReadOnlyClass()}`} agent='na'>
                 <ExceptionWrapper exceptions={exceptions}>
                     <ActionLabel
                         value={l.data.name}
@@ -140,7 +145,7 @@ class StoryVisualEditor extends React.Component {
 
     renderSlotLine = (i, l, exceptions) => (
         <React.Fragment key={`slot${i + l.data.name}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+            <div className={`utterance-container ${exceptions.severity} ${this.getReadOnlyClass()}`} agent='na'>
                 <ExceptionWrapper exceptions={exceptions}>
                     <SlotLabel
                         value={l.data}
@@ -158,7 +163,9 @@ class StoryVisualEditor extends React.Component {
 
     renderAddLine = (index) => {
         const { lineInsertIndex } = this.state;
-        const { story } = this.props;
+        const { story, projectId } = this.props;
+        if (!can('stories:w', projectId)) return <div className='line-spacer' />; // prevent crowding of story elements in read only mode
+
         const options = story.getPossibleInsertions(index);
 
         if (!Object.keys(options).length) return null;
@@ -224,7 +231,7 @@ class StoryVisualEditor extends React.Component {
 
     renderFormLine = (index, line, exceptions) => (
         <React.Fragment key={`FormLine-${index}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+            <div className={`utterance-container ${exceptions.severity} ${this.getReadOnlyClass()}`} agent='na'>
                 <ExceptionWrapper exceptions={exceptions}>
                     <GenericLabel
                         label={line.gui.type}
@@ -286,6 +293,7 @@ class StoryVisualEditor extends React.Component {
                             onInput={v => this.handleSaveUserUtterance(index, v)}
                             onDelete={() => this.handleDeleteLine(index)}
                             onAbort={() => this.handleDeleteLine(index)}
+                            projectId={projectId}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
@@ -298,16 +306,9 @@ class StoryVisualEditor extends React.Component {
         });
 
         return (
-            <div className='story-content-container'>
-                <div className='story-visual-editor' onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}>
-                    {this.renderAddLine(-1)}
-                    {lines}
-                </div>
-                {!can('stories:w', projectId) && (
-                    <div className='deny-permission'>
-                        <span className='read-only-mode'>read only mode</span>
-                    </div>
-                )}
+            <div className='story-visual-editor' onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}>
+                {this.renderAddLine(-1)}
+                {lines}
             </div>
         );
     }

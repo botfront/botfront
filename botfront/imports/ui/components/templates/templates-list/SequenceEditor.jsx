@@ -16,6 +16,7 @@ const SequenceEditor = (props) => {
         sequence,
         onChange,
         onDeleteVariation,
+        editable,
     } = props;
 
     const getContent = (variation) => {
@@ -27,7 +28,7 @@ const SequenceEditor = (props) => {
         const content = getContent(variation);
         if (!content) return <></>;
         return (
-            <Segment className='variation-container' attached key={`variation-${index}-${content.text}`} data-cy='variation-container'>
+            <Segment className={`variation-container ${editable ? '' : 'read-only'}`} attached key={`variation-${index}-${content.text}`} data-cy='variation-container'>
                 { (content.__typename === 'TextPayload'
                     || content.__typename === 'QuickReplyPayload'
                     || content.__typename === 'ImagePayload') && (
@@ -72,6 +73,11 @@ SequenceEditor.propTypes = {
     onChange: PropTypes.func.isRequired,
     onDeleteVariation: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
+    editable: PropTypes.bool,
+};
+
+SequenceEditor.defaultProps = {
+    editable: true,
 };
 
 export default SequenceEditor;

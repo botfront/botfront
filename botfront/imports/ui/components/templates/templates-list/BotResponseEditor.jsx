@@ -25,6 +25,7 @@ import {
 } from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Loading } from '../../utils/Utils';
+import { can } from '../../../../api/roles/roles';
 
 
 /*
@@ -63,6 +64,8 @@ const BotResponseEditor = (props) => {
             setResponseKey(botResponse.key);
         }
     }, [botResponse]);
+
+    const editable = can('responses:w', projectId);
 
     const validateResponseName = (err) => {
         if (!err) {
@@ -238,15 +241,18 @@ const BotResponseEditor = (props) => {
                     onChange={handleSequenceChange}
                     onDeleteVariation={handleDeleteVariation}
                     name={name}
+                    editable={editable}
                 />
-                <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
-                    <Button
-                        className='add-variation-button'
-                        data-cy='add-variation'
-                        icon='plus'
-                        onClick={addSequence}
-                    />
-                </Segment>
+                {editable && (
+                    <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
+                        <Button
+                            className='add-variation-button'
+                            data-cy='add-variation'
+                            icon='plus'
+                            onClick={addSequence}
+                        />
+                    </Segment>
+                )}
             </>
         );
     };
@@ -258,6 +264,7 @@ const BotResponseEditor = (props) => {
                 <Segment attached='top' className='resonse-editor-topbar'>
                     <div className='response-editor-topbar-section'>
                         <ResponseNameInput
+                            className={editable ? '' : 'read-only'}
                             renameable={renameable}
                             onChange={(_e, target) => setResponseKey(target.value)}
                             saveResponseName={handleChangeKey}
@@ -285,7 +292,13 @@ const BotResponseEditor = (props) => {
             className='response-editor-dimmer'
             content={renderModalContent()}
             open={open}
-            onClose={() => setTriggerClose(true)} // closes the modal the next time it renders using useEffect
+            onClose={() => {
+                if (can('responses:w', projectId)) {
+                    setTriggerClose(true);
+                    return;
+                }
+                closeModal();
+            }} // closes the modal the next time it renders using useEffect
             centered={false}
         />
     );

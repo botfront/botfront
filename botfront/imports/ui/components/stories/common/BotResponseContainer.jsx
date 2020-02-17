@@ -15,7 +15,7 @@ import { ProjectContext } from '../../../layouts/context';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag, hasMetadata, metadata,
+        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag, hasMetadata, metadata, editable,
     } = props;
     const { webhooks } = useContext(ProjectContext);
 
@@ -221,7 +221,7 @@ const BotResponseContainer = (props) => {
 
     return (
         <div
-            className={`utterance-container bot-response ${extraClass} ${metadataClass}`}
+            className={`utterance-container bot-response ${extraClass} ${metadataClass} ${editable ? '' : 'read-only'}`}
             agent='bot'
             data-cy='bot-response-input'
             {...getCustomStyle()}
@@ -250,6 +250,7 @@ BotResponseContainer.propTypes = {
     uploadImage: PropTypes.func,
     hasMetadata: PropTypes.bool,
     metadata: PropTypes.object,
+    editable: PropTypes.bool,
 };
 
 BotResponseContainer.defaultProps = {
@@ -260,6 +261,7 @@ BotResponseContainer.defaultProps = {
     uploadImage: () => {},
     hasMetadata: false,
     metadata: {},
+    editable: true,
 };
 
 export default BotResponseContainer;
