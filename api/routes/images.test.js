@@ -70,7 +70,7 @@ describe('## Images', () => {
                     responseId: 'uttsdknd',
                     mimeType: 'image/jpeg',
                 })
-                .expect(httpStatus.NOT_FOUND);
+                .expect(httpStatus.BAD_GATEWAY);
         });
     });
 
