@@ -6,6 +6,8 @@ import Alert from 'react-s-alert';
 
 import StoryRulesForm from './StoryRulesForm';
 
+import { can } from '../../../../api/roles/roles';
+
 const StoryRulesEditor = (props) => {
     const [localOpen, setLocalOpen] = useState(false);
 
@@ -35,7 +37,7 @@ const StoryRulesEditor = (props) => {
                 if (!trigger.props.onClick) return undefined;
                 return trigger.props.onClick(...args);
             },
-            disabled: trigger.props.disabled || isDestinationStory,
+            disabled: trigger.props.disabled || isDestinationStory || !can('triggers:w', projectId),
         },
     };
 

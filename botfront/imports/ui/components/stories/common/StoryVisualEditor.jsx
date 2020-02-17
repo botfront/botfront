@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { isEqual } from 'lodash';
+import { connect } from 'react-redux';
 
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
@@ -15,6 +16,7 @@ import BadLineLabel from '../BadLineLabel';
 import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
+import { can } from '../../../../api/roles/roles';
 
 const variationIndex = 0;
 
@@ -41,7 +43,7 @@ const defaultTemplate = (templateType) => {
     return false;
 };
 
-export default class StoryVisualEditor extends React.Component {
+class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
     };
@@ -248,7 +250,7 @@ export default class StoryVisualEditor extends React.Component {
     static contextType = ProjectContext;
 
     render() {
-        const { story } = this.props;
+        const { story, projectId } = this.props;
         const { responses } = this.context;
         const { language } = this.context;
         if (!story) return <div className='story-visual-editor' />;
@@ -296,9 +298,16 @@ export default class StoryVisualEditor extends React.Component {
         });
 
         return (
-            <div className='story-visual-editor' onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}>
-                {this.renderAddLine(-1)}
-                {lines}
+            <div className='story-content-container'>
+                <div className='story-visual-editor' onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}>
+                    {this.renderAddLine(-1)}
+                    {lines}
+                </div>
+                {!can('stories:w', projectId) && (
+                    <div className='deny-permission'>
+                        <span className='read-only-mode'>read only mode</span>
+                    </div>
+                )}
             </div>
         );
     }
@@ -306,9 +315,15 @@ export default class StoryVisualEditor extends React.Component {
 
 StoryVisualEditor.propTypes = {
     story: PropTypes.instanceOf(StoryController),
-  
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryVisualEditor.defaultProps = {
     story: [],
 };
+
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(StoryVisualEditor);

@@ -14,6 +14,7 @@ import { setStoryCollapsed } from '../../store/actions/actions';
 import StoryPlayButton from './StoryPlayButton';
 
 import { ConversationOptionsContext } from './Context';
+import { can } from '../../../api/roles/roles';
 
 const StoryTopMenu = ({
     onDelete,
@@ -35,6 +36,7 @@ const StoryTopMenu = ({
     isInSmartStories,
     initPayload,
     collapseAllStories,
+    projectId,
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
@@ -167,7 +169,7 @@ const StoryTopMenu = ({
             <ToolTipPopup
                 trigger={(
                     <Icon
-                        disabled={isDestinationStory || isLinked || isInSmartStories}
+                        disabled={isDestinationStory || isLinked || isInSmartStories || !can('stories:w', projectId)}
                         name='trash'
                         data-cy='delete-story'
                         className='top-menu-clickable'
@@ -180,7 +182,7 @@ const StoryTopMenu = ({
             <Popup
                 trigger={(
                     <Icon
-                        disabled={isDestinationStory || isLinked}
+                        disabled={isDestinationStory || isLinked || !can('stories:w', projectId)}
                         name='trash'
                         data-cy='delete-story'
                         className='top-menu-clickable'
@@ -237,7 +239,7 @@ const StoryTopMenu = ({
                         }
                         onKeyDown={handleInputKeyDown}
                         onBlur={submitTitleInput}
-                        disabled={disabled}
+                        disabled={disabled || !can('stories:w', projectId)}
                     />
                 </Menu.Item>
                 <Menu.Item position='right'>
@@ -273,7 +275,7 @@ const StoryTopMenu = ({
                                     disabled={!isInSmartStories}
                                     trigger={(
                                         <div>
-                                            <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories} className='move-icon' />
+                                            <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories || !can('stories:w', projectId)} className='move-icon' />
                                         </div>
                                     )}
                                     header='This story cannot be moved'
@@ -310,7 +312,7 @@ const StoryTopMenu = ({
                                 onNo={() => openMovePopup(false)}
                             />
                         )}
-                        disabled={isInSmartStories}
+                        disabled={isInSmartStories || !can('stories:w', projectId)}
                         on='click'
                         open={movePopupOpened}
                         onOpen={() => openMovePopup(true)}
@@ -387,6 +389,7 @@ StoryTopMenu.propTypes = {
     isInSmartStories: PropTypes.bool,
     initPayload: PropTypes.string,
     collapseAllStories: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryTopMenu.defaultProps = {
@@ -400,6 +403,7 @@ StoryTopMenu.defaultProps = {
 
 const mapStateToProps = (state, ownProps) => ({
     collapsed: state.stories.getIn(['storiesCollapsed', ownProps.storyId], false),
+    projectId: state.settings.get('projectId'),
 });
 
 const mapDispatchToProps = {

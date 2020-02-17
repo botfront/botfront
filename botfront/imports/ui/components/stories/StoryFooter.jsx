@@ -7,8 +7,10 @@ import {
     Menu,
     Dropdown,
 } from 'semantic-ui-react';
+import { connect } from 'react-redux';
 import StoryPathPopup from './StoryPathPopup.jsx';
 import { ConversationOptionsContext } from './Context';
+import { can } from '../../../api/roles/roles.js';
 
 class StoryFooter extends React.Component {
     constructor(props) {
@@ -110,6 +112,7 @@ class StoryFooter extends React.Component {
     }
 
     renderBranchMenu = (destinationStory, canBranch) => {
+        const { projectId } = this.props;
         if (destinationStory) {
             return <></>;
         }
@@ -120,6 +123,7 @@ class StoryFooter extends React.Component {
                     canBranch,
                 )}`}
                 data-cy='create-branch'
+                disabled={!can('stories:w', projectId)}
             >
                 <Icon
                     disabled={!canBranch}
@@ -131,36 +135,40 @@ class StoryFooter extends React.Component {
         );
     }
 
-    renderLinkMenu = (destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) => (
-        <Menu.Item
-            className={`footer-option-button remove-padding color-${this.selectIconColor(
-                canBranch,
-            )}`}
-            data-cy='link-to'
-            position={this.positionStoryLinker(destinationStory)}
-        >
-            <Icon
-                disabled={!canBranch}
-                name='arrow right'
-                color='green'
-            />
+    renderLinkMenu = (destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) => {
+        const { projectId } = this.props;
+        return (
+            <Menu.Item
+                className={`footer-option-button remove-padding color-${this.selectIconColor(
+                    canBranch,
+                )}`}
+                data-cy='link-to'
+                position={this.positionStoryLinker(destinationStory)}
+                disabled={!can('stories:w', projectId)}
+            >
+                <Icon
+                    disabled={!canBranch}
+                    name='arrow right'
+                    color='green'
+                />
             Link&nbsp;to:
-            <Dropdown
-                placeholder='Select story'
-                value={destinationStory ? destinationStory._id : ''}
-                fluid
-                search
-                selection
-                clearable
-                selectOnBlur={false}
-                className='stories-linker'
-                options={this.filterDestinations(stories, currentStoryId)}
-                data-cy='stories-linker'
-                disabled={!canBranch}
-                onChange={onDestinationStorySelection}
-            />
-        </Menu.Item>
-    );
+                <Dropdown
+                    placeholder='Select story'
+                    value={destinationStory ? destinationStory._id : ''}
+                    fluid
+                    search
+                    selection
+                    clearable
+                    selectOnBlur={false}
+                    className='stories-linker'
+                    options={this.filterDestinations(stories, currentStoryId)}
+                    data-cy='stories-linker'
+                    disabled={!canBranch || !can('stories:w', projectId)}
+                    onChange={onDestinationStorySelection}
+                />
+            </Menu.Item>
+        );
+    }
 
 
     positionStoryLinker = destinationStory => (destinationStory === null ? 'right' : 'left');
@@ -197,6 +205,7 @@ StoryFooter.propTypes = {
     disableContinue: PropTypes.bool,
     stories: PropTypes.array.isRequired,
     destinationStory: PropTypes.object,
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryFooter.defaultProps = {
@@ -207,10 +216,16 @@ StoryFooter.defaultProps = {
     destinationStory: null,
 };
 
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+const ConnectedStoryFooter = connect(mapStateToProps)(StoryFooter);
+
 export default props => (
     <ConversationOptionsContext.Consumer>
         {value => (
-            <StoryFooter
+            <ConnectedStoryFooter
                 {...props}
                 stories={value.stories}
             />

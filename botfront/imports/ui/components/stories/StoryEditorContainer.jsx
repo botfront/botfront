@@ -15,6 +15,8 @@ import {
     getSubBranchesForPath,
     accumulateExceptions,
 } from '../../../lib/story.utils';
+import { can } from '../../../api/roles/roles';
+
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from './Context';
 import { ProjectContext } from '../../layouts/context';
@@ -70,6 +72,7 @@ const StoryEditorContainer = ({
     const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
 
     const saveStory = (path, content, options = {}) => {
+        if (!can('stories:w', projectId)) return;
         Meteor.call(
             'stories.update',
             {
@@ -245,7 +248,7 @@ const StoryEditorContainer = ({
         const pathAsString = path.join();
         return (
             <AceEditor
-                readOnly={disabled}
+                readOnly={disabled || !can('stories:w', projectId)}
                 theme='github'
                 width='100%'
                 name='story'

@@ -9,6 +9,7 @@ import { Slots } from '../../../api/slots/slots.collection';
 import StoryGroupItem from './StoryGroupItem';
 import SmartStoryGroupItem from './SmartStoryGroupItem';
 import { ConversationOptionsContext } from './Context';
+import { can } from '../../../api/roles/roles';
 
 class StoryGroupBrowser extends React.Component {
     constructor(props) {
@@ -133,12 +134,15 @@ class StoryGroupBrowser extends React.Component {
     };
 
     renderNavigation = () => {
-        const { modals, storyMode, onSwitchStoryMode } = this.props;
+        const {
+            modals, storyMode, onSwitchStoryMode, projectId,
+        } = this.props;
         return (
             <div className='navigation'>
                 <Button.Group fluid>
                     {this.tooltipWrapper(
                         <Button
+                            disabled={!can('stories:w', projectId)}
                             key='newItem'
                             onClick={() => this.setState({ addMode: true })}
                             data-cy='add-item'
@@ -193,21 +197,20 @@ class StoryGroupBrowser extends React.Component {
 
         return (
             <div className='storygroup-browser'>
-                {allowAddition
-                    && (!addMode
-                        ? this.renderNavigation()
-                        : (
-                            <Input
-                                placeholder={placeholderAddItem}
-                                onChange={this.handleChangeNewItemName}
-                                value={newItemName}
-                                onKeyDown={this.handleKeyDownInput}
-                                autoFocus
-                                onBlur={() => this.submitTitleInput()}
-                                fluid
-                                data-cy='add-item-input'
-                            />
-                        ))}
+                {allowAddition && (!addMode
+                    ? this.renderNavigation()
+                    : (
+                        <Input
+                            placeholder={placeholderAddItem}
+                            onChange={this.handleChangeNewItemName}
+                            value={newItemName}
+                            onKeyDown={this.handleKeyDownInput}
+                            autoFocus
+                            onBlur={() => this.submitTitleInput()}
+                            fluid
+                            data-cy='add-item-input'
+                        />
+                    ))}
                 {data.length && (
                     <Menu vertical fluid>
                         {this.getItems([0, 1], { isIntroStory: true })}
@@ -245,6 +248,7 @@ StoryGroupBrowser.propTypes = {
     modals: PropTypes.object.isRequired,
     onSwitchStoryMode: PropTypes.func.isRequired,
     storyMode: PropTypes.string.isRequired,
+    projectId: PropTypes.string,
 };
 
 StoryGroupBrowser.defaultProps = {
@@ -259,6 +263,7 @@ StoryGroupBrowser.defaultProps = {
     selectAccessor: '',
     allowEdit: false,
     placeholderAddItem: '',
+    projectId: '',
 };
 
 const mapStateToProps = state => ({
