@@ -53,14 +53,10 @@ if (Meteor.isServer) {
         createRole('analytics:r', 'Can read analytics data. Extends `incoming:r`');
         Roles.addRolesToParent('incoming:r', 'analytics:r');
 
-        createRole('project-settings:r');
-        createRole('project-settings:w');
-        Roles.addRolesToParent('project-settings:r', 'project-settings:w');
-
         createRole('projects:r', 'Can access project settings.');
         createRole(
             'projects:w',
-            'Can edit project meta information andsettings. Extends `project-settings:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
+            'Can edit project meta information andsettings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
         );
         Roles.addRolesToParent('projects:r', 'projects:w');
         

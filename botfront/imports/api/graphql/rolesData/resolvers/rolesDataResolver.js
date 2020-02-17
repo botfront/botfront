@@ -1,8 +1,10 @@
 import { upsertRolesData, getRolesData, deleteRolesData } from '../mongo/rolesData';
+import { checkIfCan } from '../../../roles/roles';
 
 export default {
     Query: {
-        getRolesData: async () => {
+        getRolesData: async (_, __, context) => {
+            checkIfCan('roles:r', null, context.user._id);
             const rolesData = await getRolesData();
             const meteorRoles = await Meteor.roles.find({}).fetch();
             rolesData.forEach((roleData, index) => {
