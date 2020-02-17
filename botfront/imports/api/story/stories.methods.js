@@ -13,9 +13,11 @@ Meteor.methods({
         return Stories.insert(story);
     },
 
-    async 'stories.update'(story, projectId) {
+    async 'stories.update'(story, projectId, options = {}) {
         check(story, Object);
         check(projectId, String);
+        check(options, Object);
+        const { noClean } = options;
         const {
             _id, path, ...rest
         } = story;
@@ -38,9 +40,10 @@ Meteor.methods({
             : rest;
         const result = await Stories.update({ _id }, { $set: { ...update, events: newEvents } });
 
-        // check if a response was removed
-        const removedEvents = (oldEvents || []).filter(event => event.match(/^utter_/) && !newEvents.includes(event));
-        deleteResponsesRemovedFromStories(removedEvents, projectId);
+        if (!noClean) { // check if a response was removed
+            const removedEvents = (oldEvents || []).filter(event => event.match(/^utter_/) && !newEvents.includes(event));
+            deleteResponsesRemovedFromStories(removedEvents, projectId);
+        }
         return result;
     },
 
