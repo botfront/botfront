@@ -40,7 +40,7 @@ if (Meteor.isServer) {
     });
     Meteor.publish('stories.events', function(projectId) {
         check(projectId, String);
-        checkIfCan('response:r');
+        checkIfCan('responses:r');
         return Stories.find({ projectId }, { fields: { title: true, events: true } });
     });
 }
