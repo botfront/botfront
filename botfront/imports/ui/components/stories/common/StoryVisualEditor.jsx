@@ -283,8 +283,7 @@ export default class StoryVisualEditor extends React.Component {
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(
-                exception => exception.line === index + 1
-                && exception.code !== 'no_such_response', // don't show missing template warning in visual mode
+                exception => exception.line === index + 1,
             );
 
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);

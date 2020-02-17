@@ -46,8 +46,6 @@ const StoryEditorContainer = ({
     groupNames,
     onRename: onRenameStory,
     storyMode,
-    onSaving,
-    onSaved,
     branchPath,
     changeStoryPath,
     collapsed,
@@ -55,7 +53,7 @@ const StoryEditorContainer = ({
     collapseAllStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
-    const { slots, templates } = useContext(ProjectContext);
+    const { slots } = useContext(ProjectContext);
     // The next path to go to when a change is made, we wait for the story prop to be updated to go that path
     // useful when we add branch for instance, we have to wait for the branches to actually be in the db
     // set to null when we don't want to go anywhere
@@ -69,7 +67,6 @@ const StoryEditorContainer = ({
     const [destinationStories, setDestinationStories] = useState([]);
 
     const saveStory = (path, content) => {
-        onSaving();
         Meteor.call(
             'stories.update',
             {
@@ -78,7 +75,7 @@ const StoryEditorContainer = ({
                 path: typeof path === 'string' ? [path] : path,
             },
             projectId,
-            wrapMeteorCallback(() => { onSaved(); }),
+            wrapMeteorCallback,
         );
     };
 
@@ -87,18 +84,9 @@ const StoryEditorContainer = ({
             story: story.story || '',
             slots,
             onUpdate: content => saveStory(story._id, { story: content }),
-            templates,
             isABranch: story.checkpoints && story.checkpoints.length > 0,
         }),
     });
-    
-
-    // This effect is used to update errors when templates or slots are updated
-    useEffect(() => {
-        Object.keys(storyControllers).forEach((storyId) => {
-            storyControllers[storyId].setTemplates(templates);
-        });
-    }, [templates]);
     
     useEffect(() => {
         if (storyControllers[story._id]) {
@@ -163,7 +151,6 @@ const StoryEditorContainer = ({
                     story: newStory.story || '',
                     slots,
                     onUpdate: content => saveStory(currentPath, { story: content }),
-                    templates,
                     isABranch: currentPath.length > 1,
                 });
             }
@@ -178,7 +165,6 @@ const StoryEditorContainer = ({
         // valid types are "errors" and "warnings"
         exceptions[story._id] && exceptions[story._id][exceptionType]
             ? exceptions[story._id][exceptionType]
-                .filter(storyMode === 'markdown' ? e => e : e => e.code !== 'no_such_response') // don't show missing template warning in visual mode
                 .length
             : 0
     );
@@ -306,7 +292,6 @@ const StoryEditorContainer = ({
                     story: newBranch.story || '',
                     slots,
                     onUpdate: content => saveStory(path, { story: content }),
-                    templates,
                     isABranch: path.length > 1,
                 }),
             });
@@ -358,7 +343,6 @@ const StoryEditorContainer = ({
         const newExceptions = accumulateExceptions(
             story,
             slots,
-            templates,
             storyControllers,
             setStoryControllers,
             saveStory,
@@ -499,8 +483,6 @@ StoryEditorContainer.propTypes = {
     groupNames: PropTypes.array.isRequired,
     onRename: PropTypes.func.isRequired,
     storyMode: PropTypes.string,
-    onSaving: PropTypes.func.isRequired,
-    onSaved: PropTypes.func.isRequired,
     branchPath: PropTypes.array,
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,

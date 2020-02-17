@@ -11,35 +11,15 @@ class StoryException {
 
 export class StoryController {
     constructor({
-        story, slots, onUpdate = () => {}, templates = null, isABranch = false,
+        story, slots, onUpdate = () => {}, isABranch = false,
     }) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.md = story;
         this.isABranch = isABranch;
-        this.templates = this.loadTemplates(templates || []) || [];
         this.saveUpdate = () => onUpdate(this.md);
         this.validateStory();
-    }
-    
-    setTemplates = (templates) => {
-        this.templates = this.loadTemplates(templates) || [];
-        this.reset(false);
-        this.validateLines();
-    }
-
-    addTemplate = (template) => {
-        if (template && template.key) {
-            this.templates = [...this.templates, template.key];
-            this.validateStory();
-        }
-    }
-
-    loadTemplates = (templates) => {
-        if (templates instanceof Array) return templates.map(template => template.key);
-        const templatesAsArray = [];
-        return Object.keys(templates).forEach(templateKey => templatesAsArray.push(templateKey));
     }
 
     getSlots = (slots) => {
@@ -82,9 +62,6 @@ export class StoryController {
         this.form = null;
         if (!this.hasInvalidChars(this.response)) {
             this.domain.actions.add(this.response);
-            if (this.templates.indexOf(this.response) === -1) {
-                this.raiseStoryException('no_such_response');
-            }
             this.lines[this.idx].gui = { type: 'bot', data: { name: this.response } };
         }
     };
@@ -152,8 +129,7 @@ export class StoryController {
         intent: ['error', 'User utterances should look like this: `* MyIntent` or `* MyIntent{"entity": "value"}`.'],
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`.'],
         slot: ['error', 'Slot calls should look like this: `- slot{"slot_name": "slot_value"}`.'],
-        no_such_slot: ['error', 'Slot was not found. Have you defined it?'],
-        no_such_response: ['warning', 'Response was not found. Have you defined it?'],
+        no_such_slot: ['warning', 'Slot was not found. Have you defined it?'],
         bool_slot: ['error', 'Expected a boolean value for this slot.'],
         text_slot: ['error', 'Expected a text value for this slot.'],
         float_slot: ['error', 'Expected a numerical value for this slot.'],
