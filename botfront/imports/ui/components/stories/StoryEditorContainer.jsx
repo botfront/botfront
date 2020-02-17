@@ -67,7 +67,7 @@ const StoryEditorContainer = ({
     const [destinationStories, setDestinationStories] = useState([]);
     const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
 
-    const saveStory = (path, content) => {
+    const saveStory = (path, content, options = {}) => {
         Meteor.call(
             'stories.update',
             {
@@ -76,6 +76,7 @@ const StoryEditorContainer = ({
                 path: typeof path === 'string' ? [path] : path,
             },
             projectId,
+            options,
             wrapMeteorCallback,
         );
     };
@@ -84,7 +85,7 @@ const StoryEditorContainer = ({
         [story._id]: new StoryController({ // the root story
             story: story.story || '',
             slots,
-            onUpdate: content => saveStory(story._id, { story: content }),
+            onUpdate: (content, options) => saveStory(story._id, { story: content }, options),
             isABranch: hasCheckpoints(),
         }),
     });
@@ -150,7 +151,7 @@ const StoryEditorContainer = ({
                 newStoryControllers[currentPath.join()] = new StoryController({
                     story: newStory.story || '',
                     slots,
-                    onUpdate: content => saveStory(currentPath, { story: content }),
+                    onUpdate: (content, options) => saveStory(currentPath, { story: content }, options),
                     isABranch: currentPath.length > 1,
                 });
             }
@@ -227,7 +228,6 @@ const StoryEditorContainer = ({
         return (
             <AceEditor
                 readOnly={disabled}
-                // onLoad={setEditor}
                 theme='github'
                 width='100%'
                 name='story'
@@ -237,6 +237,8 @@ const StoryEditorContainer = ({
                 maxLines={Infinity}
                 fontSize={14}
                 onChange={newStory => storyControllers[pathAsString].setMd(newStory)}
+                // noClean means it won't remove unused responses
+                onBlur={() => storyControllers[pathAsString].saveUpdate({ noClean: true })}
                 value={
                     storyControllers[pathAsString]
                         ? storyControllers[pathAsString].md
@@ -291,7 +293,7 @@ const StoryEditorContainer = ({
                 [pathAsString]: new StoryController({
                     story: newBranch.story || '',
                     slots,
-                    onUpdate: content => saveStory(path, { story: content }),
+                    onUpdate: (content, options) => saveStory(path, { story: content }, options),
                     isABranch: path.length > 1,
                 }),
             });
@@ -313,6 +315,7 @@ const StoryEditorContainer = ({
                 story: newParentStory,
             });
             storyControllers[parentPath.join()].setMd(newParentStory);
+            storyControllers[parentPath.join()].saveUpdate();
         } else {
             const updatedBranches = [
                 ...branches.slice(0, index),
@@ -405,11 +408,8 @@ const StoryEditorContainer = ({
                                         if (branchPath.indexOf(branch._id) !== -1) return;
                                         handleSwitchBranch(childPath);
                                     }}
-                                    onChangeName={(newName) => {
-                                        saveStory(childPath, { title: newName });
-                                    }}
-                                    onDelete={() => handleDeleteBranch(childPath, branches, index)
-                                    }
+                                    onChangeName={newName => saveStory(childPath, { title: newName })}
+                                    onDelete={() => handleDeleteBranch(childPath, branches, index)}
                                     exceptions={branchLabelExceptions}
                                     siblings={branches}
                                     isLinked={isBranchLinked(branch._id)}

@@ -18,7 +18,7 @@ export class StoryController {
         };
         this.md = story;
         this.isABranch = isABranch;
-        this.saveUpdate = () => onUpdate(this.md);
+        this.saveUpdate = options => onUpdate(this.md, options);
         this.validateStory(false);
     }
 
@@ -302,7 +302,7 @@ export class StoryController {
 
     setMd = (content) => {
         this.md = content;
-        this.validateStory();
+        this.validateStory(false);
     }
 
     getErrors = () => this.exceptions.filter(exception => exception.type === 'error');
