@@ -65,6 +65,7 @@ const StoryEditorContainer = ({
     const [exceptions, setExceptions] = useState({});
     const [destinationStory, setDestinationStory] = useState({});
     const [destinationStories, setDestinationStories] = useState([]);
+    const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
 
     const saveStory = (path, content) => {
         Meteor.call(
@@ -84,7 +85,7 @@ const StoryEditorContainer = ({
             story: story.story || '',
             slots,
             onUpdate: content => saveStory(story._id, { story: content }),
-            isABranch: story.checkpoints && story.checkpoints.length > 0,
+            isABranch: hasCheckpoints(),
         }),
     });
 
@@ -93,14 +94,9 @@ const StoryEditorContainer = ({
     }, [slots]);
     
     useEffect(() => {
-        if (storyControllers[story._id]) {
-            const change = storyControllers[story._id].isABranch !== (story.checkpoints && story.checkpoints.length > 0);
-            if (change) {
-                storyControllers[story._id].isABranch = story.checkpoints && story.checkpoints.length > 0;
-                storyControllers[story._id].validateStory();
-            }
-        }
-    }, [story.checkpoints && story.checkpoints.length]);
+        const change = storyControllers[story._id].isABranch !== hasCheckpoints();
+        if (change) storyControllers[story._id].setIsBranch(hasCheckpoints());
+    }, [hasCheckpoints()]);
 
     const isBranchLinked = branchId => (
         destinationStories

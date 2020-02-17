@@ -19,7 +19,7 @@ export class StoryController {
         this.md = story;
         this.isABranch = isABranch;
         this.saveUpdate = () => onUpdate(this.md);
-        this.validateStory();
+        this.validateStory(false);
     }
 
     getSlots = (slots) => {
@@ -41,7 +41,11 @@ export class StoryController {
 
     updateSlots = (slots) => {
         this.domain.slots = this.getSlots(slots);
-        this.validateStory();
+        this.validateStory(false);
+    }
+
+    setIsBranch = (isABranch) => {
+        this.isABranch = isABranch;
     }
 
     splitLines = () => (
@@ -202,10 +206,10 @@ export class StoryController {
         }
     };
 
-    validateStory = () => {
+    validateStory = (save = true) => {
         this.reset();
         this.validateLines();
-        this.saveUpdate();
+        if (save) this.saveUpdate();
     };
 
     validateLines = () => {
@@ -229,7 +233,7 @@ export class StoryController {
         }
     }
 
-    reset = (resetLines = true) => {
+    reset = () => {
         this.domain = {
             entities: new Set(),
             intents: new Set(),
@@ -245,7 +249,7 @@ export class StoryController {
         this.form = null;
         this.exceptions = [];
         this.idx = 0;
-        this.lines = resetLines ? this.splitLines() : this.lines;
+        this.lines = this.splitLines();
     }
 
     toMd = (line) => {
