@@ -15,7 +15,7 @@ const getOptions = (allowedValues, props = {}) => {
 };
 
 const renderCheckboxes = ({
-    allowedValues, placeholder, disabled, fieldType, id, name, onChange, transform, value,
+    allowedValues, placeholder, onChange, value, props,
 }) => (
     <Dropdown
         placeholder={placeholder}
@@ -24,22 +24,15 @@ const renderCheckboxes = ({
         value={value}
         selection
         onChange={(e, { value }) => onChange(value)}
-        options={getOptions(allowedValues)}
+        options={getOptions(allowedValues, props)}
     />
 );
 
 const renderSelect = ({
     // eslint-disable-next-line no-unused-vars
     allowedValues,
-    disabled,
-    id,
-    inputRef,
-    label,
-    name,
     onChange,
     placeholder,
-    required,
-    transform,
     value,
     props,
 }) => (
