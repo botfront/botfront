@@ -2,7 +2,9 @@ import {
     Container, Grid, Message, Modal,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+    useState, useEffect, useContext, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
@@ -50,6 +52,16 @@ function Stories(props) {
     );
 
     const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
+
+    const reshapeStories = () => stories
+        .map(story => ({ ...story, text: story.title, value: story._id }))
+        .sort((storyA, storyB) => {
+            if (storyA.text < storyB.text) return -1;
+            if (storyA.text > storyB.text) return 1;
+            return 0;
+        });
+
+    const storiesReshaped = useMemo(reshapeStories, [stories]);
 
     useEffect(() => {
         if (switchToGroupByIdNext) {
@@ -141,7 +153,7 @@ function Stories(props) {
         <ConversationOptionsContext.Provider
             value={{
                 browseToSlots: () => setSlotsModal(true),
-                stories,
+                stories: storiesReshaped,
                 storyGroups,
                 deleteStoryGroup: handleDeleteGroup,
             }}
