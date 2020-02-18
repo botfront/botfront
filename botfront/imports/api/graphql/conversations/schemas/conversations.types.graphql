@@ -1,7 +1,7 @@
 type Query {
     conversationsPage(
         projectId: String!
-        page: Int!
+        page: Int
         pageSize: Int
         status: [String]
         sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
@@ -39,23 +39,23 @@ type ConversationContainer {
 }
 
 type Entity {
-  entity: String,
-  value: String,
-  start: Int,
-  end: Int,
-  confidence: Float,
-  extractor: String,
-  processors: [String],
+    entity: String,
+    value: String,
+    start: Int,
+    end: Int,
+    confidence: Float,
+    extractor: String,
+    processors: [String],
 }
 
 input EntityInput {
-  entity: String,
-  value: String,
-  start: Int,
-  end: Int,
-  confidence: Float,
-  extractor: String,
-  processors: [String],
+    entity: String,
+    value: String,
+    start: Int,
+    end: Int,
+    confidence: Float,
+    extractor: String,
+    processors: [String],
 }
 
 type Intent {
@@ -64,6 +64,6 @@ type Intent {
 }
 
 input IntentInput {
-  confidence: Float,
-  name: String,
+    confidence: Float,
+    name: String,
 }

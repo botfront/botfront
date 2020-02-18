@@ -34,8 +34,9 @@ export const getConversations = async (projectId, page = 1, pageSize = 20, statu
         ...filtersObject,
     }).lean().exec();
 
-    const pages = Math.ceil(numberOfDocuments / pageSize);
+    const pages = pageSize > -1 ? Math.ceil(numberOfDocuments / pageSize) : 1;
     const boundedPageNb = Math.min(pages, page);
+    const limit = pageSize > -1 ? { limit: pageSize } : {};
 
     const conversations = await Conversations.find(
         {
@@ -43,7 +44,7 @@ export const getConversations = async (projectId, page = 1, pageSize = 20, statu
         }, null,
         {
             skip: (boundedPageNb - 1) * pageSize,
-            limit: pageSize,
+            ...limit,
             sort: sortObject,
         },
     ).lean();
