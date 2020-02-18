@@ -1,4 +1,5 @@
 import yaml from 'js-yaml';
+import { set } from 'mongoose';
 import { StoryController } from './story_controller';
 import { Stories } from '../api/story/stories.collection';
 import { Projects } from '../api/project/project.collection';
@@ -77,54 +78,46 @@ export function getSubBranchesForPath(story, path) {
     }
 }
 
-export const getRulesUtteranceName = (storyId, storyContent) => {
-    if (/^\*/.test(storyContent)) {
-        return storyContent.split('\n')[0].substring(2).split('{')[0];
-    }
-    return `trigger_${storyId}`;
-};
-
-export const getUtteranceEntities = (storyContent) => {
-    const firstLine = storyContent.split('\n')[0];
-    if (/^\*/.test(storyContent) && /{/.test(firstLine)) {
-        return `{${firstLine.split('{')[1]}`; // re-add the curly bracket that was removed by .split
-    }
-    return '';
-};
-
-export const getRulesPayload = (storyId, storyContent) => `/${getRulesUtteranceName(storyId, storyContent)}`;
+export const getStartingPayload = storyContent => (
+    storyContent.split('\n')[0].substring(2).trim()
+);
 
 export const insertSmartPayloads = (story) => {
-    if (!story.rules
-        || !(story.rules.length > 0)
-    ) {
-        return story;
-    }
+    if (!story.rules || !story.rules.length) return story;
     const updatedStory = story;
-    
+    const hasStartingPayload = /^\*/.test(story.story);
+    let newPayload = hasStartingPayload ? getStartingPayload(story.story) : '';
+
     const additionalPayloads = new Set();
-    const payloadName = getRulesUtteranceName(story._id, story.story);
-    const originalEntities = getUtteranceEntities(story.story);
-    let newPayload = `${payloadName}${originalEntities}`;
+
     story.rules.forEach((rules) => {
-        if (!rules.trigger || !rules.trigger.queryString) {
+        if (!rules.trigger) return;
+        const payloadName = rules.payload.substring(1);
+        if (!rules.trigger.queryString) {
             additionalPayloads.add(payloadName);
             return;
         }
         const entityList = [];
         rules.trigger.queryString.forEach((queryString) => {
-            if (queryString.sendAsEntity) entityList.push(`"${queryString.param}":"whatever"`);
-            else additionalPayloads.add(payloadName);
+            if (queryString.sendAsEntity) {
+                entityList.push(`"${queryString.param}":"${queryString.param}"`);
+            }
         });
-        additionalPayloads.add(`${payloadName}{${entityList.join(',')}}`);
+        if (entityList.length > 0) additionalPayloads.add(`${payloadName}{${entityList.join(',')}}`);
+        else additionalPayloads.add(payloadName);
     });
+    
     additionalPayloads.delete(newPayload);
     additionalPayloads.forEach((payload) => {
+        if (newPayload.length === 0) {
+            newPayload = payload;
+            return;
+        }
         newPayload += ` OR ${payload}`;
     });
-    if (/^\*/.test(story.story)) {
+    if (hasStartingPayload) {
         // For this one we need not update it.
-        updatedStory.story = `* ${newPayload}\n${story.story.split('\n').slice(1).join('\n') || ''}`;
+        updatedStory.story = `* ${newPayload}\n${(story.story || '').split('\n').slice(1).join('\n') || ''}`;
     } else {
         updatedStory.story = `* ${newPayload}\n${story.story || ''}`;
     }
