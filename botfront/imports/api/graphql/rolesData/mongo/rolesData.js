@@ -4,4 +4,7 @@ export const upsertRolesData = async roleData => RoleData.findOneAndUpdate({ nam
 
 export const deleteRolesData = async roleData => RoleData.findOneAndDelete(roleData);
 
-export const getRolesData = async () => RoleData.find({});
+export const getRolesData = async (name) => {
+    if (name) return RoleData.find({ name });
+    return RoleData.find();
+};

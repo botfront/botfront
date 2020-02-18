@@ -2,7 +2,7 @@
 import { Menu, Button, Container } from 'semantic-ui-react';
 import { useQuery } from '@apollo/react-hooks';
 import ReactTable from 'react-table-v6';
-import { Link } from 'react-router';
+import { Link, browserHistory } from 'react-router';
 import React from 'react';
 
 import { GET_ROLES_DATA } from '../utils/queries';
@@ -25,7 +25,14 @@ const RolesList = () => {
             <PageMenu icon='sitemap' title='Roles'>
                 <Menu.Menu position='right'>
                     <Menu.Item>
-                        <Button primary icon='add' content='Create Role' />
+                        <Button
+                            primary
+                            icon='add'
+                            content='Create Role'
+                            onClick={() => {
+                                browserHistory.push('/admin/role/');
+                            }}
+                        />
                     </Menu.Item>
                 </Menu.Menu>
             </PageMenu>

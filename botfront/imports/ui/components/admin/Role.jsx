@@ -47,6 +47,7 @@ const Role = (props) => {
                 roleData: {
                     name: role.name,
                     description: role.description,
+                    children: role.children,
                 },
             },
         });
@@ -58,8 +59,8 @@ const Role = (props) => {
             <Container>
                 <Segment>
                     {!!roleData && (
-                        <AutoForm schema={rolesDataSchemaWithChildren} model={roleData} onSubmit={handleSubmit}>
-                            <AutoField name='name' />
+                        <AutoForm schema={rolesDataSchemaWithChildren} model={roleData} onSubmit={handleSubmit} disabled={roleData.deletable === false}>
+                            <AutoField name='name' read />
                             <AutoField name='description' />
                             <SelectField name='children' options={rolesOptions} />
                             <ErrorsField />
