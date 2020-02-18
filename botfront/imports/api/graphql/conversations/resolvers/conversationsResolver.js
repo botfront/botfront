@@ -41,18 +41,6 @@ export default {
         _id: (parent, _, __) => parent._id,
         updatedAt: (parent, _, __) => parent.updatedAt,
     },
-    Conversation: {
-        latest_message: (parent, _, __) => parent.latest_message,
-        events: (parent, _, __) => parent.events,
-        sender_id: (parent, _, __) => parent.sender_id,
-    },
-    Message: {
-        intent_ranking: (parent, _, __) => parent.intent_ranking,
-        intent: (parent, _, __) => parent.intent,
-        text: (parent, _, __) => parent.text,
-        language: (parent, _, __) => parent.language,
-        entities: (parent, _, __) => parent.entities,
-    },
     Entity: {
         entity: (parent, _, __) => parent.entity,
         value: (parent, _, __) => parent.value,
@@ -62,15 +50,5 @@ export default {
     Intent: {
         confidence: (parent, _, __) => parent.confidence,
         name: (parent, _, __) => parent.name,
-    },
-    Event: {
-        event: (parent, _, __) => parent.event,
-        text: (parent, _, __) => parent.text,
-        timestamp: (parent, _, __) => parent.timestamp,
-        name: (parent, _, __) => parent.name,
-        policy: (parent, _, __) => parent.policy,
-        confidence: (parent, _, __) => parent.confidence,
-        parse_data: (parent, _, __) => parent.parse_data,
-        data: (parent, _, __) => parent.data,
     },
 };
