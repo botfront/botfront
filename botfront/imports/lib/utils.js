@@ -89,12 +89,30 @@ export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProp
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
 
 if (Meteor.isServer) {
+    import {
+        getAppLoggerForMethod,
+        getAppLoggerForFile,
+        addLoggingInterceptors,
+    } from '../../server/logger';
+
     Meteor.methods({
         async 'axios.requestWithJsonBody'(url, method, data) {
+            let loggedData = data;
+            // remplace data by placeholder for images or everything not json
+            if (data.mimeType && data.mimeType !== 'application/json') loggedData = `Data is ${data.mimeType} and is not logged`;
+            const appMethodLogger = getAppLoggerForMethod(
+                getAppLoggerForFile(__filename),
+                'axios.requestWithJsonBody',
+                Meteor.userId(),
+                { url, method, data: loggedData },
+            );
+
             check(url, String);
             check(method, String);
             check(data, Object);
             try {
+                const axiosJson = axios.create();
+                addLoggingInterceptors(axiosJson, appMethodLogger);
                 const response = await axios({ url, method, data });
                 const { status, data: responseData } = response;
                 return { status, data: responseData };

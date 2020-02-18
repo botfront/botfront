@@ -62,24 +62,41 @@ accountSetupSchema.messageBox.messages({
 
 export { accountSetupSchema, newProjectSchema };
 
-const requestMailSubscription = async (email, firstName, lastName) => {
-    const mailChimpUrl = process.env.MAILING_LIST_URI || 'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
-
-    try {
-        await axios.post(mailChimpUrl, {
-            email_address: email,
-            status: 'subscribed',
-            merge_fields: {
-                FNAME: firstName,
-                LNAME: lastName,
-            },
-        });
-    } catch (e) {
-        console.log('Email subscription failed, probably because you\'ve already subscribed');
-    }
-};
 
 if (Meteor.isServer) {
+    import {
+        getAppLoggerForFile,
+        getAppLoggerForMethod,
+        addLoggingInterceptors,
+    } from '../../server/logger';
+
+    const requestMailSubscription = async (email, firstName, lastName) => {
+        const mailChimpUrl =
+            process.env.MAILING_LIST_URI ||
+            'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
+        const appMethodLogger = getAppLoggerForMethod(
+            getAppLoggerForFile(__filename),
+            'requestMailSubscription',
+            Meteor.userId(),
+            { email, firstName, lastName }
+        );
+        try {
+            const mailAxios = axios.create();
+            addLoggingInterceptors(mailAxios, appMethodLogger);
+            await mailAxios.post(mailChimpUrl, {
+                email_address: email,
+                status: 'subscribed',
+                merge_fields: {
+                    FNAME: firstName,
+                    LNAME: lastName,
+                },
+            });
+        } catch (e) {
+            appMethodLogger.error(
+                'Email subscription failed, probably because you\'ve already subscribed',
+            );
+        }
+    };
     Meteor.methods({
         async 'initialSetup.firstStep'(accountData, consent) {
             check(accountData, Object);

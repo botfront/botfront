@@ -7,6 +7,7 @@ import axios from 'axios';
 import fs from 'fs';
 import { promisify } from 'util';
 import path from 'path';
+
 import {
     getAxiosError, getModelIdsFromProjectId, getProjectModelLocalFolder, getProjectModelFileName,
 } from '../../lib/utils';
@@ -17,6 +18,7 @@ import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
+
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -84,15 +86,32 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
 };
 
 if (Meteor.isServer) {
+    import {
+        getAppLoggerForFile,
+        getAppLoggerForMethod,
+        addLoggingInterceptors,
+    } from '../../../server/logger';
+    // eslint-disable-next-line import/order
+    import { performance } from 'perf_hooks';
+
+    const trainingAppLogger = getAppLoggerForFile(__filename);
+
     export const parseNlu = async (instance, examples) => {
         check(instance, Object);
         check(examples, Array);
-
+        const appMethodLogger = getAppLoggerForMethod(
+            trainingAppLogger,
+            'parseNlu',
+            Meteor.userId(),
+            { instance, examples },
+        );
+        appMethodLogger.debug('Parsing nlu');
         try {
             const client = axios.create({
                 baseURL: instance.host,
                 timeout: 100 * 1000,
             });
+            addLoggingInterceptors(client, appMethodLogger);
             // axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
             const requests = examples.map(({ text, lang }) => {
                 const payload = Object.assign({}, { text, lang });
@@ -143,10 +162,23 @@ if (Meteor.isServer) {
             check(language, String);
             check(outputFormat, String);
             check(host, String);
+            const appMethodLogger = getAppLoggerForMethod(
+                trainingAppLogger,
+                'rasa.convertToJson',
+                Meteor.userId(),
+                {
+                    file,
+                    language,
+                    outputFormat,
+                    host,
+                },
+            );
+           
             const client = axios.create({
                 baseURL: host,
                 timeout: 100 * 1000,
             });
+            addLoggingInterceptors(client, appMethodLogger);
             const { data } = await client.post('/data/convert/', {
                 data: file,
                 output_format: outputFormat,
@@ -159,6 +191,15 @@ if (Meteor.isServer) {
             check(language, String);
             check(instance, Object);
             const modelIds = await getModelIdsFromProjectId(projectId);
+            const appMethodLogger = getAppLoggerForMethod(
+                trainingAppLogger,
+                'rasa.getTrainingPayload',
+                Meteor.userId(),
+                { projectId, instance, language },
+            );
+
+            appMethodLogger.info('Building training payload ...');
+            const t0 = performance.now();
             const nluModels = NLUModels.find(
                 { _id: { $in: modelIds } },
                 {
@@ -182,6 +223,7 @@ if (Meteor.isServer) {
                     baseURL: instance.host,
                     timeout: 3 * 60 * 1000,
                 });
+                addLoggingInterceptors(client, appMethodLogger);
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < nluModels.length; ++i) {
                     // eslint-disable-next-line no-await-in-loop
@@ -193,7 +235,6 @@ if (Meteor.isServer) {
                     nlu[nluModels[i].language] = data;
                     config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
-
                 const { stories, domain } = await getStoriesAndDomain(projectId, language);
                 const payload = {
                     domain,
@@ -202,8 +243,12 @@ if (Meteor.isServer) {
                     config,
                     fixed_model_name: getProjectModelFileName(projectId),
                 };
+                const t1 = performance.now();
+                appMethodLogger.info(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
                 return payload;
             } catch (e) {
+                const t1 = performance.now();
+                appMethodLogger.error(`Building training payload failed - ${(t1 - t0).toFixed(2)} ms`, { status: e.status });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw getAxiosError(e);
             }
@@ -212,30 +257,40 @@ if (Meteor.isServer) {
         async 'rasa.train'(projectId, instance) {
             check(projectId, String);
             check(instance, Object);
+            const appMethodLogger = getAppLoggerForMethod(
+                trainingAppLogger,
+                'rasa.train',
+                Meteor.userId(),
+                { projectId, instance },
+            );
 
+            appMethodLogger.info(`Training project ${projectId}...`);
+            const t0 = performance.now();
             try {
                 const client = axios.create({
                     baseURL: instance.host,
                     timeout: 3 * 60 * 1000,
                 });
-
+                addLoggingInterceptors(client, appMethodLogger);
                 const payload = await Meteor.call('rasa.getTrainingPayload', projectId, instance);
-
                 const trainingClient = axios.create({
                     baseURL: instance.host,
                     timeout: 30 * 60 * 1000,
                     responseType: 'arraybuffer',
                 });
+                addLoggingInterceptors(trainingClient, appMethodLogger);
                 const trainingResponse = await trainingClient.post('/model/train', payload);
-
                 if (trainingResponse.status === 200) {
+                    const t1 = performance.now();
+                    appMethodLogger.info(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`);
                     const { headers: { filename } } = trainingResponse;
                     const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
                     try {
+                        appMethodLogger.debug(`Saving model at ${trainedModelPath}`);
                         await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
                     } catch (e) {
                         // eslint-disable-next-line no-console
-                        console.log(`Could not save trained model to ${trainedModelPath}:${e}`);
+                        appMethodLogger.error(`Could not save trained model to ${trainedModelPath}`, { error: e });
                     }
 
                     await client.put('/model', { model_file: trainedModelPath });
@@ -244,6 +299,8 @@ if (Meteor.isServer) {
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
+                const t1 = performance.now();
+                appMethodLogger.error(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`, { error: e });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw getAxiosError(e);
             }
@@ -253,6 +310,13 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));
+            
+            const appMethodLogger = getAppLoggerForMethod(
+                trainingAppLogger,
+                'rasa.evaluate.nlu',
+                Meteor.userId(),
+                { modelId, projectId, testData },
+            );
             try {
                 this.unblock();
                 const model = NLUModels.findOne({ _id: modelId });
@@ -267,7 +331,7 @@ if (Meteor.isServer) {
                     baseURL: instance.host,
                     timeout: 60 * 60 * 1000,
                 });
-
+                addLoggingInterceptors(client, appMethodLogger);
                 axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
                 const url = `${instance.host}/model/test/intents?${qs}`;
                 const results = Promise.await(client.post(url, examples));
