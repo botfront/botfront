@@ -38,7 +38,7 @@ class TemplatesTable extends React.Component {
                 accessor: (t) => {
                     const template = find(t.values, { lang });
                     const { sequence = [] } = template || {};
-                    const filterableText = sequence.map(({ content }) => content).join('');
+                    const filterableText = sequence.map(val => (val || {}).content).join('');
                     return { sequence, filterableText };
                 },
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: [`${lang}.filterableText`] }),
