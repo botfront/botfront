@@ -1,10 +1,11 @@
 import { Container, Button } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
-    useContext, useState, useEffect,
+    useContext, useState, useEffect, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Loading } from '../utils/Utils';
 
 import { Stories } from '../../../api/story/stories.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -26,12 +27,13 @@ function StoryEditors(props) {
     const { addResponses } = useContext(ProjectContext);
     const [lastUpdate, setLastUpdate] = useState(0);
 
+    const lastDate = useMemo(() => Date.now(), [responsesInFetchedStories]);
+
     useEffect(() => {
         if (responsesInFetchedStories.length) {
-            addResponses(responsesInFetchedStories)
+            addResponses(responsesInFetchedStories, lastDate)
                 .then((res) => {
-                    // undefined is fine, false means nothing happened
-                    if (res !== false) setLastUpdate(Date.now());
+                    if (res) setLastUpdate(res);
                 });
         }
     }, [responsesInFetchedStories]);
@@ -124,7 +126,7 @@ function StoryEditors(props) {
             disabled={false}
             onRename={newTitle => handleStoryRenaming(newTitle, index)}
             onDelete={() => handleStoryDeletion(index)}
-            key={`${story._id}-${lastUpdate}`}
+            key={story._id}
             title={story.title}
             groupNames={groupNames}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
@@ -134,7 +136,7 @@ function StoryEditors(props) {
     ));
 
     return (
-        <>
+        <Loading loading={lastUpdate < lastDate}>
             {editors}
             <Container textAlign='center'>
                 <Button
@@ -148,7 +150,7 @@ function StoryEditors(props) {
                     content='Add a story'
                 />
             </Container>
-        </>
+        </Loading>
     );
 }
 

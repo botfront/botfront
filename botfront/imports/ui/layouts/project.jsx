@@ -49,7 +49,6 @@ class Project extends React.Component {
         };
     }
 
-
     componentDidUpdate = (prevProps) => {
         const { projectId, workingLanguage: language } = this.props;
         const { projectId: prevProjectId, workingLanguage: prevLanguage } = prevProps;
@@ -206,20 +205,20 @@ class Project extends React.Component {
     }
 
     setResponse = async (template, content) => {
-        const { responses } = this.readResponsesFrag();
+        const { responses } = await this.readResponsesFrag();
         return this.writeResponsesFrag({ ...responses, [template]: content });
     }
 
     setResponses = async (data) => {
-        const { responses } = this.readResponsesFrag();
+        const { responses } = await this.readResponsesFrag();
         return this.writeResponsesFrag({ ...responses, ...data });
     }
 
-    addResponses = async (templates) => {
+    addResponses = async (templates, val) => {
         const { projectId, workingLanguage } = this.props;
-        const { responses } = this.readResponsesFrag();
+        const { responses } = await this.readResponsesFrag();
         const newTemplates = templates.filter(r => !(Object.keys(responses).includes(r)));
-        if (!newTemplates.length) return false;
+        if (!newTemplates.length) return val;
         const result = await apolloClient.query({
             query: GET_BOT_RESPONSES,
             variables: {
@@ -228,12 +227,13 @@ class Project extends React.Component {
                 language: workingLanguage,
             },
         });
-        if (!result.data) return false;
-        return this.setResponses(
+        if (!result.data) return val;
+        await this.setResponses(
             result.data.getResponses.reduce(
                 (acc, { key, ...rest }) => ({ ...acc, ...(key in acc ? {} : { [key]: rest }) }), {},
             ),
         );
+        return Date.now();
     }
 
     addUtteranceToTrainingData = (utterance, callback = () => { }) => {
@@ -266,7 +266,7 @@ class Project extends React.Component {
         </Placeholder>
     );
 
-    render() {
+    render = () => {
         const {
             children,
             projectId,
@@ -334,7 +334,6 @@ class Project extends React.Component {
                                     triggerChatPane: this.triggerChatPane,
                                     upsertResponse: this.upsertResponse,
                                     getResponse: this.getResponse,
-                                    setResponse: this.setResponse,
                                     addResponses: this.addResponses,
                                     addEntity: this.addEntity,
                                     addIntent: this.addIntent,
