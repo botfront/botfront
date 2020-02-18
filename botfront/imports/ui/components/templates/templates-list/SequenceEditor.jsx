@@ -19,7 +19,7 @@ const SequenceEditor = (props) => {
     } = props;
 
     const getContent = (variation) => {
-        const content = safeLoad(variation.content);
+        const content = safeLoad((variation || {}).content);
         return content.__typename ? content : addContentType(content);
     };
 
