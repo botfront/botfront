@@ -113,12 +113,16 @@ export const addResponseLanguage = (response, language) => {
 export const checkMetadataSet = (metadata) => {
     if (!metadata) return false;
     const {
-        linkTarget, userInput, forceOpen, forceClose,
+        linkTarget, userInput, forceOpen, forceClose, pageChangeCallbacks = null, pageEventCallbacks = null, domHighlight = null, customCss = null,
     } = metadata;
     if (linkTarget === '_blank'
         && userInput === 'show'
         && forceOpen === false
         && forceClose === false
+        && pageChangeCallbacks === null
+        && domHighlight === null
+        && pageEventCallbacks === null
+        && customCss === null
     ) {
         return false;
     }
