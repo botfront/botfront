@@ -172,6 +172,10 @@ export const getConversations = async ({
         }];
     }
 
+    const pages = pageSize > -1 ? pageSize : 1;
+    const boundedPageNb = Math.min(pages, page);
+    const limit = pageSize > -1 ? [{ $limit: pageSize }] : [];
+
     const aggregation = [
         {
             $addFields: {
@@ -190,11 +194,10 @@ export const getConversations = async ({
             $facet: {
                 conversations: [
                     {
-                        $skip: (page - 1) * pageSize,
+                        $skip: (boundedPageNb - 1) * pageSize,
                     },
-                    {
-                        $limit: pageSize,
-                    }],
+                    ...limit,
+                ],
                 pages: [
                     {
                         $count: 'numberOfDocuments',

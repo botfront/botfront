@@ -1,24 +1,24 @@
 type Query {
     conversationsPage(
-      projectId: String!, 
-      page: Int!,
-      pageSize: Int,
-      status: [String] 
-      env: String
-      sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
-      lengthFilter: Int
-      xThanLength: compare
-      confidenceFilter: Float
-      xThanConfidence: compare
-      actionFilters: [String]
-      startDate: String
-      endDate: String
-      timeZoneHoursOffset: Float
-      userId: String
-      operatorActionsFilters: String,
-      operatorIntentsFilters: String,
-      intentFilters: [String]
-      ): Pagination
+        projectId: String!, 
+        page: Int,
+        pageSize: Int,
+        status: [String] 
+        env: String
+        sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
+        lengthFilter: Int
+        xThanLength: compare
+        confidenceFilter: Float
+        xThanConfidence: compare
+        actionFilters: [String]
+        startDate: String
+        endDate: String
+        timeZoneHoursOffset: Float
+        userId: String
+        operatorActionsFilters: String,
+        operatorIntentsFilters: String,
+        intentFilters: [String]
+    ): Pagination
     conversation(projectId: String!, id: String!): ConversationContainer!
     intentsInConversations(projectId: String!): [String]
 }
@@ -29,9 +29,9 @@ enum order {
 }
 
 enum compare {
-  greaterThan
-  lessThan
-  equals
+    greaterThan
+    lessThan
+    equals
 }
 
 type Mutation {
@@ -59,23 +59,23 @@ type ConversationContainer {
 }
 
 type Entity {
-  entity: String,
-  value: String,
-  start: Int,
-  end: Int,
-  confidence: Float,
-  extractor: String,
-  processors: [String],
+    entity: String,
+    value: String,
+    start: Int,
+    end: Int,
+    confidence: Float,
+    extractor: String,
+    processors: [String],
 }
 
 input EntityInput {
-  entity: String,
-  value: String,
-  start: Int,
-  end: Int,
-  confidence: Float,
-  extractor: String,
-  processors: [String],
+    entity: String,
+    value: String,
+    start: Int,
+    end: Int,
+    confidence: Float,
+    extractor: String,
+    processors: [String],
 }
 
 type Intent {
@@ -84,6 +84,6 @@ type Intent {
 }
 
 input IntentInput {
-  confidence: Float,
-  name: String,
+    confidence: Float,
+    name: String,
 }
