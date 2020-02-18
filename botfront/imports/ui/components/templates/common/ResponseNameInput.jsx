@@ -47,7 +47,7 @@ const ResponseNameInput = (props) => {
 
 ResponseNameInput.propTypes = {
     renameable: PropTypes.bool,
-    onChange:  PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
     saveResponseName: PropTypes.func.isRequired,
     errorMessage: PropTypes.string,
     responseName: PropTypes.string.isRequired,

@@ -55,27 +55,16 @@ class TemplatesTable extends React.Component {
                 accessor: 'key',
                 className: 'center',
                 Cell: ({ value: key, viewIndex: index }) => {
-                    const { templates, activeEditor, setActiveEditor } = this.props;
+                    const { templates, setActiveEditor } = this.props;
                     const botResponse = templates.find(({ key: templateKey }) => templateKey === key) || {};
                     return (
-                        <BotResponseEditor
-                            trigger={(
-                                <Icon
-                                    link
-                                    data-cy={`edit-response-${index}`}
-                                    name='edit'
-                                    color='grey'
-                                    size='small'
-                                    onClick={() => setActiveEditor(botResponse._id)}
-                                />
-                            )}
-                            open={activeEditor === botResponse._id}
-                            botResponse={botResponse || null}
-                            closeModal={() => setActiveEditor('')}
-                            renameable={!events.find((storyEvents) => {
-                                if (!storyEvents) return false;
-                                return storyEvents.find(responseName => responseName === key);
-                            })}
+                        <Icon
+                            link
+                            data-cy={`edit-response-${index}`}
+                            name='edit'
+                            color='grey'
+                            size='small'
+                            onClick={() => setActiveEditor(botResponse._id)}
                         />
                     );
                 },
@@ -228,9 +217,30 @@ class TemplatesTable extends React.Component {
         changeWorkingLanguage(this.getTemplateLanguages(templates)[activeIndex]);
     };
 
+    renderBotResponseEditor() {
+        const {
+            activeEditor, setActiveEditor, events, templates,
+        } = this.props;
+        const botResponse = templates.find(({ _id }) => _id === activeEditor) || {};
+        return (
+            <BotResponseEditor
+                trigger={(
+                    <div />
+                )}
+                open={activeEditor !== null}
+                botResponse={botResponse || null}
+                closeModal={() => setActiveEditor(null)}
+                renameable={!events.find((storyEvents) => {
+                    if (!storyEvents) return false;
+                    return storyEvents.find(responseName => responseName === botResponse.key);
+                })}
+            />
+        );
+    }
+
     render() {
         const {
-            nluLanguages, templates, workingLanguage, newResponse, closeNewResponse,
+            nluLanguages, templates, workingLanguage, newResponse, closeNewResponse, activeEditor,
         } = this.props;
         const activeIndex = this.getTemplateLanguages(templates).indexOf(workingLanguage);
         return (
@@ -257,6 +267,7 @@ class TemplatesTable extends React.Component {
                         isNew
                     />
                 )}
+                {activeEditor && this.renderBotResponseEditor()}
             </div>
         );
     }

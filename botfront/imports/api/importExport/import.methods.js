@@ -6,12 +6,27 @@ import { check } from 'meteor/check';
 import { generateErrorText, generateImportResponse } from './importExport.utils';
 
 if (Meteor.isServer) {
+    import {
+        getAppLoggerForFile,
+        getAppLoggerForMethod,
+        addLoggingInterceptors,
+    } from '../../../server/logger';
+
+    const importAppLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
         async importProject(projectFile, apiHost, projectId) {
             check(projectFile, Object);
             check(apiHost, String);
             check(projectId, String);
-            const importRequest = axios.put(
+            const appMethodLogger = getAppLoggerForMethod(
+                importAppLogger,
+                'importProject',
+                Meteor.userId(),
+                { projectFile, apiHost, projectId }
+            );
+            const importAxios = axios.create();
+            addLoggingInterceptors(importAxios, appMethodLogger);
+            const importRequest = importAxios.put(
                 `${apiHost}/project/${projectId}/import`,
                 projectFile,
                 { maxContentLength: 100000000 },

@@ -147,6 +147,12 @@ function uploadModel(bytes, path, bucket, makePublic) {
 }
 
 if (Meteor.isServer) {
+    import {
+        getAppLoggerForMethod,
+        getAppLoggerForFile,
+        addLoggingInterceptors,
+    } from '../../server/logger';
+
     Meteor.methods({
         'upload.gcs'(fileBinaryString, projectId, bucket, fileName, options) {
             check(projectId, String);
@@ -183,10 +189,22 @@ if (Meteor.isServer) {
         },
 
         async 'axios.requestWithJsonBody'(url, method, data) {
+            let loggedData = data;
+            // remplace data by placeholder for images or everything not json
+            if (data.mimeType && data.mimeType !== 'application/json') loggedData = `Data is ${data.mimeType} and is not logged`;
+            const appMethodLogger = getAppLoggerForMethod(
+                getAppLoggerForFile(__filename),
+                'axios.requestWithJsonBody',
+                Meteor.userId(),
+                { url, method, data: loggedData },
+            );
+
             check(url, String);
             check(method, String);
             check(data, Object);
             try {
+                const axiosJson = axios.create();
+                addLoggingInterceptors(axiosJson, appMethodLogger);
                 // 4mb
                 const maxContentLength = 4000000;
                 const response = await axios({

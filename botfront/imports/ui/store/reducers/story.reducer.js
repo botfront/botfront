@@ -18,6 +18,8 @@ export default function reducer(state = initialState, action) {
         return state.setIn(['savedStoryPaths', action.storyId], List(action.path));
     case types.SET_STORY_COLLAPSED:
         return state.setIn(['storiesCollapsed', action.storyId], action.collapsed);
+    case types.SET_STORIES_COLLAPSED:
+        return state.mergeIn(['storiesCollapsed'], action.stories);
     default:
         return state;
     }

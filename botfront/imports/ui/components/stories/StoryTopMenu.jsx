@@ -34,6 +34,7 @@ const StoryTopMenu = ({
     rules,
     isInSmartStories,
     initPayload,
+    collapseAllStories,
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
@@ -219,6 +220,9 @@ const StoryTopMenu = ({
                         onClick={() => {
                             collapseStory(storyId, !collapsed);
                         }}
+                        onDoubleClick={() => {
+                            collapseAllStories(!collapsed);
+                        }}
                         data-cy='collapse-story-button'
                     />
                     {isDestinationStory ? (
@@ -382,6 +386,7 @@ StoryTopMenu.propTypes = {
     rules: PropTypes.array,
     isInSmartStories: PropTypes.bool,
     initPayload: PropTypes.string,
+    collapseAllStories: PropTypes.func.isRequired,
 };
 
 StoryTopMenu.defaultProps = {

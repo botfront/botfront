@@ -6,6 +6,16 @@ import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { newGetBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
+let storyAppLogger;
+let getAppLoggerForMethodExport;
+if (Meteor.isServer) {
+    import { getAppLoggerForMethod, getAppLoggerForFile } from '../../server/logger';
+
+    getAppLoggerForMethodExport = getAppLoggerForMethod;
+    storyAppLogger = getAppLoggerForFile(__filename);
+}
+
+
 export const traverseStory = (story, path) => path
     .slice(1)
     // gets branches but also indices, useful for setting later
@@ -227,7 +237,32 @@ export const addlinkCheckpoints = (stories) => {
     return storiesCheckpointed;
 };
 
-export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}, crashOnStoryWithErrors = true) => {
+export const extractDomain = (
+    stories,
+    slots,
+    templates = {},
+    defaultDomain = {},
+    crashOnStoryWithErrors = true,
+) => {
+    // extractDomain can be called from outside a Meteor method so Meteor.userId() might not be available
+    let userId;
+    try {
+        userId = Meteor.userId();
+    } catch (error) {
+        userId = 'Can not get userId here';
+    }
+    const appMethodLogger = getAppLoggerForMethodExport(
+        storyAppLogger,
+        'extractDomain',
+        userId,
+        {
+            stories,
+            slots,
+            templates,
+            defaultDomain,
+            crashOnStoryWithErrors,
+        },
+    );
     const initialDomain = {
         actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
         intents: new Set(defaultDomain.intents || []),
@@ -261,8 +296,10 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
             if (crashOnStoryWithErrors) {
                 // Same thing than previous comment 20 lines up
                 if (typeof story.title === 'string') {
+                    appMethodLogger.error(`an error in the story ${story.title} has caused training to fail: ${e}`);
                     throw new Error(`an error in the story ${story.title} has caused training to fail`);
                 } else {
+                    appMethodLogger.error(`an error in a story has caused training to fail: ${e}`);
                     throw new Error('an error in a story has caused training to fail');
                 }
             } else {
@@ -277,6 +314,7 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
             }
         }
     });
+    appMethodLogger.debug('merging domains');
     domains = domains.reduce(
         (d1, d2) => ({
             entities: new Set([...d1.entities, ...d2.entities]),
@@ -288,6 +326,7 @@ export const extractDomain = (stories, slots, templates = {}, defaultDomain = {}
         }),
         initialDomain,
     );
+    appMethodLogger.debug('converting domain to yaml');
     domains = yaml.safeDump({
         entities: Array.from(domains.entities),
         intents: Array.from(domains.intents),
@@ -311,19 +350,22 @@ export const getAllTemplates = async (projectId, language = '') => {
 };
 
 export const getStoriesAndDomain = async (projectId, language) => {
+    const appMethodLogger = storyAppLogger.child({ method: 'getStoriesAndDomain', args: { projectId, language } });
+
     const { defaultDomain: yamlDDomain, defaultLanguage } = Projects.findOne({ _id: projectId }, { defaultDomain: 1, defaultLanguage: 1 });
     const defaultDomain = yaml.safeLoad(yamlDDomain.content) || {};
-
+    
+    appMethodLogger.debug('Retrieving default domain');
     defaultDomain.slots = {
         ...(defaultDomain.slots || {}),
         fallback_language: { type: 'unfeaturized', initial_value: defaultLanguage },
     };
-
+    appMethodLogger.debug('Selecting story groups');
     const selectedStoryGroupsIds = StoryGroups.find(
         { projectId, selected: true },
         { fields: { _id: 1 } },
     ).fetch().map(storyGroup => storyGroup._id);
-
+    appMethodLogger.debug('Fetching stories');
     const stories = selectedStoryGroupsIds.length > 0
         ? Stories.find(
             { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
@@ -338,16 +380,19 @@ export const getStoriesAndDomain = async (projectId, language) => {
                 story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, rules: 1,
             },
         }).fetch();
-
+    appMethodLogger.debug('Flatening stories');
     const storiesForDomain = stories
         .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
+    appMethodLogger.debug('Adding branch checkpoints');
     let storiesForRasa = stories
         .map(insertSmartPayloads)
         .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
         .map(story => appendBranchCheckpoints(story));
+    appMethodLogger.debug('Adding links checkpoints');
     storiesForRasa = addlinkCheckpoints(storiesForRasa)
         .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
         .map(story => `## ${story.title}\n${story.story}`);
+    appMethodLogger.debug('Fetching templates');
     const templates = await getAllTemplates(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     return {

@@ -53,6 +53,7 @@ const StoryEditorContainer = ({
     collapsed,
     projectId,
     isInSmartStories,
+    collapseAllStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots, templates } = useContext(ProjectContext);
@@ -217,6 +218,7 @@ const StoryEditorContainer = ({
             rules={story.rules}
             isInSmartStories={isInSmartStories}
             initPayload={getInitIntent()}
+            collapseAllStories={collapseAllStories}
         />
     );
 
@@ -514,6 +516,7 @@ StoryEditorContainer.propTypes = {
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
     isInSmartStories: PropTypes.bool,
+    collapseAllStories: PropTypes.func.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {
