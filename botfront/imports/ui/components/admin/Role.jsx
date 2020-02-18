@@ -60,7 +60,7 @@ const Role = (props) => {
                 <Segment>
                     {!!roleData && (
                         <AutoForm schema={rolesDataSchemaWithChildren} model={roleData} onSubmit={handleSubmit} disabled={roleData.deletable === false}>
-                            <AutoField name='name' read />
+                            <AutoField name='name' />
                             <AutoField name='description' />
                             <SelectField name='children' options={rolesOptions} />
                             <ErrorsField />
