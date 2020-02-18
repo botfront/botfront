@@ -34,6 +34,9 @@ export const loadDomain = ({
         let firstMetadataFound;
         template.forEach((item) => {
             const { language, metadata, ...rest } = item;
+            const content = typeof item === 'string'
+                ? safeDump({ text: item })
+                : safeDump(rest);
             const lang = language || fallbackImportLanguage;
             if (!firstMetadataFound && metadata) firstMetadataFound = metadata;
             if (firstMetadataFound && !isEqual(firstMetadataFound, metadata)) {
@@ -50,10 +53,10 @@ export const loadDomain = ({
                 if (valueIndex > -1) {
                     values[valueIndex].sequence = [
                         ...values[valueIndex].sequence,
-                        { content: safeDump(rest) },
+                        { content },
                     ];
                 } else {
-                    values.push({ lang, sequence: [{ content: safeDump(rest) }] });
+                    values.push({ lang, sequence: [{ content }] });
                 }
             }
         });
