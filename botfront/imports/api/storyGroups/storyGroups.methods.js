@@ -21,6 +21,7 @@ export const createIntroStoryGroup = (projectId) => {
                     title: 'Get started',
                     storyGroupId: groupId,
                     projectId,
+                    events: ['utter_get_started'],
                 });
             } else {
                 // eslint-disable-next-line no-console
@@ -45,12 +46,14 @@ export const createDefaultStoryGroup = (projectId) => {
                     title: 'Greetings',
                     storyGroupId: groupId,
                     projectId,
+                    events: ['utter_hi'],
                 });
                 Meteor.call('stories.insert', {
                     story: '* chitchat.bye\n    - utter_bye',
                     title: 'Farewells',
                     storyGroupId: groupId,
                     projectId,
+                    events: ['utter_bye'],
                 });
             } else {
                 // eslint-disable-next-line no-console

@@ -35,7 +35,7 @@ function StoryEditors(props) {
                 .then((res) => {
                     if (res) setLastUpdate(res);
                 });
-        }
+        } else setLastUpdate(lastDate);
     }, [responsesInFetchedStories]);
 
     const groupNames = storyGroups
@@ -178,9 +178,9 @@ const StoryEditorsTracker = withTracker((props) => {
         storyGroupId: storyGroup._id,
     }).fetch();
 
-    const responsesInFetchedStories = stories.reduce((acc, curr) => [...acc, ...curr.events.filter(
+    const responsesInFetchedStories = stories.reduce((acc, curr) => [...acc, ...((curr.events || []).filter(
         event => event.match(/^utter_/) && !acc.includes(event),
-    )], []);
+    ))], []);
 
     return {
         ready: storiesHandler.ready(),
