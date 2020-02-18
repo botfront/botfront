@@ -82,6 +82,8 @@ export default {
         __resolveType: (v) => {
             if (v.type === 'postback') return 'PostbackButton';
             if (v.type === 'web_url') return 'WebUrlButton';
+            if (v.payload) return 'PostbackButton';
+            if (v.url) return 'WebUrlButton';
             return null;
         },
         title: ({ title }) => title,
