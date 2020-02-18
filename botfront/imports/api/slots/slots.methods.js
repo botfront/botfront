@@ -22,9 +22,9 @@ function handleError(e) {
 
 Meteor.methods({
     'slots.insert'(slot, projectId) {
+        checkIfCan('stories:w', projectId);
         check(slot, Object);
         check(projectId, String);
-        checkIfCan('stories:w', projectId);
         validateSchema(slot);
         try {
             return Slots.insert(slot);
@@ -49,9 +49,9 @@ Meteor.methods({
     },
 
     'slots.update'(slot, projectId) {
+        checkIfCan('stories:w', projectId);
         check(slot, Object);
         check(projectId, String);
-        checkIfCan('stories:w', projectId);
         validateSchema(slot);
         try {
             return Slots.update({ _id: slot._id }, { $set: slot });
@@ -61,9 +61,9 @@ Meteor.methods({
     },
 
     'slots.delete'(slot, projectId) {
+        checkIfCan('stories:w', projectId);
         check(slot, Object);
         check(projectId, String);
-        checkIfCan('stories:w', projectId);
         validateSchema(slot);
         return Slots.remove(slot);
     },

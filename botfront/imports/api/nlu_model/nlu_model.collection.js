@@ -28,8 +28,8 @@ if (Meteor.isServer) {
     // without having to download all the training data.
     // Thus greatly reducing the load times
     Meteor.publish('nlu_models.lite', function (projectId) {
-        check(projectId, String);
         checkIfCan(['nlu-model:r', 'responses:r', 'projects:r'], projectId);
+        check(projectId, String);
         const models = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
         return NLUModels.find({ _id: { $in: models.nlu_models } }, {
             fields: {
@@ -43,12 +43,9 @@ if (Meteor.isServer) {
         });
     });
 
-    // -permission-
-    // NO LONGER USED
-
     Meteor.publish('nlu_models.project.training_data', function (projectId) {
-        check(projectId, String);
         checkIfCan(['nlu-data:r', 'responses:w'], projectId);
+        check(projectId, String);
         const project = Projects.find({ _id: projectId }, { fields: { nlu_models: 1 } }).fetch();
         const modelIds = project[0].nlu_models;
         return NLUModels.find({ _id: { $in: modelIds } }, { fields: { 'training_data.common_examples': 1 } });

@@ -54,15 +54,15 @@ Meteor.startup(() => {
 CorePolicies.attachSchema(CorePolicySchema);
 if (Meteor.isServer) {
     Meteor.publish('policies', function (projectId) {
-        check(projectId, String);
         checkIfCan('projects:r', projectId);
+        check(projectId, String);
         return CorePolicies.find({ projectId });
     });
 
     Meteor.methods({
         'policies.save'(policies) {
-            check(policies, Object);
             checkIfCan('projects:w', policies.projectId);
+            check(policies, Object);
             try {
                 return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });
             } catch (e) {

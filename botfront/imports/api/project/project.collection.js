@@ -65,6 +65,7 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('projects', function (projectId) {
+        checkIfCan(['projects:r', 'nlu-data:r', 'incoming:r'], projectId);
         check(projectId, Match.Optional(String));
         if (can(['projects:r'], projectId)) {
             return Projects.find({ _id: projectId });
@@ -94,7 +95,6 @@ if (Meteor.isServer) {
         return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
     });
 
-    // -permission- this is unused
     Meteor.publish('template-keys', function (projectId) {
         check(projectId, String);
         return Projects.find({ _id: projectId },

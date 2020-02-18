@@ -5,8 +5,8 @@ import { checkIfCan } from '../../../../lib/scopes';
 export default {
     Query: {
         async conversationCounts(parent, args, context) {
-            if (!args.projectId) throw new Error('ProjectId is required');
             checkIfCan('analytics:r', args.projectId, context.user._id);
+            if (!args.projectId) throw new Error('ProjectId is required');
             let aggr;
             switch (args.subtype) {
             case 'engagement': aggr = getConversationsWithEngagement; break;

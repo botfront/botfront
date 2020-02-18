@@ -20,13 +20,13 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('endpoints', function (projectId) {
-        check(projectId, String);
         try {
             checkIfCan('projects:r', projectId);
-            return Endpoints.find({ projectId });
         } catch (err) {
             return this.ready();
         }
+        check(projectId, String);
+        return Endpoints.find({ projectId });
     });
 }
 

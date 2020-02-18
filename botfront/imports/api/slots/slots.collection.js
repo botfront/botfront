@@ -27,8 +27,8 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('slots', function(projectId) {
-        check(projectId, String);
         checkIfCan('stories:r', projectId);
+        check(projectId, String);
         Slots.find({ projectId });
         return Slots.find({ projectId });
     });

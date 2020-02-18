@@ -25,9 +25,9 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'user.create'(user, sendInviteEmail) {
+            checkIfCan('users:w');
             check(user, Object);
             check(sendInviteEmail, Boolean);
-            checkIfCan('users:w');
             try {
                 const userId = Accounts.createUser({
                     email: user.email.trim(),

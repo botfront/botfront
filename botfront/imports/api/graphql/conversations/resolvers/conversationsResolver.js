@@ -30,12 +30,12 @@ export default {
             return { success: response.ok === 1 };
         },
         async updateStatus(_, args, context) {
-            check('incoming:w', args.projectId, context.user._id);
+            checkIfCan('incoming:w', args.projectId, context.user._id);
             const response = await updateConversationStatus(args.id, args.status);
             return { success: response.ok === 1 };
         },
         async delete(_, args, context) {
-            check('incoming:w', args.projectId, context.user._id);
+            checkIfCan('incoming:w', args.projectId, context.user._id);
             const response = await deleteConversation(args.id);
             return { success: response.ok === 1 };
         },

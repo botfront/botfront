@@ -101,8 +101,8 @@ if (Meteor.isServer) {
     const trainingAppLogger = getAppLoggerForFile(__filename);
 
     export const parseNlu = async (instance, examples) => {
-        check(instance, Object);
         checkIfCan('nlu-data:r', instance.projectId);
+        check(instance, Object);
         check(examples, Array);
         const appMethodLogger = getAppLoggerForMethod(
             trainingAppLogger,
@@ -156,14 +156,15 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'rasa.parse'(instance, params) {
+            checkIfCan('nlu-data:r', instance.projectId);
             check(instance, Object);
             check(params, Array);
-            checkIfCan('nlu-data:r', instance.projectId);
             this.unblock();
             return parseNlu(instance, params);
         },
 
         async 'rasa.convertToJson'(file, model, outputFormat, host) {
+            checkIfCan('nlu-model:w', getProjectIdFromModelId(model._id));
             check(model, Object);
             check(file, String);
             check(outputFormat, String);
@@ -195,10 +196,10 @@ if (Meteor.isServer) {
             return data;
         },
         async 'rasa.getTrainingPayload'(projectId, instance, { language = '', joinStoryFiles = true } = {}) {
+            checkIfCan('nlu-model:x', projectId);
             check(projectId, String);
             check(language, String);
             check(instance, Object);
-            checkIfCan('nlu-model:x', projectId);
             const modelIds = await getModelIdsFromProjectId(projectId);
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
@@ -269,6 +270,7 @@ if (Meteor.isServer) {
         },
 
         async 'rasa.train'(projectId, instance) {
+            checkIfCan('nlu-model:x', projectId);
             check(projectId, String);
             check(instance, Object);
             const appMethodLogger = getAppLoggerForMethod(
@@ -280,7 +282,6 @@ if (Meteor.isServer) {
 
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
-            checkIfCan('nlu-model:x', projectId);
             try {
                 const client = axios.create({
                     baseURL: instance.host,
@@ -329,6 +330,7 @@ if (Meteor.isServer) {
         },
 
         'rasa.evaluate.nlu'(modelId, projectId, testData) {
+            checkIfCan('nlu-model:x', projectId);
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));
@@ -339,7 +341,6 @@ if (Meteor.isServer) {
                 Meteor.userId(),
                 { modelId, projectId, testData },
             );
-            checkIfCan('nlu-model:x', projectId);
             try {
                 this.unblock();
                 const model = NLUModels.findOne({ _id: modelId });

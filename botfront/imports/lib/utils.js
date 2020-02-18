@@ -155,8 +155,8 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'upload.gcs'(fileBinaryString, projectId, bucket, fileName, options) {
-            check(projectId, String);
             checkIfCan('global-admin');
+            check(projectId, String);
             check(fileBinaryString, String);
             check(bucket, String);
             check(fileName, String);
@@ -180,8 +180,8 @@ if (Meteor.isServer) {
         },
 
         'upload.modelToGCS'(fileBinaryString, projectId) {
-            check(projectId, String);
             checkIfCan('global-admin');
+            check(projectId, String);
             check(fileBinaryString, String);
             this.unblock();
             const { settings: { private: { gcpModelsBucket } } } = GlobalSettings.findOne({}, { fields: { 'settings.private.gcpModelsBucket': 1 } });
@@ -199,6 +199,7 @@ if (Meteor.isServer) {
                 { url, method, data: loggedData },
             );
 
+            checkIfCan('global-admin');
             check(url, String);
             check(method, String);
             check(data, Object);
@@ -223,9 +224,11 @@ if (Meteor.isServer) {
 
 export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {}).nlu_models;
 
+// used from outside botfront
 export const getLanguagesFromProjectId = projectId => getNluModelLanguages(getModelIdsFromProjectId(projectId));
 
 export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
+    checkIfCan('nlu-model:r', projectId);
     const nluModelIds = getModelIdsFromProjectId(projectId);
     const models = NLUModels.find({ _id: { $in: nluModelIds }, language }, { fields: { training_data: 1 } }).fetch();
     return models.map(model => model.training_data.common_examples)

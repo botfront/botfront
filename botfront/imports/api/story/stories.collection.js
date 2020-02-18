@@ -21,26 +21,26 @@ Stories.deny({
 
 if (Meteor.isServer) {
     Meteor.publish('smartStories', function(projectId, query) {
+        checkIfCan('stories:r', projectId);
         check(projectId, String);
         check(query, Object);
-        checkIfCan('stories:r', projectId);
         return Stories.find({ projectId, ...query });
     });
     Meteor.publish('stories.inGroup', function(projectId, groupId) {
+        checkIfCan('stories:r', projectId);
         check(groupId, String);
         check(projectId, String);
-        checkIfCan('stories:r', projectId);
         return Stories.find({ projectId, storyGroupId: groupId });
     });
 
     Meteor.publish('stories.light', function(projectId) {
-        check(projectId, String);
         checkIfCan('stories:r');
+        check(projectId, String);
         return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
     });
     Meteor.publish('stories.events', function(projectId) {
-        check(projectId, String);
         checkIfCan('responses:r');
+        check(projectId, String);
         return Stories.find({ projectId }, { fields: { title: true, events: true } });
     });
 }

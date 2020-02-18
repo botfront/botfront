@@ -15,6 +15,11 @@ if (Meteor.isServer) {
     // This code only runs on the server
     // Only publish tasks that are public or belong to the current user
     Meteor.publish('conversations', function(projectId, skip, limit, env) {
+        try {
+            checkIfCan('incoming:r', projectId);
+        } catch (e) {
+            return this.ready();
+        }
         check(projectId, String);
         check(skip, Number);
         check(limit, Number);
@@ -36,24 +41,20 @@ if (Meteor.isServer) {
         if (env === 'development') {
             envSelector = { env: { $in: ['development', null] } };
         }
-        try {
-            checkIfCan('incoming:r', projectId);
-            return Conversations.find({ projectId, ...envSelector }, options);
-        } catch (e) {
-            return this.ready();
-        }
+        return Conversations.find({ projectId, ...envSelector }, options);
     });
 
     Meteor.publish('conversation-detail', function(_id, projectId) {
-        check(_id, String);
-        check(projectId, String);
-        
         try {
             checkIfCan('incoming:r', projectId);
-            return Conversations.find({ _id, projectId });
         } catch (e) {
             return this.ready();
         }
+        check(_id, String);
+        check(projectId, String);
+
+        checkIfCan('incoming:r', projectId);
+        return Conversations.find({ _id, projectId });
     });
 }
 
@@ -67,25 +68,26 @@ if (Meteor.isServer) {
     const findConversationProject = (senderId) => {
         const conversation = Conversations.findOne({ _id: senderId });
         if (!conversation) throw Meteor.Error('404', 'Not Found');
+        checkIfCan('incoming:r', conversation.projectId);
         return conversation.projectId;
     };
     Meteor.methods({
         'conversations.markAsRead'(senderId) {
-            check(senderId, String);
             checkIfCan('incoming:r', findConversationProject(senderId));
+            check(senderId, String);
             return Conversations.update({ _id: senderId }, { $set: { status: 'read' } });
         },
 
         'conversations.updateStatus'(senderId, status) {
+            checkIfCan('incoming:w', findConversationProject(senderId));
             check(senderId, String);
             check(status, String);
-            checkIfCan('incoming:w', findConversationProject(senderId));
             return Conversations.update({ _id: senderId }, { $set: { status } });
         },
 
         'conversations.delete'(senderId) {
-            check(senderId, String);
             checkIfCan('incoming:w', findConversationProject(senderId));
+            check(senderId, String);
             return Conversations.remove({ _id: senderId });
         },
     });
