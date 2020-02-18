@@ -306,7 +306,7 @@ function ResponseMetadataForm({
             }
         }
 
-        if (pageChangeCallbacks && pageChangeCallbacks.pageChanges && pageChangeCallbacks.pageChanges.length) {
+        if (pageChangeCallbacks && pageChangeCallbacks.enabled && pageChangeCallbacks.pageChanges && pageChangeCallbacks.pageChanges.length) {
             const missing = [];
             pageChangeCallbacks.pageChanges.forEach((i) => {
                 if (!i.url || !i.url.length < 0 || !i.callbackIntent || !i.callbackIntent.length < 0) { missing.push(i); }
