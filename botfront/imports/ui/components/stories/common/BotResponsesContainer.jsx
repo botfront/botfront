@@ -127,16 +127,16 @@ const BotResponsesContainer = (props) => {
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
                     {enableEditPopup && (
+                        <IconButton
+                            icon='ellipsis vertical'
+                            onClick={() => setEditorOpen(true)}
+                            data-cy='edit-responses'
+                            className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
+                            color={null} // prevent default color overiding the color set by the class
+                        />
+                    )}
+                    {editorOpen && (
                         <BotResponseEditor
-                            trigger={(
-                                <IconButton
-                                    icon='ellipsis vertical'
-                                    onClick={() => setEditorOpen(true)}
-                                    data-cy='edit-responses'
-                                    className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
-                                    color={null} // prevent default color overiding the color set by the class
-                                />
-                            )}
                             open={editorOpen}
                             name={name}
                             closeModal={() => setEditorOpen(false)}

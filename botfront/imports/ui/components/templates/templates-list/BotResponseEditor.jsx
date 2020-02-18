@@ -24,6 +24,7 @@ import {
     addContentType,
 } from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
+import { Loading } from '../../utils/Utils';
 
 
 /*
@@ -37,7 +38,6 @@ const BotResponseEditor = (props) => {
     const {
         botResponse,
         open,
-        trigger,
         closeModal,
         renameable,
         isNew,
@@ -53,13 +53,15 @@ const BotResponseEditor = (props) => {
     
     const [newBotResponse, setNewBotResponse] = useState(botResponse);
     const [activeTab, setActiveTab] = useState(0);
-    const [responseKey, setResponseKey] = useState(botResponse.key);
+    const [responseKey, setResponseKey] = useState(name);
     const [renameError, setRenameError] = useState();
     const [triggerClose, setTriggerClose] = useState(false);
 
     useEffect(() => {
-        setNewBotResponse(botResponse);
-        setResponseKey(botResponse.key);
+        if (botResponse) {
+            setNewBotResponse(botResponse);
+            setResponseKey(botResponse.key);
+        }
     }, [botResponse]);
 
     const validateResponseName = (err) => {
@@ -121,7 +123,7 @@ const BotResponseEditor = (props) => {
         const variables = {
             projectId,
             language,
-            key: name || newBotResponse.key,
+            key: name,
             index,
         };
         deleteVariation({ variables });
@@ -167,7 +169,7 @@ const BotResponseEditor = (props) => {
             
             return;
         }
-        upsertResponse(name || newBotResponse.key, updatedSequence, index);
+        upsertResponse(name, updatedSequence, index);
     };
 
     const getActiveSequence = () => {
@@ -204,7 +206,7 @@ const BotResponseEditor = (props) => {
             return;
         } if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
             const newPayload = getRefreshData();
-            upsertResponse(newBotResponse.key, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
+            upsertResponse(name, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
                 closeModal();
             });
         }
@@ -235,7 +237,7 @@ const BotResponseEditor = (props) => {
                     sequence={activeSequence}
                     onChange={handleSequenceChange}
                     onDeleteVariation={handleDeleteVariation}
-                    name={name || newBotResponse.key}
+                    name={name}
                 />
                 <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
                     <Button
@@ -248,35 +250,40 @@ const BotResponseEditor = (props) => {
             </>
         );
     };
+
+    const renderModalContent = () => {
+        if (!newBotResponse) return <Loading loading />;
+        return (
+            <Segment.Group className='response-editor' data-cy='response-editor'>
+                <Segment attached='top' className='resonse-editor-topbar'>
+                    <div className='response-editor-topbar-section'>
+                        <ResponseNameInput
+                            renameable={renameable}
+                            onChange={(_e, target) => setResponseKey(target.value)}
+                            saveResponseName={handleChangeKey}
+                            errorMessage={renameError}
+                            responseName={responseKey}
+                            disabledMessage='Responses used in a story cannot be renamed.'
+                        />
+                    </div>
+                    <div className='response-editor-topbar-section'>
+                        <Menu pointing secondary activeIndex={activeTab}>
+                            <MenuItem onClick={() => { setActiveTab(0); }} active={activeTab === 0} className='response-variations' data-cy='variations-tab'>Variations</MenuItem>
+                            <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata' data-cy='metadata-tab'>Behaviour</MenuItem>
+                        </Menu>
+                    </div>
+                    <div className='response-editor-topbar-section' />
+                </Segment>
+                {renderActiveTab()}
+
+            </Segment.Group>
+        );
+    };
+
     return (
         <Modal
             className='response-editor-dimmer'
-            trigger={trigger}
-            content={(
-                <Segment.Group className='response-editor' data-cy='response-editor'>
-                    <Segment attached='top' className='resonse-editor-topbar'>
-                        <div className='response-editor-topbar-section'>
-                            <ResponseNameInput
-                                renameable={renameable}
-                                onChange={(_e, target) => setResponseKey(target.value)}
-                                saveResponseName={handleChangeKey}
-                                errorMessage={renameError}
-                                responseName={responseKey}
-                                disabledMessage='Responses used in a story cannot be renamed.'
-                            />
-                        </div>
-                        <div className='response-editor-topbar-section'>
-                            <Menu pointing secondary activeIndex={activeTab}>
-                                <MenuItem onClick={() => { setActiveTab(0); }} active={activeTab === 0} className='response-variations' data-cy='variations-tab'>Variations</MenuItem>
-                                <MenuItem onClick={() => { setActiveTab(1); }} active={activeTab === 1} className='metadata' data-cy='metadata-tab'>Behaviour</MenuItem>
-                            </Menu>
-                        </div>
-                        <div className='response-editor-topbar-section' />
-                    </Segment>
-                    {renderActiveTab()}
-
-                </Segment.Group>
-            )}
+            content={renderModalContent()}
             open={open}
             onClose={() => setTriggerClose(true)} // closes the modal the next time it renders using useEffect
             centered={false}
@@ -287,7 +294,6 @@ const BotResponseEditor = (props) => {
 BotResponseEditor.propTypes = {
     botResponse: PropTypes.object,
     open: PropTypes.bool.isRequired,
-    trigger: PropTypes.element.isRequired,
     closeModal: PropTypes.func.isRequired,
     renameable: PropTypes.bool,
     isNew: PropTypes.bool,
@@ -306,7 +312,6 @@ BotResponseEditor.defaultProps = {
 const BotResponseEditorWrapper = (props) => {
     const {
         botResponse: incomingBotResponse,
-        trigger,
         projectId,
         name,
         isNew,
@@ -348,14 +353,18 @@ const BotResponseEditorWrapper = (props) => {
         });
     }
 
+    const KEY = 'utter_';
     if (isNew && !incomingBotResponse && !botResponse) {
-        setBotResponse(createResponseFromTemplate(responseType, language));
+        setBotResponse(createResponseFromTemplate(responseType, language, { key: KEY }));
     }
 
-    if ((!botResponse && !incomingBotResponse && !isNew)) return trigger;
+    const key = name || (incomingBotResponse
+        ? incomingBotResponse.key : KEY);
+
     return (
         <BotResponseEditor
             {...props}
+            name={key}
             botResponse={botResponse || incomingBotResponse}
         />
     );
@@ -364,7 +373,6 @@ const BotResponseEditorWrapper = (props) => {
 BotResponseEditorWrapper.propTypes = {
     botResponse: PropTypes.object,
     open: PropTypes.bool.isRequired,
-    trigger: PropTypes.element.isRequired,
     closeModal: PropTypes.func.isRequired,
     renameable: PropTypes.bool,
     isNew: PropTypes.bool,
