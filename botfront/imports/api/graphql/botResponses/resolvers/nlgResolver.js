@@ -1,8 +1,10 @@
 import { safeLoad } from 'js-yaml';
 import { sample } from 'lodash';
+import { GraphQLScalarType } from 'graphql';
 import { newGetBotResponses } from '../mongo/botResponses';
 import { getLanguagesFromProjectId } from '../../../../lib/utils';
 import { parseContentType } from '../../../../lib/botResponse.utils';
+import commonResolvers from '../../common/commonResolver';
 
 const interpolateSlots = (text, slots) => {
     // fills in {slotname} in templates
@@ -60,6 +62,7 @@ export default {
             });
         },
     },
+    ConversationInput: new GraphQLScalarType({ ...commonResolvers.Any, name: 'ConversationInput' }),
     BotResponsePayload: {
         __resolveType: parseContentType,
         text: ({ text }) => text,
