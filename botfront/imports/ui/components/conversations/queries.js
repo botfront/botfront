@@ -2,8 +2,8 @@ import gql from 'graphql-tag';
 
 export const GET_CONVERSATIONS = gql`
 query retreiveConversations(
-    $projectId: String!,
-    $page: Int!, 
+    $projectId: String!
+    $page: Int!
     $pageSize: Int
     $env: String
     $lengthFilter: Int
@@ -14,10 +14,11 @@ query retreiveConversations(
     $startDate: String
     $endDate: String
     $timeZoneHoursOffset: Float
-    $userId: String,
-    $operatorActionsFilters: String,
-    $operatorIntentsFilters: String,
+    $userId: String
+    $operatorActionsFilters: String
+    $operatorIntentsFilters: String
     $intentFilters: [String]
+    $fetchTrackers: Boolean = false
     ) {
     conversationsPage(
         projectId: $projectId,
@@ -45,6 +46,7 @@ query retreiveConversations(
             status
             projectId
             userId
+            tracker @include(if: $fetchTrackers)
         }
         pages
     }

@@ -3,9 +3,9 @@ type Query {
         projectId: String!, 
         page: Int,
         pageSize: Int,
-        status: [String] 
+        status: [String] = ["new", "read", "flagged"]
         env: String
-        sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
+        sort: order = updatedAt_DESC #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
         lengthFilter: Int
         xThanLength: compare
         confidenceFilter: Float

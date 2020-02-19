@@ -38,22 +38,13 @@ div.bot-response-message {
 
 .conversation-filter-container {
   display: flex;
+  flex-direction: row-reverse;
   flex-wrap: wrap;
 
-  &.first-line{
-    margin-right: 7rem;
-  }
-
-  button.filter-button {
-    position: absolute;
-    max-width: 20em;
-    right: 0px;
-    margin-right: 0.7rem ;
-    margin-left: 0.7rem ;
-    overflow: hidden;
-    border-style: none;
+  .ui.buttons.filter-buttons {
+    margin-top: 14px;
     height: 36px;
-    margin-top: 1em;
+    margin-left: auto;
   }
 
   .conversation-filter {
@@ -71,16 +62,14 @@ div.bot-response-message {
     &.actions {
       max-width: 50%;
       min-width: 50%;
-      margin-top: 1em;
     }
 
     &.intents{
       max-width: 50%;
       min-width: 50%;
-      margin-top: 1em;
       .dropdown.filter-dropdown > .label {
-       color:white;
-       background-color:#a333c8;;
+        color:white;
+        background-color:#a333c8;;
       }
     }
     .segment.multiselect-segment {

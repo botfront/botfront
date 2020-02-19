@@ -29,6 +29,7 @@ const ConversationFilters = ({
     intentsOptions,
     operatorActionsFilters,
     operatorIntentsFilters,
+    onDownloadConversations,
 }) => {
     const [newLengthFilter, setNewLengthFilter] = useState({
         compare: lengthFilter,
@@ -190,40 +191,23 @@ const ConversationFilters = ({
                 </span>
             </Accordion.Title>
             <Accordion.Content active={activeAccordion}>
-                <div className='conversation-filter-container first-line'>
-
-                    <div className='conversation-filter' data-cy='confidence-filter'>
-                        <Segment.Group
-                            horizontal
-                            data-cy='confidence-filter'
-                            className='conversation-filter'
+                <div className='conversation-filter-container'>
+                    <Button.Group color='teal' className='filter-buttons'>
+                        <Button
+                            data-cy='apply-filters'
+                            onClick={() => applyFilters()}
+                            content='Apply'
+                        />
+                        <Dropdown
+                            className='button icon'
+                            floating
+                            trigger={<React.Fragment />}
                         >
-                            <Segment className='x-than-filter'>
-                                <Label> Confidence &le;</Label>
-                            </Segment>
-                            <Segment className='number-filter'>
-                                <Input
-                                    value={
-                                        // bounds the confidence value to 0-100
-                                        newConfidenceFilter.compare > 0
-                                            ? newConfidenceFilter.compare < 100
-                                                ? newConfidenceFilter.compare
-                                                : 100
-                                            : ''
-                                    }
-                                    onChange={(e, { value }) => setNewConfidenceFilter({
-                                        ...newConfidenceFilter,
-                                        compare: value,
-                                    })
-                                    }
-                                />
-                            </Segment>
-                            <Segment className='static-symbol'>
-                                <p>%</p>
-                            </Segment>
-                        </Segment.Group>
-                    </div>
-
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={onDownloadConversations} icon='download' text='Download results' />
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Button.Group>
                     <div
                         className='conversation-filter conv-length'
                         data-cy='length-filter'
@@ -260,7 +244,47 @@ const ConversationFilters = ({
                             </Segment>
                         </Segment.Group>
                     </div>
-
+                    <div className='conversation-filter' data-cy='confidence-filter'>
+                        <Segment.Group
+                            horizontal
+                            data-cy='confidence-filter'
+                            className='conversation-filter'
+                        >
+                            <Segment className='x-than-filter'>
+                                <Label> Confidence &le;</Label>
+                            </Segment>
+                            <Segment className='number-filter'>
+                                <Input
+                                    value={
+                                        // bounds the confidence value to 0-100
+                                        newConfidenceFilter.compare > 0
+                                            ? newConfidenceFilter.compare < 100
+                                                ? newConfidenceFilter.compare
+                                                : 100
+                                            : ''
+                                    }
+                                    onChange={(e, { value }) => setNewConfidenceFilter({
+                                        ...newConfidenceFilter,
+                                        compare: value,
+                                    })
+                                    }
+                                />
+                            </Segment>
+                            <Segment className='static-symbol'>
+                                <p>%</p>
+                            </Segment>
+                        </Segment.Group>
+                    </div>
+                    <div className='conversation-filter' data-cy='date-filter'>
+                        <Segment className='date-filter' data-cy='date-picker-container'>
+                            <DatePicker
+                                position='bottom left'
+                                startDate={newStartDate}
+                                endDate={newEndDate}
+                                onConfirm={setNewDates}
+                            />
+                        </Segment>
+                    </div>
                     <div className='conversation-filter id-filter' data-cy='id-filter'>
                         <Segment.Group
                             horizontal
@@ -268,7 +292,7 @@ const ConversationFilters = ({
                             className='conversation-filter'
                         >
                             <Segment className='uid-label'>
-                                <Label> User ID</Label>
+                                <Label>User ID</Label>
                             </Segment>
                             <Segment className='id-filter'>
                                 <Input
@@ -281,28 +305,6 @@ const ConversationFilters = ({
                             </Segment>
                         </Segment.Group>
                     </div>
-
-                    <div className='conversation-filter' data-cy='date-filter'>
-                        <Segment className='date-filter' data-cy='date-picker-container'>
-                            <DatePicker
-                                position='bottom left'
-                                startDate={newStartDate}
-                                endDate={newEndDate}
-                                onConfirm={setNewDates}
-                            />
-                        </Segment>
-                    </div>
-                    <Button
-                        data-cy='apply-filters'
-                        color='teal'
-                        onClick={() => applyFilters()}
-                        className='filter-button'
-                    >
-                        {' '}
-                        Apply
-                    </Button>
-                    {/* <Segment className='filter-button'>
-                        </Segment> */}
                 </div>
                 <div className='conversation-filter-container'>
                     <div className='conversation-filter actions' data-cy='action-filter'>
@@ -347,6 +349,7 @@ ConversationFilters.propTypes = {
     intentsOptions: PropTypes.array,
     operatorActionsFilters: PropTypes.string,
     operatorIntentsFilters: PropTypes.string,
+    onDownloadConversations: PropTypes.func.isRequired,
 };
 
 ConversationFilters.defaultProps = {

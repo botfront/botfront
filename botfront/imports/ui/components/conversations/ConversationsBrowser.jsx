@@ -9,6 +9,7 @@ import {
 import { connect } from 'react-redux';
 import { Meteor } from 'meteor/meteor';
 import moment from 'moment';
+import { saveAs } from 'file-saver';
 import { GET_CONVERSATIONS, GET_INTENTS_IN_CONVERSATIONS } from './queries';
 import { DELETE_CONV } from './mutations';
 import ConversationViewer from './ConversationViewer';
@@ -18,7 +19,7 @@ import { updateIncomingPath } from '../incoming/incoming.utils';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { Projects } from '../../../api/project/project.collection';
 import { applyTimezoneOffset } from '../../../lib/graphs';
-
+import apolloClient from '../../../startup/client/apollo';
 
 function ConversationsBrowser(props) {
     const {
@@ -35,17 +36,21 @@ function ConversationsBrowser(props) {
         loading,
         projectId,
         intentsOptions,
+        handleDownloadConversations,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
-    const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(new Set());
+    const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(
+        new Set(),
+    );
 
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
 
     useEffect(() => {
-        const {
-            timezoneOffset,
-        } = Projects.findOne({ _id: projectId }, { fields: { timezoneOffset: 1 } });
+        const { timezoneOffset } = Projects.findOne(
+            { _id: projectId },
+            { fields: { timezoneOffset: 1 } },
+        );
         setProjectTimezoneOffset(timezoneOffset || 0);
     }, []);
 
@@ -58,7 +63,8 @@ function ConversationsBrowser(props) {
         }
     }, [data]);
 
-    useEffect(() => { // empty the optimistic marking of read message when new data arrive
+    useEffect(() => {
+        // empty the optimistic marking of read message when new data arrive
         setOptimisticRemoveReadMarker(new Set());
     }, [trackers]);
 
@@ -80,7 +86,11 @@ function ConversationsBrowser(props) {
 
     const goToConversation = (newPage, conversationId, replace = false) => {
         // let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
-        const url = updateIncomingPath({ ...router.params, page: newPage || 1, selected_id: conversationId });
+        const url = updateIncomingPath({
+            ...router.params,
+            page: newPage || 1,
+            selected_id: conversationId,
+        });
         if (replace) return browserHistory.replace({ pathname: url });
         return browserHistory.push({ pathname: url });
     };
@@ -90,7 +100,10 @@ function ConversationsBrowser(props) {
     }
 
     function pageChange(newPage) {
-        const url = updateIncomingPath({ ...router.params, page: newPage || 1 }, 'selected_id');
+        const url = updateIncomingPath(
+            { ...router.params, page: newPage || 1 },
+            'selected_id',
+        );
         return browserHistory.push({ pathname: url });
     }
 
@@ -103,18 +116,32 @@ function ConversationsBrowser(props) {
                 onClick={handleItemClick}
                 data-cy='conversation-item'
             >
-                {optimisticRemoveReadMarker.has(t._id) ? renderIcon({ status: 'read' }) : renderIcon(t)}
-                <span style={{ fontSize: '10px' }}>
-                    {t._id}
-                </span>
+                {optimisticRemoveReadMarker.has(t._id)
+                    ? renderIcon({ status: 'read' })
+                    : renderIcon(t)}
+                <span style={{ fontSize: '10px' }}>{t._id}</span>
             </Menu.Item>
         ));
         return items;
     }
 
-    function changeFilters(lengthFilter, confidenceFilter, actionFilters, startDate, endDate, userId, operatorActionsFilters, operatorIntentsFilters, intentFilters) {
-        const offsetStart = startDate ? applyTimezoneOffset(startDate, projectTimezoneOffset) : null;
-        const offsetEnd = endDate ? applyTimezoneOffset(endDate, projectTimezoneOffset) : null;
+    function changeFilters(
+        lengthFilter,
+        confidenceFilter,
+        actionFilters,
+        startDate,
+        endDate,
+        userId,
+        operatorActionsFilters,
+        operatorIntentsFilters,
+        intentFilters,
+    ) {
+        const offsetStart = startDate
+            ? applyTimezoneOffset(startDate, projectTimezoneOffset)
+            : null;
+        const offsetEnd = endDate
+            ? applyTimezoneOffset(endDate, projectTimezoneOffset)
+            : null;
         setActiveFilters({
             lengthFilter: parseInt(lengthFilter.compare, 10),
             xThanLength: lengthFilter.xThan,
@@ -168,6 +195,7 @@ function ConversationsBrowser(props) {
                         actionsOptions={actionsOptions}
                         setActionOptions={setActionOptions}
                         intentsOptions={intentsOptions}
+                        onDownloadConversations={handleDownloadConversations}
                     />
                 </Grid.Row>
                 <Loading loading={loading}>
@@ -177,7 +205,8 @@ function ConversationsBrowser(props) {
                                 {pages > 1 ? (
                                     <Pagination
                                         totalPages={pages}
-                                        onPageChange={(e, { activePage }) => pageChange(activePage)}
+                                        onPageChange={(e, { activePage }) => pageChange(activePage)
+                                        }
                                         activePage={page}
                                         boundaryRange={0}
                                         siblingRange={0}
@@ -186,11 +215,12 @@ function ConversationsBrowser(props) {
                                         lastItem={`${pages}`}
                                         data-cy='pagination'
                                     />
-                                ) : <></>}
+                                ) : (
+                                    <></>
+                                )}
 
                                 <Menu pointing vertical fluid>
                                     {renderMenuItems()}
-
                                 </Menu>
                             </Grid.Column>
                             <Grid.Column width={12}>
@@ -204,7 +234,9 @@ function ConversationsBrowser(props) {
                         </>
                     ) : (
                         <Grid.Column width={16}>
-                            <Message data-cy='no-conv' info>No conversations to load.</Message>
+                            <Message data-cy='no-conv' info>
+                                No conversations to load.
+                            </Message>
                         </Grid.Column>
                     )}
                 </Loading>
@@ -227,6 +259,7 @@ ConversationsBrowser.propTypes = {
     setActionOptions: PropTypes.func.isRequired,
     loading: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
+    handleDownloadConversations: PropTypes.func.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
@@ -267,10 +300,12 @@ const ConversationsBrowserContainer = (props) => {
     const [loadIntents] = useLazyQuery(GET_INTENTS_IN_CONVERSATIONS, {
         variables: { projectId },
         onCompleted: (data) => {
-            setIntentsOptions(data.intentsInConversations.map(((intent) => {
-                if (intent === null) return { value: null, text: 'null', key: 'null' };
-                return { value: intent, text: intent, key: intent };
-            })));
+            setIntentsOptions(
+                data.intentsInConversations.map((intent) => {
+                    if (intent === null) { return { value: null, text: 'null', key: 'null' }; }
+                    return { value: intent, text: intent, key: intent };
+                }),
+            );
         },
     });
     useEffect(() => {
@@ -280,44 +315,84 @@ const ConversationsBrowserContainer = (props) => {
             projectId,
             wrapMeteorCallback((err, res) => {
                 if (!err) {
-                    setActionOptions(res.map(action => ({ text: action, value: action, key: action })));
+                    setActionOptions(
+                        res.map(action => ({
+                            text: action,
+                            value: action,
+                            key: action,
+                        })),
+                    );
                 }
             }),
         );
     }, []);
 
+    const queryVariables = {
+        projectId,
+        page,
+        pageSize: 20,
+        env,
+        ...activeFilters,
+        startDate: activeFilters.startDate,
+        endDate: activeFilters.endDate,
+        userId: activeFilters.userId,
+        operatorActionsFilters: activeFilters.operatorActionsFilters,
+        operatorIntentsFilters: activeFilters.operatorIntentsFilters,
+        intentFilters: activeFilters.intentFilters,
+    };
 
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
-        variables: {
-            projectId,
-            page,
-            pageSize: 20,
-            env,
-            ...activeFilters,
-            startDate: activeFilters.startDate,
-            endDate: activeFilters.endDate,
-            userId: activeFilters.userId,
-            operatorActionsFilters: activeFilters.operatorActionsFilters,
-            operatorIntentsFilters: activeFilters.operatorIntentsFilters,
-            intentFilters: activeFilters.intentFilters,
-        },
+        variables: queryVariables,
         pollInterval: 5000,
     });
 
+    const handleDownloadConversations = () => {
+        apolloClient
+            .query({
+                query: GET_CONVERSATIONS,
+                variables: {
+                    ...queryVariables,
+                    pageSize: -1,
+                    page: 1,
+                    fetchTrackers: true,
+                },
+            })
+            .then(({ data: { conversationsPage } = {} }) => {
+                if (!conversationsPage || !conversationsPage.conversations.length) return false;
+                const blob = new Blob(
+                    [JSON.stringify(conversationsPage)],
+                    { type: 'application/json;charset=utf-8' },
+                );
+                return saveAs(blob, 'conversations.json');
+            });
+    };
+
     const componentProps = {
-        page, projectId, router, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions, intentsOptions,
+        page,
+        projectId,
+        router,
+        refetch,
+        activeFilters,
+        setActiveFilters,
+        actionsOptions,
+        setActionOptions,
+        intentsOptions,
+        handleDownloadConversations,
     };
 
     if (!loading && !error) {
         const { conversations, pages } = data.conversationsPage;
 
         // If for some reason the conversation is not in the current page, discard it.
-        if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
+        if (!conversations.some(c => c._id === activeConversationId)) { activeConversationId = null; }
         if (!activeConversationId && conversations.length > 0) {
             const url = updateIncomingPath({
-                ...router.params, tab: 'conversations', page: page || 1, selected_id: conversations[0]._id,
+                ...router.params,
+                tab: 'conversations',
+                page: page || 1,
+                selected_id: conversations[0]._id,
             }); // tab will always be conversations if set on the converesations tab
             browserHistory.replace({ pathname: url });
         } else {
@@ -338,10 +413,7 @@ const ConversationsBrowserContainer = (props) => {
     return (
         <div>
             <Container>
-                <ConversationsBrowser
-                    {...componentProps}
-                    loading={loading}
-                />
+                <ConversationsBrowser {...componentProps} loading={loading} />
             </Container>
         </div>
     );

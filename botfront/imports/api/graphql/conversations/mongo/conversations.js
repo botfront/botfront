@@ -216,7 +216,7 @@ export const getConversations = async ({
     }
     return ({
         conversations: paginatedResults[0].conversations,
-        pages: Math.ceil(paginatedResults[0].pages[0].numberOfDocuments / pageSize),
+        pages: pageSize > -1 ? Math.ceil(paginatedResults[0].pages[0].numberOfDocuments / pageSize) : 1,
     });
 };
 
