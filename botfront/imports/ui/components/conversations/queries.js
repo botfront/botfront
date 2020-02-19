@@ -13,7 +13,6 @@ query retreiveConversations(
     $actionFilters: [String]
     $startDate: String
     $endDate: String
-    $timeZoneHoursOffset: Float
     $userId: String
     $operatorActionsFilters: String
     $operatorIntentsFilters: String
@@ -34,7 +33,6 @@ query retreiveConversations(
         actionFilters: $actionFilters,
         startDate: $startDate,
         endDate: $endDate,
-        timeZoneHoursOffset: $timeZoneHoursOffset,
         userId: $userId
         operatorActionsFilters: $operatorActionsFilters,
         operatorIntentsFilters: $operatorIntentsFilters,

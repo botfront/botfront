@@ -13,7 +13,6 @@ type Query {
         actionFilters: [String]
         startDate: String
         endDate: String
-        timeZoneHoursOffset: Float
         userId: String
         operatorActionsFilters: String,
         operatorIntentsFilters: String,
