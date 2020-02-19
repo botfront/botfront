@@ -97,14 +97,12 @@ const formatsErrorsSummary = function(notValids) {
     return formatsError;
 };
 
-// wrong name, its actually the latest
-const getOldestTimeStamp = async function(env) {
-    const lastestAddition = await Conversations.findOne({ env: env })
-        .select('updatedAt')
-        .sort('-updatedAt')
+    const latestAddition = await Conversations.findOne({ env: env })
+        .select('tracker.latest_event_time')
+        .sort('-tracker.latest_event_time')
         .lean()
         .exec();
-    if (lastestAddition) return Math.floor(lastestAddition.updatedAt / 1000);
+    if (latestAddition) return Math.floor(latestAddition.tracker.latest_event_time);
     return 0;
 };
 
