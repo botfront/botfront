@@ -136,16 +136,7 @@ function ConversationsBrowser(props) {
             <Grid>
                 <Grid.Row>
                     <ConversationFilters
-                        lengthFilter={activeFilters.lengthFilter}
-                        xThanLength={activeFilters.xThanLength}
-                        confidenceFilter={activeFilters.confidenceFilter}
-                        xThanConfidence={activeFilters.xThanConfidence}
-                        actionFilters={activeFilters.actionFilters}
-                        intentFilters={activeFilters.intentFilters}
-                        startDate={activeFilters.startDate}
-                        endDate={activeFilters.endDate}
-                        operatorActionsFilters={activeFilters.operatorActionsFilters}
-                        operatorIntentsFilters={activeFilters.operatorIntentsFilters}
+                        activeFilters={activeFilters}
                         changeFilters={changeFilters}
                         actionsOptions={actionsOptions}
                         setActionOptions={setActionOptions}
@@ -160,8 +151,7 @@ function ConversationsBrowser(props) {
                                 {pages > 1 ? (
                                     <Pagination
                                         totalPages={pages}
-                                        onPageChange={(e, { activePage }) => pageChange(activePage)
-                                        }
+                                        onPageChange={(e, { activePage }) => pageChange(activePage)}
                                         activePage={page}
                                         boundaryRange={0}
                                         siblingRange={0}
@@ -207,7 +197,7 @@ ConversationsBrowser.propTypes = {
     pages: PropTypes.number,
     refetch: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
-    activeFilters: PropTypes.object,
+    activeFilters: PropTypes.object.isRequired,
     changeFilters: PropTypes.func.isRequired,
     actionsOptions: PropTypes.array,
     intentsOptions: PropTypes.array,
@@ -220,7 +210,6 @@ ConversationsBrowser.defaultProps = {
     pages: 1,
     trackers: [],
     activeConversationId: null,
-    activeFilters: {},
     actionsOptions: [],
     intentsOptions: [],
 };
@@ -235,40 +224,32 @@ const ConversationsBrowserContainer = (props) => {
     let activeConversationId = router.params.selected_id;
     const page = parseInt(router.params.page, 10) || 1;
 
-    const [activeFilters, setActiveFilters] = useState({});
+    const defaults = {
+        lengthFilter: { compare: -1, xThan: 'greaterThan' },
+        confidenceFilter: { compare: -1, xThan: 'lessThan' },
+        actionFilters: [],
+        intentFilters: [],
+        startDate: moment().subtract(7, 'd'),
+        endDate: moment(),
+        operatorActionsFilters: 'or',
+        operatorIntentsFilters: 'or',
+        userId: null,
+    };
+
+    const [activeFilters, setActiveFilters] = useState(defaults);
     const [actionsOptions, setActionOptions] = useState([]);
     const [intentsOptions, setIntentsOptions] = useState([]);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
 
-    function changeFilters(
-        lengthFilter,
-        confidenceFilter,
-        actionFilters,
-        startDate,
-        endDate,
-        userId,
-        operatorActionsFilters,
-        operatorIntentsFilters,
-        intentFilters,
-    ) {
-        const offsetStart = startDate
-            ? applyTimezoneOffset(startDate, projectTimezoneOffset)
-            : null;
-        const offsetEnd = endDate
-            ? applyTimezoneOffset(endDate, projectTimezoneOffset)
-            : null;
+    function changeFilters(vals = defaults) {
         setActiveFilters({
-            lengthFilter: parseInt(lengthFilter.compare, 10),
-            xThanLength: lengthFilter.xThan,
-            confidenceFilter: parseFloat(confidenceFilter.compare, 10) / 100,
-            xThanConfidence: confidenceFilter.xThan,
-            actionFilters,
-            startDate: offsetStart,
-            endDate: offsetEnd,
-            userId,
-            operatorActionsFilters,
-            operatorIntentsFilters,
-            intentFilters,
+            ...vals,
+            startDate: vals.startDate
+                ? applyTimezoneOffset(vals.startDate, projectTimezoneOffset)
+                : null,
+            endDate: vals.endDate
+                ? applyTimezoneOffset(vals.endDate, projectTimezoneOffset)
+                : null,
         });
     }
 
@@ -282,19 +263,7 @@ const ConversationsBrowserContainer = (props) => {
         );
     }, [projectId]);
 
-    useEffect(() => {
-        changeFilters(
-            { compare: -1, xThan: 'greaterThan' },
-            { compare: -1, xThan: 'lessThan' },
-            [],
-            null,
-            null,
-            null,
-            'or',
-            'or',
-            [],
-        );
-    }, [projectTimezoneOffset]);
+    useEffect(changeFilters, [projectTimezoneOffset]);
 
     const [loadIntents] = useLazyQuery(GET_INTENTS_IN_CONVERSATIONS, {
         variables: { projectId },
@@ -332,13 +301,11 @@ const ConversationsBrowserContainer = (props) => {
         pageSize: 20,
         env,
         ...activeFilters,
-        startDate: activeFilters.startDate,
-        endDate: activeFilters.endDate,
-        userId: activeFilters.userId,
-        operatorActionsFilters: activeFilters.operatorActionsFilters,
-        operatorIntentsFilters: activeFilters.operatorIntentsFilters,
-        intentFilters: activeFilters.intentFilters,
-    }), [activeFilters, env]);
+        lengthFilter: activeFilters.lengthFilter.compare,
+        xThanLength: activeFilters.lengthFilter.xThan,
+        confidenceFilter: activeFilters.confidenceFilter.compare,
+        xThanConfidence: activeFilters.confidenceFilter.xThan,
+    }), [activeFilters, env, page]);
 
     const {
         loading, error, data, refetch,

@@ -109,6 +109,7 @@ describe('incoming page conversation tab', function () {
     beforeEach(function () {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
+            cy.setTimezoneOffset();
         });
     });
 
@@ -154,6 +155,7 @@ describe('incoming page conversation tab pagination', function () {
     beforeEach(function () {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
+            cy.setTimezoneOffset();
         });
     });
 

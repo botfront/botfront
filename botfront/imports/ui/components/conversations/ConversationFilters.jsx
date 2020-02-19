@@ -9,146 +9,69 @@ import {
     Label,
     Icon,
 } from 'semantic-ui-react';
-import momentPropTypes from 'react-moment-proptypes';
 import DatePicker from '../common/DatePicker';
 import AndOrMultiSelect from './AndOrMultiSelect';
 
 const ConversationFilters = ({
-    lengthFilter,
-    xThanLength,
-    confidenceFilter,
-    xThanConfidence,
-    actionFilters,
-    intentFilters,
+    activeFilters,
     changeFilters,
-    startDate,
-    endDate,
-    userId,
     actionsOptions,
     setActionOptions,
     intentsOptions,
-    operatorActionsFilters,
-    operatorIntentsFilters,
     onDownloadConversations,
 }) => {
-    const [newLengthFilter, setNewLengthFilter] = useState({
-        compare: lengthFilter,
-        xThan: xThanLength,
-    });
-    const [newConfidenceFilter, setNewConfidenceFilter] = useState({
-        compare: confidenceFilter * 100,
-        xThan: xThanConfidence,
-    });
-    const [newActionFilters, setNewActionFilters] = useState(actionFilters);
-    const [newIntentFilters, setNewIntentFilters] = useState(intentFilters);
-    const [newStartDate, setNewStartDate] = useState(startDate);
-    const [newEndDate, setNewEndDate] = useState(endDate);
-    const [newUserIdFilter, setNewUserIdFilter] = useState(userId);
+    const [newFilters, setNewFilters] = useState(activeFilters);
+    useEffect(() => setNewFilters(activeFilters), [activeFilters]);
+    const setFilter = (key, val) => setNewFilters({ ...newFilters, [key]: val });
     const [activeAccordion, setActiveAccordion] = useState(true);
-    const [newOperatorActionsFilters, setNewOperatorActionsFilters] = useState(operatorActionsFilters);
-    const [newOperatorIntentsFilters, setNewOperatorIntentsFilters] = useState(operatorIntentsFilters);
-
-    useEffect(() => setNewActionFilters(actionFilters), [actionFilters]);
-    useEffect(() => setNewIntentFilters(intentFilters), [intentFilters]);
-    useEffect(() => setNewStartDate(startDate), [startDate]);
-    useEffect(() => setNewEndDate(endDate), [endDate]);
-    useEffect(() => setNewConfidenceFilter({
-        compare: confidenceFilter * 100,
-        xThan: xThanConfidence,
-    }), [confidenceFilter, xThanConfidence]);
-    useEffect(() => setNewLengthFilter({
-        compare: lengthFilter,
-        xThan: xThanLength,
-    }), [lengthFilter, xThanLength]);
-
 
     const filterLengthOptions = [
         { value: 'greaterThan', text: '≥' },
         { value: 'lessThan', text: '≤' },
         { value: 'equals', text: '=' },
     ];
-    /*
-    might be useful if more options are needed for the confidence
-    const filterConfidenceOptions = [
-        { value: 'lessThan', text: 'Less than' },
-    ]; */
 
-    const setNewDates = (incomingStartDate, incomingEndDate) => {
-        setNewStartDate(incomingStartDate);
-        setNewEndDate(incomingEndDate);
+    const setNewDates = (startDate, endDate) => {
+        setNewFilters({ ...newFilters, startDate, endDate });
     };
 
-    const applyFilters = () => {
-        changeFilters(
-            newLengthFilter,
-            newConfidenceFilter,
-            newActionFilters,
-            newStartDate,
-            newEndDate,
-            newUserIdFilter,
-            newOperatorActionsFilters,
-            newOperatorIntentsFilters,
-            newIntentFilters,
-        );
-    };
+    const applyFilters = () => changeFilters(newFilters);
 
     const resetFilters = (e) => {
         e.stopPropagation();
-        setNewActionFilters([]);
-        setNewStartDate(null);
-        setNewEndDate(null);
-        setNewConfidenceFilter({
-            compare: -1 * 100,
-            xThan: xThanConfidence,
-        });
-        setNewLengthFilter({
-            compare: -1,
-            xThan: 'greaterThan',
-        });
-        setNewUserIdFilter(null);
-        setNewOperatorActionsFilters('or');
-        setNewOperatorIntentsFilters('or');
-        changeFilters(
-            { compare: -1, xThan: 'greaterThan' },
-            { compare: -1, xThan: 'lessThan' },
-            [],
-            null,
-            null,
-            null,
-            'or',
-            'or',
-            [],
-        );
+        changeFilters();
     };
 
     let numberOfActiveFilter = 0;
     // We check that the filter does not have their empty value and that they match the props ( meaning that they have been applied)
-    if (newLengthFilter.compare >= 0 && newLengthFilter.compare === lengthFilter) {
-        numberOfActiveFilter += 1;
-    }
-    if (
-        newConfidenceFilter.compare >= 0
-        && newConfidenceFilter.compare === confidenceFilter * 100
+    if (newFilters.lengthFilter.compare >= 0
+        && newFilters.lengthFilter.compare === activeFilters.lengthFilter.compare
     ) {
         numberOfActiveFilter += 1;
     }
     if (
-        newActionFilters.length > 0
-        && newActionFilters.every(e => actionFilters.includes(e))
+        newFilters.confidenceFilter.compare > 0
+        && newFilters.confidenceFilter.compare === activeFilters.confidenceFilter.compare
     ) {
         numberOfActiveFilter += 1;
     }
     if (
-        newIntentFilters.length > 0
-        && newIntentFilters.every(e => intentFilters.includes(e))
+        newFilters.actionFilters.length > 0
+        && newFilters.actionFilters.every(e => activeFilters.actionFilters.includes(e))
     ) {
         numberOfActiveFilter += 1;
     }
     if (
-        newStartDate !== null
-        && newEndDate !== null
-        && newEndDate === endDate
-        && newStartDate === startDate
+        newFilters.intentFilters.length > 0
+        && newFilters.intentFilters.every(e => activeFilters.intentFilters.includes(e))
+    ) {
+        numberOfActiveFilter += 1;
+    }
+    if (
+        newFilters.startDate !== null
+        && newFilters.endDate !== null
+        && newFilters.startDate === activeFilters.startDate
+        && newFilters.endDate === activeFilters.endDate
     ) {
         numberOfActiveFilter += 1;
     }
@@ -157,9 +80,7 @@ const ConversationFilters = ({
         ? `(${numberOfActiveFilter})`
         : '';
 
-    const handleAccordionClick = () => {
-        setActiveAccordion(!activeAccordion);
-    };
+    const handleAccordionClick = () => setActiveAccordion(!activeAccordion);
 
     const addNewOption = (newOption) => {
         const optionObject = { key: newOption, value: newOption, text: newOption };
@@ -221,9 +142,9 @@ const ConversationFilters = ({
                                 options={filterLengthOptions}
                                 selection
                                 fluid
-                                value={newLengthFilter.xThan}
-                                onChange={(e, { value }) => setNewLengthFilter({
-                                    ...newLengthFilter,
+                                value={newFilters.lengthFilter.xThan}
+                                onChange={(e, { value }) => setFilter('lengthFilter', {
+                                    ...newFilters.lengthFilter,
                                     xThan: value,
                                 })
                                 }
@@ -231,13 +152,13 @@ const ConversationFilters = ({
                             <Segment className='number-filter'>
                                 <Input
                                     value={
-                                        newLengthFilter.compare > 0
-                                            ? newLengthFilter.compare
+                                        newFilters.lengthFilter.compare > 0
+                                            ? newFilters.lengthFilter.compare
                                             : ''
                                     }
-                                    onChange={(e, { value }) => setNewLengthFilter({
-                                        ...newLengthFilter,
-                                        compare: value,
+                                    onChange={(e, { value }) => setFilter('lengthFilter', {
+                                        ...newFilters.lengthFilter,
+                                        compare: +value,
                                     })
                                     }
                                 />
@@ -257,17 +178,16 @@ const ConversationFilters = ({
                                 <Input
                                     value={
                                         // bounds the confidence value to 0-100
-                                        newConfidenceFilter.compare > 0
-                                            ? newConfidenceFilter.compare < 100
-                                                ? newConfidenceFilter.compare
+                                        newFilters.confidenceFilter.compare * 100 > 0
+                                            ? newFilters.confidenceFilter.compare * 100 < 100
+                                                ? Math.round(newFilters.confidenceFilter.compare * 100)
                                                 : 100
                                             : ''
                                     }
-                                    onChange={(e, { value }) => setNewConfidenceFilter({
-                                        ...newConfidenceFilter,
-                                        compare: value,
-                                    })
-                                    }
+                                    onChange={(e, { value }) => setFilter('confidenceFilter', {
+                                        ...newFilters.confidenceFilter,
+                                        compare: value / 100,
+                                    })}
                                 />
                             </Segment>
                             <Segment className='static-symbol'>
@@ -279,8 +199,8 @@ const ConversationFilters = ({
                         <Segment className='date-filter' data-cy='date-picker-container'>
                             <DatePicker
                                 position='bottom left'
-                                startDate={newStartDate}
-                                endDate={newEndDate}
+                                startDate={newFilters.startDate}
+                                endDate={newFilters.endDate}
                                 onConfirm={setNewDates}
                             />
                         </Segment>
@@ -296,10 +216,11 @@ const ConversationFilters = ({
                             </Segment>
                             <Segment className='id-filter'>
                                 <Input
-                                    onChange={(e, { value }) => setNewUserIdFilter(
+                                    value={newFilters.userId || ''}
+                                    onChange={(_e, { value }) => setFilter(
+                                        'userId',
                                         value.trim(),
-                                    )
-                                    }
+                                    )}
                                     placeholder='unique identifier'
                                 />
                             </Segment>
@@ -309,21 +230,21 @@ const ConversationFilters = ({
                 <div className='conversation-filter-container'>
                     <div className='conversation-filter actions' data-cy='action-filter'>
                         <AndOrMultiSelect
-                            values={newActionFilters}
+                            values={newFilters.actionFilters}
                             addItem={addNewOption}
                             options={actionsOptions}
-                            onChange={setNewActionFilters}
-                            operatorChange={setNewOperatorActionsFilters}
+                            onChange={val => setFilter('actionFilters', val)}
+                            operatorChange={val => setFilter('operatorActionsFilters', val)}
                             placeholder='Action name'
                             allowAdditions
                         />
                     </div>
                     <div className='conversation-filter intents' data-cy='intent-filter'>
                         <AndOrMultiSelect
-                            values={newIntentFilters}
+                            values={newFilters.intentFilters}
                             options={intentsOptions}
-                            onChange={setNewIntentFilters}
-                            operatorChange={setNewOperatorIntentsFilters}
+                            onChange={val => setFilter('intentFilters', val)}
+                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
                             placeholder='Intent name'
                         />
                     </div>
@@ -334,34 +255,17 @@ const ConversationFilters = ({
 };
 
 ConversationFilters.propTypes = {
-    lengthFilter: PropTypes.number.isRequired,
-    xThanLength: PropTypes.string.isRequired,
-    confidenceFilter: PropTypes.number.isRequired,
-    xThanConfidence: PropTypes.string.isRequired,
     changeFilters: PropTypes.func.isRequired,
-    actionFilters: PropTypes.array,
-    intentFilters: PropTypes.array,
-    startDate: momentPropTypes.momentObj,
-    endDate: momentPropTypes.momentObj,
+    activeFilters: PropTypes.object.isRequired,
     actionsOptions: PropTypes.array,
     setActionOptions: PropTypes.func.isRequired,
-    userId: PropTypes.string,
     intentsOptions: PropTypes.array,
-    operatorActionsFilters: PropTypes.string,
-    operatorIntentsFilters: PropTypes.string,
     onDownloadConversations: PropTypes.func.isRequired,
 };
 
 ConversationFilters.defaultProps = {
-    startDate: null,
-    endDate: null,
-    actionFilters: [],
-    intentFilters: [],
     actionsOptions: [],
-    userId: null,
     intentsOptions: PropTypes.array,
-    operatorActionsFilters: 'or',
-    operatorIntentsFilters: 'or',
 };
 
 export default ConversationFilters;
