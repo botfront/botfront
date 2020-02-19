@@ -19,11 +19,12 @@ describe('Bot responses', function() {
         cy.dataCy('add-text-response').click();
         cy.dataCy('response-name-input').click().find('input').type(name);
         cy.dataCy('bot-response-input').find('textarea').type(content);
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
         cy.dataCy('template-intent').contains(`utter_${name}`).should('exist');
     };
-
+    
     it('should create a response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
@@ -204,6 +205,7 @@ describe('Bot responses', function() {
             .clear()
             .type('edited content')
             .blur();
+        cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
         cy.dataCy('template-intent').should('have.length', 1);
