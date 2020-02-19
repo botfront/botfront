@@ -11,13 +11,14 @@ class StoryException {
 
 export class StoryController {
     constructor({
-        story, slots, onUpdate = () => {}, isABranch = false,
+        story, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false,
     }) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.md = story;
         this.isABranch = isABranch;
+        this.onMdType = onMdType;
         this.saveUpdate = options => onUpdate(this.md, options);
         this.validateStory(false);
     }
@@ -303,6 +304,7 @@ export class StoryController {
     setMd = (content) => {
         this.md = content;
         this.validateStory(false);
+        this.onMdType();
     }
 
     getErrors = () => this.exceptions.filter(exception => exception.type === 'error');

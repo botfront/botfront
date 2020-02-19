@@ -1,4 +1,6 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, {
+    useState, useContext, useEffect, useReducer,
+} from 'react';
 import { Icon, Segment, Menu } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -66,6 +68,7 @@ const StoryEditorContainer = ({
     const [destinationStory, setDestinationStory] = useState({});
     const [destinationStories, setDestinationStories] = useState([]);
     const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
+    const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
 
     const saveStory = (path, content, options = {}) => {
         Meteor.call(
@@ -86,6 +89,7 @@ const StoryEditorContainer = ({
             story: story.story || '',
             slots,
             onUpdate: (content, options) => saveStory(story._id, { story: content }, options),
+            onMdType: setLastMdType,
             isABranch: hasCheckpoints(),
         }),
     });
@@ -152,6 +156,7 @@ const StoryEditorContainer = ({
                     story: newStory.story || '',
                     slots,
                     onUpdate: (content, options) => saveStory(currentPath, { story: content }, options),
+                    onMdType: setLastMdType,
                     isABranch: currentPath.length > 1,
                 });
             }
@@ -294,6 +299,7 @@ const StoryEditorContainer = ({
                     story: newBranch.story || '',
                     slots,
                     onUpdate: (content, options) => saveStory(path, { story: content }, options),
+                    onMdType: setLastMdType,
                     isABranch: path.length > 1,
                 }),
             });
@@ -349,9 +355,10 @@ const StoryEditorContainer = ({
             storyControllers,
             setStoryControllers,
             saveStory,
+            setLastMdType,
         );
         setExceptions(newExceptions);
-    }, [story]);
+    }, [story, lastMdType]);
 
     // new Level is true if the new branches create a new depth level of branches.
     const handleCreateBranch = (path, branches = [], num = 1, newLevel = true) => {
