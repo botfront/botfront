@@ -231,7 +231,7 @@ class Project extends React.Component {
         });
         if (!result.data) return val;
         await this.setResponses(
-            result.data.getResponses.reduce(
+            result.data.getResponses.reduce( // turns [{ k: k1, v1, v2 }, { k: k2, v1, v2 }] into { k1: { v1, v2 }, k2: { v1, v2 } }
                 (acc, { key, ...rest }) => ({ ...acc, ...(key in acc ? {} : { [key]: rest }) }), {},
             ),
         );
