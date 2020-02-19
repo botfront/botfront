@@ -17,7 +17,6 @@ type Query {
 scalar ConversationInput # for Legacy reasons this is kept as an alias for 'Any'
 
 type Subscription {
-    botResponseAdded(projectId: String!): BotResponse
     botResponsesModified(projectId: String!): BotResponse
     botResponseDeleted(projectId: String!): BotResponse
 }
