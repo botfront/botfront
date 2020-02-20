@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import { WebApp } from 'meteor/webapp';
 import { getUser } from 'meteor/apollo';
+import { Accounts } from 'meteor/accounts-base';
 import { typeDefs, resolvers, schemaDirectives } from '../../api/graphql/index';
 
 const MONGO_URL = process.env.MONGO_URL || `mongodb://localhost:${(process.env.METEOR_PORT || 3000) + 1}/meteor`;
@@ -25,13 +26,13 @@ export const runAppolloServer = () => {
         typeDefs,
         resolvers,
         context: async ({ req: { headers: { authorization } } }) => {
-            // If API_KEY set and authorization not corresponding: error
-            if (process.env.API_KEY && (!authorization || (process.env.API_KEY !== authorization))) throw new AuthenticationError('Missing authorization header');
-
-            const user = await getUser(authorization);
-            // Authorization header and no corresponding user: Error
-            if (authorization && !user) throw new AuthenticationError('Unauthorized');
-
+            let user = await getUser(authorization);
+            if (!user && process.env.API_KEY && process.env.API_KEY !== authorization) throw new AuthenticationError('Unauthorized');
+            if (!user) user = Meteor.users.findOne({ username: 'EXTERNAL_CONSUMER' });
+            if (!user) {
+                Accounts.createUser({ username: 'EXTERNAL_CONSUMER' });
+                user = Meteor.users.findOne({ username: 'EXTERNAL_CONSUMER' });
+            }
             return ({ user });
         },
         schemaDirectives,
