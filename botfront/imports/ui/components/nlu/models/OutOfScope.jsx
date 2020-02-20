@@ -57,7 +57,7 @@ function OutOfScope(props) {
     const handleUpdate = async (newData, rest) => {
         // rest argument is to supress warnings caused by incomplete schema on optimistic response
         upsertActivity({
-            variables: { modelId, data: newData },
+            variables: { modelId, data: newData, isOoS: true },
             optimisticResponse: {
                 __typename: 'Mutation',
                 upsertActivity: newData.map(d => ({ __typename: 'Activity', ...rest, ...d })),
@@ -66,7 +66,7 @@ function OutOfScope(props) {
     };
 
     const handleDelete = async (ids) => {
-        await deleteActivity({ variables: { modelId, ids } });
+        await deleteActivity({ variables: { modelId, ids, isOoS: true } });
         refetch();
     };
 

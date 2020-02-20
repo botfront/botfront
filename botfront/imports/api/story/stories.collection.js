@@ -34,8 +34,10 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('stories.light', function(projectId) {
-        checkIfCan('stories:r');
         check(projectId, String);
+        if (!checkIfCan('stories:r', projectId, null, { backupPlan: true })) {
+            return Stories.find({ projectId }, { _id: 1 });
+        }
         return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
     });
     Meteor.publish('stories.events', function(projectId) {

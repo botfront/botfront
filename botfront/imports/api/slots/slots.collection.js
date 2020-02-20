@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
-import { SlotsSchema } from './slots.schema';
 
 export const Slots = new Mongo.Collection('slots');
 
@@ -27,8 +26,10 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('slots', function(projectId) {
-        checkIfCan('stories:r', projectId);
         check(projectId, String);
+        if (!checkIfCan('stories:r', projectId, null, { backupPlan: true })) {
+            return [];
+        }
         Slots.find({ projectId });
         return Slots.find({ projectId });
     });

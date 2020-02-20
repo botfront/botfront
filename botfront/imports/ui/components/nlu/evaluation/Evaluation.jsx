@@ -22,7 +22,6 @@ import { InputButtons } from './InputButtons.jsx';
 import { Evaluations } from '../../../../api/nlu_evaluation';
 import UploadDropzone from '../../utils/UploadDropzone';
 import { Loading } from '../../utils/Utils';
-import { can } from '../../../../lib/scopes';
 
 import 'react-select/dist/react-select.css';
 
@@ -177,7 +176,6 @@ class Evaluation extends React.Component {
             validationRender,
             evaluation,
             loading: reportLoading,
-            projectId,
         } = this.props;
 
         const {
@@ -200,19 +198,17 @@ class Evaluation extends React.Component {
                     {errorMessage}
                     <br />
                     <Form>
-                        {can('nlu-model:x', projectId) && (
-                            <div id='test_set_buttons'>
-                                <InputButtons
-                                    labels={['Use training set', 'Upload test set', 'Use validated examples']}
-                                    operations={[this.useTrainingSet.bind(this), this.useTestSet.bind(this), this.useValidatedSet.bind(this)]}
-                                    defaultSelection={defaultSelection}
-                                    onDefaultLoad={defaultSelection === 2 ? this.evaluate : () => {}}
-                                    selectedIndex={selectedIndex}
-                                />
-                            </div>
-                        )}
+                        <div id='test_set_buttons'>
+                            <InputButtons
+                                labels={['Use training set', 'Upload test set', 'Use validated examples']}
+                                operations={[this.useTrainingSet.bind(this), this.useTestSet.bind(this), this.useValidatedSet.bind(this)]}
+                                defaultSelection={defaultSelection}
+                                onDefaultLoad={defaultSelection === 2 ? this.evaluate : () => {}}
+                                selectedIndex={selectedIndex}
+                            />
+                        </div>
                         {exampleSet === 'test' && <UploadDropzone success={!!data} onDropped={this.loadData} binary={false} />}
-                        {!dataLoading && !errorMessage && can('nlu-model:x', projectId) && (
+                        {!dataLoading && !errorMessage && (
                             <div>
                                 <Button type='submit' basic fluid color='green' loading={evaluating} onClick={this.evaluate} data-cy='start-evaluation'>
                                     <Icon name='percent' />

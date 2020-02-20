@@ -267,7 +267,6 @@ if (Meteor.isServer) {
         },
 
         'nlu.getChitChatIntents'(language) {
-            checkIfCan('nlu-data:r');
             check(language, String);
             const chitChatProjectId = getChitChatProjectid();
             if (!chitChatProjectId) {
@@ -407,7 +406,7 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.getUtteranceFromPayload'(projectId, payload, lang = 'en') {
-            checkIfCan(['nlu-data:r', 'stories:r', 'responses:r'], projectId);
+            checkIfCan('nlu-data:r', projectId);
             check(projectId, String);
             check(lang, String);
             check(payload, Object);

@@ -65,26 +65,22 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('projects', function (projectId) {
-        checkIfCan(['projects:r', 'nlu-data:r', 'incoming:r'], projectId);
         check(projectId, Match.Optional(String));
         if (can(['projects:r'], projectId)) {
             return Projects.find({ _id: projectId });
         }
-        if (can(['nlu-data:r', 'incoming:r'], projectId)) {
-            return Projects.find({ _id: projectId }, {
-                fields: {
-                    name: 1,
-                    defaultLanguage: 1,
-                    disabled: 1,
-                    nlu_models: 1,
-                    updatedAt: 1,
-                    instance: 1,
-                    training: 1,
-                    nluThreshold: 1,
-                },
-            });
-        }
-        return this.ready();
+        return Projects.find({ _id: projectId }, {
+            fields: {
+                name: 1,
+                defaultLanguage: 1,
+                disabled: 1,
+                nlu_models: 1,
+                updatedAt: 1,
+                instance: 1,
+                training: 1,
+                nluThreshold: 1,
+            },
+        });
     });
 
     Meteor.publish('projects.names', function () {

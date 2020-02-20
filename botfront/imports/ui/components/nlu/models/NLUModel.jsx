@@ -311,10 +311,12 @@ class NLUModel extends React.Component {
                         <Icon size='small' name='database' />
                         Training Data
                     </Menu.Item>
-                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-evaluation'>
-                        <Icon size='small' name='percent' />
-                        Evaluation
-                    </Menu.Item>
+                    {can('nlu-model:x') && (
+                        <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-evaluation'>
+                            <Icon size='small' name='percent' />
+                            Evaluation
+                        </Menu.Item>
+                    )}
                     <Menu.Item name='statistics' active={activeItem === 'statistics'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-statistics'>
                         <Icon size='small' name='pie graph' />
                         Statistics

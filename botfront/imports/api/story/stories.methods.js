@@ -68,12 +68,6 @@ Meteor.methods({
         return result;
     },
 
-    'stories.getStories'(projectId) {
-        checkIfCan('stories:r', projectId);
-        check(projectId, String);
-        return Stories.find({ projectId }).fetch();
-    },
-
     'stories.addCheckpoints'(destinationStory, branchPath) {
         checkIfCan('stories:w');
         check(destinationStory, String);

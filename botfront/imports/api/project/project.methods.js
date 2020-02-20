@@ -150,7 +150,7 @@ if (Meteor.isServer) {
         },
 
         async 'project.getEntitiesAndIntents'(projectId, language) {
-            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
+            checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             check(projectId, String);
             check(language, String);
 
@@ -175,6 +175,7 @@ if (Meteor.isServer) {
         },
 
         async 'project.getActions'(projectId) {
+            // could use story.events subscription here??
             checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             check(projectId, String);
             let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
@@ -182,7 +183,7 @@ if (Meteor.isServer) {
             const templates = await getAllTemplates(projectId);
 
             try {
-                const stories = await Meteor.callWithPromise('stories.getStories', projectId);
+                const stories = Stories.find({ projectId }).fetch();
                 const slots = Slots.find({ projectId }).fetch();
                 const {
                     actions: actionsSetFromDomain = [],
@@ -212,7 +213,7 @@ if (Meteor.isServer) {
         },
 
         async 'project.getDeploymentEnvironments'(projectId) {
-            checkIfCan('incoming:r', 'projects:r', projectId);
+            checkIfCan(['incoming:r', 'projects:r'], projectId);
             check(projectId, String);
             try {
                 const project = Projects.findOne({ _id: projectId }, { fields: { deploymentEnvironments: 1 } });

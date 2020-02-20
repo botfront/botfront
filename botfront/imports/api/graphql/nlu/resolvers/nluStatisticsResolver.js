@@ -1,11 +1,12 @@
 import { getIntentStatistics } from '../mongo/statistics';
 import { getModelIdsFromProjectId } from '../../../../lib/utils';
+import { checkIfCan } from '../../../roles/roles';
 
 export default {
     Query: {
-        getIntentStatistics: async (_root, args) => {
-            // use context for auth?
+        getIntentStatistics: async (_root, args, context) => {
             const { projectId, language } = args;
+            checkIfCan('nlu-data:r', projectId, context.user._id);
             const ids = await getModelIdsFromProjectId(projectId);
             const stats = await getIntentStatistics(ids);
             return stats.map(({ intent, languages }) => ({
