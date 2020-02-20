@@ -8,8 +8,11 @@ export const can = (permission, projectId, userId, options) => {
     return Roles.userIsInRole(userId || Meteor.userId(), permission, projectId);
 };
 
-export const checkIfCan = (permission, projectId, userId, options) => {
-    if (!can(permission, projectId, userId, options)) throw new Meteor.Error('403', `${permission} Forbidden`);
+export const checkIfCan = (permission, projectId, userId = null, options = {}) => {
+    const could = can(permission, projectId, userId, options);
+    // setting backupPlan to true throws no error, returns false
+    if (could || options.backupPlan) return could;
+    throw new Meteor.Error('403', `${permission} Forbidden`);
 };
 
 const ue = { unlessExists: true };
