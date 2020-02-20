@@ -54,12 +54,14 @@ const auditFormat = printf((arg) => {
         }
     });
     const {
-        message, userId, type, resId, operation, timestamp, projectId,
+        message, userId, type, resId, operation, timestamp, projectId, after, before,
     } = arg;
-
+    let additionalInfo = '';
+    if (before) additionalInfo = `before: ${JSON.stringify(before)}`;
+    if (after) additionalInfo = additionalInfo.concat(`after: ${JSON.stringify(after)}`);
     return `${timestamp}  [${type}]: ${message} ${userId ? ` userId: ${userId}` : ''
     } ${projectId ? ` projectId: ${projectId}` : ''
-    }${spaceBeforeIfExist(operation)} ressourceId: ${spaceBeforeIfExist(resId)} `;
+    }${spaceBeforeIfExist(operation)} ressourceId: ${spaceBeforeIfExist(resId)} ${spaceBeforeIfExist(additionalInfo)} `;
 });
 
 const checkDataType = (dataType, data) => {
