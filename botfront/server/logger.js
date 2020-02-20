@@ -36,9 +36,13 @@ const allowdKeysAudit = [
     'level',
     'message',
     'userId',
+    'type',
+    'resId',
     'operation',
     'timestamp',
     'projectId',
+    'before',
+    'after',
 ];
 
 const spaceBeforeIfExist = prop => (prop ? ` ${prop}` : '');
@@ -50,11 +54,12 @@ const auditFormat = printf((arg) => {
         }
     });
     const {
-        message, userId, operation, timestamp, projectId,
+        message, userId, type, resId, operation, timestamp, projectId,
     } = arg;
 
-    return `${timestamp}  [userId: ${userId}]: ${projectId ? ` projectId: ${projectId}` : ''
-    }${spaceBeforeIfExist(operation)} ${message}`;
+    return `${timestamp}  [${type}]: ${message} ${userId ? ` userId: ${userId}` : ''
+    } ${projectId ? ` projectId: ${projectId}` : ''
+    }${spaceBeforeIfExist(operation)} ressourceId: ${spaceBeforeIfExist(resId)} `;
 });
 
 const checkDataType = (dataType, data) => {
@@ -172,9 +177,11 @@ const auditLogger = winston.createLogger({
 
 export const getAppLoggerForFile = filename => appLogger.child({ file: filename });
 
-export const auditLog = (userId, projectId, operation) => auditLogger.info('', {
-    userId, projectId, operation,
-});
+export const auditLog = (message, metadata) => {
+    auditLogger.info(message, {
+        ...metadata,
+    });
+};
 
 export const getAppLoggerForMethod = (fileLogger, method, userId, args) => fileLogger.child({ method, userId, args });
 

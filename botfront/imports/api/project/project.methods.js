@@ -19,7 +19,10 @@ import { Slots } from '../slots/slots.collection';
 import { flattenStory, extractDomain, getAllTemplates } from '../../lib/story.utils';
 import BotResponses from '../graphql/botResponses/botResponses.model';
 
+
 if (Meteor.isServer) {
+    import { auditLog } from '../../../server/logger';
+
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
 
     export const getExamplesFromTrainingData = (trainingData, startIntents = [], startEntities = []) => {
@@ -75,6 +78,9 @@ if (Meteor.isServer) {
                 createIntroStoryGroup(_id);
                 createDefaultStoryGroup(_id);
                 await createInstance({ _id, ...item });
+                auditLog('Create project', {
+                    userId: Meteor.userId(), after: { item }, resId: _id, type: 'create', operation: 'project-created',
+                });
                 return _id;
             } catch (e) {
                 if (_id) Meteor.call('project.delete', _id);
@@ -83,11 +89,14 @@ if (Meteor.isServer) {
         },
 
         'project.update'(item) {
-            checkIfCan('projects:w', item._id, undefined, { operationType: 'project-updated' });
+            checkIfCan('projects:w', item._id, undefined);
             check(item, Match.ObjectIncluding({ _id: String }));
             try {
                 // eslint-disable-next-line no-param-reassign
                 delete item.createdAt;
+                auditLog('Update project', {
+                    userId: Meteor.userId(), after: { item }, resId: item._id, type: 'update', operation: 'project-updated',
+                });
                 return Projects.update({ _id: item._id }, { $set: item });
             } catch (e) {
                 throw formatError(e);
@@ -116,6 +125,9 @@ if (Meteor.isServer) {
                 // Delete project related permissions for users (note: the role package does not provide
                 const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
                 projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
+                auditLog('delete project', {
+                    userId: Meteor.userId(), resId: projectId, type: 'delete', operation: 'project-deleted',
+                });
                 await BotResponses.remove({ projectId });
             } catch (e) {
                 if (!failSilently) throw e;
@@ -126,6 +138,9 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             try {
+                auditLog('Mark trainning as started', {
+                    userId: Meteor.userId(), resId: projectId, type: 'update', operation: 'project-updated',
+                });
                 return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
             } catch (e) {
                 throw e;
@@ -143,6 +158,9 @@ if (Meteor.isServer) {
                 if (error) {
                     set.training.message = error;
                 }
+                auditLog('Mark trainning as stopped', {
+                    userId: Meteor.userId(), resId: projectId, type: 'update', operation: 'project-updated', after: { status },
+                });
                 return Projects.update({ _id: projectId }, { $set: set });
             } catch (e) {
                 throw e;
@@ -167,7 +185,7 @@ if (Meteor.isServer) {
                     slots,
                 ) : {};
                 const trainingData = getAllTrainingDataGivenProjectIdAndLanguage(projectId, language);
-
+                
                 return getExamplesFromTrainingData(trainingData, intentSetFromDomain, entitiesSetFromDomain);
             } catch (error) {
                 throw error;

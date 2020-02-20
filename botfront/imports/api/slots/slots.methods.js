@@ -3,6 +3,7 @@ import { check, Match } from 'meteor/check';
 
 import { Slots } from './slots.collection';
 import { checkIfCan } from '../../lib/scopes';
+import { auditLogIfOnServer } from '../../lib/utils';
 import { slotSchemas } from './slots.schema';
 
 function validateSchema(slot) {
@@ -22,11 +23,14 @@ function handleError(e) {
 
 Meteor.methods({
     'slots.insert'(slot, projectId) {
-        checkIfCan('stories:w', projectId, undefined, { operationType: 'stories-created' });
+        checkIfCan('stories:w', projectId);
         check(slot, Object);
         check(projectId, String);
         validateSchema(slot);
         try {
+            auditLogIfOnServer('Insert slot', {
+                resId: projectId, userId: Meteor.userId(), type: 'update', operation: 'stories.updated', after: { slot },
+            });
             return Slots.insert(slot);
         } catch (e) {
             return handleError(e);
@@ -50,11 +54,14 @@ Meteor.methods({
     },
 
     'slots.update'(slot, projectId) {
-        checkIfCan('stories:w', projectId, undefined, { operationType: 'stories-updated' });
+        checkIfCan('stories:w', projectId);
         check(slot, Object);
         check(projectId, String);
         validateSchema(slot);
         try {
+            auditLogIfOnServer('Update slot', {
+                resId: projectId, userId: Meteor.userId(), type: 'update', operation: 'stories.updated', after: { slot },
+            });
             return Slots.update({ _id: slot._id }, { $set: slot });
         } catch (e) {
             return handleError(e);
@@ -62,10 +69,13 @@ Meteor.methods({
     },
 
     'slots.delete'(slot, projectId) {
-        checkIfCan('stories:w', projectId, undefined, { operationType: 'stories-deleted' });
+        checkIfCan('stories:w', projectId);
         check(slot, Object);
         check(projectId, String);
         validateSchema(slot);
+        auditLogIfOnServer('Delete slot', {
+            resId: projectId, userId: Meteor.userId(), type: 'update', operation: 'stories.updated', before: { slot },
+        });
         return Slots.remove(slot);
     },
 

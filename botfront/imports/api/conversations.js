@@ -55,6 +55,8 @@ Meteor.startup(() => {
 });
 
 if (Meteor.isServer) {
+    import { auditLog } from '../../server/logger';
+
     const findConversationProject = (senderId) => {
         const conversation = Conversations.findOne({ _id: senderId });
         if (!conversation) throw Meteor.Error('404', 'Not Found');
@@ -63,7 +65,7 @@ if (Meteor.isServer) {
     };
     Meteor.methods({
         'conversations.markAsRead'(senderId) {
-            checkIfCan('incoming:r', findConversationProject(senderId), undefined, { operationType: 'conversation-updated' });
+            checkIfCan('incoming:r', findConversationProject(senderId));
             check(senderId, String);
             return Conversations.update({ _id: senderId }, { $set: { status: 'read' } });
         },
@@ -72,12 +74,18 @@ if (Meteor.isServer) {
             checkIfCan('incoming:r', findConversationProject(senderId));
             check(senderId, String);
             check(status, String);
+            auditLog('Changing conversation status', {
+                userId: Meteor.userId(), type: 'update', operation: 'conversation-updated', resId: senderId, after: { status },
+            });
             return Conversations.update({ _id: senderId }, { $set: { status } });
         },
 
         'conversations.delete'(senderId) {
-            checkIfCan('incoming:w', findConversationProject(senderId), undefined, { operationType: 'conversation-deleted' });
+            checkIfCan('incoming:w', findConversationProject(senderId));
             check(senderId, String);
+            auditLog('Deleting conversation', {
+                userId: Meteor.userId(), type: 'delete', operation: 'conversation-deleted', resId: senderId,
+            });
             return Conversations.remove({ _id: senderId });
         },
     });

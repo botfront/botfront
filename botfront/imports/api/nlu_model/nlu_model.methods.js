@@ -5,7 +5,7 @@ import {
     uniq, uniqBy, sortBy, intersectionBy,
 } from 'lodash';
 import {
-    formatError, getModelIdsFromProjectId, getProjectIdFromModelId,
+    formatError, getModelIdsFromProjectId, getProjectIdFromModelId, auditLogIfOnServer,
 } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
@@ -31,7 +31,7 @@ const gazetteDefaults = {
 
 Meteor.methods({
     async 'nlu.insertExamplesWithLanguage'(projectId, language, items) {
-        checkIfCan(['nlu-data:w', 'stories:w'], projectId, undefined, { operationType: 'nlu-data-created' });
+        checkIfCan(['nlu-data:w', 'stories:w'], projectId);
         check(projectId, String);
         check(language, String);
         check(items, Array);
@@ -41,6 +41,9 @@ Meteor.methods({
                 { _id: { $in: modelIds }, language },
                 { fields: { _id: 1 } },
             )._id;
+            auditLogIfOnServer('Insert Example in language', {
+                userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-data-updated', after: { items },
+            });
             return await Meteor.callWithPromise('nlu.insertExamples', modelId, items);
         } catch (e) {
             throw formatError(e);
@@ -48,7 +51,7 @@ Meteor.methods({
     },
 
     async 'nlu.insertExamples'(modelId, items) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-created' });
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(items, Array);
 
@@ -64,6 +67,9 @@ Meteor.methods({
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
             const pullItemsText = intersectionBy(examples, canonicalizedItems, 'text').map(({ text }) => text);
             NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItemsText } } } });
+            auditLogIfOnServer('Insert Example', {
+                userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-data-updated', after: { items },
+            });
             return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: canonicalizedItems, $position: 0 } } });
         } catch (e) {
             throw formatError(e);
@@ -71,12 +77,15 @@ Meteor.methods({
     },
 
     'nlu.updateExample'(modelId, item) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
 
         const cleanItem = ExampleUtils.stripBare(item);
         try {
+            auditLogIfOnServer('update Example', {
+                userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-data-updated', after: { item },
+            });
             return NLUModels.update({ _id: modelId, 'training_data.common_examples._id': cleanItem._id }, { $set: { 'training_data.common_examples.$': cleanItem } });
         } catch (e) {
             throw formatError(e);
@@ -84,9 +93,12 @@ Meteor.methods({
     },
 
     async 'nlu.switchCanonical'(modelId, item) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
+        auditLogIfOnServer('Marking example as canonical', {
+            userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-data-updated', after: { item },
+        });
         if (!item.canonical) {
             /* try to match a canonical item with the same characteristics (intent, entity, entity value)
             to check if the selected item can be used as canonical
@@ -128,37 +140,47 @@ Meteor.methods({
     },
 
     'nlu.deleteExample'(modelId, itemId) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-deleted' });
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(itemId, String);
-
+        auditLogIfOnServer('Delete nlu example ', {
+            userId: Meteor.userId(), resId: itemId, type: 'delete', operation: 'nlu-data-deleted',
+        });
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: itemId } } });
     },
 
     'nlu.upsertEntitySynonym'(modelId, item) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
-
+        auditLogIfOnServer('update/create nlu example ', {
+            userId: Meteor.userId(), resId: item._id, type: 'delete', operation: 'nlu-data-updated', after: { item },
+        });
         if (item._id) {
             return NLUModels.update({ _id: modelId, 'training_data.entity_synonyms._id': item._id }, { $set: { 'training_data.entity_synonyms.$': item } });
         }
 
+       
         return NLUModels.update({ _id: modelId }, { $push: { 'training_data.entity_synonyms': { _id: uuidv4(), ...item } } });
     },
 
     'nlu.deleteEntitySynonym'(modelId, itemId) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-deleted' });
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(itemId, String);
-
+        auditLogIfOnServer('Delete entity synonym', {
+            userId: Meteor.userId(), resId: itemId, type: 'delete', operation: 'nlu-data-deleted',
+        });
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.entity_synonyms': { _id: itemId } } });
     },
 
     'nlu.upsertEntityGazette'(modelId, item) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
+        auditLogIfOnServer('update/create entity gazette', {
+            userId: Meteor.userId(), resId: item._id, type: 'delete', operation: 'nlu-data-updated', after: { item },
+        });
 
         if (item._id) {
             return NLUModels.update({ _id: modelId, 'training_data.fuzzy_gazette._id': item._id }, { $set: { 'training_data.fuzzy_gazette.$': item } });
@@ -170,15 +192,19 @@ Meteor.methods({
     },
 
     'nlu.deleteEntityGazette'(modelId, itemId) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-deleted' });
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(itemId, String);
-
+        auditLogIfOnServer('delete entity gazette', {
+            userId: Meteor.userId(), resId: itemId, type: 'delete', operation: 'nlu-data-deleted',
+        });
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
 });
 
 if (Meteor.isServer) {
+    import { auditLog } from '../../../server/logger';
+
     const getChitChatProjectid = () => {
         // no permission needed
         const { settings: { public: { chitChatProjectId = null } = {} } = {} } = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
@@ -203,7 +229,7 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:w', projectId);
             check(item, Object);
             check(projectId, String);
-
+            
             // Check if the model with the langauge already exists in project
             // eslint-disable-next-line no-param-reassign
             const { nlu_models: nluModels } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
@@ -219,6 +245,9 @@ if (Meteor.isServer) {
             const defaultModel = { ...item, config: defaultNLUConfig };
             const modelId = NLUModels.insert(defaultModel);
             Projects.update({ _id: projectId }, { $addToSet: { nlu_models: modelId } });
+            auditLog('Nlu insert', {
+                userId: Meteor.userId(), resId: modelId, type: 'create', operation: 'nlu-model-created', after: { item },
+            });
             return modelId;
         },
 
@@ -226,7 +255,9 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(item, Object);
             check(modelId, String);
-
+            auditLog('Nlu update', {
+                userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-model-updated', after: { item },
+            });
             NLUModels.update({ _id: modelId }, { $set: item });
             return modelId;
         },
@@ -235,7 +266,9 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', getProjectIdFromModelId(modelId));
             check(item, Object);
             check(modelId, String);
-
+            auditLog('Nlu update', {
+                userId: Meteor.userId(), resId: modelId, type: 'execute', operation: 'nlu-model-executed', after: { item },
+            });
             const newItem = {};
             newItem.config = item.config;
             newItem.name = item.name;
@@ -263,6 +296,9 @@ if (Meteor.isServer) {
                     throw e;
                 }
             }
+            auditLog('Nlu remove model', {
+                userId: Meteor.userId(), resId: modelId, type: 'delete', operation: 'nlu-model-deleted',
+            });
             throw new Meteor.Error('409', 'The default language cannot be deleted');
         },
 
@@ -281,7 +317,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.addChitChatToTrainingData'(modelId, language, intents) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(language, String);
             check(intents, [String]);
@@ -294,14 +330,19 @@ if (Meteor.isServer) {
             const model = getModelWithTrainingData(chitChatProjectId, language);
             // eslint-disable-next-line camelcase
             const { training_data: { common_examples = [] } = {} } = model || {};
-
+            auditLog('Nlu model add chitchat', {
+                userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-data-update', after: { intents },
+            });
             Meteor.call('nlu.insertExamples', modelId, common_examples.filter(({ intent }) => intents.indexOf(intent) >= 0));
         },
 
         'nlu.updateChitChatIntents'(modelId, intents) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(intents, Array);
+            auditLog('Nlu model update chitchat', {
+                userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-data-update', after: { intents },
+            });
             return NLUModels.update({ _id: modelId }, { $set: { chitchat_intents: intents } });
         },
 
@@ -360,6 +401,9 @@ if (Meteor.isServer) {
                 const op = overwrite
                     ? { $set: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } }
                     : { $push: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } };
+                auditLog('Nlu data import', {
+                    userId: Meteor.userId(), resId: currentModel._id, type: 'update', operation: 'nlu-data-update', after: { nluData },
+                });
                 return NLUModels.update({ _id: currentModel._id }, op);
             } catch (e) {
                 if (e instanceof Meteor.Error) throw e;
@@ -368,7 +412,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.renameIntent'(modelId, oldIntent, newIntent, renameBotResponses = false) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(oldIntent, String);
             check(newIntent, String);
@@ -388,7 +432,9 @@ if (Meteor.isServer) {
 
                     Projects.update({ nlu_models: modelId }, { $set: { templates: newTemplates } });
                 }
-
+                auditLog('Nlu rename intent', {
+                    userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-data-updated', before: { oldIntent }, after: { nluData },
+                });
                 return true;
             } catch (e) {
                 throw new Meteor.Error(e);
@@ -396,7 +442,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.removeExamplesByIntent'(modelId, arg) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-deleted' });
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(arg, Match.OneOf(String, [String]));
             const intents = typeof arg === 'string' ? [arg] : arg;
@@ -406,6 +452,9 @@ if (Meteor.isServer) {
             } catch (e) {
                 throw formatError(e);
             }
+            auditLog('Nlu data removes example by intent', {
+                userId: Meteor.userId(), resId: modelId, type: 'update', operation: 'nlu-data-deleted', before: { intents },
+            });
         },
 
         async 'nlu.getUtteranceFromPayload'(projectId, payload, lang = 'en') {
@@ -474,7 +523,7 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.chitChatSetup'() {
-            checkIfCan('projects:w', undefined, undefined, { operationType: 'project-updated' });
+            checkIfCan('projects:w');
             try {
                 const data = {
                     fr: JSON.parse(Assets.getText('nlu/nlu-chitchat-fr.json')),

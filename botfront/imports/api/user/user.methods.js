@@ -14,7 +14,9 @@ export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W]
 
 
 if (Meteor.isServer) {
-    import { getAppLoggerForMethod, getAppLoggerForFile, addLoggingInterceptors } from '../../../server/logger';
+    import {
+        getAppLoggerForMethod, getAppLoggerForFile, addLoggingInterceptors, auditLog,
+    } from '../../../server/logger';
 
     const userAppLogger = getAppLoggerForFile(__filename);
 
@@ -67,6 +69,12 @@ if (Meteor.isServer) {
                 this.unblock();
                 if (sendInviteEmail) Accounts.sendEnrollmentEmail(userId);
                 setScopes(user, userId);
+                auditLog('Create an user', {
+                    userId: Meteor.userId(),
+                    type: 'creae',
+                    operation: 'user-created',
+                    after: { user },
+                });
                 return userId;
             } catch (e) {
                 console.log(e);
@@ -81,6 +89,13 @@ if (Meteor.isServer) {
                 checkIfCan('users:w', project === 'GLOBAL' ? null : project);
             });
             try {
+                auditLog('Update an user', {
+                    userId: Meteor.userId(),
+                    type: 'update',
+                    resId: user._id,
+                    operation: 'user-updated',
+                    after: { user },
+                });
                 Meteor.users.update(
                     { _id: user._id },
                     {
@@ -104,6 +119,12 @@ if (Meteor.isServer) {
             check(options, Object);
             const { failSilently } = options;
             try {
+                auditLog('Delete an user', {
+                    userId: Meteor.userId(),
+                    type: 'delete',
+                    resId: userId,
+                    operation: 'user-deleted',
+                });
                 Meteor.users.remove({ _id: userId });
             } catch (e) {
                 if (!failSilently) throw e;
@@ -111,9 +132,14 @@ if (Meteor.isServer) {
         },
 
         'user.removeByEmail'(email) {
-            checkIfCan('users:w', undefined, undefined, { operationType: 'user-deleted' });
+            checkIfCan('users:w');
             check(email, String);
             try {
+                auditLog('Delete an user by email matching', {
+                    userId: Meteor.userId(),
+                    type: 'delete',
+                    operation: 'user-deleted',
+                });
                 return Meteor.users.remove({
                     emails: [{
                         address: email,
@@ -131,6 +157,13 @@ if (Meteor.isServer) {
             check(newPassword, String);
 
             try {
+                auditLog('Change user password', {
+                    userId: Meteor.userId(),
+                    type: 'update',
+                    operation: 'user-updated',
+                    resId: userId,
+                    after: { newPassword }, // to verify if its the hash otherwise dont log
+                });
                 return Promise.await(Accounts.setPassword(userId, newPassword));
             } catch (e) {
                 throw e;

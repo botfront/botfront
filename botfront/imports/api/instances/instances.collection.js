@@ -19,6 +19,8 @@ Instances.deny({
 });
 
 if (Meteor.isServer) {
+    import { auditLog } from '../../../server/logger';
+
     Instances._ensureIndex({ projectId: 1 });
     Meteor.publish('nlu_instances', function(projectId) {
         checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
@@ -30,6 +32,9 @@ if (Meteor.isServer) {
         'instance.update'(item) {
             checkIfCan('projects:w', item.projectId);
             check(item, Object);
+            auditLog('Updating instance', {
+                userId: Meteor.userId(), type: 'update', operation: 'project-settings-update', resId: item.projectId, after: { item },
+            });
             return Instances.update({ _id: item._id }, { $set: item });
         },
     });

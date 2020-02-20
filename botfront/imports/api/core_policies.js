@@ -53,6 +53,8 @@ Meteor.startup(() => {
 
 CorePolicies.attachSchema(CorePolicySchema);
 if (Meteor.isServer) {
+    import { auditLog } from '../../server/logger';
+
     Meteor.publish('policies', function (projectId) {
         checkIfCan('projects:r', projectId);
         check(projectId, String);
@@ -61,9 +63,12 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'policies.save'(policies) {
-            checkIfCan('projects:w', policies.projectId, undefined, { operationType: 'policies-updated' });
+            checkIfCan('projects:w', policies.projectId);
             check(policies, Object);
             try {
+                auditLog('Saving policies', {
+                    userId: Meteor.userId(), type: 'update', operation: 'policies-updated', resId: policies.projectId, after: { policies: policies.policies },
+                });
                 return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });
             } catch (e) {
                 throw formatError(e);

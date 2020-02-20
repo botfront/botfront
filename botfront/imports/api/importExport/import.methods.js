@@ -11,12 +11,13 @@ if (Meteor.isServer) {
         getAppLoggerForFile,
         getAppLoggerForMethod,
         addLoggingInterceptors,
+        auditLog,
     } from '../../../server/logger';
 
     const importAppLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
         async importProject(projectFile, apiHost, projectId) {
-            checkIfCan('projects:w', projectId, undefined, { operationType: 'project-import' });
+            checkIfCan('projects:w', projectId);
             check(projectId, String);
             check(projectFile, Object);
             check(apiHost, String);
@@ -37,6 +38,9 @@ if (Meteor.isServer) {
                 .catch(err => (
                     { error: { header: 'Import Failed', text: generateErrorText(err) } }
                 ));
+            auditLog('Import project', {
+                userId: Meteor.userId(), type: 'create', operation: 'project-created', resId: projectId,
+            });
             return importRequest;
         },
     });

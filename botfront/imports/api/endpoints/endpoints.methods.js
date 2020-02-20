@@ -35,10 +35,15 @@ export const saveEndpoints = async (endpoints) => {
 };
 
 if (Meteor.isServer) {
+    import { auditLog } from '../../../server/logger';
+
     Meteor.methods({
         'endpoints.save'(endpoints) {
-            checkIfCan('projects:w', endpoints.projectId, undefined, { operationType: 'credentials-updated' });
+            checkIfCan('projects:w', endpoints.projectId);
             check(endpoints, Object);
+            auditLog('Saving endpoints', {
+                userId: Meteor.userId(), type: 'update', operation: 'project-updated', resId: endpoints.projectId, after: { endpoints },
+            });
             return saveEndpoints(endpoints);
         },
     });

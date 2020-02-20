@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
+import { auditLogIfOnServer } from '../../lib/utils';
 import { StoryGroups } from './storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
@@ -74,21 +75,34 @@ function handleError(e) {
 
 Meteor.methods({
     async 'storyGroups.delete'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId, undefined, { operationType: 'story-group-deleted' });
+        checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         let eventstoRemove = [];
         const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
             .fetch();
         childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-
+        auditLogIfOnServer('Story group delete', {
+            resId: storyGroup._id,
+            userId: Meteor.userId(),
+            type: 'delete',
+            operation: 'story-group-deleted',
+            before: { storyGroup },
+        });
         const result = await StoryGroups.remove(storyGroup) && await Meteor.callWithPromise('storyGroups.deleteChildStories', storyGroup._id, storyGroup.projectId);
         return result;
     },
 
     'storyGroups.insert'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId, undefined, { operationType: 'story-group-created' });
+        checkIfCan('stories:w', storyGroup.projectId, undefined);
         check(storyGroup, Object);
         try {
+            auditLogIfOnServer('Create a story group', {
+                resId: storyGroup._id,
+                userId: Meteor.userId(),
+                type: 'create',
+                operation: 'story-group-created',
+                after: { storyGroup },
+            });
             return StoryGroups.insert(storyGroup);
         } catch (e) {
             return handleError(e);
@@ -96,9 +110,16 @@ Meteor.methods({
     },
 
     'storyGroups.update'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId, undefined, { operationType: 'story-group-updated' });
+        checkIfCan('stories:w', storyGroup.projectId, undefined);
         check(storyGroup, Object);
         try {
+            auditLogIfOnServer('Update a story group', {
+                resId: storyGroup._id,
+                userId: Meteor.userId(),
+                type: 'create',
+                operation: 'story-group-created',
+                after: { storyGroup },
+            });
             return StoryGroups.update(
                 { _id: storyGroup._id },
                 { $set: storyGroup },
@@ -108,8 +129,13 @@ Meteor.methods({
         }
     },
     'storyGroups.removeFocus'(projectId) {
-        checkIfCan('stories:w', projectId, undefined, { operationType: 'story-group-updated' });
+        checkIfCan('stories:w', projectId, undefined);
         check(projectId, String);
+        auditLogIfOnServer('remove focus on all story group', {
+            userId: Meteor.userId(),
+            type: 'update',
+            operation: 'story-group-updated',
+        });
         return StoryGroups.update(
             { projectId },
             { $set: { selected: false } },
@@ -121,7 +147,7 @@ Meteor.methods({
 if (Meteor.isServer) {
     Meteor.methods({
         async 'storyGroups.deleteChildStories'(storyGroupId, projectId) {
-            checkIfCan('stories:w', projectId, undefined, { operationType: 'story-group-deleted' });
+            checkIfCan('stories:w', projectId, undefined);
             check(storyGroupId, String);
             check(projectId, String);
             let eventstoRemove = [];
@@ -131,6 +157,12 @@ if (Meteor.isServer) {
 
             const result = await Stories.remove({ storyGroupId });
             deleteResponsesRemovedFromStories(eventstoRemove, projectId);
+            auditLogIfOnServer('Delete child stories of a story group', {
+                userId: Meteor.userId(),
+                type: 'delete',
+                operation: 'story-group-delete',
+                resId: storyGroupId,
+            });
             return result;
         },
     });

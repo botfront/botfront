@@ -7,6 +7,7 @@ import {
     getIntents,
 } from '../mongo/conversations';
 import { checkIfCan } from '../../../../lib/scopes';
+import { auditLog } from '../../../../../server/logger';
 
 export default {
     Query: {
@@ -25,18 +26,24 @@ export default {
     },
     Mutation: {
         async markAsRead(_, args, context) {
-            checkIfCan('incoming:r', args.projectId, context.user._id, { operationType: 'conversation-updated' });
+            checkIfCan('incoming:r', args.projectId, context.user._id);
             const response = await updateConversationStatus(args.id, 'read');
             return { success: response.ok === 1 };
         },
         async updateStatus(_, args, context) {
-            checkIfCan('incoming:w', args.projectId, context.user._id, { operationType: 'conversation-updated' });
+            checkIfCan('incoming:w', args.projectId, context.user._id);
             const response = await updateConversationStatus(args.id, args.status);
+            auditLog('Update conversation status', {
+                userId: context.user._id, type: 'update', operation: 'conversation-updated', resId: args.id,
+            });
             return { success: response.ok === 1 };
         },
         async delete(_, args, context) {
-            checkIfCan('incoming:w', args.projectId, context.user._id, { operationType: 'conversation-deleted' });
+            checkIfCan('incoming:w', args.projectId, context.user._id);
             const response = await deleteConversation(args.id);
+            auditLog('delete conversation ', {
+                userId: context.user._id, type: 'delete', operation: 'conversation-deleted', resId: args.id,
+            });
             return { success: response.ok === 1 };
         },
     },
