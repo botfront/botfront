@@ -89,7 +89,8 @@ if (Meteor.isServer) {
 
         'users.checkEmpty'() {
             try {
-                return Meteor.users.find().count() === 0;
+                // don't count EXTERNAL_CONSUMER for Welcome screen check
+                return Meteor.users.find({ username: { $ne: 'EXTERNAL_CONSUMER' } }).count() === 0;
             } catch (e) {
                 throw e;
             }
