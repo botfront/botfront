@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Mongo } from 'meteor/mongo';
 
-import { can, getScopesForUser, checkIfCan } from '../../lib/scopes';
+import { checkIfCan } from '../../lib/scopes';
 import { Projects } from '../project/project.collection';
 import { NLUModelSchema } from './nlu_model.schema';
 import { getProjectIdFromModelId } from '../../lib/utils';
@@ -37,18 +37,9 @@ if (Meteor.isServer) {
                 name: 1,
                 description: 1,
                 training: 1,
-                published: 1,
                 instance: 1,
             },
         });
-    });
-
-    Meteor.publish('nlu_models.project.training_data', function (projectId) {
-        checkIfCan(['nlu-data:r', 'responses:w'], projectId);
-        check(projectId, String);
-        const project = Projects.find({ _id: projectId }, { fields: { nlu_models: 1 } }).fetch();
-        const modelIds = project[0].nlu_models;
-        return NLUModels.find({ _id: { $in: modelIds } }, { fields: { 'training_data.common_examples': 1 } });
     });
 }
 

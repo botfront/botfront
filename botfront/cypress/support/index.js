@@ -160,20 +160,6 @@ Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.get('.ui.page.modals .primary').click();
 });
 
-Cypress.Commands.add('deleteNLUModelProgramatically', (modelId, projectId, language) => {
-    if (!language) {
-        cy.MeteorCall('nlu.remove', [
-            `${modelId}`,
-            `${projectId}`,
-        ]);
-    } else {
-        cy.MeteorCall('nlu.removelanguage', [
-            `${projectId}`,
-            language,
-        ]);
-    }
-});
-
 Cypress.Commands.add('setTimezoneOffset', () => {
     const offset = new Date().getTimezoneOffset() / -60;
     cy.visit('/project/bf/settings');
@@ -337,29 +323,6 @@ Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = '
         );
 });
 
-Cypress.Commands.add('addTestActivity', (modelId, projectId) => {
-    const futureDate = new Date().getTime() + 3600 * 1000; // this is so activity is not outdated at insertion time
-    const commandToAddActivity = `mongo meteor --host localhost:3001 --eval "db.activity.insert({ 
-        _id:'TestActivity',
-        text: 'bonjour , avez vous un f1 à lyon autour de l apardieu ?',
-        intent: 'faq.find_hotel',
-        entities:[
-        ],
-        confidence: '0.50',
-        modelId: '${modelId}',
-        createdAt: '${futureDate}',
-        updatedAt: '${futureDate}',
-        __v:{
-        '$numberInt': '0'
-        }
-    });"`;
-    cy.exec(commandToAddActivity);
-    cy.exec(`mongo meteor --host localhost:3001 --eval 'db.projects.update({ _id: "${projectId}"}, { $set: { "training.endTime": "123" } });'`);
-});
-
-Cypress.Commands.add('removeTestActivity', (modelId) => {
-    cy.MeteorCallAdmin('activity.deleteExamples', [modelId, ['TestActivity']]);
-});
 
 Cypress.Commands.add('removeTestConversation', (id) => {
     cy.MeteorCallAdmin('conversations.delete', [id]);
@@ -421,14 +384,9 @@ Cypress.Commands.add('addTestConversation', (projectId, { id = 'abc', env = null
         processNlu: true,
     });
 
-    let url = `http://localhost:8080/conversations/bf/environment/${env}?api-key=`;
-    if (Cypress.env('API_URL')) {
-        url = `${Cypress.env('API_URL')}/conversations/bf/environment/${env}?api-key=`;
-    }
-
     cy.request({
         method: 'POST',
-        url,
+        url: `${Cypress.env('API_URL')}/conversations/bf/environment/${env}?api-key=`,
         headers: { 'Content-Type': 'application/json' },
         body,
     });
@@ -438,52 +396,6 @@ Cypress.Commands.add('removeTestConversation', () => {
     cy.MeteorCallAdmin('conversations.delete', ['6f1800deea7f469b8dafd928f092a280']);
 });
 
-Cypress.Commands.add('addTestResponse', (id) => {
-    const commandToAddResponse = `mongo meteor --host localhost:3001 --eval 'db.projects.update({
-        _id: "${id}"
-    }, {
-        $set: {
-            templates: [
-                {
-                    values:[
-                        {
-                            sequence:[
-                                {
-                                    content:"text: Test"
-                                }
-                            ],
-                            lang:"en"
-                        }
-                    ],
-                    key:"utter_greet",
-                    match:{
-                        nlu:[
-                            {
-                                intent:"chitchat.greet",
-                                entities:[
-        
-                                ]
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
-    });'`;
-    cy.exec(commandToAddResponse);
-});
-
-Cypress.Commands.add('removeTestResponse', (id) => {
-    const commandToRemoveResponse = `mongo meteor --host localhost:3001 --eval 'db.projects.update({
-        _id: "${id}"
-    }, {
-        $set: {
-            templates: [
-            ]
-        }
-    });'`;
-    cy.exec(commandToRemoveResponse);
-});
 
 Cypress.Commands.add('addStory', (projectId) => {
     const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.stories.insert({
