@@ -83,6 +83,7 @@ export const useStoryFileReader = (existingStoryGroups) => {
                         .filter(s => 'error' in s)
                         .map(s => s.error.message);
                     if (!stories.length) errors.push('No stories found in file.');
+                    if (stories.length > 30) errors.unshift('File contains over 30 stories. Consider splitting in smaller chunks.');
                     if (errors.length) {
                         return update(setFileList, f, { errors });
                     }
