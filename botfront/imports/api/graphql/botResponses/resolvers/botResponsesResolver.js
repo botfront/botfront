@@ -59,7 +59,7 @@ export default {
     },
     Mutation: {
         async deleteResponse(_, args, auth) {
-            checkIfCan('responses:w', args.projectId, auth.user._id);
+            checkIfCan('responses:w', args.projectId, auth.user._id, { operationType: 'response-deleted' });
             const botResponseDeleted = await deleteResponse(args.projectId, args.key);
             pubsub.publish(RESPONSE_DELETED, {
                 projectId: args.projectId,
@@ -68,7 +68,7 @@ export default {
             return { success: !!botResponseDeleted };
         },
         async updateResponse(_, args, auth) {
-            checkIfCan('responses:w', args.projectId, auth.user._id);
+            checkIfCan('responses:w', args.projectId, auth.user._id, { operationType: 'response-updated' });
             const response = await updateResponse(
                 args.projectId,
                 args._id,
@@ -89,14 +89,14 @@ export default {
             return response;
         },
         upsertResponse: async (_, args, auth) => {
-            checkIfCan('responses:w', args.projectId, auth.user._id);
+            checkIfCan('responses:w', args.projectId, auth.user._id, { operationType: 'response-create-update' });
             const response = await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
             pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
         },
         async createResponse(_, args, auth) {
-            checkIfCan('responses:w', args.projectId, auth.user._id);
+            checkIfCan('responses:w', args.projectId, auth.user._id, { operationType: 'response-created' });
             const response = await createResponse(args.projectId, args.response);
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
@@ -105,12 +105,12 @@ export default {
             return { success: !!response.id };
         },
         async createResponses(_, args, auth) {
-            checkIfCan('responses:w', args.projectId, auth.user._id);
+            checkIfCan('responses:w', args.projectId, auth.user._id, { operationType: 'response-created' });
             const response = await createResponses(args.projectId, args.responses);
             return { success: !!response.id };
         },
         async deleteVariation(_, args, auth) {
-            checkIfCan('responses:w', args.projectId, auth.user._id);
+            checkIfCan('responses:w', args.projectId, auth.user._id, { operationType: 'response-deleted' });
             const response = await deleteVariation(args);
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,

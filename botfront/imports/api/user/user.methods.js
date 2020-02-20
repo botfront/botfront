@@ -28,7 +28,7 @@ if (Meteor.isServer) {
         }
     };
 
-    Meteor.publish('userData', function() {
+    Meteor.publish('userData', function () {
         if (can('users:r')) {
             return Meteor.users.find({}, { fields: { emails: 1, profile: 1, roles: 1 } });
         }
@@ -111,7 +111,7 @@ if (Meteor.isServer) {
         },
 
         'user.removeByEmail'(email) {
-            checkIfCan('users:w');
+            checkIfCan('users:w', undefined, undefined, { operationType: 'user-deleted' });
             check(email, String);
             try {
                 return Meteor.users.remove({

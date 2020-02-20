@@ -31,7 +31,7 @@ const gazetteDefaults = {
 
 Meteor.methods({
     async 'nlu.insertExamplesWithLanguage'(projectId, language, items) {
-        checkIfCan(['nlu-data:w', 'stories:w'], projectId);
+        checkIfCan(['nlu-data:w', 'stories:w'], projectId, undefined, { operationType: 'nlu-data-created' });
         check(projectId, String);
         check(language, String);
         check(items, Array);
@@ -48,7 +48,7 @@ Meteor.methods({
     },
 
     async 'nlu.insertExamples'(modelId, items) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-created' });
         check(modelId, String);
         check(items, Array);
 
@@ -71,7 +71,7 @@ Meteor.methods({
     },
 
     'nlu.updateExample'(modelId, item) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
         check(modelId, String);
         check(item, Object);
 
@@ -84,7 +84,7 @@ Meteor.methods({
     },
 
     async 'nlu.switchCanonical'(modelId, item) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
         check(modelId, String);
         check(item, Object);
         if (!item.canonical) {
@@ -128,7 +128,7 @@ Meteor.methods({
     },
 
     'nlu.deleteExample'(modelId, itemId) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-deleted' });
         check(modelId, String);
         check(itemId, String);
 
@@ -136,7 +136,7 @@ Meteor.methods({
     },
 
     'nlu.upsertEntitySynonym'(modelId, item) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
         check(modelId, String);
         check(item, Object);
 
@@ -148,7 +148,7 @@ Meteor.methods({
     },
 
     'nlu.deleteEntitySynonym'(modelId, itemId) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-deleted' });
         check(modelId, String);
         check(itemId, String);
 
@@ -156,7 +156,7 @@ Meteor.methods({
     },
 
     'nlu.upsertEntityGazette'(modelId, item) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
         check(modelId, String);
         check(item, Object);
 
@@ -170,7 +170,7 @@ Meteor.methods({
     },
 
     'nlu.deleteEntityGazette'(modelId, itemId) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-deleted' });
         check(modelId, String);
         check(itemId, String);
 
@@ -281,7 +281,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.addChitChatToTrainingData'(modelId, language, intents) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
             check(modelId, String);
             check(language, String);
             check(intents, [String]);
@@ -299,7 +299,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.updateChitChatIntents'(modelId, intents) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
             check(modelId, String);
             check(intents, Array);
             return NLUModels.update({ _id: modelId }, { $set: { chitchat_intents: intents } });
@@ -368,7 +368,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.renameIntent'(modelId, oldIntent, newIntent, renameBotResponses = false) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-updated' });
             check(modelId, String);
             check(oldIntent, String);
             check(newIntent, String);
@@ -396,7 +396,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.removeExamplesByIntent'(modelId, arg) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId), undefined, { operationType: 'nlu-data-deleted' });
             check(modelId, String);
             check(arg, Match.OneOf(String, [String]));
             const intents = typeof arg === 'string' ? [arg] : arg;
@@ -474,7 +474,7 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.chitChatSetup'() {
-            checkIfCan('projects:w');
+            checkIfCan('projects:w', undefined, undefined, { operationType: 'project-updated' });
             try {
                 const data = {
                     fr: JSON.parse(Assets.getText('nlu/nlu-chitchat-fr.json')),

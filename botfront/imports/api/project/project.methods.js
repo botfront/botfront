@@ -83,7 +83,7 @@ if (Meteor.isServer) {
         },
 
         'project.update'(item) {
-            checkIfCan('projects:w', item._id);
+            checkIfCan('projects:w', item._id, undefined, { operationType: 'project-updated' });
             check(item, Match.ObjectIncluding({ _id: String }));
             try {
                 // eslint-disable-next-line no-param-reassign

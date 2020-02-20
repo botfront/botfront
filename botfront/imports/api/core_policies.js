@@ -61,7 +61,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'policies.save'(policies) {
-            checkIfCan('projects:w', policies.projectId);
+            checkIfCan('projects:w', policies.projectId, undefined, { operationType: 'policies-updated' });
             check(policies, Object);
             try {
                 return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });

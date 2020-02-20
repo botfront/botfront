@@ -63,7 +63,7 @@ if (Meteor.isServer) {
     };
     Meteor.methods({
         'conversations.markAsRead'(senderId) {
-            checkIfCan('incoming:r', findConversationProject(senderId));
+            checkIfCan('incoming:r', findConversationProject(senderId), undefined, { operationType: 'conversation-updated' });
             check(senderId, String);
             return Conversations.update({ _id: senderId }, { $set: { status: 'read' } });
         },
@@ -76,7 +76,7 @@ if (Meteor.isServer) {
         },
 
         'conversations.delete'(senderId) {
-            checkIfCan('incoming:w', findConversationProject(senderId));
+            checkIfCan('incoming:w', findConversationProject(senderId), undefined, { operationType: 'conversation-deleted' });
             check(senderId, String);
             return Conversations.remove({ _id: senderId });
         },

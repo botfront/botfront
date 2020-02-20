@@ -83,7 +83,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'credentials.save'(credentials) {
-            checkIfCan('projects:w', credentials.projectId);
+            checkIfCan('projects:w', credentials.projectId, undefined, { operationType: 'credentials-updated' });
             check(credentials, Object);
             try {
                 return Credentials.upsert(

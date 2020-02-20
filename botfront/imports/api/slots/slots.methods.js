@@ -22,7 +22,7 @@ function handleError(e) {
 
 Meteor.methods({
     'slots.insert'(slot, projectId) {
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', projectId, undefined, { operationType: 'stories-created' });
         check(slot, Object);
         check(projectId, String);
         validateSchema(slot);
@@ -50,7 +50,7 @@ Meteor.methods({
     },
 
     'slots.update'(slot, projectId) {
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', projectId, undefined, { operationType: 'stories-updated' });
         check(slot, Object);
         check(projectId, String);
         validateSchema(slot);
@@ -62,7 +62,7 @@ Meteor.methods({
     },
 
     'slots.delete'(slot, projectId) {
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', projectId, undefined, { operationType: 'stories-deleted' });
         check(slot, Object);
         check(projectId, String);
         validateSchema(slot);

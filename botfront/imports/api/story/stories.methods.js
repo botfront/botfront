@@ -60,7 +60,7 @@ Meteor.methods({
     },
 
     async 'stories.delete'(story, projectId) {
-        checkIfCan('stories:w', story.projectId);
+        checkIfCan('stories:w', story.projectId, undefined, { operationType: 'stories-deleted' });
         check(story, Object);
         check(projectId, String);
         const result = await Stories.remove(story);

@@ -74,7 +74,7 @@ function handleError(e) {
 
 Meteor.methods({
     async 'storyGroups.delete'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId);
+        checkIfCan('stories:w', storyGroup.projectId, undefined, { operationType: 'story-group-deleted' });
         check(storyGroup, Object);
         let eventstoRemove = [];
         const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
@@ -86,7 +86,7 @@ Meteor.methods({
     },
 
     'storyGroups.insert'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId);
+        checkIfCan('stories:w', storyGroup.projectId, undefined, { operationType: 'story-group-created' });
         check(storyGroup, Object);
         try {
             return StoryGroups.insert(storyGroup);
@@ -96,7 +96,7 @@ Meteor.methods({
     },
 
     'storyGroups.update'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId);
+        checkIfCan('stories:w', storyGroup.projectId, undefined, { operationType: 'story-group-updated' });
         check(storyGroup, Object);
         try {
             return StoryGroups.update(
@@ -108,7 +108,7 @@ Meteor.methods({
         }
     },
     'storyGroups.removeFocus'(projectId) {
-        checkIfCan('stories:w', projectId);
+        checkIfCan('stories:w', projectId, undefined, { operationType: 'story-group-updated' });
         check(projectId, String);
         return StoryGroups.update(
             { projectId },
@@ -121,7 +121,7 @@ Meteor.methods({
 if (Meteor.isServer) {
     Meteor.methods({
         async 'storyGroups.deleteChildStories'(storyGroupId, projectId) {
-            checkIfCan('stories:w', projectId);
+            checkIfCan('stories:w', projectId, undefined, { operationType: 'story-group-deleted' });
             check(storyGroupId, String);
             check(projectId, String);
             let eventstoRemove = [];

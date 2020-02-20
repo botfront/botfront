@@ -156,7 +156,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'rasa.parse'(instance, params) {
-            checkIfCan('nlu-data:r', instance.projectId);
+            checkIfCan('nlu-data:r', instance.projectId, undefined, { operationType: 'nlu-data-created' });
             check(instance, Object);
             check(params, Array);
             this.unblock();

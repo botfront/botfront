@@ -25,17 +25,17 @@ export default {
     },
     Mutation: {
         async markAsRead(_, args, context) {
-            checkIfCan('incoming:r', args.projectId, context.user._id);
+            checkIfCan('incoming:r', args.projectId, context.user._id, { operationType: 'conversation-updated' });
             const response = await updateConversationStatus(args.id, 'read');
             return { success: response.ok === 1 };
         },
         async updateStatus(_, args, context) {
-            checkIfCan('incoming:w', args.projectId, context.user._id);
+            checkIfCan('incoming:w', args.projectId, context.user._id, { operationType: 'conversation-updated' });
             const response = await updateConversationStatus(args.id, args.status);
             return { success: response.ok === 1 };
         },
         async delete(_, args, context) {
-            checkIfCan('incoming:w', args.projectId, context.user._id);
+            checkIfCan('incoming:w', args.projectId, context.user._id, { operationType: 'conversation-deleted' });
             const response = await deleteConversation(args.id);
             return { success: response.ok === 1 };
         },

@@ -16,7 +16,7 @@ if (Meteor.isServer) {
     const importAppLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
         async importProject(projectFile, apiHost, projectId) {
-            checkIfCan('projects:w', projectId);
+            checkIfCan('projects:w', projectId, undefined, { operationType: 'project-import' });
             check(projectId, String);
             check(projectFile, Object);
             check(apiHost, String);

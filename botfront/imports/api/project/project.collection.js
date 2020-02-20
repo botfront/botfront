@@ -25,7 +25,7 @@ const getDefaultDefaultDomain = () => {
 };
 
 export const createProject = (item) => {
-    checkIfCan('projects:w');
+    checkIfCan('projects:w', undefined, undefined, { operationType: 'project-created' });
     return Projects.insert({ ...item, defaultDomain: { content: getDefaultDefaultDomain() } });
 };
 
