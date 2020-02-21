@@ -163,7 +163,7 @@ if (!!AUDIT_LOG_TRANSPORT) {
 }
 
 const appLogger = winston.createLogger({
-    APPLICATION_LOG_LEVEL,
+    level: APPLICATION_LOG_LEVEL,
     format: combine(timestampfn(), appFormat),
     transports: appLogTransport,
 });
