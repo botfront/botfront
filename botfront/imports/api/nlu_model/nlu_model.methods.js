@@ -250,19 +250,6 @@ if (Meteor.isServer) {
             throw new Meteor.Error('409', 'The default language cannot be deleted');
         },
 
-        'nlu.removelanguage'(projectId, language) {
-            check(projectId, String);
-            check(language, String);
-            const modelIds = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
-            const { _id: modelId } = NLUModels.findOne({ _id: { $in: modelIds }, language });
-            try {
-                NLUModels.remove({ _id: modelId });
-                return Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
-            } catch (e) {
-                throw e;
-            }
-        },
-
         'nlu.getChitChatIntents'(language) {
             check(language, String);
             const chitChatProjectId = getChitChatProjectid();

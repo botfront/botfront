@@ -111,7 +111,6 @@ describe('synonym', function() {
                 .click({ force: true });
             cy.get('body').should('not.contain', sortedSynonymsValues);
             cy.contains(sortedSynonymsValues).should('not.exist');
-            cy.deleteNLUModelProgramatically(null, 'bf', 'fr');
         });
     });
 });

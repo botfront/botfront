@@ -371,7 +371,6 @@ const ProjectContainer = withTracker((props) => {
     const projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
-    const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
     const instance = Instances.findOne({ projectId });
@@ -381,7 +380,6 @@ const ProjectContainer = withTracker((props) => {
         credentialsHandler.ready(),
         projectHandler.ready(),
         nluModelsHandler.ready(),
-        introStoryGroupIdHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
     ];
