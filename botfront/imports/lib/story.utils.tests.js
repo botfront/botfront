@@ -6,6 +6,7 @@ import {
     addlinkCheckpoints,
     getAllTemplates,
     aggregateEvents,
+    insertSmartPayloads,
 } from './story.utils';
 import { createResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
@@ -589,6 +590,164 @@ const expectedUpdatedBranchesEvents = [
     'utter_KfPfXwd3',
 ];
 
+
+// story rules payload test data
+const triggerNoPayload = {
+    _id: 'B2DKHEAMGcxjGkt7t',
+    title: 'Test Group',
+    storyGroupId: 'A74ZdgkfsYKA8hai2',
+    projectId: 'uPwWLgHSCSA7ZGdE2',
+    branches: [],
+    events: ['utter_jm-ZGwwx', 'utter_L2VQBkDA'],
+    rules: [
+        {
+            trigger: { when: 'always', timeOnPage: 10 },
+            payload: '/trigger_B2DKHEAMGcxjGkt7t',
+        },
+    ],
+    story: '  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
+};
+const triggerNoPayloadResult = '* trigger_B2DKHEAMGcxjGkt7t\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const withStartingPayload = {
+    _id: 'gHzjvbioYe453bMqr',
+    title: 'Test Group 2',
+    projectId: 'uPwWLgHSCSA7ZGdE2',
+    storyGroupId: 'A74ZdgkfsYKA8hai2',
+    branches: [],
+    events: [],
+    story: '* test\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
+    rules: [{ trigger: { when: 'always', timeOnPage: 10 }, payload: '/trigger_gHzjvbioYe453bMqr' }],
+};
+const withStartingPayloadResult = '* test OR trigger_gHzjvbioYe453bMqr\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const startingPayloadEntities = {
+    _id: 'QTN3t63qyPW3vE6py',
+    title: 'Test Group 6',
+    projectId: 'uPwWLgHSCSA7ZGdE2',
+    storyGroupId: 'A74ZdgkfsYKA8hai2',
+    branches: [],
+    events: [],
+    rules: [{ trigger: { when: 'always', timeOnPage: 12 }, payload: '/trigger_QTN3t63qyPW3vE6py' }],
+    story: '* test{"shape": "circle"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
+};
+const startingPayloadEntitiesResult = '* test{"shape": "circle"} OR trigger_QTN3t63qyPW3vE6py\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const triggerEntities = {
+    _id: 'HqxFAkp68L6hTtaFf',
+    title: 'Test Group 3',
+    projectId: 'uPwWLgHSCSA7ZGdE2',
+    storyGroupId: 'A74ZdgkfsYKA8hai2',
+    branches: [],
+    events: [],
+    rules: [
+        {
+            trigger: {
+                when: 'always',
+                queryString: [{ param: 'color', sendAsEntity: true }],
+            },
+            payload: '/trigger_HqxFAkp68L6hTtaFf',
+        },
+    ],
+    story: '  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
+};
+const triggerEntitiesResult = '* trigger_HqxFAkp68L6hTtaFf{"color":"color"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const triggerEntitiesAndStartingPayload = {
+    _id: 'EoTK7EB8eHwZ2gbW8',
+    title: 'Test Group 4',
+    projectId: 'uPwWLgHSCSA7ZGdE2',
+    storyGroupId: 'A74ZdgkfsYKA8hai2',
+    branches: [],
+    events: [],
+    rules: [
+        {
+            trigger: {
+                when: 'always',
+                queryString: [{ param: 'color', sendAsEntity: true }],
+            },
+            payload: '/trigger_EoTK7EB8eHwZ2gbW8',
+        },
+    ],
+    story: '* test\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
+};
+const triggerEntitiesAndStartingPayloadResult = '* test OR trigger_EoTK7EB8eHwZ2gbW8{"color":"color"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const triggerEntitiesandStartingPayloadEntities = {
+    _id: '3WB4hSdny9cj7gevc',
+    title: 'Test Group 5',
+    projectId: 'uPwWLgHSCSA7ZGdE2',
+    storyGroupId: 'A74ZdgkfsYKA8hai2',
+    branches: [],
+    events: [],
+    rules: [
+        {
+            trigger: {
+                when: 'always',
+                queryString: [{ param: 'color', sendAsEntity: true }],
+            },
+            payload: '/trigger_3WB4hSdny9cj7gevc',
+        },
+    ],
+    story: '* test{"shape": "circle"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA',
+};
+const triggerEntitiesandStartingPayloadEntitiesResult = '* test{"shape": "circle"} OR trigger_3WB4hSdny9cj7gevc{"color":"color"}\n  - utter_jm-ZGwwx\n  - utter_L2VQBkDA';
+const multipleTriggers = {
+    _id: '8W4baSfifckG5NkuR',
+    title: 'Test Group 7',
+    projectId: 'uPwWLgHSCSA7ZGdE2',
+    storyGroupId: 'A74ZdgkfsYKA8hai2',
+    branches: [],
+    events: [],
+    rules: [
+        {
+            trigger: {
+                when: 'always',
+                queryString: [
+                    { param: 'A', sendAsEntity: true },
+                    { param: 'B', sendAsEntity: true },
+                ],
+            },
+            payload: '/trigger_8W4baSfifckG5NkuR',
+        },
+        {
+            trigger: {
+                queryString: [{ param: 'C', sendAsEntity: true }],
+                when: 'always',
+            },
+            payload: '/trigger_8W4baSfifckG5NkuR',
+        },
+        {
+            trigger: { timeOnPage: 10, when: 'always' },
+            payload: '/trigger_8W4baSfifckG5NkuR',
+        },
+        {
+            trigger: {
+                queryString: [{ value: 'paramDvalue', param: 'D' }],
+                when: 'always',
+            },
+            payload: '/trigger_8W4baSfifckG5NkuR',
+        },
+    ],
+    story: '  - utter_L2VQBkDA\n  - utter_L2VQBkDA',
+};
+
+// eslint-disable-next-line max-len
+const multipleTriggersResult = '* trigger_8W4baSfifckG5NkuR{"A":"A","B":"B"} OR trigger_8W4baSfifckG5NkuR{"C":"C"} OR trigger_8W4baSfifckG5NkuR\n  - utter_L2VQBkDA\n  - utter_L2VQBkDA';
+const triggerNoStory = {
+    _id: 'HqxFAkp68L6hTtaFf',
+    title: 'Test Group 3',
+    projectId: 'uPwWLgHSCSA7ZGdE2',
+    storyGroupId: 'A74ZdgkfsYKA8hai2',
+    branches: [],
+    events: [],
+    rules: [
+        {
+            trigger: {
+                when: 'always',
+                queryString: [{ param: 'color', sendAsEntity: true }],
+            },
+            payload: '/trigger_HqxFAkp68L6hTtaFf',
+        },
+    ],
+};
+const triggerNoStoryResult = '* trigger_HqxFAkp68L6hTtaFf{"color":"color"}\n';
+
 describe('proper traversal of story', function() {
     it('should resolve an existing path', function() {
         const {
@@ -671,5 +830,24 @@ describe('proper aggregation of events', function() {
     it('should create a list of events for updated story branches', function() {
         const events = aggregateEvents(branchedStoryFixture, { branches: branchesUpdateFixture, _id: 'TOl028Tm0' });
         expect(events).to.have.members(expectedUpdatedBranchesEvents);
+    });
+});
+
+describe('proper addition of smart trigger payloads', () => {
+    it('should handle triggers without entities', () => {
+        expect(insertSmartPayloads(triggerNoPayload).story).to.be.equal(triggerNoPayloadResult);
+        expect(insertSmartPayloads(withStartingPayload).story).to.be.equal(withStartingPayloadResult);
+        expect(insertSmartPayloads(startingPayloadEntities).story).to.be.equal(startingPayloadEntitiesResult);
+    });
+    it('should handle triggers with entities', () => {
+        expect(insertSmartPayloads(triggerEntities).story).to.be.equal(triggerEntitiesResult);
+        expect(insertSmartPayloads(triggerEntitiesAndStartingPayload).story).to.be.equal(triggerEntitiesAndStartingPayloadResult);
+        expect(insertSmartPayloads(triggerEntitiesandStartingPayloadEntities).story).to.be.equal(triggerEntitiesandStartingPayloadEntitiesResult);
+    });
+    it('should handle multiple triggers', () => {
+        expect(insertSmartPayloads(multipleTriggers).story).to.be.equal(multipleTriggersResult);
+    });
+    it('should a handle triggers in a story without story text', () => {
+        expect(insertSmartPayloads(triggerNoStory).story).to.be.equal(triggerNoStoryResult);
     });
 });

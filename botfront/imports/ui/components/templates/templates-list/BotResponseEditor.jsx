@@ -60,6 +60,7 @@ const BotResponseEditor = (props) => {
 
     useEffect(() => {
         setNewBotResponse(botResponse);
+        setResponseKey(botResponse.key);
     }, [botResponse]);
 
     const validateResponseName = (err) => {

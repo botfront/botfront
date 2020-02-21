@@ -1,6 +1,6 @@
 {
   "name": "botfront-api",
-  "version": "0.19.3-ee.1",
+  "version": "0.19.3-ee.2",
   "private": true,
   "scripts": {
     "start": "node app.js",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^4.2.0",
+    "@google-cloud/logging-winston": "^3.0.5",
     "axios": "^0.19.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",

@@ -2,13 +2,10 @@ import { Accounts } from 'meteor/accounts-base';
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import slugify from 'slugify';
-import axios from 'axios';
 
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
 import { passwordComplexityRegex } from './user/user.methods';
 import { languages } from '../lib/languages';
-import { checkIfCan } from '../lib/scopes';
 
 const accountSetupSchema = new SimpleSchema(
     {
@@ -63,23 +60,6 @@ accountSetupSchema.messageBox.messages({
 
 export { accountSetupSchema, newProjectSchema };
 
-const requestMailSubscription = async (email, firstName, lastName) => {
-    const mailChimpUrl = process.env.MAILING_LIST_URI || 'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
-
-    try {
-        await axios.post(mailChimpUrl, {
-            email_address: email,
-            status: 'subscribed',
-            merge_fields: {
-                FNAME: firstName,
-                LNAME: lastName,
-            },
-        });
-    } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log('Email subscription failed, probably because you\'ve already subscribed');
-    }
-};
 
 if (Meteor.isServer) {
     Meteor.methods({

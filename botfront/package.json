@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "0.19.3-ee.1",
+  "version": "0.19.3-ee.2",
   "repository": "https://github.com/botfront/botfront",
   "license": "AGPL-3.0-only",
   "scripts": {
@@ -27,6 +27,7 @@
     "@apollo/react-hooks": "^3.1.3",
     "@babel/runtime": "^7.4.5",
     "@google-cloud/storage": "^4.2.0",
+    "@google-cloud/logging-winston": "^3.0.5",
     "@john-osullivan/react-window-dynamic-fork": "1.9.0-alpha.1",
     "@nivo/pie": "^0.61.1",
     "@nivo/bar": "^0.61.1",
@@ -106,7 +107,8 @@
     "uniforms-bridge-graphql": "^2.6.2",
     "uniforms-bridge-simple-schema-2": "^2.6.2",
     "uniforms-semantic": "^2.6.2",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",

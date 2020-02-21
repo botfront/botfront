@@ -23,6 +23,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import BranchTabLabel from './BranchTabLabel';
 import StoryTopMenu from './StoryTopMenu';
 import StoryFooter from './StoryFooter';
+import { hasTriggerRules } from '../../../lib/storyRules.utils';
 
 function getDefaultPath(story) {
     if (!story.branches) return [story._id];
@@ -53,6 +54,7 @@ const StoryEditorContainer = ({
     collapsed,
     projectId,
     isInSmartStories,
+    collapseAllStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots, templates } = useContext(ProjectContext);
@@ -188,15 +190,21 @@ const StoryEditorContainer = ({
         storyControllers[story._id].updateRules(story.rules);
         storyControllers[story._id].validateStory();
     }, [story.rules]);
+
+    const getRulesPayload = (index) => {
+        const entities = [];
+        const payloadName = story.rules[index].payload.substring(1).trim();
+        if (!story.rules[index].trigger.queryString) return payloadName;
+        story.rules[index].trigger.queryString.forEach((queryString) => {
+            if (queryString.sendAsEntity === true) entities.push(`"${queryString.param}":"query string value"`);
+        });
+        return `${payloadName}{${entities.join()}}`;
+    };
     
     const getInitIntent = () => {
-        try {
-            return (storyControllers[story._id].lines[0].gui.type === 'user'
-                ? storyControllers[story._id].lines[0].gui.data[0].intent
-                : undefined);
-        } catch (err) {
-            return undefined;
-        }
+        if (/^\*/.test(story.story)) return story.story.split('\n')[0].substring(2).trim();
+        if (hasTriggerRules(story.rules || [])) return getRulesPayload(0);
+        return undefined;
     };
 
     const renderTopMenu = () => (
@@ -217,6 +225,7 @@ const StoryEditorContainer = ({
             rules={story.rules}
             isInSmartStories={isInSmartStories}
             initPayload={getInitIntent()}
+            collapseAllStories={collapseAllStories}
         />
     );
 
@@ -514,6 +523,7 @@ StoryEditorContainer.propTypes = {
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
     isInSmartStories: PropTypes.bool,
+    collapseAllStories: PropTypes.func.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {

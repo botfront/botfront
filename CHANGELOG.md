@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.3-ee.2](https://github.com/botfront/botfront/compare/v0.19.3-ee.1...v0.19.3-ee.2) (2020-02-19)
+
+
+### Features
+
+* collapse/expand all stories on doubleclick ([2214a3f](https://github.com/botfront/botfront/commit/2214a3f66d146ac23e9f2674afae237ff4458c48))
+
 ### [0.19.3-ee.1](https://github.com/botfront/botfront/compare/v0.19.3-ee.0...v0.19.3-ee.1) (2020-02-12)
 
 ### [0.19.3](https://github.com/botfront/botfront/compare/v0.19.3-ee.0...v0.19.3) (2020-02-12)
