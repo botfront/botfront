@@ -85,13 +85,18 @@ const appLogToString = (arg) => {
     } = arg;
     let loggedData = data;
     if (data && data.mimeType) loggedData = checkDataType(data.mimeType, data);
-    return `${timestamp} [${level}] : ${message} ${
-        userId ? `user: ${userId}` : ''
-    } ${file} - ${method} with ${JSON.stringify(args)} ${
-        url ? `url: ${url}` : ''
-    }${spaceBeforeIfExist(status)} ${loggedData ? `data: ${JSON.stringify(loggedData)}` : ''} ${
-        error ? `error: ${error}` : ''
-    }`;
+    // the log is from a method
+    if (method && args) {
+        return `${timestamp} [${level}] : ${message} ${
+            userId ? `user: ${userId}` : ''
+        } ${file} - ${method} with ${JSON.stringify(args)} ${
+            url ? `url: ${url}` : ''
+        }${spaceBeforeIfExist(status)} ${loggedData ? `data: ${JSON.stringify(loggedData)}` : ''} ${
+            error ? `error: ${error}` : ''
+        }`;
+    }
+    // if it's not from a method it's at the file level
+    return `${timestamp} [${level}] : ${message} ${file}`;
 };
 
 
