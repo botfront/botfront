@@ -5,7 +5,9 @@ import dotenv from 'dotenv';
 import { createGraphQLPublication } from 'meteor/swydo:ddp-apollo';
 import { makeExecutableSchema } from 'graphql-tools';
 import { typeDefs, resolvers } from '../imports/api/graphql/index';
+import { getAppLoggerForFile } from './logger';
 
+const fileAppLogger = getAppLoggerForFile(__filename);
 
 Meteor.startup(function() {
     if (Meteor.isServer) {
@@ -43,5 +45,7 @@ Meteor.startup(function() {
             5,
             300000,
         );
+
+        fileAppLogger.info(`Botfront ${process.env.npm_package_version} started`);
     }
 });
