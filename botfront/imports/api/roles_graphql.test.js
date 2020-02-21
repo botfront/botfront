@@ -1,13 +1,10 @@
-import gql from 'graphql-tag';
 import { expect } from 'chai';
 
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 
 // resolvers
 import BotResponseResolver from './graphql/botResponses/resolvers/botResponsesResolver';
 import activityResolver from './graphql/activity/resolvers/activityResolver';
-import nlgResolver from './graphql/botResponses/resolvers/nlgResolver';
 
 import intentFrequenciesResolvers from './graphql/conversations/resolvers/intentFrequenciesResolver';
 import conversationsResolvers from './graphql/conversations/resolvers/conversationsResolver';
@@ -23,11 +20,9 @@ import intentDistributionResolver from './graphql/nlu/resolvers/intentDistributi
 import rolesDataResolver from './graphql/rolesData/resolvers/rolesDataResolver';
 
 import { setScopes } from '../lib/scopes';
-import { GlobalSettings } from './globalSettings/globalSettings.collection';
-import { Roles } from './roles/roles.publication';
 import { Projects } from './project/project.collection';
-import { Conversations } from './conversations';
-import { setUpRoles } from './roles/roles';
+// eslint-disable-next-line import/named
+import { setUpRoles } from './roles/roles'; // declared inside an if statement
 
 setUpRoles(); // setting up the roles manually prevents errors from happening during the role assignment
 
@@ -76,11 +71,6 @@ const roles = [
     'users:r',
     'users:w',
     'global-admin',
-];
-const subscriptions = [
-    'botResponseAdded',
-    'botResponsesModified',
-    'botResponseDeleted',
 ];
 
 const readers = {
@@ -400,7 +390,7 @@ const testQl = async (testfunc, role, scope, args) => {
     }
 };
 
-describe('zz graphQL Roles', () => {
+describe('graphQL Roles', () => {
     testCases.forEach((endpoint) => {
         roles.forEach((role) => {
             it(`call ${endpoint.name} ${role} with a global scope`, (done) => {

@@ -1,12 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
-import { check } from 'meteor/check';
-import { Accounts } from 'meteor/accounts-base';
 import { setScopes } from '../lib/scopes';
-import { Roles } from './roles/roles.publication';
 import { Projects } from './project/project.collection';
 import { Conversations } from './conversations';
-import { setUpRoles } from './roles/roles';
+
+// eslint-disable-next-line import/named
+import { setUpRoles } from './roles/roles'; // is declared inside an if statement
 
 import './project/project.methods';
 import './nlu_model/nlu_model.methods';
@@ -26,10 +25,6 @@ setUpRoles();
 
 const projectId = 'bf';
 const modelId = 'bfModel';
-const wrongProjectId = 'DNE';
-const adminAccount = {
-    email: 'testglobaladmin@botfront.io', password: 'Test12345', firstName: 'test', lastName: 'admin',
-};
 const formatRoles = (roles, project) => ({ roles: [{ roles, project }] });
 const userId = 'testuserid';
 
@@ -643,18 +638,17 @@ if (Meteor.isServer) {
             Meteor.apply(method, args, callback);
         } catch (e) {
             console.log(e);
-            return e;
         }
     };
 
-    describe.only('zz test', () => {
+    describe('zz test', () => {
         // special test required for initialSetup
         // createDefaultStoryGroup
         // createIntroStoryGroup
         methods.forEach((method) => {
             roles.forEach((role) => {
                 it(`calling ${method.name} as ${role} global scope`, (done) => {
-                    testMethod(method.name, role, 'GLOBAL', method.args, (e = {}, r) => {
+                    testMethod(method.name, role, 'GLOBAL', method.args, (e = {}) => {
                         if (method.roles.includes(role)) {
                             expect(e.error).to.not.equal('403');
                         } else {
@@ -664,7 +658,7 @@ if (Meteor.isServer) {
                     });
                 });
                 it(`calling ${method.name} as ${role} project scope`, (done) => {
-                    testMethod(method.name, role, 'bf', method.args, (e = {}, r) => {
+                    testMethod(method.name, role, 'bf', method.args, (e = {}) => {
                         if (method.roles.includes(role) && !method.rejectProjectScope) {
                             expect(e.error).to.not.equal('403');
                         } else {
@@ -674,7 +668,7 @@ if (Meteor.isServer) {
                     });
                 });
                 it(`calling ${method.name} as ${role} wrong project scope`, (done) => {
-                    testMethod(method.name, role, 'DNE', method.args, (e = {}, r) => {
+                    testMethod(method.name, role, 'DNE', method.args, (e = {}) => {
                         expect(e.error).to.be.equal('403');
                         done();
                     });
