@@ -34,12 +34,12 @@ export default {
         upsertActivity: async (_root, args, context) => {
             if (args.isOoS) checkIfCan('nlu-data:w', getProjectIdFromModelId(args.modelId), context.user._id);
             else checkIfCan('incoming:w', getProjectIdFromModelId(args.modelId), context.user._id);
-            upsertActivity(args);
+            return upsertActivity(args);
         },
         deleteActivity: async (_root, args, context) => {
             if (args.isOoS) checkIfCan('nlu-data:w', getProjectIdFromModelId(args.modelId), context.user._id);
             else checkIfCan('incoming:w', getProjectIdFromModelId(args.modelId), context.user._id);
-            deleteActivity(args);
+            return deleteActivity(args);
         },
     },
 

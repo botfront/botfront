@@ -21,18 +21,14 @@ Instances.deny({
 if (Meteor.isServer) {
     Instances._ensureIndex({ projectId: 1 });
     Meteor.publish('nlu_instances', function(projectId) {
-        try {
-            checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
-        } catch (err) {
-            return this.ready();
-        }
+        checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
         check(projectId, String);
         return Instances.find({ projectId });
     });
 
     Meteor.methods({
         'instance.update'(item) {
-            checkIfCan('project-settings:w', item.projectId);
+            checkIfCan('projects:w', item.projectId);
             check(item, Object);
             return Instances.update({ _id: item._id }, { $set: item });
         },

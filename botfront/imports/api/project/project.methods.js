@@ -63,7 +63,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         async 'project.insert'(item, bypassWithCI) {
-            checkIfCan('projects:w', null, null, { bypassWithCI });
+            checkIfCan('global-admin', null, null, { bypassWithCI });
             check(item, Object);
             check(bypassWithCI, Match.Optional(Boolean));
             let _id;
@@ -94,7 +94,7 @@ if (Meteor.isServer) {
             }
         },
         async 'project.delete'(projectId, options = { failSilently: false, bypassWithCI: false }) {
-            checkIfCan('projects:w', null, null, options.bypassWithCI);
+            checkIfCan('global-admin', null, null, options.bypassWithCI);
             check(projectId, String);
             check(options, Object);
             const { failSilently } = options;
