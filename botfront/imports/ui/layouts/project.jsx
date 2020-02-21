@@ -394,7 +394,7 @@ const ProjectContainer = withTracker((props) => {
     let channel = null;
     if (ready) {
         let credentials = Credentials.findOne({ $or: [{ projectId, environment: { $exists: false } }, { projectId, environment: 'development' }] });
-        credentials = credentials && yaml.safeLoad(credentials.credentials);
+        credentials = credentials ? yaml.safeLoad(credentials.credentials) : {};
         channel = credentials['rasa_addons.core.channels.webchat.WebchatInput'];
     }
 
