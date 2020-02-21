@@ -4,11 +4,24 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // IF YOU CHANGE A SCHEMA MAKE SURE TO CHANGE BOTH !
-export const rolesDataSimpleSchema = new SimpleSchema({
-    name: String,
+const rolesDataSimpleSchema = new SimpleSchema({
+    name: {
+        type: String,
+        custom() {
+            return !this.value.match(/^[^:]+$/) ? 'colon' : null;
+        },
+    },
     description: String,
     deletable: Boolean,
 });
+
+rolesDataSimpleSchema.messageBox.messages({
+    en: {
+        colon: 'Colon are reserved for internal roles',
+    },
+});
+
+export { rolesDataSimpleSchema };
 
 if (Meteor.isServer) {
     // IF YOU CHANGE A SCHEMA MAKE SURE TO CHANGE BOTH !

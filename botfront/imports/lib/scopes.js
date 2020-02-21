@@ -29,9 +29,10 @@ checkIfCanExport = checkIfCanEE;
 getScopesForUserExport = (userId, permission) => Roles.getScopesForUser(userId, permission);
 areScopeReadyExport = () => Roles.subscription.ready();
 setScopesExport = (user, userId) => {
+    Roles.setUserRoles(userId, [], { anyScope: true });
     user.roles.forEach((role) => {
         const project = role.project === 'GLOBAL' ? null : role.project;
-        Roles.addUsersToRoles(userId, role.roles, project);
+        Roles.setUserRoles(userId, role.roles, project);
     });
 };
 CanExport = ({ children, I, projectId }) => (canExport(I, projectId) ? Children.only(children) : null);
