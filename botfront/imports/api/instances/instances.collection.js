@@ -22,7 +22,7 @@ if (Meteor.isServer) {
     Instances._ensureIndex({ projectId: 1 });
     Meteor.publish('nlu_instances', function(projectId) {
         try {
-            checkIfCan(['nlu-data:r', 'projects:r'], projectId);
+            checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
         } catch (err) {
             return this.ready();
         }

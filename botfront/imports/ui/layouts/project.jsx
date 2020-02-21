@@ -348,7 +348,7 @@ class Project extends React.Component {
                                     intents,
                                     entities,
                                     slots,
-                                    webhooks: settings.settings.private.webhooks,
+                                    webhooks: (settings.settings.private || {}).webhooks,
                                     language: workingLanguage,
                                     triggerChatPane: this.triggerChatPane,
                                     upsertResponse: this.upsertResponse,

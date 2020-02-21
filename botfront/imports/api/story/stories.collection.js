@@ -41,7 +41,7 @@ if (Meteor.isServer) {
         return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
     });
     Meteor.publish('stories.events', function(projectId) {
-        checkIfCan('responses:r');
+        checkIfCan('responses:r', projectId);
         check(projectId, String);
         return Stories.find({ projectId }, { fields: { title: true, events: true } });
     });

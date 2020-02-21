@@ -73,7 +73,7 @@ Credentials.attachSchema(CredentialsSchema);
 if (Meteor.isServer) {
     Meteor.publish('credentials', function(projectId) {
         try {
-            checkIfCan(['nlu-data:r', 'projects:r', 'responses-r'], projectId);
+            checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
         } catch (err) {
             return this.ready();
         }

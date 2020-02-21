@@ -228,7 +228,6 @@ export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: pr
 export const getLanguagesFromProjectId = projectId => getNluModelLanguages(getModelIdsFromProjectId(projectId));
 
 export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
-    checkIfCan('nlu-model:r', projectId);
     const nluModelIds = getModelIdsFromProjectId(projectId);
     const models = NLUModels.find({ _id: { $in: nluModelIds }, language }, { fields: { training_data: 1 } }).fetch();
     return models.map(model => model.training_data.common_examples)
