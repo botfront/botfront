@@ -17,55 +17,9 @@ query retreiveConversations($projectId: String!,$page: Int!, $pageSize: Int) {
 export const GET_CONVERSATION = gql`
 query retreiveAConversation($projectId: String!, $conversationId: String!) {
     conversation(projectId: $projectId, id: $conversationId ) {
-      tracker {
-          sender_id
-          latest_message{
-              text
-              intent{
-                  confidence
-                  name
-              }
-              intent_ranking{
-                  confidence
-                  name
-              }
-              entities {
-                      entity
-                      value
-                      start
-                      end
-                  }
-          }
-          events {
-              event
-              text
-              timestamp
-              name
-              policy
-              confidence
-              parse_data {
-                  intent_ranking{
-                      confidence
-                      name
-                  }
-                  intent {
-                      confidence
-                      name
-                  }
-                  text 
-                  language 
-                  project 
-                  entities {
-                      entity
-                      value
-                      start
-                      end
-                  }
-              }
-          }
-      }
-      status
-      _id
-      userId
+        tracker
+        status
+        _id
+        userId
     }
 }`;
