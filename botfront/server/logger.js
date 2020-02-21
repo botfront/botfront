@@ -205,7 +205,7 @@ const logAfterSuccessApiCall = (logger, text, meta) => {
     }
 };
 
-const getProperUrl = (baseURL, url) => (/^h/.test(url) ? url : baseURL + url);
+const getProperUrl = (baseURL = '', url = '') => (/^h/.test(url) ? url : baseURL + url);
 
 export const addLoggingInterceptors = (axios, logger) => {
     let dataType; // this variable will receive a value at request time
