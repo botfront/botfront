@@ -12,7 +12,10 @@ export const checkIfCan = (permission, projectId, userId = null, options = {}) =
     const could = can(permission, projectId, userId, options);
     // setting backupPlan to true throws no error, returns false
     if (could || options.backupPlan) return could;
-    throw new Meteor.Error('403', `${permission} Forbidden`);
+    const trace = ((new Error()).stack.split('\n')[2] || '').trim();
+    const message = `${permission} required ${trace}.`;
+    console.log(message);
+    throw new Meteor.Error('403', message);
 };
 
 const ue = { unlessExists: true };
