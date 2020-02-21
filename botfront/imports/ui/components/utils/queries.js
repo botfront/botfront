@@ -18,3 +18,9 @@ export const UPSERT_ROLES_DATA = gql`
         }
     }
 `;
+
+export const DELETE_ROLE_DATA = gql`
+    mutation deleteRolesData($name: String!, $fallback: String!) {
+        deleteRolesData(name: $name, fallback: $fallback)
+    }
+`;

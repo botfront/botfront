@@ -1,3 +1,4 @@
+import { Roles } from 'meteor/alanning:roles';
 import { Meteor } from 'meteor/meteor';
 
 import { withTracker } from 'meteor/react-meteor-data';
@@ -207,18 +208,17 @@ User.propTypes = {
 // TODO test
 function prepareRoles(user) {
     if (!user) return null;
+    const userRoles = Roles.getRolesForUser(user._id, { anyScope: true, fullObjects: true, onlyAssigned: true });
     const roles = reduce(
-        user.roles,
+        userRoles,
         function(result, value) {
-            if (!value.assigned) return result;
-            
             let rbac = find(result, { project: value.scope });
             
             if (!rbac) {
                 rbac = { project: value.scope ? value.scope : 'GLOBAL', roles: [] };
                 result.push(rbac);
             }
-            if (value.assigned) rbac.roles.push(value._id);
+            rbac.roles.push(value.role._id);
             return result;
         },
         [],

@@ -44,7 +44,13 @@ export default {
                 return;
             }
 
-            const correspondingMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
+            let correspondingMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
+
+            // That means it's a brand new role!
+            if (!correspondingMeteorRole) {
+                Roles.createRole(updatedRoleData.name, { unessExists: true });
+                correspondingMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
+            }
 
             const childrenBeforeUpdate = flattenRoleChildren(correspondingMeteorRole);
 
@@ -55,6 +61,23 @@ export default {
             // eslint-disable-next-line consistent-return
             return upsertRolesData(updatedRoleData);
         },
-        deleteRolesData: (_parent, args) => deleteRolesData(args),
+        deleteRolesData: async (_parent, args) => {
+            const oldRole = args.name;
+            const fallbackRole = args.fallback;
+            const oldRoleAssignements = await Meteor.roleAssignment.find({ 'role._id': oldRole }).fetch();
+
+            oldRoleAssignements.forEach((roleAssignment) => {
+                const userId = roleAssignment.user._id;
+                Roles.removeUsersFromRoles(userId, oldRole);
+                if (roleAssignment.scope) {
+                    Roles.addUsersToRoles(userId, fallbackRole, roleAssignment.scope);
+                } else {
+                    Roles.addUsersToRoles(userId, fallbackRole);
+                }
+            });
+            
+            Roles.deleteRole(oldRole);
+            deleteRolesData({ name: oldRole });
+        },
     },
 };

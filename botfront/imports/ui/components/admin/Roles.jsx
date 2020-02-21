@@ -1,8 +1,8 @@
 /* eslint-disable react/destructuring-assignment */
 import { Menu, Button, Container } from 'semantic-ui-react';
+import { Link, browserHistory } from 'react-router';
 import { useQuery } from '@apollo/react-hooks';
 import ReactTable from 'react-table-v6';
-import { Link, browserHistory } from 'react-router';
 import React from 'react';
 
 import { GET_ROLES_DATA } from '../utils/queries';
@@ -19,7 +19,7 @@ const columns = [
     { id: 'description', accessor: 'description', Header: 'Description' },
 ];
 const RolesList = () => {
-    const { loading, data } = useQuery(GET_ROLES_DATA);
+    const { loading, data } = useQuery(GET_ROLES_DATA, { fetchPolicy: 'cache-and-network' });
     return (
         <div>
             <PageMenu icon='sitemap' title='Roles'>

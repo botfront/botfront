@@ -18,5 +18,5 @@ type Query {
 
 type Mutation {
     upsertRolesData(roleData: RoleDataInput!): RolesData
-    deleteRolesData(name: String!): Boolean
+    deleteRolesData(name: String!, fallback: String!): Boolean
 }

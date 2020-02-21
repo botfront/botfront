@@ -53,7 +53,8 @@ if (Meteor.isServer) {
         createRole('analytics:r', 'Can read analytics data. Extends `incoming:r`');
         Roles.addRolesToParent('incoming:r', 'analytics:r');
 
-        createRole('projects:r', 'Can access project settings.');
+        createRole('projects:r', 'Can read everything in a project and access a project settings.');
+        Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r'], 'projects:r');
         createRole(
             'projects:w',
             'Can edit project meta information andsettings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
@@ -84,6 +85,9 @@ if (Meteor.isServer) {
     // eslint-disable-next-line consistent-return
     Meteor.publish(null, function () {
         if (this.userId) {
+            if (can(['roles:r', 'users:r'])) {
+                return Meteor.roleAssignment.find({});
+            }
             return Meteor.roleAssignment.find({ 'user._id': this.userId });
         }
         this.ready();
