@@ -73,6 +73,11 @@ class Settings extends React.Component {
                     menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
                     render: () => <Tab.Pane><Instances /></Tab.Pane>,
                 },
+            ];
+        }
+
+        if (can('global-admin', projectId)) {
+            panes = [...panes,
                 {
                     menuItem: (
                         <Menu.Item

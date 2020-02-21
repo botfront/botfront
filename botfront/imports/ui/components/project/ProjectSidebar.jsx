@@ -65,7 +65,7 @@ class ProjectSidebar extends React.Component {
                         </span>
                     )}
                     <Divider inverted />
-                    {can(['project:w', 'users:r', 'roles:r']) && (
+                    {can('global-admin') && (
                         <Link to='/admin/'>
                             <Menu.Item name='Admin' icon='key' />
                         </Link>

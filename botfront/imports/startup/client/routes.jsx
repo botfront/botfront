@@ -99,34 +99,34 @@ Meteor.startup(() => {
                                 <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
                             </Route>
                             <Route exact path='/project' component={Project}>
-                                <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
-                                <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate} />
-                                <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticate} />
+                                <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-data:r')} />
+                                <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-data:r')} />
+                                <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticate('incoming:r')} />
                                 <Route
                                     path='/project/:project_id/incoming/:model_id'
                                     component={Incoming}
                                     name='Incoming'
-                                    onEnter={authenticate}
+                                    onEnter={authenticate('incoming:r')}
                                 />
                                 <Route
                                     path='/project/:project_id/incoming/:model_id/:tab'
                                     component={Incoming}
                                     name='Incoming'
-                                    onEnter={authenticate}
+                                    onEnter={authenticate('incoming:r')}
                                 />
                                 <Route
                                     path='/project/:project_id/incoming/:model_id/:tab/:page'
                                     component={Incoming}
                                     name='Incoming'
-                                    onEnter={authenticate}
+                                    onEnter={authenticate('incoming:r')}
                                 />
                                 <Route
                                     path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
                                     component={Incoming}
                                     name='Incoming'
-                                    onEnter={authenticate}
+                                    onEnter={authenticate('incoming:r')}
                                 />
-                                <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate} />
+                                <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate('stories:r')} />
                                 <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
                                 <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
                                 <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
