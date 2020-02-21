@@ -14,6 +14,7 @@ const {
     APPLICATION_LOGGER_NAME,
     AUDIT_LOGGER_NAME,
     MAX_LOGGED_ARG_LENGTH = 1000,
+    MAX_LOGGED_DATA_LENGTH = 100,
 } = process.env;
 
 const allowdKeysApp = [
@@ -85,6 +86,7 @@ const appLogToString = (arg) => {
     } = arg;
     let loggedData = data;
     if (data && data.mimeType) loggedData = checkDataType(data.mimeType, data);
+    if (loggedData && JSON.stringify(loggedData).length > MAX_LOGGED_DATA_LENGTH) loggedData = 'Data too long to be logged';
     // the log is from a method
     if (method && args) {
         return `${timestamp} [${level}] : ${message} ${
