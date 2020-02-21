@@ -1,6 +1,8 @@
 import { AutoForm, AutoField, ErrorsField } from 'uniforms-semantic';
 import { useQuery, useMutation } from '@apollo/react-hooks';
-import { Container, Segment, Button } from 'semantic-ui-react';
+import {
+    Container, Segment, Button, Message,
+} from 'semantic-ui-react';
 import React, { useState, useEffect } from 'react';
 import { browserHistory } from 'react-router';
 import SimpleSchema from 'simpl-schema';
@@ -109,6 +111,11 @@ const Role = (props) => {
         <>
             <PageMenu icon='shield alternate' title={roleName || 'New Role'} />
             <Container>
+                {disabled && (
+                    <Message info>
+                        This role is a default role and thus cannot be modified.
+                    </Message>
+                )}
                 <Segment>
                     {showDeleteModal && roleData && (
                         <DeleteRoleModal
