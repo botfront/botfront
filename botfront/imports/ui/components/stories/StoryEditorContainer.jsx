@@ -137,12 +137,12 @@ const StoryEditorContainer = ({
     function onDestinationStorySelection(event, { value }) {
         // remove the link if the value of the drop down is empty
         if (value === '') {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+            Meteor.call('stories.removeCheckpoints', projectId, destinationStory._id, branchPath);
         } else if (value && destinationStory) {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
-            Meteor.call('stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.removeCheckpoints', projectId, destinationStory._id, branchPath);
+            Meteor.call(projectId, 'stories.addCheckpoints', value, branchPath);
         } else {
-            Meteor.call('stories.addCheckpoints', value, branchPath);
+            Meteor.call(projectId, 'stories.addCheckpoints', value, branchPath);
         }
         const newDestinationStory = findDestinationStory();
         setDestinationStory(newDestinationStory);

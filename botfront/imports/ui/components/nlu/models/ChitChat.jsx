@@ -30,9 +30,9 @@ export default class ChitChat extends React.Component {
     };
 
     loadChitChatIntents = () => {
-        const { model: { language } } = this.props;
+        const { model: { language, _id: modelId } } = this.props;
 
-        Meteor.call('nlu.getChitChatIntents', language, (e, intents) => {
+        Meteor.call('nlu.getChitChatIntents', modelId, language, (e, intents) => {
             if (e) {
                 if (e instanceof ReferenceError) {
                     this.setState({ notConfiguredError: e.message });

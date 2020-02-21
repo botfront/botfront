@@ -1,7 +1,7 @@
 import '../../lib/dynamic_import';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { can } from '../../lib/scopes';
+import { can } from '../roles/roles';
 // import { GlobalSettingsSchema } from './globalSettings.schema';
 
 export const GlobalSettings = new Mongo.Collection('admin_settings');

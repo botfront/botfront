@@ -13,9 +13,7 @@ const flattenRoleChildren = meteorRole => meteorRole.children.map(children => ch
 export default {
     Query: {
         getRolesData: async (_, __, context) => {
-            console.log('a');
             checkIfCan('roles:r', null, context.user._id);
-            console.log('b');
             const rolesData = await getRolesData();
             const meteorRoles = await Meteor.roles.find({}).fetch();
             rolesData.forEach((roleData, index) => {

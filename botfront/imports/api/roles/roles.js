@@ -2,15 +2,11 @@ import { Roles } from 'meteor/alanning:roles';
 import { upsertRolesData } from '../graphql/rolesData/mongo/rolesData';
 
 export const can = (permission, projectId, userId, options) => {
-    console.log('B');
     const bypassWithCI = { options };
     if (Meteor.isTest === true) {
-        console.log('C');
         const userRoles = Meteor.roleAssignment.find().fetch();
         const testUserId = userRoles[0].user._id;
         Meteor.userId = () => testUserId;
-        console.log('D');
-        console.log(Meteor.userId());
     }
     // Cypress code can bypass roles if the bypassWithCI is true and the CI env is set.
     if (!!bypassWithCI && (!!process.env.CI || !!process.env.DEV_MODE)) return true;
@@ -69,7 +65,7 @@ if (Meteor.isServer) {
         Roles.addRolesToParent('incoming:r', 'analytics:r');
 
         createRole('projects:r', 'Can read everything in a project and access a project settings.');
-        Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r'], 'projects:r');
+        Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r', 'analytics:r'], 'projects:r');
         createRole(
             'projects:w',
             'Can edit project meta information andsettings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',

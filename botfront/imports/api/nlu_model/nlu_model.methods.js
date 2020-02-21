@@ -266,8 +266,11 @@ if (Meteor.isServer) {
             throw new Meteor.Error('409', 'The default language cannot be deleted');
         },
 
-        'nlu.getChitChatIntents'(language) {
+        'nlu.getChitChatIntents'(modelId, language) {
+            // -pemission- should require chitchat projectId?
+            checkIfCan('nlu-data:r', getProjectIdFromModelId(modelId));
             check(language, String);
+            check(modelId, String);
             const chitChatProjectId = getChitChatProjectid();
             if (!chitChatProjectId) {
                 throw ReferenceError('Chitchat project not set in global settings');

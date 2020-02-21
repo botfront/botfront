@@ -84,6 +84,22 @@ const subscriptions = [
 ];
 
 const readers = {
+    nluData: [
+        'nlu-data:r',
+        'nlu-data:w',
+        'nlu-model:r',
+        'nlu-model:w',
+        'stories:r',
+        'stories:w',
+        'triggers:r',
+        'triggers:w',
+        'incoming:r',
+        'incoming:w',
+        'analytics:r',
+        'global-admin',
+        'projects:w',
+        'projects:r',
+    ],
     responses: [
         'responses:r',
         'responses:w',
@@ -95,16 +111,22 @@ const readers = {
         'incoming:w',
         'analytics:r',
         'global-admin',
+        'projects:r',
+        'projects:w',
     ],
     incoming: [
         'incoming:r',
         'incoming:w',
         'analytics:r',
         'global-admin',
+        'projects:r',
+        'projects:w',
     ],
     analytics: [
         'analytics:r',
         'global-admin',
+        'projects:r',
+        'projects:w',
     ],
     roles: [
         'roles:r',
@@ -296,13 +318,12 @@ const testCases = [
         args: { projectId: 'bf' },
         acceptedRoles: readers.analytics,
     },
-    // endpoint not authorized
-    // {
-    //     name: 'getIntentStatistics',
-    //     query: nluStatisticsResolver.Query.getIntentStatistics,
-    //     args: { projectId: 'bf' },
-    //     acceptedRoles: roles,
-    // },
+    {
+        name: 'getIntentStatistics',
+        query: nluStatisticsResolver.Query.getIntentStatistics,
+        args: { projectId: 'bf' },
+        acceptedRoles: readers.nluData,
+    },
     {
         name: 'intent distibution',
         query: intentDistributionResolver.Query.intentDistribution,
@@ -440,46 +461,3 @@ describe('zz graphQL Roles', () => {
         });
     });
 });
-
-
-// describe('zz query tests', () => {
-//     it('should allow request from users with a global scope', (done) => {
-//         testQl(BotResponseResolver.Mutation.createResponse, 'responses:w', 'GLOBAL', { projectId: 'bf' })
-//             .then((result) => {
-//                 console.log('resolved');
-//                 expect((result || {}).error).to.not.equal('403');
-//                 done();
-//             })
-//             .catch((result) => {
-//                 console.log('rejected');
-//                 expect((result || {}).error).to.not.equal('403');
-//                 done();
-//             });
-//     });
-//     it('should allow user requests with the right scope', (done) => {
-//         testQl(BotResponseResolver.Mutation.createResponse, 'responses:w', 'bf', { projectId: 'bf' })
-//             .then((result) => {
-//                 console.log('resolved');
-//                 expect((result || {}).error).to.not.equal('403');
-//                 done();
-//             })
-//             .catch((result) => {
-//                 console.log('rejected');
-//                 expect((result || {}).error).to.not.equal('403');
-//                 done();
-//             });
-//     });
-//     it('should dissallow user requests with the wrong scope', (done) => {
-//         testQl(BotResponseResolver.Mutation.createResponse, 'responses:w', 'DNE', { projectId: 'bf' })
-//             .then((result) => {
-//                 console.log('resolved');
-//                 expect((result || {}).error).to.be.equal('403');
-//                 done();
-//             })
-//             .catch((result) => {
-//                 console.log('rejected');
-//                 expect((result || {}).error).to.be.equal('403');
-//                 done();
-//             });
-//     });
-// });

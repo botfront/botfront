@@ -94,6 +94,8 @@ const readers = {
         'incoming:w',
         'analytics:r',
         'global-admin',
+        'projects:w',
+        'projects:r',
     ],
     responses: [
         'responses:r',
@@ -106,22 +108,30 @@ const readers = {
         'incoming:w',
         'analytics:r',
         'global-admin',
+        'projects:w',
+        'projects:r',
     ],
     incoming: [
         'incoming:r',
         'incoming:w',
         'analytics:r',
         'global-admin',
+        'projects:w',
+        'projects:r',
     ],
     analytics: [
         'analytics:r',
         'global-admin',
+        'projects:w',
+        'projects:r',
     ],
     roles: [
         'roles:r',
         'roles:w',
         'users:w',
         'global-admin',
+        'projects:w',
+        'projects:r',
     ],
     projects: [
         'projects:w',
@@ -137,6 +147,8 @@ const readers = {
         'incoming:w',
         'analytics:r',
         'global-admin',
+        'projects:w',
+        'projects:r',
     ],
     users: [
         'users:r',
@@ -354,16 +366,10 @@ const methods = [
         args: [modelId],
     },
     {
-        name: 'nlu.removelanguage',
-        roles: writers.nluModel,
-        args: [projectId],
+        name: 'nlu.getChitChatIntents',
+        roles: readers.nluData,
+        args: [modelId],
     },
-    // -permission
-    // {
-    //     name: 'nlu.getChitChatIntents',
-    //     roles: ['global-admin'],
-    //     args: [],
-    // },
     {
         name: 'nlu.addChitChatToTrainingData',
         roles: writers.nluData,
@@ -391,7 +397,7 @@ const methods = [
     },
     {
         name: 'nlu.getUtteranceFromPayload',
-        roles: [...readers.nluData, ...readers.responses],
+        roles: readers.nluData,
         args: [projectId],
     },
     {
@@ -432,12 +438,11 @@ const methods = [
         roles: [...readers.nluData, ...readers.responses],
         args: [projectId],
     },
-    // -fix-
-    // {
-    //     name: 'project.getActions',
-    //     roles: [...readers.nluData, ...readers.responses],
-    //     args: [projectId],
-    // },
+    {
+        name: 'project.getActions',
+        roles: [...readers.nluData, ...readers.responses],
+        args: [projectId],
+    },
     {
         name: 'project.getDefaultLanguage',
         roles: [...readers.nluData, ...readers.responses],
@@ -484,21 +489,15 @@ const methods = [
         args: [{ projectId }, projectId],
     },
     {
-        name: 'stories.getStories',
-        roles: readers.stories,
+        name: 'stories.addCheckpoints',
+        roles: writers.stories,
         args: [projectId],
     },
-    // requires method changes for projectId
-    // {
-    //     name: 'stories.addCheckpoints',
-    //     roles: writers.stories,
-    //     args: [projectId],
-    // },
-    // {
-    //     name: 'stories.removeCheckpoints',
-    //     roles: writeres.triggers,
-    //     args: [],
-    // },
+    {
+        name: 'stories.removeCheckpoints',
+        roles: writers.triggers,
+        args: [projectId],
+    },
     {
         name: 'stories.updateRules',
         roles: writers.triggers,
@@ -641,7 +640,6 @@ if (Meteor.isServer) {
             await createProject();
             await addConversation();
             await setUserScopes(role, scope);
-            console.log('setup complete');
             Meteor.apply(method, args, callback);
         } catch (e) {
             console.log(e);
@@ -657,10 +655,6 @@ if (Meteor.isServer) {
             roles.forEach((role) => {
                 it(`calling ${method.name} as ${role} global scope`, (done) => {
                     testMethod(method.name, role, 'GLOBAL', method.args, (e = {}, r) => {
-                        console.log(e);
-                        console.log(r);
-                        console.log(method.roles);
-                        console.log(role);
                         if (method.roles.includes(role)) {
                             expect(e.error).to.not.equal('403');
                         } else {
@@ -671,8 +665,6 @@ if (Meteor.isServer) {
                 });
                 it(`calling ${method.name} as ${role} project scope`, (done) => {
                     testMethod(method.name, role, 'bf', method.args, (e = {}, r) => {
-                        console.log(e);
-                        console.log(r);
                         if (method.roles.includes(role) && !method.rejectProjectScope) {
                             expect(e.error).to.not.equal('403');
                         } else {
@@ -683,14 +675,7 @@ if (Meteor.isServer) {
                 });
                 it(`calling ${method.name} as ${role} wrong project scope`, (done) => {
                     testMethod(method.name, role, 'DNE', method.args, (e = {}, r) => {
-                        console.log(e);
-                        console.log(r);
-
-                        // if (method.roles.includes(role)) {
-                        //     expect(e.error).to.not.equal('403');
-                        // } else {
                         expect(e.error).to.be.equal('403');
-                        // }
                         done();
                     });
                 });

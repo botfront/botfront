@@ -68,20 +68,22 @@ Meteor.methods({
         return result;
     },
 
-    'stories.addCheckpoints'(destinationStory, branchPath) {
-        checkIfCan('stories:w');
+    'stories.addCheckpoints'(projectId, destinationStory, branchPath) {
+        checkIfCan('stories:w', projectId);
         check(destinationStory, String);
         check(branchPath, Array);
+        check(projectId, String);
         return Stories.update(
             { _id: destinationStory },
             { $addToSet: { checkpoints: branchPath } },
         );
     },
-    'stories.removeCheckpoints'(destinationStory, branchPath) {
+    'stories.removeCheckpoints'(projectId, destinationStory, branchPath) {
         // -permission- add a projectId
-        checkIfCan('stories:w');
+        checkIfCan('stories:w', projectId);
         check(destinationStory, String);
         check(branchPath, Array);
+        check(projectId, String);
         return Stories.update(
             { _id: destinationStory },
             { $pullAll: { checkpoints: [branchPath] } },
