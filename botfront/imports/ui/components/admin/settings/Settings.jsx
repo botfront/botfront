@@ -198,7 +198,7 @@ class Settings extends React.Component {
                 menuItem: 'Default default domain',
                 render: this.renderDefaultDefaultDomain,
             },
-            { menuItem: 'Webhooks', render: () => WebhooksForm({ onSave: this.onSave, webhooks: settings.settings.private.webhooks }) },
+            { menuItem: 'Webhooks', render: () => WebhooksForm({ onSave: this.onSave, webhooks: settings.settings.private.webhooks || {} }) },
             { menuItem: 'Security', render: this.renderSecurityPane },
             { menuItem: 'Appearance', render: this.renderAppearance },
             { menuItem: 'Misc', render: this.renderMisc },

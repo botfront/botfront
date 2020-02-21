@@ -191,6 +191,13 @@ Cypress.Commands.add('deleteNLUModelProgramatically', (modelId, projectId, langu
     }
 });
 
+Cypress.Commands.add('setTimezoneOffset', () => {
+    const offset = new Date().getTimezoneOffset() / -60;
+    cy.visit('/project/bf/settings');
+    cy.get('[data-cy=change-timezone-offset] input').click().type(`{backspace}{backspace}{backspace}{backspace}${offset}`);
+    cy.get('[data-cy=save-changes]').click();
+});
+
 Cypress.Commands.add('createResponse', (projectId, responseName) => {
     cy.visit(`/project/${projectId}/dialogue/templates/add`);
     cy.get('[data-cy=response-name] input').type(responseName);

@@ -31,8 +31,8 @@ const AndOrMultiselect = ({
                     onChange(value);
                 }}
                 value={values}
-                additionLabel={allowAdditions && 'Add: '}
-                noResultsMessage={allowAdditions && 'Type to add filters'}
+                additionLabel='Add: '
+                {...(allowAdditions ? { noResultsMessage: 'Type to add filters' } : {})}
                 allowAdditions={allowAdditions}
                 onAddItem={(_, { value }) => addItem(value)}
                 options={options}

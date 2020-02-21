@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery, useMutation, useLazyQuery } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
@@ -9,6 +9,7 @@ import {
 import { connect } from 'react-redux';
 import { Meteor } from 'meteor/meteor';
 import moment from 'moment';
+import { saveAs } from 'file-saver';
 import { GET_CONVERSATIONS, GET_INTENTS_IN_CONVERSATIONS } from './queries';
 import { DELETE_CONV } from './mutations';
 import ConversationViewer from './ConversationViewer';
@@ -18,7 +19,7 @@ import { updateIncomingPath } from '../incoming/incoming.utils';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { Projects } from '../../../api/project/project.collection';
 import { applyTimezoneOffset } from '../../../lib/graphs';
-
+import apolloClient from '../../../startup/client/apollo';
 
 function ConversationsBrowser(props) {
     const {
@@ -29,25 +30,18 @@ function ConversationsBrowser(props) {
         refetch,
         router,
         activeFilters,
-        setActiveFilters,
+        changeFilters,
         actionsOptions,
         setActionOptions,
         loading,
-        projectId,
         intentsOptions,
+        handleDownloadConversations,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
-    const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(new Set());
-
-    const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
-
-    useEffect(() => {
-        const {
-            timezoneOffset,
-        } = Projects.findOne({ _id: projectId }, { fields: { timezoneOffset: 1 } });
-        setProjectTimezoneOffset(timezoneOffset || 0);
-    }, []);
+    const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(
+        new Set(),
+    );
 
     useEffect(() => {
         if (data && !data.delete.success) {
@@ -58,7 +52,8 @@ function ConversationsBrowser(props) {
         }
     }, [data]);
 
-    useEffect(() => { // empty the optimistic marking of read message when new data arrive
+    useEffect(() => {
+        // empty the optimistic marking of read message when new data arrive
         setOptimisticRemoveReadMarker(new Set());
     }, [trackers]);
 
@@ -80,7 +75,11 @@ function ConversationsBrowser(props) {
 
     const goToConversation = (newPage, conversationId, replace = false) => {
         // let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
-        const url = updateIncomingPath({ ...router.params, page: newPage || 1, selected_id: conversationId });
+        const url = updateIncomingPath({
+            ...router.params,
+            page: newPage || 1,
+            selected_id: conversationId,
+        });
         if (replace) return browserHistory.replace({ pathname: url });
         return browserHistory.push({ pathname: url });
     };
@@ -90,7 +89,10 @@ function ConversationsBrowser(props) {
     }
 
     function pageChange(newPage) {
-        const url = updateIncomingPath({ ...router.params, page: newPage || 1 }, 'selected_id');
+        const url = updateIncomingPath(
+            { ...router.params, page: newPage || 1 },
+            'selected_id',
+        );
         return browserHistory.push({ pathname: url });
     }
 
@@ -103,32 +105,13 @@ function ConversationsBrowser(props) {
                 onClick={handleItemClick}
                 data-cy='conversation-item'
             >
-                {optimisticRemoveReadMarker.has(t._id) ? renderIcon({ status: 'read' }) : renderIcon(t)}
-                <span style={{ fontSize: '10px' }}>
-                    {t._id}
-                </span>
+                {optimisticRemoveReadMarker.has(t._id)
+                    ? renderIcon({ status: 'read' })
+                    : renderIcon(t)}
+                <span style={{ fontSize: '10px' }}>{t._id}</span>
             </Menu.Item>
         ));
         return items;
-    }
-
-    function changeFilters(lengthFilter, confidenceFilter, actionFilters, startDate, endDate, userId, operatorActionsFilters, operatorIntentsFilters, intentFilters) {
-        const offsetStart = startDate ? applyTimezoneOffset(startDate, projectTimezoneOffset) : null;
-        const offsetEnd = endDate ? applyTimezoneOffset(endDate, projectTimezoneOffset) : null;
-        setActiveFilters({
-            lengthFilter: parseInt(lengthFilter.compare, 10),
-            xThanLength: lengthFilter.xThan,
-            confidenceFilter: parseFloat(confidenceFilter.compare, 10) / 100,
-            xThanConfidence: confidenceFilter.xThan,
-            actionFilters,
-            startDate: offsetStart,
-            endDate: offsetEnd,
-            userId,
-            operatorActionsFilters,
-            operatorIntentsFilters,
-            intentFilters,
-        });
-        refetch();
     }
 
     function deleteConversation(conversationId) {
@@ -145,8 +128,7 @@ function ConversationsBrowser(props) {
         } else {
             goToConversation(Math.min(page - 1, 1), undefined, true);
         }
-        deleteConv({ variables: { id: conversationId } });
-        refetch();
+        deleteConv({ variables: { id: conversationId } }).then(() => refetch());
     }
 
     return (
@@ -154,20 +136,12 @@ function ConversationsBrowser(props) {
             <Grid>
                 <Grid.Row>
                     <ConversationFilters
-                        lengthFilter={activeFilters.lengthFilter}
-                        xThanLength={activeFilters.xThanLength}
-                        confidenceFilter={activeFilters.confidenceFilter}
-                        xThanConfidence={activeFilters.xThanConfidence}
-                        actionFilters={activeFilters.actionFilters}
-                        intentFilters={activeFilters.intentFilters}
-                        startDate={activeFilters.startDate}
-                        endDate={activeFilters.endDate}
-                        operatorActionsFilters={activeFilters.operatorActionsFilters}
-                        operatorIntentsFilters={activeFilters.operatorIntentsFilters}
+                        activeFilters={activeFilters}
                         changeFilters={changeFilters}
                         actionsOptions={actionsOptions}
                         setActionOptions={setActionOptions}
                         intentsOptions={intentsOptions}
+                        onDownloadConversations={handleDownloadConversations}
                     />
                 </Grid.Row>
                 <Loading loading={loading}>
@@ -186,11 +160,12 @@ function ConversationsBrowser(props) {
                                         lastItem={`${pages}`}
                                         data-cy='pagination'
                                     />
-                                ) : <></>}
+                                ) : (
+                                    <></>
+                                )}
 
                                 <Menu pointing vertical fluid>
                                     {renderMenuItems()}
-
                                 </Menu>
                             </Grid.Column>
                             <Grid.Column width={12}>
@@ -204,7 +179,9 @@ function ConversationsBrowser(props) {
                         </>
                     ) : (
                         <Grid.Column width={16}>
-                            <Message data-cy='no-conv' info>No conversations to load.</Message>
+                            <Message data-cy='no-conv' info>
+                                No conversations to load.
+                            </Message>
                         </Grid.Column>
                     )}
                 </Loading>
@@ -217,22 +194,22 @@ ConversationsBrowser.propTypes = {
     trackers: PropTypes.array,
     activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
-    pages: PropTypes.number.isRequired,
+    pages: PropTypes.number,
     refetch: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
-    activeFilters: PropTypes.object,
-    setActiveFilters: PropTypes.func.isRequired,
+    activeFilters: PropTypes.object.isRequired,
+    changeFilters: PropTypes.func.isRequired,
     actionsOptions: PropTypes.array,
     intentsOptions: PropTypes.array,
     setActionOptions: PropTypes.func.isRequired,
     loading: PropTypes.bool.isRequired,
-    projectId: PropTypes.string.isRequired,
+    handleDownloadConversations: PropTypes.func.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
+    pages: 1,
     trackers: [],
     activeConversationId: null,
-    activeFilters: {},
     actionsOptions: [],
     intentsOptions: [],
 };
@@ -247,30 +224,56 @@ const ConversationsBrowserContainer = (props) => {
     let activeConversationId = router.params.selected_id;
     const page = parseInt(router.params.page, 10) || 1;
 
-    const [activeFilters, setActiveFilters] = useState({
-        lengthFilter: -1,
-        xThanLength: 'greaterThan',
-        confidenceFilter: -1,
-        xThanConfidence: 'lessThan',
+    const defaults = {
+        lengthFilter: { compare: -1, xThan: 'greaterThan' },
+        confidenceFilter: { compare: -1, xThan: 'lessThan' },
         actionFilters: [],
-        startDate: !window.Cypress ? moment().subtract(7, 'd') : null,
-        endDate: !window.Cypress ? moment() : null,
-        timeZoneHoursOffset: null,
-        userId: null,
+        intentFilters: [],
+        startDate: moment().subtract(7, 'd'),
+        endDate: moment(),
         operatorActionsFilters: 'or',
         operatorIntentsFilters: 'or',
-        intentFilters: [],
-    });
+        userId: null,
+    };
+
+    const [activeFilters, setActiveFilters] = useState(defaults);
     const [actionsOptions, setActionOptions] = useState([]);
     const [intentsOptions, setIntentsOptions] = useState([]);
+    const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
+
+    function changeFilters(vals = defaults) {
+        setActiveFilters({
+            ...vals,
+            startDate: vals.startDate
+                ? applyTimezoneOffset(vals.startDate, projectTimezoneOffset)
+                : null,
+            endDate: vals.endDate
+                ? applyTimezoneOffset(vals.endDate, projectTimezoneOffset)
+                : null,
+        });
+    }
+
+    useEffect(() => {
+        const { timezoneOffset } = Projects.findOne(
+            { _id: projectId },
+            { fields: { timezoneOffset: 1 } },
+        );
+        setProjectTimezoneOffset(
+            timezoneOffset || 0,
+        );
+    }, [projectId]);
+
+    useEffect(changeFilters, [projectTimezoneOffset]);
 
     const [loadIntents] = useLazyQuery(GET_INTENTS_IN_CONVERSATIONS, {
         variables: { projectId },
         onCompleted: (data) => {
-            setIntentsOptions(data.intentsInConversations.map(((intent) => {
-                if (intent === null) return { value: null, text: 'null', key: 'null' };
-                return { value: intent, text: intent, key: intent };
-            })));
+            setIntentsOptions(
+                data.intentsInConversations.map((intent) => {
+                    if (intent === null) { return { value: null, text: 'null', key: 'null' }; }
+                    return { value: intent, text: intent, key: intent };
+                }),
+            );
         },
     });
     useEffect(() => {
@@ -280,44 +283,82 @@ const ConversationsBrowserContainer = (props) => {
             projectId,
             wrapMeteorCallback((err, res) => {
                 if (!err) {
-                    setActionOptions(res.map(action => ({ text: action, value: action, key: action })));
+                    setActionOptions(
+                        res.map(action => ({
+                            text: action,
+                            value: action,
+                            key: action,
+                        })),
+                    );
                 }
             }),
         );
     }, []);
 
+    const queryVariables = useMemo(() => ({
+        projectId,
+        page,
+        pageSize: 20,
+        env,
+        ...activeFilters,
+        lengthFilter: activeFilters.lengthFilter.compare,
+        xThanLength: activeFilters.lengthFilter.xThan,
+        confidenceFilter: activeFilters.confidenceFilter.compare,
+        xThanConfidence: activeFilters.confidenceFilter.xThan,
+    }), [activeFilters, env, page]);
 
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
-        variables: {
-            projectId,
-            page,
-            pageSize: 20,
-            env,
-            ...activeFilters,
-            startDate: activeFilters.startDate,
-            endDate: activeFilters.endDate,
-            userId: activeFilters.userId,
-            operatorActionsFilters: activeFilters.operatorActionsFilters,
-            operatorIntentsFilters: activeFilters.operatorIntentsFilters,
-            intentFilters: activeFilters.intentFilters,
-        },
-        pollInterval: 5000,
+        variables: queryVariables,
     });
 
-    const componentProps = {
-        page, projectId, router, refetch, activeFilters, setActiveFilters, actionsOptions, setActionOptions, intentsOptions,
+    const handleDownloadConversations = () => {
+        apolloClient
+            .query({
+                query: GET_CONVERSATIONS,
+                variables: {
+                    ...queryVariables,
+                    pageSize: -1,
+                    page: 1,
+                    fetchTrackers: true,
+                },
+            })
+            .then(({ data: { conversationsPage } = {} }) => {
+                if (!conversationsPage || !conversationsPage.conversations.length) return false;
+                const blob = new Blob(
+                    [JSON.stringify(conversationsPage)],
+                    { type: 'application/json;charset=utf-8' },
+                );
+                return saveAs(blob, 'conversations.json');
+            });
     };
 
-    if (!loading && !error) {
+    const componentProps = {
+        page,
+        projectId,
+        router,
+        refetch,
+        activeFilters,
+        setActiveFilters,
+        actionsOptions,
+        setActionOptions,
+        intentsOptions,
+        handleDownloadConversations,
+        changeFilters,
+    };
+
+    if (activeFilters && !loading && !error) {
         const { conversations, pages } = data.conversationsPage;
 
         // If for some reason the conversation is not in the current page, discard it.
-        if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
+        if (!conversations.some(c => c._id === activeConversationId)) { activeConversationId = null; }
         if (!activeConversationId && conversations.length > 0) {
             const url = updateIncomingPath({
-                ...router.params, tab: 'conversations', page: page || 1, selected_id: conversations[0]._id,
+                ...router.params,
+                tab: 'conversations',
+                page: page || 1,
+                selected_id: conversations[0]._id,
             }); // tab will always be conversations if set on the converesations tab
             browserHistory.replace({ pathname: url });
         } else {
@@ -338,10 +379,7 @@ const ConversationsBrowserContainer = (props) => {
     return (
         <div>
             <Container>
-                <ConversationsBrowser
-                    {...componentProps}
-                    loading={loading}
-                />
+                <ConversationsBrowser {...componentProps} loading={loading} />
             </Container>
         </div>
     );
