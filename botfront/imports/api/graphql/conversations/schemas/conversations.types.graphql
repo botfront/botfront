@@ -1,7 +1,7 @@
 type Query {
     conversationsPage(
       projectId: String!, 
-      page: Int!,
+      page: Int,
       pageSize: Int,
       status: [String] 
       env: String
@@ -50,7 +50,7 @@ type Pagination {
 }
 
 type ConversationContainer {
-    tracker: Conversation
+    tracker: Any
     userId: String
     projectId: String
     status: String
@@ -58,59 +58,24 @@ type ConversationContainer {
     updatedAt: String
 }
 
-type Conversation {
-  latest_message: Message,
-  events: [Event],
-  sender_id: String,
-  slots: Any,
-  latest_event_time: Float,
-  latest_action_name: String,
-  latest_input_channel: String,
-  followup_action: String,
-  active_form: Any,
-  paused: Boolean,
-}
-
-input ConversationInput {
-  latest_message: Any,
-  events: [EventInput],
-  sender_id: String,
-  slots: Any,
-  latest_event_time: Float,
-  latest_action_name: String,
-  latest_input_channel: String,
-  followup_action: String,
-  active_form: Any,
-  paused: Boolean,
-}
-
-type Message {
-    intent_ranking: [Intent]
-    intent: Intent
-    text: String
-    language: String
-    project: String
-    entities: [Entity]
-}
-
 type Entity {
-  entity: String,
-  value: String,
-  start: Int,
-  end: Int,
-  confidence: Float,
-  extractor: String,
-  processors: [String],
+    entity: String,
+    value: String,
+    start: Int,
+    end: Int,
+    confidence: Float,
+    extractor: String,
+    processors: [String],
 }
 
 input EntityInput {
-  entity: String,
-  value: String,
-  start: Int,
-  end: Int,
-  confidence: Float,
-  extractor: String,
-  processors: [String],
+    entity: String,
+    value: String,
+    start: Int,
+    end: Int,
+    confidence: Float,
+    extractor: String,
+    processors: [String],
 }
 
 type Intent {
@@ -119,36 +84,6 @@ type Intent {
 }
 
 input IntentInput {
-  confidence: Float,
-  name: String,
-}
-
-type Event {
-  event: String,
-  text:  String,
-  timestamp: Float,
-  name: String,
-  policy: String,
-  confidence: Float,
-  parse_data: Message,
-  input_channel: String,
-  message_id: String,
-  metadata: Any,
-  data: Any,
-  value: Any,
-}
-
-input EventInput {
-  event: String,
-  text:  String,
-  timestamp: Float,
-  name: String,
-  policy: String,
-  confidence: Float,
-  parse_data: Any,
-  input_channel: String,
-  message_id: String,
-  metadata: Any,
-  data: Any,
-  value: Any,
+    confidence: Float,
+    name: String,
 }

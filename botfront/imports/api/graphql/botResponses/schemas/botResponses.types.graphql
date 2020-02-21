@@ -9,6 +9,7 @@ type Query {
         channel: NlgRequestChannel
     ): BotResponsePayload,
 }
+scalar ConversationInput # for Legacy reasons this is kept as an alias for 'Any'
 
 type Subscription {
     botResponseAdded(projectId: String!): BotResponse
