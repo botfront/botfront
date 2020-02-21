@@ -78,6 +78,7 @@ Meteor.methods({
         );
     },
     'stories.removeCheckpoints'(destinationStory, branchPath) {
+        // -permission- add a projectId
         checkIfCan('stories:w');
         check(destinationStory, String);
         check(branchPath, Array);
@@ -87,7 +88,7 @@ Meteor.methods({
         );
     },
     async 'stories.updateRules'(projectId, storyId, story) {
-        checkIfCan('triggers:w');
+        checkIfCan('triggers:w', projectId);
         check(projectId, String);
         check(storyId, String);
         check(story, Object);
@@ -102,7 +103,7 @@ Meteor.methods({
         );
     },
     async 'stories.deleteRules'(projectId, storyId) {
-        checkIfCan('triggers:w');
+        checkIfCan('triggers:w', projectId);
         check(projectId, String);
         check(storyId, String);
         Stories.update(

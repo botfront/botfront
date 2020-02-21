@@ -79,7 +79,7 @@ if (Meteor.isServer) {
         },
 
         'conversations.updateStatus'(senderId, status) {
-            checkIfCan('incoming:w', findConversationProject(senderId));
+            checkIfCan('incoming:r', findConversationProject(senderId));
             check(senderId, String);
             check(status, String);
             return Conversations.update({ _id: senderId }, { $set: { status } });

@@ -2,7 +2,16 @@ import { Roles } from 'meteor/alanning:roles';
 import { upsertRolesData } from '../graphql/rolesData/mongo/rolesData';
 
 export const can = (permission, projectId, userId, options) => {
+    console.log('B');
     const bypassWithCI = { options };
+    if (Meteor.isTest === true) {
+        console.log('C');
+        const userRoles = Meteor.roleAssignment.find().fetch();
+        const testUserId = userRoles[0].user._id;
+        Meteor.userId = () => testUserId;
+        console.log('D');
+        console.log(Meteor.userId());
+    }
     // Cypress code can bypass roles if the bypassWithCI is true and the CI env is set.
     if (!!bypassWithCI && (!!process.env.CI || !!process.env.DEV_MODE)) return true;
     return Roles.userIsInRole(userId || Meteor.userId(), permission, projectId);
@@ -81,7 +90,7 @@ if (Meteor.isServer) {
 
 
         createRole('global-admin');
-        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-model:w', 'nlu-model:x', 'triggers:w', 'responses:w', 'stories:w', 'roles:r', 'analytics:r', 'incoming:w'], 'global-admin');
+        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-model:w', 'nlu-model:x', 'triggers:w', 'responses:w', 'stories:w', 'roles:r', 'roles:w', 'analytics:r', 'incoming:w', 'global-settings:w'], 'global-admin');
     };
 
     Meteor.startup(function() {
