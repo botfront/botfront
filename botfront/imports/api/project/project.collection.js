@@ -27,7 +27,7 @@ const getDefaultDefaultDomain = () => {
 export const createProject = (item) => {
     checkIfCan('projects:w');
     auditLogIfOnServer('Creating project', {
-        userId: Meteor.userId(), after: { item }, type: 'create', operation: 'project-created',
+        user: Meteor.user(), after: { item }, type: 'create', operation: 'project-created',
     });
     return Projects.insert({ ...item, defaultDomain: { content: getDefaultDefaultDomain() } });
 };

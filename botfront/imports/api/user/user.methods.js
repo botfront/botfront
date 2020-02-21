@@ -70,7 +70,7 @@ if (Meteor.isServer) {
                 if (sendInviteEmail) Accounts.sendEnrollmentEmail(userId);
                 setScopes(user, userId);
                 auditLog('Create an user', {
-                    userId: Meteor.userId(),
+                    user: Meteor.user(),
                     type: 'creae',
                     operation: 'user-created',
                     after: { user },
@@ -90,7 +90,7 @@ if (Meteor.isServer) {
             });
             try {
                 auditLog('Update an user', {
-                    userId: Meteor.userId(),
+                    user: Meteor.user(),
                     type: 'update',
                     resId: user._id,
                     operation: 'user-updated',
@@ -120,7 +120,7 @@ if (Meteor.isServer) {
             const { failSilently } = options;
             try {
                 auditLog('Delete an user', {
-                    userId: Meteor.userId(),
+                    user: Meteor.user(),
                     type: 'delete',
                     resId: userId,
                     operation: 'user-deleted',
@@ -136,7 +136,7 @@ if (Meteor.isServer) {
             check(email, String);
             try {
                 auditLog('Delete an user by email matching', {
-                    userId: Meteor.userId(),
+                    user: Meteor.user(),
                     type: 'delete',
                     operation: 'user-deleted',
                 });
@@ -158,7 +158,7 @@ if (Meteor.isServer) {
 
             try {
                 auditLog('Change user password', {
-                    userId: Meteor.userId(),
+                    user: Meteor.user(),
                     type: 'update',
                     operation: 'user-updated',
                     resId: userId,
@@ -183,7 +183,7 @@ if (Meteor.isServer) {
             const appMethodLogger = getAppLoggerForMethod(
                 userAppLogger,
                 'user.verifyReCaptcha',
-                Meteor.userId(),
+                Meteor.user(),
                 { response },
             );
 

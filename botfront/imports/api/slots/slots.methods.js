@@ -29,7 +29,7 @@ Meteor.methods({
         validateSchema(slot);
         try {
             auditLogIfOnServer('Insert slot', {
-                resId: projectId, userId: Meteor.userId(), type: 'update', operation: 'stories.updated', after: { slot },
+                resId: projectId, user: Meteor.user(), type: 'update', operation: 'stories.updated', after: { slot },
             });
             return Slots.insert(slot);
         } catch (e) {
@@ -60,7 +60,7 @@ Meteor.methods({
         validateSchema(slot);
         try {
             auditLogIfOnServer('Update slot', {
-                resId: projectId, userId: Meteor.userId(), type: 'update', operation: 'stories.updated', after: { slot },
+                resId: projectId, user: Meteor.user(), type: 'update', operation: 'stories.updated', after: { slot },
             });
             return Slots.update({ _id: slot._id }, { $set: slot });
         } catch (e) {
@@ -74,7 +74,7 @@ Meteor.methods({
         check(projectId, String);
         validateSchema(slot);
         auditLogIfOnServer('Delete slot', {
-            resId: projectId, userId: Meteor.userId(), type: 'update', operation: 'stories.updated', before: { slot },
+            resId: projectId, user: Meteor.user(), type: 'update', operation: 'stories.updated', before: { slot },
         });
         return Slots.remove(slot);
     },

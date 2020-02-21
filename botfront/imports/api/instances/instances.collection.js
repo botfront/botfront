@@ -33,7 +33,7 @@ if (Meteor.isServer) {
             checkIfCan('projects:w', item.projectId);
             check(item, Object);
             auditLog('Updating instance', {
-                userId: Meteor.userId(), type: 'update', operation: 'project-settings-update', resId: item.projectId, after: { item },
+                user: Meteor.user(), type: 'update', operation: 'project-settings-update', resId: item.projectId, after: { item },
             });
             return Instances.update({ _id: item._id }, { $set: item });
         },

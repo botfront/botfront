@@ -83,7 +83,7 @@ Meteor.methods({
         childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
         auditLogIfOnServer('Story group delete', {
             resId: storyGroup._id,
-            userId: Meteor.userId(),
+            user: Meteor.user(),
             type: 'delete',
             operation: 'story-group-deleted',
             before: { storyGroup },
@@ -98,7 +98,7 @@ Meteor.methods({
         try {
             auditLogIfOnServer('Create a story group', {
                 resId: storyGroup._id,
-                userId: Meteor.userId(),
+                user: Meteor.user(),
                 type: 'create',
                 operation: 'story-group-created',
                 after: { storyGroup },
@@ -115,7 +115,7 @@ Meteor.methods({
         try {
             auditLogIfOnServer('Update a story group', {
                 resId: storyGroup._id,
-                userId: Meteor.userId(),
+                user: Meteor.user(),
                 type: 'create',
                 operation: 'story-group-created',
                 after: { storyGroup },
@@ -132,7 +132,7 @@ Meteor.methods({
         checkIfCan('stories:w', projectId, undefined);
         check(projectId, String);
         auditLogIfOnServer('remove focus on all story group', {
-            userId: Meteor.userId(),
+            user: Meteor.user(),
             type: 'update',
             operation: 'story-group-updated',
         });
@@ -158,7 +158,7 @@ if (Meteor.isServer) {
             const result = await Stories.remove({ storyGroupId });
             deleteResponsesRemovedFromStories(eventstoRemove, projectId);
             auditLogIfOnServer('Delete child stories of a story group', {
-                userId: Meteor.userId(),
+                user: Meteor.user(),
                 type: 'delete',
                 operation: 'story-group-delete',
                 resId: storyGroupId,

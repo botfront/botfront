@@ -89,7 +89,7 @@ if (Meteor.isServer) {
             check(credentials, Object);
             try {
                 auditLog('Saving credentials', {
-                    userId: Meteor.userId(), type: 'update', operation: 'credentials-updated', resId: senderId, after: { credentials },
+                    user: Meteor.user(), type: 'update', operation: 'credentials-updated', resId: senderId, after: { credentials },
                 });
                 return Credentials.upsert(
                     { projectId: credentials.projectId, _id: credentials._id },

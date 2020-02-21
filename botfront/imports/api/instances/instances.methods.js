@@ -192,7 +192,7 @@ if (Meteor.isServer) {
                 language,
             });
             auditLog('Converting model to json', {
-                userId: Meteor.userId(), type: 'update', operation: 'nlu-model-update', resId: model._id,
+                user: Meteor.user(), type: 'update', operation: 'nlu-model-update', resId: model._id,
             });
             return data;
         },
@@ -262,7 +262,7 @@ if (Meteor.isServer) {
                 const t1 = performance.now();
                 appMethodLogger.debug(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
                 auditLog('Retreiveing training payload for project', {
-                    userId: Meteor.userId(), type: 'execute', operation: 'nlu-model-execute', resId: projectId,
+                    user: Meteor.user(), type: 'execute', operation: 'nlu-model-execute', resId: projectId,
                 });
                 return payload;
             } catch (e) {
@@ -278,7 +278,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(instance, Object);
             auditLog('Train project', {
-                userId: Meteor.userId(), type: 'execute', operation: 'nlu-model-trained', resId: projectId,
+                user: Meteor.user(), type: 'execute', operation: 'nlu-model-trained', resId: projectId,
             });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
@@ -342,7 +342,7 @@ if (Meteor.isServer) {
             check(modelId, String);
             check(testData, Match.Maybe(Object));
             auditLog('Evaluate nlu data', {
-                userId: Meteor.userId(), type: 'execute', operation: 'nlu-model-evaluate', resId: projectId,
+                user: Meteor.user(), type: 'execute', operation: 'nlu-model-evaluate', resId: projectId,
             });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,

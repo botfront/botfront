@@ -42,7 +42,7 @@ if (Meteor.isServer) {
             checkIfCan('projects:w', endpoints.projectId);
             check(endpoints, Object);
             auditLog('Saving endpoints', {
-                userId: Meteor.userId(), type: 'update', operation: 'project-updated', resId: endpoints.projectId, after: { endpoints },
+                user: Meteor.user(), type: 'update', operation: 'project-updated', resId: endpoints.projectId, after: { endpoints },
             });
             return saveEndpoints(endpoints);
         },

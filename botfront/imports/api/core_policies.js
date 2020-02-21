@@ -67,7 +67,7 @@ if (Meteor.isServer) {
             check(policies, Object);
             try {
                 auditLog('Saving policies', {
-                    userId: Meteor.userId(), type: 'update', operation: 'policies-updated', resId: policies.projectId, after: { policies: policies.policies },
+                    user: Meteor.user(), type: 'update', operation: 'policies-updated', resId: policies.projectId, after: { policies: policies.policies },
                 });
                 return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });
             } catch (e) {

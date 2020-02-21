@@ -35,7 +35,7 @@ const allowdKeysApp = [
 const allowdKeysAudit = [
     'level',
     'message',
-    'userId',
+    'user',
     'type',
     'resId',
     'operation',
@@ -47,6 +47,8 @@ const allowdKeysAudit = [
 
 const spaceBeforeIfExist = prop => (prop ? ` ${prop}` : '');
 
+const formatUser = user => (`${user.profile.firstName} ${user.profile.lastName} ${user.emails[0].address}`);
+
 const auditFormat = printf((arg) => {
     Object.keys(arg).forEach((key) => {
         if (!allowdKeysAudit.includes(key)) {
@@ -54,14 +56,14 @@ const auditFormat = printf((arg) => {
         }
     });
     const {
-        message, userId, type, resId, operation, timestamp, projectId, after, before,
+        message, user, type, resId, operation, timestamp, projectId, after, before,
     } = arg;
     let additionalInfo = '';
     if (before) additionalInfo = `before: ${JSON.stringify(before)}`;
-    if (after) additionalInfo = additionalInfo.concat(`after: ${JSON.stringify(after)}`);
-    return `${timestamp}  [${type}]: ${message} ${userId ? ` userId: ${userId}` : ''
-    } ${projectId ? ` projectId: ${projectId}` : ''
-    }${spaceBeforeIfExist(operation)} ressourceId: ${spaceBeforeIfExist(resId)} ${spaceBeforeIfExist(additionalInfo)} `;
+    if (after) additionalInfo = additionalInfo.concat(` after: ${JSON.stringify(after)}`);
+    return `${timestamp} [${type}]: ${message}${user ? ` user: ${formatUser(user)}` : ''
+    }${projectId ? ` projectId: ${projectId}` : ''
+    }ressourceId: ${resId}${spaceBeforeIfExist(operation)}${spaceBeforeIfExist(additionalInfo)} `;
 });
 
 const checkDataType = (dataType, data) => {

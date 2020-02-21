@@ -39,7 +39,7 @@ if (Meteor.isServer) {
                     { error: { header: 'Import Failed', text: generateErrorText(err) } }
                 ));
             auditLog('Import project', {
-                userId: Meteor.userId(), type: 'create', operation: 'project-created', resId: projectId,
+                user: Meteor.user(), type: 'create', operation: 'project-created', resId: projectId,
             });
             return importRequest;
         },

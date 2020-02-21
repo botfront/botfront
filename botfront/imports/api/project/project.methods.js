@@ -79,7 +79,7 @@ if (Meteor.isServer) {
                 createDefaultStoryGroup(_id);
                 await createInstance({ _id, ...item });
                 auditLog('Create project', {
-                    userId: Meteor.userId(), after: { item }, resId: _id, type: 'create', operation: 'project-created',
+                    user: Meteor.user(), after: { item }, resId: _id, type: 'create', operation: 'project-created',
                 });
                 return _id;
             } catch (e) {
@@ -95,7 +95,7 @@ if (Meteor.isServer) {
                 // eslint-disable-next-line no-param-reassign
                 delete item.createdAt;
                 auditLog('Update project', {
-                    userId: Meteor.userId(), after: { item }, resId: item._id, type: 'update', operation: 'project-updated',
+                    user: Meteor.user(), after: { item }, resId: item._id, type: 'update', operation: 'project-updated',
                 });
                 return Projects.update({ _id: item._id }, { $set: item });
             } catch (e) {
@@ -126,7 +126,7 @@ if (Meteor.isServer) {
                 const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
                 projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
                 auditLog('delete project', {
-                    userId: Meteor.userId(), resId: projectId, type: 'delete', operation: 'project-deleted',
+                    user: Meteor.user(), resId: projectId, type: 'delete', operation: 'project-deleted',
                 });
                 await BotResponses.remove({ projectId });
             } catch (e) {
@@ -139,7 +139,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             try {
                 auditLog('Mark trainning as started', {
-                    userId: Meteor.userId(), resId: projectId, type: 'update', operation: 'project-updated',
+                    user: Meteor.user(), resId: projectId, type: 'update', operation: 'project-updated',
                 });
                 return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
             } catch (e) {
@@ -159,7 +159,7 @@ if (Meteor.isServer) {
                     set.training.message = error;
                 }
                 auditLog('Mark trainning as stopped', {
-                    userId: Meteor.userId(), resId: projectId, type: 'update', operation: 'project-updated', after: { status },
+                    user: Meteor.user(), resId: projectId, type: 'update', operation: 'project-updated', after: { status },
                 });
                 return Projects.update({ _id: projectId }, { $set: set });
             } catch (e) {

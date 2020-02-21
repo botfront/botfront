@@ -22,7 +22,7 @@ Meteor.methods({
                 })));
         }
         auditLogIfOnServer('Story create', {
-            userId: Meteor.userId(), type: 'create', operation: 'stories.created', after: { story },
+            user: Meteor.user(), type: 'create', operation: 'stories.created', after: { story },
         });
         return Stories.insert({ ...story, events: aggregateEvents(story) });
     },
@@ -62,7 +62,7 @@ Meteor.methods({
         }
         auditLogIfOnServer('Story update', {
             resId: story._id,
-            userId: Meteor.userId(),
+            user: Meteor.user(),
             type: 'create',
             operation: 'stories.updated',
             after: { story },
@@ -78,7 +78,7 @@ Meteor.methods({
         deleteResponsesRemovedFromStories(story.events, projectId);
         auditLogIfOnServer('Story delete', {
             resId: story._id,
-            userId: Meteor.userId(),
+            user: Meteor.user(),
             type: 'create',
             operation: 'stories.updated',
             before: { story },
@@ -93,7 +93,7 @@ Meteor.methods({
         check(projectId, String);
         auditLogIfOnServer('Story add checkpoint', {
             resId: destinationStory._id,
-            userId: Meteor.userId(),
+            user: Meteor.user(),
             type: 'update',
             operation: 'stories.updated',
             before: { destinationStory },
@@ -113,7 +113,7 @@ Meteor.methods({
         check(projectId, String);
         auditLogIfOnServer('Story remove checkpoint', {
             resId: destinationStory._id,
-            userId: Meteor.userId(),
+            user: Meteor.user(),
             type: 'update',
             operation: 'stories.updated',
             after: { destinationStory },
@@ -137,7 +137,7 @@ Meteor.methods({
         ));
         auditLogIfOnServer('Story update trigger rules', {
             resId: storyId,
-            userId: Meteor.userId(),
+            user: Meteor.user(),
             type: 'update',
             operation: 'stories.updated',
             after: { story },
@@ -153,7 +153,7 @@ Meteor.methods({
         check(storyId, String);
         auditLogIfOnServer('Story delete trigger rules', {
             resId: storyId,
-            userId: Meteor.userId(),
+            user: Meteor.user(),
             type: 'update',
             operation: 'stories.updated',
         });

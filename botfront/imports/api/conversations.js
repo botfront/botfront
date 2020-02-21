@@ -75,7 +75,7 @@ if (Meteor.isServer) {
             check(senderId, String);
             check(status, String);
             auditLog('Changing conversation status', {
-                userId: Meteor.userId(), type: 'update', operation: 'conversation-updated', resId: senderId, after: { status },
+                user: Meteor.user(), type: 'update', operation: 'conversation-updated', resId: senderId, after: { status },
             });
             return Conversations.update({ _id: senderId }, { $set: { status } });
         },
@@ -84,7 +84,7 @@ if (Meteor.isServer) {
             checkIfCan('incoming:w', findConversationProject(senderId));
             check(senderId, String);
             auditLog('Deleting conversation', {
-                userId: Meteor.userId(), type: 'delete', operation: 'conversation-deleted', resId: senderId,
+                user: Meteor.user(), type: 'delete', operation: 'conversation-deleted', resId: senderId,
             });
             return Conversations.remove({ _id: senderId });
         },
