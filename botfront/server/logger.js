@@ -29,6 +29,7 @@ const allowdKeysApp = [
     'args',
     'status',
     'error',
+    'params',
 ];
 
 const allowdKeysAudit = [
@@ -66,7 +67,9 @@ const auditFormat = printf((arg) => {
 });
 
 const checkDataType = (dataType, data) => {
-    if (dataType && dataType !== 'application/json') return `Data is ${dataType} and is not logged`;
+    if (dataType && dataType !== 'application/json') {
+        return `Data is ${dataType} and is not logged`;
+    }
     return data;
 };
 
@@ -83,6 +86,7 @@ const appLogToString = (arg) => {
         args,
         status,
         error,
+        params,
     } = arg;
     let loggedData = data;
     if (data && data.mimeType) loggedData = checkDataType(data.mimeType, data);
@@ -91,16 +95,16 @@ const appLogToString = (arg) => {
     if (method && args) {
         return `${timestamp} [${level}] : ${message} ${
             userId ? `user: ${userId}` : ''
-        } ${file} - ${method} with ${JSON.stringify(args)} ${
+        } ${file} - ${method} with ${JSON.stringify(args)}${spaceBeforeIfExist(status)} ${
             url ? `url: ${url}` : ''
-        }${spaceBeforeIfExist(status)} ${loggedData ? `data: ${JSON.stringify(loggedData)}` : ''} ${
-            error ? `error: ${error}` : ''
-        }`;
+        } params: ${JSON.stringify(params)} ${
+            loggedData ? `data: ${JSON.stringify(loggedData)}` : ''
+        } ${error ? `error: ${error}` : ''}`;
     }
+    
     // if it's not from a method it's at the file level
     return `${timestamp} [${level}] : ${message} ${file}`;
 };
-
 
 const appFormat = printf((arg) => {
     Object.keys(arg).forEach((key) => {
@@ -108,7 +112,9 @@ const appFormat = printf((arg) => {
             throw new Error(`${key} not allowed in application logs`);
         }
     });
-    if (arg.args && (/info/).test(arg.level) && APPLICATION_LOG_LEVEL === 'info') {
+
+   
+    if (arg.args && /info/.test(arg.level) && APPLICATION_LOG_LEVEL === 'info') {
         const argLite = cloneDeep(arg);
         Object.keys(argLite.args).forEach((key) => {
             if (JSON.stringify(argLite.args[key]).length > MAX_LOGGED_ARG_LENGTH) {
@@ -128,7 +134,6 @@ const appStackDriver = new LoggingWinston({
 const auditStackDriver = new LoggingWinston({
     logName: `${AUDIT_LOGGER_NAME || 'botfront_log_audit'}`,
 });
-
 
 const appLogTransport = [];
 if (!!APPLICATION_LOG_TRANSPORT) {
@@ -174,29 +179,33 @@ const auditLogger = winston.createLogger({
     transports: auditLogTransport,
 });
 
-
 export const getAppLoggerForFile = filename => appLogger.child({ file: filename });
 
 export const getAuditLoggerForFile = label => auditLogger.child({ label });
 
 export const getAppLoggerForMethod = (fileLogger, method, userId, args) => fileLogger.child({ method, userId, args });
-   
+
 export const getAuditLoggerForMethod = (fileLogger, type, userId) => fileLogger.child({ type, userId });
 
-
 const logBeforeApiCall = (logger, text, meta) => {
-    const { data, url } = meta;
-    logger.info(text, { url });
-    logger.debug(`${text} data`, { data, url });
+    const { url } = meta;
+    if (APPLICATION_LOG_LEVEL === 'debug') {
+        logger.debug(text, { ...meta });
+    } else {
+        logger.info(text, { url });
+    }
 };
 
 const logAfterSuccessApiCall = (logger, text, meta) => {
-    const { status, data, url } = meta;
-    logger.info(text, { status, url });
-    if (data) {
-        logger.debug(`${text} data`, { status, url, data });
+    const { status, url } = meta;
+    if (APPLICATION_LOG_LEVEL === 'debug') {
+        logger.debug(text, { ...meta });
+    } else {
+        logger.info(text, { status, url });
     }
 };
+
+const getProperUrl = (baseURL, url) => (/^h/.test(url) ? url : baseURL + url);
 
 export const addLoggingInterceptors = (axios, logger) => {
     let dataType; // this variable will receive a value at request time
@@ -205,18 +214,31 @@ export const addLoggingInterceptors = (axios, logger) => {
     */
     axios.interceptors.request.use(
         (config) => {
-            const { url, data = null, method } = config;
+            const {
+                baseURL, url, data = null, method, params,
+            } = config;
             dataType = data && data.mimeType;
-            logBeforeApiCall(logger, `${method.toUpperCase()} at ${url}`, { url, data });
+            logBeforeApiCall(logger, `${method.toUpperCase()} at ${url}`, {
+                url: getProperUrl(baseURL, url),
+                data,
+                params,
+            });
             return config;
         },
         (error) => {
-            const { url, method } = error;
-            logger.error(`${method} at ${url} failed at request time`, { error, url });
+            const {
+                url, baseURL, data = null, method, params,
+            } = error;
+            logger.error(`${method} at ${url} failed at request time`, {
+                error,
+                data,
+                url: getProperUrl(baseURL, url),
+                params,
+            });
             return Promise.reject(error);
         },
     );
-    
+
     /* Sometimes the content headers are set to json
     however the content in the data property could have another mimeType, that's why there is a double check of the type */
     axios.interceptors.response.use(
@@ -228,17 +250,17 @@ export const addLoggingInterceptors = (axios, logger) => {
                 logAfterSuccessApiCall(
                     logger,
                     `${config.method.toUpperCase()} at ${url} succeeded`,
-                    { status, url },
+                    { status, url, data: 'not an application/json' },
                 );
             } else {
                 const loggedData = checkDataType(dataType, data);
+
                 logAfterSuccessApiCall(
                     logger,
                     `${config.method.toUpperCase()} at ${url} succeeded`,
                     { status, data: loggedData, url },
                 );
             }
-
             return response;
         },
         (error) => {

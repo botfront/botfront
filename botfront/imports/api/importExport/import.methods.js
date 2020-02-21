@@ -22,7 +22,7 @@ if (Meteor.isServer) {
                 importAppLogger,
                 'importProject',
                 Meteor.userId(),
-                { projectFile, apiHost, projectId }
+                { projectFile: 'File', apiHost, projectId },
             );
             const importAxios = axios.create();
             addLoggingInterceptors(importAxios, appMethodLogger);
