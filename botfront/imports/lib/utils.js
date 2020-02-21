@@ -13,6 +13,7 @@ import { checkIfCan } from '../api/roles/roles';
 import { Projects } from '../api/project/project.collection';
 import { NLUModels } from '../api/nlu_model/nlu_model.collection';
 import { getNluModelLanguages } from '../api/nlu_model/nlu_model.utils';
+import { getImageWebhooks } from '../api/graphql/botResponses/mongo/botResponses';
 
 export const formatAxiosError = (method, error) => {
     const { status, statusText } = error.response;
@@ -199,7 +200,6 @@ if (Meteor.isServer) {
                 { url, method, data: loggedData },
             );
 
-            checkIfCan('global-admin');
             check(url, String);
             check(method, String);
             check(data, Object);
@@ -218,6 +218,19 @@ if (Meteor.isServer) {
                 console.log('ERROR: Botfront encountered an error while uploading an image', e);
                 return { status: 500, data: e.message };
             }
+        },
+
+        async 'upload.image' (projectId, data) {
+            check(projectId, String);
+            check(data, Object);
+            checkIfCan('responses:w', projectId);
+            const { deleteImageWebhook: { url, method } } = await getImageWebhooks();
+            if (!url || !method) throw new Meteor.Error('400', 'No image upload webhook defined.');
+            return Meteor.call('axios.requestWithJsonBody', url, method, data, (err, response = {}) => {
+                if (err) throw new Meteor.Error(err);
+                if (response.status !== 200) throw new Meteor.Error('500', 'Image webhook rejected upload.');
+                return response;
+            });
         },
     });
 }
