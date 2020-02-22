@@ -9,7 +9,7 @@
     ]
   },
   {
-    "name": "Dialogue",
+    "name": "Authoring conversations",
     "menu": [
       "Building conversations",
       "Conversation flows",
@@ -18,7 +18,11 @@
     ]
   },
   {
-    "name": "NLU",
+    "name": "Conversational interactions"
+  }
+  ,
+  {
+    "name": "Natural language understanding",
     "menu": [
       "Intents and Entities",
       "Add Training data",
