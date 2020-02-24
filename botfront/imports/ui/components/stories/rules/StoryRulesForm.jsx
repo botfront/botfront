@@ -334,7 +334,7 @@ function StoryRulesForm({
                                         { value: 'init', text: 'Only if no conversation has started' },
                                     ]}
                                 />
-                                <AutoField name='triggerLimit' label='Limits the number of times the rule will be triggered. Leaving it empty lets the event trigger every time the rules match.' />
+                                <AutoField name='triggerLimit' label='Maximum number of times the rule will be triggered. Leaving it empty lets the event trigger every time the rules match.' />
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
                                     <ListField name=''>
                                         <ListItemField name='$' />
