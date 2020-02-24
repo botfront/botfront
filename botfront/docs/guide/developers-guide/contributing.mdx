@@ -78,6 +78,7 @@ You can also add metadata to the log statement to provide more details. However,
 - url
 - data
 - args (prefilled by helper)
+- params
 - status
 - error
 
@@ -87,7 +88,7 @@ logger.log({
   level: 'info',
   message: 'Hello log files!'
 });
-// Synonym with te previous statement
+// Same as the previous statement
 logger.info('Hello again logs');
 
 // a logging statement with metadata
@@ -98,7 +99,7 @@ logger.error('Oh no, something went wrong', {status: 500});
 
 Log statement are formated as follows. Empty fields do not appear.
 ```
-<timestamp> [<level>] : <message> user: <userId> <file> - <method> with <args> url: <url> <status> data: <data>  error: <error> 
+<timestamp> [<level>] : <message> user: <userId> <file> - <method> with <args>  <status> url: <url> params: <params> data: <data>  error: <error> 
 ```
 For example, it looks like this
 ```
