@@ -7,10 +7,32 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const port = process.env.PORT || 8080;
 const app = express();
+const winston = require('winston');
 const { logsTransport } = require('./loggerConfig')
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.raw({ limit: '100mb' }));
+
+const {MAX_LOG_BODY_LENGTH = 1000} = process.env
+
+const checkBodyLength = (meta, key) => (meta
+        && meta[key]
+        && meta[key].body
+        && JSON.stringify(meta[key].body).length > MAX_LOG_BODY_LENGTH)
+
+
+const customFormat = winston.format.printf((arg) => {
+    const {timestamp, level, message, meta} = arg
+    const cleanedMeta = meta
+    if (checkBodyLength(cleanedMeta, 'res')){
+        cleanedMeta.res.body = 'Body is too large.'
+    }
+    if (checkBodyLength(cleanedMeta, 'req')){
+        cleanedMeta.req.body = 'Body is too large.'
+    }
+    return `${timestamp} [${level}]: ${message}  res: ${JSON.stringify(cleanedMeta.res)}  req: ${JSON.stringify(cleanedMeta.req)} `
+});
+
 
 if (process.env.CORS === '*') {
     app.use(cors());
@@ -33,6 +55,10 @@ config().then(async config => {
   
     app.use(expressWinston.logger({
         transports: logsTransport,
+        format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.colorize(),
+            customFormat),
         statusLevels: true,
         metaField: null, //this causes the metadata to be stored at the root of the log entry
         responseField: null, // this prevents the response from being included in the metadata (including body and status code)
