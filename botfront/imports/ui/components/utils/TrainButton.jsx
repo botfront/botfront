@@ -71,7 +71,7 @@ class TrainButton extends React.Component {
             ready,
         } = this.props;
         return ready && (
-            <Can I='nlu-model:x'>
+            <Can I='nlu-data:x'>
                 {this.renderButton(project, instance, popupContent)}
             </Can>
         );

@@ -195,7 +195,7 @@ class NLUModel extends React.Component {
             { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} projectId={projectId} /> },
         ];
 
-        if (can('nlu-model:w', projectId)) {
+        if (can('projects:w', projectId)) {
             tabs.push({ menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} cannotDelete={cannotDelete} language={languageName.text} /> });
         }
         return tabs;
@@ -311,7 +311,7 @@ class NLUModel extends React.Component {
                         <Icon size='small' name='database' />
                         Training Data
                     </Menu.Item>
-                    {can('nlu-model:x') && (
+                    {can('nlu-data:x') && (
                         <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={this.handleMenuItemClick} data-cy='nlu-menu-evaluation'>
                             <Icon size='small' name='percent' />
                             Evaluation

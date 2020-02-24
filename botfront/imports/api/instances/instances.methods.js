@@ -61,7 +61,7 @@ const getConfig = (model) => {
 };
 
 export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
-    checkIfCan('nlu-model:r', getProjectIdFromModelId(model._id));
+    checkIfCan('nlu-data:r', getProjectIdFromModelId(model._id));
     if (!model.training_data) {
         throw Error('Property training_data of model argument is required');
     }
@@ -164,13 +164,13 @@ if (Meteor.isServer) {
         },
 
         async 'rasa.convertToJson'(file, model, outputFormat, host) {
-            checkIfCan('nlu-model:w', getProjectIdFromModelId(model._id));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(model._id));
             check(model, Object);
             check(file, String);
             check(outputFormat, String);
             check(host, String);
             const { language, modelId } = model;
-            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.convertToJson',
@@ -270,7 +270,7 @@ if (Meteor.isServer) {
         },
 
         async 'rasa.train'(projectId, instance) {
-            checkIfCan('nlu-model:x', projectId);
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(instance, Object);
             const appMethodLogger = getAppLoggerForMethod(
@@ -330,7 +330,7 @@ if (Meteor.isServer) {
         },
 
         'rasa.evaluate.nlu'(modelId, projectId, testData) {
-            checkIfCan('nlu-model:x', projectId);
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));

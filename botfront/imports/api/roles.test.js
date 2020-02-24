@@ -49,9 +49,7 @@ const projectData = {
 const roles = [
     'nlu-data:r',
     'nlu-data:w',
-    'nlu-model:r',
-    'nlu-model:w',
-    'nlu-model:x',
+    'nlu-data:x',
     'responses:r',
     'responses:w',
     'stories:r',
@@ -80,8 +78,6 @@ const readers = {
     nluData: [
         'nlu-data:r',
         'nlu-data:w',
-        'nlu-model:r',
-        'nlu-model:w',
         'stories:r',
         'stories:w',
         'triggers:r',
@@ -155,7 +151,6 @@ const readers = {
 const writers = {
     nluData: [
         'nlu-data:w',
-        'nlu-model:w',
         'incoming:w',
         'global-admin',
     ],
@@ -164,7 +159,7 @@ const writers = {
         'global-admin',
     ],
     nluModel: [
-        'nlu-model:w',
+        'nlu-data:w',
         'global-admin',
     ],
     analytics: [
@@ -173,7 +168,7 @@ const writers = {
     ],
     activity: [
         'nlu-data:w',
-        'nlu-model:w',
+        'nlu-data:w',
         'incoming:w',
         'global-admin',
     ],
@@ -209,7 +204,7 @@ const writers = {
 
 const otherRoles = {
     nluModelX: [
-        'nlu-model:x',
+        'nlu-data:x',
         'global-admin',
     ],
 };

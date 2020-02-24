@@ -51,9 +51,7 @@ const formatRoles = (roles, project) => ({ roles: [{ roles, project }] });
 const roles = [
     'nlu-data:r',
     'nlu-data:w',
-    'nlu-model:r',
-    'nlu-model:w',
-    'nlu-model:x',
+    'nlu-data:x',
     'responses:r',
     'responses:w',
     'stories:r',
@@ -78,8 +76,6 @@ const readers = {
     nluData: [
         'nlu-data:r',
         'nlu-data:w',
-        'nlu-model:r',
-        'nlu-model:w',
         'stories:r',
         'stories:w',
         'triggers:r',
@@ -138,7 +134,6 @@ const writers = {
     ],
     activity: [
         'nlu-data:w',
-        'nlu-model:w',
         'incoming:w',
         'global-admin',
     ],

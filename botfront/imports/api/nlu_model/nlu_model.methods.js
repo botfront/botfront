@@ -200,7 +200,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'nlu.insert'(item, projectId) {
-            checkIfCan('nlu-model:w', projectId);
+            checkIfCan('nlu-data:w', projectId);
             check(item, Object);
             check(projectId, String);
 
@@ -223,7 +223,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.update'(modelId, item) {
-            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(item, Object);
             check(modelId, String);
 
@@ -232,7 +232,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.update.general'(modelId, item) {
-            checkIfCan('nlu-model:x', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:x', getProjectIdFromModelId(modelId));
             check(item, Object);
             check(modelId, String);
 
@@ -249,7 +249,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.remove'(modelId, projectId) {
-            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(projectId, String);
             // check the default language of project and the language of model

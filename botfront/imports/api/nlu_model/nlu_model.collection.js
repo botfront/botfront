@@ -28,7 +28,7 @@ if (Meteor.isServer) {
     // without having to download all the training data.
     // Thus greatly reducing the load times
     Meteor.publish('nlu_models.lite', function (projectId) {
-        checkIfCan(['nlu-model:r', 'responses:r', 'projects:r'], projectId);
+        checkIfCan(['nlu-data:r', 'responses:r', 'projects:r'], projectId);
         check(projectId, String);
         const models = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
         return NLUModels.find({ _id: { $in: models.nlu_models } }, {

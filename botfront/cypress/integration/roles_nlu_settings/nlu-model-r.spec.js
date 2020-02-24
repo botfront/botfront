@@ -2,12 +2,12 @@
 
 const email = 'nlumodelr@test.ia';
 
-describe('nlu-model:r role permissions', function() {
+describe('nlu-data:r role permissions', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.login();
         cy.get('@bf_project_id').then((id) => {
-            cy.createUser('nlu-model:r', email, ['nlu-model:r'], id);
+            cy.createUser('nlu-data:r', email, ['nlu-data:r'], id);
         });
         cy.logout();
     });

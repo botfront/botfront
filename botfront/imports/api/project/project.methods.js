@@ -123,7 +123,7 @@ if (Meteor.isServer) {
         },
 
         'project.markTrainingStarted'(projectId) {
-            checkIfCan('nlu-model:x', projectId);
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             try {
                 return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
@@ -133,7 +133,7 @@ if (Meteor.isServer) {
         },
 
         'project.markTrainingStopped'(projectId, status, error) {
-            checkIfCan('nlu-model:x', projectId);
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(status, String);
             check(error, Match.Optional(String));

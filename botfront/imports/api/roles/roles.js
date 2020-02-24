@@ -35,19 +35,15 @@ if (Meteor.isServer) {
         createRole('nlu-data:r', 'Can read NLU data.');
         createRole('nlu-data:w', 'Can write NLU data. Extends nlu-data:r');
         Roles.addRolesToParent('nlu-data:r', 'nlu-data:w');
-    
-        createRole('nlu-model:r', 'Can read NLU model data and meta information (language). Extends nlu-data:r.');
-        Roles.addRolesToParent('nlu-data:r', 'nlu-model:r');
-        createRole('nlu-model:w', 'Can add, edit and remove NLU data and models (add or remove languages to a project). Extends nlu-model:r, nlu-data:w.');
-        Roles.addRolesToParent(['nlu-model:r', 'nlu-data:w'], 'nlu-model:w');
-        createRole('nlu-model:x', 'Can train a model.');
+
+        createRole('nlu-data:x', 'Can train a model.');
     
         createRole('responses:r', 'Can read bot responses.');
         createRole('responses:w', 'Can create, delete and edit bot responses. Extends responses:r.');
         Roles.addRolesToParent('responses:r', 'responses:w');
 
-        createRole('stories:r', 'Can read story content. Extends `nlu-data:r`, `nlu-model:r`');
-        Roles.addRolesToParent(['responses:r', 'nlu-model:r'], 'stories:r');
+        createRole('stories:r', 'Can read story content. Extends `nlu-data:r`, `nlu-data:r`');
+        Roles.addRolesToParent(['responses:r', 'nlu-data:r'], 'stories:r');
         createRole('stories:w', 'Can read story content. Extends `stories:r`');
         Roles.addRolesToParent(['stories:r'], 'stories:w');
 
@@ -86,7 +82,7 @@ if (Meteor.isServer) {
 
 
         createRole('global-admin');
-        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-model:w', 'nlu-model:x', 'triggers:w', 'responses:w', 'stories:w', 'roles:r', 'roles:w', 'analytics:r', 'incoming:w', 'global-settings:w'], 'global-admin');
+        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-data:x', 'triggers:w', 'responses:w', 'stories:w', 'roles:r', 'roles:w', 'analytics:r', 'incoming:w', 'global-settings:w'], 'global-admin');
     };
 
     Meteor.startup(function() {

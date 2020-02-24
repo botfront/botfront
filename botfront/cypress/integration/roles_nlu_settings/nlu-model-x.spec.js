@@ -2,13 +2,13 @@
 
 const email = 'nlumodelx@test.ia';
 
-describe('nlu-model:x role permissions', function() {
+describe('nlu-data:x role permissions', function() {
     before(function() {
         cy.fixture('bf_project_id.txt').as('bf_project_id');
         cy.fixture('bf_model_id.txt').as('bf_model_id');
         cy.login();
         cy.get('@bf_project_id').then((id) => {
-            cy.createUser('nlu-model:x', email, ['nlu-model:x'], id);
+            cy.createUser('nlu-data:x', email, ['nlu-data:x'], id);
         });
         cy.fixture('bf_model_id.txt').then((modelId) => {
             cy.addTestActivity(modelId);
@@ -39,7 +39,7 @@ describe('nlu-model:x role permissions', function() {
     });
 
     it('should NOT be able to delete a model through Meteor.call', function() {
-        // First a model needs to be created which would then be deleted by nlu-model:w
+        // First a model needs to be created which would then be deleted by nlu-data:w
         cy.MeteorCall('nlu.remove', [
             this.bf_model_id,
             this.bf_project_id,

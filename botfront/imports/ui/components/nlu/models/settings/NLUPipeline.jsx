@@ -58,7 +58,7 @@ export default class NLUPipeline extends React.Component {
     render() {
         const { saved, showConfirmation } = this.state;
         const { projectId } = this.props;
-        const isDisabled = !(can('nlu-model:x', projectId));
+        const isDisabled = !(can('nlu-data:x', projectId));
         return (
             <Tab.Pane>
                 <AutoForm schema={new SimpleSchema2Bridge(new SimpleSchema(this.schema))} model={this.sparseModel()} onSubmit={this.handleSave} disabled={isDisabled}>
