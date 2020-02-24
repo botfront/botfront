@@ -45,7 +45,7 @@ exports.importConversation = async function(req, res) {
     try {
         if (!project) throw { code: 401, error: 'unauthorized' };
 
-        const oldestImport = await getOldestTimeStamp(env);
+        const latestImport = await getLatestImportTimeStamp(env);
         const { toAdd, notValids } = createConversationsToAdd(
             conversations,
             env,
@@ -67,7 +67,7 @@ exports.importConversation = async function(req, res) {
                     await logUtterancesFromTracker(
                         projectId,
                         conversation.tracker,
-                        (event) => event.timestamp > oldestImport,
+                        (event) => event.timestamp > latestImport,
                         env,
                     );
             }),
@@ -97,18 +97,17 @@ const formatsErrorsSummary = function(notValids) {
     return formatsError;
 };
 
-// wrong name, its actually the latest
-const getOldestTimeStamp = async function(env) {
-    const lastestAddition = await Conversations.findOne({ env: env })
-        .select('updatedAt')
-        .sort('-updatedAt')
+const getLatestImportTimeStamp = async function(env) {
+    const latestAddition = await Conversations.findOne({ env: env })
+        .select('tracker.latest_event_time')
+        .sort('-tracker.latest_event_time')
         .lean()
         .exec();
-    if (lastestAddition) return Math.floor(lastestAddition.updatedAt / 1000);
+    if (latestAddition) return Math.floor(latestAddition.tracker.latest_event_time);
     return 0;
 };
 
-exports.lastestImportValidator = [
+exports.latestImportValidator = [
     param('env', 'environement should be one of: production, staging, development').isIn([
         'production',
         'staging',
@@ -116,7 +115,7 @@ exports.lastestImportValidator = [
     ]),
 ];
 
-exports.lastestImport = async function(req, res) {
+exports.latestImport = async function(req, res) {
     const paramsErrors = validationResult(req);
     if (!paramsErrors.isEmpty())
         return res.status(422).json({ errors: paramsErrors.array() });
@@ -126,8 +125,8 @@ exports.lastestImport = async function(req, res) {
     try {
         const project = await getVerifiedProject(projectId, req);
         if (!project) throw { code: 401, error: 'unauthorized' };
-        const oldest = await getOldestTimeStamp(env);
-        return res.status(200).json({ timestamp: oldest });
+        const latest = await getLatestImportTimeStamp(env);
+        return res.status(200).json({ timestamp: latest });
     } catch (err) {
         return res.status(err.code || 500).json(err);
     }
