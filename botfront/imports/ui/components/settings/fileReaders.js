@@ -191,6 +191,12 @@ export const useDatasetFileReader = ({
                 ? languageFromFirstLine
                 : (newFallbackImportLanguage || fallbackImportLanguage);
         };
+        const getCanonical = (rawText) => {
+            const start = rawText.split('# canonical')[1] || '';
+            const canonicalAndEnd = start.split('\n\n');
+            const canonical = canonicalAndEnd.length > 1 ? canonicalAndEnd[0] : '';
+            return canonical.split('\n- ');
+        };
         if (deleteInstruction) {
             const index = findFileInFileList(fileList, deleteInstruction);
             if (index < 0) return fileList;
@@ -209,6 +215,7 @@ export const useDatasetFileReader = ({
                     if (!projectLanguages.includes(language)) {
                         return update(setFileList, f, { errors: [`Dataset detected for language ${language}, but no such language used by project.`] });
                     }
+                    const canonical = getCanonical(reader.result);
                     
                     Meteor.call('rasa.convertToJson', reader.result, language, 'json', instanceHost, (err, res) => {
                         if (err || !res.data || !res.data.rasa_nlu_data) {
@@ -219,9 +226,9 @@ export const useDatasetFileReader = ({
                         delete data.lookup_tables; // to do: gazette from look up tables,
                         // caveat: conversion route can't be used since tables are found in external text files
                         delete data.regex_features; // to do: regex features
-                        return update(setFileList, f, { language, rasa_nlu_data: data });
+                        return update(setFileList, f, { language, rasa_nlu_data: data, canonical });
                     });
-                    return update(setFileList, f, { language, rawText: reader.result });
+                    return update(setFileList, f, { language, rawText: reader.result, canonical });
                 };
             });
             return [...fileList, ...addInstruction.map(f => base(f))];

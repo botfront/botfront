@@ -83,6 +83,7 @@ export const handleImportDataset = (files, { projectId, fileReader, setImporting
             projectId,
             f.language,
             false,
+            f.canonical,
             wrapMeteorCallback((err) => {
                 if (!err) {
                     fileReader[1]({

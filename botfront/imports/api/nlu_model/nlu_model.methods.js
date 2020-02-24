@@ -298,7 +298,7 @@ if (Meteor.isServer) {
             return NLUModels.update({ _id: modelId }, { $set: { chitchat_intents: intents } });
         },
 
-        'nlu.import'(nluData, projectId, language, overwrite) {
+        'nlu.import'(nluData, projectId, language, overwrite, canonicalExamples = []) {
             check(nluData, Object);
             check(projectId, String);
             check(language, String);
@@ -314,7 +314,11 @@ if (Meteor.isServer) {
                 let commonExamples; let entitySynonyms; let fuzzyGazette;
 
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
-                    commonExamples = nluData.common_examples.map(e => ({ ...e, _id: uuidv4() }));
+                    commonExamples = nluData.common_examples.map(e => ({
+                        ...e,
+                        _id: uuidv4(),
+                        canonical: canonicalExamples.includes(e.text),
+                    }));
                     commonExamples = {
                         'training_data.common_examples': overwrite
                             ? commonExamples

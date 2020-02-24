@@ -5,7 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import { saveAs } from 'file-saver';
 import {
-    Dropdown, Button, Message, Icon, Checkbox, List,
+    Dropdown, Button, Message, Icon, Checkbox,
 } from 'semantic-ui-react';
 
 import { Projects } from '../../../api/project/project.collection';
@@ -13,7 +13,7 @@ import { Projects } from '../../../api/project/project.collection';
 import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
 const ExportProject = ({
-    projectId, projectLanguages, setLoading, apiHost,
+    projectId, projectLanguages, setLoading, apiHost, workingLanguage,
 }) => {
     const getExportTypeOptions = () => [
         {
@@ -30,7 +30,7 @@ const ExportProject = ({
         },
     ];
     const [exportType, setExportType] = useState(getExportTypeOptions()[1]);
-    const [exportLanguage, setExportLanguage] = useState('all');
+    const [exportLanguage, setExportLanguage] = useState(projectLanguages.length > 1 ? 'all' : workingLanguage);
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState({
         header: 'Export Failed',
@@ -269,12 +269,6 @@ const ExportProject = ({
                                     </b>
                                     .
                                 </p>
-                                <h5>NLU examples</h5>
-                                <p>
-                                    When reimported into Botfront, NLU examples will lose
-                                    their canonical specification. This will be addressed
-                                    in a future release.
-                                </p>
                                 <h5>Credentials and endpoints</h5>
                                 <p>
                                     In most cases, you do not need to change credentials
@@ -333,6 +327,7 @@ ExportProject.propTypes = {
     projectLanguages: PropTypes.array.isRequired,
     setLoading: PropTypes.func.isRequired,
     apiHost: PropTypes.string.isRequired,
+    workingLanguage: PropTypes.string.isRequired,
 };
 
 const ExportProjectContainer = withTracker(({ projectId }) => {
@@ -346,6 +341,7 @@ const ExportProjectContainer = withTracker(({ projectId }) => {
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 export default connect(mapStateToProps)(ExportProjectContainer);

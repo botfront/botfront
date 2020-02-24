@@ -173,7 +173,7 @@ if (Meteor.isServer) {
                     host,
                 },
             );
-           
+
             const client = axios.create({
                 baseURL: host,
                 timeout: 100 * 1000,
@@ -233,7 +233,11 @@ if (Meteor.isServer) {
                         output_format: 'md',
                         language: currentLang,
                     });
-                    nlu[currentLang] = { data: `# lang:${currentLang}\n\n${data.data}` };
+                    const canonical = nluModels[i].training_data.common_examples.filter(e => e.canonical).map(e => e.text);
+                    const canonicalText = canonical.length
+                        ? `\n\n# canonical\n- ${canonical.join('\n- ')}`
+                        : '';
+                    nlu[currentLang] = { data: `# lang:${currentLang}${canonicalText}\n\n${data.data}` };
                     config[currentLang] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
                 const { stories, domain } = await getStoriesAndDomain(projectId, language);

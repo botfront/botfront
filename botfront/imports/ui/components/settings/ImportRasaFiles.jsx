@@ -291,12 +291,6 @@ const ImportRasaFiles = (props) => {
                         Import NLU examples, synonyms and gazettes. Items are added to
                         your current collection.
                     </p>
-
-                    <p>
-                        Note that examples previously exported from Botfront and
-                        reimported here will lose their canonical specification. This will
-                        be addressed in a future release.
-                    </p>
                 </>
             ),
         },
