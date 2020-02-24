@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.3-ee.3](https://github.com/botfront/botfront/compare/v0.19.3-ee.2...v0.19.3-ee.3) (2020-02-24)
+
+
+### Features
+
+* download conversations from conversations ui ([a151df1](https://github.com/botfront/botfront/commit/a151df1876b8663f8d77a7c7e0082445559cfb7a))
+* trigger limit on story rules ([bf5c06a](https://github.com/botfront/botfront/commit/bf5c06a8bfbaaa9047155d14a3f6decb49baf344))
+
+
+### Bug Fixes
+
+* axios with json was not logged ([f2dd10f](https://github.com/botfront/botfront/commit/f2dd10f01dd3546342af48e160befa42da2721ed))
+* change of logging level ([bcf8daf](https://github.com/botfront/botfront/commit/bcf8dafb4e250bfbd6e0837627c6857b1076922f))
+* changing environment disables filtering ([8e7e736](https://github.com/botfront/botfront/commit/8e7e7367d07a2c6e6c95dc89bd3550a4abda5c70))
+* error were still displayed after disabling page change call backs ([46867cd](https://github.com/botfront/botfront/commit/46867cd1580f3f391e356f29f25e6e0a1a0861c1))
+* use latest_invent_time instead of updated at ([56d754d](https://github.com/botfront/botfront/commit/56d754db7bb820b16e12ed05bb89d05cdbc63f68))
+
 ### [0.19.3-ee.2](https://github.com/botfront/botfront/compare/v0.19.3-ee.1...v0.19.3-ee.2) (2020-02-19)
 
 
