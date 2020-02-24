@@ -1,16 +1,17 @@
 import { DDPRateLimiter } from 'meteor/ddp-rate-limiter';
 import { Accounts } from 'meteor/accounts-base';
 import dotenv from 'dotenv';
-
 import { createGraphQLPublication } from 'meteor/swydo:ddp-apollo';
 import { makeExecutableSchema } from 'graphql-tools';
 import { typeDefs, resolvers } from '../imports/api/graphql/index';
 import { getAppLoggerForFile } from './logger';
 
+
 const fileAppLogger = getAppLoggerForFile(__filename);
 
 Meteor.startup(function() {
     if (Meteor.isServer) {
+        const packageInfo = require('./../package.json');
         const schema = makeExecutableSchema({
             typeDefs,
             resolvers,
@@ -46,6 +47,6 @@ Meteor.startup(function() {
             300000,
         );
 
-        fileAppLogger.info(`Botfront ${process.env.npm_package_version} started`);
+        fileAppLogger.info(`Botfront ${packageInfo.version} started`);
     }
 });
