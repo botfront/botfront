@@ -68,7 +68,7 @@ const auditFormat = printf((arg) => {
 
 const checkDataType = (dataType, data) => {
     if (dataType && dataType !== 'application/json') {
-        return `Data is ${dataType} and is not logged`;
+        return 'Data too big to be logged';
     }
     return data;
 };
@@ -246,21 +246,15 @@ export const addLoggingInterceptors = (axios, logger) => {
             const { config, status, data = null } = response;
             const { url } = config;
             // we don't log files or others data type that are not json
-            if (response.headers['content-type'] !== 'application/json') {
-                logAfterSuccessApiCall(
-                    logger,
-                    `${config.method.toUpperCase()} at ${url} succeeded`,
-                    { status, url, data: 'not an application/json' },
-                );
-            } else {
-                const loggedData = checkDataType(dataType, data);
+          
+            const loggedData = checkDataType(dataType, data);
 
-                logAfterSuccessApiCall(
-                    logger,
-                    `${config.method.toUpperCase()} at ${url} succeeded`,
-                    { status, data: loggedData, url },
-                );
-            }
+            logAfterSuccessApiCall(
+                logger,
+                `${config.method.toUpperCase()} at ${url} succeeded`,
+                { status, data: loggedData, url },
+            );
+            
             return response;
         },
         (error) => {
