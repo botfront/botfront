@@ -36,6 +36,7 @@ const projectData = {
     defaultLanguage: 'en',
     defaultDomain: {
         content:
+            // eslint-disable-next-line max-len
             'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
     },
     nluThreshold: 0.75,
@@ -490,7 +491,7 @@ const methods = [
     },
     {
         name: 'stories.removeCheckpoints',
-        roles: writers.triggers,
+        roles: writers.stories,
         args: [projectId],
     },
     {

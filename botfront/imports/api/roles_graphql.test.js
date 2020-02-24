@@ -36,6 +36,7 @@ const projectData = {
     defaultLanguage: 'en',
     defaultDomain: {
         content:
+            // eslint-disable-next-line max-len
             'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
     },
     nluThreshold: 0.75,
@@ -381,7 +382,6 @@ const testQl = async (testfunc, role, scope, args) => {
         await createTestUser();
         await createProject();
         await setUserScopes(role, scope);
-        console.log('setup complete');
         const result = testfunc({}, args, { user: { _id: 'testuserid' } });
         return result;
     } catch (e) {
@@ -396,7 +396,6 @@ describe('graphQL Roles', () => {
             it(`call ${endpoint.name} ${role} with a global scope`, (done) => {
                 testQl(endpoint.query, role, 'GLOBAL', endpoint.args)
                     .then((result) => {
-                        console.log('resolved');
                         if (endpoint.acceptedRoles.includes(role)) {
                             expect((result || {}).error).to.not.equal('403');
                         } else {
@@ -405,7 +404,6 @@ describe('graphQL Roles', () => {
                         done();
                     })
                     .catch((result) => {
-                        console.log('rejected');
                         if (endpoint.acceptedRoles.includes(role)) {
                             expect((result || {}).error).to.not.equal('403');
                         } else {
@@ -417,7 +415,6 @@ describe('graphQL Roles', () => {
             it(`call ${endpoint.name} ${role} with the right project scope`, (done) => {
                 testQl(endpoint.query, role, 'bf', endpoint.args)
                     .then((result) => {
-                        console.log('resolved');
                         if (endpoint.acceptedRoles.includes(role) && !endpoint.rejectProjectScope) {
                             expect((result || {}).error).to.not.equal('403');
                         } else {
@@ -426,7 +423,6 @@ describe('graphQL Roles', () => {
                         done();
                     })
                     .catch((result) => {
-                        console.log('rejected');
                         if (endpoint.acceptedRoles.includes(role) && !endpoint.rejectProjectScope) {
                             expect((result || {}).error).to.not.equal('403');
                         } else {
@@ -438,12 +434,10 @@ describe('graphQL Roles', () => {
             it(`call ${endpoint.name} ${role} with the wrong scope`, (done) => {
                 testQl(endpoint.query, role, 'DNE', endpoint.args)
                     .then((result) => {
-                        console.log('resolved');
                         expect((result || {}).error).to.be.equal('403');
                         done();
                     })
                     .catch((result) => {
-                        console.log('rejected');
                         expect((result || {}).error).to.be.equal('403');
                         done();
                     });
