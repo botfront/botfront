@@ -12,7 +12,7 @@ const utteranceCtrl = require('../server/activity/activity.controller');
 const { getSenderEventCount, insertConversation, updateConversation } = require('./conversations');
 const { getProjectCredentials } = require('../server/credentials/credentials.controller');
 const { getProjectEndpoints } = require('../server/endpoints/endpoints.controller');
-const { importConversation, importConversationValidator, lastestImport, lastestImportValidator } = require('../server/imports/imports.controller');
+const { importConversation, importConversationValidator, latestImport, latestImportValidator } = require('../server/imports/imports.controller');
 const {
     exportProject,
     exportProjectValidator,
@@ -50,7 +50,7 @@ router.delete('/image/delete', deleteImageValidator, deleteImage);
 router.get('/health-check', (req, res) => res.status(200).json());
 
 router.post('/conversations/:project_id/environment/:env', importConversationValidator, importConversation);
-router.get('/conversations/:project_id/environment/:env/latest-imported-event', lastestImportValidator, lastestImport);
+router.get('/conversations/:project_id/environment/:env/latest-imported-event', latestImportValidator, latestImport);
 
 
 module.exports = router;

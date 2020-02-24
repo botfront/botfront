@@ -28,7 +28,7 @@ if (Meteor.isServer) {
             const appMethodLogger = getAppLoggerForMethod(
                 exportAppLogger,
                 'exportProject',
-                Meteor.userId,
+                Meteor.userId(),
                 { apiHost, projectId, options },
             );
             const params = { ...options };
