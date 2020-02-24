@@ -1,6 +1,7 @@
 
 const { LoggingWinston } = require('@google-cloud/logging-winston');
 const winston = require('winston');
+const packageInfo = require('./package.json');
 const {
     APPLICATION_API_LOG_LEVEL, APPLICATION_API_LOG_TRANSPORT, APPLICATION_API_LOGGER_NAME, MAX_LOG_BODY_LENGTH = 1000,
 } = process.env;
@@ -22,7 +23,7 @@ if (!!APPLICATION_API_LOG_TRANSPORT) {
 
 
 
-const checkBodyLength = (meta, key) => (meta
+const checkBodyLength = (meta, key) => (meta !==undefined
     && meta[key]
     && meta[key].body
     && JSON.stringify(meta[key].body).length > MAX_LOG_BODY_LENGTH);
@@ -30,15 +31,27 @@ const checkBodyLength = (meta, key) => (meta
 
 const customFormat = winston.format.printf((arg) => {
     const {timestamp, level, message, meta} = arg
-    const cleanedMeta = meta
+    const cleanedMeta = meta || ''
     if (checkBodyLength(cleanedMeta, 'res')){
         cleanedMeta.res.body = 'Body is too large.'
     }
     if (checkBodyLength(cleanedMeta, 'req')){
         cleanedMeta.req.body = 'Body is too large.'
     }
-    return `${timestamp} [${level}]: ${message}  res: ${JSON.stringify(cleanedMeta.res)}  req: ${JSON.stringify(cleanedMeta.req)} `
+    if (cleanedMeta !== '')
+        return `${timestamp} [${level}]: ${message}  res: ${JSON.stringify(cleanedMeta.res)}  req: ${JSON.stringify(cleanedMeta.req)} `
+    return `${timestamp} [${level}]: ${message}`
 });
 
 
-module.exports = { logsTransport, customFormat };
+const winstonInstance= winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.colorize(),
+        customFormat),
+    transports: logsTransport,
+});
+
+winstonInstance.info(`Botfront api ${packageInfo.version} started`)
+
+module.exports = { winstonInstance, logsTransport };
