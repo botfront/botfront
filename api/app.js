@@ -7,7 +7,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const port = process.env.PORT || 8080;
 const app = express();
-const { logsTransport } = require('./loggerConfig')
+const winston = require('winston');
+const { logsTransport, customFormat } = require('./loggerConfig')
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.raw({ limit: '100mb' }));
@@ -33,6 +34,10 @@ config().then(async config => {
   
     app.use(expressWinston.logger({
         transports: logsTransport,
+        format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.colorize(),
+            customFormat),
         statusLevels: true,
         metaField: null, //this causes the metadata to be stored at the root of the log entry
         responseField: null, // this prevents the response from being included in the metadata (including body and status code)

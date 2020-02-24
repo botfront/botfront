@@ -68,7 +68,7 @@ const auditFormat = printf((arg) => {
 
 const checkDataType = (dataType, data) => {
     if (dataType && dataType !== 'application/json') {
-        return 'Data too big to be logged';
+        return 'Too much data.';
     }
     return data;
 };
@@ -90,14 +90,14 @@ const appLogToString = (arg) => {
     } = arg;
     let loggedData = data;
     if (data && data.mimeType) loggedData = checkDataType(data.mimeType, data);
-    if (loggedData && JSON.stringify(loggedData).length > MAX_LOGGED_DATA_LENGTH) loggedData = 'Data too long to be logged';
+    if (loggedData && JSON.stringify(loggedData).length > MAX_LOGGED_DATA_LENGTH) loggedData = 'Too much data.';
     // the log is from a method
     if (method && args) {
         return `${timestamp} [${level}] : ${message} ${
             userId ? `user: ${userId}` : ''
         } ${file} - ${method} with ${JSON.stringify(args)}${spaceBeforeIfExist(status)} ${
             url ? `url: ${url}` : ''
-        } params: ${JSON.stringify(params)} ${
+        } ${params ? `params: ${JSON.stringify(params)}` : ''} ${
             loggedData ? `data: ${JSON.stringify(loggedData)}` : ''
         } ${error ? `error: ${error}` : ''}`;
     }

@@ -154,6 +154,8 @@ The following table list environment variables used to configure logging within 
 | `MAX_LOGGED_DATA_LENGTH`        | Maximum length of stringified `data` in request to the api for readability and data usage concerns.                                                                        | Any positive integer               | 100                  |
 | `APPLICATION_API_LOGGER_NAME`   | The name of the api application logger in Stackdriver                                                                                                                      | Any string                         | botfront-api_log_app |
 | `APPLICATION_API_LOG_TRANSPORT` | Where the api application log are written                                                                                                                                  | console, stackdriver               | console              |
+| `APPLICATION_API_LOG_LEVEL`     | Minimal severity of logs for the api                                                                                                                                       | error, warn, info, debug           | info                 |
+| `MAX_LOG_BODY_LENGTH`           | Maximum length of stringified `body` in logged request or response from the api                                                                                            | Any positive integer               | 100                  |
 
 ## Volumes
 
