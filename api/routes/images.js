@@ -46,7 +46,16 @@ exports.uploadImage = async function(req, res) {
                 const response = await uploadFileToGcs(filename, bucket);
                 return res.status(200).json({ uri: response[0].metadata.mediaLink });
             } catch (err) {
-                return res.status(err.code || 500).json(err);
+                /* we should not use the status within the error,
+                 as the client will get the error from gcs and that could be misleading
+                 e.g with a 404 from the gcs,
+                 the client will get a 404 implying that the route he is trying to use do not exist
+                 the only correct one is 502: Bad Gateway or Proxy Error */
+                if (err.code === 404) {
+                    if (err.response && err.response.request && err.response.request.href)
+                        err.message = (`${err.response.request.href} `).concat(err.message)
+                }
+                return res.status(502).json(err);
             }
         });
     } catch (err) {
