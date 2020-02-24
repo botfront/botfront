@@ -113,7 +113,7 @@ if (Meteor.isServer) {
             try {
                 const axiosJson = axios.create();
                 addLoggingInterceptors(axiosJson, appMethodLogger);
-                const response = await axios({ url, method, data });
+                const response = await axiosJson({ url, method, data });
                 const { status, data: responseData } = response;
                 return { status, data: responseData };
             } catch (e) {
