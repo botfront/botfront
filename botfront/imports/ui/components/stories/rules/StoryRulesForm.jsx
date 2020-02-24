@@ -142,6 +142,7 @@ function StoryRulesForm({
 
     const TriggerSchema = new SimpleSchema({
         // NOTE:  __DISPLAYIF fields must be added to the optionalFields array
+        triggerLimit: { type: Number, optional: true },
         url: { type: Array, optional: true },
         'url.$': { type: String, optional: false, regEx: noSpaces },
         url__DISPLAYIF: { type: Boolean, optional: true },
@@ -333,6 +334,7 @@ function StoryRulesForm({
                                         { value: 'init', text: 'Only if no conversation has started' },
                                     ]}
                                 />
+                                <AutoField name='triggerLimit' label='Limits the number of times the rule will be triggered. Leaving it empty lets the event trigger every time the rules match.' />
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
                                     <ListField name=''>
                                         <ListItemField name='$' />
