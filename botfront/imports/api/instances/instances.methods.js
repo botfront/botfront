@@ -198,7 +198,7 @@ if (Meteor.isServer) {
                 { projectId, instance, language },
             );
 
-            appMethodLogger.info('Building training payload ...');
+            appMethodLogger.debug('Building training payload ...');
             const t0 = performance.now();
             const nluModels = NLUModels.find(
                 { _id: { $in: modelIds } },
@@ -244,7 +244,7 @@ if (Meteor.isServer) {
                     fixed_model_name: getProjectModelFileName(projectId),
                 };
                 const t1 = performance.now();
-                appMethodLogger.info(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
+                appMethodLogger.debug(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
                 return payload;
             } catch (e) {
                 const t1 = performance.now();
@@ -264,7 +264,7 @@ if (Meteor.isServer) {
                 { projectId, instance },
             );
 
-            appMethodLogger.info(`Training project ${projectId}...`);
+            appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
             try {
                 const client = axios.create({
@@ -282,7 +282,7 @@ if (Meteor.isServer) {
                 const trainingResponse = await trainingClient.post('/model/train', payload);
                 if (trainingResponse.status === 200) {
                     const t1 = performance.now();
-                    appMethodLogger.info(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`);
+                    appMethodLogger.debug(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`);
                     const { headers: { filename } } = trainingResponse;
                     const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
                     try {
