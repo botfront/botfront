@@ -30,11 +30,10 @@ Meteor.methods({
         const {
             _id, path, ...rest
         } = story;
-        if (!path) {
-            return Stories.update({ _id }, { $set: { ...rest } });
-        }
+        
+        if (!path) return Stories.update({ _id }, { $set: { ...rest } });
         const originStory = Stories.findOne({ _id });
-        const { events: oldEvents } = originStory || {};
+
         // passing story.story and path[(last index)] AKA storyBranchId to aggregate events allows it to aggregate events with the updated story md
         const newEvents = aggregateEvents(originStory, { ...rest, _id: path[path.length - 1] }); // path[(last index)] is the id of the updated branch
 
@@ -50,6 +49,7 @@ Meteor.methods({
         const result = await Stories.update({ _id }, { $set: { ...update, events: newEvents } });
 
         if (!noClean) { // check if a response was removed
+            const { events: oldEvents } = originStory || {};
             const removedEvents = (oldEvents || []).filter(event => event.match(/^utter_/) && !newEvents.includes(event));
             deleteResponsesRemovedFromStories(removedEvents, projectId);
         }

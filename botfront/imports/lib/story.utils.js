@@ -41,7 +41,7 @@ export const traverseStory = (story, path) => path
         },
         {
             branches: story.branches ? [...story.branches] : [],
-            story,
+            story: story.story,
             title: story.title,
             indices: [],
             path: [story._id],

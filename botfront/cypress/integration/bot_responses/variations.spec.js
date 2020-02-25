@@ -12,7 +12,7 @@ describe('Bot responses', function() {
         cy.logout();
     });
     const addVariation = (text) => {
-        cy.dataCy('add-variation').click();
+        cy.dataCy('add-variation').click({ force: true });
         cy.dataCy('metadata-tab').click();
         cy.dataCy('variations-tab').click();
         cy.dataCy('bot-response-input').last().click().find('textarea')

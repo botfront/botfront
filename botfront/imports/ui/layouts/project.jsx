@@ -48,6 +48,7 @@ class Project extends React.Component {
             entities: [],
             intents: [],
             exampleMap: {},
+            responses: {},
         };
     }
 
@@ -193,17 +194,16 @@ class Project extends React.Component {
 
     readResponsesFrag = () => apolloClient.readFragment(this.responsesFrag()) || { responses: {} };
 
-    writeResponsesFrag = responses => apolloClient.writeFragment({
-        ...this.responsesFrag(),
-        data: {
-            responses,
-            __typename: 'Cached',
-        },
-    });
-
-    getResponse = async (template) => {
-        const { responses } = await this.readResponsesFrag();
-        return responses[template];
+    writeResponsesFrag = (responses) => {
+        const newResponses = {
+            ...this.responsesFrag(),
+            data: {
+                responses,
+                __typename: 'Cached',
+            },
+        };
+        apolloClient.writeFragment(newResponses);
+        this.setState({ responses });
     }
 
     setResponse = async (template, content) => {
@@ -283,7 +283,7 @@ class Project extends React.Component {
             changeShowChat,
         } = this.props;
         const {
-            showIntercom, intercomId, resizingChatPane, intents, entities,
+            showIntercom, intercomId, resizingChatPane, intents, entities, responses,
         } = this.state;
 
         return (
@@ -335,7 +335,7 @@ class Project extends React.Component {
                                     language: workingLanguage,
                                     triggerChatPane: this.triggerChatPane,
                                     upsertResponse: this.upsertResponse,
-                                    getResponse: this.getResponse,
+                                    responses,
                                     addResponses: this.addResponses,
                                     addEntity: this.addEntity,
                                     addIntent: this.addIntent,

@@ -14,21 +14,6 @@ describe('Bot responses', function() {
         cy.deleteProject('bf');
     });
 
-    // const createPersistedResponse = () => {
-    //     cy.dataCy('add-story').click();
-    //     cy.dataCy('single-story-editor').last().find('[data-cy=from-text-template]').click({ force: true });
-    //     cy.dataCy('single-story-editor')
-    //         .last()
-    //         .find('[data-cy=bot-response-input]')
-    //         .should('exist');
-
-    //     cy.dataCy('bot-response-input').last().click()
-    //         .find('textarea')
-    //         .clear()
-    //         .type('persistent response')
-    //         .blur();
-    // };
-
     it('Should delete an existing response from the project when it is deleted in a story', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click({ force: true });

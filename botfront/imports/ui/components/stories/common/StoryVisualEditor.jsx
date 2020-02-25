@@ -240,8 +240,8 @@ export default class StoryVisualEditor extends React.Component {
     );
 
     handleBotResponseChange = async (name, newResponse) => {
-        const { upsertResponse, getResponse } = this.context;
-        if (isEqual(getResponse(name), newResponse)) return;
+        const { upsertResponse, responses } = this.context;
+        if (isEqual(responses[name], newResponse)) return;
         upsertResponse(name, newResponse, variationIndex);
     }
 
@@ -249,7 +249,7 @@ export default class StoryVisualEditor extends React.Component {
 
     render() {
         const { story } = this.props;
-        const { getResponse } = this.context;
+        const { responses } = this.context;
         const { language } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
@@ -267,7 +267,7 @@ export default class StoryVisualEditor extends React.Component {
                             deletable
                             exceptions={exceptions}
                             name={name}
-                            initialValue={getResponse(name)}
+                            initialValue={responses[name]}
                             onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
                             onDeleteAllResponses={() => this.handleDeleteLine(index)}
                         />

@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
-import { Map } from 'immutable';
+import { Map as IMap } from 'immutable';
 
 import * as types from '../actions/types';
 import stories from './story.reducer';
 
 /* eslint-disable indent */
 
-const initialState = Map({
+const initialState = IMap({
     projectId: null,
     templatesTablePage: 0,
     templatesTableFilter: '',

@@ -21,22 +21,24 @@ function StoryEditors(props) {
         storyGroups,
         storyGroup,
         collapseAllStories,
-        responsesInFetchedStories,
     } = props;
 
     const { addResponses } = useContext(ProjectContext);
     const [lastUpdate, setLastUpdate] = useState(0);
 
-    const lastDate = useMemo(() => Date.now(), [responsesInFetchedStories]);
+    const lastDate = useMemo(() => Date.now(), [stories.length]);
 
     useEffect(() => {
+        const responsesInFetchedStories = stories.reduce((acc, curr) => [...acc, ...((curr.events || []).filter(
+            event => event.match(/^utter_/) && !acc.includes(event),
+        ))], []);
         if (responsesInFetchedStories.length) {
             addResponses(responsesInFetchedStories, lastDate)
                 .then((res) => {
                     if (res) setLastUpdate(res);
                 });
         } else setLastUpdate(lastDate);
-    }, [responsesInFetchedStories]);
+    }, [stories.length]);
 
     const groupNames = storyGroups
         .map(group => ({
@@ -161,12 +163,10 @@ StoryEditors.propTypes = {
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
     collapseAllStories: PropTypes.func.isRequired,
-    responsesInFetchedStories: PropTypes.array,
 };
 
 StoryEditors.defaultProps = {
     stories: [],
-    responsesInFetchedStories: [],
 };
 
 const StoryEditorsTracker = withTracker((props) => {
@@ -178,14 +178,9 @@ const StoryEditorsTracker = withTracker((props) => {
         storyGroupId: storyGroup._id,
     }).fetch();
 
-    const responsesInFetchedStories = stories.reduce((acc, curr) => [...acc, ...((curr.events || []).filter(
-        event => event.match(/^utter_/) && !acc.includes(event),
-    ))], []);
-
     return {
         ready: storiesHandler.ready(),
         stories,
-        responsesInFetchedStories,
     };
 })(StoryEditors);
 

@@ -1,11 +1,11 @@
-import { Map, List } from 'immutable';
+import { Map as IMap, List as IList } from 'immutable';
 import * as types from '../actions/types';
 
-const initialState = Map({
+const initialState = IMap({
     storyMode: 'visual',
     storyGroupCurrent: 0,
-    savedStoryPaths: Map(),
-    storiesCollapsed: Map(),
+    savedStoryPaths: IMap(),
+    storiesCollapsed: IMap(),
 });
 
 export default function reducer(state = initialState, action) {
@@ -15,7 +15,7 @@ export default function reducer(state = initialState, action) {
     case types.SET_STORY_MODE:
         return state.set('storyMode', action.mode);
     case types.SET_STORY_PATH:
-        return state.setIn(['savedStoryPaths', action.storyId], List(action.path));
+        return state.setIn(['savedStoryPaths', action.storyId], IList(action.path));
     case types.SET_STORY_COLLAPSED:
         return state.setIn(['storiesCollapsed', action.storyId], action.collapsed);
     case types.SET_STORIES_COLLAPSED:

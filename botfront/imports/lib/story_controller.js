@@ -18,7 +18,7 @@ export class StoryController {
         };
         this.md = story;
         this.isABranch = isABranch;
-        this.onMdType = onMdType;
+        this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
         this.saveUpdate = options => onUpdate(this.md, options);
         this.validateStory(false);
     }
@@ -47,6 +47,8 @@ export class StoryController {
 
     setIsBranch = (isABranch) => {
         this.isABranch = isABranch;
+        this.validateStory(false);
+        this.onMdType();
     }
 
     splitLines = () => (
