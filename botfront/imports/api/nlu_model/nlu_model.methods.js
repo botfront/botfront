@@ -303,6 +303,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(language, String);
             check(overwrite, Boolean);
+            check(canonicalExamples, Array);
             /*
                 Right now, overwriting replaces training_data array, and non-overwrite
                 adds items whose filterExistent<identifier> doesn't already exist. Behavior to update existing

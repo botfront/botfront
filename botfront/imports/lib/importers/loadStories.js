@@ -86,17 +86,16 @@ const parseStory = (storyGroupId, fullTitle, lines) => {
     }
 };
 
-export const parseStoryGroup = (storyGroupId, rawText) => `\n${rawText}`
-    .split('\n## ')
-    .filter((_, __, array) => { // no '## *' line detected, not a story file
-        if (array.length < 2) return false;
-        return true;
-    })
-    .filter(s => s.trim())
-    .map((s) => {
-        const [fullTitle, ...lines] = s.replace(/ *<!--([\s\S]*?)-->/, '').split('\n');
-        return parseStory(storyGroupId, fullTitle, lines);
-    });
+export const parseStoryGroup = (storyGroupId, rawText) => {
+    const blocks = `\n${rawText}`.split('\n## ');
+    if (blocks.length < 2) return [];
+    return blocks
+        .filter(s => s.trim())
+        .map((s) => {
+            const [fullTitle, ...lines] = s.replace(/ *<!--([\s\S]*?)-->/, '').split('\n');
+            return parseStory(storyGroupId, fullTitle, lines);
+        });
+};
 
 export const parseStoryGroups = storyGroups => storyGroups.reduce(
     (acc, { _id, rawText }) => [...acc, ...parseStoryGroup(_id, rawText)],

@@ -174,16 +174,12 @@ const StoryEditorContainer = ({
         });
     }, [branchPath]);
 
-    const getExceptionsForPath = path => exceptions[path] && ({
-        ...exceptions[path],
-        warnings: exceptions[path].warnings
-            .filter(storyMode === 'markdown' ? e => e : e => e.code !== 'no_such_response'), // don't show missing template warning in visual mode
-    });
-
     const GetExceptionsLengthByType = exceptionType => (
         // valid types are "errors" and "warnings"
-        exceptions[story._id]
-            ? (getExceptionsForPath(story._id)[exceptionType] || []).length
+        exceptions[story._id] && exceptions[story._id][exceptionType]
+            ? exceptions[story._id][exceptionType]
+                .filter(storyMode === 'markdown' ? e => e : e => e.code !== 'no_such_response') // don't show missing template warning in visual mode
+                .length
             : 0
     );
 
@@ -414,7 +410,7 @@ const StoryEditorContainer = ({
                     <Menu pointing secondary data-cy='branch-menu'>
                         {branches.map((branch, index) => {
                             const childPath = [...pathToRender, branch._id];
-                            const branchLabelExceptions = getExceptionsForPath(childPath.join());
+                            const branchLabelExceptions = exceptions[childPath.join()];
                             return (
                                 <BranchTabLabel
                                     key={childPath.join()}

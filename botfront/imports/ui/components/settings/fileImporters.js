@@ -2,14 +2,14 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import { CREATE_AND_OVERWRITE_RESPONSES as createResponses } from '../templates/mutations';
 import apolloClient from '../../../startup/client/apollo';
 
-export const handleImportStoryGroups = (files, { projectId, fileReader, setImportingState }) => {
+export const handleImportStoryGroups = (files, { projectId, fileReader: [_, setFileList], setImportingState }) => {
     if (!files.length) return;
     setImportingState(true);
     files.forEach(({
         _id, name, parsedStories, filename, lastModified,
     }, idx) => {
         const callback = (error) => {
-            if (!error) fileReader[1]({ delete: { filename, lastModified } });
+            if (!error) setFileList({ delete: { filename, lastModified } });
             if (error || idx === files.length - 1) setImportingState(false);
         };
         Meteor.call(
@@ -27,14 +27,14 @@ export const handleImportStoryGroups = (files, { projectId, fileReader, setImpor
     });
 };
 
-export const handleImportDomain = (files, { projectId, fileReader, setImportingState }) => {
+export const handleImportDomain = (files, { projectId, fileReader: [_, setFileList], setImportingState }) => {
     if (!files.length) return;
     setImportingState(true);
     files.forEach(({
         slots, templates, filename, lastModified,
     }, idx) => {
         const callback = (error) => {
-            if (!error) fileReader[1]({ delete: { filename, lastModified } });
+            if (!error) setFileList({ delete: { filename, lastModified } });
             if (error || idx === files.length - 1) setImportingState(false);
         };
         Meteor.call(
@@ -73,7 +73,7 @@ export const handleImportDomain = (files, { projectId, fileReader, setImportingS
     });
 };
 
-export const handleImportDataset = (files, { projectId, fileReader, setImportingState }) => {
+export const handleImportDataset = (files, { projectId, fileReader: [_, setFileList], setImportingState }) => {
     if (!files.length) return;
     setImportingState(true);
     files.forEach((f, idx) => {
@@ -86,7 +86,7 @@ export const handleImportDataset = (files, { projectId, fileReader, setImporting
             f.canonical,
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    fileReader[1]({
+                    setFileList({
                         delete: {
                             filename: f.filename,
                             lastModified: f.lastModified,
