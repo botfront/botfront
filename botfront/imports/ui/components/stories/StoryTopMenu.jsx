@@ -2,7 +2,7 @@ import {
     Popup, Icon, Menu, Dropdown, Label, Message, Header,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
@@ -13,6 +13,7 @@ import StoryPlayButton from './StoryPlayButton';
 import {
     setStoryCollapsed,
 } from '../../store/actions/actions';
+import Linker from '../Linker';
 
 import { ConversationOptionsContext } from './Context';
 
@@ -51,6 +52,13 @@ const StoryTopMenu = ({
             return;
         }
         onRename(newTitle);
+    };
+
+    const moveStoryPopupTriggerRef = useRef();
+    
+    const handleToggleMoveStoryPopup = (e) => {
+        if (e) e.stopPropagation();
+        openMovePopup(!movePopupOpened);
     };
 
     const handleInputKeyDown = (event) => {
@@ -237,44 +245,46 @@ const StoryTopMenu = ({
                         initPayload={initPayload}
                         className='top-menu-clickable'
                     />
-                    <Popup
-                        trigger={
-                            <Icon name='dolly' data-cy='move-story' className='top-menu-clickable' />
-                        }
-                        content={(
-                            <ConfirmPopup
-                                title='Move story to :'
-                                content={(
-                                    <Dropdown
-                                        button
-                                        openOnFocus
-                                        search
-                                        basic
-                                        placeholder='Select a group'
-                                        fluid
-                                        selection
-                                        value={moveDestination}
-                                        options={groupNames}
-                                        onChange={(e, data) => {
-                                            setMoveDestination(data.value);
-                                        }}
-                                        data-cy='move-story-dropdown'
-                                    />
-                                )}
-                                onYes={() => {
-                                    if (moveDestination) {
-                                        openMovePopup(false);
-                                        onMove(moveDestination);
-                                    }
-                                }}
-                                onNo={() => openMovePopup(false)}
-                            />
-                        )}
-                        on='click'
-                        open={movePopupOpened}
-                        onOpen={() => openMovePopup(true)}
-                        onClose={() => openMovePopup(false)}
-                    />
+                    <Linker onClick={handleToggleMoveStoryPopup} ref={moveStoryPopupTriggerRef}>
+                        <Icon name='dolly' data-cy='move-story' className='top-menu-clickable' />
+                    </Linker>
+                    {!!movePopupOpened && (
+                        <Popup
+                            content={(
+                                <ConfirmPopup
+                                    title='Move story to :'
+                                    content={(
+                                        <Dropdown
+                                            button
+                                            openOnFocus
+                                            search
+                                            basic
+                                            placeholder='Select a group'
+                                            fluid
+                                            selection
+                                            value={moveDestination}
+                                            options={groupNames}
+                                            onChange={(e, data) => {
+                                                setMoveDestination(data.value);
+                                            }}
+                                            data-cy='move-story-dropdown'
+                                        />
+                                    )}
+                                    onYes={() => {
+                                        if (moveDestination) {
+                                            openMovePopup(false);
+                                            onMove(moveDestination);
+                                        }
+                                    }}
+                                    onNo={() => openMovePopup(false)}
+                                />
+                            )}
+                            on='click'
+                            open
+                            context={moveStoryPopupTriggerRef.current}
+                            onClose={handleToggleMoveStoryPopup}
+                        />
+                    )}
                     { /*
                         the story duplication is deactivated for now, it may cause issues with response edition
                         <Icon

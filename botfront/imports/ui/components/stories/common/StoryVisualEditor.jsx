@@ -47,7 +47,7 @@ export default class StoryVisualEditor extends React.Component {
     };
 
     addStoryCursor = React.createRef();
-
+    
     componentDidUpdate(_prevProps, prevState) {
         const { lineInsertIndex } = this.state;
         if (
@@ -58,9 +58,11 @@ export default class StoryVisualEditor extends React.Component {
         }
     }
 
-    menuCloser = () => {};
+    closeMenu = () => { this.menuCloser(); this.menuCloser = () => {}; }
 
     trackOpenMenu = (func) => { this.menuCloser = func; };
+
+    menuCloser = () => {};
 
     handleDeleteLine = (index) => {
         const { story } = this.props;
@@ -296,7 +298,7 @@ export default class StoryVisualEditor extends React.Component {
         });
 
         return (
-            <div className='story-visual-editor' onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}>
+            <div className='story-visual-editor' onMouseLeave={this.closeMenu}>
                 {this.renderAddLine(-1)}
                 {lines}
             </div>

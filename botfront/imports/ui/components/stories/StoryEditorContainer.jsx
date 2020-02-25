@@ -62,7 +62,7 @@ const StoryEditorContainer = ({
     // so we have to use this workaround
     const [editors, setEditors] = useState({});
     const [exceptions, setExceptions] = useState({});
-    const [destinationStory, setDestinationStory] = useState({});
+    const [destinationStory, setDestinationStory] = useState(null);
     const [destinationStories, setDestinationStories] = useState([]);
     const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
     const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);

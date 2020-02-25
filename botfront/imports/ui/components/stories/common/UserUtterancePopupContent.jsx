@@ -4,6 +4,7 @@ import {
     Dropdown, Modal, Button,
 } from 'semantic-ui-react';
 import PayloadEditor from './PayloadEditor';
+import Linker from '../../Linker';
 
 const UserUtterancePopupContent = (props) => {
     const {
@@ -11,13 +12,19 @@ const UserUtterancePopupContent = (props) => {
     } = props;
     const [modalOpen, setModalOpen] = useState(false);
     const [payload, setPayload] = useState({ intent: null, entities: [] });
-    const [menuOpen, setMenuOpen] = useState();
+    const [menuOpen, setMenuOpen] = useState(false);
 
     const payloadValid = () => {
         if (!payload.intent) return false;
         if (payload.entities.length > 0
             && payload.entities.some(e => !e.entity || !e.value || e.value.trim() === '')) return false;
         return true;
+    };
+
+    const handleToggle = (e) => {
+        if (e) e.stopPropagation();
+        setMenuOpen(!menuOpen);
+        if (!menuOpen) trackOpenMenu(() => setMenuOpen(false));
     };
 
     return (
@@ -49,21 +56,19 @@ const UserUtterancePopupContent = (props) => {
                     />
                 </Modal.Actions>
             </Modal>
-            <Dropdown
-                trigger={trigger}
-                className='dropdown-button-trigger'
-                open={menuOpen}
-                onOpen={() => {
-                    setMenuOpen(true);
-                    trackOpenMenu(() => setMenuOpen(false));
-                }}
-                onClose={() => setMenuOpen(false)}
-            >
-                <Dropdown.Menu className='first-column'>
-                    <Dropdown.Item onClick={() => onCreateFromInput()} data-cy='user-line-from-input'>Text</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setModalOpen(true)} data-cy='user-line-from-payload'>Payload</Dropdown.Item>
-                </Dropdown.Menu>
-            </Dropdown>
+            <Linker onClick={handleToggle}>{trigger}</Linker>
+            {!!menuOpen && (
+                <Dropdown
+                    className='dropdown-button-trigger'
+                    onClose={handleToggle}
+                    open
+                >
+                    <Dropdown.Menu className='first-column'>
+                        <Dropdown.Item onClick={() => onCreateFromInput()} data-cy='user-line-from-input'>Text</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setModalOpen(true)} data-cy='user-line-from-payload'>Payload</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+            )}
         </>
     );
 };
