@@ -66,8 +66,15 @@ if (Meteor.isServer) {
             checkIfCan('projects:w', policies.projectId);
             check(policies, Object);
             try {
+                const policyBefore = CorePolicies.findOne({ projectId: policies.projectId });
                 auditLog('Saving policies', {
-                    user: Meteor.user(), type: 'update', operation: 'policies-updated', resId: policies.projectId, after: { policies: policies.policies },
+                    user: Meteor.user(),
+                    type: 'update',
+                    projectId: policies.projectId,
+                    operation: 'policies-updated',
+                    resId: policies.projectId,
+                    before: { policies: policyBefore.policies },
+                    after: { policies: policies.policies },
                 });
                 return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });
             } catch (e) {

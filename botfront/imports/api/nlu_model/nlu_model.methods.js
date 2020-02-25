@@ -42,7 +42,12 @@ Meteor.methods({
                 { fields: { _id: 1 } },
             )._id;
             auditLogIfOnServer('Insert Example in language', {
-                user: Meteor.user(), projectId, resId: modelId, type: 'update', operation: 'nlu-data-updated', after: { items },
+                user: Meteor.user(),
+                projectId,
+                resId: modelId,
+                type: 'update',
+                operation: 'nlu-data-updated',
+                after: { items },
             });
             return await Meteor.callWithPromise('nlu.insertExamples', modelId, items);
         } catch (e) {
@@ -68,7 +73,12 @@ Meteor.methods({
             const pullItemsText = intersectionBy(examples, canonicalizedItems, 'text').map(({ text }) => text);
             NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItemsText } } } });
             auditLogIfOnServer('Insert Example', {
-                user: Meteor.user(), resId: modelId, projectId: getProjectIdFromModelId(modelId), type: 'update', operation: 'nlu-data-updated', after: { items },
+                user: Meteor.user(),
+                resId: modelId,
+                projectId: getProjectIdFromModelId(modelId),
+                type: 'update',
+                operation: 'nlu-data-updated',
+                after: { items },
             });
             return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: canonicalizedItems, $position: 0 } } });
         } catch (e) {

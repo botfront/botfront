@@ -88,8 +88,15 @@ if (Meteor.isServer) {
             checkIfCan('projects:w', credentials.projectId);
             check(credentials, Object);
             try {
+                const credentialsBefore = Credentials.findOne({ projectId: credentials.projectId, _id: credentials._id });
                 auditLog('Saving credentials', {
-                    user: Meteor.user(), type: 'update', operation: 'credentials-updated', resId: senderId, after: { credentials },
+                    user: Meteor.user(),
+                    projectId: credentials.projectId,
+                    type: 'update',
+                    operation: 'credentials-updated',
+                    resId: credentials._id,
+                    after: { credentials },
+                    before: { credentials: credentialsBefore },
                 });
                 return Credentials.upsert(
                     { projectId: credentials.projectId, _id: credentials._id },

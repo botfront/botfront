@@ -79,7 +79,12 @@ if (Meteor.isServer) {
                 createDefaultStoryGroup(_id);
                 await createInstance({ _id, ...item });
                 auditLog('Create project', {
-                    user: Meteor.user(), after: { item }, resId: _id, type: 'create', operation: 'project-created',
+                    user: Meteor.user(),
+                    after: { item },
+                    resId: _id,
+                    type: 'create',
+                    operation: 'project-created',
+                    after: { project: item },
                 });
                 return _id;
             } catch (e) {
@@ -93,9 +98,16 @@ if (Meteor.isServer) {
             check(item, Match.ObjectIncluding({ _id: String }));
             try {
                 // eslint-disable-next-line no-param-reassign
+                const projectBefore = Projects.findOne({ _id: item._id });
                 delete item.createdAt;
                 auditLog('Update project', {
-                    user: Meteor.user(), after: { item }, resId: item._id, type: 'update', operation: 'project-updated',
+                    user: Meteor.user(),
+                    resId: item._id,
+                    type: 'update',
+                    projectId: item._id,
+                    operation: 'project-updated',
+                    before: { project: projectBefore },
+                    after: { project: item },
                 });
                 return Projects.update({ _id: item._id }, { $set: item });
             } catch (e) {
@@ -111,6 +123,7 @@ if (Meteor.isServer) {
 
             try {
                 if (!project) throw new Meteor.Error('Project not found');
+                const projectBefore = Projects.findOne({ _id: projectId }); // Delete project
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
                 Activity.remove({ modelId: { $in: project.nlu_models } }).exec(); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
@@ -125,8 +138,12 @@ if (Meteor.isServer) {
                 // Delete project related permissions for users (note: the role package does not provide
                 const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
                 projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
-                auditLog('delete project', {
-                    user: Meteor.user(), resId: projectId, type: 'delete', operation: 'project-deleted',
+                auditLog('Delete project, all related data has been deleted', {
+                    user: Meteor.user(),
+                    resId: projectId,
+                    type: 'delete',
+                    operation: 'project-deleted',
+                    before: { projectBefore },
                 });
                 await BotResponses.remove({ projectId });
             } catch (e) {
@@ -138,10 +155,19 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             try {
+                const projectBefore = Projects.findOne({ _id: projectId });
+                const result = Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
+                const projectAfter = Projects.findOne({ _id: projectId });
                 auditLog('Mark trainning as started', {
-                    user: Meteor.user(), resId: projectId, type: 'update', operation: 'project-updated',
+                    user: Meteor.user(),
+                    resId: projectId,
+                    projectId,
+                    type: 'update',
+                    operation: 'project-updated',
+                    before: { project: projectBefore },
+                    after: { project: projectAfter },
                 });
-                return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
+                return result;
             } catch (e) {
                 throw e;
             }
@@ -158,10 +184,19 @@ if (Meteor.isServer) {
                 if (error) {
                     set.training.message = error;
                 }
+                const projectBefore = Projects.findOne({ _id: projectId });
+                const result = Projects.update({ _id: projectId }, { $set: set });
+                const projectAfter = Projects.findOne({ _id: projectId });
                 auditLog('Mark trainning as stopped', {
-                    user: Meteor.user(), resId: projectId, type: 'update', operation: 'project-updated', after: { status },
+                    user: Meteor.user(),
+                    resId: projectId,
+                    type: 'update',
+                    projectId,
+                    operation: 'project-updated',
+                    before: { projectBefore },
+                    after: { projectAfter },
                 });
-                return Projects.update({ _id: projectId }, { $set: set });
+                return result;
             } catch (e) {
                 throw e;
             }

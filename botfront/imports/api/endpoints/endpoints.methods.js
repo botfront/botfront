@@ -41,8 +41,15 @@ if (Meteor.isServer) {
         'endpoints.save'(endpoints) {
             checkIfCan('projects:w', endpoints.projectId);
             check(endpoints, Object);
+            const endpointsBefore = Endpoints.findOne({ projectId: endpoints.projectId, _id: endpoints._id });
             auditLog('Saving endpoints', {
-                user: Meteor.user(), type: 'update', operation: 'project-updated', resId: endpoints.projectId, after: { endpoints },
+                user: Meteor.user(),
+                projectId: endpoints.projectId,
+                type: 'update',
+                operation: 'project-updated',
+                resId: endpoints.projectId,
+                after: { endpoints },
+                before: { endpoints: endpointsBefore },
             });
             return saveEndpoints(endpoints);
         },

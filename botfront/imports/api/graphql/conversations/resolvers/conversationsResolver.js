@@ -32,17 +32,31 @@ export default {
         },
         async updateStatus(_, args, context) {
             checkIfCan('incoming:w', args.projectId, context.user._id);
+            const conversationBefore = await getConversation(args.projectId, args.id);
             const response = await updateConversationStatus(args.id, args.status);
+            const conversationAfter = await getConversation(args.projectId, args.id);
             auditLog('Update conversation status', {
-                userId: context.user._id, type: 'update', operation: 'conversation-updated', resId: args.id,
+                userId: context.user,
+                type: 'update',
+                projectId: args.projectId,
+                operation: 'conversation-updated',
+                resId: args.id,
+                after: { conversation: conversationAfter },
+                before: { conversation: conversationBefore },
             });
             return { success: response.ok === 1 };
         },
         async delete(_, args, context) {
             checkIfCan('incoming:w', args.projectId, context.user._id);
+            const conversationBefore = await getConversation(args.projectId, args.id);
             const response = await deleteConversation(args.id);
             auditLog('delete conversation ', {
-                userId: context.user._id, type: 'delete', operation: 'conversation-deleted', resId: args.id,
+                userId: context.user,
+                type: 'delete',
+                operation: 'conversation-deleted',
+                projectId: args.projectId,
+                resId: args.id,
+                before: { conversation: conversationBefore },
             });
             return { success: response.ok === 1 };
         },
