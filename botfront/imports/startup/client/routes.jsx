@@ -26,7 +26,6 @@ import Incoming from '../../ui/components/incoming/Incoming';
 
 import { can, areScopeReady } from '../../lib/scopes';
 import AccountLayout from '../../ui/layouts/account';
-import NotFound from '../../ui/components/NotFound';
 import SetupLayout from '../../ui/layouts/setup';
 import Project from '../../ui/layouts/project';
 import Index from '../../ui/components/index';
@@ -77,6 +76,14 @@ const validateCanSetup = () => (nextState, replace, callback) => {
             });
         }
         callback();
+    });
+};
+const redirectToPath = pathname => (nextState, replace) => {
+    Tracker.autorun(() => {
+        replace({
+            pathname,
+            state: { nextPathname: nextState.location.pathname },
+        });
     });
 };
 
@@ -135,9 +142,10 @@ Meteor.startup(() => {
                                 <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticateProject} />
                                 <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
                                 <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
-                                <Route path='*' component={NotFound} />
                             </Route>
-                            <Route path='*' exact component={NotFound} />
+                            <Route path='/404' onEnter={redirectToPath('/')} />
+                            <Route path='/403' onEnter={redirectToPath('/')} />
+                            <Route path='*' exact onEnter={redirectToPath('/')} />
                         </Router>
                     </Provider>
                 </ApolloHooksProvider>
