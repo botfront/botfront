@@ -16,9 +16,9 @@ describe('Bot responses', function() {
         cy.dataCy('create-response').click();
         cy.dataCy('add-custom-response').click();
         cy.dataCy('response-name-input').click().find('input').type('test_A');
-        cy.wait(100);
-        cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}test: success');
-        cy.wait(100);
+        cy.wait(250);
+        cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}{selectAll}{del}test: success');
+        cy.wait(250);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('.dimmer').should('not.exist');
         cy.wait(250);
