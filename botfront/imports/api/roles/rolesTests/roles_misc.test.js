@@ -242,7 +242,7 @@ if (Meteor.isServer) {
         await Meteor.users.insert(userData);
         done();
     };
-    describe.only('test initialSetup method', () => {
+    describe('test initialSetup method', () => {
         beforeEach(() => {
             addUser();
         });
