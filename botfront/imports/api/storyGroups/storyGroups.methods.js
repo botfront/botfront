@@ -84,6 +84,7 @@ Meteor.methods({
         auditLogIfOnServer('Story group delete', {
             resId: storyGroup._id,
             user: Meteor.user(),
+            projectId: storyGroup.projectId,
             type: 'delete',
             operation: 'story-group-deleted',
             before: { storyGroup },
@@ -99,6 +100,7 @@ Meteor.methods({
             auditLogIfOnServer('Create a story group', {
                 resId: storyGroup._id,
                 user: Meteor.user(),
+                projectId: storyGroup.projectId,
                 type: 'create',
                 operation: 'story-group-created',
                 after: { storyGroup },
@@ -113,12 +115,15 @@ Meteor.methods({
         checkIfCan('stories:w', storyGroup.projectId, undefined);
         check(storyGroup, Object);
         try {
+            const storyGroupBefore = StoryGroups.findOne({ _id: storyGroup._id });
             auditLogIfOnServer('Update a story group', {
                 resId: storyGroup._id,
                 user: Meteor.user(),
-                type: 'create',
-                operation: 'story-group-created',
+                type: 'update',
+                projectId: storyGroup.projectId,
+                operation: 'story-group-updated',
                 after: { storyGroup },
+                before: { storyGroup: storyGroupBefore },
             });
             return StoryGroups.update(
                 { _id: storyGroup._id },
@@ -131,16 +136,27 @@ Meteor.methods({
     'storyGroups.removeFocus'(projectId) {
         checkIfCan('stories:w', projectId, undefined);
         check(projectId, String);
-        auditLogIfOnServer('remove focus on all story group', {
-            user: Meteor.user(),
-            type: 'update',
-            operation: 'story-group-updated',
-        });
-        return StoryGroups.update(
+        const storyGroupBefore = StoryGroups.find(
+            { projectId }, { fields: { selected: 1, _id: 1 } },
+        ).fetch().lean();
+        const result = StoryGroups.update(
             { projectId },
             { $set: { selected: false } },
             { multi: true },
         );
+        const storyGroupAfter = StoryGroups.find(
+            { projectId }, { fields: { selected: 1, _id: 1 } },
+        ).fetch().lean();
+        auditLogIfOnServer('remove focus on all story group', {
+            user: Meteor.user(),
+            type: 'update',
+            projectId,
+            operation: 'story-group-updated',
+            after: { storyGroup: storyGroupAfter },
+            before: { storyGroup: storyGroupBefore },
+        });
+        
+        return result;
     },
 });
 
@@ -154,14 +170,17 @@ if (Meteor.isServer) {
             const childStories = Stories.find({ storyGroupId }, { fields: { events: true } })
                 .fetch();
             childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-
+            const storiesBefore = await Stories.find({ storyGroupId }).fetch().lean();
             const result = await Stories.remove({ storyGroupId });
             deleteResponsesRemovedFromStories(eventstoRemove, projectId);
+
             auditLogIfOnServer('Delete child stories of a story group', {
                 user: Meteor.user(),
                 type: 'delete',
-                operation: 'story-group-delete',
+                projectId,
+                operation: 'stories-delete',
                 resId: storyGroupId,
+                before: { stories: storiesBefore },
             });
             return result;
         },

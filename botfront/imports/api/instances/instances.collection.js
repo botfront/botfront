@@ -37,7 +37,7 @@ if (Meteor.isServer) {
                 user: Meteor.user(),
                 type: 'update',
                 projectId: item.projectId,
-                operation: 'project-settings-update',
+                operation: 'project-settings-updated',
                 resId: item.projectId,
                 before: { instance: instanceBefore },
                 after: { instance: item },
