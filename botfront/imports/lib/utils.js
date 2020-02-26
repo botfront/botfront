@@ -8,7 +8,7 @@ import React from 'react';
 import axios from 'axios';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
-import { checkIfCan } from '../api/roles/roles';
+import { checkIfCan, checkIfScope } from '../api/roles/roles';
 
 import { Projects } from '../api/project/project.collection';
 import { NLUModels } from '../api/nlu_model/nlu_model.collection';
@@ -155,39 +155,6 @@ if (Meteor.isServer) {
     } from '../../server/logger';
 
     Meteor.methods({
-        'upload.gcs'(fileBinaryString, projectId, bucket, fileName, options) {
-            checkIfCan('global-admin');
-            check(projectId, String);
-            check(fileBinaryString, String);
-            check(bucket, String);
-            check(fileName, String);
-            check(options, Match.Maybe(Object));
-            this.unblock();
-
-            try {
-                const { makePublic = false } = options || {};
-
-                checkIfCan('project-admin', projectId);
-                const bytes = binaryStringToUint8Array(fileBinaryString);
-                const path = `${Meteor.rootPath}/tmp/${fileName}`;
-
-                Promise.await(uploadModel(bytes, path, bucket, makePublic));
-
-                return 'ok';
-            } catch (e) {
-                console.log(e);
-                throw formatError(e);
-            }
-        },
-
-        'upload.modelToGCS'(fileBinaryString, projectId) {
-            checkIfCan('global-admin');
-            check(projectId, String);
-            check(fileBinaryString, String);
-            this.unblock();
-            const { settings: { private: { gcpModelsBucket } } } = GlobalSettings.findOne({}, { fields: { 'settings.private.gcpModelsBucket': 1 } });
-            return Meteor.call('upload.gcs', fileBinaryString, projectId, gcpModelsBucket, `prod-${projectId}.zip`);
-        },
 
         async 'axios.requestWithJsonBody'(url, method, data) {
             let loggedData = data;
@@ -221,9 +188,9 @@ if (Meteor.isServer) {
         },
 
         async 'upload.image' (projectId, data) {
+            checkIfCan('responses:w', projectId);
             check(projectId, String);
             check(data, Object);
-            checkIfCan('responses:w', projectId);
             const { deleteImageWebhook: { url, method } } = await getImageWebhooks();
             if (!url || !method) throw new Meteor.Error('400', 'No image upload webhook defined.');
             return Meteor.call('axios.requestWithJsonBody', url, method, data, (err, response = {}) => {
@@ -238,6 +205,7 @@ if (Meteor.isServer) {
 export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {}).nlu_models;
 
 // used from outside botfront
+// -permission- add check with apikey
 export const getLanguagesFromProjectId = projectId => getNluModelLanguages(getModelIdsFromProjectId(projectId));
 
 export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
