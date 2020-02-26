@@ -35,3 +35,4 @@ ddp-rate-limiter@1.0.7
 apollo
 swydo:graphql
 swydo:ddp-apollo
+johanbrook:publication-collector

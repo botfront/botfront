@@ -28,7 +28,7 @@ if (Meteor.isServer) {
     Meteor.publish('slots', function(projectId) {
         check(projectId, String);
         if (!checkIfCan('stories:r', projectId, null, { backupPlan: true })) {
-            return [];
+            return this.ready();
         }
         Slots.find({ projectId });
         return Slots.find({ projectId });

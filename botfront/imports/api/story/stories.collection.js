@@ -3,6 +3,7 @@ import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
 import { StorySchema } from './stories.schema';
+import { getUserScopes, checkIfScope } from '../roles/roles';
 
 export const Stories = new Mongo.Collection('stories');
 
@@ -36,7 +37,8 @@ if (Meteor.isServer) {
     Meteor.publish('stories.light', function(projectId) {
         check(projectId, String);
         if (!checkIfCan('stories:r', projectId, null, { backupPlan: true })) {
-            return Stories.find({ projectId }, { _id: 1 });
+            checkIfScope(projectId, ['nlu-data:r', 'response:r', 'nlu-data:x'], this.userId);
+            return Stories.find({ projectId }, { fields: { _id: 1 } });
         }
         return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
     });

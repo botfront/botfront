@@ -15,15 +15,11 @@ if (Meteor.isServer) {
     // This code only runs on the server
     // Only publish tasks that are public or belong to the current user
     Meteor.publish('conversations', function(projectId, skip, limit, env) {
-        try {
-            checkIfCan('incoming:r', projectId);
-        } catch (e) {
-            return this.ready();
-        }
-        check(projectId, String);
+        checkIfCan('incoming:r', projectId);
         check(skip, Number);
         check(limit, Number);
         check(env, String);
+        check(projectId, String);
         const options = {
             sort: { updatedAt: -1 },
             skip,
@@ -45,15 +41,9 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('conversation-detail', function(_id, projectId) {
-        try {
-            checkIfCan('incoming:r', projectId);
-        } catch (e) {
-            return this.ready();
-        }
+        checkIfCan('incoming:r', projectId);
         check(_id, String);
         check(projectId, String);
-
-        checkIfCan('incoming:r', projectId);
         return Conversations.find({ _id, projectId });
     });
 }

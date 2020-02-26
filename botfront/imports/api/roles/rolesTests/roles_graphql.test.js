@@ -3,26 +3,29 @@ import { expect } from 'chai';
 import { Meteor } from 'meteor/meteor';
 
 // resolvers
-import BotResponseResolver from './graphql/botResponses/resolvers/botResponsesResolver';
-import activityResolver from './graphql/activity/resolvers/activityResolver';
+import BotResponseResolver from '../../graphql/botResponses/resolvers/botResponsesResolver';
+import activityResolver from '../../graphql/activity/resolvers/activityResolver';
 
-import intentFrequenciesResolvers from './graphql/conversations/resolvers/intentFrequenciesResolver';
-import conversationsResolvers from './graphql/conversations/resolvers/conversationsResolver';
-import conversationLengthsResolvers from './graphql/conversations/resolvers/conversationLengthsResolver';
-import conversationDurationResolvers from './graphql/conversations/resolvers/conversationDurationsResolver';
-import conversationCountsResolvers from './graphql/conversations/resolvers/conversationCountsResolver';
-import actionCountsResolvers from './graphql/conversations/resolvers/actionCountsResolver';
+import intentFrequenciesResolvers from '../../graphql/conversations/resolvers/intentFrequenciesResolver';
+import conversationsResolvers from '../../graphql/conversations/resolvers/conversationsResolver';
+import conversationLengthsResolvers from '../../graphql/conversations/resolvers/conversationLengthsResolver';
+import conversationDurationResolvers from '../../graphql/conversations/resolvers/conversationDurationsResolver';
+import conversationCountsResolvers from '../../graphql/conversations/resolvers/conversationCountsResolver';
+import actionCountsResolvers from '../../graphql/conversations/resolvers/actionCountsResolver';
 
-import entityDistributionResolver from './graphql/nlu/resolvers/entityDistributionResolver';
-import nluStatisticsResolver from './graphql/nlu/resolvers/nluStatisticsResolver';
-import intentDistributionResolver from './graphql/nlu/resolvers/intentDistributionResolver';
+import entityDistributionResolver from '../../graphql/nlu/resolvers/entityDistributionResolver';
+import nluStatisticsResolver from '../../graphql/nlu/resolvers/nluStatisticsResolver';
+import intentDistributionResolver from '../../graphql/nlu/resolvers/intentDistributionResolver';
 
-import rolesDataResolver from './graphql/rolesData/resolvers/rolesDataResolver';
+import rolesDataResolver from '../../graphql/rolesData/resolvers/rolesDataResolver';
 
-import { setScopes } from '../lib/scopes';
-import { Projects } from './project/project.collection';
+import { setScopes } from '../../../lib/scopes';
+import { Projects } from '../../project/project.collection';
 // eslint-disable-next-line import/named
-import { setUpRoles } from './roles/roles'; // declared inside an if statement
+import { setUpRoles } from '../roles'; // declared inside an if statement
+import {
+    roles, readers, writers, formatRoles,
+} from './rolesData';
 
 setUpRoles(); // setting up the roles manually prevents errors from happening during the role assignment
 
@@ -46,107 +49,13 @@ const projectData = {
     deploymentEnvironments: [],
 };
 
-const formatRoles = (roles, project) => ({ roles: [{ roles, project }] });
 
-const roles = [
-    'nlu-data:r',
-    'nlu-data:w',
-    'nlu-data:x',
-    'responses:r',
-    'responses:w',
-    'stories:r',
-    'stories:w',
-    'triggers:r',
-    'triggers:w',
-    'incoming:r',
-    'incoming:w',
-    'analytics:r',
-    'projects:r',
-    'projects:w',
-    'global-settings:r',
-    'global-settings:w',
-    'roles:r',
-    'roles:w',
-    'users:r',
-    'users:w',
-    'global-admin',
-];
-
-const readers = {
-    nluData: [
-        'nlu-data:r',
-        'nlu-data:w',
-        'stories:r',
-        'stories:w',
-        'triggers:r',
-        'triggers:w',
-        'incoming:r',
-        'incoming:w',
-        'analytics:r',
-        'global-admin',
-        'projects:w',
-        'projects:r',
-    ],
-    responses: [
-        'responses:r',
-        'responses:w',
-        'stories:r',
-        'stories:w',
-        'triggers:r',
-        'triggers:w',
-        'incoming:r',
-        'incoming:w',
-        'analytics:r',
-        'global-admin',
-        'projects:r',
-        'projects:w',
-    ],
-    incoming: [
-        'incoming:r',
-        'incoming:w',
-        'analytics:r',
-        'global-admin',
-        'projects:r',
-        'projects:w',
-    ],
-    analytics: [
-        'analytics:r',
-        'global-admin',
-        'projects:r',
-        'projects:w',
-    ],
-    roles: [
-        'roles:r',
-        'roles:w',
-        'users:w',
-        'global-admin',
-    ],
-};
-
-const writers = {
-    responses: [
-        'responses:w',
-        'global-admin',
-    ],
-    analytics: [
-        'incoming:w',
-        'global-admin',
-    ],
-    activity: [
-        'nlu-data:w',
-        'incoming:w',
-        'global-admin',
-    ],
-    incoming: [
-        'incoming:w',
-        'global-admin',
-    ],
-    roles: [
-        'roles:w',
-        'global-admin',
-    ],
-};
-
+/*
+    name: string, query name to put in the test tile (only for readability)
+    query: functino, resolver function to call
+    args: obect, passed as the second argument of the resolver function
+    acceptedRoles: array, roles that are expected to pass the permission check
+*/
 const testCases = [
     {
         name: 'botResponses',
@@ -380,7 +289,7 @@ const testQl = async (testfunc, role, scope, args) => {
         const result = testfunc({}, args, { user: { _id: 'testuserid' } });
         return result;
     } catch (e) {
-        console.log(e);
+        if (!e || e.error !== '403') console.log(e);
         return e;
     }
 };

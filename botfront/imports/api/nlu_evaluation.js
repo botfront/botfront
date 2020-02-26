@@ -26,11 +26,7 @@ export const EvaluationSchema = new SimpleSchema({
 if (Meteor.isServer) {
     Evaluations._ensureIndex({ modelId: 1 });
     Meteor.publish('nlu_evaluations', function(modelId) { // eslint-disable-line
-        try {
-            checkIfCan('nlu-data:r', getProjectIdFromModelId(modelId));
-        } catch (e) {
-            return [];
-        }
+        checkIfCan('nlu-data:r', getProjectIdFromModelId(modelId));
         check(modelId, String);
         return Evaluations.find({ modelId });
     });

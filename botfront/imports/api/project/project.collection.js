@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { can, getScopesForUser } from '../../lib/scopes';
-import { checkIfCan } from '../roles/roles';
+import { checkIfCan, getUserScopes, checkIfScope } from '../roles/roles';
 
 export const Projects = new Mongo.Collection('projects');
 
@@ -65,8 +65,9 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('projects', function (projectId) {
+        checkIfScope(projectId, ['nlu-data:r', 'responses:r'], this.userId);
         check(projectId, Match.Optional(String));
-        if (can(['projects:r'], projectId)) {
+        if (can('projects:r', projectId)) {
             return Projects.find({ _id: projectId });
         }
         return Projects.find({ _id: projectId }, {
@@ -87,13 +88,7 @@ if (Meteor.isServer) {
         if (can(['projects:w', 'users:r'], this.userId)) {
             return Projects.find({}, { fields: { name: 1 } });
         }
-        const projects = getScopesForUser(this.userId, ['nlu-data:r', 'nlu-data:x', 'responses:r', 'projects:r']);
+        const projects = getUserScopes(this.userId, ['responses:r', 'nlu-data:r', 'nlu-data:x']);
         return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
-    });
-
-    Meteor.publish('template-keys', function (projectId) {
-        check(projectId, String);
-        return Projects.find({ _id: projectId },
-            { fields: { 'templates.key': 1 } });
     });
 }

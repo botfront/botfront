@@ -1,5 +1,6 @@
 import { Roles } from 'meteor/alanning:roles';
 import { upsertRolesData } from '../graphql/rolesData/mongo/rolesData';
+import { Projects } from '../project/project.collection';
 
 export const can = (permission, projectId, userId, options) => {
     const bypassWithCI = { options };
@@ -20,6 +21,29 @@ export const checkIfCan = (permission, projectId, userId = null, options = {}) =
     const trace = ((new Error()).stack.split('\n')[2] || '').trim();
     const message = `${permission} required ${trace}.`;
     console.log(message);
+    throw new Meteor.Error('403', message);
+};
+
+export const getUserScopes = (userId, rolesFilter) => {
+    const userRoles = Meteor.roleAssignment.find({ user: { _id: userId || Meteor.userId() } }, { fields: { scope: 1, inheritedRoles: 1 } }).fetch();
+    let activeScopes = [];
+    if (rolesFilter) {
+        activeScopes = userRoles
+            .filter(scopeRoles => scopeRoles.inheritedRoles.some(({ _id: roleId }) => rolesFilter === roleId || rolesFilter.includes(roleId)))
+            .map(({ scope }) => scope);
+    } else {
+        activeScopes = userRoles.map(({ scope }) => scope);
+    }
+    if (activeScopes.some(v => v == null)) {
+        activeScopes = Projects.find({}, { fields: { _id: 1 } }).fetch().map(({ _id }) => _id);
+    }
+    return activeScopes;
+};
+
+export const checkIfScope = (projectId, rolesFilter, userId) => {
+    if (getUserScopes(userId || Meteor.userId(), rolesFilter).includes(projectId)) return;
+    const trace = ((new Error()).stack.split('\n')[2] || '').trim();
+    const message = `unable to access ${projectId} as ${Array.isArray(rolesFilter) ? rolesFilter.join() : rolesFilter} ${trace}`;
     throw new Meteor.Error('403', message);
 };
 
@@ -88,15 +112,18 @@ if (Meteor.isServer) {
     Meteor.startup(function() {
         setUpRoles();
     });
-    
+
     // eslint-disable-next-line consistent-return
-    Meteor.publish(null, function () {
-        if (this.userId) {
+    export const publishRoles = (context) => { // exported for testing
+        if (context.userId) {
             if (can(['roles:r', 'users:r'])) {
                 return Meteor.roleAssignment.find({});
             }
-            return Meteor.roleAssignment.find({ 'user._id': this.userId });
+            return Meteor.roleAssignment.find({ 'user._id': context.userId });
         }
-        this.ready();
+        context.ready();
+    };
+    Meteor.publish(null, function () {
+        return publishRoles(this);
     });
 }

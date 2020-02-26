@@ -1,31 +1,33 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
-import { setScopes } from '../lib/scopes';
-import { Projects } from './project/project.collection';
-import { Conversations } from './conversations';
+import { setScopes } from '../../../lib/scopes';
+import { Projects } from '../../project/project.collection';
+import { Conversations } from '../../conversations';
 
 // eslint-disable-next-line import/named
-import { setUpRoles } from './roles/roles'; // is declared inside an if statement
+import { setUpRoles } from '../roles'; // is declared inside an if statement
+import {
+    roles, readers, writers, otherRoles, formatRoles,
+} from './rolesData';
 
-import './project/project.methods';
-import './nlu_model/nlu_model.methods';
-import './importExport/import.methods';
-import './importExport/export.methods';
-import './endpoints/endpoints.methods';
-import './globalSettings/globalSettings.methods';
-import './instances/instances.collection';
-import './instances/instances.methods';
-import './setup';
-import './slots/slots.methods';
-import './story/stories.methods';
-import './storyGroups/storyGroups.methods';
-import './user/user.methods';
+import '../../project/project.methods';
+import '../../nlu_model/nlu_model.methods';
+import '../../importExport/import.methods';
+import '../../importExport/export.methods';
+import '../../endpoints/endpoints.methods';
+import '../../globalSettings/globalSettings.methods';
+import '../../instances/instances.collection';
+import '../../instances/instances.methods';
+import '../../setup';
+import '../../slots/slots.methods';
+import '../../story/stories.methods';
+import '../../storyGroups/storyGroups.methods';
+import '../../user/user.methods';
 
 setUpRoles();
 
 const projectId = 'bf';
 const modelId = 'bfModel';
-const formatRoles = (roles, project) => ({ roles: [{ roles, project }] });
 const userId = 'testuserid';
 
 const projectData = {
@@ -46,169 +48,12 @@ const projectData = {
     deploymentEnvironments: [],
 };
 
-const roles = [
-    'nlu-data:r',
-    'nlu-data:w',
-    'nlu-data:x',
-    'responses:r',
-    'responses:w',
-    'stories:r',
-    'stories:w',
-    'triggers:r',
-    'triggers:w',
-    'incoming:r',
-    'incoming:w',
-    'analytics:r',
-    'projects:r',
-    'projects:w',
-    'global-settings:r',
-    'global-settings:w',
-    'roles:r',
-    'roles:w',
-    'users:r',
-    'users:w',
-    'global-admin',
-];
 
-// const specialCases = [
-//     'importProject'
-// ]
-
-const readers = {
-    nluData: [
-        'nlu-data:r',
-        'nlu-data:w',
-        'stories:r',
-        'stories:w',
-        'triggers:r',
-        'triggers:w',
-        'incoming:r',
-        'incoming:w',
-        'analytics:r',
-        'global-admin',
-        'projects:w',
-        'projects:r',
-    ],
-    responses: [
-        'responses:r',
-        'responses:w',
-        'stories:r',
-        'stories:w',
-        'triggers:r',
-        'triggers:w',
-        'incoming:r',
-        'incoming:w',
-        'analytics:r',
-        'global-admin',
-        'projects:w',
-        'projects:r',
-    ],
-    incoming: [
-        'incoming:r',
-        'incoming:w',
-        'analytics:r',
-        'global-admin',
-        'projects:w',
-        'projects:r',
-    ],
-    analytics: [
-        'analytics:r',
-        'global-admin',
-        'projects:w',
-        'projects:r',
-    ],
-    roles: [
-        'roles:r',
-        'roles:w',
-        'users:w',
-        'global-admin',
-        'projects:w',
-        'projects:r',
-    ],
-    projects: [
-        'projects:w',
-        'projects:r',
-        'global-admin',
-    ],
-    stories: [
-        'stories:r',
-        'stories:w',
-        'triggers:r',
-        'triggers:w',
-        'incoming:r',
-        'incoming:w',
-        'analytics:r',
-        'global-admin',
-        'projects:w',
-        'projects:r',
-    ],
-    users: [
-        'users:r',
-        'golbal-admin',
-    ],
-};
-
-const writers = {
-    nluData: [
-        'nlu-data:w',
-        'incoming:w',
-        'global-admin',
-    ],
-    responses: [
-        'responses:w',
-        'global-admin',
-    ],
-    nluModel: [
-        'nlu-data:w',
-        'global-admin',
-    ],
-    analytics: [
-        'incoming:w',
-        'global-admin',
-    ],
-    activity: [
-        'nlu-data:w',
-        'nlu-data:w',
-        'incoming:w',
-        'global-admin',
-    ],
-    incoming: [
-        'incoming:w',
-        'global-admin',
-    ],
-    roles: [
-        'roles:w',
-        'global-admin',
-    ],
-    projects: [
-        'projects:w',
-        'global-admin',
-    ],
-    globalSettings: [
-        'global-settings:w',
-        'global-admin',
-    ],
-    stories: [
-        'stories:w',
-        'global-admin',
-    ],
-    triggers: [
-        'triggers:w',
-        'global-admin',
-    ],
-    users: [
-        'users:w',
-        'global-admin',
-    ],
-};
-
-const otherRoles = {
-    nluModelX: [
-        'nlu-data:x',
-        'global-admin',
-    ],
-};
-
+/*
+    name: string, name of the meteor method to call
+    args: array, passed as the second argument of the resolver function
+    roles: array, roles that are expected to pass the permission check
+*/
 const methods = [
     {
         name: 'conversations.markAsRead',
@@ -273,22 +118,22 @@ const methods = [
     },
     {
         name: 'rasa.convertToJson',
-        roles: writers.nluModel,
+        roles: writers.nluData,
         args: [null, { _id: modelId }],
     },
     {
         name: 'rasa.getTrainingPayload',
-        roles: otherRoles.nluModelX,
+        roles: otherRoles.nluDataX,
         args: [projectId],
     },
     {
         name: 'rasa.train',
-        roles: otherRoles.nluModelX,
+        roles: otherRoles.nluDataX,
         args: [projectId],
     },
     {
         name: 'rasa.evaluate.nlu',
-        roles: otherRoles.nluModelX,
+        roles: otherRoles.nluDataX,
         args: [null, projectId],
     },
     {
@@ -338,22 +183,22 @@ const methods = [
     },
     {
         name: 'nlu.insert',
-        roles: writers.nluModel,
+        roles: writers.nluData,
         args: [null, projectId],
     },
     {
         name: 'nlu.update',
-        roles: writers.nluModel,
+        roles: writers.nluData,
         args: [modelId],
     },
     {
         name: 'nlu.update.general',
-        roles: otherRoles.nluModelX,
+        roles: otherRoles.nluDataX,
         args: [modelId],
     },
     {
         name: 'nlu.remove',
-        roles: writers.nluModel,
+        roles: writers.nluData,
         args: [modelId],
     },
     {
@@ -416,12 +261,12 @@ const methods = [
     },
     {
         name: 'project.markTrainingStarted',
-        roles: otherRoles.nluModelX,
+        roles: otherRoles.nluDataX,
         args: [projectId],
     },
     {
         name: 'project.markTrainingStopped',
-        roles: otherRoles.nluModelX,
+        roles: otherRoles.nluDataX,
         args: [projectId],
     },
     {
@@ -572,6 +417,17 @@ const methods = [
         args: [],
         rejectProjectScope: true,
     },
+    {
+        name: 'user.changePassword',
+        roles: writers.users,
+        args: [],
+        rejectProjectScope: true,
+    },
+    {
+        name: 'upload.image',
+        roles: writers.responses,
+        args: [projectId],
+    },
 ];
 if (Meteor.isServer) {
     const setUserScopes = async (userRoles, scope) => {
@@ -639,8 +495,6 @@ if (Meteor.isServer) {
 
     describe('zz test', () => {
         // special test required for initialSetup
-        // createDefaultStoryGroup
-        // createIntroStoryGroup
         methods.forEach((method) => {
             roles.forEach((role) => {
                 it(`calling ${method.name} as ${role} global scope`, (done) => {

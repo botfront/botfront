@@ -169,8 +169,7 @@ if (Meteor.isServer) {
             check(file, String);
             check(outputFormat, String);
             check(host, String);
-            const { language, modelId } = model;
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+            const { language } = model;
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.convertToJson',

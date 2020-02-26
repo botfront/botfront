@@ -41,6 +41,7 @@ htmljs@1.0.11
 http@1.4.2
 id-map@1.1.0
 inter-process-messaging@0.1.0
+johanbrook:publication-collector@1.1.0
 jquery@1.11.11
 launch-screen@1.1.1
 less@2.8.0

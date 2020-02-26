@@ -15,12 +15,8 @@ if (Meteor.isServer) {
     const userAppLogger = getAppLoggerForFile(__filename);
 
     Meteor.publish('userData', function() {
-        try {
-            checkIfCan('users:r');
-            return Meteor.users.find({}, { fields: { emails: 1, profile: 1, roles: 1 } });
-        } catch (err) {
-            return TouchList.ready();
-        }
+        checkIfCan('users:r');
+        return Meteor.users.find({}, { fields: { emails: 1, profile: 1, roles: 1 } });
     });
 
     Meteor.methods({

@@ -19,18 +19,27 @@ const pubsub = new PubSub();
 const RESPONSES_MODIFIED = 'RESPONSES_MODIFIED';
 const RESPONSE_DELETED = 'RESPONSE_DELETED';
 
+export const subscriptionFilter = (payload, variables, context) => {
+    if (
+        checkIfCan('responses:r', payload.projectId, context.userId, { backupPlan: true })
+    ) {
+        return payload.projectId === variables.projectId;
+    }
+    return false;
+};
+
 export default {
     Subscription: {
         botResponsesModified: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([RESPONSES_MODIFIED]),
-                (payload, variables) => payload.projectId === variables.projectId,
+                subscriptionFilter,
             ),
         },
         botResponseDeleted: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([RESPONSE_DELETED]),
-                (payload, variables) => payload.projectId === variables.projectId,
+                subscriptionFilter,
             ),
         },
     },
