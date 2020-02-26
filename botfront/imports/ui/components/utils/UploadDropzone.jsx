@@ -66,7 +66,7 @@ export default function UploadDropzone(props) {
             {!success ? (
                 <Segment className={`import-box ${canDrop && isOver ? 'upload-target' : ''}`}>
                     <div ref={drop} className='align-center' data-cy='upload-dropzone'>
-                        <Icon name='file' size='huge' color='grey' />
+                        <Icon name='file' size='huge' color='grey' style={{ marginBottom: '8px' }} />
                         <input
                             type='file'
                             ref={fileField}

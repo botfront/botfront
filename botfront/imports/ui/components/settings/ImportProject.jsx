@@ -135,7 +135,6 @@ const ImportProject = ({
             {importType.value === 'botfront' && !botfrontFileSuccess && (
                 <ImportDropField
                     onChange={fileAdded}
-                    text='Drop your Botfront project in JSON format here.'
                     manipulateData={JSON.parse}
                     verifyData={verifyBotfrontFile}
                     success={botfrontFileSuccess}

@@ -142,7 +142,6 @@ const ImportRasaFiles = (props) => {
                 key={`import-${title}`}
             >
                 <div
-                    style={{ minHeight: '125px' }}
                     {...(!importingState ? { ref: drop } : {})}
                     data-cy={`drop-zone-${title.replace(' ', '-').toLowerCase()}`}
                 >

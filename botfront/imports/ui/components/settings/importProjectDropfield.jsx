@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import UploadDropzone from '../utils/UploadDropzone';
 
 const ImportProjectDropfield = ({
-    text,
     onChange,
     manipulateData,
     success,
@@ -21,7 +20,6 @@ const ImportProjectDropfield = ({
     return (
         <UploadDropzone
             onDropped={handleOnDropped}
-            text={text}
             binary={false}
             success={success}
             accept='.json'
@@ -33,7 +31,6 @@ const ImportProjectDropfield = ({
 
 ImportProjectDropfield.propTypes = {
     onChange: PropTypes.func.isRequired,
-    text: PropTypes.string,
     manipulateData: PropTypes.func,
     success: PropTypes.bool.isRequired,
     maxSizeInMb: PropTypes.number,
@@ -43,7 +40,6 @@ ImportProjectDropfield.propTypes = {
 };
 
 ImportProjectDropfield.defaultProps = {
-    text: undefined,
     manipulateData: data => data,
     maxSizeInMb: 30,
     verifyData: () => true,
