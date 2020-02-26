@@ -1,38 +1,45 @@
-import React from 'react';
-import Dropzone from 'react-dropzone';
-import { Message } from 'semantic-ui-react';
+import React, { useState, useRef } from 'react';
+import { NativeTypes } from 'react-dnd-html5-backend-cjs';
+import { useDrop } from 'react-dnd-cjs';
+import {
+    Message, Icon, Button, Segment,
+} from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { Loading } from './Utils';
 
-export default class UploadDropzone extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { processing: false };
-    }
+export default function UploadDropzone(props) {
+    const {
+        onDropped, accept: acceptString = '', onError, successMessage, success, loading, binary, maxSizeInMb,
+    } = props;
+    const [processing, setProcessing] = useState(false);
+    const fileField = useRef();
 
-    onError = (text) => {
-        const { onError } = this.props;
-        this.setState({ processing: false });
-        return onError(text);
+    const handleError = (string) => {
+        setProcessing(false);
+        return onError(string);
     };
 
-    loadFiles = (acceptedFiles, rejectedFiles) => {
-        const {
-            onDropped, maxSizeInMb, accept, binary,
-        } = this.props;
+    const loadFiles = (files) => {
+        setProcessing(true);
 
-        this.setState({ processing: true });
+        const accept = acceptString.split(/,\s*/);
+        let acceptedFiles = files.filter(f => accept.includes(f.type) || accept.some(t => f.name.match(new RegExp(`${t}$`))));
+        let rejectedFiles = files.filter(f => !acceptedFiles.includes(f));
+        if (!acceptString) {
+            acceptedFiles = files;
+            rejectedFiles = [];
+        }
 
-        if (!acceptedFiles.length && !rejectedFiles.length) return this.onError('Sorry, could not read you file');
-        if (rejectedFiles.length) return this.onError(`${rejectedFiles[0].name} is not of type: ${accept}`);
-        if (acceptedFiles.length > 1) return this.onError('Please upload only one file');
-        if (acceptedFiles[0].size > maxSizeInMb * 1000000) return this.onError(`Your file should not exceed ${maxSizeInMb}Mb.`);
+        if (!acceptedFiles.length && !rejectedFiles.length) return handleError('Sorry, could not read you file');
+        if (rejectedFiles.length) return handleError(`${rejectedFiles[0].name} is not of type: ${accept}`);
+        if (acceptedFiles.length > 1) return handleError('Please upload only one file');
+        if (acceptedFiles[0].size > maxSizeInMb * 1000000) return handleError(`Your file should not exceed ${maxSizeInMb}Mb.`);
 
         const file = acceptedFiles[0];
 
         const reader = new FileReader();
         reader.onload = () => {
-            this.setState({ processing: false });
+            setProcessing(false);
             try {
                 onDropped(reader.result, file);
             } catch (e) {
@@ -40,75 +47,70 @@ export default class UploadDropzone extends React.Component {
             }
         };
 
-        reader.onabort = () => this.onError('file reading was aborted');
-        reader.onerror = () => this.onError('file reading has failed');
+        reader.onabort = () => handleError('file reading was aborted');
+        reader.onerror = () => handleError('file reading has failed');
         return binary ? reader.readAsBinaryString(file) : reader.readAsText(file);
     };
 
-    isLoading = () => {
-        const { loading } = this.props;
-        const { processing } = this.state;
-        return loading || processing;
-    };
+    const [{ canDrop, isOver }, drop] = useDrop({
+        accept: [NativeTypes.FILE],
+        drop: item => loadFiles(Array.from(item.files)),
+        collect: monitor => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
+    });
 
-    render() {
-        const {
-            success, text, successMessage, accept, className,
-        } = this.props;
-
-        return (
-            <Loading loading={this.isLoading()}>
-                {!success ? (
-                    <Dropzone
-                        className={className}
-                        style={{
-                            padding: '10px',
-                            width: '100%',
-                            height: '120px',
-                            borderWidth: '2px',
-                            borderColor: 'black',
-                            borderStyle: 'dashed',
-                            borderRadius: '5px',
-                        }}
-                        multiple={false}
-                        onDrop={this.loadFiles}
-                        accept={accept}
-                    >
-                        {text}
-                    </Dropzone>
-                ) : (
-                    <Message
-                        positive
-                        header='Success!'
-                        icon='check circle'
-                        content={successMessage}
-                    />
-                )}
-            </Loading>
-        );
-    }
+    return (
+        <Loading loading={loading || processing}>
+            {!success ? (
+                <Segment className={`import-box ${canDrop && isOver ? 'upload-target' : ''}`}>
+                    <div ref={drop} className='align-center' data-cy='upload-dropzone'>
+                        <Icon name='file' size='huge' color='grey' />
+                        <input
+                            type='file'
+                            ref={fileField}
+                            style={{ display: 'none' }}
+                            onChange={e => loadFiles(Array.from(e.target.files))}
+                        />
+                        <Button
+                            primary
+                            basic
+                            content='Upload file'
+                            size='small'
+                            onClick={() => fileField.current.click()}
+                        />
+                        <span className='small grey'>or drop a file to upload</span>
+                    </div>
+                </Segment>
+            ) : (
+                <Message
+                    positive
+                    header='Success!'
+                    icon='check circle'
+                    content={successMessage}
+                />
+            )}
+        </Loading>
+    );
 }
 
 UploadDropzone.propTypes = {
     onDropped: PropTypes.func.isRequired,
     accept: PropTypes.string.isRequired,
     onError: PropTypes.func,
-    text: PropTypes.string,
     successMessage: PropTypes.string,
     success: PropTypes.bool,
     loading: PropTypes.bool,
     binary: PropTypes.bool,
     maxSizeInMb: PropTypes.number,
-    className: PropTypes.string,
 };
 
 UploadDropzone.defaultProps = {
-    text: 'Drop your file here',
     successMessage: 'Your file is ready',
     success: false,
     loading: false,
     binary: true,
     onError: console.log,
     maxSizeInMb: 2,
-    className: '',
 };

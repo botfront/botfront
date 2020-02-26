@@ -20,7 +20,7 @@ import EntityReport from './EntityReport';
 import ExampleUtils from '../../utils/ExampleUtils';
 import { InputButtons } from './InputButtons.jsx';
 import { Evaluations } from '../../../../api/nlu_evaluation';
-import { TestImport } from './TestImport';
+import UploadDropzone from '../../utils/UploadDropzone';
 import { Loading } from '../../utils/Utils';
 
 import 'react-select/dist/react-select.css';
@@ -160,12 +160,19 @@ class Evaluation extends React.Component {
 
     loadData(data) {
         const { loading } = this.state;
-        if (loading) this.setState({ data, loading: false });
+        try {
+            const parsed = JSON.parse(data);
+            if (loading) this.setState({ data: parsed, loading: false });
+        } catch (e) {
+            Alert.error('Error: you must upload a JSON file with the same format as an export', {
+                position: 'top',
+                timeout: 'none',
+            });
+        }
     }
 
     render() {
         const {
-            model,
             validationRender,
             evaluation,
             loading: reportLoading,
@@ -200,7 +207,7 @@ class Evaluation extends React.Component {
                                 selectedIndex={selectedIndex}
                             />
                         </div>
-                        {exampleSet === 'test' && <TestImport isLoaded={!!data} model={model} loadData={this.loadData} />}
+                        {exampleSet === 'test' && <UploadDropzone success={!!data} onDropped={this.loadData} binary={false} />}
                         {!dataLoading && !errorMessage && (
                             <div>
                                 <Button type='submit' basic fluid color='green' loading={evaluating} onClick={this.evaluate} data-cy='start-evaluation'>

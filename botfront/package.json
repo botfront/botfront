@@ -68,7 +68,6 @@
     "react-dnd-html5-backend-cjs": "^9.5.1",
     "react-document-title": "^2.0.3",
     "react-dom": "16.8.6",
-    "react-dropzone": "^4.3.0",
     "react-google-recaptcha": "^1.0.5",
     "react-intercom": "^1.0.15",
     "react-json-view": "^1.19.1",
