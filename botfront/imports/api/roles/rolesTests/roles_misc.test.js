@@ -237,4 +237,20 @@ if (Meteor.isServer) {
             });
         });
     });
+
+    const addUser = async (done) => {
+        await Meteor.users.insert(userData);
+        done();
+    };
+    describe.only('test initialSetup method', () => {
+        beforeEach(() => {
+            addUser();
+        });
+        it('should reject initial setup if a user has been created', (done) => {
+            Meteor.call('initialSetup', {}, (e) => {
+                expect(e.error).to.be.equal('403');
+                done();
+            });
+        });
+    });
 }
