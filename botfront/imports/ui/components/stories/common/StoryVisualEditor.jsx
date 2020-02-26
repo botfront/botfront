@@ -306,7 +306,7 @@ export default class StoryVisualEditor extends React.Component {
 
 StoryVisualEditor.propTypes = {
     story: PropTypes.instanceOf(StoryController),
-    
+  
 };
 
 StoryVisualEditor.defaultProps = {

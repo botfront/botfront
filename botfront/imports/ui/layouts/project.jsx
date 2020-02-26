@@ -211,16 +211,16 @@ class Project extends React.Component {
         return this.writeResponsesFrag({ ...responses, [template]: content });
     }
 
-    setResponses = async (data) => {
+    setResponses = async (data = {}) => {
         const { responses } = await this.readResponsesFrag();
         return this.writeResponsesFrag({ ...responses, ...data });
     }
 
-    addResponses = async (templates, val) => {
+    addResponses = async (templates) => {
         const { projectId, workingLanguage } = this.props;
         const { responses } = await this.readResponsesFrag();
         const newTemplates = templates.filter(r => !(Object.keys(responses).includes(r)));
-        if (!newTemplates.length) return val;
+        if (!newTemplates.length) return this.setState({ responses });
         const result = await apolloClient.query({
             query: GET_BOT_RESPONSES,
             variables: {
@@ -229,7 +229,7 @@ class Project extends React.Component {
                 language: workingLanguage,
             },
         });
-        if (!result.data) return val;
+        if (!result.data) return this.setState({ responses });
         await this.setResponses(
             result.data.getResponses.reduce( // turns [{ k: k1, v1, v2 }, { k: k2, v1, v2 }] into { k1: { v1, v2 }, k2: { v1, v2 } }
                 (acc, { key, ...rest }) => ({ ...acc, ...(key in acc ? {} : { [key]: rest }) }), {},
