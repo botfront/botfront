@@ -36,7 +36,7 @@ describe('Importing a project', function() {
             .contains('Botfront')
             .click();
         cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
-            cy.get('.file-dropzone').upload(content, 'data.json');
+            cy.dataCy('upload-dropzone').upload(content, 'data.json');
         });
         cy.dataCy('export-with-conversations')
             .click();
@@ -57,7 +57,7 @@ describe('Importing a project', function() {
                 .contains('Botfront')
                 .click();
             cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
-                cy.get('.file-dropzone').upload(content, 'data.json');
+                cy.dataCy('upload-dropzone').upload(content, 'data.json');
             });
             cy.dataCy('export-with-conversations')
                 .click();
@@ -73,7 +73,7 @@ describe('Importing a project', function() {
                 .contains('Botfront')
                 .click();
             cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
-                cy.get('.file-dropzone').upload(content, 'data.json');
+                cy.dataCy('upload-dropzone').upload(content, 'data.json');
             });
             cy.dataCy('skip')
                 .click();
@@ -196,7 +196,7 @@ describe('Importing a project', function() {
                 .contains('Botfront')
                 .click();
             cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
-                cy.get('.file-dropzone').upload(content, 'data.json');
+                cy.dataCy('upload-dropzone').upload(content, 'data.json');
             });
             cy.dataCy('export-with-conversations')
                 .click();

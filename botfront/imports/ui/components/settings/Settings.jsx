@@ -46,19 +46,19 @@ class Settings extends React.Component {
         const { projectId } = this.props;
         let panes = [
             {
-                menuItem: <Menu.Item className='project-settings-menu-info' icon='info' content='Project Info' key='Project Info' />,
+                menuItem: <Menu.Item data-cy='project-settings-menu-info' icon='info' content='Project Info' key='Project Info' />,
                 render: () => <Tab.Pane><ProjectInfo /></Tab.Pane>,
             },
             {
-                menuItem: <Menu.Item className='project-settings-menu-credentials' icon='key' content='Credentials' key='Credentials' />,
+                menuItem: <Menu.Item data-cy='project-settings-menu-credentials' icon='key' content='Credentials' key='Credentials' />,
                 render: () => <Tab.Pane><Credentials orchestrator={orchestrator} /></Tab.Pane>,
             },
             {
-                menuItem: <Menu.Item className='project-settings-menu-default-domain' icon='globe' content='Default Domain' key='Default Domain' />,
+                menuItem: <Menu.Item data-cy='project-settings-menu-default-domain' icon='globe' content='Default Domain' key='Default Domain' />,
                 render: () => <Tab.Pane><DefaultDomain /></Tab.Pane>,
             },
             {
-                menuItem: <Menu.Item className='project-settings-menu-default-domain' icon='download' content='Import/Export' key='Import/Export' />,
+                menuItem: <Menu.Item data-cy='project-settings-menu-import-export' icon='download' content='Import/Export' key='Import/Export' />,
                 render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
             },
         ];
@@ -66,11 +66,11 @@ class Settings extends React.Component {
         if (can('global-admin', projectId)) {
             panes = [...panes,
                 {
-                    menuItem: <Menu.Item className='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
+                    menuItem: <Menu.Item data-cy='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
                     render: () => <Tab.Pane><Endpoints orchestrator={orchestrator} /></Tab.Pane>,
                 },
                 {
-                    menuItem: <Menu.Item className='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
+                    menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
                     render: () => <Tab.Pane><Instances /></Tab.Pane>,
                 },
                 {

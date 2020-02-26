@@ -5,7 +5,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import { saveAs } from 'file-saver';
 import {
-    Dropdown, Button, Message, Icon, Checkbox, List,
+    Dropdown, Button, Message, Icon, Checkbox,
 } from 'semantic-ui-react';
 
 import { Projects } from '../../../api/project/project.collection';
@@ -13,10 +13,24 @@ import { Projects } from '../../../api/project/project.collection';
 import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
 const ExportProject = ({
-    projectId, projectLanguages, setLoading, apiHost,
+    projectId, projectLanguages, setLoading, apiHost, workingLanguage,
 }) => {
-    const [exportType, setExportType] = useState({});
-    const [exportLanguage, setExportLanguage] = useState('');
+    const getExportTypeOptions = () => [
+        {
+            key: 'botfront',
+            text: 'Export for Botfront',
+            value: 'botfront',
+            successText: 'Your project has been successfully exported for Botfront!',
+        },
+        {
+            key: 'rasa',
+            text: 'Export for Rasa/Rasa X',
+            value: 'rasa',
+            successText: 'Your project has been successfully exported for Rasa/Rasa X!',
+        },
+    ];
+    const [exportType, setExportType] = useState(getExportTypeOptions()[1]);
+    const [exportLanguage, setExportLanguage] = useState(projectLanguages.length > 1 ? 'all' : workingLanguage);
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState({
         header: 'Export Failed',
@@ -39,21 +53,6 @@ const ExportProject = ({
         'slots',
         'corePolicies',
         'botResponses',
-    ];
-
-    const getExportTypeOptions = () => [
-        {
-            key: 'botfront',
-            text: 'Export for Botfront',
-            value: 'botfront',
-            successText: 'Your project has been successfully exported for Botfront!',
-        },
-        {
-            key: 'rasa',
-            text: 'Export for Rasa/Rasa X',
-            value: 'rasa',
-            successText: 'Your project has been successfully exported for Rasa/Rasa X!',
-        },
     ];
 
     const generateParamString = () => {
@@ -93,20 +92,16 @@ const ExportProject = ({
         return <></>;
     };
 
-    const getLanguageOptions = () => projectLanguages.map(({ value, text }) => ({
+    const getLanguageOptions = () => [
+        ...(projectLanguages.length > 1
+            ? [{ value: 'all', text: 'All languages' }]
+            : []),
+        ...projectLanguages,
+    ].map(({ value, text }) => ({
         key: value,
         text,
         value,
     }));
-
-    const validateLanguage = () => getLanguageOptions().some(({ value }) => value === exportLanguage);
-
-    const validateExportType = () => {
-        if (exportType.value === 'rasa' && validateLanguage()) {
-            return true;
-        }
-        return false;
-    };
 
     const exportForBotfront = () => {
         setLoading(true);
@@ -153,9 +148,25 @@ const ExportProject = ({
             }
             import('../utils/ZipFolder').then(({ ZipFolder }) => {
                 const rasaZip = new ZipFolder();
-                rasaZip.addFile(rasaData.config, 'config.yml');
-                rasaZip.addFile(rasaData.nlu, 'data/nlu.md');
-                rasaZip.addFile(rasaData.stories, 'data/stories.md');
+                if (rasaData.stories.length > 1) {
+                    rasaData.stories.forEach(s => rasaZip.addFile(
+                        s,
+                        `data/stories/${s
+                            .split('\n')[0]
+                            .replace(/^# /, '')
+                            .replace(/ /g, '_')
+                            .toLowerCase()}.md`,
+                    ));
+                } else {
+                    rasaZip.addFile(rasaData.stories, 'data/stories.md');
+                }
+                if (exportLanguage === 'all') {
+                    Object.keys(rasaData.config).forEach(k => rasaZip.addFile(rasaData.config[k], `config-${k}.yml`));
+                    Object.keys(rasaData.nlu).forEach(k => rasaZip.addFile(rasaData.nlu[k].data, `data/nlu/${k}.md`));
+                } else {
+                    rasaZip.addFile(rasaData.config[exportLanguage], 'config.yml');
+                    rasaZip.addFile(rasaData.nlu[exportLanguage].data, 'data/nlu.md');
+                }
                 rasaZip.addFile(rasaData.endpoints, 'endpoints.yml');
                 rasaZip.addFile(rasaData.credentials, 'credentials.yml');
                 rasaZip.addFile(rasaData.domain, 'domain.yml');
@@ -225,15 +236,23 @@ const ExportProject = ({
                 key='format'
                 className='export-option'
                 options={getExportTypeOptions().map(({ value, text, key }) => ({
-                    value, text, key,
+                    value,
+                    text,
+                    key,
                 }))}
                 placeholder='Select a format'
                 selection
+                value={exportType.value}
                 onChange={handleDropdownOnChange}
             />
             <br />
             {exportType.value === 'botfront'
-                && Object.keys(toggles).map(t => <>{renderToggle(t)}<br /></>)}
+                && Object.keys(toggles).map(t => (
+                    <>
+                        {renderToggle(t)}
+                        <br />
+                    </>
+                ))}
             {exportType.value === 'rasa' && (
                 <>
                     <Message
@@ -244,29 +263,21 @@ const ExportProject = ({
                                 <h5>NLU pipeline</h5>
                                 <p>
                                     Consider removing Botfront specific NLU components,
-                                    such as:
-                                    <List as='ul'>
-                                        <List.Item as='li'>
-                                            rasa_addons.nlu.components.gazette.Gazette
-                                        </List.Item>
-                                    </List>
-                                </p>
-                                <h5>Responses</h5>
-                                <p>
-                                    Responses (templates) are lists. Rasa treats them as{' '}
-                                    <strong>variants</strong> that should be randomly
-                                    displayed, Botfront treats them as sequence (each item
-                                    is uttered). If you used the sequence feature in
-                                    Botfront, you will need to rework your stories
-                                    accordingly.
+                                    such as{' '}
+                                    <b className='monospace'>
+                                        rasa_addons.nlu.components.gazette.Gazette
+                                    </b>
+                                    .
                                 </p>
                                 <h5>Credentials and endpoints</h5>
                                 <p>
                                     In most cases, you do not need to change credentials
                                     or endpoints. If you need to keep credentials from
-                                    Botfront, be sure to keep the <b>rasa</b> and{' '}
-                                    <b>rest</b> fields from the <b>credentials.yml</b>{' '}
-                                    provided by Rasa X.
+                                    Botfront, be sure to keep the{' '}
+                                    <b className='monospace'>rasa</b> and{' '}
+                                    <b className='monospace'>rest</b> fields from the{' '}
+                                    <b className='monospace'>credentials.yml</b> provided
+                                    by Rasa X.
                                 </p>
                             </>
                         )}
@@ -278,6 +289,7 @@ const ExportProject = ({
                         options={getLanguageOptions()}
                         placeholder='Select a language'
                         selection
+                        value={exportLanguage}
                         onChange={(x, { value }) => {
                             setExportLanguage(value);
                         }}
@@ -286,7 +298,7 @@ const ExportProject = ({
                 </>
             )}
             <br />
-            {validateExportType() && (
+            {exportType.value === 'rasa' && (
                 <Button
                     onClick={exportProject}
                     className='export-option'
@@ -315,6 +327,7 @@ ExportProject.propTypes = {
     projectLanguages: PropTypes.array.isRequired,
     setLoading: PropTypes.func.isRequired,
     apiHost: PropTypes.string.isRequired,
+    workingLanguage: PropTypes.string.isRequired,
 };
 
 const ExportProjectContainer = withTracker(({ projectId }) => {
@@ -328,6 +341,7 @@ const ExportProjectContainer = withTracker(({ projectId }) => {
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 export default connect(mapStateToProps)(ExportProjectContainer);

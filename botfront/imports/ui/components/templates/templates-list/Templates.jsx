@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import {
-    Container, Icon, Menu, Segment, Dropdown,
+    Container, Icon, Menu, Dropdown,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 import { useQuery, useSubscription, useMutation } from '@apollo/react-hooks';
 import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
-import ImportExport from '../import-export/ImportExport';
 import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Can } from '../../../../lib/scopes';
 import { GET_BOT_RESPONSES } from '../queries';
@@ -24,15 +23,13 @@ class Templates extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeItem: 'content', activeEditor: null, newResponse: { open: false, type: '' },
+            activeEditor: null, newResponse: { open: false, type: '' },
         };
     }
 
     setActiveEditor = (responseKey) => {
         this.setState({ activeEditor: responseKey });
     };
-
-    handleMenuItemClick = (e, { name }) => this.setState({ activeItem: name });
 
     renderAddResponse = () => (
         <Dropdown
@@ -69,7 +66,7 @@ class Templates extends React.Component {
         </Dropdown>
     );
 
-    renderMenu = (projectId, activeItem) => (
+    renderMenu = projectId => (
         <Menu pointing secondary className='top-menu'>
             <Menu.Item>
                 <Menu.Header as='h3'>
@@ -77,24 +74,6 @@ class Templates extends React.Component {
                     Bot responses
                 </Menu.Header>
             </Menu.Item>
-            <Menu.Item
-                name='content'
-                active={activeItem === 'content'}
-                onClick={this.handleMenuItemClick}
-            >
-                <Icon size='small' name='table' />
-                Content
-            </Menu.Item>
-            <Can I='responses:w' projectId={projectId}>
-                <Menu.Item
-                    name='import-export'
-                    active={activeItem === 'import-export'}
-                    onClick={this.handleMenuItemClick}
-                >
-                    <Icon size='small' name='retweet' />
-                    Import/Export
-                </Menu.Item>
-            </Can>
             <Can I='responses:w' projectId={projectId}>
                 <Menu.Menu position='right'>
                     <Menu.Item>{this.renderAddResponse()}</Menu.Item>
@@ -104,35 +83,25 @@ class Templates extends React.Component {
     );
 
     render() {
-        const { activeItem, activeEditor, newResponse } = this.state;
+        const { activeEditor, newResponse } = this.state;
         const {
             templates, projectId, nluLanguages, deleteBotResponse, events, loading,
         } = this.props;
         return (
             <div data-cy='responses-screen'>
-                {this.renderMenu(projectId, activeItem, nluLanguages)}
+                {this.renderMenu(projectId)}
                 <Loading loading={loading}>
                     <Container>
-                        {activeItem === 'content' && (
-                            <div>
-                                <TemplatesTable
-                                    deleteBotResponse={deleteBotResponse}
-                                    templates={templates}
-                                    nluLanguages={nluLanguages}
-                                    activeEditor={activeEditor}
-                                    setActiveEditor={this.setActiveEditor}
-                                    newResponse={newResponse}
-                                    closeNewResponse={() => this.setState({ newResponse: { open: false } })}
-                                    events={events}
-                                />
-                            </div>
-                        )}
-                        {activeItem === 'import-export' && (
-                            <Segment style={{ background: '#fff' }}>
-                                <ImportExport projectId={projectId} />
-                            </Segment>
-                        )}
-                        <br />
+                        <TemplatesTable
+                            deleteBotResponse={deleteBotResponse}
+                            templates={templates}
+                            nluLanguages={nluLanguages}
+                            activeEditor={activeEditor}
+                            setActiveEditor={this.setActiveEditor}
+                            newResponse={newResponse}
+                            closeNewResponse={() => this.setState({ newResponse: { open: false } })}
+                            events={events}
+                        />
                     </Container>
                 </Loading>
             </div>

@@ -317,6 +317,7 @@ exports.importProject = async function(req, res) {
             delete backup.project.templates;
         }
         delete backup.project.training;
+        if (backup.project.namespace) delete backup.project.namespace; // don't overwrite namespace
         for (let col in collections) {
             await overwriteCollection(projectId, project.nlu_models, col, backup);
         }

@@ -46,7 +46,7 @@ describe('Training', function() {
         cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('en');
         cy.testChatInput('/chitchat.greet', 'utter_hi');
-        cy.importNluData('bf', 'nlu_sample_en.json', 'English');
+        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.train();
         cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('en');
@@ -55,7 +55,7 @@ describe('Training', function() {
 
     it('Should train and serve a model containing stories + NLU in one language and adding a second language should work too', function() {
         cy.visit('/project/bf/stories');
-        cy.importNluData('bf', 'nlu_sample_en.json', 'English');
+        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         createStories();
         cy.train();
         cy.dataCy('open-chat').click({ force: true });
@@ -63,7 +63,7 @@ describe('Training', function() {
         cy.testChatInput('hi', 'utter_hi');
         cy.createNLUModelProgramatically('bf', '', 'fr'); // first don't import NLU data
         cy.train();
-        cy.importNluData('bf', 'nlu_sample_fr.json', 'French'); // now import the data
+        cy.importNluData('bf', 'nlu_sample_fr.json', 'fr'); // now import the data
         cy.train();
         cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('fr');
@@ -72,9 +72,9 @@ describe('Training', function() {
 
     it('Should train and serve a model containing stories and NLU in 2 languages', function() {
         cy.visit('/project/bf/stories');
-        cy.importNluData('bf', 'nlu_sample_en.json', 'English');
+        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.createNLUModelProgramatically('bf', '', 'fr');
-        cy.importNluData('bf', 'nlu_sample_fr.json', 'French');
+        cy.importNluData('bf', 'nlu_sample_fr.json', 'fr');
         createStories();
         cy.train();
         cy.dataCy('open-chat').click({ force: true });

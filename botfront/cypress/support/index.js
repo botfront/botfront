@@ -145,23 +145,6 @@ Cypress.Commands.add('MeteorCall', (method, args) => {
     );
 });
 
-// Cypress.Commands.add('createNLUModelWithImport', (projectId, name, language, description) => {
-//     let modelId = '';
-//     cy.createNLUModelProgramatically(projectId, name, language, description)
-//         .then((result) => {
-//             modelId = result;
-//             cy.fixture('bf_project_id.txt').then((id) => {
-//                 cy.visit(`/project/${id}/nlu/model/${modelId}`);
-//             });
-//             cy.dataCy('nlu-menu-settings').click();
-//             cy.contains('Import').click();
-//             cy.fixture('nlu_import.json', 'utf8').then((content) => {
-//                 cy.get('.file-dropzone').upload(content, 'data.json');
-//             });
-//             cy.contains('Import Training Data').click();
-//         });
-// });
-
 Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.visit(`/project/${projectId}/nlu/models`);
     cy.contains(language).click();
@@ -262,9 +245,11 @@ Cypress.Commands.add(
             // Please note that we need to create a file using window.File,
             // cypress overwrites File and this is not compatible with our change handlers in React Code
             const testFile = new window.File([blob], fileName);
-            cy.wrap(subject).trigger('drop', {
+            const dataTransfer = {
                 dataTransfer: { files: [testFile], types: ['Files'] },
-            });
+            };
+            cy.wrap(subject).trigger('dragenter', dataTransfer);
+            cy.wrap(subject).trigger('drop', dataTransfer);
         });
     },
 );
@@ -568,17 +553,15 @@ Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(
         });
     }));
 
-Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, langName = 'English') => {
-    cy.visit(`/project/${projectId}/nlu/models`);
-    cy.get('[data-cy=language-selector]').click();
-    cy.get('[data-cy=language-selector] input').type(`${langName}{enter}`);
-    cy.dataCy('nlu-menu-settings').click();
-    cy.contains('Import').click({ force: true });
+Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', overwrite = false) => {
     cy.fixture(fixture, 'utf8').then((content) => {
-        cy.get('.file-dropzone').upload(content, 'data.json');
+        cy.MeteorCall('nlu.import', [
+            content.rasa_nlu_data,
+            projectId,
+            lang,
+            overwrite,
+        ]);
     });
-    cy.contains('Import Training Data').click();
-    cy.get('.s-alert-success').should('be.visible');
     return cy.wait(500);
 });
 

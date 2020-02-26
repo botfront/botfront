@@ -17,7 +17,7 @@ describe('NLU Models ', function() {
         cy.visit('/project/bf/settings');
         cy.get('[data-cy=language-selector]').click();
         cy.get('[data-cy=language-selector] input').type('French{enter}');
-        cy.get('.project-settings-menu-info').click();
+        cy.dataCy('project-settings-menu-info').click();
         cy.get('[data-cy=save-changes]').click();
         cy.get('.s-alert-success').should('be.visible');
         cy.visit('/project/bf/nlu/models');
@@ -44,7 +44,7 @@ describe('NLU Models ', function() {
         cy.get('[data-cy=default-langauge-selection]')
             .contains('English')
             .click();
-        cy.get('.project-settings-menu-info').click();
+        cy.dataCy('project-settings-menu-info').click();
         cy.get('[data-cy=default-langauge-selection]').click();
 
         // Try to delete the default model

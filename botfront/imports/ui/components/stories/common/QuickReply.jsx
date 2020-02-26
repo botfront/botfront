@@ -30,7 +30,7 @@ function QuickReply({
         <button
             type='button'
             className={`quick-reply ${valid ? '' : 'invalid'}`}
-            data-cy={buttonValue.title.replace(' ', '_') || 'button_title'}
+            data-cy={buttonValue.title.replace(/ /g, '_') || 'button_title'}
         >
             {buttonValue.title || 'Button title'}
         </button>

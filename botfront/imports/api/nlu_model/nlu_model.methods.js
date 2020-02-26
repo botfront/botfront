@@ -19,9 +19,9 @@ import {
 import { Projects } from '../project/project.collection';
 import { checkIfCan } from '../../lib/scopes';
 
-const getModelWithTrainingData = (chitChatProjectId, language) => {
-    const modelIds = Projects.findOne({ _id: chitChatProjectId }, { fields: { nlu_models: 1 } }).nlu_models;
-    const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { 'training_data.common_examples': 1 } });
+const getModelWithTrainingData = (projectId, language) => {
+    const modelIds = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
+    const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { training_data: 1 } });
     return model;
 };
 
@@ -315,11 +315,13 @@ if (Meteor.isServer) {
             return NLUModels.update({ _id: modelId }, { $set: { chitchat_intents: intents } });
         },
 
-        'nlu.import'(nluData, modelId, overwrite) {
+        'nlu.import'(nluData, projectId, language, overwrite, canonicalExamples = []) {
+            checkIfCan('nlu-data:w', projectId);
             check(nluData, Object);
-            check(modelId, String);
+            check(projectId, String);
+            check(language, String);
             check(overwrite, Boolean);
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+            check(canonicalExamples, Array);
             /*
                 Right now, overwriting replaces training_data array, and non-overwrite
                 adds items whose filterExistent<identifier> doesn't already exist. Behavior to update existing
@@ -327,15 +329,19 @@ if (Meteor.isServer) {
             */
 
             try {
-                const currentModel = NLUModels.findOne({ _id: modelId }, { training_data: 1 });
+                const currentModel = getModelWithTrainingData(projectId, language);
                 let commonExamples; let entitySynonyms; let fuzzyGazette;
 
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
-                    commonExamples = nluData.common_examples.map(e => ({ ...e, _id: uuidv4() }));
+                    commonExamples = nluData.common_examples.map(e => ({
+                        ...e,
+                        _id: uuidv4(),
+                        canonical: canonicalExamples.includes(e.text),
+                    }));
                     commonExamples = {
                         'training_data.common_examples': overwrite
                             ? commonExamples
-                            : { $each: filterExistent(currentModel.training_data.common_examples, commonExamples, 'text') },
+                            : { $each: filterExistent(currentModel.training_data.common_examples, commonExamples, 'text'), $position: 0 },
                     };
                 }
 
@@ -344,23 +350,27 @@ if (Meteor.isServer) {
                     entitySynonyms = {
                         'training_data.entity_synonyms': overwrite
                             ? entitySynonyms
-                            : { $each: filterExistent(currentModel.training_data.entity_synonyms, entitySynonyms, 'value') },
+                            : { $each: filterExistent(currentModel.training_data.entity_synonyms, entitySynonyms, 'value'), $position: 0 },
                     };
                 }
 
-                if (nluData.fuzzy_gazette && nluData.fuzzy_gazette.length > 0) {
-                    fuzzyGazette = nluData.fuzzy_gazette.map(e => ({ ...e, _id: uuidv4() }));
+                let gazetteKey;
+                if (nluData.fuzzy_gazette && nluData.fuzzy_gazette.length > 0) gazetteKey = 'fuzzy_gazette';
+                if (nluData.gazette && nluData.gazette.length > 0) gazetteKey = 'gazette';
+
+                if (gazetteKey) {
+                    fuzzyGazette = nluData[gazetteKey].map(e => ({ ...e, _id: uuidv4() }));
                     fuzzyGazette = {
                         'training_data.fuzzy_gazette': overwrite
                             ? fuzzyGazette
-                            : { $each: filterExistent(currentModel.training_data.fuzzy_gazette, fuzzyGazette, 'value', gazetteDefaults) },
+                            : { $each: filterExistent(currentModel.training_data.fuzzy_gazette, fuzzyGazette, 'value', gazetteDefaults), $position: 0 },
                     };
                 }
 
                 const op = overwrite
                     ? { $set: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } }
                     : { $push: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } };
-                return NLUModels.update({ _id: modelId }, op);
+                return NLUModels.update({ _id: currentModel._id }, op);
             } catch (e) {
                 if (e instanceof Meteor.Error) throw e;
                 throw new Meteor.Error(e);
@@ -490,7 +500,7 @@ if (Meteor.isServer) {
                 // eslint-disable-next-line no-restricted-syntax
                 for (const lang of Object.keys(data)) {
                     // eslint-disable-next-line no-await-in-loop
-                    const modelId = await Meteor.callWithPromise(
+                    await Meteor.callWithPromise(
                         'nlu.insert',
                         {
                             name: `chitchat-${lang}`,
@@ -499,7 +509,7 @@ if (Meteor.isServer) {
                         projectId,
                     );
                     // eslint-disable-next-line no-await-in-loop
-                    await Meteor.callWithPromise('nlu.import', data[lang].rasa_nlu_data, modelId, true);
+                    await Meteor.callWithPromise('nlu.import', data[lang].rasa_nlu_data, projectId, lang, true);
                 }
 
                 GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.public.chitChatProjectId': projectId } });

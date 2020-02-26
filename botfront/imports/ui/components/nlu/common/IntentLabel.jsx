@@ -31,9 +31,9 @@ const Intent = React.forwardRef((props, ref) => {
     }));
 
     const textMatch = (s1, s2) => (s1 || '')
-        .replace(' ', '')
+        .replace(/ /g, '')
         .toLowerCase()
-        .includes((s2 || '').replace(' ', '').toLowerCase());
+        .includes((s2 || '').replace(/ /g, '').toLowerCase());
     const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput) || textMatch(i.text, typeInput));
 
     const hasInvalidChars = intentName => intentName.match(/[ +/{}/]/);

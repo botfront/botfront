@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 
 import { Slots } from './slots.collection';
 import { checkIfCan } from '../../lib/scopes';
@@ -31,6 +31,21 @@ Meteor.methods({
         } catch (e) {
             return handleError(e);
         }
+    },
+
+    'slots.upsert'(slot, projectId) {
+        check(projectId, String);
+        check(slot, Match.OneOf(Object, [Object]));
+        checkIfCan('stories:w', projectId);
+        const slots = Array.isArray(slot)
+            ? slot : [slot];
+        slots.forEach(({ name, ...rest }) => {
+            try {
+                Slots.update({ name, projectId }, { name, projectId, ...rest }, { upsert: true });
+            } catch (e) {
+                handleError(e);
+            }
+        });
     },
 
     'slots.update'(slot, projectId) {

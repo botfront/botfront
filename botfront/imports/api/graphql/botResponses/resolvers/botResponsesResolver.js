@@ -3,6 +3,7 @@ import {
     getBotResponses,
     getBotResponse,
     updateResponse,
+    createAndOverwriteResponses,
     createResponse,
     createResponses,
     deleteResponse,
@@ -70,6 +71,13 @@ export default {
                 botResponsesModified: args.response,
             });
             return { success: response.ok === 1 };
+        },
+        createAndOverwriteResponses: async (_, { projectId: pid, responses }) => {
+            const response = await createAndOverwriteResponses(pid, responses);
+            response.forEach(({ projectId, ...botResponsesModified }) => pubsub.publish(
+                RESPONSES_MODIFIED, { projectId, botResponsesModified },
+            ));
+            return response;
         },
         upsertResponse: async (_, args) => {
             const response = await upsertResponse(args);
