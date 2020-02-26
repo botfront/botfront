@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {
     Dropdown, Search,
 } from 'semantic-ui-react';
-import Linker from '../../Linker';
 
 const BotResponsePopupContent = (props) => {
     const {
@@ -11,18 +10,11 @@ const BotResponsePopupContent = (props) => {
     } = props;
     const [modalOpen, setModalOpen] = useState(false);
     const [closeNext, setCloseNext] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(defaultOpen);
+    const [menuOpen, setMenuOpen] = useState();
 
     useEffect(() => {
         if (closeNext && !modalOpen) onClose();
     }, [closeNext]);
-
-    const handleToggle = (e) => {
-        if (e) e.stopPropagation();
-        setMenuOpen(!menuOpen);
-        if (!menuOpen) trackOpenMenu(() => setMenuOpen(false));
-        if (menuOpen) setCloseNext(true);
-    };
 
     return (
         <>
@@ -45,42 +37,48 @@ const BotResponsePopupContent = (props) => {
                     ))}
                 </Modal.Content>
             </Modal> */}
-            <Linker onClick={handleToggle}>{trigger}</Linker>
-            {!!menuOpen && (
-                <Dropdown
-                    className='dropdown-button-trigger'
-                    onClose={handleToggle}
-                    open
-                >
-                    <Dropdown.Menu className='first-column'>
-                        { !disableExisting
-                    && (
+            <Dropdown
+                trigger={trigger}
+                className='dropdown-button-trigger'
+                defaultOpen={defaultOpen}
+                open={menuOpen}
+                onOpen={() => {
+                    setMenuOpen(true);
+                    trackOpenMenu(() => setMenuOpen(false));
+                }}
+                onClose={() => {
+                    setMenuOpen(false);
+                    setCloseNext(true);
+                }}
+            >
+                <Dropdown.Menu className='first-column'>
+                    { !disableExisting
+                        && (
+                            <>
+                                <Dropdown.Header>Select from existing</Dropdown.Header>
+                                <Dropdown.Item onClick={() => setModalOpen(true)}>
+                                    <Search fluid placeholder='Search responses...' />
+                                </Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Header>Or use a template</Dropdown.Header>
+                            </>
+                        )
+                    }
+                    <Dropdown.Item onClick={() => onCreate('text')} data-cy='from-text-template'>Text</Dropdown.Item>
+                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')} data-cy='from-qr-template'>Text with buttons (Quick reply)</Dropdown.Item>
+                    <Dropdown.Item onClick={() => onCreate('image')} data-cy='from-image-template'>Image</Dropdown.Item>
+                    <Dropdown.Item onClick={() => onCreate('custom')} data-cy='from-custom-template'>Custom</Dropdown.Item>
+                    {!limitedSelection
+                        && (
                         <>
-                            <Dropdown.Header>Select from existing</Dropdown.Header>
-                            <Dropdown.Item onClick={() => setModalOpen(true)}>
-                                <Search fluid placeholder='Search responses...' />
-                            </Dropdown.Item>
-                            <Dropdown.Divider />
-                            <Dropdown.Header>Or use a template</Dropdown.Header>
+                            <Dropdown.Item onClick={() => onCreate('video')} data-cy='from-video-template'>Video</Dropdown.Item>
+                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')} data-cy='from-carousel-template'>Carousel</Dropdown.Item>
+                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('button')} data-cy='from-button-template'>Button template</Dropdown.Item>
                         </>
-                    )
-                        }
-                        <Dropdown.Item onClick={() => onCreate('text')} data-cy='from-text-template'>Text</Dropdown.Item>
-                        <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('qr')} data-cy='from-qr-template'>Text with buttons (Quick reply)</Dropdown.Item>
-                        <Dropdown.Item onClick={() => onCreate('image')} data-cy='from-image-template'>Image</Dropdown.Item>
-                        <Dropdown.Item onClick={() => onCreate('custom')} data-cy='from-custom-template'>Custom</Dropdown.Item>
-                        {!limitedSelection
-                    && (
-                    <>
-                        <Dropdown.Item onClick={() => onCreate('video')} data-cy='from-video-template'>Video</Dropdown.Item>
-                        <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('carousel')} data-cy='from-carousel-template'>Carousel</Dropdown.Item>
-                        <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('button')} data-cy='from-button-template'>Button template</Dropdown.Item>
-                    </>
-                    )
-                        }
-                    </Dropdown.Menu>
-                </Dropdown>
-            )}
+                        )
+                    }
+                </Dropdown.Menu>
+            </Dropdown>
         </>
     );
 };

@@ -8,23 +8,12 @@ import {
     Dropdown,
 } from 'semantic-ui-react';
 import StoryPathPopup from './StoryPathPopup.jsx';
-import Linker from '../Linker';
 import { ConversationOptionsContext } from './Context';
 
 class StoryFooter extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            menuOpen: false,
-        };
-    }
-
-    componentDidUpdate = ({ destinationStory: oldDestination }) => {
-        // close linking menu if link just cleared
-        const { destinationStory } = this.props;
-        if (!destinationStory && destinationStory !== oldDestination) {
-            this.setState({ menuOpen: false });
-        }
+        this.state = {};
     }
 
     renderPath = () => {
@@ -140,67 +129,55 @@ class StoryFooter extends React.Component {
             </Menu.Item>
         );
     }
-    
-    handleToggle = (e) => {
-        const { menuOpen } = this.state;
-        if (e) e.stopPropagation();
-        this.setState({ menuOpen: !menuOpen });
-    };
 
-    renderLinkMenu = () => {
-        const { menuOpen } = this.state;
-        const {
-            canBranch, stories, currentStoryId, destinationStory, onDestinationStorySelection,
-        } = this.props;
-        return (
-            <Menu.Item
-                className={`footer-option-button remove-padding color-${this.selectIconColor(
-                    canBranch,
-                )}`}
-                data-cy='link-to'
-                position={this.positionStoryLinker(destinationStory)}
-            >
-                <Linker onClick={this.handleToggle}>
-                    <Icon
-                        disabled={!canBranch}
-                        name='arrow right'
-                        color='green'
-                    />
-                    {(destinationStory && !menuOpen) ? `Linked to ${destinationStory.title}` : 'Link to...'}
-                </Linker>
-                {!!menuOpen && (
-                    <Dropdown
-                        onClose={this.handleToggle}
-                        open
-                        placeholder='Select story'
-                        value={destinationStory ? destinationStory._id : ''}
-                        fluid
-                        search
-                        selection
-                        clearable
-                        selectOnBlur={false}
-                        className='stories-linker'
-                        options={this.filterDestinations(stories, currentStoryId)}
-                        data-cy='stories-linker'
-                        disabled={!canBranch}
-                        onChange={onDestinationStorySelection}
-                    />
-                )}
-            </Menu.Item>
-        );
-    };
+    renderLinkMenu = (destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) => (
+        <Menu.Item
+            className={`footer-option-button remove-padding color-${this.selectIconColor(
+                canBranch,
+            )}`}
+            data-cy='link-to'
+            position={this.positionStoryLinker(destinationStory)}
+        >
+            <Icon
+                disabled={!canBranch}
+                name='arrow right'
+                color='green'
+            />
+            Link&nbsp;to:
+            <Dropdown
+                placeholder='Select story'
+                value={destinationStory ? destinationStory._id : ''}
+                fluid
+                search
+                selection
+                clearable
+                selectOnBlur={false}
+                className='stories-linker'
+                options={this.filterDestinations(stories, currentStoryId)}
+                data-cy='stories-linker'
+                disabled={!canBranch}
+                onChange={onDestinationStorySelection}
+            />
+        </Menu.Item>
+    );
 
 
     positionStoryLinker = destinationStory => (destinationStory === null ? 'right' : 'left');
 
     render() {
-        const { canBranch, destinationStory } = this.props;
+        const {
+            canBranch,
+            stories,
+            currentStoryId,
+            destinationStory,
+            onDestinationStorySelection,
+        } = this.props;
         return (
-            <Segment data-cy='story-footer' className={`footer-segment ${destinationStory ? 'linked' : ''}`} size='mini' attached='bottom'>
+            <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
                     <>{this.renderBranchMenu(destinationStory, canBranch)}</>
-                    <>{this.renderLinkMenu()}</>
+                    <>{canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
@@ -223,7 +200,7 @@ StoryFooter.propTypes = {
 
 StoryFooter.defaultProps = {
     storyPath: [],
-    canBranch: false,
+    canBranch: true,
     canContinue: true,
     disableContinue: true,
     destinationStory: null,

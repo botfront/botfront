@@ -8,7 +8,6 @@ import { groupBy } from 'lodash';
 import { ConversationOptionsContext } from '../Context';
 import { ProjectContext } from '../../../layouts/context';
 import { slotValueToLabel } from '../SlotLabel';
-import Linker from '../../Linker';
 
 const SlotPopupContent = (props) => {
     const {
@@ -18,12 +17,6 @@ const SlotPopupContent = (props) => {
     const { slots } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState();
     const [menuOpen, setMenuOpen] = useState();
-
-    const handleToggle = (e) => {
-        if (e) e.stopPropagation();
-        setMenuOpen(!menuOpen);
-        if (!menuOpen) trackOpenMenu(() => setMenuOpen(false));
-    };
 
     if (!slots.length) {
         return (
@@ -68,76 +61,76 @@ const SlotPopupContent = (props) => {
     }
 
     return (
-        <>
-            <Linker onClick={handleToggle}>{trigger}</Linker>
-            {!!menuOpen && (
-                <Dropdown
-                    className='dropdown-button-trigger'
-                    onClose={handleToggle}
-                    open
-                >
-                    <Dropdown.Menu>
-                        <Dropdown.Header>Select a slot</Dropdown.Header>
-                        {cats.map(c => (
-                            <Dropdown.Item
-                                active={activeType === c}
-                                className='dropdown'
-                                key={`slotcat-${c}`}
-                            >
-                                <Dropdown
-                                    text={c}
-                                    fluid
-                                >
-                                    <Dropdown.Menu>
-                                        {slotsByCat[c].map(s => (
-                                            <Dropdown.Item
-                                                active={
-                                                    activeName
+        <Dropdown
+            trigger={trigger}
+            className='dropdown-button-trigger'
+            open={menuOpen}
+            onOpen={() => {
+                setMenuOpen(true);
+                trackOpenMenu(() => setMenuOpen(false));
+            }}
+            onClose={() => setMenuOpen(false)}
+        >
+            <Dropdown.Menu>
+                <Dropdown.Header>Select a slot</Dropdown.Header>
+                {cats.map(c => (
+                    <Dropdown.Item
+                        active={activeType === c}
+                        className='dropdown'
+                        key={`slotcat-${c}`}
+                    >
+                        <Dropdown
+                            text={c}
+                            fluid
+                        >
+                            <Dropdown.Menu>
+                                {slotsByCat[c].map(s => (
+                                    <Dropdown.Item
+                                        active={
+                                            activeName
                                             === s.name
-                                                }
-                                                className='dropdown'
-                                                key={`slotname-${s.name}`}
-                                            >
-                                                <Dropdown
-                                                    text={s.name}
-                                                    fluid
-                                                >
-                                                    <Dropdown.Menu>
-                                                        {getSlotValue(
-                                                            s,
-                                                        ).map(
-                                                            content => (
-                                                                <Dropdown.Item
-                                                                    onClick={() => onSelect(
-                                                                        {
-                                                                            ...s,
-                                                                            slotValue: content,
-                                                                        },
-                                                                    )
-                                                                    }
-                                                                    active={
-                                                                        slotValue
+                                        }
+                                        className='dropdown'
+                                        key={`slotname-${s.name}`}
+                                    >
+                                        <Dropdown
+                                            text={s.name}
+                                            fluid
+                                        >
+                                            <Dropdown.Menu>
+                                                {getSlotValue(
+                                                    s,
+                                                ).map(
+                                                    content => (
+                                                        <Dropdown.Item
+                                                            onClick={() => onSelect(
+                                                                {
+                                                                    ...s,
+                                                                    slotValue: content,
+                                                                },
+                                                            )
+                                                            }
+                                                            active={
+                                                                slotValue
                                                                 === content
-                                                                    }
-                                                                    key={`slotname-${s.name}-value-${content}`}
-                                                                    className='color-column'
-                                                                >
-                                                                    {slotValueToLabel(content)}
-                                                                </Dropdown.Item>
-                                                            ),
-                                                        )}
-                                                    </Dropdown.Menu>
-                                                </Dropdown>
-                                            </Dropdown.Item>
-                                        ))}
-                                    </Dropdown.Menu>
-                                </Dropdown>
-                            </Dropdown.Item>
-                        ))}
-                    </Dropdown.Menu>
-                </Dropdown>
-            )}
-        </>
+                                                            }
+                                                            key={`slotname-${s.name}-value-${content}`}
+                                                            className='color-column'
+                                                        >
+                                                            {slotValueToLabel(content)}
+                                                        </Dropdown.Item>
+                                                    ),
+                                                )}
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    </Dropdown.Item>
+                                ))}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Dropdown.Item>
+                ))}
+            </Dropdown.Menu>
+        </Dropdown>
     );
 };
 
