@@ -24,6 +24,10 @@ type Mutation {
         _id: String!
         response: BotResponseInput
     ): updateResponse!
+    createAndOverwriteResponses(
+        projectId: String!
+        responses: [BotResponseInput]
+    ): [BotResponse]
 
     upsertResponse(
         projectId: String!
@@ -134,18 +138,18 @@ type CustomPayload implements BotResponsePayload {
 
 interface Button {
     title: String!
-    type: ButtonType!
+    type: ButtonType
 }
 
 type PostbackButton implements Button {
     title: String!
-    type: ButtonType!
+    type: ButtonType
     payload: String
 }
 
 type WebUrlButton implements Button {
     title: String!
-    type: ButtonType!
+    type: ButtonType
     url: String
 }
 

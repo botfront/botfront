@@ -68,36 +68,17 @@ services:
     command:
       - run
       - --enable-api
+      - --debug
     # ports:
     #   - '5005:5005'
     depends_on:
-      - 'botfront-api'
+      - botfront
     volumes:
       - './mounted/models/:/app/models'
     environment:
       - BF_URL=http://botfront:3000/graphql
       - BF_PROJECT_ID=bf
 
-  # actions:
-  #   image: 'botfront/actions-sdk:latest'
-  #   container_name: botfront-test-actions
-  #   networks:
-  #     - botfront-network
-  #   restart: always
-  #   ports:
-  #     - '5055:5055'
-  #   volumes:
-  #     - './actions:/app/actions'
-  #   env_file:
-  #     - .env
-  # duckling:
-  #   image: 'botfront/duckling:latest'
-  #   container_name: botfront-test-duckling
-  #   networks:
-  #     - botfront-network
-  #   restart: always
-  #   ports:
-  #     - '8000:8000'
   mongo:
     image: 'mongo:latest'
     container_name: botfront-test-mongo

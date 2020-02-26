@@ -13,15 +13,14 @@ describe('training data import', function() {
     });
 
     it('should import training data', function() {
-        cy.visit('/project/bf/nlu/models');
-        cy.dataCy('nlu-menu-settings').click();
-        cy.contains('Import').click();
+        cy.visit('/project/bf/settings');
+        cy.dataCy('project-settings-menu-import-export').click();
         cy.fixture('nlu_import.json', 'utf8').then((content) => {
-            cy.get('.file-dropzone').upload(content, 'data.json');
+            cy.dataCy('drop-zone-nlu-data').upload(content, 'data.json');
         });
+        cy.wait(500);
+        cy.get('button').contains('Import').click({ force: true });
 
-        cy.contains('Import Training Data').click();
-        cy.get('.s-alert-success').should('be.visible');
         cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
         cy.contains('Statistics').click();

@@ -173,7 +173,7 @@ if (Meteor.isServer) {
                     host,
                 },
             );
-           
+
             const client = axios.create({
                 baseURL: host,
                 timeout: 100 * 1000,
@@ -186,7 +186,7 @@ if (Meteor.isServer) {
             });
             return data;
         },
-        async 'rasa.getTrainingPayload'(projectId, instance, language = '') {
+        async 'rasa.getTrainingPayload'(projectId, instance, { language = '', joinStoryFiles = true } = {}) {
             check(projectId, String);
             check(language, String);
             check(instance, Object);
@@ -226,19 +226,24 @@ if (Meteor.isServer) {
                 addLoggingInterceptors(client, appMethodLogger);
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < nluModels.length; ++i) {
+                    const currentLang = nluModels[i].language;
                     // eslint-disable-next-line no-await-in-loop
                     const { data } = await client.post('/data/convert/', {
                         data: getTrainingDataInRasaFormat(nluModels[i]),
                         output_format: 'md',
-                        language: nluModels[i].language,
+                        language: currentLang,
                     });
-                    nlu[nluModels[i].language] = data;
-                    config[nluModels[i].language] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
+                    const canonical = nluModels[i].training_data.common_examples.filter(e => e.canonical).map(e => e.text);
+                    const canonicalText = canonical.length
+                        ? `\n\n# canonical\n- ${canonical.join('\n- ')}`
+                        : '';
+                    nlu[currentLang] = { data: `# lang:${currentLang}${canonicalText}\n\n${data.data}` };
+                    config[currentLang] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
                 const { stories, domain } = await getStoriesAndDomain(projectId, language);
                 const payload = {
                     domain,
-                    stories,
+                    stories: joinStoryFiles ? stories.join('\n') : stories,
                     nlu,
                     config,
                     fixed_model_name: getProjectModelFileName(projectId),

@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
+import uuidv4 from 'uuid/v4';
 import { traverseStory, aggregateEvents } from '../../lib/story.utils';
 
 import { Stories } from './stories.collection';
@@ -9,8 +10,16 @@ export const checkStoryNotEmpty = story => story.story && !!story.story.replace(
 
 Meteor.methods({
     'stories.insert'(story) {
-        check(story, Object);
-        return Stories.insert(story);
+        check(story, Match.OneOf(Object, [Object]));
+        if (Array.isArray(story)) {
+            return Stories.rawCollection().insertMany(story
+                .map(s => ({
+                    ...s,
+                    ...(s._id ? {} : { _id: uuidv4() }),
+                    events: aggregateEvents(s),
+                })));
+        }
+        return Stories.insert({ ...story, events: aggregateEvents(story) });
     },
 
     async 'stories.update'(story, projectId) {

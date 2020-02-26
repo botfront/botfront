@@ -2,20 +2,16 @@ import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withTracker } from 'meteor/react-meteor-data';
 import { saveAs } from 'file-saver';
 
 import {
     Dropdown, Button, Message, Icon, Confirm,
 } from 'semantic-ui-react';
 
-import { Projects } from '../../../api/project/project.collection';
-import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
-
 import ImportDropField from './importProjectDropfield';
+import ImportRasaFiles from './ImportRasaFiles';
 
 const ImportProject = ({
-    // projectLanguages,
     setLoading,
     apiHost,
     projectId,
@@ -28,14 +24,14 @@ const ImportProject = ({
             successText: 'Your current project has been overwritten.',
             successHeader: 'Botfront import successful!',
         },
-        // {
-        //     key: 'rasa',
-        //     text: 'Import Rasa/Rasa X project',
-        //     value: 'rasa',
-        // },
+        {
+            key: 'rasa',
+            text: 'Import Rasa/Rasa X project',
+            value: 'rasa',
+        },
     ];
 
-    const [importType, setImportType] = useState({});
+    const [importType, setImportType] = useState(importTypeOptions[1]);
     const [botfrontFileSuccess, setBotfrontFileSuccess] = useState(false);
     const [backupSuccess, setbackupSuccess] = useState(undefined);
     const [backupErrorMessage, setBackupErrorMessage] = useState({ header: 'Backup failed!', text: '' });
@@ -134,24 +130,11 @@ const ImportProject = ({
         );
     }
 
-    return (
+    const renderImportBotfrontProject = () => (
         <>
-            <Dropdown
-                data-cy='import-type-dropdown'
-                key='format'
-                className='export-option'
-                options={importTypeOptions.map(({ value, key, text }) => ({ value, key, text }))}
-                placeholder='Select a format'
-                selection
-                onChange={(x, { value }) => {
-                    setImportType(importTypeOptions.find(options => options.value === value));
-                }}
-            />
-            <br />
             {importType.value === 'botfront' && !botfrontFileSuccess && (
                 <ImportDropField
                     onChange={fileAdded}
-                    text='Drop your Botfront project in JSON format here.'
                     manipulateData={JSON.parse}
                     verifyData={verifyBotfrontFile}
                     success={botfrontFileSuccess}
@@ -239,29 +222,37 @@ const ImportProject = ({
             )}
         </>
     );
+
+    return (
+        <>
+            <Dropdown
+                data-cy='import-type-dropdown'
+                key='format'
+                className='export-option'
+                options={importTypeOptions.map(({ value, key, text }) => ({ value, key, text }))}
+                placeholder='Select a format'
+                selection
+                value={importType.value}
+                onChange={(x, { value }) => {
+                    setImportType(importTypeOptions.find(options => options.value === value));
+                }}
+            />
+            <br />
+            {importType.value === 'botfront' && renderImportBotfrontProject()}
+            {importType.value === 'rasa' && <ImportRasaFiles />}
+        </>
+    );
 };
 
 ImportProject.propTypes = {
     projectId: PropTypes.string.isRequired,
-    projectLanguages: PropTypes.array,
     setLoading: PropTypes.func.isRequired,
     apiHost: PropTypes.string.isRequired,
 };
 
-ImportProject.defaultProps = {
-    projectLanguages: [],
-};
-
-const ImportProjectContainer = withTracker(({ projectId }) => {
-    const project = Projects.findOne({ _id: projectId });
-    const projectLanguages = getNluModelLanguages(project.nlu_models, true);
-    return {
-        projectLanguages,
-    };
-})(ImportProject);
-
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
-export default connect(mapStateToProps)(ImportProjectContainer);
+export default connect(mapStateToProps)(ImportProject);

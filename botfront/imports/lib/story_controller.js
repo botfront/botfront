@@ -134,15 +134,15 @@ export class StoryController {
             return;
         }
         if (rest.length) { this.raiseStoryException('slot'); return; } // should only have one key (slot name)
-        if (!{}.hasOwnProperty.call(this.domain.slots, slotName)) { this.raiseStoryException('no_such_slot'); return; }
 
-        const slot = this.domain.slots[slotName];
+        const slot = this.domain.slots[slotName] || {};
+        this.lines[this.idx].gui = { type: 'slot', data: { name: slotName, type: slot.type, slotValue } };
+        if (!{}.hasOwnProperty.call(this.domain.slots, slotName)) { this.raiseStoryException('no_such_slot'); return; }
         if (slot.type === 'bool' && typeof slotValue !== 'boolean') this.raiseStoryException('bool_slot');
         else if (slot.type === 'text' && !(slotValue === null || typeof slotValue === 'string')) this.raiseStoryException('text_slot');
         else if (slot.type === 'float' && !(slotValue === null || typeof slotValue === 'number')) this.raiseStoryException('float_slot');
         else if (slot.type === 'list' && !Array.isArray(slotValue)) this.raiseStoryException('list_slot');
         else if (slot.type === 'categorical' && !slot.values.includes(slotValue)) this.raiseStoryException('cat_slot');
-        else this.lines[this.idx].gui = { type: 'slot', data: { name: slotName, type: slot.type, slotValue } };
     };
 
     exceptionMessages = {
@@ -152,7 +152,7 @@ export class StoryController {
         intent: ['error', 'User utterances should look like this: `* MyIntent` or `* MyIntent{"entity": "value"}`.'],
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`.'],
         slot: ['error', 'Slot calls should look like this: `- slot{"slot_name": "slot_value"}`.'],
-        no_such_slot: ['error', 'Slot was not found. Have you defined it?'],
+        no_such_slot: ['warning', 'Slot was not found. Have you defined it?'],
         no_such_response: ['warning', 'Response was not found. Have you defined it?'],
         bool_slot: ['error', 'Expected a boolean value for this slot.'],
         text_slot: ['error', 'Expected a text value for this slot.'],

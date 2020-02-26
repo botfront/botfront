@@ -89,14 +89,14 @@ export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
     ...nLevelStory,
     story: (nLevelStory.branches && nLevelStory.branches.length)
         ? `${nLevelStory.story || ''}\n\
-> ${remainder ? `${remainder.replace(' ', '_')}__` : ''}${nLevelStory.title.replace(' ', '_')}__branches`
+> ${remainder ? `${remainder.replace(/ /g, '_')}__` : ''}${nLevelStory.title.replace(/ /g, '_')}__branches`
         : nLevelStory.story || '',
     title: `${remainder ? `${remainder}__` : ''}${nLevelStory.title}`,
     branches: (nLevelStory.branches && nLevelStory.branches.length)
         ? nLevelStory.branches.map(n1LevelStory => (
             appendBranchCheckpoints({
                 ...n1LevelStory,
-                story: `> ${remainder ? `${remainder.replace(' ', '_')}__` : ''}${nLevelStory.title.replace(' ', '_')}__branches\n\
+                story: `> ${remainder ? `${remainder.replace(/ /g, '_')}__` : ''}${nLevelStory.title.replace(/ /g, '_')}__branches\n\
 ${n1LevelStory.story || ''}`,
             }, `${remainder ? `${remainder}__` : ''}${nLevelStory.title}`)
         ))
@@ -294,54 +294,58 @@ export const getAllTemplates = async (projectId, language = '') => {
     }, {});
 };
 
-export const getStoriesAndDomain = async (projectId, language) => {
-    const appMethodLogger = storyAppLogger.child({ method: 'getStoriesAndDomain', args: { projectId, language } });
-
+export const getDefaultDomainAndLanguage = (projectId) => {
     const { defaultDomain: yamlDDomain, defaultLanguage } = Projects.findOne({ _id: projectId }, { defaultDomain: 1, defaultLanguage: 1 });
     const defaultDomain = yaml.safeLoad(yamlDDomain.content) || {};
-    
+    return { defaultDomain, defaultLanguage };
+};
+
+export const getStoriesAndDomain = async (projectId, language) => {
+    const appMethodLogger = storyAppLogger.child({ method: 'getStoriesAndDomain', args: { projectId, language } });
     appMethodLogger.debug('Retrieving default domain');
+    const { defaultDomain, defaultLanguage } = getDefaultDomainAndLanguage(projectId);
+
     defaultDomain.slots = {
         ...(defaultDomain.slots || {}),
         fallback_language: { type: 'unfeaturized', initial_value: defaultLanguage },
     };
     appMethodLogger.debug('Selecting story groups');
-    const selectedStoryGroupsIds = StoryGroups.find(
-        { projectId, selected: true },
-        { fields: { _id: 1 } },
-    ).fetch().map(storyGroup => storyGroup._id);
-    appMethodLogger.debug('Fetching stories');
-    const stories = selectedStoryGroupsIds.length > 0
-        ? Stories.find(
-            { projectId, storyGroupId: { $in: selectedStoryGroupsIds } },
+    const storyGroups = StoryGroups.find(
+        { projectId }, { fields: { _id: 1, name: 1 } },
+    ).fetch();
+
+    let selectedStoryGroups = storyGroups.filter(sg => sg.selected);
+    selectedStoryGroups = selectedStoryGroups.length
+        ? selectedStoryGroups
+        : storyGroups;
+    const storiesByStoryGroup = []; let storiesForDomainExtraction = [];
+
+    appMethodLogger.debug('Fetching and formatting stories');
+    selectedStoryGroups.forEach(({ _id, name }) => {
+        const stories = Stories.find(
+            { projectId, storyGroupId: _id },
             {
                 fields: {
                     story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
                 },
             },
-        ).fetch()
-        : Stories.find({ projectId }, {
-            fields: {
-                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
-            },
-        }).fetch();
-    appMethodLogger.debug('Flatening stories');
-    const storiesForDomain = stories
-        .reduce((acc, story) => [...acc, ...flattenStory(story)], []);
-    appMethodLogger.debug('Adding branch checkpoints');
-    let storiesForRasa = stories
-        .map(story => (story.errors && story.errors.length > 0 ? { ...story, story: '' } : story))
-        .map(story => appendBranchCheckpoints(story));
-    appMethodLogger.debug('Adding links checkpoints');
-    storiesForRasa = addlinkCheckpoints(storiesForRasa)
-        .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
-        .map(story => `## ${story.title}\n${story.story}`);
+        ).fetch();
+        storiesForDomainExtraction = storiesForDomainExtraction.concat(stories
+            .reduce((acc, story) => [...acc, ...flattenStory(story)], []));
+        const storiesForThisSG = addlinkCheckpoints(stories) // addlinkCheckpoints modified original story objects
+            .map(story => appendBranchCheckpoints(story))
+            .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
+            .map(story => `## ${story.title}\n${story.story}`)
+            .join('\n');
+        storiesByStoryGroup.push(`# ${name}\n\n${storiesForThisSG}`);
+    });
+
     appMethodLogger.debug('Fetching templates');
     const templates = await getAllTemplates(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     return {
-        stories: storiesForRasa.join('\n'),
-        domain: extractDomain(storiesForDomain, slots, templates, defaultDomain),
+        stories: storiesByStoryGroup,
+        domain: extractDomain(storiesForDomainExtraction, slots, templates, defaultDomain),
     };
 };
 

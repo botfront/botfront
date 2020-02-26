@@ -38,7 +38,7 @@ export const SlotSchema = new SimpleSchema({
 
 export const slotSchemas = {
     bool: new SimpleSchema({
-        initialValue: { type: Boolean, defaultValue: false },
+        initialValue: { type: Boolean, defaultValue: false, optional: true },
     }).extend(SlotSchema),
 
     categorical: new SimpleSchema({
@@ -70,10 +70,17 @@ export const slotSchemas = {
     }).extend(SlotSchema),
 
     text: new SimpleSchema({
-        initialValue: { type: String, defaultValue: '' },
+        initialValue: { type: String, defaultValue: null, optional: true },
     }).extend(SlotSchema),
 
-    unfeaturized: new SimpleSchema({}).extend(SlotSchema),
+    unfeaturized: new SimpleSchema({
+        initialValue: SimpleSchema.oneOf(
+            { type: String, defaultValue: null, optional: true },
+            { type: Boolean, defaultValue: false, optional: true },
+            { type: Number, defaultValue: null, optional: true },
+            { type: Object, defaultValue: null, optional: true },
+        ),
+    }).extend(SlotSchema),
 };
 
 slotSchemas.float.messageBox.messages({
