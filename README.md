@@ -90,7 +90,9 @@ npm install -g botfront
 
 Then just run `botfront`to get started.
 
-<img src="/botfront/docs/terminalizer/botfront-setup.gif?raw=true" width="100%">
+<!-- broken image. commented out as I'm not sure it should be deleted -->
+<!-- <img src="/botfront/docs/terminalizer/botfront-setup.gif?raw=true" width="100%"> -->
+
 <br/>
 <h2 name="documentation" align="center">Documentation</h2>
 
@@ -130,9 +132,9 @@ Some [botfront cli](https://github.com/botfront/botfront/blob/master/cli/src/cli
 botfront init     # create a new botfront project
 botfront logs     # show the logs!
 botfront killall  # stop all docker services
-botfront down 	  # stop all botfront services
-botfront up 	    # restart botfront
-botfront docs 	  # open the docs in your browser
+botfront down     # stop all botfront services
+botfront up       # restart botfront
+botfront docs     # open the docs in your browser
 ```
 
 Note that these should be run from the same directory as your botfront project
