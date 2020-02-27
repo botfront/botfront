@@ -18,8 +18,8 @@ type ActivityPage {
 }
 
 type Mutation {
-  upsertActivity(modelId: String!, data: [ActivityInput!]!): [Activity!]
-  deleteActivity(modelId: String!, ids: [String!]!): [Activity!]
+  upsertActivity(modelId: String!, data: [ActivityInput!]!, isOoS: Boolean): [Activity!]
+  deleteActivity(modelId: String!, ids: [String!]!, isOoS: Boolean): [Activity!]
 }
 
 input ActivityInput {

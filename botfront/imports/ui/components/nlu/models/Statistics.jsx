@@ -36,7 +36,7 @@ const Statistics = (props) => {
         })
             .sort((r1, r2) => (r2[workingLanguage] || 0) - (r1[workingLanguage] || 0));
 
-    const dataToDisplay = useMemo(() => getDataToDisplay());
+    const dataToDisplay = useMemo(() => getDataToDisplay(), [data]);
 
     const downloadData = () => {
         const headers = ['intent', 'example', ...projectLanguages.map(l => l.value)];

@@ -1,14 +1,18 @@
 import { Container, Button, Message } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React from 'react';
+import React, {
+    useContext, useState, useEffect, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Loading } from '../utils/Utils';
 
 import { can } from '../../../lib/scopes';
 import { Stories } from '../../../api/story/stories.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditorContainer from './StoryEditorContainer';
 import { setStoriesCollapsed } from '../../store/actions/actions';
+import { ProjectContext } from '../../layouts/context';
 
 function StoryEditors(props) {
     const {
@@ -18,7 +22,26 @@ function StoryEditors(props) {
         storyGroups,
         storyGroup,
         collapseAllStories,
+        workingLanguage,
     } = props;
+
+    const { addResponses } = useContext(ProjectContext);
+    const [lastUpdate, setLastUpdate] = useState(0);
+
+    const lastDate = useMemo(() => Date.now(), [stories.length, workingLanguage]);
+
+    useEffect(() => {
+        const responsesInFetchedStories = stories.reduce((acc, curr) => [...acc, ...((curr.events || []).filter(
+            event => event.match(/^utter_/) && !acc.includes(event),
+        ))], []);
+        if (responsesInFetchedStories.length) {
+            addResponses(responsesInFetchedStories)
+                .then((res) => {
+                    if (res) setLastUpdate(res);
+                    else setLastUpdate(lastDate);
+                });
+        } else setLastUpdate(lastDate);
+    }, [stories.length, workingLanguage]);
 
     const groupNames = storyGroups
         .filter(({ query }) => !query)
@@ -114,15 +137,13 @@ function StoryEditors(props) {
             groupNames={groupNames}
             onMove={newGroupId => handleMoveStory(newGroupId, index)}
             onClone={() => handleDuplicateStory(index)}
-            onSaving={() => {}}
-            onSaved={() => {}}
             isInSmartStories={!!storyGroup.query}
             collapseAllStories={handleCollapseAllStories}
         />
     ));
 
     return (
-        <>
+        <Loading loading={lastUpdate < lastDate}>
             {storyGroup.query && stories.length === 0 && (
                 <Message info icon={{ name: 'info circle', size: 'small' }} content='Stories with smart triggers will appear here' data-cy='smart-stories-message' />
             )}
@@ -141,7 +162,7 @@ function StoryEditors(props) {
                     />
                 )}
             </Container>
-        </>
+        </Loading>
     );
 }
 
@@ -152,6 +173,7 @@ StoryEditors.propTypes = {
     projectId: PropTypes.string.isRequired,
     onDeleteGroup: PropTypes.func.isRequired,
     collapseAllStories: PropTypes.func.isRequired,
+    workingLanguage: PropTypes.string.isRequired,
 };
 
 StoryEditors.defaultProps = {
@@ -182,7 +204,8 @@ const StoryEditorsTracker = withTracker((props) => {
     };
 })(StoryEditors);
 
-const mapStateToProps = () => ({
+const mapStateToProps = state => ({
+    workingLanguage: state.settings.get('workingLanguage'),
 });
 
 const mapDispatchToProps = {

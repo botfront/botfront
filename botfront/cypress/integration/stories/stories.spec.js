@@ -293,6 +293,7 @@ describe('stories', function() {
         cy.dataCy('branch-label').should('have.length', 4);
         cy.dataCy('branch-label')
             .eq(1)
+            .click({ force: true })
             .click({ force: true });
         cy.dataCy('branch-label').should('have.length', 2);
         cy.dataCy('branch-label')
@@ -405,7 +406,6 @@ describe('stories', function() {
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
-        cy.dataCy('stories-linker').click({ force: true });
         cy.dataCy('stories-linker')
             .find('div')
             .children()
@@ -447,6 +447,7 @@ describe('stories', function() {
             .last()
             .find('.trash.small.disabled');
     });
+
     it('should disable the delete button in the story top menu for linked destination stories', function () {
         cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });

@@ -2,7 +2,9 @@ import {
     Container, Grid, Message, Modal,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+    useState, useEffect, useContext, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
@@ -29,18 +31,11 @@ function Stories(props) {
         ready,
     } = props;
 
-    const { slots, subscribeToNewBotResponses } = useContext(ProjectContext);
+    const { slots } = useContext(ProjectContext);
 
     const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
-
-    useEffect(() => {
-        const unSubscribe = subscribeToNewBotResponses();
-        return function cleanup() {
-            unSubscribe();
-        };
-    }, []);
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -57,6 +52,16 @@ function Stories(props) {
     );
 
     const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
+
+    const reshapeStories = () => stories
+        .map(story => ({ ...story, text: story.title, value: story._id }))
+        .sort((storyA, storyB) => {
+            if (storyA.text < storyB.text) return -1;
+            if (storyA.text > storyB.text) return 1;
+            return 0;
+        });
+
+    const storiesReshaped = useMemo(reshapeStories, [stories]);
 
     useEffect(() => {
         if (switchToGroupByIdNext) {
@@ -148,7 +153,7 @@ function Stories(props) {
         <ConversationOptionsContext.Provider
             value={{
                 browseToSlots: () => setSlotsModal(true),
-                stories,
+                stories: storiesReshaped,
                 storyGroups,
                 deleteStoryGroup: handleDeleteGroup,
             }}
@@ -187,11 +192,7 @@ function Stories(props) {
                                 onDeleteGroup={handleDeleteGroup}
                                 projectId={projectId}
                                 storyGroups={storyGroups}
-                                storyGroup={
-                                    storyGroups[storyGroupCurrent]
-                                    || storyGroups[storyGroupCurrent + 1]
-                                    || storyGroups[storyGroupCurrent - 1]
-                                }
+                                storyGroup={storyGroups[storyGroupCurrent]}
                             />
                         </Grid.Column>
                     </Grid.Row>
@@ -221,7 +222,7 @@ Stories.defaultProps = {
 
 
 const StoriesWithTracker = withTracker((props) => {
-    const { projectId } = props;
+    const { projectId, storyGroupCurrent, changeStoryGroup } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
@@ -249,12 +250,21 @@ const StoriesWithTracker = withTracker((props) => {
     };
     const storyGroups = [unsortedStoryGroups[0], smartStoryGroup, ...sortedStoryGroups];
 
+    let sgIndex = storyGroupCurrent;
+    if (!storyGroups[sgIndex]) {
+        if (storyGroups[sgIndex + 1]) sgIndex += 1;
+        else if (storyGroups[sgIndex - 1]) sgIndex -= 1;
+        else sgIndex = 0;
+        changeStoryGroup(sgIndex);
+    }
+
     return {
         ready:
             storyGroupsHandler.ready()
             && storiesHandler.ready(),
         storyGroups,
         stories: StoriesCollection.find({}).fetch(),
+        storyGroupCurrent: sgIndex,
     };
 })(Stories);
 

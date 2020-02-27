@@ -3,7 +3,6 @@ import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
 import { StorySchema } from './stories.schema';
-import { StoryGroups } from '../storyGroups/storyGroups.collection';
 
 export const Stories = new Mongo.Collection('stories');
 
@@ -21,26 +20,12 @@ Stories.deny({
 });
 
 if (Meteor.isServer) {
-    Meteor.publish('stories', function(projectId) {
-        check(projectId, String);
-        checkIfCan('stories:r', projectId);
-        return Stories.find({ projectId });
-    });
-
     Meteor.publish('smartStories', function(projectId, query) {
         check(projectId, String);
         check(query, Object);
         checkIfCan('stories:r', projectId);
         return Stories.find({ projectId, ...query });
     });
-
-    Meteor.publish('stories.intro', function(projectId) {
-        check(projectId, String);
-        checkIfCan('stories:r', projectId);
-        const { _id: storyGroupId } = StoryGroups.findOne({ introStory: true, projectId }, { fields: { _id: 1 } });
-        return Stories.find({ projectId, storyGroupId });
-    });
-
     Meteor.publish('stories.inGroup', function(projectId, groupId) {
         check(groupId, String);
         check(projectId, String);

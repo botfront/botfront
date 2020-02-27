@@ -67,10 +67,4 @@ Meteor.methods({
         validateSchema(slot);
         return Slots.remove(slot);
     },
-
-    'slots.getSlots'(projectId) {
-        check(projectId, String);
-        checkIfCan(['stories:r'], projectId);
-        return Slots.find({ projectId }).fetch();
-    },
 });

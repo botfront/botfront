@@ -15,18 +15,11 @@ import {
 const { PubSub, withFilter } = require('apollo-server-express');
 
 const pubsub = new PubSub();
-const RESPONSE_ADDED = 'RESPONSE_ADDED';
 const RESPONSES_MODIFIED = 'RESPONSES_MODIFIED';
 const RESPONSE_DELETED = 'RESPONSE_DELETED';
 
 export default {
     Subscription: {
-        botResponseAdded: {
-            subscribe: withFilter(
-                () => pubsub.asyncIterator([RESPONSE_ADDED]),
-                (payload, variables) => payload.projectId === variables.projectId,
-            ),
-        },
         botResponsesModified: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([RESPONSES_MODIFIED]),
@@ -91,7 +84,6 @@ export default {
                 projectId: args.projectId,
                 botResponsesModified: response,
             });
-            pubsub.publish(RESPONSE_ADDED, { projectId: args.projectId, botResponseAdded: args.response });
             return { success: !!response.id };
         },
         async createResponses(_, args, __) {

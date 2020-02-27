@@ -156,7 +156,7 @@ if (Meteor.isServer) {
             checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
 
             try {
-                const stories = await Meteor.callWithPromise('stories.getStories', projectId);
+                const stories = Stories.find({ projectId }).fetch();
                 const slots = Slots.find({ projectId }).fetch();
                 const {
                     intents: intentSetFromDomain = [],
@@ -220,18 +220,6 @@ if (Meteor.isServer) {
                 if (!deploymentEnvironments) return ['development']; // key doesn't exist
                 if (!deploymentEnvironments.includes('development')) return ['development', ...deploymentEnvironments]; // key doesn't include dev
                 return deploymentEnvironments;
-            } catch (error) {
-                throw error;
-            }
-        },
-
-        async 'project.getSlots'(projectId) {
-            check(projectId, String);
-            checkIfCan(['stories:r'], projectId);
-
-            try {
-                const slots = await Meteor.callWithPromise('slots.getSlots', projectId);
-                return slots;
             } catch (error) {
                 throw error;
             }

@@ -135,12 +135,12 @@ const StoryTopMenu = ({
             ];
         });
         return Object.keys(connectedStories).map(key => (
-            <>
-                <Header key={storyGroupIdDictionary[key]}>
+            <React.Fragment key={storyGroupIdDictionary[key]}>
+                <Header>
                     {storyGroupIdDictionary[key]}
                 </Header>
                 {connectedStories[key]}
-            </>
+            </React.Fragment>
         ));
     };
 

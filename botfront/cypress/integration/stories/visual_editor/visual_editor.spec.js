@@ -23,7 +23,10 @@ describe('story visual editor', function () {
     });
 
     beforeEach(function () {
-        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
+        cy.createProject('bf', 'My Project', 'en').then(
+            () => cy.createNLUModelProgramatically('bf', '', 'de'),
+        );
+        cy.login();
     });
     
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
@@ -153,15 +156,45 @@ describe('story visual editor', function () {
             .should('have.attr', 'src', IMAGE_URL);
     });
 
+    it('should rerender on language change', function () {
+        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
+        cy.visit('/project/bf/stories');
+
+        cy.dataCy('bot-response-input')
+            .find('textarea')
+            .type('I agree let\'s do it!!')
+            .blur();
+
+        cy.dataCy('language-selector').click().find('div').contains('German')
+            .click({ force: true });
+        cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
+        cy.dataCy('single-story-editor').should('not.contain', 'I agree let\'s do it!!');
+
+        cy.dataCy('language-selector').click().find('div').contains('English')
+            .click({ force: true });
+        cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
+        cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
+
+        cy.dataCy('language-selector').click().find('div').contains('German')
+            .click({ force: true });
+        cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
+        cy.dataCy('single-story-editor').should('not.contain', 'I agree let\'s do it!!');
+
+        cy.dataCy('language-selector').click().find('div').contains('English')
+            .click({ force: true });
+        cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
+        cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
+    });
+
     it('should use the canonical example if one is available', function () {
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
             {
                 text: 'bonjour canonical',
                 intent: 'chitchat.greet',
                 canonical: true,
             },
         ]]);
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
             {
                 text: 'bonjour not canonical',
                 intent: 'chitchat.greet',
@@ -177,7 +210,7 @@ describe('story visual editor', function () {
     });
 
     it('should use the most recent example if no canonical is available', function () {
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
             {
                 text: 'bonjour not canonical',
                 intent: 'chitchat.greet',
@@ -186,7 +219,7 @@ describe('story visual editor', function () {
         cy.visit('/project/bf/nlu/models');
         cy.get('.black.gem').click({ force: true });
         cy.get('.black.gem').should('not.exist');
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'fr', [
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
             {
                 text: 'bonjour not canonical recent',
                 intent: 'chitchat.greet',

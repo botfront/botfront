@@ -165,7 +165,7 @@ describe('Bot responses', function() {
         cy.dataCy('toggle-md').click();
         cy.get('.ace_content').click({ force: true });
         cy.get('textarea').type('  - utter_test_A               '); // the spaces are a workaround for a bug with md saving
-
+        cy.get('.book.icon').eq(0).click();
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
         cy.dataCy('add-text-response').click();
@@ -218,6 +218,7 @@ describe('Bot responses', function() {
             .parents('.rt-tr').find('[data-cy=response-text]')
             .should('have.text', 'edited content');
     });
+
     it('be able to edit a response with the response editor in the visual story editor', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click();
@@ -228,7 +229,7 @@ describe('Bot responses', function() {
         cy.dataCy('toggle-md').click();
         cy.get('.ace_content').click({ force: true });
         cy.get('textarea').type('  - utter_test_A                 '); // the spaces are a workaround for a bug with md saving
-        
+        cy.get('.book.icon').eq(0).click();
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('create-response').click();
         cy.dataCy('add-text-response').click();

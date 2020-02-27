@@ -78,22 +78,14 @@ class StoryFooter extends React.Component {
         return ' linked';
     }
 
-    reshapeStoriesData = (data, currentStoryId) => (
-        data.filter((story) => {
-            if (story._id === currentStoryId) {
-                if (story.branches && story.branches.length > 0 && !(story.rules && story.rules.length > 0)) return true;
-                return false;
-            }
-            if (story.rules && story.rules.length > 0) return false;
-            return true;
-        })
-            .map(story => ({ key: story._id, text: story.title, value: story._id }))
-            .sort((storyA, storyB) => {
-                if (storyA.text < storyB.text) return -1;
-                if (storyA.text > storyB.text) return 1;
-                return 0;
-            })
-    )
+    filterDestinations = (data, currentStoryId) => data.filter((story) => {
+        if (story._id === currentStoryId) {
+            if (story.branches && story.branches.length > 0 && !(story.rules && story.rules.length > 0)) return true;
+            return false;
+        }
+        if (story.rules && story.rules.length > 0) return false;
+        return true;
+    }).map(({ value, text }) => ({ value, text }));
 
 
     renderContinue = () => {
@@ -162,7 +154,7 @@ class StoryFooter extends React.Component {
                 clearable
                 selectOnBlur={false}
                 className='stories-linker'
-                options={this.reshapeStoriesData(stories, currentStoryId)}
+                options={this.filterDestinations(stories, currentStoryId)}
                 data-cy='stories-linker'
                 disabled={!canBranch}
                 onChange={onDestinationStorySelection}

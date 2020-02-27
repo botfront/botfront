@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const upsertActivity = gql`
 mutation (
-    $modelId: String!,
+    $modelId: String!
     $data: [ActivityInput!]!
 ) {
     upsertActivity(
@@ -31,7 +31,7 @@ mutation (
 
 export const deleteActivity = gql`
 mutation (
-    $modelId: String!,
+    $modelId: String!
     $ids: [String!]!
 ) {
     deleteActivity(
