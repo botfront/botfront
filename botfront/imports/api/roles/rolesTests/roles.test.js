@@ -300,6 +300,11 @@ const methods = [
         args: [null, projectId],
     },
     {
+        name: 'slots.upsert',
+        roles: writers.stories,
+        args: [null, projectId],
+    },
+    {
         name: 'slots.delete',
         roles: writers.stories,
         args: [null, projectId],
