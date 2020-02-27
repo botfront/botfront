@@ -1,7 +1,6 @@
 import React, { useReducer } from 'react';
 import PropTypes from 'prop-types';
-import Navigation, { AkNavigationItem } from '@atlaskit/navigation';
-import { Icon } from 'semantic-ui-react';
+import { Icon, Menu } from 'semantic-ui-react';
 import Tree, { mutateTree, moveItemOnTree } from '@atlaskit/tree';
 
 export default function StoryGroupTree(props) {
@@ -49,22 +48,29 @@ export default function StoryGroupTree(props) {
             ? () => toggleExpansion(item)
             : () => onChangeActiveStory(item);
         return (
-            <div ref={provided.innerRef} {...provided.draggableProps}>
-                <AkNavigationItem
-                    isSelected={item.id === activeStory.id}
-                    isDragging={snapshot.isDragging}
+            <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+            >
+                <Menu.Item
+                    active={item.id === activeStory.id}
                     onClick={onClick}
-                    text={item.data ? item.data.title : ''}
-                    icon={getIcon(item)}
-                    dnd={{ dragHandleProps: provided.dragHandleProps }}
+                    content={(
+                        <>
+                            <span>{getIcon(item)}</span>
+                            <span>{item.data ? item.data.title : ''}</span>
+                        </>
+                    )}
                 />
+
             </div>
         );
     };
 
     return (
         <div style={{ display: 'flex' }}>
-            <Navigation>
+            <Menu pointing secondary vertical>
                 <Tree
                     tree={tree}
                     renderItem={renderItem}
@@ -74,7 +80,7 @@ export default function StoryGroupTree(props) {
                     isDragEnabled
                     isNestingEnabled
                 />
-            </Navigation>
+            </Menu>
         </div>
     );
 }

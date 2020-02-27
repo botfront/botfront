@@ -205,7 +205,7 @@ const mockTree = {
 function StoryGroupTreeWrapped() {
     const [activeStory, setActiveStory] = useState({ data: {} });
     return (
-        <div>
+        <div className='side-by-side'>
             <div>
                 <StoryGroupTree
                     tree={mockTree}
@@ -213,9 +213,11 @@ function StoryGroupTreeWrapped() {
                     activeStory={activeStory}
                 />
             </div>
-            <h1 style={{ position: 'absolute', right: '30%' }}>
-                {activeStory.data.title}
-            </h1>
+            <div>
+                <h1>
+                    {activeStory.data.title}
+                </h1>
+            </div>
         </div>
     );
 }
