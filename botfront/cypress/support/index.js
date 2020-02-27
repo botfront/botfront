@@ -136,20 +136,6 @@ Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.get('.ui.page.modals .primary').click();
 });
 
-Cypress.Commands.add('deleteNLUModelProgramatically', (modelId, projectId, language) => {
-    if (!language) {
-        cy.MeteorCall('nlu.remove', [
-            `${modelId}`,
-            `${projectId}`,
-        ]);
-    } else {
-        cy.MeteorCall('nlu.removelanguage', [
-            `${projectId}`,
-            language,
-        ]);
-    }
-});
-
 Cypress.Commands.add('createResponse', (projectId, responseName) => {
     cy.visit(`/project/${projectId}/dialogue/templates/add`);
     cy.get('[data-cy=response-name] input').type(responseName);

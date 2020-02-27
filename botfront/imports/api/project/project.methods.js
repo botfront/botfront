@@ -150,7 +150,7 @@ if (Meteor.isServer) {
             check(language, String);
 
             try {
-                const stories = await Meteor.callWithPromise('stories.getStories', projectId);
+                const stories = Stories.find({ projectId }).fetch();
                 const slots = Slots.find({ projectId }).fetch();
                 const {
                     intents: intentSetFromDomain = [],
@@ -174,17 +174,6 @@ if (Meteor.isServer) {
             try {
                 const { defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { defaultLanguage: 1 } });
                 return defaultLanguage;
-            } catch (error) {
-                throw error;
-            }
-        },
-
-        async 'project.getSlots'(projectId) {
-            check(projectId, String);
-
-            try {
-                const slots = await Meteor.callWithPromise('slots.getSlots', projectId);
-                return slots;
             } catch (error) {
                 throw error;
             }

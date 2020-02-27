@@ -64,11 +64,6 @@ Meteor.methods({
         return result;
     },
 
-    'stories.getStories'(projectId) {
-        check(projectId, String);
-        return Stories.find({ projectId }).fetch();
-    },
-
     'stories.addCheckpoints'(destinationStory, branchPath) {
         check(destinationStory, String);
         check(branchPath, Array);

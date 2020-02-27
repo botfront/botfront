@@ -403,7 +403,6 @@ const ProjectContainer = withTracker((props) => {
     const projectHandler = Meteor.subscribe('projects', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
-    const introStoryGroupIdHandler = Meteor.subscribe('introStoryGroup', projectId);
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
     const instance = Instances.findOne({ projectId });
@@ -413,7 +412,6 @@ const ProjectContainer = withTracker((props) => {
         credentialsHandler.ready(),
         projectHandler.ready(),
         nluModelsHandler.ready(),
-        introStoryGroupIdHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
     ];
@@ -428,7 +426,7 @@ const ProjectContainer = withTracker((props) => {
     let channel = null;
     if (ready) {
         let credentials = Credentials.findOne({ $or: [{ projectId, environment: { $exists: false } }, { projectId, environment: 'development' }] });
-        credentials = credentials && yaml.safeLoad(credentials.credentials);
+        credentials = credentials ? yaml.safeLoad(credentials.credentials) : {};
         channel = credentials['rasa_addons.core.channels.webchat.WebchatInput'];
     }
 
