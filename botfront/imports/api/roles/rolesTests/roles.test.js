@@ -219,7 +219,7 @@ const methods = [
     {
         name: 'nlu.import',
         roles: writers.nluData,
-        args: [null, modelId],
+        args: [null, projectId],
     },
     {
         name: 'nlu.renameIntent',
@@ -494,7 +494,6 @@ if (Meteor.isServer) {
     };
 
     describe('zz test', () => {
-        // special test required for initialSetup
         methods.forEach((method) => {
             roles.forEach((role) => {
                 it(`calling ${method.name} as ${role} global scope`, (done) => {

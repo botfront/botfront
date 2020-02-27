@@ -195,7 +195,7 @@ if (Meteor.isServer) {
             return data;
         },
         async 'rasa.getTrainingPayload'(projectId, instance, { language = '', joinStoryFiles = true } = {}) {
-            checkIfCan('nlu-model:x', projectId);
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(language, String);
             check(instance, Object);
