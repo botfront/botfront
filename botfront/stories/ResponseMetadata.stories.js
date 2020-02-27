@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs } from '@storybook/addon-knobs';
-import ResponseMetadataForm from '../imports/ui/components/templates/MetadataForm';
+import ResponseMetadataForm from '../imports/ui/components/templates/MetadataForm.ce';
 
 const metadata = {
     linkTarget: '_self',
