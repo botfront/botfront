@@ -168,8 +168,7 @@ const StoryEditorContainer = ({
         // valid types are "errors" and "warnings"
         exceptions[story._id] && exceptions[story._id][exceptionType]
             ? exceptions[story._id][exceptionType]
-                .length
-            : 0
+            : []
     );
 
     const getInitIntent = () => {

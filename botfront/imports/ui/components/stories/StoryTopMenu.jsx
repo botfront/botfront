@@ -27,14 +27,17 @@ const StoryTopMenu = ({
     groupNames,
     collapsed,
     collapseStory,
-    warnings,
-    errors,
+    warnings: warningDetails,
+    errors: errorDetails,
     isDestinationStory,
     originStories,
     isLinked,
     initPayload,
     collapseAllStories,
 }) => {
+    const errors = errorDetails.length;
+    const warnings = warningDetails.length;
+
     const [newTitle, setNewTitle] = useState(title);
     const [deletePopupOpened, openDeletePopup] = useState(false);
     const [movePopupOpened, openMovePopup] = useState(false);
@@ -325,8 +328,8 @@ StoryTopMenu.propTypes = {
     groupNames: PropTypes.array.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
-    warnings: PropTypes.number.isRequired,
-    errors: PropTypes.number.isRequired,
+    warnings: PropTypes.array.isRequired,
+    errors: PropTypes.array.isRequired,
     isDestinationStory: PropTypes.bool.isRequired,
     originStories: PropTypes.array.isRequired,
     isLinked: PropTypes.bool,
