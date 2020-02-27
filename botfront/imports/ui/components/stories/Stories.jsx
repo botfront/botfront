@@ -191,6 +191,7 @@ function Stories(props) {
                                     storyGroups[storyGroupCurrent]
                                     || storyGroups[storyGroupCurrent + 1]
                                     || storyGroups[storyGroupCurrent - 1]
+                                    || storyGroups[0]
                                 }
                             />
                         </Grid.Column>
