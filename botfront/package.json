@@ -22,6 +22,8 @@
   "dependencies": {
     "@apollo/react-components": "^3.1.3",
     "@apollo/react-hooks": "^3.1.3",
+    "@atlaskit/navigation": "^36.0.2",
+    "@atlaskit/tree": "^7.1.2",
     "@babel/runtime": "^7.4.5",
     "@google-cloud/logging-winston": "^3.0.5",
     "@john-osullivan/react-window-dynamic-fork": "1.9.0-alpha.1",
@@ -91,6 +93,7 @@
     "simpl-schema": "^1.5.5",
     "slugify": "^1.3.4",
     "standard-version": "^6.0.1",
+    "styled-components": "^3.4.10",
     "uniforms": "^2.6.2",
     "uniforms-bridge-graphql": "^2.6.2",
     "uniforms-bridge-simple-schema-2": "^2.6.2",
