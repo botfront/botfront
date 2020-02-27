@@ -20,7 +20,9 @@ import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
-import { setProjectId, setWorkingLanguage, setShowChat } from '../store/actions/actions';
+import {
+    setProjectId, setWorkingLanguage, setShowChat, setStoryGroup,
+} from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
@@ -138,7 +140,8 @@ class Project extends React.Component {
     };
 
     handleChangeProject = (projectId) => {
-        const { router: { replace, location: { pathname } } = {} } = this.props;
+        const { changeStoryGroup, router: { replace, location: { pathname } } = {} } = this.props;
+        changeStoryGroup(0);
         replace(pathname.replace(/\/project\/.*?\//, `/project/${projectId}/`));
     };
 
@@ -358,6 +361,7 @@ Project.propTypes = {
     channel: PropTypes.object,
     showChat: PropTypes.bool.isRequired,
     changeShowChat: PropTypes.func.isRequired,
+    changeStoryGroup: PropTypes.func.isRequired,
 };
 
 Project.defaultProps = {
@@ -437,6 +441,7 @@ const mapDispatchToProps = {
     changeWorkingLanguage: setWorkingLanguage,
     changeProjectId: setProjectId,
     changeShowChat: setShowChat,
+    changeStoryGroup: setStoryGroup,
 };
 
 export default connect(
