@@ -236,56 +236,52 @@ function UserUtteranceViewer(props) {
 
     return (
         <div className='utterance-viewer' data-cy='utterance-text'>
-            {textContent.map((element) => {
-                if (element.type === 'text') {
-                    return (
+            {textContent.map(element => (
+                <React.Fragment key={`${element.start}-${element.index}`}>
+                    {element.type === 'text' && (
                         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
                         <span
-                            key={element.start}
+                            
                             onMouseUp={() => handleMouseUp(element)}
                             role='application'
                         >
                             {element.text}
                         </span>
-                    );
-                }
-                if (element.type === 'entity') {
-                    return (
+                    )}
+                    {element.type === 'entity' && (
                         <Entity
                             value={element}
                             size='mini'
                             {...color}
-                            key={element.start}
                             allowEditing={!disableEditing}
                             deletable={!disableEditing}
                             onDelete={() => handleEntityDeletion(element.index)}
                             onChange={(_e, { value: newValue }) => handleEntityChange(newValue, element.index)}
                         />
-                    );
-                }
-                return (
-                    <EntityPopup
-                        trigger={(
-                            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-                            <span
-                                className='selected-text'
-                                onMouseUp={() => setSelection(null)}
-                                role='application'
-                            >
-                                {element.text}
-                            </span>
-                        )}
-                        onSelectionReset={() => setSelection(null)}
-                        options={contextEntities.map((e => ({ text: e, value: e })))}
-                        entity={{ ...element, value: element.text, entity: '' }}
-                        length={element.end - element.start}
-                        selection
-                        key={element.start}
-                        onAddOrChange={(_e, data) => handleAddEntity(data.value, element)}
-                        projectId={projectId}
-                    />
-                );
-            })}
+                    )}
+                    {element.type !== 'text' && element.type !== 'entity' && (
+                        <EntityPopup
+                            trigger={(
+                                // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+                                <span
+                                    className='selected-text'
+                                    onMouseUp={() => setSelection(null)}
+                                    role='application'
+                                >
+                                    {element.text}
+                                </span>
+                            )}
+                            onSelectionReset={() => setSelection(null)}
+                            options={contextEntities.map((e => ({ text: e, value: e })))}
+                            entity={{ ...element, value: element.text, entity: '' }}
+                            length={element.end - element.start}
+                            selection
+                            onAddOrChange={(_e, data) => handleAddEntity(data.value, element)}
+                            projectId={projectId}
+                        />
+                    )}
+                </React.Fragment>
+            ))}
             {showIntent && (
                 <> &nbsp;&nbsp;&nbsp;
                     {intent && (

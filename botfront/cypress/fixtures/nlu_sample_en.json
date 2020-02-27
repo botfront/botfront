@@ -20,6 +20,11 @@
         "text": "hi",
         "intent": "chitchat.greet",
         "entities": []
+      },
+      {
+        "text": "Let's get started!",
+        "intent": "get_started",
+        "entities": []
       }
     ],
     "entity_synonyms": [],

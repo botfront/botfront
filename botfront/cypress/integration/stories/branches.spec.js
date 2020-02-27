@@ -22,7 +22,9 @@ describe('branches', function() {
             .get('textarea')
             .eq(1)
             .focus()
-            .type('xxx', { force: true });
+            .wait(50)
+            .type('xxx', { force: true })
+            .blur();
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
         cy.dataCy('toggle-md').click({ force: true });
@@ -35,9 +37,6 @@ describe('branches', function() {
             .first()
             .click({ force: true });
         cy.contains('New Branch 1').click({ force: true });
-        cy.dataCy('create-branch')
-            .find('i')
-            .should('have.class', 'disabled');
         cy.contains('xxx').should('exist');
     });
 
@@ -45,42 +44,45 @@ describe('branches', function() {
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('branch-label').should('have.lengthOf', 2);
+        cy.dataCy('branch-label').first().should('have.class', 'active');
 
         // create a third branch
         cy.dataCy('add-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 3);
+        cy.dataCy('branch-label').last().should('have.class', 'active');
 
-        // delete a branch
-        cy.dataCy('branch-label')
+        cy.dataCy('delete-branch')
             .first()
-            .click({ click: true });
-        // delete branch is unclickable in cypress for ~100ms
-        cy.wait(250);
-        cy.dataCy('branch-label')
-            .first()
-            .trigger('mouseover');
+            .click({ force: true });
         cy.wait(250);
         cy.dataCy('delete-branch')
             .first()
-            .click({ force: true })
-            .dataCy('confirm-yes')
             .click({ force: true });
+        cy.wait(250);
+        cy.dataCy('delete-branch')
+            .first()
+            .click({ force: true });
+        cy.wait(250);
+        cy.dataCy('confirm-yes')
+            .click({ force: true });
+
         cy.dataCy('branch-label').should('have.lengthOf', 2);
+        cy.dataCy('branch-label').first().should('have.class', 'active');
 
         // delete a branch with only 2 branches remaining
-        cy.dataCy('branch-label')
+        cy.dataCy('delete-branch')
             .first()
-            .trigger('mouseover');
-        // delete branch is unclickable in cypress for ~100ms
+            .click({ force: true });
         cy.wait(250);
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
-        cy.dataCy('confirm-popup')
-            .contains('added to the previous story')
-            .should('exist')
-            .dataCy('confirm-yes')
+        cy.wait(250);
+        cy.dataCy('confirm-yes')
             .click({ force: true });
+
+
         cy.dataCy('branch-label').should('not.exist', 2);
         cy.dataCy('create-branch')
             .find('i')
@@ -108,6 +110,10 @@ describe('branches', function() {
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('open-chat').click();
         cy.dataCy('create-branch').click({ force: true });
+
+        cy.dataCy('branch-label').should('have.lengthOf', 2);
+        cy.dataCy('branch-label').first().should('have.class', 'active');
+
         cy.dataCy('branch-label')
             .eq(1)
             .click();
@@ -116,20 +122,19 @@ describe('branches', function() {
             .eq(1)
             .focus()
             .type('xxx', { force: true });
-        // delete a branch
-        cy.dataCy('branch-label')
+        cy.dataCy('delete-branch')
             .first()
-            .click({ click: true });
-        // delete branch is unclickable in cypress for ~100ms
-        cy.wait(250);
-        cy.dataCy('branch-label')
-            .first()
-            .trigger('mouseover');
+            .click({ force: true });
         cy.wait(250);
         cy.dataCy('delete-branch')
             .first()
-            .click({ force: true })
-            .dataCy('confirm-yes')
+            .click({ force: true });
+        cy.wait(250);
+        cy.dataCy('delete-branch')
+            .first()
+            .click({ force: true });
+        cy.wait(250);
+        cy.dataCy('confirm-yes')
             .click({ force: true });
         cy.contains('xxx');
     });

@@ -41,7 +41,7 @@ export const traverseStory = (story, path) => path
         },
         {
             branches: story.branches ? [...story.branches] : [],
-            story,
+            story: story.story,
             title: story.title,
             indices: [],
             path: [story._id],
@@ -352,10 +352,10 @@ export const getStoriesAndDomain = async (projectId, language) => {
 export const accumulateExceptions = (
     story,
     slots,
-    templates = null,
     storyControllers,
     setStoryControllers,
     saveStoryMethod,
+    setLastMdTypeMethod,
 ) => {
     const exceptions = {};
     const newStoryControllers = {};
@@ -368,7 +368,7 @@ export const accumulateExceptions = (
                 story: currentStory.story || '',
                 slots,
                 onUpdate: content => saveStoryMethod(currentPath, { story: content }),
-                templates,
+                onMdType: setLastMdTypeMethod,
                 isABranch,
             });
             currentController = newStoryControllers[currentPathAsString];

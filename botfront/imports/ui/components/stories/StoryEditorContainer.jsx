@@ -1,9 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, {
+    useState, useContext, useEffect, useReducer,
+} from 'react';
 import { Icon, Segment, Menu } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
-import { List } from 'immutable';
+import { List as IList } from 'immutable';
 import shortid from 'shortid';
 import 'brace/theme/github';
 import 'brace/mode/text';
@@ -46,8 +48,6 @@ const StoryEditorContainer = ({
     groupNames,
     onRename: onRenameStory,
     storyMode,
-    onSaving,
-    onSaved,
     branchPath,
     changeStoryPath,
     collapsed,
@@ -55,11 +55,8 @@ const StoryEditorContainer = ({
     collapseAllStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
-    const { slots, templates } = useContext(ProjectContext);
-    // The next path to go to when a change is made, we wait for the story prop to be updated to go that path
-    // useful when we add branch for instance, we have to wait for the branches to actually be in the db
-    // set to null when we don't want to go anywhere
-    const [nextBranchPath, setNextBranchPath] = useState(null);
+    const { slots } = useContext(ProjectContext);
+    
     // Used to store ace editors instance to dynamically set annotations
     // the ace edtior react component has a bug where it does not set properly
     // so we have to use this workaround
@@ -67,9 +64,10 @@ const StoryEditorContainer = ({
     const [exceptions, setExceptions] = useState({});
     const [destinationStory, setDestinationStory] = useState({});
     const [destinationStories, setDestinationStories] = useState([]);
+    const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
+    const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
 
-    const saveStory = (path, content) => {
-        onSaving();
+    const saveStory = (path, content, options = {}) => {
         Meteor.call(
             'stories.update',
             {
@@ -78,7 +76,8 @@ const StoryEditorContainer = ({
                 path: typeof path === 'string' ? [path] : path,
             },
             projectId,
-            wrapMeteorCallback(() => { onSaved(); }),
+            options,
+            wrapMeteorCallback(options.callback || (() => {})),
         );
     };
 
@@ -86,29 +85,20 @@ const StoryEditorContainer = ({
         [story._id]: new StoryController({ // the root story
             story: story.story || '',
             slots,
-            onUpdate: content => saveStory(story._id, { story: content }),
-            templates,
-            isABranch: story.checkpoints && story.checkpoints.length > 0,
+            onUpdate: (content, options) => saveStory(story._id, { story: content }, options),
+            onMdType: setLastMdType,
+            isABranch: hasCheckpoints(),
         }),
     });
-    
 
-    // This effect is used to update errors when templates or slots are updated
     useEffect(() => {
-        Object.keys(storyControllers).forEach((storyId) => {
-            storyControllers[storyId].setTemplates(templates);
-        });
-    }, [templates]);
+        Object.values(storyControllers).forEach(sc => sc.updateSlots(slots));
+    }, [slots]);
     
     useEffect(() => {
-        if (storyControllers[story._id]) {
-            const change = storyControllers[story._id].isABranch !== (story.checkpoints && story.checkpoints.length > 0);
-            storyControllers[story._id].isABranch = story.checkpoints && story.checkpoints.length > 0;
-            if (change) {
-                storyControllers[story._id].validateStory();
-            }
-        }
-    }, [story.checkpoints && story.checkpoints.length]);
+        const change = storyControllers[story._id].isABranch !== hasCheckpoints();
+        if (change) storyControllers[story._id].setIsBranch(hasCheckpoints());
+    }, [hasCheckpoints()]);
 
     const isBranchLinked = branchId => (
         destinationStories
@@ -162,8 +152,8 @@ const StoryEditorContainer = ({
                 newStoryControllers[currentPath.join()] = new StoryController({
                     story: newStory.story || '',
                     slots,
-                    onUpdate: content => saveStory(currentPath, { story: content }),
-                    templates,
+                    onUpdate: (content, options) => saveStory(currentPath, { story: content }, options),
+                    onMdType: setLastMdType,
                     isABranch: currentPath.length > 1,
                 });
             }
@@ -178,7 +168,6 @@ const StoryEditorContainer = ({
         // valid types are "errors" and "warnings"
         exceptions[story._id] && exceptions[story._id][exceptionType]
             ? exceptions[story._id][exceptionType]
-                .filter(storyMode === 'markdown' ? e => e : e => e.code !== 'no_such_response') // don't show missing template warning in visual mode
                 .length
             : 0
     );
@@ -241,7 +230,6 @@ const StoryEditorContainer = ({
         return (
             <AceEditor
                 readOnly={disabled}
-                // onLoad={setEditor}
                 theme='github'
                 width='100%'
                 name='story'
@@ -251,6 +239,8 @@ const StoryEditorContainer = ({
                 maxLines={Infinity}
                 fontSize={14}
                 onChange={newStory => storyControllers[pathAsString].setMd(newStory)}
+                // noClean means it won't remove unused responses
+                onBlur={() => storyControllers[pathAsString].saveUpdate({ noClean: true })}
                 value={
                     storyControllers[pathAsString]
                         ? storyControllers[pathAsString].md
@@ -292,21 +282,23 @@ const StoryEditorContainer = ({
         return `New Branch ${newBranchNum + 1}`;
     };
 
-    const handleSwitchBranch = (path) => {
-        const newBranch = traverseStory(story, path);
+    const handleSwitchBranch = (path, initContent) => {
         const pathAsString = path.join();
         // will instantiate a storyController if it doesn't exist
         if (
             !storyControllers[pathAsString]
             || !(storyControllers[pathAsString] instanceof StoryController)
         ) {
+            const storyContent = typeof initContent === 'string'
+                ? initContent
+                : traverseStory(story, path).story;
             setStoryControllers({
                 ...storyControllers,
                 [pathAsString]: new StoryController({
-                    story: newBranch.story || '',
+                    story: storyContent || '',
                     slots,
-                    onUpdate: content => saveStory(path, { story: content }),
-                    templates,
+                    onUpdate: (content, options) => saveStory(path, { story: content }, options),
+                    onMdType: setLastMdType,
                     isABranch: path.length > 1,
                 }),
             });
@@ -317,7 +309,6 @@ const StoryEditorContainer = ({
     const handleDeleteBranch = (path, branches, index) => {
         const parentPath = path.slice(0, path.length - 1);
         if (branches.length < 3) {
-            handleSwitchBranch(parentPath);
             // we append the remaining story to the parent one.
             const deletedStory = branches[!index ? 1 : 0].story;
             const newParentStory = `${storyControllers[parentPath.join()].md}${
@@ -326,67 +317,65 @@ const StoryEditorContainer = ({
             saveStory(parentPath, {
                 branches: [],
                 story: newParentStory,
+            }, {
+                callback: (err) => {
+                    if (!err) handleSwitchBranch(parentPath);
+                },
             });
             storyControllers[parentPath.join()].setMd(newParentStory);
+            storyControllers[parentPath.join()].saveUpdate();
         } else {
             const updatedBranches = [
                 ...branches.slice(0, index),
                 ...branches.slice(index + 1),
             ];
-            handleSwitchBranch(
-                index === 0
-                    ? [...parentPath, branches[index + 1]._id]
-                    : [...parentPath, branches[index - 1]._id],
-            );
-            saveStory(parentPath, { branches: updatedBranches });
+            saveStory(parentPath, { branches: updatedBranches }, {
+                callback: (err) => {
+                    if (!err) {
+                        const adjacentBranch = index === 0
+                            ? [...parentPath, branches[index + 1]._id]
+                            : [...parentPath, branches[index - 1]._id];
+                        handleSwitchBranch(adjacentBranch);
+                    }
+                },
+            });
         }
     };
-
-    useEffect(() => {
-        // This allows awaiting for db changes before setting the active branch
-        if (nextBranchPath) {
-            try {
-                handleSwitchBranch(nextBranchPath);
-                setNextBranchPath(null);
-            } catch (e) {
-                //
-            }
-        }
-    }, [story, nextBranchPath]);
 
     useEffect(() => {
         const newExceptions = accumulateExceptions(
             story,
             slots,
-            templates,
             storyControllers,
             setStoryControllers,
             saveStory,
+            setLastMdType,
         );
         setExceptions(newExceptions);
-    }, [story]);
+    }, [story, lastMdType]);
 
     // new Level is true if the new branches create a new depth level of branches.
     const handleCreateBranch = (path, branches = [], num = 1, newLevel = true) => {
         const newBranches = [...new Array(num)].map((_, i) => ({
             title: getNewBranchName(branches, i),
-            story: '',
-            projectId: story.projectId,
             branches: [],
-            errors: [],
-            warnings: [],
             _id: shortid.generate().replace('_', '0'),
         }));
-        setNextBranchPath(
-            newLevel
-                ? [...branchPath, newBranches[0]._id]
-                : [...path, newBranches[0]._id],
-        );
-        saveStory(path, { branches: [...branches, ...newBranches] });
+        saveStory(path, { branches: [...branches, ...newBranches] }, {
+            callback: (err) => {
+                if (!err) {
+                    setTimeout(() => handleSwitchBranch(
+                        newLevel
+                            ? [...branchPath, newBranches[0]._id]
+                            : [...path, newBranches[0]._id],
+                        '', // this is the initial content of the story
+                    ), 200);
+                }
+            },
+        });
     };
 
     const renderBranches = (depth = 0) => {
-        //
         const pathToRender = branchPath.slice(0, depth + 1);
         let branches = [];
         // This is to handle the case where the story is modified by another user
@@ -421,11 +410,8 @@ const StoryEditorContainer = ({
                                         if (branchPath.indexOf(branch._id) !== -1) return;
                                         handleSwitchBranch(childPath);
                                     }}
-                                    onChangeName={(newName) => {
-                                        saveStory(childPath, { title: newName });
-                                    }}
-                                    onDelete={() => handleDeleteBranch(childPath, branches, index)
-                                    }
+                                    onChangeName={newName => saveStory(childPath, { title: newName })}
+                                    onDelete={() => handleDeleteBranch(childPath, branches, index)}
                                     exceptions={branchLabelExceptions}
                                     siblings={branches}
                                     isLinked={isBranchLinked(branch._id)}
@@ -436,8 +422,7 @@ const StoryEditorContainer = ({
                         <Menu.Item
                             key={`${pathToRender.join()}-add`}
                             className='add-tab'
-                            onClick={() => handleCreateBranch(pathToRender, branches, 1, false)
-                            }
+                            onClick={() => handleCreateBranch(pathToRender, branches, 1, false)}
                             data-cy='add-branch'
                         >
                             <Icon name='plus' />
@@ -499,8 +484,6 @@ StoryEditorContainer.propTypes = {
     groupNames: PropTypes.array.isRequired,
     onRename: PropTypes.func.isRequired,
     storyMode: PropTypes.string,
-    onSaving: PropTypes.func.isRequired,
-    onSaved: PropTypes.func.isRequired,
     branchPath: PropTypes.array,
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
@@ -520,7 +503,7 @@ const mapStateToProps = (state, ownProps) => ({
     branchPath: state.stories
         .getIn(
             ['savedStoryPaths', ownProps.story._id],
-            List(getDefaultPath(ownProps.story)),
+            IList(getDefaultPath(ownProps.story)),
         )
         .toJS(),
     collapsed: state.stories.getIn(['storiesCollapsed', ownProps.story._id], false),

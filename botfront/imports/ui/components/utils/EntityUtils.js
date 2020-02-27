@@ -6,8 +6,8 @@ const propertiesBare = ['entity', 'value', 'start', 'end'];
 const copy = obj => JSON.parse(JSON.stringify(obj));
 
 export const entityPropType = {
-    start: PropTypes.number.isRequired,
-    end: PropTypes.number.isRequired,
+    start: PropTypes.number,
+    end: PropTypes.number,
     value: PropTypes.string.isRequired,
     entity: PropTypes.string.isRequired,
     confidence: PropTypes.number,
@@ -26,7 +26,9 @@ export default class EntityUtils {
     }
 
     static stripBare(ENTITY, withId = true, customValue = '') {
-        const { _id, start, end, value, entity } = ENTITY;
+        const {
+            _id, start, end, value, entity,
+        } = ENTITY;
         const obj = {
             _id,
             start,

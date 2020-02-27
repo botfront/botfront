@@ -74,7 +74,7 @@ describe('slots', function() {
             .type('\n- slot{{}"name": "Ali"}', { force: true });
 
         cy.dataCy('top-menu-warning-alert')
-            .should('contain', '2 Warnings'); // slot warning + response warning
+            .should('contain', '1 Warning'); // response warning
         cy.dataCy('slots-modal').click();
         cy.dataCy('add-slot').click();
         cy.contains('text').click();
@@ -84,9 +84,6 @@ describe('slots', function() {
             .type('name');
         cy.dataCy('save-button').click();
         cy.get('.modals.dimmer').click('topRight');
-        cy.dataCy('browser-item').eq(1).click();
-        cy.dataCy('browser-item').eq(0).click();
-        cy.dataCy('top-menu-warning-alert')
-            .should('contain', '1 Warning');
+        cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
 });

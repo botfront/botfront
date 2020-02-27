@@ -11,35 +11,16 @@ class StoryException {
 
 export class StoryController {
     constructor({
-        story, slots, onUpdate = () => {}, templates = null, isABranch = false,
+        story, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false,
     }) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.md = story;
         this.isABranch = isABranch;
-        this.templates = this.loadTemplates(templates || []) || [];
-        this.saveUpdate = () => onUpdate(this.md);
-        this.validateStory();
-    }
-    
-    setTemplates = (templates) => {
-        this.templates = this.loadTemplates(templates) || [];
-        this.reset(false);
-        this.validateLines();
-    }
-
-    addTemplate = (template) => {
-        if (template && template.key) {
-            this.templates = [...this.templates, template.key];
-            this.validateStory();
-        }
-    }
-
-    loadTemplates = (templates) => {
-        if (templates instanceof Array) return templates.map(template => template.key);
-        const templatesAsArray = [];
-        return Object.keys(templates).forEach(templateKey => templatesAsArray.push(templateKey));
+        this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
+        this.saveUpdate = options => onUpdate(this.md, options);
+        this.validateStory(false);
     }
 
     getSlots = (slots) => {
@@ -57,6 +38,17 @@ export class StoryController {
             };
         });
         return slotsToAdd;
+    }
+
+    updateSlots = (slots) => {
+        this.domain.slots = this.getSlots(slots);
+        this.validateStory(false);
+    }
+
+    setIsBranch = (isABranch) => {
+        this.isABranch = isABranch;
+        this.validateStory(false);
+        this.onMdType();
     }
 
     splitLines = () => (
@@ -82,9 +74,6 @@ export class StoryController {
         this.form = null;
         if (!this.hasInvalidChars(this.response)) {
             this.domain.actions.add(this.response);
-            if (this.templates.indexOf(this.response) === -1) {
-                this.raiseStoryException('no_such_response');
-            }
             this.lines[this.idx].gui = { type: 'bot', data: { name: this.response } };
         }
     };
@@ -153,7 +142,6 @@ export class StoryController {
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`.'],
         slot: ['error', 'Slot calls should look like this: `- slot{"slot_name": "slot_value"}`.'],
         no_such_slot: ['warning', 'Slot was not found. Have you defined it?'],
-        no_such_response: ['warning', 'Response was not found. Have you defined it?'],
         bool_slot: ['error', 'Expected a boolean value for this slot.'],
         text_slot: ['error', 'Expected a text value for this slot.'],
         float_slot: ['error', 'Expected a numerical value for this slot.'],
@@ -221,10 +209,10 @@ export class StoryController {
         }
     };
 
-    validateStory = () => {
+    validateStory = (save = true) => {
         this.reset();
         this.validateLines();
-        this.saveUpdate();
+        if (save) this.saveUpdate();
     };
 
     validateLines = () => {
@@ -248,7 +236,7 @@ export class StoryController {
         }
     }
 
-    reset = (resetLines = true) => {
+    reset = () => {
         this.domain = {
             entities: new Set(),
             intents: new Set(),
@@ -264,7 +252,7 @@ export class StoryController {
         this.form = null;
         this.exceptions = [];
         this.idx = 0;
-        this.lines = resetLines ? this.splitLines() : this.lines;
+        this.lines = this.splitLines();
     }
 
     toMd = (line) => {
@@ -317,7 +305,8 @@ export class StoryController {
 
     setMd = (content) => {
         this.md = content;
-        this.validateStory();
+        this.validateStory(false);
+        this.onMdType();
     }
 
     getErrors = () => this.exceptions.filter(exception => exception.type === 'error');

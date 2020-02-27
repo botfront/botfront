@@ -18,18 +18,20 @@ const BotResponsesContainer = (props) => {
         onDeleteAllResponses,
         deletable,
         exceptions,
-        isNew,
-        refreshBotResponse,
         enableEditPopup,
         tag,
     } = props;
-    const [template, setTemplate] = useState(initialValue || null);
+    const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
-    const [focus, setFocus] = useState(isNew ? 0 : null);
+    const [focus, setFocus] = useState(null);
 
     useEffect(() => {
-        setTemplate(initialValue);
+        Promise.resolve(initialValue).then((res) => {
+            if (!res) return;
+            setTemplate(res);
+            if (res.isNew) setFocus(0);
+        });
     }, [initialValue]);
 
     const newText = { __typename: 'TextPayload', text: '' };
@@ -125,21 +127,20 @@ const BotResponsesContainer = (props) => {
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
                     {enableEditPopup && (
+                        <IconButton
+                            icon='ellipsis vertical'
+                            onClick={() => setEditorOpen(true)}
+                            data-cy='edit-responses'
+                            className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
+                            color={null} // prevent default color overiding the color set by the class
+                        />
+                    )}
+                    {editorOpen && (
                         <BotResponseEditor
-                            trigger={(
-                                <IconButton
-                                    icon='ellipsis vertical'
-                                    onClick={() => setEditorOpen(true)}
-                                    data-cy='edit-responses'
-                                    className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
-                                    color={null} // prevent default color overiding the color set by the class
-                                />
-                            )}
                             open={editorOpen}
                             name={name}
                             closeModal={() => setEditorOpen(false)}
                             renameable={false}
-                            refreshBotResponse={refreshBotResponse} // required to update the response in the visual story editor
                         />
                     )}
                     { deletable && onDeleteAllResponses && (
@@ -158,8 +159,6 @@ BotResponsesContainer.propTypes = {
     onChange: PropTypes.func,
     onDeleteAllResponses: PropTypes.func,
     exceptions: PropTypes.array,
-    isNew: PropTypes.bool.isRequired,
-    refreshBotResponse: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
 };
@@ -171,7 +170,6 @@ BotResponsesContainer.defaultProps = {
     onChange: () => {},
     onDeleteAllResponses: null,
     exceptions: [{ type: null }],
-    refreshBotResponse: () => {},
     enableEditPopup: true,
     tag: null,
 };
