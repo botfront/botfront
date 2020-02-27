@@ -34,6 +34,7 @@ Meteor.methods({
     },
 
     'slots.upsert'(slot, projectId) {
+        checkIfCan('stories:w', projectId);
         check(projectId, String);
         check(slot, Match.OneOf(Object, [Object]));
         checkIfCan('stories:w', projectId);
