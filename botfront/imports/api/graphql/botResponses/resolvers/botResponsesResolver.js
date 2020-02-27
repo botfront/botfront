@@ -11,6 +11,7 @@ import {
     getBotResponseById,
     upsertResponse,
 } from '../mongo/botResponses';
+import { clearTypenameField } from '../../../../lib/utils';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -57,7 +58,7 @@ export default {
             const response = await updateResponse(
                 args.projectId,
                 args._id,
-                args.response,
+                clearTypenameField(args.response),
             );
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
@@ -79,7 +80,7 @@ export default {
             return response;
         },
         async createResponse(_, args, __) {
-            const response = await createResponse(args.projectId, args.response);
+            const response = await createResponse(args.projectId, clearTypenameField(args.response));
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
                 botResponsesModified: response,
