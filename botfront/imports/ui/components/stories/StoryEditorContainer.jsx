@@ -91,7 +91,7 @@ const StoryEditorContainer = ({
             onUpdate: (content, options) => saveStory(story._id, { story: content }, options),
             onMdType: setLastMdType,
             isABranch: hasCheckpoints(),
-            triggerRules: story.rules,
+            isASmartStory: story.rules && story.rules.length > 0,
         }),
     });
 
@@ -177,9 +177,8 @@ const StoryEditorContainer = ({
     );
 
     useEffect(() => {
-        storyControllers[story._id].updateRules(story.rules);
-        storyControllers[story._id].validateStory();
-    }, [story.rules]);
+        storyControllers[story._id].setIsSmart(story.rules && story.rules.length > 0);
+    }, [story.rules && story.rules.length > 0]);
 
     const getRulesPayload = (index) => {
         const entities = [];
@@ -300,7 +299,6 @@ const StoryEditorContainer = ({
     };
 
     const handleSwitchBranch = (path, initContent) => {
-        const newBranch = traverseStory(story, path);
         const pathAsString = path.join();
         // will instantiate a storyController if it doesn't exist
         if (
@@ -309,7 +307,7 @@ const StoryEditorContainer = ({
         ) {
             const storyContent = typeof initContent === 'string'
                 ? initContent
-                : newBranch.story;
+                : traverseStory(story, path).story;
             setStoryControllers({
                 ...storyControllers,
                 [pathAsString]: new StoryController({
@@ -318,7 +316,6 @@ const StoryEditorContainer = ({
                     onUpdate: (content, options) => saveStory(path, { story: content }, options),
                     onMdType: setLastMdType,
                     isABranch: path.length > 1,
-                    triggerRules: newBranch.rules,
                 }),
             });
         }

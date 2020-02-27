@@ -11,13 +11,13 @@ class StoryException {
 
 export class StoryController {
     constructor({
-        story, triggerRules, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false,
+        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false,
     }) {
         this.domain = {
             slots: this.getSlots(slots),
         };
         this.md = story;
-        this.isSmartStory = triggerRules && triggerRules.length > 0;
+        this.isSmartStory = isASmartStory;
         this.isABranch = isABranch;
         this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
         this.saveUpdate = options => onUpdate(this.md, options);
@@ -337,8 +337,9 @@ export class StoryController {
         return this.domain;
     };
 
-    updateRules = (newRules) => {
-        this.isSmartStory = newRules && newRules.length > 0;
+    setIsSmart = (isSmartStory) => {
+        this.isSmartStory = isSmartStory;
+        this.validateStory(false);
     }
 }
 
