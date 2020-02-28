@@ -47,21 +47,23 @@ const SequenceEditor = (props) => {
                         onChange={value => onChange(value, index)}
                     />
                 )}
-                <div className='variation-option-menu'>
-                    {/* <Icon name='star' color='yellow' float='right' /> */}
-                    <IconButton
-                        id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
-                        onClick={() => {
-                            if (sequence.length === 1) {
-                                const blankTemplate = defaultTemplate(content.__typename);
-                                onChange(blankTemplate, 0);
-                                return;
-                            }
-                            onDeleteVariation(index);
-                        }}
-                        icon='trash'
-                    />
-                </div>
+                {editable && (
+                    <div className='variation-option-menu'>
+                        {/* <Icon name='star' color='yellow' float='right' /> */}
+                        <IconButton
+                            id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
+                            onClick={() => {
+                                if (sequence.length === 1) {
+                                    const blankTemplate = defaultTemplate(content.__typename);
+                                    onChange(blankTemplate, 0);
+                                    return;
+                                }
+                                onDeleteVariation(index);
+                            }}
+                            icon='trash'
+                        />
+                    </div>
+                )}
             </Segment>
         );
     };

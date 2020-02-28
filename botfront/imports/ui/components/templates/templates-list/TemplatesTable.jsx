@@ -69,8 +69,10 @@ class TemplatesTable extends React.Component {
                     );
                 },
                 width: 25,
-            },
-            {
+            });
+        }
+        if (can('responses:w', projectId)) {
+            columns.push({
                 id: 'delete',
                 accessor: 'key',
                 className: 'center',
