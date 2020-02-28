@@ -297,16 +297,16 @@ describe('stories', function() {
             .click({ force: true });
         cy.dataCy('branch-label').should('have.length', 2);
         cy.dataCy('branch-label')
-            .first()
-            .click({ force: true });
-        cy.dataCy('stories-linker').should('not.exist', 'disabled');
+            .eq(1).click({ force: true });
+        cy.dataCy('branch-label')
+            .first().click({ force: true });
+        cy.dataCy('stories-linker').should('not.exist');
         cy.dataCy('branch-label')
             .eq(1)
             .click({ force: true });
         cy.dataCy('stories-linker').should('not.have.class', 'disabled');
         cy.dataCy('branch-label')
-            .first()
-            .click({ force: true });
+            .first().click({ force: true });
         cy.dataCy('branch-label').should('have.length', 4);
         cy.dataCy('branch-label')
             .eq(2)

@@ -382,6 +382,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
             .reduce((acc, story) => [...acc, ...flattenStory(story)], []));
         const storiesForThisSG = addlinkCheckpoints(stories) // addlinkCheckpoints modified original story objects
             .map(story => appendBranchCheckpoints(story))
+            .map(story => insertSmartPayloads(story))
             .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
             .map(story => `## ${story.title}\n${story.story}`)
             .join('\n');

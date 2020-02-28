@@ -197,7 +197,7 @@ function AnalyticsDashboard(props) {
     const [, drop] = useDrop({ accept: 'card' });
 
     return (
-        <Container className='analytics-container'>
+        <Container>
             <div className='analytics-dashboard' ref={drop}>
                 {cardSettings.entrySeq().map(([cardName, settings]) => (
                     <AnalyticsCard

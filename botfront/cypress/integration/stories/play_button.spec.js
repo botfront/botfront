@@ -129,7 +129,7 @@ describe('Story play button', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('browser-item').contains('Test Group').click();
         cy.dataCy('story-title').should('have.value', 'Test Story');
-        cy.dataCy('bot-response-input').should('have.text', 'utter_play_success'); // wait for the story to load
+        cy.dataCy('bot-response-input').should('have.text', ''); // wait for the story to load
         cy.dataCy('single-story-editor').find('[data-cy=icon-trash]').first().click({ force: true });
         cy.dataCy('play-story').should('have.class', 'disabled');
         cy.dataCy('play-story').click();
