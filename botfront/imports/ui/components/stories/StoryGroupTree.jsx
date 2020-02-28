@@ -1,6 +1,6 @@
 import React, { useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Menu } from 'semantic-ui-react';
+import { Icon, Menu, Label } from 'semantic-ui-react';
 import Tree, { mutateTree, moveItemOnTree } from '@atlaskit/tree';
 
 export default function StoryGroupTree(props) {
@@ -14,14 +14,25 @@ export default function StoryGroupTree(props) {
             const [source, requestedDestination] = move;
             let destination = requestedDestination;
             if (!destination) return tree; // no destination found
+
             const destinationNode = tree.items[destination.parentId];
-            if (!destinationNode.data.canBearChildren) { // node can't bear
+            const sourceNode = tree.items[tree.items[source.parentId].children[source.index]];
+
+            if (destinationNode.data.title === 'root' && !sourceNode.data.canBearChildren) {
+                return tree; // can't move leaves to root
+            }
+            if (destinationNode.data.title !== 'root' && sourceNode.data.canBearChildren) {
+                return tree; // can only move bearers to root
+            }
+
+            if (!destinationNode.data.canBearChildren) { // destination can't bear
                 const parentParentId = destination.parentId.split('-').slice(0, -1).join('-');
                 const parentParentNode = tree.items[parentParentId];
                 const indexInParentParentNode = parentParentNode.children.findIndex(c => c === destination.parentId);
                 const index = Math.max(0, indexInParentParentNode - 1);
                 destination = { ...destination, index, parentId: parentParentId };
             }
+
             const movedTree = moveItemOnTree(tree, source, destination);
             return !destinationNode.isExpanded // open destination is closed
                 ? mutateTree(movedTree, destinationNode.id, { isExpanded: true })
@@ -40,13 +51,18 @@ export default function StoryGroupTree(props) {
                 onClick={() => toggleExpansion(item)}
             />
         )
-        : <Icon name={`circle ${item.id === activeStory.id ? '' : 'outline'}`} />);
+        : null);
+        // : <Icon name={`circle ${item.id === activeStory.id ? '' : 'outline'}`} />);
+
+    const onClickItem = item => (item.data.canBearChildren
+        ? () => toggleExpansion(item)
+        : () => onChangeActiveStory(item));
 
     const renderItem = (renderProps) => {
-        const { item, provided, snapshot } = renderProps;
-        const onClick = item.data.canBearChildren
-            ? () => toggleExpansion(item)
-            : () => onChangeActiveStory(item);
+        const {
+            item, provided, snapshot: { combineTargetFor },
+        } = renderProps;
+        const isHoverTarget = combineTargetFor && item.data.canBearChildren;
         return (
             <div
                 ref={provided.innerRef}
@@ -54,12 +70,15 @@ export default function StoryGroupTree(props) {
                 {...provided.dragHandleProps}
             >
                 <Menu.Item
-                    active={item.id === activeStory.id}
-                    onClick={onClick}
+                    active={item.id === activeStory.id || isHoverTarget}
+                    onClick={onClickItem(item)}
                     content={(
                         <>
                             <span>{getIcon(item)}</span>
                             <span>{item.data ? item.data.title : ''}</span>
+                            {item.data.canBearChildren && (
+                                <Label content={item.children.length} />
+                            )}
                         </>
                     )}
                 />
