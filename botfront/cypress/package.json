@@ -17,6 +17,7 @@
     "cypress-plugin-retries": "1.2.2",
     "js-yaml": "^3.13.1",
     "moment": "^2.24.0",
-    "lodash": "4.17.15"
+    "lodash": "4.17.15",
+    "graphql-tag": "^2.10.3"
   }
 }
