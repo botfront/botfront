@@ -1,6 +1,6 @@
 import React, { useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Menu, Label } from 'semantic-ui-react';
+import { Icon, Menu } from 'semantic-ui-react';
 import Tree, { mutateTree, moveItemOnTree } from '@atlaskit/tree';
 
 export default function StoryGroupTree(props) {
@@ -44,15 +44,13 @@ export default function StoryGroupTree(props) {
 
     const toggleExpansion = item => setTree({ [item.isExpanded ? 'collapse' : 'expand']: item.id });
 
-    const getIcon = item => (item.data.canBearChildren
-        ? (
-            <Icon
-                name={`chevron circle ${item.isExpanded ? 'down' : 'up'}`}
-                onClick={() => toggleExpansion(item)}
-            />
-        )
-        : null);
-        // : <Icon name={`circle ${item.id === activeStory.id ? '' : 'outline'}`} />);
+    const getIcon = item => (
+        <Icon
+            name={`chevron circle ${item.isExpanded ? 'down' : 'up'}`}
+            onClick={() => toggleExpansion(item)}
+            {...(item.data.canBearChildren ? {} : { className: 'hidden' })}
+        />
+    );
 
     const onClickItem = item => (item.data.canBearChildren
         ? () => toggleExpansion(item)
@@ -67,21 +65,26 @@ export default function StoryGroupTree(props) {
             <div
                 ref={provided.innerRef}
                 {...provided.draggableProps}
-                {...provided.dragHandleProps}
             >
                 <Menu.Item
                     active={item.id === activeStory.id || isHoverTarget}
                     onClick={onClickItem(item)}
-                    content={(
-                        <>
+                >
+                    <div className='side-by-side middle left narrow draggable-item'>
+                        <Icon
+                            name='bars'
+                            size='small'
+                            color='grey'
+                            className='drag-handle'
+                            {...provided.dragHandleProps}
+                        />
+                        <div>
                             <span>{getIcon(item)}</span>
                             <span>{item.data ? item.data.title : ''}</span>
-                            {item.data.canBearChildren && (
-                                <Label content={item.children.length} />
-                            )}
-                        </>
-                    )}
-                />
+                        </div>
+                    </div>
+                    
+                </Menu.Item>
 
             </div>
         );
@@ -96,6 +99,7 @@ export default function StoryGroupTree(props) {
                     onExpand={expand => setTree({ expand })}
                     onCollapse={collapse => setTree({ collapse })}
                     onDragEnd={(...move) => setTree({ move })}
+                    offsetPerLevel={0}
                     isDragEnabled
                     isNestingEnabled
                 />

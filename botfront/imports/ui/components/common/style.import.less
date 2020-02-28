@@ -15,6 +15,22 @@
     }
 }
 
+.hidden {
+    visibility: hidden;
+}
+
+.drag-handle {
+    position: relative;
+    right: 8px;
+    visibility: hidden;
+}
+
+.draggable-item:hover {
+    .drag-handle {
+        visibility: visible;
+    }
+}
+
 .floated {
     &.right {
         text-align: right;
