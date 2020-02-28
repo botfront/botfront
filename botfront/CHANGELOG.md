@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.20.0-rc.1](https://github.com/botfront/botfront/compare/v0.19.3...v0.20.0-rc.1) (2020-02-28)
+
+
+### Bug Fixes
+
+* axios with json was not logged ([f2dd10f](https://github.com/botfront/botfront/commit/f2dd10f))
+* change of logging level ([bcf8daf](https://github.com/botfront/botfront/commit/bcf8daf))
+* don't overwrite namespace on import ([#476](https://github.com/botfront/botfront/issues/476)) ([50976c6](https://github.com/botfront/botfront/commit/50976c6))
+* fix undefined slot line showing as bad lines ([ee973fd](https://github.com/botfront/botfront/commit/ee973fd))
+* unfeaturized slots can have initial value of any type ([4173ef0](https://github.com/botfront/botfront/commit/4173ef0))
+* use latest_invent_time instead of updated at ([56d754d](https://github.com/botfront/botfront/commit/56d754d))
+
+
+### Features
+
+* graphql authentification for external consumers ([e37a3f9](https://github.com/botfront/botfront/commit/e37a3f9))
+* **export:** export one md file per story group ([a8f05fe](https://github.com/botfront/botfront/commit/a8f05fe))
+* **import:** import nlu data ([5a6fd40](https://github.com/botfront/botfront/commit/5a6fd40))
+* **import:** upsert slots and responses ([07b9859](https://github.com/botfront/botfront/commit/07b9859))
+* **import domain:** wip ([54b1caa](https://github.com/botfront/botfront/commit/54b1caa))
+* **import rasa stories:** db-ready stories are generated ([1dc22e9](https://github.com/botfront/botfront/commit/1dc22e9))
+* **import rasa stories:** log more import issues ([4bb8b19](https://github.com/botfront/botfront/commit/4bb8b19))
+* **import rasa stories:** parse story file into intermediate format ([657dd1c](https://github.com/botfront/botfront/commit/657dd1c))
+* **import rasa stories:** ux initial commit ([f75514c](https://github.com/botfront/botfront/commit/f75514c))
+* **rasa export:** add export all languages option ([94ca4f5](https://github.com/botfront/botfront/commit/94ca4f5))
+* add story group name in story export ([d267e20](https://github.com/botfront/botfront/commit/d267e20))
+* collapse/expand all stories on doubleclick ([2214a3f](https://github.com/botfront/botfront/commit/2214a3f))
+
+
+### Tests
+
+* add test for language switch in vse ([5f5222b](https://github.com/botfront/botfront/commit/5f5222b))
+* collapse all stories ([476a318](https://github.com/botfront/botfront/commit/476a318))
+* edit a response while filtering responses ([80378ea](https://github.com/botfront/botfront/commit/80378ea))
+
+
+
 ### [0.19.3](https://github.com/botfront/botfront/compare/v0.19.2...v0.19.3) (2020-02-12)
 
 
