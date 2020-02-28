@@ -68,7 +68,7 @@ class DefaultDomain extends React.Component {
                     model={defaultDomain}
                     onSubmit={this.onSave}
                 >
-                    <AceField name='content' label='Default Domain' mode='yaml' />
+                    <AceField name='content' label='Default Domain' mode='yaml' data-cy='ace-field' />
                     <ErrorsField />
                     {showConfirmation && (
                         <ChangesSaved
