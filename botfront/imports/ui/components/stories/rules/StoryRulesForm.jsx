@@ -345,7 +345,7 @@ function StoryRulesForm({
 
     return (
         <div className='story-trigger-form-container' data-cy='story-rules-editor'>
-            <RulesForm model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={onSave} onValidate={handleValidate}>
+            <RulesForm disabled={!can('triggers:w', projectId)} model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={onSave} onValidate={handleValidate}>
                 <ListAddField name='rules.$' className='add-trigger-field' />
                 <ListField name='rules' label=''>
                     <ListItemField name='$'>
