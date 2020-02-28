@@ -1,4 +1,4 @@
-/* global cy:true */
+/* global cy expect:true */
 
 describe('Project Settings', function () {
     beforeEach(function () {
@@ -56,8 +56,8 @@ describe('Project Settings', function () {
             cy.get('[data-cy=save-changes]').click();
             cy.get('[data-cy=change-nlu-threshold] input').should('have.value', '0.56');
 
-            cy.get('.project-settings-menu-credentials').click();
-            cy.get('.project-settings-menu-info').click();
+            cy.dataCy('project-settings-menu-credentials').click();
+            cy.dataCy('project-settings-menu-info').click();
             cy.get('[data-cy=change-nlu-threshold] input').should('have.value', '0.56');
 
             cy.get('[data-cy=change-nlu-threshold] input').click().type('{backspace}{backspace}{backspace}{backspace}0.85');
@@ -71,8 +71,8 @@ describe('Project Settings', function () {
             cy.get('[data-cy=save-changes]').click();
             cy.get('[data-cy=change-timezone-offset] input').should('have.value', '2');
 
-            cy.get('.project-settings-menu-credentials').click();
-            cy.get('.project-settings-menu-info').click();
+            cy.dataCy('project-settings-menu-credentials').click();
+            cy.dataCy('project-settings-menu-info').click();
             cy.get('[data-cy=change-timezone-offset] input').should('have.value', '2');
 
             cy.get('[data-cy=change-timezone-offset] input').click().type('{backspace}{backspace}{backspace}{backspace}-3');
