@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { Container, Tab } from 'semantic-ui-react';
 import { browserHistory, withRouter } from 'react-router';
 import { uniq, sortBy } from 'lodash';
+import { can } from '../../../lib/scopes';
 
 import { Loading } from '../utils/Utils';
 import { Projects } from '../../../api/project/project.collection';
@@ -71,10 +72,12 @@ class Incoming extends React.Component {
                 menuItem: { content: 'Conversations', key: 'conversations', 'data-cy': 'conversations' },
                 render: () => <ConversationBrowser projectId={project._id} environment={workingEnvironment} />,
             },
-            {
-                menuItem: { content: 'Populate', key: 'populate', 'data-cy': 'populate' },
-                render: () => <ActivityInsertions model={model} instance={instance} />,
-            },
+            ...(can('incoming:w', project._id) ? [
+                {
+                    menuItem: { content: 'Populate', key: 'populate', 'data-cy': 'populate' },
+                    render: () => <ActivityInsertions model={model} instance={instance} />,
+                },
+            ] : []),
         ];
     }
 

@@ -18,6 +18,7 @@ import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
+import { can } from '../../../../lib/scopes';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 import { GET_CONVERSATION } from '../../conversations/queries';
@@ -151,7 +152,7 @@ function Activity(props) {
                     <IntentLabel
                         disabled={isUtteranceOutdated(datum)}
                         value={datum.intent ? datum.intent : ''}
-                        allowEditing={!isUtteranceOutdated(datum)}
+                        allowEditing={can('incoming:w', projectId) && !isUtteranceOutdated(datum)}
                         allowAdditions
                         onChange={intent => handleUpdate([{ _id: datum._id, intent, confidence: null }], datum)}
                         enableReset
@@ -269,9 +270,11 @@ function Activity(props) {
         {
             key: 'text', style: { width: '100%' }, render: renderExample,
         },
-        {
-            key: 'actions', style: { width: '150px' }, render: renderActions,
-        },
+        ...(can('incoming:w', projectId) ? [
+            {
+                key: 'actions', style: { width: '150px' }, render: renderActions,
+            },
+        ] : []),
     ];
 
     const renderTopBar = () => (
