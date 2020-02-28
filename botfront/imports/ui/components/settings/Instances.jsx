@@ -28,16 +28,28 @@ class Instances extends React.Component {
 
     render() {
         const { ready, instance, projectId } = this.props;
-        const hasProjectWritePermission = !can('projects:w', projectId);
+        const hasWritePermission = can('projects:w', projectId);
         return (
             <>
                 {ready && (
-                    <AutoForm schema={new SimpleSchema2Bridge(InstanceSchema)} model={instance} onSubmit={updatedInstance => this.onSave(updatedInstance)} onValidate={this.onValidate} disabled={hasProjectWritePermission}>
+                    <AutoForm
+                        schema={new SimpleSchema2Bridge(InstanceSchema)}
+                        model={instance}
+                        onSubmit={updatedInstance => this.onSave(updatedInstance)}
+                        onValidate={this.onValidate}
+                        disabled={!hasWritePermission}
+                    >
                         <HiddenField name='projectId' value={projectId} />
                         <AutoField name='host' />
                         <AutoField name='token' label='Token' />
                         <br />
-                        <SubmitField className='primary save-instance-info-button' value='Save Changes' data-cy='save-instance' />
+                        {hasWritePermission && (
+                            <SubmitField
+                                className='primary save-instance-info-button'
+                                value='Save Changes'
+                                data-cy='save-instance'
+                            />
+                        )}
                     </AutoForm>
                 )}
             </>

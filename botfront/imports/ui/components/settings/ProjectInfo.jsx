@@ -131,7 +131,7 @@ class ProjectInfo extends React.Component {
         const { project, modelLanguages, ready } = this.props;
         const { saving, value } = this.state;
         const projectsSchema = Projects.simpleSchema();
-        const hasProjectWritePermission = !can('projects:w', project._id);
+        const hasWritePermission = can('projects:w', project._id);
         const bridge = projectsSchema ? new SimpleSchema2Bridge(projectsSchema) : new SimpleSchema2Bridge(projectsSchemaDefault);
         return (
             <>
@@ -140,7 +140,7 @@ class ProjectInfo extends React.Component {
                         schema={bridge}
                         model={project}
                         onSubmit={updateProject => this.onSave(updateProject, modelLanguages)}
-                        disabled={!!saving || hasProjectWritePermission}
+                        disabled={!!saving || !hasWritePermission}
                     >
                         <InfoField
                             name='name'
@@ -181,9 +181,9 @@ class ProjectInfo extends React.Component {
                                 )
                                 }
                                 data-cy='language-selector'
-                                disabled={hasProjectWritePermission}
+                                disabled={!hasWritePermission}
                             />
-                            {!hasProjectWritePermission && !!modelLanguages.length && this.renderDeleteModelLanguages()}
+                            {hasWritePermission && !!modelLanguages.length && this.renderDeleteModelLanguages()}
                         </Form.Field>
                         {!!modelLanguages.length && (
                             <SelectField
@@ -229,12 +229,13 @@ class ProjectInfo extends React.Component {
                         >
                             Send staging to production
                         </Button> */}
-
-                        <SubmitField
-                            className='primary save-project-info-button'
-                            value='Save Changes'
-                            data-cy='save-changes'
-                        />
+                        {hasWritePermission && (
+                            <SubmitField
+                                className='primary save-project-info-button'
+                                value='Save Changes'
+                                data-cy='save-changes'
+                            />
+                        )}
                     </AutoForm>
                 )}
             </>

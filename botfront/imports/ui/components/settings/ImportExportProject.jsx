@@ -9,12 +9,15 @@ import { GlobalSettings } from '../../../api/globalSettings/globalSettings.colle
 
 import ImportProject from './ImportProject.jsx';
 import ExportProject from './ExportProject.jsx';
+import { can } from '../../../lib/scopes';
+import { Projects } from '../../../api/project/project.collection';
 
 
 class ImportExportProject extends React.Component {
     constructor (props) {
         super(props);
-        this.state = { activeMenuItem: 'Import', loading: false };
+        const { projectId } = props;
+        this.state = { activeMenuItem: can('projects:w', projectId) ? 'Import' : 'Export', loading: false };
     }
 
     renderMenuItem = (itemText, itemKey = itemText) => {
@@ -37,25 +40,27 @@ class ImportExportProject extends React.Component {
 
     getMenuPanes = () => {
         const { loading } = this.state;
-        const { apiHost } = this.props;
-        return [
-            {
+        const { apiHost, projectId } = this.props;
+        const panes = [];
+        if (can('projects:w', projectId)) {
+            panes.push({
                 menuItem: this.renderMenuItem('Import'),
                 render: () => (
                     <Tab.Pane loading={loading} key='Import' data-cy='import-project-tab'>
                         <ImportProject setLoading={this.setLoading} apiHost={apiHost} />
                     </Tab.Pane>
                 ),
-            },
-            {
-                menuItem: this.renderMenuItem('Export'),
-                render: () => (
-                    <Tab.Pane loading={loading} key='Export' data-cy='export-project-tab'>
-                        <ExportProject setLoading={this.setLoading} apiHost={apiHost} />
-                    </Tab.Pane>
-                ),
-            },
-        ];
+            });
+        }
+        panes.push({
+            menuItem: this.renderMenuItem('Export'),
+            render: () => (
+                <Tab.Pane loading={loading} key='Export' data-cy='export-project-tab'>
+                    <ExportProject setLoading={this.setLoading} apiHost={apiHost} />
+                </Tab.Pane>
+            ),
+        });
+        return panes;
     }
 
     render () {
@@ -67,6 +72,7 @@ class ImportExportProject extends React.Component {
 
 ImportExportProject.propTypes = {
     apiHost: PropTypes.string,
+    projectId: PropTypes.string.isRequired,
 };
 
 ImportExportProject.defaultProps = {
