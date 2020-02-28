@@ -112,11 +112,11 @@ describe('story exceptions', function() {
             .click({ force: true });
         cy.get(':nth-child(3) > [data-cy=single-story-editor] > #story')
             .find('textarea')
-            .type('error')
-            .type('{enter}')
-            .type('* hi')
-            .type('{enter}')
-            .type('- utter_');
+            .type('error', { force: true })
+            .type('{enter}', { force: true })
+            .type('* hi', { force: true })
+            .type('{enter}', { force: true })
+            .type('- utter_', { force: true });
         cy.dataCy('top-menu-error-alert').contains('1 Error').should('exist');
         cy.dataCy('branch-tab-error-alert').eq(1).should('exist');
 
