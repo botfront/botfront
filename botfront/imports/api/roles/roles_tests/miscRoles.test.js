@@ -59,7 +59,6 @@ if (Meteor.isServer) {
     // eslint-disable-next-line import/named
     import { getTrainingDataInRasaFormat, parseNlu } from '../../instances/instances.methods';
     import { createIntroStoryGroup, createDefaultStoryGroup } from '../../storyGroups/storyGroups.methods';
-    import { getAllTrainingDataGivenProjectIdAndLanguage } from '../../../lib/utils';
 
     const callGetTrainingDataInRasaFormat = async (role, scope, done) => {
         await Meteor.users.remove({ _id: userId });
@@ -153,25 +152,6 @@ if (Meteor.isServer) {
         }
         done();
     };
-    const callGetAllTrainingDataGivenProjectIdAndLanguage = async (role, scope, done) => {
-        await Meteor.users.remove({ _id: userId });
-        await Projects.remove({ _id: projectId });
-        await Meteor.roleAssignment.remove({ user: { _id: userId } });
-        await Meteor.users.insert(userData);
-        await setScopes(formatRoles(role, scope), userId);
-        await Projects.insert(projectData);
-        try {
-            getAllTrainingDataGivenProjectIdAndLanguage(projectId);
-            expect(true).to.be.equal(false);
-        } catch (err) {
-            if (!readers.nluData.includes(role) || scope === 'DNE') {
-                expect(err.error).to.be.equal('403');
-            } else {
-                expect(err.error).to.not.equal('403');
-            }
-        }
-        done();
-    };
     describe('should test toles for miscellaneous functions', () => {
         roles.forEach((role) => {
             it(`call getTrainingDataInRasaFormat as ${role} with GLOBAL scope`, (done) => {
@@ -226,17 +206,6 @@ if (Meteor.isServer) {
             });
             it(`call createDefaultStoryGroup as ${role} with wrong project scope`, (done) => {
                 callCreateDefaultStoryGroup(role, 'DNE', done);
-            });
-        });
-        roles.forEach((role) => {
-            it(`call getAllTrainingDataGivenProjectIdAndLanguage as ${role} with GLOBAL scope`, (done) => {
-                callGetAllTrainingDataGivenProjectIdAndLanguage(role, 'GLOBAL', done);
-            });
-            it(`call getAllTrainingDataGivenProjectIdAndLanguage as ${role} with project scope`, (done) => {
-                callGetAllTrainingDataGivenProjectIdAndLanguage(role, projectId, done);
-            });
-            it(`call getAllTrainingDataGivenProjectIdAndLanguage as ${role} with wrong project scope`, (done) => {
-                callGetAllTrainingDataGivenProjectIdAndLanguage(role, 'DNE', done);
             });
         });
     });
