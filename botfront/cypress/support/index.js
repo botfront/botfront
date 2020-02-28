@@ -16,6 +16,7 @@
 // ***********************************************************
 
 import './chat.commands';
+import gql from 'graphql-tag';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -25,6 +26,21 @@ Cypress.on('uncaught:exception', () => false);
 Cypress.Screenshot.defaults({
     screenshotOnRunFailure: !!JSON.parse(String(Cypress.env('SCREENSHOTS')).toLowerCase()),
 });
+
+const UPSERT_ROLES_DATA = gql`
+    mutation upsertRolesData($roleData: RoleDataInput!) {
+        upsertRolesData(roleData: $roleData) {
+            name
+        }
+    }
+`;
+
+const DELETE_ROLE_DATA = gql`
+    mutation deleteRolesData($name: String!, $fallback: String!) {
+        deleteRolesData(name: $name, fallback: $fallback)
+    }
+`;
+
 
 switch (Cypress.env('abort_strategy')) {
 case 'run':
@@ -301,6 +317,54 @@ Cypress.Commands.add('deleteUser', (email) => {
         }),
     );
 });
+
+
+Cypress.Commands.add('createRole', (name, desc, permissions) => {
+    cy.visit('/');
+    cy.login();
+    cy.window()
+        .then(
+            ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
+                mutation: UPSERT_ROLES_DATA,
+                variables: {
+                    roleData: {
+                        name,
+                        description: desc,
+                        children: permissions,
+                    },
+                },
+            }),
+        );
+});
+
+
+Cypress.Commands.add('deleteRole', (name, fallback) => {
+    cy.visit('/');
+    cy.login();
+    cy.window()
+        .then(
+            ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
+                mutation: DELETE_ROLE_DATA,
+                variables: {
+                    name,
+                    fallback,
+                },
+            }),
+        );
+});
+
+Cypress.Commands.add('createDummyRoleAndUserThenLogin', (email, permission) => {
+    cy.createRole('dummy', 'dummy', permission);
+    cy.createUser('test', email, 'dummy', 'bf');
+    cy.login(true, email);
+});
+
+
+Cypress.Commands.add('removeDummyRoleAndUser', (email, fallback) => {
+    cy.deleteUser(email);
+    cy.deleteRole('dummy', fallback);
+});
+
 
 Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = 'Aaaaaaaa00') => {
     // cy.visit('/');
