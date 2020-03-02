@@ -256,9 +256,9 @@ const StoryEditorContainer = ({
                 minLines={5}
                 maxLines={Infinity}
                 fontSize={14}
-                onChange={newStory => storyControllers[pathAsString].setMd(newStory)}
+                onChange={can('stories:w', projectId) ? newStory => storyControllers[pathAsString].setMd(newStory) : () => {}}
                 // noClean means it won't remove unused responses
-                onBlur={() => storyControllers[pathAsString].saveUpdate({ noClean: true })}
+                onBlur={can('stories:w', projectId) ? () => storyControllers[pathAsString].saveUpdate({ noClean: true }) : () => {}}
                 value={
                     storyControllers[pathAsString]
                         ? storyControllers[pathAsString].md
