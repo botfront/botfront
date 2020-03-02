@@ -245,25 +245,27 @@ const StoryTopMenu = ({
                 <Menu.Item position='right'>
                     {renderWarnings()}
                     {renderErrors()}
-                    <StoryRulesEditor
+                    {can('triggers:r', projectId) && (
+                        <StoryRulesEditor
                         // the trigger element will have it's onClick, disabled, and className props modified
-                        trigger={(
+                            trigger={(
                             
-                            <Icon
-                                name='stopwatch'
-                                color={(() => {
-                                    if (errorDetails.some(({ code }) => code === 'smart_story_payload')) return 'red';
-                                    return rules && rules.length ? 'green' : 'grey';
-                                })()}
-                                data-cy='edit-trigger-rules'
-                            />
-                        )}
-                        storyId={storyId}
-                        rules={rules}
-                        open={triggerEditorOpen}
-                        setOpen={setTriggerEditorOpen}
-                        isDestinationStory={isDestinationStory}
-                    />
+                                <Icon
+                                    name='stopwatch'
+                                    color={(() => {
+                                        if (errorDetails.some(({ code }) => code === 'smart_story_payload')) return 'red';
+                                        return rules && rules.length ? 'green' : 'grey';
+                                    })()}
+                                    data-cy='edit-trigger-rules'
+                                />
+                            )}
+                            storyId={storyId}
+                            rules={rules}
+                            open={triggerEditorOpen}
+                            setOpen={setTriggerEditorOpen}
+                            isDestinationStory={isDestinationStory}
+                        />
+                    )}
                     <StoryPlayButton
                         initPayload={initPayload}
                         className='top-menu-clickable'
