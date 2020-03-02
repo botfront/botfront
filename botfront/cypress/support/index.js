@@ -27,6 +27,9 @@ Cypress.Screenshot.defaults({
     screenshotOnRunFailure: !!JSON.parse(String(Cypress.env('SCREENSHOTS')).toLowerCase()),
 });
 
+const ADMIN_EMAIL = 'test@test.com';
+const SPECIAL_USER_EMAIL = 'test@test.test';
+
 const UPSERT_ROLES_DATA = gql`
     mutation upsertRolesData($roleData: RoleDataInput!) {
         upsertRolesData(roleData: $roleData) {
@@ -69,7 +72,10 @@ case 'spec':
 default:
 }
 
-Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
+Cypress.Commands.add('login', ({
+    visit = true, email, password = 'Aaaaaaaa00', admin = true,
+} = {}) => {
+    const withEmail = email || admin ? ADMIN_EMAIL : SPECIAL_USER_EMAIL;
     if (visit) cy.visit('/');
     cy.window().then(
         ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
@@ -82,7 +88,7 @@ Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password =
         }),
     ).then(
         ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            Meteor.loginWithPassword(withEmail, password, loginError => (loginError ? reject(loginError) : resolve()));
         }),
     );
 
@@ -353,38 +359,17 @@ Cypress.Commands.add('deleteRole', (name, fallback) => {
         );
 });
 
-Cypress.Commands.add('createDummyRoleAndUserThenLogin', (email, permission, scope = 'bf') => {
-    cy.createRole('dummy', 'dummy', permission);
+Cypress.Commands.add('createDummyRoleAndUser', ({
+    email = SPECIAL_USER_EMAIL, desc, name = 'dummy', permission, scope = 'bf',
+} = {}) => {
+    cy.createRole(name, desc || name, permission);
     cy.createUser('test', email, 'dummy', scope);
-    cy.login(true, email);
 });
 
 
-Cypress.Commands.add('removeDummyRoleAndUser', (email, fallback) => {
+Cypress.Commands.add('removeDummyRoleAndUser', ({ email = SPECIAL_USER_EMAIL, name = 'dummy', fallback = 'global-admin' } = {}) => {
     cy.deleteUser(email);
-    cy.deleteRole('dummy', fallback);
-});
-
-
-Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = 'Aaaaaaaa00') => {
-    // cy.visit('/');
-    cy.window()
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                // eslint-disable-next-line consistent-return
-                Meteor.logout((err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            }),
-        )
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
-            }),
-        );
+    cy.deleteRole(name, fallback);
 });
 
 

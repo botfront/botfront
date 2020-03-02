@@ -19,9 +19,9 @@ describe('example', function() {
         // we create a user using this role to test one persmission
         cy.createUser('test', email, ['dummy'], 'bf');
         
-        cy.login(true, email);
+        cy.login({ email });
         cy.wait(2000);
-        cy.deleteUser('test@test.test');
+        cy.deleteUser(email);
         // we need to provide a fallback role otherwise the role change will not work
         
         cy.deleteRole('dummy', 'global-admin');
@@ -31,9 +31,10 @@ describe('example', function() {
     // Same as before but with helper to make it concise
     it('should be able to create an role with a permission short', function() {
         // we create a dummy role to test one persmission
-        cy.createDummyRoleAndUserThenLogin(email, ['triggers:r']);
+        cy.createDummyRoleAndUser({ permission: ['triggers:r'] });
+        cy.login();
         cy.wait(2000);
-        cy.removeDummyRoleAndUser(email, 'global-admin');
+        cy.removeDummyRoleAndUser();
         cy.wait(2000);
     });
 });
