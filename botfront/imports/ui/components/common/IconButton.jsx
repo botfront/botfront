@@ -14,7 +14,7 @@ export default function IconButton(props) {
             color={color}
             icon={icon}
             className={`icon-button ${color} ${className}`}
-            data-cy={dataCy || `icon-${icon}`}
+            data-cy={typeof dataCy === 'string' ? dataCy : `icon-${icon}`}
             disabled={disabled}
             basic={basic}
             {...id ? { id } : {}}
