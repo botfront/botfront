@@ -74,7 +74,7 @@ export default class NLUPipeline extends React.Component {
                             )}
                         />
                     )}
-                    <Can I='nlu:data:x' projectId={projectId}>
+                    <Can I='nlu-data:x' projectId={projectId}>
                         <SaveButton saved={saved} />
                     </Can>
                 </AutoForm>

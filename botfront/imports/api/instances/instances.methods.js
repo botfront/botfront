@@ -163,13 +163,11 @@ if (Meteor.isServer) {
             return parseNlu(instance, params);
         },
 
-        async 'rasa.convertToJson'(file, model, outputFormat, host) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(model._id));
-            check(model, Object);
+        async 'rasa.convertToJson'(file, language, outputFormat, host) {
+            check(language, String);
             check(file, String);
             check(outputFormat, String);
             check(host, String);
-            const { language } = model;
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.convertToJson',

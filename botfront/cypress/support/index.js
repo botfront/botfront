@@ -514,13 +514,14 @@ Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(
         });
     }));
 
-Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', overwrite = false) => {
+Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', overwrite = false, canonicalExamples = []) => {
     cy.fixture(fixture, 'utf8').then((content) => {
         cy.MeteorCall('nlu.import', [
             content.rasa_nlu_data,
             projectId,
             lang,
             overwrite,
+            canonicalExamples,
         ]);
     });
     return cy.wait(500);

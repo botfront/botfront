@@ -120,11 +120,6 @@ if (Meteor.isServer) {
             args: [{ projectId }],
         },
         {
-            name: 'rasa.convertToJson',
-            roles: writers.nluData,
-            args: [null, { _id: modelId }],
-        },
-        {
             name: 'rasa.getTrainingPayload',
             roles: otherRoles.nluDataX,
             args: [projectId],
