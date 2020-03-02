@@ -169,7 +169,7 @@ const StoryTopMenu = ({
             <ToolTipPopup
                 trigger={(
                     <Icon
-                        disabled={isDestinationStory || isLinked || isInSmartStories || !can('stories:w', projectId)}
+                        disabled={isDestinationStory || isLinked || isInSmartStories}
                         name='trash'
                         data-cy='delete-story'
                         className='top-menu-clickable'
@@ -182,7 +182,7 @@ const StoryTopMenu = ({
             <Popup
                 trigger={(
                     <Icon
-                        disabled={isDestinationStory || isLinked || !can('stories:w', projectId)}
+                        disabled={isDestinationStory || isLinked}
                         name='trash'
                         data-cy='delete-story'
                         className='top-menu-clickable'
@@ -268,56 +268,58 @@ const StoryTopMenu = ({
                         initPayload={initPayload}
                         className='top-menu-clickable'
                     />
-                    <Popup
-                        trigger={(
-                            <div>
-                                <Popup
-                                    disabled={!isInSmartStories}
-                                    trigger={(
-                                        <div>
-                                            <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories || !can('stories:w', projectId)} className='move-icon' />
-                                        </div>
-                                    )}
-                                    header='This story cannot be moved'
-                                    content={'To move this story, open it in it\'s original group.'}
-                                />
-                            </div>
-                        )}
-                        content={(
-                            <ConfirmPopup
-                                title='Move story to :'
-                                content={(
-                                    <Dropdown
-                                        button
-                                        openOnFocus
-                                        search
-                                        basic
-                                        placeholder='Select a group'
-                                        fluid
-                                        selection
-                                        value={moveDestination}
-                                        options={groupNames}
-                                        onChange={(e, data) => {
-                                            setMoveDestination(data.value);
-                                        }}
-                                        data-cy='move-story-dropdown'
+                    {can('stories:w', projectId) && (
+                        <Popup
+                            trigger={(
+                                <div>
+                                    <Popup
+                                        disabled={!isInSmartStories}
+                                        trigger={(
+                                            <div>
+                                                <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories} className='move-icon' />
+                                            </div>
+                                        )}
+                                        header='This story cannot be moved'
+                                        content={'To move this story, open it in it\'s original group.'}
                                     />
-                                )}
-                                onYes={() => {
-                                    if (moveDestination) {
-                                        openMovePopup(false);
-                                        onMove(moveDestination);
-                                    }
-                                }}
-                                onNo={() => openMovePopup(false)}
-                            />
-                        )}
-                        disabled={isInSmartStories || !can('stories:w', projectId)}
-                        on='click'
-                        open={movePopupOpened}
-                        onOpen={() => openMovePopup(true)}
-                        onClose={() => openMovePopup(false)}
-                    />
+                                </div>
+                            )}
+                            content={(
+                                <ConfirmPopup
+                                    title='Move story to :'
+                                    content={(
+                                        <Dropdown
+                                            button
+                                            openOnFocus
+                                            search
+                                            basic
+                                            placeholder='Select a group'
+                                            fluid
+                                            selection
+                                            value={moveDestination}
+                                            options={groupNames}
+                                            onChange={(e, data) => {
+                                                setMoveDestination(data.value);
+                                            }}
+                                            data-cy='move-story-dropdown'
+                                        />
+                                    )}
+                                    onYes={() => {
+                                        if (moveDestination) {
+                                            openMovePopup(false);
+                                            onMove(moveDestination);
+                                        }
+                                    }}
+                                    onNo={() => openMovePopup(false)}
+                                />
+                            )}
+                            disabled={isInSmartStories}
+                            on='click'
+                            open={movePopupOpened}
+                            onOpen={() => openMovePopup(true)}
+                            onClose={() => openMovePopup(false)}
+                        />
+                    )}
                     { /*
                         the story duplication is deactivated for now, it may cause issues with response edition
                         <Icon
@@ -327,7 +329,7 @@ const StoryTopMenu = ({
                         data-cy='duplicate-story'
                         onClick={onClone}
                     /> */}
-                    {renderDeletePopup()}
+                    {can('stories:w', projectId) && renderDeletePopup()}
                 </Menu.Item>
             </Menu>
             {isDestinationStory && (

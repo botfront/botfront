@@ -142,9 +142,8 @@ class StoryGroupBrowser extends React.Component {
         return (
             <div className='navigation'>
                 <Button.Group fluid>
-                    {this.tooltipWrapper(
+                    {can('stories:w', projectId) && this.tooltipWrapper(
                         <Button
-                            disabled={!can('stories:w', projectId)}
                             key='newItem'
                             onClick={() => this.setState({ addMode: true })}
                             data-cy='add-item'

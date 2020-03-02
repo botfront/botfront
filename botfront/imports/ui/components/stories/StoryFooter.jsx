@@ -123,7 +123,6 @@ class StoryFooter extends React.Component {
                     canBranch,
                 )}`}
                 data-cy='create-branch'
-                disabled={!can('stories:w', projectId)}
             >
                 <Icon
                     disabled={!canBranch}
@@ -135,40 +134,36 @@ class StoryFooter extends React.Component {
         );
     }
 
-    renderLinkMenu = (destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) => {
-        const { projectId } = this.props;
-        return (
-            <Menu.Item
-                className={`footer-option-button remove-padding color-${this.selectIconColor(
-                    canBranch,
-                )}`}
-                data-cy='link-to'
-                position={this.positionStoryLinker(destinationStory)}
-                disabled={!can('stories:w', projectId)}
-            >
-                <Icon
-                    disabled={!canBranch}
-                    name='arrow right'
-                    color='green'
-                />
+    renderLinkMenu = (destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) => (
+        <Menu.Item
+            className={`footer-option-button remove-padding color-${this.selectIconColor(
+                canBranch,
+            )}`}
+            data-cy='link-to'
+            position={this.positionStoryLinker(destinationStory)}
+        >
+            <Icon
+                disabled={!canBranch}
+                name='arrow right'
+                color='green'
+            />
             Link&nbsp;to:
-                <Dropdown
-                    placeholder='Select story'
-                    value={destinationStory ? destinationStory._id : ''}
-                    fluid
-                    search
-                    selection
-                    clearable
-                    selectOnBlur={false}
-                    className='stories-linker'
-                    options={this.filterDestinations(stories, currentStoryId)}
-                    data-cy='stories-linker'
-                    disabled={!canBranch || !can('stories:w', projectId)}
-                    onChange={onDestinationStorySelection}
-                />
-            </Menu.Item>
-        );
-    }
+            <Dropdown
+                placeholder='Select story'
+                value={destinationStory ? destinationStory._id : ''}
+                fluid
+                search
+                selection
+                clearable
+                selectOnBlur={false}
+                className='stories-linker'
+                options={this.filterDestinations(stories, currentStoryId)}
+                data-cy='stories-linker'
+                disabled={!canBranch}
+                onChange={onDestinationStorySelection}
+            />
+        </Menu.Item>
+    )
 
 
     positionStoryLinker = destinationStory => (destinationStory === null ? 'right' : 'left');
@@ -185,8 +180,8 @@ class StoryFooter extends React.Component {
             <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
-                    <>{this.renderBranchMenu(destinationStory, canBranch)}</>
-                    <>{canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
+                    <>{can('stories:w') && this.renderBranchMenu(destinationStory, canBranch)}</>
+                    <>{can('stories:w') && canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
