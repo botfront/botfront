@@ -72,7 +72,6 @@ const StoryEditorContainer = ({
     const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
 
     const saveStory = (path, content, options = {}) => {
-        if (!can('stories:w', projectId)) return;
         Meteor.call(
             'stories.update',
             {
@@ -140,9 +139,9 @@ const StoryEditorContainer = ({
             Meteor.call('stories.removeCheckpoints', projectId, destinationStory._id, branchPath);
         } else if (value && destinationStory) {
             Meteor.call('stories.removeCheckpoints', projectId, destinationStory._id, branchPath);
-            Meteor.call(projectId, 'stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.addCheckpoints', projectId, value, branchPath);
         } else {
-            Meteor.call(projectId, 'stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.addCheckpoints', projectId, value, branchPath);
         }
         const newDestinationStory = findDestinationStory();
         setDestinationStory(newDestinationStory);
