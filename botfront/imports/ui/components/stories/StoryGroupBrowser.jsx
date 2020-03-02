@@ -163,7 +163,7 @@ class StoryGroupBrowser extends React.Component {
                         />,
                         'Manage slots',
                     )}
-                    {this.tooltipWrapper(
+                    {can('projects:r', projectId) && this.tooltipWrapper(
                         <Button
                             className='border-left'
                             content='Policies'
