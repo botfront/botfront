@@ -15,6 +15,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import { PageMenu } from '../utils/Utils';
 import Can from '../roles/Can';
 import SelectField from '../nlu/common/SelectLanguage';
+import { ProjectsSchema } from '../../../api/project/project.schema.gke';
 
 class Project extends React.Component {
     constructor(props) {
@@ -57,15 +58,14 @@ class Project extends React.Component {
     };
 
     render() {
-        const { project, loading } = this.props;
+        const { project, loading, projectsSchema } = this.props;
         const { confirmOpen } = this.state;
         const { namespace } = project || {};
-        const projectsSchema = Projects.simpleSchema();
         return (
             <>
                 <PageMenu icon='sitemap' title={project._id ? project.name : 'New project'} />
                 <Container>
-                    {!loading && (
+                    {!loading && ProjectsSchema && (
                         <Segment>
                             <AutoForm
                                 schema={projectsSchema}
@@ -123,11 +123,13 @@ Project.defaultProps = {
 Project.propTypes = {
     loading: PropTypes.bool.isRequired,
     project: PropTypes.object,
+    projectsSchema: PropTypes.object.isRequired,
 };
 
 const ProjectContainer = withTracker(({ params }) => {
     let project = null;
-    let loading = false;
+    let loading = true;
+    let projectsSchema = null;
     if (params.project_id) {
         const projectsHandle = Meteor.subscribe('projects', params.project_id);
         loading = !projectsHandle.ready();
@@ -144,11 +146,12 @@ const ProjectContainer = withTracker(({ params }) => {
                 },
             },
         ).fetch();
+        projectsSchema = Projects.simpleSchema();
     }
-
     return {
         loading,
         project,
+        projectsSchema,
     };
 })(Project);
 

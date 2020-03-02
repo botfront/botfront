@@ -65,7 +65,9 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('projects', function (projectId) {
-        checkIfScope(projectId, ['nlu-data:r', 'responses:r'], this.userId);
+        if (!getUserScopes(this.userId, ['nlu-data:r', 'responses:r', 'users:r', 'roles:r', 'nlu-data:x', 'global-settings:r']).includes(projectId)) {
+            return this.ready();
+        }
         check(projectId, Match.Optional(String));
         if (can('projects:r', projectId)) {
             return Projects.find({ _id: projectId });
