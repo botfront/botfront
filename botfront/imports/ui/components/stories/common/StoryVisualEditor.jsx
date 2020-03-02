@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { isEqual } from 'lodash';
-import { connect } from 'react-redux';
 
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
@@ -43,7 +42,7 @@ const defaultTemplate = (templateType) => {
     return false;
 };
 
-class StoryVisualEditor extends React.Component {
+export default class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
     };
@@ -120,7 +119,7 @@ class StoryVisualEditor extends React.Component {
     };
 
     getReadOnlyClass = () => {
-        const { projectId } = this.props;
+        const { project: { _id: projectId } } = this.context;
         return can('stories:w', projectId) ? '' : 'read-only';
     }
 
@@ -163,7 +162,8 @@ class StoryVisualEditor extends React.Component {
 
     renderAddLine = (index) => {
         const { lineInsertIndex } = this.state;
-        const { story, projectId } = this.props;
+        const { project: { _id: projectId } } = this.context;
+        const { story } = this.props;
         if (!can('stories:w', projectId)) return <div className='line-spacer' />; // prevent crowding of story elements in read only mode
 
         const options = story.getPossibleInsertions(index);
@@ -257,9 +257,10 @@ class StoryVisualEditor extends React.Component {
     static contextType = ProjectContext;
 
     render() {
-        const { story, projectId } = this.props;
+        const { story } = this.props;
         const { responses } = this.context;
         const { language } = this.context;
+        const { project: { _id: projectId } } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(
@@ -316,15 +317,8 @@ class StoryVisualEditor extends React.Component {
 
 StoryVisualEditor.propTypes = {
     story: PropTypes.instanceOf(StoryController),
-    projectId: PropTypes.string.isRequired,
 };
 
 StoryVisualEditor.defaultProps = {
     story: [],
 };
-
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-});
-
-export default connect(mapStateToProps)(StoryVisualEditor);
