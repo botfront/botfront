@@ -28,6 +28,7 @@ const mockTree = {
             data: {
                 canBearChildren: true,
                 title: 'Group 0',
+                parentId: '1',
             },
         },
         '1-0-0': {
@@ -38,6 +39,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 0-s0',
+                parentId: '1-0',
             },
         },
         '1-1': {
@@ -49,6 +51,7 @@ const mockTree = {
             data: {
                 canBearChildren: true,
                 title: 'Group 1',
+                parentId: '1',
             },
         },
         '1-2': {
@@ -62,6 +65,7 @@ const mockTree = {
             data: {
                 canBearChildren: true,
                 title: 'Group 2',
+                parentId: '1',
             },
         },
         '1-2-0': {
@@ -72,6 +76,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 2-s0',
+                parentId: '1-2',
             },
         },
         '1-2-1': {
@@ -82,6 +87,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 2-s1',
+                parentId: '1-2',
             },
         },
         '1-2-2': {
@@ -92,6 +98,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 2-s2',
+                parentId: '1-2',
             },
         },
         '1-2-3': {
@@ -102,6 +109,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 2-s3',
+                parentId: '1-2',
             },
         },
         '1-3': {
@@ -113,6 +121,7 @@ const mockTree = {
             data: {
                 canBearChildren: true,
                 title: 'Group 3',
+                parentId: '1',
             },
         },
         '1-4': {
@@ -124,6 +133,7 @@ const mockTree = {
             data: {
                 canBearChildren: true,
                 title: 'Group 4',
+                parentId: '1',
             },
         },
         '1-5': {
@@ -135,6 +145,7 @@ const mockTree = {
             data: {
                 canBearChildren: true,
                 title: 'Group 5',
+                parentId: '1',
             },
         },
         '1-6': {
@@ -148,6 +159,7 @@ const mockTree = {
             data: {
                 canBearChildren: true,
                 title: 'Group 6',
+                parentId: '1',
             },
         },
         '1-6-0': {
@@ -158,6 +170,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 6-s0',
+                parentId: '1-6',
             },
         },
         '1-6-1': {
@@ -168,6 +181,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 6-s1',
+                parentId: '1-6',
             },
         },
         '1-6-2': {
@@ -177,6 +191,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 6-s2',
+                parentId: '1-6',
             },
         },
         '1-6-3': {
@@ -187,6 +202,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 6-s3',
+                parentId: '1-6',
             },
         },
         '1-6-4': {
@@ -197,6 +213,7 @@ const mockTree = {
             isChildrenLoading: false,
             data: {
                 title: 'Group 6-s4',
+                parentId: '1-6',
             },
         },
     },

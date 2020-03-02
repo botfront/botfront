@@ -1,20 +1,3 @@
-.ui.vertical.menu {
-    .item>#selected {
-        opacity: 0.87;
-    }
-
-    .item:hover #not-selected {
-        opacity: 0.40;
-    }
-
-    .item>#not-selected {
-        opacity: 0.0;
-        &:hover {
-            opacity: 0.50;
-        }
-    }
-}
-
 .hidden {
     visibility: hidden;
 }
@@ -23,11 +6,19 @@
     position: relative;
     right: 8px;
     visibility: hidden;
+
+    &.dragging {
+        visibility: visible;
+    }
 }
 
-.draggable-item:hover {
-    .drag-handle {
-        visibility: visible;
+.item:hover .drag-handle {
+    visibility: visible;
+}
+
+.menu.dragging .item:hover {
+    #ellipsis-icon, #selected, #not-selected, .drag-handle {
+        visibility: hidden;
     }
 }
 
@@ -154,27 +145,40 @@
 .ui.menu.vertical {
     border-radius: .28571429rem;
     .active.item.selected-blue {
-    background-color: rgba(33,133,208,0.08);
-    font-weight: bold;
+        background-color: rgba(33,133,208,0.08);
+        font-weight: bold;
+            &:hover {
+                background-color: rgba(33,133,208,0.16);
+            }
+    }
+
+    .item #selected {
+        opacity: 0.87;
+    }
+
+    .item:hover #not-selected {
+        opacity: 0.40;
+    }
+
+    .item #not-selected {
+        opacity: 0;
         &:hover {
-            background-color: rgba(33,133,208,0.16);
+            opacity: 0.50;
         }
     }
-}
 
-.ui.vertical.menu {
     .item:hover #ellipsis-icon {
-    color: #999999;
-    opacity: 1;
+        color: #999999;
+        opacity: 1;
     }
-
-.item > #ellipsis-icon {
-    opacity: 0;
-    float: right;
-    right: -8px;
-    &:hover {
-        color: #828282;
-    }
+    
+    .item #ellipsis-icon {
+        opacity: 0;
+        float: right;
+        right: -8px;
+        &:hover {
+            color: #828282;
+        }
     }
 }
 
