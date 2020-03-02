@@ -111,6 +111,7 @@ function StoryGroupItem(props) {
                         <Icon
                             id={`${item[selectAccessor] ? 'selected' : 'not-selected'}`}
                             name='eye'
+                            data-cy='train-select'
                             onClick={e => handleToggle(e, item)}
                         />
                     )}
