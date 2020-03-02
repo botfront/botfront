@@ -434,17 +434,20 @@ const StoryEditorContainer = ({
                                     siblings={branches}
                                     isLinked={isBranchLinked(branch._id)}
                                     isParentLinked={isBranchLinked(pathToRender[pathToRender.length - 1])}
+                                    projectId={projectId}
                                 />
                             );
                         })}
-                        <Menu.Item
-                            key={`${pathToRender.join()}-add`}
-                            className='add-tab'
-                            onClick={() => handleCreateBranch(pathToRender, branches, 1, false)}
-                            data-cy='add-branch'
-                        >
-                            <Icon name='plus' />
-                        </Menu.Item>
+                        {can('stories:w', projectId) && (
+                            <Menu.Item
+                                key={`${pathToRender.join()}-add`}
+                                className='add-tab'
+                                onClick={() => handleCreateBranch(pathToRender, branches, 1, false)}
+                                data-cy='add-branch'
+                            >
+                                <Icon name='plus' />
+                            </Menu.Item>
+                        )}
                     </Menu>
                 )}
                 {branches.length > 0
