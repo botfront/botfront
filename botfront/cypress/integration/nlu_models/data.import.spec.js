@@ -18,7 +18,7 @@ describe('training data import', function() {
         cy.fixture('nlu_import.json', 'utf8').then((content) => {
             cy.dataCy('drop-zone-nlu-data').upload(content, 'data.json');
         });
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('button').contains('Import').click({ force: true });
 
         cy.visit('/project/bf/nlu/models');
