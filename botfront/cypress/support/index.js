@@ -44,6 +44,12 @@ const DELETE_ROLE_DATA = gql`
     }
 `;
 
+const CREATE_AND_OVERWRITE_RESPONSES = gql`
+mutation createAndOverwriteResponses($projectId: String!, $responses: [BotResponseInput]) {
+    createAndOverwriteResponses(projectId: $projectId, responses: $responses){
+        key
+    }
+}`;
 
 switch (Cypress.env('abort_strategy')) {
 case 'run':
@@ -187,33 +193,6 @@ Cypress.Commands.add('setTimezoneOffset', () => {
     cy.visit('/project/bf/settings');
     cy.get('[data-cy=change-timezone-offset] input').click().type(`{backspace}{backspace}{backspace}{backspace}${offset}`);
     cy.get('[data-cy=save-changes]').click();
-});
-
-Cypress.Commands.add('createResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates/add`);
-    cy.get('[data-cy=response-name] input').type(responseName);
-    cy.get('.response-message-next.sequence-add-message').click();
-    cy.get('.response-message-next.sequence-add-message')
-        .contains('Text')
-        .click();
-    cy.get('.response-save-button').click();
-});
-
-
-Cypress.Commands.add('openResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates`);
-    // Type bot response name in filter
-    cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
-    cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);
-    cy.get('[data-cy=edit-response-0]').click();
-});
-
-Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates`);
-    // Type bot response name in filter
-    cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
-    cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);
-    cy.get('[data-cy=remove-response-0]').click();
 });
 
 Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
@@ -372,6 +351,19 @@ Cypress.Commands.add('removeDummyRoleAndUser', ({ email = SPECIAL_USER_EMAIL, na
     cy.deleteRole(name, fallback);
 });
 
+Cypress.Commands.add('addResponses', (projectId, responses) => {
+    cy.visit('/');
+    cy.login();
+    cy.window()
+        .then(
+            ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
+                mutation: CREATE_AND_OVERWRITE_RESPONSES,
+                variables: {
+                    projectId, responses,
+                },
+            }),
+        );
+});
 
 Cypress.Commands.add('removeTestConversation', (id) => {
     cy.MeteorCallAdmin('conversations.delete', [id]);
@@ -439,39 +431,6 @@ Cypress.Commands.add('addTestConversation', (projectId, { id = 'abc', env = null
         headers: { 'Content-Type': 'application/json' },
         body,
     });
-});
-
-Cypress.Commands.add('removeTestConversation', () => {
-    cy.MeteorCallAdmin('conversations.delete', ['6f1800deea7f469b8dafd928f092a280']);
-});
-
-
-Cypress.Commands.add('addStory', (projectId) => {
-    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.stories.insert({
-        storyGroupId: 'StoryGroupId',
-        projectId: '${projectId}', 
-        story: '## somestory',
-    });"`;
-    cy.exec(commandToAddStory);
-});
-
-Cypress.Commands.add('addStoryGroup', (projectId) => {
-    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.storyGroups.insert({
-        _id: 'StoryGroupId',
-        projectId: '${projectId}', 
-        name: 'TestName',
-    });"`;
-    cy.exec(commandToAddStory);
-});
-
-Cypress.Commands.add('removeStory', () => {
-    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.stories.remove({ storyGroupId: \'StoryGroupId\'});"';
-    cy.exec(commandToRemoveStory);
-});
-
-Cypress.Commands.add('removeStoryGroup', () => {
-    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.storyGroups.remove({ _id: \'StoryGroupId\'});"';
-    cy.exec(commandToRemoveStory);
 });
 
 // Add and remove slot programatically.
