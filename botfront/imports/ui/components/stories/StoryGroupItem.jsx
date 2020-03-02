@@ -19,6 +19,7 @@ function StoryGroupItem(props) {
         saving,
         stories,
         changeName,
+        allowSelect,
     } = props;
 
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
@@ -106,7 +107,7 @@ function StoryGroupItem(props) {
                             deletable={deletable}
                         />
                     )}
-                    {selectAccessor && (
+                    {selectAccessor && allowSelect && (
                         <Icon
                             id={`${item[selectAccessor] ? 'selected' : 'not-selected'}`}
                             name='eye'
@@ -154,12 +155,14 @@ StoryGroupItem.propTypes = {
     saving: PropTypes.bool.isRequired,
     stories: PropTypes.array.isRequired,
     changeName: PropTypes.func.isRequired,
+    allowSelect: PropTypes.bool,
 };
 
 StoryGroupItem.defaultProps = {
     nameAccessor: 'name',
     selectAccessor: 'selected',
     allowEdit: true,
+    allowSelect: true,
 };
 
 export default StoryGroupItem;

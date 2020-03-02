@@ -100,6 +100,7 @@ class StoryGroupBrowser extends React.Component {
             saving,
             changeName,
             stories,
+            projectId,
         } = this.props;
         const {
             isIntroStory,
@@ -120,11 +121,12 @@ class StoryGroupBrowser extends React.Component {
                         key={index + slice[0]}
                         index={index + slice[0]}
                         item={item}
+                        allowSelect={can('stories:w', projectId)}
                         indexProp={indexProp}
                         nameAccessor={nameAccessor}
                         handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
                         selectAccessor={selectAccessor}
-                        allowEdit={allowEdit && !isIntroStory}
+                        allowEdit={allowEdit && !isIntroStory && can('stories:w', projectId)}
                         handleToggle={e => this.handleToggle(e, item)}
                         saving={saving}
                         changeName={changeName}
