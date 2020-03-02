@@ -33,11 +33,11 @@ describe('story permissions', function() {
         'add-branch',
         'delete-branch',
     ];
-
+    
     function checkIfElementDoNotExist(elm) {
         cy.dataCy(elm).should('not.exist');
     }
-
+    
     function createBranch() {
         cy.logout();
         cy.login();
@@ -97,8 +97,14 @@ describe('story permissions', function() {
         cy.dataCy('delete-slot').should('not.exist');
     });
    
-/*
     it('should not be able to edit story markdown', function() {
-      
-    }); */
+        cy.visit('/project/bf/stories');
+        cy.dataCy('toggle-md').click();
+        cy.dataCy('story-editor').click();
+        cy.dataCy('story-editor')
+            .get('textarea')
+            .type('Test', { force: true });
+        cy.dataCy('story-editor').get('textarea').blur();
+        cy.get('div.ace_content').should('have.text', '* get_started    - utter_get_started');
+    });
 });
