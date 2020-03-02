@@ -353,9 +353,9 @@ Cypress.Commands.add('deleteRole', (name, fallback) => {
         );
 });
 
-Cypress.Commands.add('createDummyRoleAndUserThenLogin', (email, permission) => {
+Cypress.Commands.add('createDummyRoleAndUserThenLogin', (email, permission, scope = 'bf') => {
     cy.createRole('dummy', 'dummy', permission);
-    cy.createUser('test', email, 'dummy', 'bf');
+    cy.createUser('test', email, 'dummy', scope);
     cy.login(true, email);
 });
 
