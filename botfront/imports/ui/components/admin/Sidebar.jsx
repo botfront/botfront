@@ -5,6 +5,8 @@ import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 import { can } from '../../../lib/scopes';
 
+import Can from '../roles/Can';
+
 class AdminSidebar extends React.Component {
     render() {
         const style = {
@@ -16,7 +18,6 @@ class AdminSidebar extends React.Component {
             background: 'rgb(27, 28, 29)',
             overflowY: 'scroll',
         };
-
         return (
             <Menu vertical inverted pointing style={style}>
                 <Menu.Item>

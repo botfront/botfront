@@ -11,6 +11,7 @@ import React from 'react';
 
 import { Projects } from '../../../api/project/project.collection';
 import { PageMenu } from '../utils/Utils';
+import { can } from '../../../api/roles/roles';
 
 class ProjectsList extends React.Component {
     filterItem = (filter, rows, filterKey) => {
@@ -36,19 +37,21 @@ class ProjectsList extends React.Component {
             filterMethod: (filter, rows) => (this.filterItem(filter, rows, 'id')),
             Header: 'ID',
         },
-        {
-            id: 'edit',
-            accessor: '_id',
-            width: 55,
-            Header: 'Edit',
-            Cell: props => (
-                <div className='center'>
-                    <Link to={`/admin/project/${props.value}`}>
-                        <Icon name='edit' color='grey' link size='small' />
-                    </Link>
-                </div>
-            ),
-        },
+        ...(can('projects:w')
+            ? [{
+                id: 'edit',
+                accessor: '_id',
+                width: 55,
+                Header: 'Edit',
+                Cell: props => (
+                    <div className='center'>
+                        <Link to={`/admin/project/${props.value}`}>
+                            <Icon name='edit' color='grey' link size='small' data-cy='edit-projects' />
+                        </Link>
+                    </div>
+                ),
+            }]
+            : []),
     ];
 
     render() {

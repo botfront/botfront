@@ -144,9 +144,9 @@ Meteor.startup(() => {
                                 <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-settings:r')} />
                                 <Route path='*' component={NotFound} />
                             </Route>
-                            <Route exact path='/admin' component={AdminLayout} onEnter={authenticate(['global-settings:r', 'roles:r'], { scope: 'anyScope' })}>
+                            <Route exact path='/admin' component={AdminLayout} onEnter={authenticate(['global-settings:r', 'users:r', 'roles:r'], { scope: 'anyScope' })}>
                                 <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticate('projects:r', { scope: 'GLOBAL' })} />
-                                <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
+                                <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
                                 <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
                                 <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticateAdmin} />
                                 <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticateAdmin} />

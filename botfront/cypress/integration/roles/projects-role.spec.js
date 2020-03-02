@@ -5,7 +5,7 @@ describe('projects:r can access but not edit settings', () => {
         cy.deleteProject('bf');
         cy.createProject('bf', 'myProject', 'en');
     });
-    it('should be able to view a read only version of all project settings tabs', () => {
+    it('should be able to view a read only version of all project settings tabs as projects:r', () => {
         // init
         cy.removeDummyRoleAndUser('test@test.test', 'projects:r');
         cy.wait(2000);
@@ -39,7 +39,7 @@ describe('projects:r can access but not edit settings', () => {
         // remove test user
         cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
     });
-    it('should be able to view a read only version of all project settings tabs', () => {
+    it('should be able to view a write-able version of all project settings tabs as projects:w', () => {
         // init
         cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
         cy.wait(2000);
@@ -68,6 +68,43 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('project-settings-menu-instances').click();
         cy.get('.field').should('not.have.class', 'disabled');
         cy.dataCy('save-instance').should('exist');
+        // remove user
+        cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
+    });
+    it('should only show the projects side menu link for projects:r GLOBAL scope', () => {
+        cy.removeDummyRoleAndUser('test@test.test', 'users:r');
+        cy.wait(2000);
+        cy.createDummyRoleAndUserThenLogin('test@test.test', ['users:r'], 'GLOBAL');
+        cy.wait(2000);
+        cy.visit('/admin');
+        // check non authorized users cannot see the projects tab
+        cy.dataCy('users-link').should('exist');
+        cy.dataCy('projects-link').should('not.exist');
+        cy.removeDummyRoleAndUser('test@test.test', 'users:r');
+    });
+    it('should be able to view but not edit projects as projects:r GLOBAL scope', () => {
+        cy.removeDummyRoleAndUser('test@test.test', 'projects:r');
+        cy.wait(2000);
+        cy.createDummyRoleAndUserThenLogin('test@test.test', ['projects:r'], 'GLOBAL');
+        cy.wait(2000);
+        cy.visit('/admin');
+        // check authorized users can view projects
+        cy.dataCy('projects-link').click();
+        cy.get('.rt-td').contains('Chitchat').should('exist');
+        cy.dataCy('edit-projects').should('not.exist');
+        cy.removeDummyRoleAndUser('test@test.test', 'projects:r');
+    });
+    it('should be able to edit projects with projects:r GLOBAL scope', () => {
+        cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
+        cy.wait(2000);
+        cy.createDummyRoleAndUserThenLogin('test@test.test', ['projects:w'], 'GLOBAL');
+        cy.wait(2000);
+        cy.visit('/admin');
+        // check authorized users can view projects
+        cy.dataCy('projects-link').click();
+        cy.get('.rt-td').contains('Chitchat').should('exist');
+        cy.dataCy('edit-projects').first().click();
+        cy.dataCy('submit-field').should('exist');
         // remove user
         cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
     });
