@@ -36,15 +36,6 @@ if (Meteor.isServer) {
         }
         return StoryGroups.find({ projectId });
     });
-
-    Meteor.publish('introStoryGroup', function(projectId) {
-        check(projectId, String);
-        checkIfCan('stories:r', projectId);
-        if (!StoryGroups.findOne({ projectId, introStory: true })) {
-            createIntroStoryGroup(projectId);
-        }
-        return StoryGroups.find({ introStory: true, projectId });
-    });
 }
 
 StoryGroups.attachSchema(StoryGroupSchema);
