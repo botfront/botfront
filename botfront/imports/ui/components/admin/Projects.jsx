@@ -60,19 +60,22 @@ class ProjectsList extends React.Component {
             <div>
                 <PageMenu icon='sitemap' title='Projects'>
                     <Menu.Menu position='right'>
-                        <Menu.Item>
-                            <Button
-                                data-cy='new-project'
-                                onClick={() => {
-                                    browserHistory.push('/admin/project/add');
-                                }}
-                                primary
-                                disabled={loading}
-                                icon='add'
-                                content='Add project'
-                                labelPosition='left'
-                            />
-                        </Menu.Item>
+                        {can('projects:w') && (
+                            <Menu.Item>
+                                <Button
+                                    data-cy='new-project'
+                                    onClick={() => {
+                                        browserHistory.push('/admin/project/add');
+                                    }}
+                                    primary
+                                    disabled={loading}
+                                    icon='add'
+                                    content='Add project'
+                                    labelPosition='left'
+                                />
+                            </Menu.Item>
+                        )
+                        }
                     </Menu.Menu>
                 </PageMenu>
                 <Container>

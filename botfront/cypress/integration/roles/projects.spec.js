@@ -9,8 +9,9 @@ describe('projects:r can access but not edit settings', () => {
         // init
         cy.removeDummyRoleAndUser('test@test.test', 'projects:r');
         cy.wait(2000);
-        cy.createDummyRoleAndUserThenLogin('test@test.test', ['projects:r']);
+        cy.createDummyRoleAndUser({ permission: ['projects:r'] });
         cy.wait(2000);
+        cy.login({ admin: false });
         cy.visit('/project/bf/settings');
         // project info tab
         cy.get('.project-name').find('input').should('have.value', 'myProject');
@@ -37,14 +38,15 @@ describe('projects:r can access but not edit settings', () => {
         cy.get('.field').should('have.class', 'disabled');
         cy.dataCy('save-instance').should('not.exist');
         // remove test user
-        cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
+        cy.removeDummyRoleAndUser();
     });
     it('should be able to view a write-able version of all project settings tabs as projects:w', () => {
         // init
-        cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
+        cy.removeDummyRoleAndUser();
         cy.wait(2000);
-        cy.createDummyRoleAndUserThenLogin('test@test.test', ['projects:w']);
+        cy.createDummyRoleAndUser({ permission: ['projects:w'] });
         cy.wait(2000);
+        cy.login({ admin: false });
         cy.visit('/project/bf/settings');
         // project info tab
         cy.dataCy('language-selector').should('not.have.class', 'disabled');
@@ -74,38 +76,43 @@ describe('projects:r can access but not edit settings', () => {
     it('should only show the projects side menu link for projects:r GLOBAL scope', () => {
         cy.removeDummyRoleAndUser('test@test.test', 'users:r');
         cy.wait(2000);
-        cy.createDummyRoleAndUserThenLogin('test@test.test', ['users:r'], 'GLOBAL');
+        cy.createDummyRoleAndUser({ permission: ['users:r'], scope: 'GLOBAL' });
         cy.wait(2000);
+        cy.login({ admin: false });
         cy.visit('/admin');
         // check non authorized users cannot see the projects tab
         cy.dataCy('users-link').should('exist');
         cy.dataCy('projects-link').should('not.exist');
-        cy.removeDummyRoleAndUser('test@test.test', 'users:r');
+        cy.removeDummyRoleAndUser();
     });
     it('should be able to view but not edit projects as projects:r GLOBAL scope', () => {
-        cy.removeDummyRoleAndUser('test@test.test', 'projects:r');
+        cy.removeDummyRoleAndUser();
         cy.wait(2000);
-        cy.createDummyRoleAndUserThenLogin('test@test.test', ['projects:r'], 'GLOBAL');
+        cy.createDummyRoleAndUser({ permission: ['projects:r'], scope: 'GLOBAL' });
         cy.wait(2000);
+        cy.login({ admin: false });
         cy.visit('/admin');
         // check authorized users can view projects
         cy.dataCy('projects-link').click();
         cy.get('.rt-td').contains('Chitchat').should('exist');
         cy.dataCy('edit-projects').should('not.exist');
-        cy.removeDummyRoleAndUser('test@test.test', 'projects:r');
+        cy.dataCy('new-project').should('not.exist');
+        cy.removeDummyRoleAndUser();
     });
     it('should be able to edit projects with projects:r GLOBAL scope', () => {
-        cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
+        cy.removeDummyRoleAndUser();
         cy.wait(2000);
-        cy.createDummyRoleAndUserThenLogin('test@test.test', ['projects:w'], 'GLOBAL');
+        cy.createDummyRoleAndUser({ permission: ['projects:w'], scope: 'GLOBAL' });
         cy.wait(2000);
+        cy.login({ admin: false });
         cy.visit('/admin');
         // check authorized users can view projects
         cy.dataCy('projects-link').click();
         cy.get('.rt-td').contains('Chitchat').should('exist');
+        cy.dataCy('new-project').should('exist');
         cy.dataCy('edit-projects').first().click();
         cy.dataCy('submit-field').should('exist');
         // remove user
-        cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
+        cy.removeDummyRoleAndUser();
     });
 });
