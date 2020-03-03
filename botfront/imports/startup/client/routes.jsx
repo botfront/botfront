@@ -42,7 +42,16 @@ import AdminLayout from '../../ui/layouts/admin';
 
 import AnalyticsContainer from '../../ui/components/analytics/AnalyticsContainer';
 
-const authenticate = role => (nextState, replace, callback) => {
+const getScope = (scope, nextState) => {
+    if (scope === 'GLOBAL' || scope === null) return null;
+    if (scope === 'anyScope') return { anyScope: true };
+    if (scope === undefined) return nextState.params.project_id;
+    return null; // default to global scope
+};
+
+const authenticate = (role, options = {}) => (nextState, replace, callback) => {
+    const { scope: scopeSetting } = options;
+    const scope = getScope(scopeSetting, nextState);
     Tracker.autorun(() => {
         if (areScopeReady()) {
             if (!Meteor.loggingIn() && !Meteor.userId()) {
@@ -51,7 +60,7 @@ const authenticate = role => (nextState, replace, callback) => {
                     state: { nextPathname: nextState.location.pathname },
                 });
             } else if (
-                !can(role, nextState.params.project_id)
+                !can(role, scope)
                 && !can('global-admin')
             ) {
                 replace({
@@ -136,7 +145,7 @@ Meteor.startup(() => {
                                 <Route path='*' component={NotFound} />
                             </Route>
                             <Route exact path='/admin' component={AdminLayout}>
-                                <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticateAdmin} />
+                                <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticate('projects:r', { scope: 'GLOBAL' })} />
                                 <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
                                 <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
                                 <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticateAdmin} />
