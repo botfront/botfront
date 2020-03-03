@@ -31,6 +31,7 @@ export const eachTriggerValidators = {
     url: value => value && value.length > 0 && !!value.every(urlString => urlString && urlString.length > 0),
     queryString: v => v && v.length > 0 && !!v.every(checkQueryString),
     eventListeners: v => v && v.length > 0 && !!v.every(checkEventListener),
+    triggerLimit: v => v && v > 0,
 };
 
 export const hasTrigger = trigger => (

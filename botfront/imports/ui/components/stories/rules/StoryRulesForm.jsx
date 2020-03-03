@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-// import { GraphQLBridge } from 'uniforms-bridge-graphql';
-import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
-import SimpleSchema from 'simpl-schema';
 import {
     AutoForm, AutoField, ErrorsField, SubmitField, ListAddField, ListField, ListItemField, NestField,
 } from 'uniforms-semantic';
+import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { Button } from 'semantic-ui-react';
+import SimpleSchema from 'simpl-schema';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
-import SelectField from '../../form_fields/SelectField';
-import OptionalField from '../../form_fields/OptionalField';
-import ToggleField from '../../common/ToggleField';
-
-import { getModelField } from '../../../../lib/autoForm.utils';
 import { eachTriggerValidators, hasTrigger } from '../../../../lib/storyRules.utils';
+import { getModelField } from '../../../../lib/autoForm.utils';
+import OptionalField from '../../form_fields/OptionalField';
+import SelectField from '../../form_fields/SelectField';
+import ToggleField from '../../common/ToggleField';
 
 class RulesForm extends AutoForm {
     resetOptionalArray = (keyArray, fieldName) => {
@@ -72,6 +70,15 @@ class RulesForm extends AutoForm {
             const valueDisplayIfKey = [...keyArray];
             valueDisplayIfKey[valueDisplayIfKey.length - 1] = 'value__DISPLAYIF';
             super.onChange(valueDisplayIfKey.join('.'), !value === true);
+        }
+        if (fieldName === 'when') {
+            const whenKey = [...keyArray];
+            whenKey[whenKey.length - 1] = 'triggerLimit__DISPLAYIF';
+            if (value === 'limited') {
+                super.onChange(whenKey.join('.'), true);
+            } else {
+                super.onChange(whenKey.join('.'), false);
+            }
         }
         if (fieldName === 'queryString' && Array.isArray(value)) {
             // set value__DISPLAYIF fields to NOT sendAsEntity when queryString elements are added or removed
@@ -143,6 +150,8 @@ function StoryRulesForm({
     const TriggerSchema = new SimpleSchema({
         // NOTE:  __DISPLAYIF fields must be added to the optionalFields array
         triggerLimit: { type: Number, optional: true },
+        triggerLimit__DISPLAYIF: { type: Boolean, optional: true, defaultValue: true },
+        timeLimit: { type: Number, optional: true },
         url: { type: Array, optional: true },
         'url.$': { type: String, optional: false, regEx: noSpaces },
         url__DISPLAYIF: { type: Boolean, optional: true },
@@ -193,6 +202,7 @@ function StoryRulesForm({
         'rules.$.trigger.queryString',
         'rules.$.trigger.eventListeners',
         'rules.$.trigger.queryString.$.value',
+        'rules.$.trigger.triggerLimit',
     ];
 
     const fieldErrorMessages = {
@@ -300,12 +310,18 @@ function StoryRulesForm({
         }).map(replaceRegexErrors);
     };
 
-    const handleValidate = (model, incommingErrors, callback) => {
-        const newError = incommingErrors || new Error('Fields are invalid');
-        let errors = incommingErrors
-            ? filterRepeatErrors(incommingErrors.details)
+    const handleValidate = (model, incomingErrors, callback) => {
+        const newError = incomingErrors || new Error('Fields are invalid');
+        let errors = incomingErrors
+            ? filterRepeatErrors(incomingErrors.details)
             : [];
-        errors = [...errors, ...validateEnabledFields(model)];
+        try {
+            errors = [...errors, ...validateEnabledFields(model)];
+        } catch (e) {
+            errors = [...errors];
+            // eslint-disable-next-line no-console
+            console.log('something went wrong while validating the rules');
+        }
         newError.details = errors;
         if (!newError.details.length) {
             return callback(null);
@@ -332,9 +348,20 @@ function StoryRulesForm({
                                     options={[
                                         { value: 'always', text: 'Always' },
                                         { value: 'init', text: 'Only if no conversation has started' },
+                                        { value: 'limited', text: 'Choose a limit' },
                                     ]}
                                 />
-                                <AutoField name='triggerLimit' label='Maximum number of times the rule will be triggered. Leaving it empty lets the event trigger every time the rules match.' />
+
+                                <OptionalField
+                                    name='triggerLimit'
+                                    showToggle={false}
+                                >
+                                    <AutoField name='' label='Maximum number of times the rule will be triggered. Leaving it empty lets the event trigger every time the rules match.' />
+                                </OptionalField>
+                                <AutoField
+                                    name='timeLimit'
+                                    label='Minimum time between two messages, in minutes. Leaving it empty lets the event trigger as soon as the rules match again.'
+                                />
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
                                     <ListField name=''>
                                         <ListItemField name='$' />

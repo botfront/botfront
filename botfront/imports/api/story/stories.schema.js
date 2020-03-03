@@ -50,6 +50,7 @@ const QueryStringSchema = new SimpleSchema({
 
 const TriggerSchema = new SimpleSchema({
     triggerLimit: { type: Number, optional: true },
+    timeLimit: { type: Number, optional: true },
     url: { type: Array, optional: true },
     'url.$': { type: String },
     timeOnPage: { type: Number, optional: true },
