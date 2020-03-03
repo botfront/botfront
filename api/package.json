@@ -23,7 +23,7 @@
     "js-yaml": "^3.13.1",
     "jszip": "^3.2.2",
     "lodash": "^4.17.10",
-    "mongoose": "^5.4.11",
+    "mongoose": "^5.9.3",
     "monk": "^6.0.6",
     "shortid": "^2.2.14",
     "sprintf-js": "^1.1.1",
