@@ -28,11 +28,26 @@ describe('nlu-data:r restricted permissions', () => {
             .should('not.contain', 'Delete');
     });
 
-    it('should not show edit features in training examples', () => {
+    it('should not show nlu example editor in playground or train button', () => {
+        cy.visit('/');
+        cy.dataCy('example-text-editor-input').should('exist').click()
+            .type('hello');
+        cy.dataCy('nlu-example-tester').should('exist').click();
+        cy.get('.ui.purple.pointing.label').should('not.exist'); // editor didn't open
+        cy.dataCy('train-button').should('not.exist'); // train button doesn't exist
+    });
+
+    it('should not show edit features in examples, synonyms, gazettes', () => {
         cy.visit('/');
         cy.dataCy('intent-label').should('exist').should('have.class', 'uneditable');
         cy.get('.caret.right.larger').should('not.exist');
         cy.dataCy('icon-trash').should('not.exist');
         cy.dataCy('icon-gem').should('exist').should('have.class', 'disabled');
+        cy.get('.ui.pointing.secondary.menu').contains('Synonyms').click();
+        cy.get('.ReactTable').should('exist').should('contain', 'doodad');
+        cy.dataCy('trash').should('not.exist');
+        cy.get('.ui.pointing.secondary.menu').contains('Gazette').click();
+        cy.get('.ReactTable').should('exist').should('contain', 'color');
+        cy.dataCy('trash').should('not.exist');
     });
 });

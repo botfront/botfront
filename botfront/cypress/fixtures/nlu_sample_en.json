@@ -27,7 +27,33 @@
         "entities": []
       }
     ],
-    "entity_synonyms": [],
-    "fuzzy_gazette": []
+    "entity_synonyms": [
+      {
+          "value": "doodad",
+          "synonyms": [
+              "dingus",
+              "doohickey",
+              "hickey",
+              "thingamabob",
+              "thingamajig",
+              "thingummy",
+              "whatchamacallit"
+          ]
+      }
+  ],
+    "fuzzy_gazette": [
+      {
+          "mode": "ratio",
+          "value": "color",
+          "gazette": [
+              "green",
+              "red",
+              "blue"
+          ],
+          "min_score": {
+              "$numberInt": "99"
+          }
+      }
+    ]
   }
 }
