@@ -10,7 +10,7 @@ import {
 import { connect } from 'react-redux';
 import StoryPathPopup from './StoryPathPopup.jsx';
 import { ConversationOptionsContext } from './Context';
-import { can } from '../../../api/roles/roles.js';
+import { can } from '../../../lib/scopes';
 
 class StoryFooter extends React.Component {
     constructor(props) {

@@ -2,7 +2,7 @@
 import { Menu, Icon, Popup } from 'semantic-ui-react';
 import propTypes from 'prop-types';
 import React from 'react';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
 
