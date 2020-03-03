@@ -9,6 +9,7 @@ import React from 'react';
 import ReactTable from 'react-table-v6';
 import { Link, browserHistory } from 'react-router';
 import { PageMenu } from '../utils/Utils';
+import { can } from '../../../lib/scopes';
 
 class UsersList extends React.Component {
     renderListItems = ({ users } = this.props) => users.map(user => (
@@ -63,7 +64,7 @@ class UsersList extends React.Component {
             Cell: props => (
                 <div className='center'>
                     <Link to={`/admin/user/${props.value}`}>
-                        <Icon name='edit' color='grey' link size='small' />
+                        <Icon name='edit' color='grey' link size='small' data-cy='edit-user' />
                     </Link>
                 </div>
             ),
@@ -77,19 +78,21 @@ class UsersList extends React.Component {
             <div>
                 <PageMenu title='Users' icon='users'>
                     <Menu.Menu position='right'>
-                        <Menu.Item>
-                            <Button
-                                data-cy='new-user'
-                                onClick={() => {
-                                    browserHistory.push('/admin/user/add');
-                                }}
-                                primary
-                                disabled={loading}
-                                icon='add'
-                                content='Add user'
-                                labelPosition='left'
-                            />
-                        </Menu.Item>
+                        {can('users:w', { anyScope: true }) && (
+                            <Menu.Item>
+                                <Button
+                                    data-cy='new-user'
+                                    onClick={() => {
+                                        browserHistory.push('/admin/user/add');
+                                    }}
+                                    primary
+                                    disabled={loading}
+                                    icon='add'
+                                    content='Add user'
+                                    labelPosition='left'
+                                />
+                            </Menu.Item>
+                        )}
                     </Menu.Menu>
                 </PageMenu>
                 <Container>

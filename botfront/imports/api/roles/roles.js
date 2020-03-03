@@ -43,7 +43,7 @@ export const getUserScopes = (userId, rolesFilter) => {
         activeScopes = userRoles.map(({ scope }) => scope);
     }
     if (activeScopes.some(v => v == null)) {
-        activeScopes = Projects.find({}, { fields: { _id: 1 } }).fetch().map(({ _id }) => _id);
+        activeScopes = [...Projects.find({}, { fields: { _id: 1 } }).fetch().map(({ _id }) => _id), null];
     }
     return activeScopes;
 };
@@ -132,7 +132,7 @@ if (Meteor.isServer) {
     // eslint-disable-next-line consistent-return
     export const publishRoles = (context) => { // exported for testing
         if (context.userId) {
-            if (can(['roles:r', 'users:r'])) {
+            if (can(['roles:r', 'users:r'], { anyScope: true })) {
                 return Meteor.roleAssignment.find({});
             }
             return Meteor.roleAssignment.find({ 'user._id': context.userId });

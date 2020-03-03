@@ -29,9 +29,11 @@ class AdminSidebar extends React.Component {
                             <Menu.Item name='Projects' data-cy='projects-link'> Projects</Menu.Item>
                         </Link>
                     </Can>
-                    <Link to='/admin/users'>
-                        <Menu.Item name='Users'> Users</Menu.Item>
-                    </Link>
+                    {can('users:r', { anyScope: true }) && (
+                        <Link to='/admin/users' data-cy='users-link'>
+                            <Menu.Item name='Users'> Users</Menu.Item>
+                        </Link>
+                    )}
                     {can('global-settings:r', { anyScope: true })
                     && (
                         <Link to='/admin/settings'>
@@ -58,4 +60,5 @@ class AdminSidebar extends React.Component {
     }
 }
 
-export default withTracker(() => ({}))(AdminSidebar);
+export default withTracker(() => ({
+}))(AdminSidebar);

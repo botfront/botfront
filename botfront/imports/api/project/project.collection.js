@@ -89,7 +89,9 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('projects.names', function () {
-        if (can(['projects:w', 'users:r'], this.userId)) {
+        if (can('projects:r', null, this.userId)
+            || can('users:r', { anyScope: true }, this.userId)
+        ) {
             return Projects.find({}, { fields: { name: 1 } });
         }
         const projects = getUserScopes(this.userId, ['responses:r', 'nlu-data:r', 'nlu-data:x']);

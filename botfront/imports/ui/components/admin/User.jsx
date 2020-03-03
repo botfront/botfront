@@ -21,6 +21,7 @@ import { browserHistory } from 'react-router';
 
 import { UserEditSchema, UserCreateSchema } from '../../../api/user/user.schema';
 import { can } from '../../../lib/scopes';
+import { getUserScopes } from '../../../api/roles/roles';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangePassword from './ChangePassword';
 import { PageMenu } from '../utils/Utils';
@@ -44,6 +45,13 @@ class User extends React.Component {
         return user.emails[0].address;
     };
 
+    // canEditUser = () => {
+    //     const { user } = this.props;
+    //     const editScopes = getUserScopes(Meteor.userId(), 'users:w');
+    //     const canEdit = user.roles.every(({ project }) => editScopes.includes(project));
+    //     return can(canEdit);
+    // }
+
     methodCallback = () => wrapMeteorCallback((err) => {
         if (!err) browserHistory.goBack();
     });
@@ -65,7 +73,7 @@ class User extends React.Component {
     renderRoles = () => {
         const { projectOptions } = this.props;
         return (
-            <ListField name='roles'>
+            <ListField name='roles' data-cy='user-roles-field'>
                 <ListItemField name='$'>
                     <NestField>
                         <Grid columns='equal'>
@@ -91,11 +99,12 @@ class User extends React.Component {
     getPanes = () => {
         const { confirmOpen } = this.state;
         const { user } = this.props;
+        const hasWritePermission = can('users:w', { anyScope: true });
         const panes = [
             {
                 menuItem: 'General information',
                 render: () => (
-                    <Segment>
+                    <Segment className={hasWritePermission}>
                         <AutoForm
                             schema={UserEditSchema}
                             onSubmit={usr => this.saveUser(usr)}
@@ -107,6 +116,7 @@ class User extends React.Component {
                                 }
                                 return usr;
                             }}
+                            disabled={!hasWritePermission}
                         >
                             <AutoField name='emails.0.address' />
                             <AutoField name='emails.0.verified' />
@@ -114,22 +124,25 @@ class User extends React.Component {
                             <AutoField name='profile.lastName' />
                             {this.renderRoles()}
                             <ErrorsField />
-                            <SubmitField />
+                            {can('users:w', { anyScope: true }) && <SubmitField data-cy='save-user' />}
                         </AutoForm>
                     </Segment>
                 ),
             },
-            {
-                menuItem: 'Password change',
-                render: () => (
-                    <Segment>
-                        <ChangePassword userId={user._id} />
-                    </Segment>
-                ),
-            },
+            ...(can('users:w', { anyScope: true })
+                ? [{
+                    menuItem: 'Password change',
+                    render: () => (
+                        <Segment>
+                            <ChangePassword userId={user._id} />
+                        </Segment>
+                    ),
+                }]
+                : []
+            ),
         ];
 
-        if (can('users:w')) {
+        if (can('users:w', { anyScope: true })) {
             panes.push({
                 menuItem: 'User deletion',
                 render: () => (
@@ -232,11 +245,13 @@ const UserContainer = withTracker(({ params }) => {
     const rolesHandler = Meteor.subscribe('roles');
     const ready = [userDataHandler, projectsHandler, rolesHandler].every(h => h.ready());
     const user = prepareRoles(Meteor.users.findOne({ _id: params.user_id }));
-    const projectOptions = Projects.find({}, { fields: { _id: 1, name: 1 } })
+    const editUsersScopes = getUserScopes(Meteor.userId(), 'users:r');
+    const projectOptions = Projects.find({ _id: { $in: editUsersScopes } }, { fields: { _id: 1, name: 1 } })
         .fetch()
         .map(p => ({ text: p.name, value: p._id }));
-
-    projectOptions.push({ text: 'GLOBAL', value: 'GLOBAL' }); // global role
+    if (can('users:r')) {
+        projectOptions.push({ text: 'GLOBAL', value: 'GLOBAL' }); // global role
+    }
 
     return {
         ready,

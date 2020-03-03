@@ -73,10 +73,17 @@ const authenticate = (role, options = {}) => (nextState, replace, callback) => {
     });
 };
 
-const authenticateAdmin = (nextState, replace, callback) => {
+const authenticateAdminPage = () => (nextState, replace, callback) => {
     Tracker.autorun(() => {
         if (areScopeReady()) {
-            if (!can('global-admin')) {
+            if (!Meteor.loggingIn && !Meteor.userId()) {
+                replace({
+                    pathname: '/403',
+                    state: { nextPathname: nextState.location.pathname },
+                });
+            } else if (!can(['users:r', 'roles:r', 'global-settings:r'], { anyScope: true })
+                && !can(['projects:r'])
+            ) {
                 replace({
                     pathname: '/403',
                     state: { nextPathname: nextState.location.pathname },
@@ -144,17 +151,17 @@ Meteor.startup(() => {
                                 <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-settings:r')} />
                                 <Route path='*' component={NotFound} />
                             </Route>
-                            <Route exact path='/admin' component={AdminLayout} onEnter={authenticate(['global-settings:r', 'users:r', 'roles:r'], { scope: 'anyScope' })}>
+                            <Route exact path='/admin' component={AdminLayout} onEnter={authenticateAdminPage()}>
                                 <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticate('projects:r', { scope: 'GLOBAL' })} />
                                 <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
-                                <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticateAdmin} />
-                                <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticateAdmin} />
-                                <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticateAdmin} />
+                                <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
+                                <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticate('users:r', { scope: 'anyScope' })} />
+                                <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticate('users:r', { scope: 'anyScope' })} />
                                 <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticate('global-settings:r', { scope: 'anyScope' })} />
                                 <Route path='/admin/roles' component={RolesList} name='Roles' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
                                 <Route path='/admin/role/:role_name' component={RoleContainer} name='Edit Role' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
                                 <Route path='/admin/role/' component={RoleContainer} name='Create Role' onEnter={authenticate('roles:w', { scope: 'anyScope' })} />
-                                <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticateAdmin} />
+                                <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticate('users:w', { scope: 'anyScope' })} />
                             </Route>
                             <Route path='*' exact component={NotFound} />
                         </Router>
