@@ -46,9 +46,19 @@ Meteor.methods({
         checkIfCan('stories:w', projectId);
         check(projectId, String);
         check(slot, Match.OneOf(Object, [Object]));
-        checkIfCan('stories:w', projectId);
+        
         const slots = Array.isArray(slot)
             ? slot : [slot];
+        const slotsBefore = Slots.find({ name: { $in: slots.map(aSlot => aSlot.name) }, projectId }).fetch();
+        auditLogIfOnServer('Upsert slot(s)', {
+            resId: slot._id,
+            user: Meteor.user(),
+            type: 'update',
+            operation: 'slot.updated',
+            projectId,
+            after: { slots },
+            before: { slots: slotsBefore },
+        });
         slots.forEach(({ name, ...rest }) => {
             try {
                 Slots.update({ name, projectId }, { name, projectId, ...rest }, { upsert: true });
