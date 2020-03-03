@@ -6,7 +6,7 @@ import Alert from 'react-s-alert';
 
 import StoryRulesForm from './StoryRulesForm';
 
-import { can } from '../../../../api/roles/roles';
+import { can } from '../../../../lib/scopes';
 
 const StoryRulesEditor = (props) => {
     const [localOpen, setLocalOpen] = useState(false);

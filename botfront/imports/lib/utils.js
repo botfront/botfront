@@ -8,7 +8,7 @@ import React from 'react';
 import axios from 'axios';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
-import { checkIfCan, checkIfScope } from '../api/roles/roles';
+import { checkIfCan } from './scopes';
 
 import { Projects } from '../api/project/project.collection';
 import { NLUModels } from '../api/nlu_model/nlu_model.collection';

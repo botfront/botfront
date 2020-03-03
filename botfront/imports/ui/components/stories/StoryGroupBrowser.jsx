@@ -9,7 +9,7 @@ import { Slots } from '../../../api/slots/slots.collection';
 import StoryGroupItem from './StoryGroupItem';
 import SmartStoryGroupItem from './SmartStoryGroupItem';
 import { ConversationOptionsContext } from './Context';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 
 class StoryGroupBrowser extends React.Component {
     constructor(props) {

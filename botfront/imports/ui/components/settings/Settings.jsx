@@ -9,7 +9,7 @@ import { PageMenu } from '../utils/Utils';
 import Credentials from './Credentials';
 import Endpoints from './Endpoints';
 import ProjectInfo from './ProjectInfo';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 import Instances from './Instances';
 import DefaultDomain from './DefaultDomain';
 import ImportExportProject from './ImportExportProject';

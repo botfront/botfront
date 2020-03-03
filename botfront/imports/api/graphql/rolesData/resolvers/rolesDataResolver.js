@@ -1,7 +1,7 @@
 import { Roles } from 'meteor/alanning:roles';
 
 import { upsertRolesData, getRolesData, deleteRolesData } from '../mongo/rolesData';
-import { checkIfCan } from '../../../roles/roles';
+import { checkIfCan } from '../../../../lib/scopes';
 
 const getCorrespondingMeteorRole = (roleData, meteorRoles) => {
     const roles = meteorRoles ? [...meteorRoles] : Meteor.roles.find({}).fetch();

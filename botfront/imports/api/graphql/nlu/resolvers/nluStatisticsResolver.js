@@ -1,6 +1,6 @@
 import { getIntentStatistics } from '../mongo/statistics';
 import { getModelIdsFromProjectId } from '../../../../lib/utils';
-import { checkIfCan } from '../../../roles/roles';
+import { checkIfCan } from '../../../../lib/scopes';
 
 export default {
     Query: {

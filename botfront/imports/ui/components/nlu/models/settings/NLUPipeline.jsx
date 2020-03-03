@@ -12,7 +12,7 @@ import { wrapMeteorCallback } from '../../../utils/Errors';
 import ChangesSaved from '../../../utils/ChangesSaved';
 import AceField from '../../../utils/AceField';
 import SaveButton from '../../../utils/SaveButton';
-import { Can } from '../../../../../lib/scopes';
+import Can from '../../../roles/Can';
 
 export default class NLUPipeline extends React.Component {
     constructor(props) {

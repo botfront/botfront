@@ -16,7 +16,7 @@ import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
-import { checkIfCan } from '../roles/roles';
+import { checkIfCan } from '../../lib/scopes';
 import { Projects } from '../project/project.collection';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';

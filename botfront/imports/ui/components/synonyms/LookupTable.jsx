@@ -8,7 +8,9 @@ import matchSorter from 'match-sorter';
 import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
 import LookupTableEditorViewer from './LookupTableListEditorViewer';
-import { can, Can } from '../../../lib/scopes';
+import { can } from '../../../lib/scopes';
+import Can from '../roles/Can';
+
 import FloatingIconButton from '../common/FloatingIconButton';
 
 export default class LookupTable extends React.Component {

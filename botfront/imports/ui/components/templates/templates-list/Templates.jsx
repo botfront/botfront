@@ -10,7 +10,6 @@ import { useQuery, useSubscription, useMutation } from '@apollo/react-hooks';
 import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
 import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
-import { Can } from '../../../../lib/scopes';
 import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
 import { Loading } from '../../utils/Utils';
@@ -18,6 +17,7 @@ import { Stories } from '../../../../api/story/stories.collection';
 import { DELETE_BOT_RESPONSE } from '../mutations';
 import { ProjectContext } from '../../../layouts/context';
 
+import Can from '../../roles/Can';
 
 class Templates extends React.Component {
     constructor(props) {

@@ -11,7 +11,7 @@ import {
     getBotResponseById,
     upsertResponse,
 } from '../mongo/botResponses';
-import { checkIfCan } from '../../../roles/roles';
+import { checkIfCan } from '../../../../lib/scopes';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 

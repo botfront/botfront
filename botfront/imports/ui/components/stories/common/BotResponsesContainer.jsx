@@ -11,7 +11,7 @@ import ExceptionWrapper from './ExceptionWrapper';
 import { useUpload } from '../hooks/image.hooks';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
-import { can } from '../../../../api/roles/roles';
+import { can } from '../../../../lib/scopes';
 
 const BotResponsesContainer = (props) => {
     const {

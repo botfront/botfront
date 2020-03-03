@@ -11,7 +11,7 @@ import { GET_CONVERSATION } from './queries';
 import { MARK_READ } from './mutations';
 import ConversationJsonViewer from './ConversationJsonViewer';
 import ConversationDialogueViewer from './ConversationDialogueViewer';
-import { Can } from '../../../lib/scopes';
+import Can from '../roles/Can';
 
 function ConversationViewer (props) {
     const [active, setActive] = useState('Text');

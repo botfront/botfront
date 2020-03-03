@@ -6,7 +6,7 @@ import {
     deleteConversation,
     getIntents,
 } from '../mongo/conversations';
-import { checkIfCan } from '../../../roles/roles';
+import { checkIfCan } from '../../../../lib/scopes';
 
 export default {
     Query: {

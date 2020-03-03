@@ -7,8 +7,9 @@ import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Projects } from '../../../api/project/project.collection';
 import ProjectsDropdown from './ProjectsDropdown';
-import { can, Can } from '../../../lib/scopes';
-import { isUserPermissionGlobal } from '../../../api/roles/roles';
+import { can, isUserPermissionGlobal } from '../../../lib/scopes';
+import Can from '../roles/Can';
+
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 const packageJson = require('/package.json');

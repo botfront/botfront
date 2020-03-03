@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { getScopesForUser, areScopeReady } from '../../lib/scopes';
-import { can } from '../../api/roles/roles';
+import { getScopesForUser, areScopeReady, can } from '../../lib/scopes';
+
 
 class Index extends React.Component {
     componentDidMount() {

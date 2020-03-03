@@ -25,7 +25,7 @@ import {
 } from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Loading } from '../../utils/Utils';
-import { can } from '../../../../api/roles/roles';
+import { can } from '../../../../lib/scopes';
 
 
 /*

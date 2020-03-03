@@ -2,8 +2,10 @@ import { check, Match } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-import { can, getScopesForUser } from '../../lib/scopes';
-import { checkIfCan, getUserScopes, checkIfScope } from '../roles/roles';
+import {
+    can, getScopesForUser, checkIfCan, getUserScopes, checkIfScope,
+} from '../../lib/scopes';
+
 
 export const Projects = new Mongo.Collection('projects');
 

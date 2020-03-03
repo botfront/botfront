@@ -4,7 +4,10 @@ import React from 'react';
 
 let canExport = () => true;
 let checkIfCanExport = () => {};
+let getUserScopesExport = () => {};
+let checkIfScopeExport = () => {};
 let getScopesForUserExport = () => {};
+let isUserPermissionGlobalExport = () => {};
 let areScopeReadyExport = () => true;
 let setScopesExport = () => {};
 let CanExport = props => (
@@ -15,7 +18,9 @@ let CanExport = props => (
 
 // ee start
 // eslint-disable-next-line import/first
-import { can as canEE, checkIfCan as checkIfCanEE } from '../api/roles/roles';
+import {
+    can as canEE, checkIfCan as checkIfCanEE, getUserScopes as getUserScopesEE, checkIfScope as checkIfScopeEE, isUserPermissionGlobal as isUserPermissionGlobalEE,
+} from '../api/roles/roles';
 // eslint-disable-next-line import/first
 import { Roles } from 'meteor/alanning:roles';
 // eslint-disable-next-line import/first
@@ -26,6 +31,9 @@ import { Children } from 'react';
 
 canExport = canEE;
 checkIfCanExport = checkIfCanEE;
+getUserScopesExport = getUserScopesEE;
+checkIfScopeExport = checkIfScopeEE;
+isUserPermissionGlobalExport = isUserPermissionGlobalEE;
 getScopesForUserExport = (userId, permission) => Roles.getScopesForUser(userId, permission);
 areScopeReadyExport = () => Roles.subscription.ready();
 setScopesExport = (user, userId) => {
@@ -46,7 +54,9 @@ CanExport = connect(
 )(CanExport);
 // ee end
 
-
+export const getUserScopes = getUserScopesExport;
+export const checkIfScope = checkIfScopeExport;
+export const isUserPermissionGlobal = isUserPermissionGlobalExport;
 export const getScopesForUser = getScopesForUserExport;
 export const can = canExport;
 export const checkIfCan = checkIfCanExport;

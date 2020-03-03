@@ -15,7 +15,7 @@ import {
     getSubBranchesForPath,
     accumulateExceptions,
 } from '../../../lib/story.utils';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from './Context';

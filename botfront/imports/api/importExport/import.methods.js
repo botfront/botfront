@@ -4,7 +4,7 @@ import axios from 'axios';
 import { check } from 'meteor/check';
 
 import { generateErrorText, generateImportResponse } from './importExport.utils';
-import { checkIfCan } from '../roles/roles';
+import { checkIfCan } from '../../lib/scopes';
 
 if (Meteor.isServer) {
     import {

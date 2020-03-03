@@ -15,7 +15,7 @@ import BadLineLabel from '../BadLineLabel';
 import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
-import { can } from '../../../../api/roles/roles';
+import { can } from '../../../../lib/scopes';
 
 const variationIndex = 0;
 

@@ -8,7 +8,7 @@ import { Credentials } from '../credentials';
 import { Instances } from '../instances/instances.collection';
 
 import { generateErrorText } from './importExport.utils';
-import { checkIfCan } from '../roles/roles';
+import { checkIfCan } from '../../lib/scopes';
 
 if (Meteor.isServer) {
     import {

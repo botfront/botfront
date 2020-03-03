@@ -3,7 +3,7 @@ import {
     upsertActivity,
     deleteActivity,
 } from '../mongo/activity';
-import { checkIfCan } from '../../../roles/roles';
+import { checkIfCan } from '../../../../lib/scopes';
 import { getProjectIdFromModelId } from '../../../../lib/utils';
 
 export default {

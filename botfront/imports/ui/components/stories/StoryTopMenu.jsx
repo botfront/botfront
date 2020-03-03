@@ -14,7 +14,7 @@ import { setStoryCollapsed } from '../../store/actions/actions';
 import StoryPlayButton from './StoryPlayButton';
 
 import { ConversationOptionsContext } from './Context';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 
 const StoryTopMenu = ({
     onDelete,

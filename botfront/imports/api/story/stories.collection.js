@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import { checkIfCan } from '../../lib/scopes';
+import { checkIfCan, checkIfScope } from '../../lib/scopes';
 import { StorySchema } from './stories.schema';
-import { getUserScopes, checkIfScope } from '../roles/roles';
+
 
 export const Stories = new Mongo.Collection('stories');
 
