@@ -24,10 +24,11 @@ class AdminSidebar extends React.Component {
                     <Menu.Header as='h2' name='nlu'>
                         Admin
                     </Menu.Header>
-
-                    <Link to='/admin/projects'>
-                        <Menu.Item name='Projects' data-cy='projects-link'> Projects</Menu.Item>
-                    </Link>
+                    <Can I='projects:r' projectId={null}>
+                        <Link to='/admin/projects'>
+                            <Menu.Item name='Projects' data-cy='projects-link'> Projects</Menu.Item>
+                        </Link>
+                    </Can>
                     <Link to='/admin/users'>
                         <Menu.Item name='Users'> Users</Menu.Item>
                     </Link>
