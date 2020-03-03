@@ -80,9 +80,9 @@ if (Meteor.isServer) {
         createRole('responses:w', 'Can create, delete and edit bot responses. Extends responses:r.');
         Roles.addRolesToParent('responses:r', 'responses:w');
 
-        createRole('stories:r', 'Can read story content. Extends `nlu-data:r`, `nlu-data:r`');
+        createRole('stories:r', 'Can read story content. Extends `nlu-data:r`, `responses:r`');
         Roles.addRolesToParent(['responses:r', 'nlu-data:r'], 'stories:r');
-        createRole('stories:w', 'Can read story content. Extends `stories:r`');
+        createRole('stories:w', 'Can create, delete and edit stories. Extends `stories:r`');
         Roles.addRolesToParent(['stories:r'], 'stories:w');
 
         createRole('triggers:r', 'Can access story triggers. Extends `stories:r`');
@@ -102,7 +102,7 @@ if (Meteor.isServer) {
         Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r', 'analytics:r'], 'projects:r');
         createRole(
             'projects:w',
-            'Can edit project meta information andsettings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
+            'Can edit project meta information and settings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
         );
         Roles.addRolesToParent('projects:r', 'projects:w');
         
@@ -115,11 +115,13 @@ if (Meteor.isServer) {
         Roles.addRolesToParent('roles:r', 'roles:w');
     
         createRole('users:r', 'Can access user information.');
+        Roles.addRolesToParent(['roles:r'], 'users:r');
         createRole('users:w', 'Can add, edit, or remove user details and roles. Extends `users:r`');
         Roles.addRolesToParent(['users:r', 'roles:r'], 'users:w');
 
-
-        createRole('global-admin');
+        createRole('project-admin', 'Can access and edit all resources of a project. Extends `projects:w`,`users:w`  ');
+        Roles.addRolesToParent(['projects:w', 'users:w'], 'project-admin');
+        createRole('global-admin', 'Can access and edit all resources of all projects and edit global settigs. Extends All permissions ');
         Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-data:x', 'triggers:w', 'responses:w', 'stories:w', 'roles:r', 'roles:w', 'analytics:r', 'incoming:w', 'global-settings:w'], 'global-admin');
     };
 
