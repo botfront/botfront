@@ -66,10 +66,10 @@ class ProjectSidebar extends React.Component {
                         </span>
                     )}
                     <Divider inverted />
-                    {(can('roles:r', projectId)
-                    || can('users:r', projectId)
-                    || can('global-settings:r', projectId)
-                    // we need to check if there is not scope for this 'projects:r, because without scope it can create?edit project
+                    {(can('roles:r', { anyScope: true })
+                    || can('users:r', { anyScope: true })
+                    || can('global-settings:r', { anyScope: true })
+                    // we need to check if there is not scope for this 'projects:r, because without scope it can create/edit projects
                     || isUserPermissionGlobal(Meteor.userId(), 'projects:r')) && (
                         <Link to='/admin/'>
                             <Menu.Item name='Admin' icon='key' />
