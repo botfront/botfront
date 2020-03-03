@@ -3,6 +3,7 @@ import React from 'react';
 import { Menu } from 'semantic-ui-react';
 import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
+import { can } from '../../../lib/scopes';
 
 class AdminSidebar extends React.Component {
     render() {
@@ -32,9 +33,13 @@ class AdminSidebar extends React.Component {
                     <Link to='/admin/settings'>
                         <Menu.Item name='Settings'> Settings</Menu.Item>
                     </Link>
-                    <Link to='/admin/roles'>
-                        <Menu.Item name='Roles'> Roles</Menu.Item>
-                    </Link>
+                    {can('roles:r', { anyScope: true })
+                        && (
+                            <Link to='/admin/roles'>
+                                <Menu.Item name='Roles'> Roles</Menu.Item>
+                            </Link>
+                        )
+                    }
                 </Menu.Item>
                 <Menu.Item>
                     <Menu.Header>Account</Menu.Header>

@@ -13,7 +13,7 @@ const flattenRoleChildren = meteorRole => meteorRole.children.map(children => ch
 export default {
     Query: {
         getRolesData: async (_, __, context) => {
-            checkIfCan('roles:r', null, context.user._id);
+            checkIfCan('roles:r', { anyScope: true }, context.user._id);
             const rolesData = await getRolesData();
             const meteorRoles = await Meteor.roles.find({}).fetch();
             rolesData.forEach((roleData, index) => {
@@ -33,7 +33,7 @@ export default {
     },
     Mutation: {
         upsertRolesData: async (_parent, args, context) => {
-            checkIfCan('roles:w', null, context.user._id);
+            checkIfCan('roles:w', { anyScope: true }, context.user._id);
             const updatedRoleData = { ...args.roleData };
             const roleInDb = await getRolesData(updatedRoleData.name);
             // We have to overwrite the deletable property to be sure no one tempers with it

@@ -14,6 +14,7 @@ import SelectField from '../form_fields/SelectField';
 import DeleteRoleModal from './DeleteRoleModal';
 import SaveButton from '../utils/SaveButton';
 import { PageMenu } from '../utils/Utils';
+import { can } from '../../../lib/scopes';
 
 const children = new SimpleSchema({
     children: [String],
@@ -133,21 +134,24 @@ const Role = (props) => {
                             schema={rolesDataSchemaWithChildren}
                             model={roleData}
                             onSubmit={handleSubmit}
-                            disabled={disabled}
+                            disabled={disabled || !can('roles:w', { anyScope: true })}
                         >
                             <AutoField name='name' />
                             <AutoField name='description' />
                             <SelectField name='children' options={rolesOptions} />
                             <ErrorsField />
-                            <SaveButton disabled={disabled} saved={saved} />
-                            {roleData && roleData.name && (
-                                <Button
-                                    negative
-                                    content='Delete'
-                                    disabled={disabled}
-                                    floated='right'
-                                    onClick={handleDeletion}
-                                />
+                            {can('roles:w', { anyScope: true }) && (
+                            <><SaveButton disabled={disabled} saved={saved} />
+                                { roleData && roleData.name && (
+                                    <Button
+                                        negative
+                                        content='Delete'
+                                        disabled={disabled}
+                                        floated='right'
+                                        onClick={handleDeletion}
+                                    />
+                                )}
+                            </>
                             )}
                         </AutoForm>
                     )}

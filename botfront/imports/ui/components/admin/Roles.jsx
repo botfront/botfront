@@ -7,6 +7,7 @@ import React from 'react';
 
 import { GET_ROLES_DATA } from '../utils/queries';
 import { PageMenu } from '../utils/Utils';
+import { can } from '../../../lib/scopes';
 
 const columns = [
     {
@@ -23,18 +24,20 @@ const RolesList = () => {
     return (
         <div>
             <PageMenu icon='sitemap' title='Roles'>
-                <Menu.Menu position='right'>
-                    <Menu.Item>
-                        <Button
-                            primary
-                            icon='add'
-                            content='Create Role'
-                            onClick={() => {
-                                browserHistory.push('/admin/role/');
-                            }}
-                        />
-                    </Menu.Item>
-                </Menu.Menu>
+                {can('roles:w', { anyScope: true }) && (
+                    <Menu.Menu position='right'>
+                        <Menu.Item>
+                            <Button
+                                primary
+                                icon='add'
+                                content='Create Role'
+                                onClick={() => {
+                                    browserHistory.push('/admin/role/');
+                                }}
+                            />
+                        </Menu.Item>
+                    </Menu.Menu>
+                )}
             </PageMenu>
             <Container>
                 {!loading && <ReactTable data={data.getRolesData} columns={columns} />}

@@ -151,9 +151,9 @@ Meteor.startup(() => {
                                 <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticateAdmin} />
                                 <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticateAdmin} />
                                 <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticateAdmin} />
-                                <Route path='/admin/roles' component={RolesList} name='Roles' onEnter={authenticateAdmin} />
-                                <Route path='/admin/role/:role_name' component={RoleContainer} name='Edit Role' onEnter={authenticateAdmin} />
-                                <Route path='/admin/role/' component={RoleContainer} name='Create Role' onEnter={authenticateAdmin} />
+                                <Route path='/admin/roles' component={RolesList} name='Roles' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
+                                <Route path='/admin/role/:role_name' component={RoleContainer} name='Edit Role' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
+                                <Route path='/admin/role/' component={RoleContainer} name='Create Role' onEnter={authenticate('roles:w', { scope: 'anyScope' })} />
                                 <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticateAdmin} />
                             </Route>
                             <Route path='*' exact component={NotFound} />
