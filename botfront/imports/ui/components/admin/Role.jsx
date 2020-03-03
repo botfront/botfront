@@ -144,6 +144,7 @@ const Role = (props) => {
                             <><SaveButton disabled={disabled} saved={saved} />
                                 { roleData && roleData.name && (
                                     <Button
+                                        data-cy='delete-role'
                                         negative
                                         content='Delete'
                                         disabled={disabled}

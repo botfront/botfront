@@ -29,6 +29,7 @@ const RolesList = () => {
                         <Menu.Item>
                             <Button
                                 primary
+                                data-cy='create-role'
                                 icon='add'
                                 content='Create Role'
                                 onClick={() => {
