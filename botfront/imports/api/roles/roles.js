@@ -40,6 +40,12 @@ export const getUserScopes = (userId, rolesFilter) => {
     return activeScopes;
 };
 
+export const isUserPermissionGlobal = (userId, permission) => {
+    const userRoles = Meteor.roleAssignment.find({ user: { _id: userId || Meteor.userId() } }, { fields: { scope: 1, inheritedRoles: 1 } }).fetch();
+    const userRolesWithSpecifiedPermission = userRoles.filter(scopeRoles => scopeRoles.inheritedRoles.some(({ _id: roleId }) => permission === roleId || permission.includes(roleId)));
+    return userRolesWithSpecifiedPermission.some(({ scope }) => scope === null); // if the scope is null it correspond to the global scope
+};
+
 export const checkIfScope = (projectId, rolesFilter, userId) => {
     if (getUserScopes(userId || Meteor.userId(), rolesFilter).includes(projectId)) return;
     const trace = ((new Error()).stack.split('\n')[2] || '').trim();

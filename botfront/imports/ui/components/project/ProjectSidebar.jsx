@@ -8,6 +8,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Projects } from '../../../api/project/project.collection';
 import ProjectsDropdown from './ProjectsDropdown';
 import { can, Can } from '../../../lib/scopes';
+import { isUserPermissionGlobal } from '../../../api/roles/roles';
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 const packageJson = require('/package.json');
@@ -65,7 +66,11 @@ class ProjectSidebar extends React.Component {
                         </span>
                     )}
                     <Divider inverted />
-                    {can('global-admin') && (
+                    {(can('roles:r', projectId)
+                    || can('users:r', projectId)
+                    || can('global-settings:r', projectId)
+                    // we need to check if there is not scope for this 'projects:r, because without scope it can create?edit project
+                    || isUserPermissionGlobal(Meteor.userId(), 'projects:r')) && (
                         <Link to='/admin/'>
                             <Menu.Item name='Admin' icon='key' />
                         </Link>
