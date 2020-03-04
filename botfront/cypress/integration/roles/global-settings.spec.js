@@ -69,7 +69,7 @@ describe('global settings read permissions', () => {
     });
 });
 
-describe('global settings read permissions', () => {
+describe('global settings admin sidebar', () => {
     before(() => {
         cy.createProject('bf', 'My Project', 'en');
         cy.createDummyRoleAndUser({ permission: ['roles:r'] });
