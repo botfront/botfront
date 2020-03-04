@@ -128,6 +128,7 @@
 
 .drag-handle {
     visibility: hidden;
+    padding: 0 14px;
 
     &.dragging {
         visibility: visible;
@@ -180,27 +181,30 @@
             }
             .item-chevron {
                 width: 20px;
-                padding: 4px;
+                padding: 4px 0;
                 border: 1px solid transparent;
                 color: @botfront-blue;
             }
             .item-name, .item-edit-box input {
+                white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 cursor: text;
                 padding: 4px;
                 background-color: transparent;
                 border: 1px solid transparent;
+                border-radius: 4px;
 
                 &:hover, &:focus {
                     background-color: #eee;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
+                    border-color: #ccc;
                     font-weight: normal;
                 }
             }
+            .item-edit-box {
+                width: 100%;
+            }
             .item-actions {
-                width: 90px;
                 text-align: end;
             }
         }
