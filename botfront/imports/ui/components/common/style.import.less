@@ -148,7 +148,12 @@
         &.pointing.secondary {
             width: 100% !important;
             .item {
-                padding: 10px 5px;
+                padding: 3px 5px;
+                &.active, &.active:hover {
+                    background-color: fade(@botfront-blue, 5%);
+                    border-right-color: @botfront-blue !important;
+                    color: @botfront-blue;
+                }
             }
         }
 
@@ -157,6 +162,7 @@
                 visibility: hidden;
                 &.focused {
                     visibility: visible;
+                    color: @botfront-blue;
                     opacity: 100%;
                 }
             }
@@ -172,12 +178,30 @@
                     visibility: visible;
                 }
             }
+            .item-chevron {
+                width: 20px;
+                padding: 4px;
+                border: 1px solid transparent;
+                color: @botfront-blue;
+            }
+            .item-name, .item-edit-box input {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                cursor: text;
+                padding: 4px;
+                background-color: transparent;
+                border: 1px solid transparent;
 
-            .side-by-side {
-                .item-name {
-                    text-overflow: ellipsis;
-                    overflow: hidden;
+                &:hover, &:focus {
+                    background-color: #eee;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    font-weight: normal;
                 }
+            }
+            .item-actions {
+                width: 90px;
+                text-align: end;
             }
         }
 
