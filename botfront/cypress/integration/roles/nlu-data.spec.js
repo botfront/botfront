@@ -22,7 +22,13 @@ describe('nlu-data:r restricted permissions', () => {
             .should('not.contain', 'Insert Many');
         cy.dataCy('nlu-menu-evaluation').should('not.exist');
         cy.dataCy('nlu-menu-settings').click();
-        cy.get('.ace_editor').should('exist');
+        cy.get('.ace_editor')
+            .find('textarea').click({ force: true })
+            .type('TYPING BUT FAILING', { force: true });
+        cy.get('.ace_editor')
+            .should('contain.text', '- name:')
+            .should('not.contain.text', 'TYPING BUT FAILING');
+        cy.pause();
         cy.dataCy('save-button').should('not.exist');
         cy.get('.ui.pointing.secondary.menu').should('exist')
             .should('not.contain', 'Delete');
