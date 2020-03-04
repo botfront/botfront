@@ -6,21 +6,26 @@ import PropTypes from 'prop-types';
 
 function EllipsisMenu(props) {
     const {
-        handleEdit, handleDelete, onClick, deletable,
+        handleEdit, handleDelete, onClick, deletable, onAdd,
     } = props;
     return (
         <Dropdown
-            id='ellipsis-icon'
             icon='ellipsis vertical'
             compact
             direction='left'
             data-cy='ellipsis-menu'
-            
-
             onClick={() => onClick()}
         >
-            <Dropdown.Menu id='ellipsis-menu'>
+            <Dropdown.Menu>
                 <Dropdown.Item data-cy='edit-menu' onClick={handleEdit}>Edit</Dropdown.Item>
+                {!!onAdd && (
+                    <Dropdown.Item
+                        onClick={onAdd}
+                        data-cy='add-story-in-group'
+                    >
+                        <div>Add story</div>
+                    </Dropdown.Item>
+                )}
                 {/* the disabling of the delete menu is handled with css, disabling it with the props also disable the popup */}
                 <Popup
                     content='There are stories linking to this group or stories from this group are linked to others stories'
@@ -44,8 +49,13 @@ function EllipsisMenu(props) {
 EllipsisMenu.propTypes = {
     handleEdit: PropTypes.func.isRequired,
     handleDelete: PropTypes.func.isRequired,
+    onAdd: PropTypes.func,
     onClick: PropTypes.func.isRequired,
     deletable: PropTypes.bool.isRequired,
+};
+
+EllipsisMenu.defaultProps = {
+    onAdd: null,
 };
 
 

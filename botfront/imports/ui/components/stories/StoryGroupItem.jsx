@@ -97,25 +97,27 @@ function StoryGroupItem(props) {
             data-cy='browser-item'
         >
             {!editing ? (
-                <>
-                    {allowEdit && (
-                        <EllipsisMenu
-                            handleEdit={() => setEditing(true)}
-                            handleDelete={() => setDeletionModalVisible(true)}
-                            onClick={() => checkDeletable()}
-                            deletable={deletable}
-                        />
-                    )}
-                    {selectAccessor && (
-                        <Icon
-                            id={`${item[selectAccessor] ? 'selected' : 'not-selected'}`}
-                            name='eye'
-                            onClick={e => handleToggle(e, item)}
-                        />
-                    )}
-                    <span className='story-group-menu-item'>{item[nameAccessor]}</span>
-                    {indexProp === index && saving && <Loader active size='tiny' />}
-                </>
+                <div className='side-by-side middle'>
+                    <div><span>{item[nameAccessor]}</span></div>
+                    <div className='side-by-side right narrow'>
+                        {selectAccessor && (
+                            <Icon
+                                className={`${item[selectAccessor] ? 'focused' : ''}`}
+                                name='eye'
+                                onClick={e => handleToggle(e, item)}
+                            />
+                        )}
+                        {allowEdit && (
+                            <EllipsisMenu
+                                handleEdit={() => setEditing(true)}
+                                handleDelete={() => setDeletionModalVisible(true)}
+                                onClick={() => checkDeletable()}
+                                deletable={deletable}
+                            />
+                        )}
+                        {indexProp === index && saving && <Loader active size='tiny' />}
+                    </div>
+                </div>
             ) : (
                 <Input
                     onChange={handleNameChange}
