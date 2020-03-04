@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs } from '@storybook/addon-knobs';
+import SplitPane from 'react-split-pane';
 import StoryGroupTree from '../imports/ui/components/stories/StoryGroupTree';
 
 const mockTree = {
@@ -221,8 +222,19 @@ const mockTree = {
 
 function StoryGroupTreeWrapped() {
     const [activeStory, setActiveStory] = useState({ data: {} });
+    const [resizing, setResizing] = useState(false);
     return (
-        <div className='side-by-side'>
+        <SplitPane
+            split='vertical'
+            minSize={150}
+            defaultSize={300}
+            maxSize={300}
+            primary='first'
+            allowResize
+            className={resizing ? '' : 'width-transition'}
+            onDragStarted={() => setResizing(true)}
+            onDragFinished={() => setResizing(false)}
+        >
             <div>
                 <StoryGroupTree
                     tree={mockTree}
@@ -235,7 +247,7 @@ function StoryGroupTreeWrapped() {
                     {activeStory.data.title}
                 </h1>
             </div>
-        </div>
+        </SplitPane>
     );
 }
 

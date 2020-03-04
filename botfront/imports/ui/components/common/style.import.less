@@ -2,26 +2,6 @@
     visibility: hidden;
 }
 
-.drag-handle {
-    position: relative;
-    right: 8px;
-    visibility: hidden;
-
-    &.dragging {
-        visibility: visible;
-    }
-}
-
-.item:hover .drag-handle {
-    visibility: visible;
-}
-
-.menu.dragging .item:hover {
-    #ellipsis-icon, #selected, #not-selected, .drag-handle {
-        visibility: hidden;
-    }
-}
-
 .floated {
     &.right {
         text-align: right;
@@ -142,42 +122,70 @@
     }
 }
 
-.ui.menu.vertical {
-    border-radius: .28571429rem;
-    .active.item.selected-blue {
-        background-color: rgba(33,133,208,0.08);
-        font-weight: bold;
-            &:hover {
-                background-color: rgba(33,133,208,0.16);
-            }
-    }
+.utterance-viewer span {
+    word-break: break-word;
+}
 
-    .item #selected {
-        opacity: 0.87;
-    }
+.drag-handle {
+    visibility: hidden;
 
-    .item:hover #not-selected {
-        opacity: 0.40;
+    &.dragging {
+        visibility: visible;
     }
+}
 
-    .item #not-selected {
-        opacity: 0;
-        &:hover {
-            opacity: 0.50;
+.storygroup-browser {
+    .ui.menu.vertical {
+        border-radius: .28571429rem;
+        .active.item.selected-blue {
+            background-color: rgba(33,133,208,0.08);
+            font-weight: bold;
+                &:hover {
+                    background-color: rgba(33,133,208,0.16);
+                }
         }
-    }
 
-    .item:hover #ellipsis-icon {
-        color: #999999;
-        opacity: 1;
-    }
-    
-    .item #ellipsis-icon {
-        opacity: 0;
-        float: right;
-        right: -8px;
-        &:hover {
-            color: #828282;
+        &.pointing.secondary {
+            width: 100% !important;
+            .item {
+                padding: 10px 5px;
+            }
+        }
+
+        .item {
+            .eye.icon, .ellipsis.icon {
+                visibility: hidden;
+                &.focused {
+                    visibility: visible;
+                    opacity: 100%;
+                }
+            }
+            &:hover {
+                .eye.icon, .ellipsis.icon {
+                    visibility: visible;
+                    opacity: 30%;
+                    &.focused {
+                        opacity: 100%;
+                    }
+                }
+                .drag-handle {
+                    visibility: visible;
+                }
+            }
+
+            .side-by-side.width {
+                width: ~"calc(100% - 75px)";
+                .item-name {
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                }
+            }
+        }
+
+        &.dragging .item:hover {
+            .icon.ellipsis, .icon.eye, .drag-handle {
+                visibility: hidden;
+            }
         }
     }
 }
