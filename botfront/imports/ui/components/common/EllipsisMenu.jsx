@@ -17,7 +17,7 @@ function EllipsisMenu(props) {
             onClick={() => onClick()}
         >
             <Dropdown.Menu>
-                <Dropdown.Item data-cy='edit-menu' onClick={handleEdit}>Edit</Dropdown.Item>
+                {!!handleEdit && <Dropdown.Item data-cy='edit-menu' onClick={handleEdit}>Edit</Dropdown.Item>}
                 {!!onAdd && (
                     <Dropdown.Item
                         onClick={onAdd}
@@ -27,28 +27,30 @@ function EllipsisMenu(props) {
                     </Dropdown.Item>
                 )}
                 {/* the disabling of the delete menu is handled with css, disabling it with the props also disable the popup */}
-                <Popup
-                    content='There are stories linking to this group or stories from this group are linked to others stories'
-                    disabled={deletable}
-                    position='bottom left'
-                    trigger={(
-                        <Dropdown.Item
-                            onClick={deletable ? handleDelete : null}
-                            id={deletable ? '' : 'deleteDisabled'}
-                            data-cy='delete-menu'
-                        >
-                            <div>Delete</div>
-                        </Dropdown.Item>
-                    )}
-                />
+                {handleDelete && (
+                    <Popup
+                        content='There are stories linking to this group or stories from this group are linked to others stories'
+                        disabled={deletable}
+                        position='bottom left'
+                        trigger={(
+                            <Dropdown.Item
+                                onClick={deletable ? handleDelete : null}
+                                id={deletable ? '' : 'deleteDisabled'}
+                                data-cy='delete-menu'
+                            >
+                                <div>Delete</div>
+                            </Dropdown.Item>
+                        )}
+                    />
+                )}
             </Dropdown.Menu>
         </Dropdown>
     );
 }
 
 EllipsisMenu.propTypes = {
-    handleEdit: PropTypes.func.isRequired,
-    handleDelete: PropTypes.func.isRequired,
+    handleEdit: PropTypes.func,
+    handleDelete: PropTypes.func,
     onAdd: PropTypes.func,
     onClick: PropTypes.func.isRequired,
     deletable: PropTypes.bool.isRequired,
@@ -56,6 +58,8 @@ EllipsisMenu.propTypes = {
 
 EllipsisMenu.defaultProps = {
     onAdd: null,
+    handleEdit: null,
+    handleDelete: null,
 };
 
 

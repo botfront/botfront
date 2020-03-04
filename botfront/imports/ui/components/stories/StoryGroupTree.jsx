@@ -5,7 +5,6 @@ import {
 } from 'semantic-ui-react';
 import Tree from '@atlaskit/tree';
 import { useStoryGroupTree } from './hooks/useStoryGroupTree';
-import EllipsisMenu from '../common/EllipsisMenu';
 
 export default function StoryGroupTree(props) {
     const { tree: treeFromProps, onChangeActiveStory, activeStory } = props;
@@ -43,6 +42,7 @@ export default function StoryGroupTree(props) {
                 <Icon
                     name={`chevron circle ${item.isExpanded ? 'down' : 'up'}`}
                     onClick={() => onToggleExpansion(item)}
+                    className='cursor pointer'
                 />
             )
             : null
@@ -59,15 +59,14 @@ export default function StoryGroupTree(props) {
         if (e.key === 'Escape') setRenamingModalPosition(null);
     };
 
-    const onClickItem = item => (item.data.canBearChildren
-        ? () => onToggleExpansion(item)
-        : () => onChangeActiveStory(item));
-
     const renderItem = (renderProps) => {
         const {
             item, provided, snapshot: { combineTargetFor, isDragging },
         } = renderProps;
-        const isHoverTarget = combineTargetFor && item.data.canBearChildren;
+        const isLeaf = !item.data.canBearChildren;
+        const { isFocused } = item.data;
+        const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
+        const isHoverTarget = combineTargetFor && !isLeaf;
         return (
             <div
                 ref={provided.innerRef}
@@ -75,7 +74,7 @@ export default function StoryGroupTree(props) {
             >
                 <Menu.Item
                     active={item.id === activeStory.id || isHoverTarget}
-                    onClick={onClickItem(item)}
+                    {...(isLeaf ? { onClick: () => onChangeActiveStory(item) } : {})}
                 >
                     <div className='side-by-side left middle narrow'>
                         <Icon
@@ -90,25 +89,34 @@ export default function StoryGroupTree(props) {
                             )}
                         />
                         <div
-                            className='side-by-side left narrow width'
-                            {...((renamingModalPosition || {}).id === item.id ? { ref: renamerRef } : {})}
+                            className='side-by-side left narrow'
+                            style={{ width: 'calc(100% - 90px)' }}
                         >
                             <div style={{ width: '20px' }}>{getIcon(item)}</div>
-                            <span className='item-name'>{trimLong(item.data.title)}</span>
+                            <span
+                                className={`item-name ${!isLeaf ? 'cursor text' : ''}`}
+                                {...(!isLeaf ? { onClick: () => setRenamingModalPosition(item) } : {})}
+                                {...(isBeingRenamed ? { ref: renamerRef } : {})}
+                            >
+                                {trimLong(item.data.title)}
+                            </span>
                         </div>
-                        {item.data.canBearChildren && (
+                        {!isLeaf && (
                             <div style={{ position: 'relative', left: '10px' }}>
                                 <Icon
-                                    className={`${item.data.isFocused ? 'focused' : ''} ${item.data.canBearChildren ? '' : 'hidden'}`}
+                                    className={`cursor pointer ${isFocused ? 'focused' : ''}`}
                                     name='eye'
                                     onClick={(e) => { e.stopPropagation(); onToggleFocus(item.id); }}
                                 />
-                                <EllipsisMenu
-                                    onClick={() => {}}
-                                    handleEdit={() => setRenamingModalPosition(item)}
-                                    handleDelete={() => setDeletionModalVisible(item.id)}
-                                    onAdd={() => onAddStory(item.id, `${item.data.title}-s${item.children.length}`)}
-                                    deletable={item.data.canBeDeleted || item.data.canBeDeleted === undefined}
+                                <Icon
+                                    className='cursor pointer'
+                                    name='plus'
+                                    onClick={() => onAddStory(item.id, `${item.data.title}-s${item.children.length}`)}
+                                />
+                                <Icon
+                                    className='cursor pointer'
+                                    name='trash'
+                                    onClick={() => setDeletionModalVisible(item.id)}
                                 />
                             </div>
                         )}

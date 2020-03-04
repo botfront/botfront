@@ -153,7 +153,7 @@
         }
 
         .item {
-            .eye.icon, .ellipsis.icon {
+            .eye.icon, .ellipsis.icon, .plus.icon, .trash.icon {
                 visibility: hidden;
                 &.focused {
                     visibility: visible;
@@ -161,7 +161,7 @@
                 }
             }
             &:hover {
-                .eye.icon, .ellipsis.icon {
+                .eye.icon, .ellipsis.icon, .plus.icon, .trash.icon {
                     visibility: visible;
                     opacity: 30%;
                     &.focused {
@@ -173,8 +173,7 @@
                 }
             }
 
-            .side-by-side.width {
-                width: ~"calc(100% - 75px)";
+            .side-by-side {
                 .item-name {
                     text-overflow: ellipsis;
                     overflow: hidden;
@@ -183,7 +182,7 @@
         }
 
         &.dragging .item:hover {
-            .icon.ellipsis, .icon.eye, .drag-handle {
+            .icon.ellipsis, .icon.eye, .drag-handle, .plus.icon, .trash.icon {
                 visibility: hidden;
             }
         }
