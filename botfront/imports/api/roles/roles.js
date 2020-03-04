@@ -20,7 +20,15 @@ export const checkIfCan = (permission, projectId, userId = null, options = {}) =
     if (could || options.backupPlan) return could;
     const trace = ((new Error()).stack.split('\n')[2] || '').trim();
     const message = `${permission} required ${trace}.`;
-    console.log(message);
+    if (Meteor.isServer) {
+        import { getAppLoggerForFile, getAppLoggerForMethod } from '../../../server/logger';
+    
+        const logger = getAppLoggerForFile(__filename);
+        const appMethodLogger = getAppLoggerForMethod(
+            logger, 'checkIfCan', Meteor.userId(), { projectId },
+        );
+        appMethodLogger.error(`Insufficient permissions: ${message}`);
+    }
     throw new Meteor.Error('403', message);
 };
 
