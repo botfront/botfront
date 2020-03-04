@@ -40,7 +40,7 @@ export default function StoryGroupTree(props) {
         item.data.canBearChildren
             ? (
                 <Icon
-                    name={`chevron circle ${item.isExpanded ? 'down' : 'up'}`}
+                    name={`caret ${item.isExpanded ? 'down' : 'right'}`}
                     onClick={() => onToggleExpansion(item)}
                     className='cursor pointer'
                 />
@@ -67,8 +67,8 @@ export default function StoryGroupTree(props) {
         const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
         const isHoverTarget = combineTargetFor && !isLeaf;
         const style = isLeaf
-            ? { width: 'calc(100% - 70px)' }
-            : { width: 'calc(100% - 110px)' };
+            ? { width: 'calc(100% - 70px)' } // one button
+            : { width: 'calc(100% - 110px)' }; // three buttons
         return (
             <div
                 ref={provided.innerRef}
@@ -78,7 +78,7 @@ export default function StoryGroupTree(props) {
                     active={item.id === activeStory.id || isHoverTarget}
                     {...(isLeaf ? { onClick: () => onChangeActiveStory(item) } : {})}
                 >
-                    <div className='side-by-side narrow middle'>
+                    <div className='side-by-side narrow left middle'>
                         <Icon
                             name='bars'
                             size='small'
@@ -90,7 +90,7 @@ export default function StoryGroupTree(props) {
                                 : {}
                             )}
                         />
-                        <div className='side-by-side left narrow' style={style}>
+                        <div className='side-by-side left narrow' style={style} {...(isBeingRenamed ? { ref: renamerRef } : {})}>
                             <div className='item-chevron'>{getIcon(item)}</div>
                             {isBeingRenamed ? (
                                 <Input
@@ -101,6 +101,7 @@ export default function StoryGroupTree(props) {
                                     onBlur={submitNameChange}
                                     data-cy='edit-name'
                                     className='item-edit-box'
+                                    {...(renamerRef.current ? { style: { width: `${renamerRef.current.clientWidth - 25}px` } } : {})}
                                 />
                             )
                                 : (

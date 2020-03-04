@@ -128,7 +128,7 @@
 
 .drag-handle {
     visibility: hidden;
-    padding: 0 14px;
+    padding-right: 20px;
 
     &.dragging {
         visibility: visible;
@@ -181,9 +181,11 @@
             }
             .item-chevron {
                 width: 20px;
-                padding: 4px 0;
                 border: 1px solid transparent;
                 color: @botfront-blue;
+                i {
+                    padding: 4px 12px;
+                }
             }
             .item-name, .item-edit-box input {
                 white-space: nowrap;
@@ -200,9 +202,6 @@
                     border-color: #ccc;
                     font-weight: normal;
                 }
-            }
-            .item-edit-box {
-                width: 100%;
             }
             .item-actions {
                 text-align: end;
