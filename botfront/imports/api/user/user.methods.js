@@ -18,10 +18,13 @@ if (Meteor.isServer) {
     const userAppLogger = getAppLoggerForFile(__filename);
 
     const canEditUser = (userId) => {
+        checkIfCan('users:w', { anyScope: true });
         const scopes = Meteor.roleAssignment.find({ user: { _id: userId } }, { scope: 1 }).fetch();
-        scopes.forEach((scope) => {
-            checkIfCan('users:w', scope);
-        });
+        if (Array.isArray(scopes)) {
+            scopes.forEach((scope) => {
+                checkIfCan('users:w', scope);
+            });
+        }
     };
 
     Meteor.publish('userData', function() {
@@ -44,9 +47,12 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'user.create'(user, sendInviteEmail) {
-            user.roles.forEach(({ project }) => {
-                checkIfCan('users:w', project);
-            });
+            checkIfCan('users:w', { anyScope: true });
+            if (Array.isArray(user.roles)) {
+                user.roles.forEach(({ project }) => {
+                    checkIfCan('users:w', project);
+                });
+            }
             check(user, Object);
             check(sendInviteEmail, Boolean);
             try {
@@ -69,6 +75,7 @@ if (Meteor.isServer) {
 
         'user.update'(user) {
             check(user, Object);
+            checkIfCan('users:w', { anyScope: true });
             user.roles.forEach(({ project }) => {
                 checkIfCan('users:w', project === 'GLOBAL' ? null : project);
             });

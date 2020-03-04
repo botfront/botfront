@@ -228,7 +228,24 @@ if (Meteor.isServer) {
         modelId,
         timestamp: '2020-02-25T19:41:56.520Z',
     };
-
+    const globalUserTestData = {
+        _id: 'userDataTestA',
+        services: {},
+        emails: [{ address: 'testglobal@test.com', verified: false }],
+        profile: { firstName: 'test', lastName: 'test' },
+    };
+    const projectUserTestData = {
+        _id: 'userDataTestB',
+        services: {},
+        emails: [{ address: 'testproject@test.com', verified: false }],
+        profile: { firstName: 'test', lastName: 'test' },
+    };
+    const otherProjectUserTestData = {
+        _id: 'userDataTestC',
+        services: {},
+        emails: [{ address: 'testother@test.com', verified: false }],
+        profile: { firstName: 'test', lastName: 'test' },
+    };
     /*
 the tests are created by iterating over subscriptions. the test params are as follows
 
@@ -570,8 +587,35 @@ the tests are created by iterating over subscriptions. the test params are as fo
         {
             name: 'userData',
             collectionName: 'users',
-            testDataInsert: async () => {},
-            testDataRemove: async done => done(),
+            testDataInsert: async () => {
+                await Meteor.users.insert(globalUserTestData);
+                await Meteor.users.insert(projectUserTestData);
+                await Meteor.users.insert(otherProjectUserTestData);
+                await setScopes(formatRoles('responses:r', 'GLOBAL'), 'userDataTestA');
+                await setScopes(formatRoles('responses:r', 'bf'), 'userDataTestB');
+                await setScopes({ roles: [{ roles: 'responses:r', project: 'bf' }, { roles: 'responses:r', project: 'other' }] }, 'userDataTestC');
+            },
+            testDataRemove: async (done) => {
+                await Meteor.users.remove({ _id: 'userDataTestA' });
+                await Meteor.roleAssignment.remove({ user: { _id: 'userDataTestA' } });
+                await Meteor.users.remove({ _id: 'userDataTestB' });
+                await Meteor.roleAssignment.remove({ user: { _id: 'userDataTestB' } });
+                await Meteor.users.remove({ _id: 'userDataTestC' });
+                await Meteor.roleAssignment.remove({ user: { _id: 'userDataTestC' } });
+                done();
+            },
+            allowedGlobalScope: (result, done) => {
+                expect(result.users.length).to.be.equal(4);
+                done();
+            },
+            allowedProjectScope: (result, done) => {
+                expect(result.users.length).to.be.equal(2);
+                done();
+            },
+            allowedWrongProjectScope: (result, done) => {
+                expect(result.users.length).to.be.equal(1);
+                done();
+            },
             args: [],
             acceptedRoles: readers.users,
         },
@@ -639,7 +683,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
         }
     };
     // ----tests-----
-    describe('core-policies', () => {
+    describe('test permission checks on meteor subscriptions', () => {
         subscriptions.forEach((testParams) => {
             roles.forEach((role) => {
                 afterEach((done) => {

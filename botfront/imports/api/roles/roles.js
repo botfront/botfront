@@ -5,9 +5,7 @@ import { Projects } from '../project/project.collection';
 export const can = (permission, projectId, userId, options) => {
     const bypassWithCI = { options };
     if (Meteor.isTest === true) {
-        const userRoles = Meteor.roleAssignment.find().fetch();
-        const testUserId = userRoles[0].user._id;
-        Meteor.userId = () => testUserId;
+        Meteor.userId = () => 'testuserid';
     }
     // Cypress code can bypass roles if the bypassWithCI is true and the CI env is set.
     if (!!bypassWithCI && (!!process.env.CI || !!process.env.DEV_MODE)) return true;

@@ -90,7 +90,6 @@ if (Meteor.isServer) {
 
     Meteor.publish('projects.names', function () {
         if (can('projects:r', null, this.userId)
-            || can('users:r', { anyScope: true }, this.userId)
         ) {
             return Projects.find({}, { fields: { name: 1 } });
         }

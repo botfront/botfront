@@ -370,20 +370,34 @@ if (Meteor.isServer) {
         {
             name: 'user.create',
             roles: writers.users,
-            args: [],
-            rejectProjectScope: true,
+            args: [{ roles: [{ project: 'bf' }] }],
         },
         {
             name: 'user.update',
             roles: writers.users,
-            args: [],
-            rejectProjectScope: true,
+            args: [{ roles: [{ project: 'bf' }] }],
         },
         {
             name: 'user.remove',
             roles: writers.users,
-            args: [],
-            rejectProjectScope: true,
+            args: ['secondtestuserid'],
+            before: async (done) => {
+                await Meteor.users.remove({ _id: 'secondtestuserid' });
+                await Meteor.roleAssignment.remove({ user: { _id: userId } });
+                await Meteor.users.insert({
+                    _id: 'secondtestuserid',
+                    services: {},
+                    emails: [{ address: 'secondtest@test.com', verified: false }],
+                    profile: { firstName: 'test', lastName: 'test' },
+                });
+                await setScopes(formatRoles('responses:r', 'bf'), 'secondtestuserid');
+                done();
+            },
+            after: async (done) => {
+                await Meteor.users.remove({ _id: 'secondtestuserid' });
+                await Meteor.roleAssignment.remove({ user: { _id: 'secondtestuserid' } });
+                done();
+            },
         },
         {
             name: 'user.removeByEmail',
@@ -394,32 +408,24 @@ if (Meteor.isServer) {
         {
             name: 'user.changePassword',
             roles: writers.users,
-            args: [],
-            rejectProjectScope: true,
-        },
-        {
-            name: 'user.remove',
-            roles: writers.users,
-            args: [],
-            rejectProjectScope: true,
-        },
-        {
-            name: 'user.removeByEmail',
-            roles: writers.users,
-            args: [],
-            rejectProjectScope: true,
-        },
-        {
-            name: 'user.changePassword',
-            roles: writers.users,
-            args: [],
-            rejectProjectScope: true,
-        },
-        {
-            name: 'user.changePassword',
-            roles: writers.users,
-            args: [],
-            rejectProjectScope: true,
+            args: ['secondtestuserid'],
+            before: async (done) => {
+                await Meteor.users.remove({ _id: 'secondtestuserid' });
+                await Meteor.roleAssignment.remove({ user: { _id: userId } });
+                await Meteor.users.insert({
+                    _id: 'secondtestuserid',
+                    services: {},
+                    emails: [{ address: 'secondtest@test.com', verified: false }],
+                    profile: { firstName: 'test', lastName: 'test' },
+                });
+                await setScopes(formatRoles('responses:r', 'bf'), 'secondtestuserid');
+                done();
+            },
+            after: async (done) => {
+                await Meteor.users.remove({ _id: 'secondtestuserid' });
+                await Meteor.roleAssignment.remove({ user: { _id: 'secondtestuserid' } });
+                done();
+            },
         },
         {
             name: 'upload.image',
@@ -437,20 +443,7 @@ if (Meteor.isServer) {
         await Meteor.users.remove({ _id: 'testuserid' });
         await Meteor.users.insert({
             _id: 'testuserid',
-            services: {
-                password: {
-                    bcrypt:
-                        '$2a$10$YZwBKpTo03dZLlR1sZyCyeni3..3kAcVwG7EIZ.P0e/o6P2weEqEu',
-                },
-                resume: {
-                    loginTokens: [
-                        {
-                            when: '2020-02-18T16:42:18.967Z',
-                            hashedToken: 'oAd1ARWfrH+OWOAWfeBRgrJ8xUS++jwcDETewvEC/uA=',
-                        },
-                    ],
-                },
-            },
+            services: {},
             emails: [{ address: 'test@test.com', verified: false }],
             profile: { firstName: 'test', lastName: 'test' },
         });
@@ -492,8 +485,18 @@ if (Meteor.isServer) {
         }
     };
 
-    describe('check roles accepted by every method', () => {
+    describe.only('check roles accepted by every method', () => {
         methods.forEach((method) => {
+            beforeEach((done) => {
+                if (method.before) {
+                    method.before(done);
+                } else done();
+            });
+            afterEach((done) => {
+                if (method.after) {
+                    method.after(done);
+                } else done();
+            });
             roles.forEach((role) => {
                 it(`calling ${method.name} as ${role} global scope`, (done) => {
                     testMethod(method.name, role, 'GLOBAL', method.args, (e = {}) => {
