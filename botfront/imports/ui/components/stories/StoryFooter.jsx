@@ -175,13 +175,14 @@ class StoryFooter extends React.Component {
             currentStoryId,
             destinationStory,
             onDestinationStorySelection,
+            projectId,
         } = this.props;
         return (
             <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
-                    <>{can('stories:w') && this.renderBranchMenu(destinationStory, canBranch)}</>
-                    <>{can('stories:w') && canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
+                    <>{can('stories:w', projectId) && this.renderBranchMenu(destinationStory, canBranch)}</>
+                    <>{can('stories:w', projectId) && canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
