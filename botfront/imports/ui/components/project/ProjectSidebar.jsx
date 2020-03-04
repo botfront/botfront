@@ -55,7 +55,7 @@ class ProjectSidebar extends React.Component {
                     </Can>
                     <Can I='projects:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/settings`}>
-                            <Menu.Item name='Settings' icon='setting' />
+                            <Menu.Item name='Settings' icon='setting' data-cy='settings-sidebar-link' />
                         </Link>
                     </Can>
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>

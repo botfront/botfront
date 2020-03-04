@@ -73,6 +73,18 @@ describe('projects:r can access but not edit settings', () => {
         // remove user
         cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
     });
+    it('should only show the settings side menu link for projects:r', () => {
+        cy.removeDummyRoleAndUser('test@test.test', 'users:r');
+        cy.wait(2000);
+        cy.createDummyRoleAndUser({ permission: ['stories:r'], scope: 'bf' });
+        cy.wait(2000);
+        cy.login({ admin: false });
+        cy.visit('/project/bf/stories');
+        // check non authorized users cannot see the projects tab
+        cy.dataCy('stories-sidebar-link').should('exist');
+        cy.dataCy('settings-sidebar-link').should('not.exist');
+        cy.removeDummyRoleAndUser();
+    });
     it('should only show the projects side menu link for projects:r GLOBAL scope', () => {
         cy.removeDummyRoleAndUser('test@test.test', 'users:r');
         cy.wait(2000);
