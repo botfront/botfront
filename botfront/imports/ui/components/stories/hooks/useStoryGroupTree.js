@@ -17,9 +17,9 @@ const treeReducer = (tree, instruction) => {
     if (expand) return mutateTree(tree, expand, { isExpanded: true });
     if (collapse) return mutateTree(tree, collapse, { isExpanded: false });
     if (remove) {
-        const { [remove]: { children }, ...items } = tree.items;
+        const { [remove]: { data: { parentId }, children }, ...items } = tree.items;
         children.forEach((key) => { delete items[key]; });
-        items[tree.rootId].children = items[tree.rootId].children
+        items[parentId].children = items[parentId].children
             .filter(key => key !== remove);
         return { ...tree, items };
     }

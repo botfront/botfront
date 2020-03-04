@@ -46,11 +46,10 @@ export default function StoryGroupTree(props) {
                 />
             )
             : null
-            
     );
 
     const submitNameChange = () => {
-        onRenameItem(renamingModalPosition.id, newTitle);
+        if (newTitle.trim()) onRenameItem(renamingModalPosition.id, newTitle.trim());
         setRenamingModalPosition(null);
     };
 
@@ -76,7 +75,7 @@ export default function StoryGroupTree(props) {
                     active={item.id === activeStory.id || isHoverTarget}
                     {...(isLeaf ? { onClick: () => onChangeActiveStory(item) } : {})}
                 >
-                    <div className='side-by-side left middle narrow'>
+                    <div className='side-by-side middle narrow'>
                         <Icon
                             name='bars'
                             size='small'
@@ -88,38 +87,50 @@ export default function StoryGroupTree(props) {
                                 : {}
                             )}
                         />
-                        <div
-                            className='side-by-side left narrow'
-                            style={{ width: 'calc(100% - 90px)' }}
-                        >
-                            <div style={{ width: '20px' }}>{getIcon(item)}</div>
-                            <span
-                                className={`item-name ${!isLeaf ? 'cursor text' : ''}`}
-                                {...(!isLeaf ? { onClick: () => setRenamingModalPosition(item) } : {})}
-                                {...(isBeingRenamed ? { ref: renamerRef } : {})}
-                            >
-                                {trimLong(item.data.title)}
-                            </span>
+                        <div className='side-by-side left narrow'>
+                            <div className='item-chevron'>{getIcon(item)}</div>
+                            {isBeingRenamed ? (
+                                <Input
+                                    onChange={(_, { value }) => setNewTitle(value)}
+                                    value={newTitle}
+                                    onKeyDown={handleKeyDownInput}
+                                    autoFocus
+                                    onBlur={submitNameChange}
+                                    data-cy='edit-name'
+                                    className='item-edit-box'
+                                />
+                            )
+                                : (
+                                    <span
+                                        className='item-name'
+                                        onDoubleClick={() => setRenamingModalPosition(item)}
+                                        {...(isBeingRenamed ? { ref: renamerRef } : {})}
+                                    >
+                                        {trimLong(item.data.title)}
+                                    </span>
+                                )}
                         </div>
-                        {!isLeaf && (
-                            <div style={{ position: 'relative', left: '10px' }}>
-                                <Icon
-                                    className={`cursor pointer ${isFocused ? 'focused' : ''}`}
-                                    name='eye'
-                                    onClick={(e) => { e.stopPropagation(); onToggleFocus(item.id); }}
-                                />
-                                <Icon
-                                    className='cursor pointer'
-                                    name='plus'
-                                    onClick={() => onAddStory(item.id, `${item.data.title}-s${item.children.length}`)}
-                                />
-                                <Icon
-                                    className='cursor pointer'
-                                    name='trash'
-                                    onClick={() => setDeletionModalVisible(item.id)}
-                                />
-                            </div>
-                        )}
+                        <div className='item-actions'>
+                            {!isLeaf && (
+                                <>
+                                    <Icon
+                                        className={`cursor pointer ${isFocused ? 'focused' : ''}`}
+                                        name='eye'
+                                        onClick={(e) => { e.stopPropagation(); onToggleFocus(item.id); }}
+                                    />
+                                    <Icon
+                                        className='cursor pointer'
+                                        name='plus'
+                                        onClick={() => onAddStory(item.id, `${item.data.title}-s${item.children.length}`)}
+                                    />
+                                </>
+                            )}
+                            <Icon
+                                className='cursor pointer'
+                                name='trash'
+                                onClick={() => setDeletionModalVisible(item)}
+                            />
+                        </div>
                     </div>
                 </Menu.Item>
             </div>
@@ -133,13 +144,17 @@ export default function StoryGroupTree(props) {
                 className='warning'
                 header='Warning!'
                 confirmButton='Delete'
-                content={`The story group ${
-                    deletionModalVisible && tree.items[deletionModalVisible].data.title
-                } and all its stories in it will be deleted. This action cannot be undone.`}
+                content={
+                    (deletionModalVisible.data || {}).canBearChildren
+                        ? `The story group ${(deletionModalVisible.data || {}).title
+                        } and all its stories in it will be deleted. This action cannot be undone.`
+                        : `The story ${(deletionModalVisible.data || {}).title
+                        } will be deleted. This action cannot be undone.`
+                }
                 onCancel={() => setDeletionModalVisible(false)}
-                onConfirm={() => { onRemoveItem(deletionModalVisible); setDeletionModalVisible(false); }}
+                onConfirm={() => { onRemoveItem(deletionModalVisible.id); setDeletionModalVisible(false); }}
             />
-            <Popup
+            {/* <Popup
                 open={typeof newTitle === 'string'}
                 tabIndex={0}
                 wide
@@ -155,7 +170,7 @@ export default function StoryGroupTree(props) {
                     onBlur={submitNameChange}
                     data-cy='edit-name'
                 />
-            </Popup>
+            </Popup> */}
             <Menu pointing secondary vertical className={somethingIsDragging ? 'dragging' : ''}>
                 <Tree
                     tree={tree}
