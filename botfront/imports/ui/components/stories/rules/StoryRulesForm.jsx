@@ -241,6 +241,9 @@ function StoryRulesForm({
             if (optionalFields.includes(currentPath) && (key === 'value' ? isEnabled(!currentModel.sendAsEntity) : isEnabled(currentModel[key]))) {
                 currentModel[`${key}__DISPLAYIF`] = true;
             }
+            if (key === 'when' && currentModel.when === 'limited') {
+                currentModel.triggerLimit__DISPLAYIF = true;
+            }
             if (typeof currentModel[key] !== 'object') return;
             currentModel[key] = optionalFieldRecursion(currentModel[key], currentPath);
         });
@@ -276,6 +279,7 @@ function StoryRulesForm({
                 const fieldEnabled = getModelField(toggleAccessor, rule);
                 const key = fieldName.split('.')[fieldName.split('.').length - 1];
                 const modelAccessor = fieldName.replace(/\$/, ruleIndex);
+                if (key === 'triggerLimit') return;
                 if (fieldEnabled && (!fieldValue || !eachTriggerValidators[key](fieldValue))) {
                     if (!enabledErrors[modelAccessor]) setEnabledErrors({ ...enabledErrors, [modelAccessor]: true });
                     errors = [
@@ -397,7 +401,11 @@ function StoryRulesForm({
                                                 <OptionalField name='value' getError={getEnabledError} showToggle={false}>
                                                     <AutoField name='' />
                                                 </OptionalField>
-                                                <AutoField name='sendAsEntity' label='If selected, the query string value will be sent as an entity with the payload' data-cy='send-as-entity-checkbox' />
+                                                <AutoField
+                                                    name='sendAsEntity'
+                                                    label='If selected, the query string value will be sent as an entity with the payload'
+                                                    data-cy='send-as-entity-checkbox'
+                                                />
                                             </NestField>
                                         </ListItemField>
                                     </ListField>
