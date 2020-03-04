@@ -25,7 +25,7 @@ class AdminSidebar extends React.Component {
                     </Menu.Header>
 
                     <Link to='/admin/projects'>
-                        <Menu.Item name='Projects'> Projects</Menu.Item>
+                        <Menu.Item name='Projects' data-cy='projects-link'> Projects</Menu.Item>
                     </Link>
                     <Link to='/admin/users'>
                         <Menu.Item name='Users'> Users</Menu.Item>
@@ -33,7 +33,7 @@ class AdminSidebar extends React.Component {
                     {can('global-settings:r', { anyScope: true })
                     && (
                         <Link to='/admin/settings'>
-                            <Menu.Item name='Settings'> Settings</Menu.Item>
+                            <Menu.Item name='Settings' data-cy='global-settings-link'> Settings</Menu.Item>
                         </Link>
                     )
                     }

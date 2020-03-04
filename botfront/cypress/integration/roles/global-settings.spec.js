@@ -11,6 +11,11 @@ describe('global settings read permissions', () => {
         cy.removeDummyRoleAndUser();
         cy.deleteProject('bf');
     });
+
+    it('should be able to access global settings through the admin sidebar', () => {
+        cy.visit('/admin');
+        cy.dataCy('global-settings-link').should('exist');
+    });
     
     it('All global settings save buttons should be hidden', () => {
         cy.visit('/admin/settings');
@@ -61,5 +66,23 @@ describe('global settings read permissions', () => {
         cy.visit('/project/bf/settings');
         cy.dataCy('project-settings-more').should('not.exist');
         cy.get('div.ui.vertical.menu a.item').should('have.length', 6);
+    });
+});
+
+describe('global settings read permissions', () => {
+    before(() => {
+        cy.createProject('bf', 'My Project', 'en');
+        cy.createDummyRoleAndUser({ permission: ['roles:r'] });
+    });
+    beforeEach(() => cy.login({ admin: false }));
+    after(() => {
+        cy.logout();
+        cy.removeDummyRoleAndUser();
+        cy.deleteProject('bf');
+    });
+    it('should not be able to access global-settings without global-settings:r', () => {
+        cy.visit('/admin');
+        cy.dataCy('projects-link').should('exist');
+        cy.dataCy('global-settings-link').should('not.exist');
     });
 });
