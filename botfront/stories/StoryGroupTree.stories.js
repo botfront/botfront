@@ -226,9 +226,9 @@ function StoryGroupTreeWrapped() {
     return (
         <SplitPane
             split='vertical'
-            minSize={150}
+            minSize={200}
             defaultSize={300}
-            maxSize={300}
+            maxSize={400}
             primary='first'
             allowResize
             className={resizing ? '' : 'width-transition'}

@@ -66,6 +66,9 @@ export default function StoryGroupTree(props) {
         const { isFocused } = item.data;
         const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
         const isHoverTarget = combineTargetFor && !isLeaf;
+        const style = isLeaf
+            ? { width: 'calc(100% - 70px)' }
+            : { width: 'calc(100% - 110px)' };
         return (
             <div
                 ref={provided.innerRef}
@@ -75,7 +78,7 @@ export default function StoryGroupTree(props) {
                     active={item.id === activeStory.id || isHoverTarget}
                     {...(isLeaf ? { onClick: () => onChangeActiveStory(item) } : {})}
                 >
-                    <div className='side-by-side middle narrow'>
+                    <div className='side-by-side narrow middle'>
                         <Icon
                             name='bars'
                             size='small'
@@ -87,7 +90,7 @@ export default function StoryGroupTree(props) {
                                 : {}
                             )}
                         />
-                        <div className='side-by-side left narrow'>
+                        <div className='side-by-side left narrow' style={style}>
                             <div className='item-chevron'>{getIcon(item)}</div>
                             {isBeingRenamed ? (
                                 <Input
