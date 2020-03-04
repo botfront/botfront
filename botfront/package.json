@@ -84,7 +84,6 @@
     "react-transition-group": "^2.4.0",
     "react-virtualized-auto-sizer": "^1.0.2",
     "react-window-infinite-loader": "^1.0.5",
-    "react-window-size": "^1.2.2",
     "redux": "^4.0.4",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.86.0",

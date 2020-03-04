@@ -1,7 +1,6 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import { browserHistory } from 'react-router';
-import windowSize from 'react-window-size';
 import SplitPane from 'react-split-pane';
 import { Meteor } from 'meteor/meteor';
 import Intercom from 'react-intercom';
@@ -351,7 +350,9 @@ class Project extends React.Component {
                                         {children}
                                         {!showChat && channel && (
                                             <Popup
-                                                trigger={<Button size='big' circular onClick={() => { changeShowChat(!showChat); }} icon='comment' primary className='open-chat-button' data-cy='open-chat' />}
+                                                trigger={
+                                                    <Button size='big' circular onClick={() => changeShowChat(!showChat)} icon='comment' primary className='open-chat-button' data-cy='open-chat' />
+                                                }
                                                 content='Try out your chatbot'
                                             />
                                         )}
@@ -375,7 +376,6 @@ class Project extends React.Component {
 Project.propTypes = {
     children: PropTypes.any.isRequired,
     router: PropTypes.object.isRequired,
-    windowHeight: PropTypes.number.isRequired,
     project: PropTypes.object,
     projectId: PropTypes.string.isRequired,
     instance: PropTypes.object,
@@ -451,7 +451,7 @@ const ProjectContainer = withTracker((props) => {
         slots: Slots.find({}).fetch(),
         projectLanguages,
     };
-})(windowSize(Project));
+})(Project);
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),

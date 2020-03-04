@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import SimpleSchema from 'simpl-schema';
 import { Message, Segment } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
-import windowSize from 'react-window-size';
 import {
     AutoForm, ErrorsField, SubmitField, TextField,
 } from 'uniforms-semantic';
@@ -102,4 +101,4 @@ export default withTracker(() => {
     return {
         settings,
     };
-})(windowSize(ForgotPassword));
+})(ForgotPassword);
