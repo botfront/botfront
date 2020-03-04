@@ -235,7 +235,7 @@ class Settings extends React.Component {
                                 <Grid.Column width={3} />
                                 <Grid.Column width={13}>
                                     <ErrorsField />
-                                    { activePane !== 'Webhooks' && can('global-settfings:w', { anyScope: true }) && <SubmitField value='Save' className='primary' />}
+                                    { activePane !== 'Webhooks' && can('global-settings:w', { anyScope: true }) && <SubmitField value='Save' className='primary' />}
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>

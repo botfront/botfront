@@ -60,7 +60,7 @@ function WebHooksForm(props) {
                 <AutoField name='url' />
                 <SelectField name='method' />
                 <div className='side-by-side left'>
-                    {can('global-settings:w', { anyScope: true }) && <SubmitField value='Save' className='primary' />}
+                    {can('global-settings:w', { anyScope: true }) && <SubmitField data-cy='save-global-settings' value='Save' className='primary' />}
                 </div>
             </AutoForm>
         </Tab.Pane>
