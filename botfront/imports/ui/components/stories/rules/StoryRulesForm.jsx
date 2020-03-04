@@ -152,6 +152,7 @@ function StoryRulesForm({
         triggerLimit: { type: Number, optional: true },
         triggerLimit__DISPLAYIF: { type: Boolean, optional: true, defaultValue: true },
         timeLimit: { type: Number, optional: true },
+        timeLimit__DISPLAYIF: { type: Boolean, optional: true },
         url: { type: Array, optional: true },
         'url.$': { type: String, optional: false, regEx: noSpaces },
         url__DISPLAYIF: { type: Boolean, optional: true },
@@ -203,6 +204,7 @@ function StoryRulesForm({
         'rules.$.trigger.eventListeners',
         'rules.$.trigger.queryString.$.value',
         'rules.$.trigger.triggerLimit',
+        'rules.$.trigger.timeLimit',
     ];
 
     const fieldErrorMessages = {
@@ -215,6 +217,8 @@ function StoryRulesForm({
         queryString: 'you enabled query string parameters but did not set any key-value pairs',
         eventListeners: 'you enabled event listener triggers but did not set any selector-event pairs',
         trigger: 'At least one trigger condition must be added',
+        triggerLimit: 'You selected "Choose a limit" but did not specify a maximum number of tigger activations',
+        timeLimit: 'you enabled minimum interval but did not enter a value',
     };
 
     const createPathElem = (key) => {
@@ -279,7 +283,6 @@ function StoryRulesForm({
                 const fieldEnabled = getModelField(toggleAccessor, rule);
                 const key = fieldName.split('.')[fieldName.split('.').length - 1];
                 const modelAccessor = fieldName.replace(/\$/, ruleIndex);
-                if (key === 'triggerLimit') return;
                 if (fieldEnabled && (!fieldValue || !eachTriggerValidators[key](fieldValue))) {
                     if (!enabledErrors[modelAccessor]) setEnabledErrors({ ...enabledErrors, [modelAccessor]: true });
                     errors = [
@@ -358,14 +361,23 @@ function StoryRulesForm({
 
                                 <OptionalField
                                     name='triggerLimit'
+                                    getError={getEnabledError}
                                     showToggle={false}
                                 >
-                                    <AutoField name='' label='Maximum number of times the rule will be triggered. Leaving it empty lets the event trigger every time the rules match.' />
+                                    <AutoField name='' label='Maximum number of times the rule will be triggered.' />
                                 </OptionalField>
-                                <AutoField
+                                <OptionalField
                                     name='timeLimit'
-                                    label='Minimum time between two messages, in minutes. Leaving it empty lets the event trigger as soon as the rules match again.'
-                                />
+                                    label='Minumum time between story activations by this trigger'
+                                    getError={getEnabledError}
+                                >
+                                    <AutoField
+                                        name=''
+                                        label='Minimum time between story activations, in minutes.'
+                                    />
+                                </OptionalField>
+
+
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
                                     <ListField name=''>
                                         <ListItemField name='$' />
