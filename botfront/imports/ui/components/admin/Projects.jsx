@@ -11,7 +11,7 @@ import React from 'react';
 
 import { Projects } from '../../../api/project/project.collection';
 import { PageMenu } from '../utils/Utils';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 
 class ProjectsList extends React.Component {
     filterItem = (filter, rows, filterKey) => {

@@ -1,13 +1,14 @@
 import { Meteor } from 'meteor/meteor';
-import { Roles } from 'meteor/alanning:roles';
 import { check } from 'meteor/check';
 import { Accounts } from 'meteor/accounts-base';
 
 import queryString from 'query-string';
 import axios from 'axios';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-import { setScopes } from '../../lib/scopes';
-import { checkIfCan, getUserScopes, can } from '../roles/roles';
+import {
+    setScopes, checkIfCan, getUserScopes, can,
+} from '../../lib/scopes';
+
 
 export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W])|(?=.*\W)(?=.*\d))|(?=.*\W)(?=.*[A-Z])(?=.*\d)).{9,}$/;
 

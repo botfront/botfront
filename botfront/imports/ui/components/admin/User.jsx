@@ -20,8 +20,7 @@ import {
 import { browserHistory } from 'react-router';
 
 import { UserEditSchema, UserCreateSchema } from '../../../api/user/user.schema';
-import { can } from '../../../lib/scopes';
-import { getUserScopes } from '../../../api/roles/roles';
+import { can, getUserScopes } from '../../../lib/scopes';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangePassword from './ChangePassword';
 import { PageMenu } from '../utils/Utils';
@@ -44,13 +43,6 @@ class User extends React.Component {
         const { user } = this.props;
         return user.emails[0].address;
     };
-
-    // canEditUser = () => {
-    //     const { user } = this.props;
-    //     const editScopes = getUserScopes(Meteor.userId(), 'users:w');
-    //     const canEdit = user.roles.every(({ project }) => editScopes.includes(project));
-    //     return can(canEdit);
-    // }
 
     methodCallback = () => wrapMeteorCallback((err) => {
         if (!err) browserHistory.goBack();
@@ -124,12 +116,12 @@ class User extends React.Component {
                             <AutoField name='profile.lastName' />
                             {this.renderRoles()}
                             <ErrorsField />
-                            {can('users:w', { anyScope: true }) && <SubmitField data-cy='save-user' />}
+                            {hasWritePermission && <SubmitField data-cy='save-user' />}
                         </AutoForm>
                     </Segment>
                 ),
             },
-            ...(can('users:w', { anyScope: true })
+            ...(hasWritePermission
                 ? [{
                     menuItem: 'Password change',
                     render: () => (
@@ -142,7 +134,7 @@ class User extends React.Component {
             ),
         ];
 
-        if (can('users:w', { anyScope: true })) {
+        if (hasWritePermission) {
             panes.push({
                 menuItem: 'User deletion',
                 render: () => (
