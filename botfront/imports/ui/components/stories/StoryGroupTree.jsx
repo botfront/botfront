@@ -1,13 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {
+    useState, useRef, useEffect, useCallback,
+} from 'react';
 import PropTypes from 'prop-types';
 import {
     Icon, Menu, Input, Confirm, Popup,
 } from 'semantic-ui-react';
 import Tree from '@atlaskit/tree';
 import { useStoryGroupTree } from './hooks/useStoryGroupTree';
+import { useEventListener } from '../utils/hooks';
 
 export default function StoryGroupTree(props) {
-    const { tree: treeFromProps, onChangeActiveStory, activeStory } = props;
+    const { tree: treeFromProps, onChangeActiveStories, activeStories } = props;
     const [newTitle, setNewTitle] = useState(null);
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
@@ -26,6 +29,14 @@ export default function StoryGroupTree(props) {
         onAddStory,
     } = useStoryGroupTree(treeFromProps);
     const renamerRef = useRef();
+    const menuRef = useRef();
+
+    const getSiblingsAndIndex = (story, inputTree) => {
+        const { id, data: { parentId } } = story;
+        const siblingIds = inputTree.items[parentId].children;
+        const index = siblingIds.findIndex(c => c === id);
+        return { index, siblingIds, parentId };
+    };
 
     useEffect(() => {
         if (!renamingModalPosition) setNewTitle(null);
@@ -58,6 +69,36 @@ export default function StoryGroupTree(props) {
         if (e.key === 'Escape') setRenamingModalPosition(null);
     };
 
+    const handleKeyDownInMenu = useCallback(({ target, key, shiftKey }) => {
+        if (!menuRef.current.contains(target)) return null;
+        if (!['ArrowUp', 'ArrowDown'].includes(key)) return null;
+        if (!activeStories.length) return null;
+        const bounds = [activeStories[0], activeStories[activeStories.length - 1]]
+            .map(i => getSiblingsAndIndex(i, tree));
+        const { siblingIds } = bounds[0];
+        if (key === 'ArrowUp') bounds[0].index = Math.max(0, bounds[0].index - 1);
+        else bounds[1].index = Math.min(siblingIds.length - 1, bounds[1].index + 1);
+        if (!shiftKey) {
+            const index = key === 'ArrowUp' ? bounds[0].index : bounds[1].index;
+            return onChangeActiveStories([tree.items[siblingIds[index]]]);
+        }
+        const newActiveStoryIds = siblingIds.slice(bounds[0].index, bounds[1].index + 1);
+        return onChangeActiveStories(newActiveStoryIds.map(id => tree.items[id]));
+    }, [activeStories, tree]);
+
+    const handleClickStory = useCallback(({ nativeEvent: { shiftKey } }, item) => {
+        if (!shiftKey || !activeStories.length) return onChangeActiveStories([item]);
+        const bounds = [activeStories[0], activeStories[activeStories.length - 1]]
+            .map(i => getSiblingsAndIndex(i, tree));
+        const { index, siblingIds, parentId } = getSiblingsAndIndex(item, tree);
+        if (parentId !== bounds[0].parentId) return onChangeActiveStories([item]);
+        if (index >= bounds[0].index && index <= bounds[1].index) return onChangeActiveStories([item]);
+        const newActiveStoryIds = siblingIds.slice(Math.min(bounds[0].index, index), Math.max(bounds[1].index, index) + 1);
+        return onChangeActiveStories(newActiveStoryIds.map(id => tree.items[id]));
+    }, [activeStories, tree]);
+
+    useEventListener('keydown', handleKeyDownInMenu);
+
     const renderItem = (renderProps) => {
         const {
             item, provided, snapshot: { combineTargetFor, isDragging },
@@ -75,10 +116,11 @@ export default function StoryGroupTree(props) {
                 {...provided.draggableProps}
             >
                 <Menu.Item
-                    active={item.id === activeStory.id || isHoverTarget}
-                    {...(isLeaf ? { onClick: () => onChangeActiveStory(item) } : {})}
+                    active={activeStories.some(s => s.id === item.id) || isHoverTarget}
+                    {...(isLeaf ? { onClick: e => handleClickStory(e, item) } : {})}
+                    tabIndex={0}
                 >
-                    <div className='side-by-side narrow left middle'>
+                    <div className='side-by-side narrow middle'>
                         <Icon
                             name='bars'
                             size='small'
@@ -142,7 +184,7 @@ export default function StoryGroupTree(props) {
     };
 
     return (
-        <div className='storygroup-browser'>
+        <div className='storygroup-browser' ref={menuRef}>
             <Confirm
                 open={!!deletionModalVisible}
                 className='warning'
@@ -194,10 +236,10 @@ export default function StoryGroupTree(props) {
 
 StoryGroupTree.propTypes = {
     tree: PropTypes.object.isRequired,
-    onChangeActiveStory: PropTypes.func.isRequired,
-    activeStory: PropTypes.string,
+    onChangeActiveStories: PropTypes.func.isRequired,
+    activeStories: PropTypes.array,
 };
 
 StoryGroupTree.defaultProps = {
-    activeStory: null,
+    activeStories: [],
 };

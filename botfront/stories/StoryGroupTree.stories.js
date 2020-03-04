@@ -221,7 +221,7 @@ const mockTree = {
 };
 
 function StoryGroupTreeWrapped() {
-    const [activeStory, setActiveStory] = useState({ data: {} });
+    const [activeStories, setActiveStories] = useState([]);
     const [resizing, setResizing] = useState(false);
     return (
         <SplitPane
@@ -238,14 +238,12 @@ function StoryGroupTreeWrapped() {
             <div>
                 <StoryGroupTree
                     tree={mockTree}
-                    onChangeActiveStory={setActiveStory}
-                    activeStory={activeStory}
+                    onChangeActiveStories={setActiveStories}
+                    activeStories={activeStories}
                 />
             </div>
             <div>
-                <h1>
-                    {activeStory.data.title}
-                </h1>
+                {activeStories.map(s => <h1>{s.data.title}</h1>)}
             </div>
         </SplitPane>
     );
