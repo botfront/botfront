@@ -36,11 +36,6 @@ class Settings extends React.Component {
         this.setState({ orchestratorMenuItems, orchestrator });
     }
 
-    handleMoreSettings = () => {
-        const { router, projectId } = this.props;
-        router.push(`/project/${projectId}/settings/global`);
-    }
-
     getSettingsPanes = () => {
         const { orchestratorMenuItems, orchestrator } = this.state;
         const { projectId } = this.props;
@@ -75,22 +70,7 @@ class Settings extends React.Component {
                 },
             ];
         }
-
-        if (can('global-admin', projectId)) {
-            panes = [...panes,
-                {
-                    menuItem: (
-                        <Menu.Item
-                            data-cy='project-settings-more'
-                            icon='ellipsis horizontal'
-                            content='More Settings'
-                            key='More Settings'
-                            onClick={this.handleMoreSettings}
-                        />
-                    ),
-                },
-            ];
-        }
+        
 
         if (orchestratorMenuItems) {
             panes = panes.concat(orchestratorMenuItems);

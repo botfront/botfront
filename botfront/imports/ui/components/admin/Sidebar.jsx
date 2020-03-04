@@ -30,9 +30,13 @@ class AdminSidebar extends React.Component {
                     <Link to='/admin/users'>
                         <Menu.Item name='Users'> Users</Menu.Item>
                     </Link>
-                    <Link to='/admin/settings'>
-                        <Menu.Item name='Settings'> Settings</Menu.Item>
-                    </Link>
+                    {can('global-settings:r', { anyScope: true })
+                    && (
+                        <Link to='/admin/settings'>
+                            <Menu.Item name='Settings'> Settings</Menu.Item>
+                        </Link>
+                    )
+                    }
                     {can('roles:r', { anyScope: true })
                         && (
                             <Link to='/admin/roles'>
