@@ -11,6 +11,7 @@ import {
     AutoForm, ErrorsField, SubmitField, AutoField,
 } from 'uniforms-semantic';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
+import { get } from 'lodash';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
@@ -194,7 +195,7 @@ class Settings extends React.Component {
                 menuItem: 'Default default domain',
                 render: this.renderDefaultDefaultDomain,
             },
-            { menuItem: 'Webhooks', render: () => WebhooksForm({ onSave: this.onSave, webhooks: settings.settings.private.webhooks || {} }) },
+            { menuItem: 'Webhooks', render: () => WebhooksForm({ onSave: this.onSave, webhooks: get(settings, 'settings.private.webhooks', {}) }) },
             { menuItem: 'Security', render: this.renderSecurityPane },
             { menuItem: 'Appearance', render: this.renderAppearance },
             { menuItem: 'Misc', render: this.renderMisc },
@@ -235,7 +236,7 @@ class Settings extends React.Component {
                                 <Grid.Column width={3} />
                                 <Grid.Column width={13}>
                                     <ErrorsField />
-                                    { activePane !== 'Webhooks' && can('global-settings:w', { anyScope: true }) && <SubmitField value='Save' className='primary' />}
+                                    { activePane !== 'Webhooks' && can('global-settings:w', { anyScope: true }) && <SubmitField data-cy='save-global-settings' value='Save' className='primary' />}
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>
