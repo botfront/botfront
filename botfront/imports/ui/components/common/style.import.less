@@ -148,15 +148,30 @@
 
         &.pointing.secondary {
             width: 100% !important;
+            border-radius: 0;
             .item-focus-holder {
                 outline: none;
             }
             .item {
                 padding: 3px 5px;
+                border-bottom: 1px solid #eee;
                 &.active, &.active:hover {
                     background-color: rgba(33,133,208,0.08);
                     border-right-color: @blue !important;
                     color: @botfront-blue;
+                }
+            }
+        }
+
+        .item-focus-holder {
+            &[type="story-group"] {
+                .item-name {
+                    font-weight: bold;
+                }
+            }
+            &[type="story"] {
+                .item-name {
+                    font-weight: normal;
                 }
             }
         }
