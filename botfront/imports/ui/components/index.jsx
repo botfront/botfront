@@ -30,12 +30,6 @@ class Index extends React.Component {
         if (can('global-settings:r', { anyScope: true })) {
             return '/admin/settings';
         }
-        if (can('analytics:r', pId)) {
-            return `/project/${pId}/analytics`;
-        }
-        if (can('incoming:r', pId)) {
-            return `/project/${pId}/incoming`;
-        }
         if (can('stories:r', pId)) {
             return `/project/${pId}/stories`;
         }

@@ -8,9 +8,9 @@ describe('should not get 404s for default routes', () => {
         cy.logout();
     });
     afterEach(() => {
-        // cy.logout();
-        // cy.removeDummyRoleAndUser();
-        // cy.deleteProject('bf');
+        cy.logout();
+        cy.removeDummyRoleAndUser();
+        cy.deleteProject('bf');
     });
     it('roles:r/w default route', () => {
         cy.createDummyRoleAndUser({ permission: ['roles:r'] });
@@ -72,14 +72,15 @@ describe('should not get 404s for default routes', () => {
         cy.login({ admin: false });
         cy.visit('/');
         cy.get('.ui.top-menu').should('exist');
-        cy.get('.header').contains('Analytics').should('exist');
-        cy.url().should('include', '/project/bf/analytics');
+        cy.get('.header').contains('Stories').should('exist');
+        cy.url().should('include', '/project/bf/stories');
     });
     it('incoming:r default', () => {
         cy.createDummyRoleAndUser({ permission: ['incoming:r'] });
         cy.login({ admin: false });
         cy.visit('/');
-        cy.dataCy('newutterances').should('exist');
-        cy.url().should('include', '/project/bf/incoming');
+        cy.get('.ui.top-menu').should('exist');
+        cy.get('.header').contains('Stories').should('exist');
+        cy.url().should('include', '/project/bf/stories');
     });
 });
