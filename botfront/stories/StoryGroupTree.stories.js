@@ -187,6 +187,7 @@ const mockTree = {
         },
         '1-6-2': {
             id: '1-6-2',
+            children: [],
             hasChildren: false,
             isExpanded: false,
             isChildrenLoading: false,

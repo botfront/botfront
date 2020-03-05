@@ -148,6 +148,9 @@
 
         &.pointing.secondary {
             width: 100% !important;
+            .item-focus-holder {
+                outline: none;
+            }
             .item {
                 padding: 3px 5px;
                 &.active, &.active:hover {
@@ -155,7 +158,6 @@
                     border-right-color: @botfront-blue !important;
                     color: @botfront-blue;
                 }
-                outline: none;
             }
         }
 
