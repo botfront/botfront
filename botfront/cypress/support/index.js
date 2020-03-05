@@ -273,7 +273,7 @@ Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
             }),
         )
         .then(
-            ({ Meteor, result }) => new Cypress.Promise((resolve) => {
+            ({ Meteor, result }) => new Cypress.Promise((resolve, reject) => {
                 Meteor.call('user.changePassword', result, 'Aaaaaaaa00', (err) => {
                     if (err) {
                         reject(err);
@@ -286,12 +286,13 @@ Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
 
 Cypress.Commands.add('deleteUser', (email) => {
     cy.visit('/');
+    cy.login();
     cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve) => {
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
             try {
                 Meteor.call('user.removeByEmail', email, (err, result) => {
                     if (err) {
-                        throw err;
+                        reject(err);
                     }
                     resolve(result);
                 });
@@ -340,7 +341,6 @@ Cypress.Commands.add('deleteRole', (name, fallback) => {
 Cypress.Commands.add('createDummyRoleAndUser', ({
     email = SPECIAL_USER_EMAIL, desc, name = 'dummy', permission, scope = 'bf',
 } = {}) => {
-    cy.deleteUser(email);
     cy.createRole(name, desc || name, permission);
     cy.createUser('test', email, 'dummy', scope);
 });
