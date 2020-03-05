@@ -129,6 +129,7 @@ export default function StoryGroupTree(props) {
                 tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
                 className='item-focus-holder'
                 item-id={item.id}
+                type={isLeaf ? 'story' : 'story-group'}
             >
                 <Menu.Item
                     active={activeStories.some(s => s.id === item.id) || isHoverTarget}
