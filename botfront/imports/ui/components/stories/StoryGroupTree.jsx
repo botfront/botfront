@@ -30,6 +30,7 @@ export default function StoryGroupTree(props) {
     } = useStoryGroupTree(treeFromProps);
     const renamerRef = useRef();
     const menuRef = useRef();
+    const lastFocusedItem = useRef();
 
     const getSiblingsAndIndex = (story, inputTree) => {
         const { id, data: { parentId } } = story;
@@ -69,33 +70,44 @@ export default function StoryGroupTree(props) {
         if (e.key === 'Escape') setRenamingModalPosition(null);
     };
 
+    const getItemDataFromDOMNode = node => node.attributes['item-id'].nodeValue;
+
+    const selectSingleItemAndResetFocus = (item) => {
+        lastFocusedItem.current = item;
+        return onChangeActiveStories([item]);
+    };
+
+    const handleSelectionChange = ({ shiftKey, item }) => {
+        if (!shiftKey || !activeStories.length) return selectSingleItemAndResetFocus(item);
+        const { index, siblingIds, parentId } = getSiblingsAndIndex(item, tree);
+        const { index: lastIndex, parentId: lastParentId } = getSiblingsAndIndex(lastFocusedItem.current, tree);
+        if (parentId !== lastParentId) return selectSingleItemAndResetFocus(item); // no cross-group selects
+        const [min, max] = (index < lastIndex)
+            ? [index, lastIndex] : [lastIndex, index];
+        const newActiveStoryIds = siblingIds.slice(min, max + 1);
+
+        return onChangeActiveStories(newActiveStoryIds.map(id => tree.items[id]));
+    };
+
     const handleKeyDownInMenu = useCallback(({ target, key, shiftKey }) => {
         if (!menuRef.current.contains(target)) return null;
-        if (!['ArrowUp', 'ArrowDown'].includes(key)) return null;
         if (!activeStories.length) return null;
-        const bounds = [activeStories[0], activeStories[activeStories.length - 1]]
-            .map(i => getSiblingsAndIndex(i, tree));
-        const { siblingIds } = bounds[0];
-        if (key === 'ArrowUp') bounds[0].index = Math.max(0, bounds[0].index - 1);
-        else bounds[1].index = Math.min(siblingIds.length - 1, bounds[1].index + 1);
-        if (!shiftKey) {
-            const index = key === 'ArrowUp' ? bounds[0].index : bounds[1].index;
-            return onChangeActiveStories([tree.items[siblingIds[index]]]);
-        }
-        const newActiveStoryIds = siblingIds.slice(bounds[0].index, bounds[1].index + 1);
-        return onChangeActiveStories(newActiveStoryIds.map(id => tree.items[id]));
+        const { previousElementSibling, nextElementSibling } = document.activeElement;
+
+        if (key === 'ArrowUp') {
+            if (previousElementSibling) previousElementSibling.focus();
+            else return null;
+        } else if (key === 'ArrowDown') {
+            if (nextElementSibling) nextElementSibling.focus();
+            else return null;
+        } else return null;
+        const item = tree.items[getItemDataFromDOMNode(document.activeElement)];
+
+        if (item.data.canBearChildren) return handleKeyDownInMenu({ target, key, shiftKey }); // go to next visible leaf
+        return handleSelectionChange({ shiftKey, item });
     }, [activeStories, tree]);
 
-    const handleClickStory = useCallback(({ nativeEvent: { shiftKey } }, item) => {
-        if (!shiftKey || !activeStories.length) return onChangeActiveStories([item]);
-        const bounds = [activeStories[0], activeStories[activeStories.length - 1]]
-            .map(i => getSiblingsAndIndex(i, tree));
-        const { index, siblingIds, parentId } = getSiblingsAndIndex(item, tree);
-        if (parentId !== bounds[0].parentId) return onChangeActiveStories([item]);
-        if (index >= bounds[0].index && index <= bounds[1].index) return onChangeActiveStories([item]);
-        const newActiveStoryIds = siblingIds.slice(Math.min(bounds[0].index, index), Math.max(bounds[1].index, index) + 1);
-        return onChangeActiveStories(newActiveStoryIds.map(id => tree.items[id]));
-    }, [activeStories, tree]);
+    const handleClickStory = ({ nativeEvent: { shiftKey } }, item) => handleSelectionChange({ shiftKey, item });
 
     useEventListener('keydown', handleKeyDownInMenu);
 
@@ -114,11 +126,13 @@ export default function StoryGroupTree(props) {
             <div
                 ref={provided.innerRef}
                 {...provided.draggableProps}
+                tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
+                className='item-focus-holder'
+                item-id={item.id}
             >
                 <Menu.Item
                     active={activeStories.some(s => s.id === item.id) || isHoverTarget}
                     {...(isLeaf ? { onClick: e => handleClickStory(e, item) } : {})}
-                    tabIndex={0}
                 >
                     <div className='side-by-side narrow middle'>
                         <Icon
