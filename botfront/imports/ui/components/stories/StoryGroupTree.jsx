@@ -27,7 +27,7 @@ export default function StoryGroupTree(props) {
         onRenameItem,
         onAddGroup,
         onAddStory,
-    } = useStoryGroupTree(treeFromProps);
+    } = useStoryGroupTree(treeFromProps, activeStories);
     const renamerRef = useRef();
     const menuRef = useRef();
     const lastFocusedItem = useRef();
