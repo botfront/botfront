@@ -4,14 +4,13 @@ import {
     getItem, getParent, mutateTree, moveItemOnTree,
 } from '@atlaskit/tree';
 
-const getSourceAndDestinationNodes = (tree, source, destination) => [
-    tree.items[tree.items[source.parentId].children[source.index]],
-    tree.items[destination.parentId],
-];
+const getSourceNode = (tree, source) => tree.items[tree.items[source.parentId].children[source.index]];
+
+const getDestinationNode = (tree, destination) => tree.items[destination.parentId];
 
 const treeReducer = (tree, instruction) => {
     const {
-        expand, collapse, move, remove, rename, toggleFocus, addGroup, addStory,
+        expand, collapse, move, remove, rename, toggleFocus, addGroup, addStory, activeStories,
     } = instruction;
 
     if (expand) return mutateTree(tree, expand, { isExpanded: true });
@@ -75,9 +74,18 @@ const treeReducer = (tree, instruction) => {
         let destination = requestedDestination;
         if (!destination) return tree; // no destination found
 
-        let [sourceNode, destinationNode] = getSourceAndDestinationNodes(tree, source, destination);
+        const sourceNode = getSourceNode(tree, source);
+        
+        const sourceNodes = (
+            sourceNode.data.canBearChildren
+            || !(activeStories && activeStories.length)
+        ) // move all activeNodes if source is a leaf
+            ? [getSourceNode(tree, source)] : activeStories;
 
-        const acceptanceCriterion = sourceNode.data.canBearChildren
+        // safety check; does selection span across
+        let destinationNode = getDestinationNode(tree, destination);
+
+        const acceptanceCriterion = sourceNodes[0].data.canBearChildren
             ? candidateNode => candidateNode.id === tree.rootId // only move bearers to root
             : candidateNode => candidateNode.data.canBearChildren; // move leaves to first bearer
         const identityCheck = candidateNode => c => c === candidateNode.id;
@@ -86,27 +94,38 @@ const treeReducer = (tree, instruction) => {
             const parentParentNode = tree.items[parentParentId];
             const index = parentParentNode.children.findIndex(identityCheck(destinationNode));
             destination = { index, parentId: parentParentId };
-            [sourceNode, destinationNode] = getSourceAndDestinationNodes(tree, source, destination);
+            destinationNode = getDestinationNode(tree, destination);
         }
 
-        if (destinationNode.id === tree.rootId && !sourceNode.data.canBearChildren) {
+        if (destinationNode.id === tree.rootId && !sourceNodes[0].data.canBearChildren) {
             // leaf moved to root
             if (!destination.index || destination.index < 1) return tree;
             const { id: parentId } = tree.items[tree.items[tree.rootId].children[destination.index - 1]];
             destination = { parentId };
         }
-        
-        const movedTree = mutateTree(
-            moveItemOnTree(tree, source, destination),
-            sourceNode.id,
-            { data: { ...sourceNode.data, parentId: destination.parentId } },
-        );
+
+        // was node dragged from 0th selected item or from somewhere else?
+        const indexOfFirstActiveNode = tree.items[source.parentId].children.findIndex(id => id === sourceNodes[0].id);
+        const offset = source.index - indexOfFirstActiveNode; // assumes first active node is lowest indexed
+
+        let movedTree = tree;
+        sourceNodes.forEach((n, i) => {
+            const polarizedOffset = i <= source.index + 1 ? -offset : 0;
+            const adjustedSource = { ...source, ...(source.index ? { index: source.index + polarizedOffset } : {}) };
+            const adjustedDestination = { ...destination, ...(destination.index ? { index: destination.index + i } : {}) };
+            movedTree = mutateTree(
+                moveItemOnTree(movedTree, adjustedSource, adjustedDestination),
+                n.id,
+                { data: { ...n.data, parentId: destination.parentId } },
+            );
+        });
+
         return mutateTree(movedTree, destination.parentId, { isExpanded: true }); // make sure destination is open
     }
     return tree;
 };
 
-export const useStoryGroupTree = (treeFromProps) => {
+export const useStoryGroupTree = (treeFromProps, activeStories) => {
     const [somethingIsDragging, setSomethingIsDragging] = useState(false);
     
     const [tree, setTree] = useReducer(treeReducer, treeFromProps);
@@ -119,7 +138,7 @@ export const useStoryGroupTree = (treeFromProps) => {
         onToggleExpansion: toggleExpansion,
         onExpand: expand => setTree({ expand }),
         onCollapse: collapse => setTree({ collapse }),
-        onDragEnd: (...move) => { setSomethingIsDragging(false); setTree({ move }); },
+        onDragEnd: (...move) => { setSomethingIsDragging(false); setTree({ move, activeStories }); },
         onDragStart: () => setSomethingIsDragging(true),
         onRemoveItem: remove => setTree({ remove }),
         onRenameItem: (...rename) => setTree({ rename }),

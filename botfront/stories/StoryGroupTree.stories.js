@@ -236,13 +236,11 @@ function StoryGroupTreeWrapped() {
             onDragStarted={() => setResizing(true)}
             onDragFinished={() => setResizing(false)}
         >
-            <div>
-                <StoryGroupTree
-                    tree={mockTree}
-                    onChangeActiveStories={setActiveStories}
-                    activeStories={activeStories}
-                />
-            </div>
+            <StoryGroupTree
+                tree={mockTree}
+                onChangeActiveStories={setActiveStories}
+                activeStories={activeStories}
+            />
             <div>
                 {activeStories.map(s => <h1>{s.data.title}</h1>)}
             </div>
