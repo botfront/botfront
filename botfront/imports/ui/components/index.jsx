@@ -18,6 +18,9 @@ class Index extends React.Component {
     }
 
     roleRouting = (pId) => {
+        if (can('projects:r')) {
+            return '/admin/users';
+        }
         if (can('users:r', { anyScope: true })) {
             return '/admin/users';
         }
@@ -50,17 +53,13 @@ class Index extends React.Component {
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    if (can('global-admin', undefined, Meteor.userId())
-                        || can('projects:r', undefined, Meteor.userId())
-                    ) router.push('/admin/projects');
-                    else {
-                        const projects = getScopesForUser(Meteor.userId(), '');
-                        if (projects.length === 0) {
-                            router.push('/404');
-                        } else {
-                            router.push(this.roleRouting(projects[0]));
-                        }
-                    }
+                    // if (can('global-admin', undefined, Meteor.userId())
+                    //     || can('projects:r', undefined, Meteor.userId())
+                    // ) router.push('/admin/projects');
+                    // else {
+                    const projects = getScopesForUser(Meteor.userId(), '');
+                    router.push(this.roleRouting(projects[0]));
+                    // }
                 }
             });
         } else {
