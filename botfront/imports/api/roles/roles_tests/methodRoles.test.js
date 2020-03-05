@@ -121,7 +121,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'rasa.getTrainingPayload',
-            roles: otherRoles.nluDataX,
+            roles: [...otherRoles.nluDataX, ...readers.projects],
             args: [projectId],
         },
         {
@@ -485,7 +485,7 @@ if (Meteor.isServer) {
         }
     };
 
-    describe.only('check roles accepted by every method', () => {
+    describe('check roles accepted by every method', () => {
         methods.forEach((method) => {
             beforeEach((done) => {
                 if (method.before) {

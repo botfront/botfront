@@ -88,6 +88,7 @@ export const readers = {
         'roles:r',
         'roles:w',
         'users:w',
+        'users:r',
         'global-admin',
     ],
     users: [

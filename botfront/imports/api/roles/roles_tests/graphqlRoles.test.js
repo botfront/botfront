@@ -231,14 +231,14 @@ if (Meteor.isServer) {
             query: rolesDataResolver.Query.getRolesData,
             args: {},
             acceptedRoles: readers.roles,
-            rejectProjectScope: true,
+            acceptWrongProjectScope: true,
         },
         {
             name: 'upsert roles data',
             query: rolesDataResolver.Mutation.upsertRolesData,
             args: {},
             acceptedRoles: writers.roles,
-            rejectProjectScope: true,
+            acceptWrongProjectScope: true,
         },
     ];
 
@@ -340,11 +340,19 @@ if (Meteor.isServer) {
                     it(`call ${endpoint.name} ${role} with the wrong scope`, (done) => {
                         testQl(endpoint.query, role, 'DNE', endpoint.args)
                             .then((result) => {
-                                expect((result || {}).error).to.be.equal('403');
+                                if (endpoint.acceptedRoles.includes(role) && !endpoint.rejectProjectScope) {
+                                    expect((result || {}).error).to.not.equal('403');
+                                } else {
+                                    expect((result || {}).error).to.be.equal('403');
+                                }
                                 done();
                             })
                             .catch((result) => {
-                                expect((result || {}).error).to.be.equal('403');
+                                if (endpoint.acceptedRoles.includes(role) && endpoint.acceptWrongProjectScope) {
+                                    expect((result || {}).error).to.not.equal('403');
+                                } else {
+                                    expect((result || {}).error).to.be.equal('403');
+                                }
                                 done();
                             });
                     });

@@ -349,7 +349,6 @@ the tests are created by iterating over subscriptions. the test params are as fo
             },
             args: [],
             acceptedRoles: readers.globalSettings,
-            rejectProjectScope: true,
             allowed: (result, done) => {
                 expect(result.admin_settings[0].settings).to.deep.equal(globalSettingsData.settings);
                 done();
@@ -358,7 +357,15 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 expect(result.admin_settings[0].settings).to.deep.equal(partialGlobalSettingsData.settings);
                 done();
             },
-            disallowedWrongScope: (result, done) => {
+            allowedProjectScope: (result, done) => {
+                expect(result.admin_settings[0].settings).to.deep.equal(globalSettingsData.settings);
+                done();
+            },
+            allowedWrongProjectScope: (result, done) => {
+                expect(result.admin_settings[0].settings).to.deep.equal(globalSettingsData.settings);
+                done();
+            },
+            disallowedWrongProjectScope: (result, done) => {
                 expect(result.admin_settings[0].settings).to.deep.equal(partialGlobalSettingsData.settings);
                 done();
             },
@@ -476,13 +483,16 @@ the tests are created by iterating over subscriptions. the test params are as fo
             args: [],
             acceptedRoles: readers.roles,
             allowed: (result, done) => {
-                expect(result.roles).to.have.length(21);
+                expect(result.roles).to.have.length(22);
                 expect(result.roles.find(({ _id }) => _id === 'nlu-data:r')).to.be.deep.equal({ _id: 'nlu-data:r', children: [] });
                 done();
             },
-            rejectProjectScope: true,
+            allowedProjectScope: (result, done) => {
+                expect(result.roles).to.have.length(22);
+                expect(result.roles.find(({ _id }) => _id === 'nlu-data:r')).to.be.deep.equal({ _id: 'nlu-data:r', children: [] });
+                done();
+            },
         },
-        // -permission- add test for the roles null subscription
         {
             name: 'slots',
             collectionName: 'slots',
@@ -570,19 +580,6 @@ the tests are created by iterating over subscriptions. the test params are as fo
             },
             args: [projectId],
             acceptedRoles: [...readers.stories, 'nlu-data:x'],
-        },
-        {
-            name: 'introStoryGroup',
-            collectionName: 'storyGroups',
-            testDataInsert: async () => {
-                await StoryGroups.insert(storyGroupData);
-            },
-            testDataRemove: async (done) => {
-                await StoryGroups.remove({ _id: 'testStoryGroup' });
-                done();
-            },
-            args: [projectId],
-            acceptedRoles: readers.stories,
         },
         {
             name: 'userData',
@@ -749,8 +746,8 @@ the tests are created by iterating over subscriptions. the test params are as fo
                             testParams.allowedWrongProjectScope(collections, done);
                             return;
                         }
-                        if (testParams.disallowedWrongScope) {
-                            testParams.disallowedWrongScope(collections, done);
+                        if (testParams.disallowedWrongProjectScope) {
+                            testParams.disallowedWrongProjectScope(collections, done);
                             return;
                         }
                         expect((collections[testParams.collectionName] || {}).length).to.not.be.equal(1);
