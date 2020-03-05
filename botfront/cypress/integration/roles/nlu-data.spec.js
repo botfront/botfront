@@ -7,9 +7,17 @@ describe('nlu-data:r restricted permissions', () => {
         cy.createDummyRoleAndUser({ permission: ['nlu-data:r'] });
     });
 
-    beforeEach(() => cy.login({ admin: false }));
+    beforeEach(() => {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+    });
+    afterEach(() => {
+        cy.logout();
+        cy.deleteProject('bf');
+    });
 
     after(() => {
+        cy.logout();
         cy.deleteProject('bf');
         cy.removeDummyRoleAndUser();
     });

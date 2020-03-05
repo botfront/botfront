@@ -12,7 +12,14 @@ describe('responses:r restricted permissions', () => {
         cy.createDummyRoleAndUser({ permission: ['responses:r'] });
     });
 
-    beforeEach(() => cy.login({ admin: false }));
+    beforeEach(() => {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+    });
+    afterEach(() => {
+        cy.logout();
+        cy.deleteProject('bf');
+    });
 
     after(() => {
         cy.deleteProject('bf');

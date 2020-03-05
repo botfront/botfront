@@ -9,7 +9,14 @@ describe('users:r can access but not edit user data', () => {
         cy.createDummyRoleAndUser({ permission: ['users:r'] });
     });
 
-    beforeEach(() => cy.login({ admin: false }));
+    beforeEach(() => {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+    });
+    afterEach(() => {
+        cy.logout();
+        cy.deleteProject('bf');
+    });
 
     after(() => {
         cy.deleteProject('bf');
@@ -35,7 +42,14 @@ describe('users:w can edit user data', () => {
         cy.createDummyRoleAndUser({ permission: ['users:w'] });
     });
 
-    beforeEach(() => cy.login({ admin: false }));
+    beforeEach(() => {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+    });
+    afterEach(() => {
+        cy.logout();
+        cy.deleteProject('bf');
+    });
 
     after(() => {
         cy.deleteProject('bf');
@@ -60,7 +74,14 @@ describe('users:w can edit user data', () => {
         cy.createDummyRoleAndUser({ permission: ['projects:w'] });
     });
 
-    beforeEach(() => cy.login({ admin: false }));
+    beforeEach(() => {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+    });
+    afterEach(() => {
+        cy.logout();
+        cy.deleteProject('bf');
+    });
 
     after(() => {
         cy.deleteProject('bf');

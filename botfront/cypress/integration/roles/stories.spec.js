@@ -2,9 +2,11 @@
 
 describe('story permissions', function() {
     beforeEach(() => {
-        cy.createProject('bf', 'My Project', 'en');
-        cy.createDummyRoleAndUser({ permission: ['stories:r'] });
-        cy.login({ admin: false });
+        cy.createProject('bf', 'My Project', 'en').then(() => {
+            cy.createDummyRoleAndUser({ permission: ['stories:r'] }).then(() => {
+                cy.login({ admin: false });
+            });
+        });
     });
 
     afterEach(() => {

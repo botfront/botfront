@@ -2,10 +2,16 @@
 
 describe('global settings read permissions', () => {
     before(() => {
-        cy.createProject('bf', 'My Project', 'en');
         cy.createDummyRoleAndUser({ permission: ['global-settings:r'] });
     });
-    beforeEach(() => cy.login({ admin: false }));
+    beforeEach(() => {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+    });
+    afterEach(() => {
+        cy.logout();
+        cy.deleteProject('bf');
+    });
     after(() => {
         cy.logout();
         cy.removeDummyRoleAndUser();
@@ -71,10 +77,16 @@ describe('global settings read permissions', () => {
 
 describe('global settings admin sidebar', () => {
     before(() => {
-        cy.createProject('bf', 'My Project', 'en');
         cy.createDummyRoleAndUser({ permission: ['roles:r'] });
     });
-    beforeEach(() => cy.login({ admin: false }));
+    beforeEach(() => {
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+    });
+    afterEach(() => {
+        cy.logout();
+        cy.deleteProject('bf');
+    });
     after(() => {
         cy.logout();
         cy.removeDummyRoleAndUser();
