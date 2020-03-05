@@ -82,7 +82,7 @@ describe('global settings admin sidebar', () => {
     });
     it('should not be able to access global-settings without global-settings:r', () => {
         cy.visit('/admin');
-        cy.dataCy('projects-link').should('exist');
+        cy.dataCy('roles-link').should('exist');
         cy.dataCy('global-settings-link').should('not.exist');
     });
 });

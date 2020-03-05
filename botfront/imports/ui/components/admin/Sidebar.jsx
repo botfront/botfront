@@ -44,7 +44,7 @@ class AdminSidebar extends React.Component {
                     {can('roles:r', { anyScope: true })
                         && (
                             <Link to='/admin/roles'>
-                                <Menu.Item name='Roles'> Roles</Menu.Item>
+                                <Menu.Item name='Roles' data-cy='roles-link'> Roles</Menu.Item>
                             </Link>
                         )
                     }
