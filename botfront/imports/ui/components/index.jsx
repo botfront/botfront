@@ -42,6 +42,10 @@ class Index extends React.Component {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
                     if (can('global-admin', undefined, Meteor.userId())) router.push('/admin/projects');
+                    else if (can('projects:r', null, Meteor.userId())) router.push('/admin/projects');
+                    else if (can('users:r', { anyScope: true }, Meteor.userId())) router.push('/admin/users');
+                    else if (can('roles:r', { anyScope: true }, Meteor.userId())) router.push('/admin/roles');
+                    else if (can('global-settings:r', { anyScope: true }, Meteor.userId())) router.push('/admin/settings');
                     else {
                         const projects = getScopesForUser(Meteor.userId(), '');
                         if (projects.length === 0) {
