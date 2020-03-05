@@ -17,6 +17,15 @@ Botfront comes as a collection of services delivered as Docker images that you n
 
 Deploying on Kubernetes or Openshift is by far the best option if you are familiar with one of them, especially if you are running it in production.
 
+### healthCheck
+
+The table below list healthCheck endpoints
+
+| Service      | Docker image                                                |
+| ------------ | ----------------------------------------------------------- |
+| botftont     | `ROOT_URL/health`                                           |
+
+
 ## Single server
 
 An alternative option is to deploy all the services on a single machine. You can get a virtual machine from the Cloud Provider of your choice. We recommend a machine with at least 1 CPU and 2 Gb of RAM
