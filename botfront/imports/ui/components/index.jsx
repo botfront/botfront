@@ -18,6 +18,21 @@ class Index extends React.Component {
     }
 
     roleRouting = (pId) => {
+        if (can('users:r', { anyScope: true })) {
+            return '/admin/users';
+        }
+        if (can('roles:r', { anyScope: true })) {
+            return '/admin/roles';
+        }
+        if (can('global-settings:r', { anyScope: true })) {
+            return '/admin/settings';
+        }
+        if (can('analytics:r', pId)) {
+            return `/project/${pId}/analytics`;
+        }
+        if (can('incoming:r', pId)) {
+            return `/project/${pId}/incoming`;
+        }
         if (can('stories:r', pId)) {
             return `/project/${pId}/stories`;
         }
@@ -27,12 +42,6 @@ class Index extends React.Component {
         if (can('responses:r', pId)) {
             return `/project/${pId}/dialogue/templates`;
         }
-        if (can('incoming:r', pId)) {
-            return `/project/${pId}/dialogue/conversations/env/development/p/1`;
-        }
-        if (can('projects:r', pId)) {
-            return `/project/${pId}/settings`;
-        }
         return ('/404');
     };
 
@@ -41,11 +50,9 @@ class Index extends React.Component {
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    if (can('global-admin', undefined, Meteor.userId())) router.push('/admin/projects');
-                    else if (can('projects:r', null, Meteor.userId())) router.push('/admin/projects');
-                    else if (can('users:r', { anyScope: true }, Meteor.userId())) router.push('/admin/users');
-                    else if (can('roles:r', { anyScope: true }, Meteor.userId())) router.push('/admin/roles');
-                    else if (can('global-settings:r', { anyScope: true }, Meteor.userId())) router.push('/admin/settings');
+                    if (can('global-admin', undefined, Meteor.userId())
+                        || can('projects:r', undefined, Meteor.userId())
+                    ) router.push('/admin/projects');
                     else {
                         const projects = getScopesForUser(Meteor.userId(), '');
                         if (projects.length === 0) {
