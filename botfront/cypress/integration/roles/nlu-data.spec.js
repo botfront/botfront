@@ -2,18 +2,18 @@
 
 describe('nlu-data:r restricted permissions', () => {
     before(() => {
+        cy.removeDummyRoleAndUser();
+        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en');
         cy.importNluData('bf', 'nlu_sample_en.json', 'en', false, ['Let\'s get started!']);
         cy.createDummyRoleAndUser({ permission: ['nlu-data:r'] });
     });
 
     beforeEach(() => {
-        cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+        cy.login({ admin: false });
     });
     afterEach(() => {
         cy.logout();
-        cy.deleteProject('bf');
     });
 
     after(() => {

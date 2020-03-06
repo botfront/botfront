@@ -10,12 +10,10 @@ describe('incoming:r restricted permissions', () => {
     });
 
     beforeEach(() => {
-        cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+        cy.login({ admin: false });
     });
     afterEach(() => {
         cy.logout();
-        cy.deleteProject('bf');
     });
 
 

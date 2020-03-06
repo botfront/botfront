@@ -7,18 +7,17 @@ const responses = [{
 
 describe('responses:r restricted permissions', () => {
     before(() => {
+        cy.removeDummyRoleAndUser();
         cy.createProject('bf', 'My Project', 'en');
         cy.addResponses('bf', responses);
         cy.createDummyRoleAndUser({ permission: ['responses:r'] });
     });
 
     beforeEach(() => {
-        cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
+        cy.login({ admin: false });
     });
     afterEach(() => {
         cy.logout();
-        cy.deleteProject('bf');
     });
 
     after(() => {
