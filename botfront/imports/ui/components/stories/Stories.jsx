@@ -1,18 +1,18 @@
-import {
-    Container, Grid, Message, Modal,
-} from 'semantic-ui-react';
+import { Message, Modal } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
     useState, useEffect, useContext, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import SplitPane from 'react-split-pane';
 import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
 import { ProjectContext } from '../../layouts/context';
 import { ConversationOptionsContext } from './Context';
 import StoryGroupBrowser from './StoryGroupBrowser';
+import StoryGroupTree from './StoryGroupTree';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
 
@@ -36,6 +36,8 @@ function Stories(props) {
     const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
+    const [resizing, setResizing] = useState(false);
+    const [activeStories, setActiveStories] = useState([]);
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -164,40 +166,49 @@ function Stories(props) {
                 <SlotsEditor slots={slots} projectId={projectId} />,
             )}
             {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
-            <Container>
-                <Grid className='stories-container'>
-                    <Grid.Row columns={2}>
-                        <Grid.Column width={4}>
-                            {renderMessages()}
-                            <StoryGroupBrowser
-                                data={storyGroups}
-                                allowAddition
-                                allowEdit
-                                index={storyGroupCurrent}
-                                onAdd={handleAddStoryGroup}
-                                onChange={changeStoryGroup}
-                                onSwitchStoryMode={changeStoryMode}
-                                storyMode={storyMode}
-                                nameAccessor='name'
-                                selectAccessor='selected'
-                                toggleSelect={handleStoryGroupSelect}
-                                changeName={handleNameChange}
-                                placeholderAddItem='Choose a group name'
-                                modals={{ setSlotsModal, setPoliciesModal }}
-                            />
-                        </Grid.Column>
-
-                        <Grid.Column width={12}>
-                            <StoryEditors
-                                onDeleteGroup={handleDeleteGroup}
-                                projectId={projectId}
-                                storyGroups={storyGroups}
-                                storyGroup={storyGroups[storyGroupCurrent]}
-                            />
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-            </Container>
+            <SplitPane
+                split='vertical'
+                minSize={200}
+                defaultSize={300}
+                maxSize={400}
+                primary='first'
+                allowResize
+                className={resizing ? '' : 'width-transition'}
+                onDragStarted={() => setResizing(true)}
+                onDragFinished={() => setResizing(false)}
+            >
+                <div>
+                    {renderMessages()}
+                    <StoryGroupBrowser
+                        data={storyGroups}
+                        allowAddition
+                        allowEdit
+                        index={storyGroupCurrent}
+                        onAdd={handleAddStoryGroup}
+                        onChange={changeStoryGroup}
+                        onSwitchStoryMode={changeStoryMode}
+                        storyMode={storyMode}
+                        nameAccessor='title'
+                        selectAccessor='selected'
+                        toggleSelect={handleStoryGroupSelect}
+                        changeName={handleNameChange}
+                        placeholderAddItem='Choose a group name'
+                        modals={{ setSlotsModal, setPoliciesModal }}
+                    />
+                    <StoryGroupTree
+                        storyGroups={storyGroups}
+                        stories={stories}
+                        onChangeActiveStories={setActiveStories}
+                        activeStories={activeStories}
+                    />
+                </div>
+                <StoryEditors
+                    onDeleteGroup={handleDeleteGroup}
+                    projectId={projectId}
+                    storyGroups={storyGroups}
+                    storyGroup={storyGroups[storyGroupCurrent]}
+                />
+            </SplitPane>
         </ConversationOptionsContext.Provider>
     );
 
@@ -230,8 +241,8 @@ const StoriesWithTracker = withTracker((props) => {
     const sortedStoryGroups = unsortedStoryGroups // sorted on the frontend
         .slice(1)
         .sort((storyGroupA, storyGroupB) => {
-            const nameA = storyGroupA.name.toUpperCase();
-            const nameB = storyGroupB.name.toUpperCase();
+            const nameA = storyGroupA.title.toUpperCase();
+            const nameB = storyGroupB.title.toUpperCase();
             if (nameA < nameB) {
                 return -1;
             }
@@ -256,7 +267,7 @@ const StoriesWithTracker = withTracker((props) => {
             storyGroupsHandler.ready()
             && storiesHandler.ready(),
         storyGroups,
-        stories: StoriesCollection.find({}).fetch(),
+        stories: StoriesCollection.find().fetch(),
         storyGroupCurrent: sgIndex,
     };
 })(Stories);

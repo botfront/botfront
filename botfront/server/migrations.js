@@ -4,6 +4,7 @@ import { Instances } from '../imports/api/instances/instances.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
 import { Stories } from '../imports/api/story/stories.collection';
+import { StoryGroups } from '../imports/api/storyGroups/storyGroups.collection';
 import { aggregateEvents } from '../imports/lib/story.utils';
 import Activity from '../imports/api/graphql/activity/activity.model';
 
@@ -184,6 +185,57 @@ Migrations.add({
             }));
     },
 });
+Migrations.add({
+    version: 7,
+    // Touch up on story and storygroup schema
+    up: async () => {
+        StoryGroups._dropIndex('projectId_1_name_1'); // eslint-disable-line no-underscore-dangle
+
+        const stories = Stories.find().fetch();
+        const storyGroups = StoryGroups.find().fetch();
+        storyGroups.sort((a, b) => b.introStory - a.introStory);
+        const children = {};
+        const projectIds = new Set();
+
+        stories.forEach((s) => {
+            // storyGroupId => parentId
+            Stories.update({ _id: s._id }, { $set: { parentId: s.storyGroupId }, $unset: { storyGroupId: '' } });
+            // add to list of children
+            children[s.storyGroupId] = [...(children[s.storyGroupId] || []), s._id];
+            projectIds.add(s.projectId);
+        });
+
+        storyGroups.forEach(sg => StoryGroups.update(
+            { _id: sg._id },
+            {
+                $set: {
+                    title: sg.name, // name => title
+                    canBearChildren: true,
+                    hasChildren: true,
+                    parentId: sg.projectId,
+                    isExpanded: !!sg.introStory,
+                    children: children[sg._id],
+                },
+                $unset: { name: '' },
+            },
+        ));
+
+        // add root "story groups"
+        Array.from(projectIds).forEach((projectId) => {
+            StoryGroups.insert({
+                _id: projectId,
+                title: 'root',
+                parentId: 'root',
+                projectId,
+                children: storyGroups
+                    .filter(sg => sg.projectId === projectId)
+                    .map(sg => sg._id),
+            });
+        });
+    },
+});
+
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

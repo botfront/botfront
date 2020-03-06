@@ -159,7 +159,7 @@ StoryGroupItem.propTypes = {
 };
 
 StoryGroupItem.defaultProps = {
-    nameAccessor: 'name',
+    nameAccessor: 'title',
     selectAccessor: 'selected',
     allowEdit: true,
 };

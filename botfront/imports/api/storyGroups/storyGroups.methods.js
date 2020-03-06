@@ -10,9 +10,8 @@ export const createIntroStoryGroup = (projectId) => {
     Meteor.call(
         'storyGroups.insert',
         {
-            name: 'Intro stories',
+            title: 'Intro stories',
             projectId,
-            introStory: true,
         },
         (err, groupId) => {
             if (!err) {
@@ -36,7 +35,7 @@ export const createDefaultStoryGroup = (projectId) => {
     Meteor.call(
         'storyGroups.insert',
         {
-            name: 'Default stories',
+            title: 'Default stories',
             projectId,
         },
         (err, groupId) => {

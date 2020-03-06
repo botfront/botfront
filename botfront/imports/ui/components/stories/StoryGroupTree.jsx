@@ -1,19 +1,32 @@
 import React, {
-    useState, useRef, useEffect, useCallback,
+    useState, useRef, useEffect, useCallback, useMemo, useContext,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
     Icon, Menu, Input, Confirm, Popup,
 } from 'semantic-ui-react';
-import Tree from '@atlaskit/tree';
+import EmbeddedTree from '../common/EmbeddedTree';
 import { useStoryGroupTree } from './hooks/useStoryGroupTree';
 import { useEventListener } from '../utils/hooks';
+import { ProjectContext } from '../../layouts/context';
 
 export default function StoryGroupTree(props) {
-    const { tree: treeFromProps, onChangeActiveStories, activeStories } = props;
+    const {
+        onChangeActiveStories, activeStories, storyGroups, stories,
+    } = props;
     const [newTitle, setNewTitle] = useState(null);
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
+    const { project: { _id: projectId } } = useContext(ProjectContext);
+
+    const treeFromProps = useMemo(() => {
+        const newTree = { rootId: projectId, items: {} };
+        [...storyGroups, ...stories].forEach(({ _id, ...n }) => {
+            newTree.items = { ...newTree.items, [_id]: { id: _id, ...n } };
+        });
+        return newTree;
+    }, [storyGroups, stories]);
+
     const {
         tree,
         somethingIsDragging,
@@ -33,7 +46,7 @@ export default function StoryGroupTree(props) {
     const lastFocusedItem = useRef();
 
     const getSiblingsAndIndex = (story, inputTree) => {
-        const { id, data: { parentId } } = story;
+        const { id, parentId } = story;
         const siblingIds = inputTree.items[parentId].children;
         const index = siblingIds.findIndex(c => c === id);
         return { index, siblingIds, parentId };
@@ -41,7 +54,7 @@ export default function StoryGroupTree(props) {
 
     useEffect(() => {
         if (!renamingModalPosition) setNewTitle(null);
-        if (!!renamingModalPosition) setNewTitle(renamingModalPosition.data.title);
+        if (!!renamingModalPosition) setNewTitle(renamingModalPosition.title);
     }, [!!renamingModalPosition]);
 
     const trimLong = string => (string.length > 50
@@ -49,7 +62,7 @@ export default function StoryGroupTree(props) {
         : string);
 
     const getIcon = item => (
-        item.data.canBearChildren
+        item.canBearChildren
             ? (
                 <Icon
                     name={`caret ${item.isExpanded ? 'down' : 'right'}`}
@@ -103,7 +116,7 @@ export default function StoryGroupTree(props) {
         } else return null;
         const item = tree.items[getItemDataFromDOMNode(document.activeElement)];
 
-        if (item.data.canBearChildren) return handleKeyDownInMenu({ target, key, shiftKey }); // go to next visible leaf
+        if (item.canBearChildren) return handleKeyDownInMenu({ target, key, shiftKey }); // go to next visible leaf
         return handleSelectionChange({ shiftKey, item });
     }, [activeStories, tree]);
 
@@ -115,8 +128,8 @@ export default function StoryGroupTree(props) {
         const {
             item, provided, snapshot: { combineTargetFor, isDragging },
         } = renderProps;
-        const isLeaf = !item.data.canBearChildren;
-        const { isFocused } = item.data;
+        const isLeaf = !item.canBearChildren;
+        const { selected: isFocused } = item;
         const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
         const isHoverTarget = combineTargetFor && !isLeaf;
         const style = isLeaf
@@ -167,7 +180,7 @@ export default function StoryGroupTree(props) {
                                         onDoubleClick={() => setRenamingModalPosition(item)}
                                         {...(isBeingRenamed ? { ref: renamerRef } : {})}
                                     >
-                                        {trimLong(item.data.title)}
+                                        {trimLong(item.title)}
                                     </span>
                                 )}
                         </div>
@@ -182,7 +195,7 @@ export default function StoryGroupTree(props) {
                                     <Icon
                                         className='cursor pointer'
                                         name='plus'
-                                        onClick={() => onAddStory(item.id, `${item.data.title}-s${item.children.length}`)}
+                                        onClick={() => onAddStory(item.id, `${item.title}-s${item.children.length}`)}
                                     />
                                 </>
                             )}
@@ -206,10 +219,10 @@ export default function StoryGroupTree(props) {
                 header='Warning!'
                 confirmButton='Delete'
                 content={
-                    (deletionModalVisible.data || {}).canBearChildren
-                        ? `The story group ${(deletionModalVisible.data || {}).title
+                    (deletionModalVisible || {}).canBearChildren
+                        ? `The story group ${(deletionModalVisible || {}).title
                         } and all its stories in it will be deleted. This action cannot be undone.`
-                        : `The story ${(deletionModalVisible.data || {}).title
+                        : `The story ${(deletionModalVisible || {}).title
                         } will be deleted. This action cannot be undone.`
                 }
                 onCancel={() => setDeletionModalVisible(false)}
@@ -233,7 +246,7 @@ export default function StoryGroupTree(props) {
                 />
             </Popup> */}
             <Menu pointing secondary vertical className={somethingIsDragging ? 'dragging' : ''}>
-                <Tree
+                <EmbeddedTree
                     tree={tree}
                     renderItem={renderItem}
                     onExpand={onExpand}
@@ -251,6 +264,8 @@ export default function StoryGroupTree(props) {
 
 StoryGroupTree.propTypes = {
     tree: PropTypes.object.isRequired,
+    storyGroups: PropTypes.array.isRequired,
+    stories: PropTypes.array.isRequired,
     onChangeActiveStories: PropTypes.func.isRequired,
     activeStories: PropTypes.array,
 };
