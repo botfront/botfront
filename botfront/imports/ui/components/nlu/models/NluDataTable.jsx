@@ -155,7 +155,7 @@ export default class NluDataTable extends React.Component {
             filterable: false,
             Cell: (props) => {
                 if (waiting.has(props.row.example._id)) {
-                    return (<Loader className='loader-canonical' active inline size='mini' />);
+                    return (<Loader className='loader-canonical' active inline size='mini' data-cy='canonical-spinner' />);
                 }
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                 let toolTip = (<div>Mark as canonical</div>);
