@@ -25,5 +25,6 @@ router.get('/health-check', (req, res) => res.status(200).json());
 router.post('/conversations/:project_id/environment/:env', importConversationValidator, importConversation);
 router.get('/conversations/:project_id/environment/:env/latest-imported-event', latestImportValidator, latestImport);
 
+router.get('/rasa/restart', (req, res) => res.status(200).json());
 
 module.exports = router;

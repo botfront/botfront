@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
-
 import { CredentialsSchema, Credentials as CredentialsCollection } from '../../../api/credentials';
 import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -16,8 +15,9 @@ import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
 import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
-
+import { ProjectContext } from '../../layouts/context';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
+import restartRasa from './restartRasa';
 
 class Credentials extends React.Component {
     constructor(props) {
@@ -37,7 +37,7 @@ class Credentials extends React.Component {
     onSave = (credentials) => {
         const newCredentials = credentials;
         const { selectedEnvironment } = this.state;
-        const { projectId } = this.props;
+        const { projectId, webhook } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
         if (!credentials._id) {
@@ -57,7 +57,11 @@ class Credentials extends React.Component {
                 this.setState({ saving: false, showConfirmation: true });
             }),
         );
-    };
+       
+        if (selectedEnvironment === 'development') {
+            restartRasa(webhook);
+        }
+    }
 
     renderCredentials = (saving, credentials, projectId, environment) => {
         const { saved, showConfirmation, selectedEnvironment } = this.state;
@@ -169,14 +173,27 @@ Credentials.propTypes = {
     projectSettings: PropTypes.object,
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
+    webhook: PropTypes.object,
+
 };
 
 Credentials.defaultProps = {
     projectSettings: {},
     orchestrator: '',
     credentials: {},
+    webhook: {},
 };
 
+const CredentialsWithContext = props => (
+    <ProjectContext.Consumer>
+        {({ webhooks }) => (
+            <Credentials
+                {...props}
+                webhook={webhooks && webhooks.restartRasaWebhook}
+            />
+        )}
+    </ProjectContext.Consumer>
+);
 const CredentialsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('credentials', projectId);
     const handlerproj = Meteor.subscribe('projects', projectId);
@@ -202,7 +219,7 @@ const CredentialsContainer = withTracker(({ projectId }) => {
         credentials,
         projectSettings,
     };
-})(Credentials);
+})(CredentialsWithContext);
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

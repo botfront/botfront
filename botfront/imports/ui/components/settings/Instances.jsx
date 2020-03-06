@@ -8,11 +8,13 @@ import {
 import Alert from 'react-s-alert';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
+import { Button } from 'semantic-ui-react';
 import { InstanceSchema } from '../../../api/instances/instances.schema';
-
 import { Instances as InstancesCollection } from '../../../api/instances/instances.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { can } from '../../../lib/scopes';
+import { ProjectContext } from '../../layouts/context';
+import restartRasa from './restartRasa';
 
 class Instances extends React.Component {
     onValidate = (model, error, callback) => {
@@ -27,7 +29,9 @@ class Instances extends React.Component {
     }
 
     render() {
-        const { ready, instance, projectId } = this.props;
+        const {
+            ready, instance, projectId, webhook,
+        } = this.props;
         const hasWritePermission = can('projects:w', projectId);
         if (!instance.type) instance.type = 'server';
         return (
@@ -51,6 +55,7 @@ class Instances extends React.Component {
                                 data-cy='save-instance'
                             />
                         )}
+                        { hasWritePermission && <Button content='Restart rasa' onClick={(e) => { e.preventDefault(); restartRasa(webhook); }} />}
                     </AutoForm>
                 )}
             </>
@@ -62,11 +67,25 @@ Instances.propTypes = {
     instance: PropTypes.object,
     projectId: PropTypes.string.isRequired,
     ready: PropTypes.bool.isRequired,
+    webhook: PropTypes.object,
 };
 
 Instances.defaultProps = {
     instance: {},
+    webhook: {},
 };
+
+
+const InstancesWithContext = props => (
+    <ProjectContext.Consumer>
+        {({ webhooks }) => (
+            <Instances
+                {...props}
+                webhook={webhooks && webhooks.restartRasaWebhook}
+            />
+        )}
+    </ProjectContext.Consumer>
+);
 
 const InstancesContainer = withTracker((props) => {
     const { projectId } = props;
@@ -76,7 +95,7 @@ const InstancesContainer = withTracker((props) => {
         ready: handler.ready(),
         instance,
     };
-})(Instances);
+})(InstancesWithContext);
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
