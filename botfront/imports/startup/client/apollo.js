@@ -75,7 +75,7 @@ const link = split(
 // this will activate the dev tools when we are testing the application
 // So cypress can acces __APOLLO_CLIENT__
 let devTools = {};
-if (process.env.MODE === 'test') {
+if (window.Cypress) {
     devTools = { connectToDevTools: true };
 }
 

@@ -444,7 +444,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 done();
             },
             disallowedWrongProjectScope: (result, done) => {
-                expect(result.projects.length).to.be.equal(0);
+                expect(result.projects).to.be.equal(undefined);
                 done();
             },
         },
