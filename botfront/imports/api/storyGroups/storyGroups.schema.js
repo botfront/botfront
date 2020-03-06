@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 
 export const StoryGroupSchema = new SimpleSchema(
     {
-        name: { type: String },
+        title: { type: String },
         projectId: { type: String },
         createdAt: {
             type: Date,
@@ -14,7 +14,12 @@ export const StoryGroupSchema = new SimpleSchema(
             autoValue: () => new Date(),
         },
         selected: { type: Boolean, defaultValue: false },
-        introStory: { type: Boolean, optional: true },
+        children: { type: Array, defaultValue: [] },
+        'children.$': String,
+        hasChildren: { type: Boolean, defaultValue: false },
+        isExpanded: { type: Boolean, defaultValue: true },
+        canBearChildren: { type: Boolean, autoValue: () => true },
+        parentId: String,
     },
     { tracker: Tracker },
 );

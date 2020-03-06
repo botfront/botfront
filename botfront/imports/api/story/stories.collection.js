@@ -23,12 +23,12 @@ if (Meteor.isServer) {
     Meteor.publish('stories.inGroup', function(projectId, groupId) {
         check(groupId, String);
         check(projectId, String);
-        return Stories.find({ projectId, storyGroupId: groupId });
+        return Stories.find({ projectId, parentId: groupId });
     });
 
     Meteor.publish('stories.light', function(projectId) {
         check(projectId, String);
-        return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
+        return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, parentId: true } });
     });
     Meteor.publish('stories.events', function(projectId) {
         check(projectId, String);

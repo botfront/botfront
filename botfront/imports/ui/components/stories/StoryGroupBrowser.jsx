@@ -238,9 +238,9 @@ StoryGroupBrowser.defaultProps = {
     onAdd: () => {},
     toggleSelect: () => {},
     changeName: () => {},
-    nameAccessor: '_id',
+    nameAccessor: 'title',
     saving: false,
-    selectAccessor: '',
+    selectAccessor: 'selected',
     allowEdit: false,
     placeholderAddItem: '',
 };
