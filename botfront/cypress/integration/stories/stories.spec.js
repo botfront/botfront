@@ -294,10 +294,9 @@ describe('stories', function() {
         cy.dataCy('branch-label')
             .eq(1)
             .click({ force: true })
+            .click({ force: true })
             .click({ force: true });
         cy.dataCy('branch-label').should('have.length', 2);
-        cy.dataCy('branch-label')
-            .eq(1).click({ force: true });
         cy.dataCy('branch-label')
             .first().click({ force: true });
         cy.dataCy('stories-linker').should('not.exist');
