@@ -49,6 +49,7 @@ describe('NLU Intent warning message displays', function() {
         // delete example
         cy.dataCy('icon-gem').first().click(); // unmark canonical on the first example so it can be deleted
         cy.get('.black.gem').should('have.length', 1);
+        cy.dataCy('canonical-spinner').should('not.exist', 1);
         cy.contains('hello')
             .closest('.rt-tr')
             .find('[data-cy=trash] .viewOnHover')
