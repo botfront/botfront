@@ -204,7 +204,7 @@ if (Meteor.isServer) {
         },
 
 
-        async 'rasa.restart' (projectId) {
+        async 'rasa.restart'(projectId) {
             checkIfCan('projects:w', projectId);
             check(projectId, String);
             const appMethodLogger = getAppLoggerForMethod(
@@ -214,11 +214,12 @@ if (Meteor.isServer) {
                 { projectId },
             );
             const { url, method } = Meteor.call('get.rasaRestart.webhooks', projectId);
+            const { namespace } = Projects.findOne({ _id: projectId });
             if (!url || !method) throw new Meteor.Error('400', 'No rasa restart webhook defined.');
             const axiosRestartRasa = axios.create();
             addLoggingInterceptors(axiosRestartRasa, appMethodLogger);
             try {
-                const response = await axiosRestartRasa({ url, method });
+                const response = await axiosRestartRasa({ url, method, data: { namespace } });
                 return response.status;
             } catch (e) {
                 return 500;
