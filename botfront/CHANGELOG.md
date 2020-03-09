@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.2-ee.0](https://github.com/botfront/botfront/compare/v0.19.3-ee.5...v0.20.2-ee.0) (2020-03-09)
+
+
+### Features
+
+* block non ascii chars in entities ([92dfda1](https://github.com/botfront/botfront/commit/92dfda1aa0f49ca8df76791ad1bcbe7b6fd45f2a))
+* display version number at the bottom of the sidebar ([5cb2fee](https://github.com/botfront/botfront/commit/5cb2feeab9d1f093bc0f171f22f781dfb08fd4cc))
+* graphql authentification for external consumers ([e37a3f9](https://github.com/botfront/botfront/commit/e37a3f9e7cebaadde0d76e85487ebd4e76085d8f))
+* **export:** export one md file per story group ([a8f05fe](https://github.com/botfront/botfront/commit/a8f05fe74ff350b74a8e202159c717624051e019))
+* **import:** import nlu data ([5a6fd40](https://github.com/botfront/botfront/commit/5a6fd40221749ab51ef9e443d7a9e3d4e4e7d432))
+* **import:** upsert slots and responses ([07b9859](https://github.com/botfront/botfront/commit/07b9859ee41e371b9a8767eaca9136bfc47d07d0))
+* **import domain:** wip ([54b1caa](https://github.com/botfront/botfront/commit/54b1caafaff28b8d9a44cbbb83ed082fe0f09093))
+* **import rasa stories:** db-ready stories are generated ([1dc22e9](https://github.com/botfront/botfront/commit/1dc22e99f65c2e8b46adbc92d8350615071db8ab))
+* **import rasa stories:** log more import issues ([4bb8b19](https://github.com/botfront/botfront/commit/4bb8b19bbe4e544b862ec6ee4b986cc448ec7136))
+* **import rasa stories:** parse story file into intermediate format ([657dd1c](https://github.com/botfront/botfront/commit/657dd1c4d0fdc9ef6a2ef7304925de27f65f92ad))
+* **import rasa stories:** ux initial commit ([f75514c](https://github.com/botfront/botfront/commit/f75514c0a641731d3455d0d5f7e8e10e2fb8fff0))
+* **rasa export:** add export all languages option ([94ca4f5](https://github.com/botfront/botfront/commit/94ca4f52788b71c89e7414ee0f630136d585911a))
+* add story group name in story export ([d267e20](https://github.com/botfront/botfront/commit/d267e20c1f83c7e9ad4f68318b67180cdc83f33f))
+
+
+### Bug Fixes
+
+* don't overwrite namespace on import ([#476](https://github.com/botfront/botfront/issues/476)) ([50976c6](https://github.com/botfront/botfront/commit/50976c6fb3eaa20583b1fdcc61f530bd090f90f3))
+* fix undefined slot line showing as bad lines ([ee973fd](https://github.com/botfront/botfront/commit/ee973fd764e027c9ee6d504fe93caf6490f1b196))
+* some conversations of the day were not displayed by default ([8c7dd47](https://github.com/botfront/botfront/commit/8c7dd473cb1242d0099537512d822be16d84fe97))
+* unfeaturized slots can have initial value of any type ([4173ef0](https://github.com/botfront/botfront/commit/4173ef0d0894144126a487a2d3f7c51a0219eca8))
+
 ### [0.19.3-ee.5](https://github.com/botfront/botfront/compare/v0.19.3-ee.4...v0.19.3-ee.5) (2020-02-25)
 
 ### [0.19.3-ee.4](https://github.com/botfront/botfront/compare/v0.19.3-ee.3...v0.19.3-ee.4) (2020-02-24)
