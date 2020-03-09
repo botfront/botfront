@@ -15,7 +15,7 @@ function EntityDropdown({
         value,
     }));
 
-    const [searchInputState, setSearchInputState] = useState(entity && entity.entity);
+    const [searchInputState, setSearchInputState] = useState('');
 
     const handleSearchChange = (_e, { searchQuery }) => {
         // !searchQuery means emtpy string

@@ -2,7 +2,7 @@
 
 const utterance = 'whatever this is a testing utterance';
 const intentName = 'KPI';
-const secondEntity = 'ENT2';
+const secondEntity = 'name';
 const newEntity = 'myNewEntity';
 
 describe('nlu tagging in training data', function() {
