@@ -16,7 +16,6 @@ import AceField from '../utils/AceField';
 import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
-import { ProjectContext } from '../../layouts/context';
 import restartRasa from './restartRasa';
 
 class Endpoints extends React.Component {
@@ -37,7 +36,7 @@ class Endpoints extends React.Component {
     onSave = (endpoints) => {
         const newEndpoints = endpoints;
         const { selectedEnvironment } = this.state;
-        const { projectId, webhook } = this.props;
+        const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
         if (!endpoints._id) {
@@ -58,7 +57,7 @@ class Endpoints extends React.Component {
             }),
         );
         if (selectedEnvironment === 'development') {
-            restartRasa(webhook);
+            restartRasa(projectId);
         }
     };
 
@@ -175,26 +174,14 @@ Endpoints.propTypes = {
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
     projectSettings: PropTypes.object,
-    webhook: PropTypes.object,
 };
 
 Endpoints.defaultProps = {
     endpoints: {},
     orchestrator: '',
     projectSettings: {},
-    webhook: {},
 };
 
-const EndpointsWithContext = props => (
-    <ProjectContext.Consumer>
-        {({ webhooks }) => (
-            <Endpoints
-                {...props}
-                webhook={webhooks && webhooks.restartRasaWebhook}
-            />
-        )}
-    </ProjectContext.Consumer>
-);
 
 const EndpointsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('endpoints', projectId);
@@ -220,7 +207,7 @@ const EndpointsContainer = withTracker(({ projectId }) => {
         endpoints,
         projectSettings,
     };
-})(EndpointsWithContext);
+})(Endpoints);
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

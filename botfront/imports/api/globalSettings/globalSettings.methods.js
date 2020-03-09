@@ -16,5 +16,16 @@ if (Meteor.isServer) {
                 throw formatError(e);
             }
         },
+
+        async 'get.rasaRestart.webhooks'(projectId) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
+            const {
+                settings: {
+                    private: { webhooks },
+                },
+            } = GlobalSettings.findOne({}, { fields: { 'settings.private.webhooks': 1 } });
+            return webhooks.restartRasaWebhook;
+        },
     });
 }

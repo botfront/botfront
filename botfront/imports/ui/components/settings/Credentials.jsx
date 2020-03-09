@@ -15,7 +15,6 @@ import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
 import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
-import { ProjectContext } from '../../layouts/context';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
 import restartRasa from './restartRasa';
 
@@ -37,7 +36,7 @@ class Credentials extends React.Component {
     onSave = (credentials) => {
         const newCredentials = credentials;
         const { selectedEnvironment } = this.state;
-        const { projectId, webhook } = this.props;
+        const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
         if (!credentials._id) {
@@ -59,7 +58,7 @@ class Credentials extends React.Component {
         );
        
         if (selectedEnvironment === 'development') {
-            restartRasa(webhook);
+            restartRasa(projectId);
         }
     }
 
@@ -173,7 +172,6 @@ Credentials.propTypes = {
     projectSettings: PropTypes.object,
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
-    webhook: PropTypes.object,
 
 };
 
@@ -181,19 +179,8 @@ Credentials.defaultProps = {
     projectSettings: {},
     orchestrator: '',
     credentials: {},
-    webhook: {},
 };
 
-const CredentialsWithContext = props => (
-    <ProjectContext.Consumer>
-        {({ webhooks }) => (
-            <Credentials
-                {...props}
-                webhook={webhooks && webhooks.restartRasaWebhook}
-            />
-        )}
-    </ProjectContext.Consumer>
-);
 const CredentialsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('credentials', projectId);
     const handlerproj = Meteor.subscribe('projects', projectId);
@@ -219,7 +206,7 @@ const CredentialsContainer = withTracker(({ projectId }) => {
         credentials,
         projectSettings,
     };
-})(CredentialsWithContext);
+})(Credentials);
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

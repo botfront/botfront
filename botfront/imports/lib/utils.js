@@ -155,6 +155,8 @@ if (Meteor.isServer) {
     // eslint-disable-next-line import/no-duplicates
     } from '../../server/logger';
 
+
+    const fileLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
 
         async 'axios.requestWithJsonBody'(url, method, data) {
@@ -162,7 +164,7 @@ if (Meteor.isServer) {
             // remplace data by placeholder for images or everything not json
             if (data.mimeType && data.mimeType !== 'application/json') loggedData = `Data is ${data.mimeType} and is not logged`;
             const appMethodLogger = getAppLoggerForMethod(
-                getAppLoggerForFile(__filename),
+                fileLogger,
                 'axios.requestWithJsonBody',
                 Meteor.userId(),
                 { url, method, data: loggedData },
@@ -200,8 +202,31 @@ if (Meteor.isServer) {
                 return response;
             });
         },
+
+
+        async 'rasa.restart' (projectId) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
+            const appMethodLogger = getAppLoggerForMethod(
+                fileLogger,
+                'rasa.restart',
+                Meteor.userId(),
+                { projectId },
+            );
+            const { url, method } = Meteor.call('get.rasaRestart.webhooks', projectId);
+            if (!url || !method) throw new Meteor.Error('400', 'No rasa restart webhook defined.');
+            const axiosRestartRasa = axios.create();
+            addLoggingInterceptors(axiosRestartRasa, appMethodLogger);
+            try {
+                const response = await axiosRestartRasa({ url, method });
+                return response.status;
+            } catch (e) {
+                return 500;
+            }
+        },
     });
 }
+
 
 export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {}).nlu_models;
 
