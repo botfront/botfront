@@ -1,4 +1,4 @@
-import { Message, Modal } from 'semantic-ui-react';
+import { Modal } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
     useState, useContext, useMemo,
@@ -17,6 +17,28 @@ import { Loading } from '../utils/Utils';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
+
+const isStoryDeletable = (story, storyList, tree) => {
+    const isDestination = s => (s.checkpoints || []).length;
+    const isOrigin = s1 => storyList.some(s2 => (s2.checkpoints || []).some(c => c[0] === s1.id));
+    const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
+    if (!story) return [false, null];
+    const deletable = !story.canBearChildren
+        ? !isDestinationOrOrigin(story)
+        : !(story.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
+    const message = deletable
+        ? story.canBearChildren
+            ? `The story group ${story.title
+            } and all its stories in it will be deleted. This action cannot be undone.`
+            : `The story ${story.title
+            } will be deleted. This action cannot be undone.`
+        : story.canBearChildren
+            ? `The story group ${story.title
+            } cannot be deleted as it contains links.`
+            : `The story ${story.title
+            } cannot be deleted as it is linked to another story.`;
+    return [deletable, message];
+};
 
 function Stories(props) {
     const {
@@ -72,8 +94,6 @@ function Stories(props) {
 
     const handleStoryUpdate = story => Meteor.call('stories.update', story, projectId, wrapMeteorCallback);
 
-    const removeAllSelection = () => Meteor.call('storyGroups.removeFocus', projectId, wrapMeteorCallback);
-
     const handleNameChange = storyGroup => Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback);
 
     return (
@@ -109,7 +129,6 @@ function Stories(props) {
                     onDragFinished={() => setResizing(false)}
                 >
                     <div>
-                        {/* {renderMessages()} */}
                         <StoryGroupNavigation
                             allowAddition
                             onAdd={handleAddStoryGroup}
@@ -122,6 +141,7 @@ function Stories(props) {
                             stories={stories}
                             onChangeActiveStories={setActiveStories}
                             activeStories={activeStories}
+                            isStoryDeletable={isStoryDeletable}
                         />
                     </div>
                     <StoryEditors

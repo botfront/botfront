@@ -12,7 +12,7 @@ import { ProjectContext } from '../../layouts/context';
 
 export default function StoryGroupTree(props) {
     const {
-        onChangeActiveStories, activeStories, storyGroups, stories,
+        onChangeActiveStories, activeStories, storyGroups, stories, isStoryDeletable,
     } = props;
     const [newTitle, setNewTitle] = useState(null);
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
@@ -201,7 +201,7 @@ export default function StoryGroupTree(props) {
                             <Icon
                                 className='cursor pointer'
                                 name='trash'
-                                onClick={() => setDeletionModalVisible(item)}
+                                onClick={(e) => { e.stopPropagation(); setDeletionModalVisible(item); }}
                             />
                         </div>
                     </div>
@@ -210,6 +210,8 @@ export default function StoryGroupTree(props) {
         );
     };
 
+    const [deletionIsPossible, deletionModalMessage] = useMemo(() => isStoryDeletable(deletionModalVisible, stories, tree), [!!deletionModalVisible]);
+
     return (
         <div className='storygroup-browser' ref={menuRef}>
             <Confirm
@@ -217,15 +219,16 @@ export default function StoryGroupTree(props) {
                 className='warning'
                 header='Warning!'
                 confirmButton='Delete'
-                content={
-                    (deletionModalVisible || {}).canBearChildren
-                        ? `The story group ${(deletionModalVisible || {}).title
-                        } and all its stories in it will be deleted. This action cannot be undone.`
-                        : `The story ${(deletionModalVisible || {}).title
-                        } will be deleted. This action cannot be undone.`
-                }
+                content={deletionModalMessage}
                 onCancel={() => setDeletionModalVisible(false)}
-                onConfirm={() => { handleRemoveItem(deletionModalVisible.id); setDeletionModalVisible(false); }}
+                {...(deletionIsPossible ? {
+                    onConfirm: () => {
+                        handleRemoveItem(deletionModalVisible.id);
+                        onChangeActiveStories(activeStories.filter(s => s.id !== deletionModalVisible.id));
+                        setDeletionModalVisible(false);
+                    },
+                } : {})}
+                {...(deletionIsPossible ? {} : { confirmButton: null })}
             />
             {/* <Popup
                 open={typeof newTitle === 'string'}
@@ -267,8 +270,10 @@ StoryGroupTree.propTypes = {
     stories: PropTypes.array.isRequired,
     onChangeActiveStories: PropTypes.func.isRequired,
     activeStories: PropTypes.array,
+    isStoryDeletable: PropTypes.func,
 };
 
 StoryGroupTree.defaultProps = {
     activeStories: [],
+    isStoryDeletable: () => [true, 'Delete?'],
 };
