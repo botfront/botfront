@@ -61,7 +61,7 @@ describe('nlu tagging in training data', function() {
         cy.get('[data-cy=entity-dropdown]').click();
         cy.get('[data-cy=entity-dropdown]')
             .contains(secondEntity)
-            .click();
+            .click({ force: true });
 
         cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
 
