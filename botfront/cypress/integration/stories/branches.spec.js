@@ -117,15 +117,26 @@ describe('branches', function() {
         cy.dataCy('branch-label')
             .eq(1)
             .click();
+        cy.wait(250);
+        cy.dataCy('branch-label')
+            .eq(1)
+            .click();
+        cy.wait(250);
+            
         cy.dataCy('story-editor')
             .get('textarea')
             .eq(1)
             .focus()
             .type('xxx', { force: true });
-        cy.dataCy('delete-branch')
+
+        cy.dataCy('branch-label').should('have.lengthOf', 2);
+        cy.dataCy('branch-label').eq(1).should('have.class', 'active');
+
+        cy.dataCy('branch-label')
             .first()
-            .click({ force: true });
+            .click();
         cy.wait(250);
+
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
