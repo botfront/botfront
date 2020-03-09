@@ -29,8 +29,21 @@ The chat widget observes the behavior of users and stores information it in the 
 
 - **Always:** the story will be triggered each time the condition set in this trigger are met.
 - **Only if no conversation has started:** the story will be triggered only if the conversation history is empty.
+- **Choose a limit:** The story will be triggered each time the condition set in this trigger is met, but only for the number of times set.
+
+## Maximum trigger
+
+![](../../images/proactive_conversations/triggers_maximum_triggers.png)
+
+Choose how many times you want the rules to be triggered, if you choose 3, it will trigger three times and then never trigger again until you change the trigger rule itself.
 
 <div data-bf="landing">
+
+## Minimum interval
+
+![](../../images/proactive_conversations/triggers_minimum_intervals.png)
+
+Choose the minimum ammount of time in minutes between two trigger events in the same story. In the above example, the interval is set to 24 hours, so the trigger will only be able to trigger once every day.
 
 ## Trigger a conversation based on landing parameters
 

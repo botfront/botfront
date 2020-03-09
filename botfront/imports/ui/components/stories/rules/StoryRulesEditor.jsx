@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Modal, Popup, Icon } from 'semantic-ui-react';
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import Alert from 'react-s-alert';
 
 import StoryRulesForm from './StoryRulesForm';
 
@@ -60,14 +61,20 @@ const StoryRulesEditor = (props) => {
     const handleOnSave = (model) => {
         setRules(model);
         Meteor.call('stories.updateRules', projectId, storyId, clearOptionalFields(model), (err) => {
-            if (err) return;
+            if (err) {
+                Alert.error(`Error: the rules could not be saved: ${err}`);
+                return;
+            }
             setOpen(false);
         });
     };
 
     const deleteTriggers = () => {
         Meteor.call('stories.deleteRules', projectId, storyId, (err) => {
-            if (err) return;
+            if (err) {
+                Alert.error(`Error: the rules could not be deleted: ${err}`);
+                return;
+            }
             setOpen(false);
         });
     };

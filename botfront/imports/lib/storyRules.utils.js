@@ -23,6 +23,8 @@ const triggerValidators = {
     timeOnPage: value => value || value === 0,
     eventListeners: v => !!v.some(checkEventListener),
     text: value => value && value.length > 0,
+    triggerLimit: v => v && v > 0,
+    timeLimit: v => v || v === 0,
 };
 
 export const eachTriggerValidators = {
@@ -31,6 +33,13 @@ export const eachTriggerValidators = {
     url: value => value && value.length > 0 && !!value.every(urlString => urlString && urlString.length > 0),
     queryString: v => v && v.length > 0 && !!v.every(checkQueryString),
     eventListeners: v => v && v.length > 0 && !!v.every(checkEventListener),
+    // ADD NEW VALIDATOR FUNCTIONS TO triggerValidators NOT HERE
+    /*
+        These functions just modify array validators to check that every element
+        is valid instead of checking that at least one element is valid
+
+        the original functions are in the trigger validators object
+    */
 };
 
 export const hasTrigger = trigger => (
