@@ -1,8 +1,11 @@
 import { Dropdown } from 'semantic-ui-react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import React from 'react';
 
 import { entityPropType } from '../../utils/EntityUtils';
+
+// eslint-disable-next-line no-control-regex
+const asciiChar = /^[\x21-\x7E]+$/;
 
 function EntityDropdown({
     entity, onAddItem, onChange, options, autofocus, allowAdditions,
@@ -11,6 +14,16 @@ function EntityDropdown({
         text: value,
         value,
     }));
+
+    const [searchInputState, setSearchInputState] = useState(entity && entity.entity);
+
+    const handleSearchChange = (_e, { searchQuery }) => {
+        // !searchQuery means emtpy string
+        if (asciiChar.test(searchQuery) || !searchQuery) {
+            setSearchInputState(searchQuery);
+        }
+    };
+
     return (
         <Dropdown
             searchInput={{ autoFocus: (!entity || !entity.entity) && autofocus }}
@@ -28,6 +41,8 @@ function EntityDropdown({
             additionLabel='Add entity: '
             onAddItem={onAddItem}
             onChange={onChange}
+            onSearchChange={handleSearchChange}
+            searchQuery={searchInputState}
             options={uniqueOptions}
             data-cy='entity-dropdown'
         />
