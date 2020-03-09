@@ -26,7 +26,7 @@ function StoryGroupItem(props) {
     const [storyName, setStoryName] = useState(item[nameAccessor]);
     const [deletable, setDeletable] = useState(false);
 
-    const { deleteStoryGroup } = useContext(ConversationOptionsContext);
+    const { deleteGroup } = useContext(ConversationOptionsContext);
 
     useEffect(() => {
         setStoryName(item[nameAccessor]);
@@ -36,7 +36,7 @@ function StoryGroupItem(props) {
     function checkDeletable() {
         let originStoriesInTheGroup = false;
         const storiesOfTheGroup = stories.filter(
-            story => story.storyGroupId === item._id,
+            story => story.parentId === item._id,
         );
         const storiesIdsOfTheGroup = storiesOfTheGroup.map(story => story._id);
         const storiesWithCheckpoints = stories.filter(
@@ -60,7 +60,7 @@ function StoryGroupItem(props) {
     }
 
     function submitNameChange() {
-        changeName({ ...item, name: storyName });
+        changeName({ ...item, [nameAccessor]: storyName });
         resetNameEdit();
     }
 
@@ -83,7 +83,7 @@ function StoryGroupItem(props) {
 
     function removeStoryGroup() {
         // Meteor.call('storyGroups.delete', item);
-        deleteStoryGroup(item);
+        deleteGroup(item);
         setDeletionModalVisible(false);
     }
 

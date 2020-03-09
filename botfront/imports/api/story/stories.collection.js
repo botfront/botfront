@@ -20,10 +20,10 @@ Stories.deny({
 });
 
 if (Meteor.isServer) {
-    Meteor.publish('stories.inGroup', function(projectId, groupId) {
-        check(groupId, String);
+    Meteor.publish('stories.selected', function(projectId, selectedIds) {
+        check(selectedIds, [String]);
         check(projectId, String);
-        return Stories.find({ projectId, parentId: groupId });
+        return Stories.find({ projectId, _id: { $in: selectedIds } });
     });
 
     Meteor.publish('stories.light', function(projectId) {

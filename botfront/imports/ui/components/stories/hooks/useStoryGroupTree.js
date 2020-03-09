@@ -1,53 +1,63 @@
-import { useReducer, useState, useEffect } from 'react';
+import {
+    useReducer, useState, useEffect, useContext,
+} from 'react';
 import uuidv4 from 'uuid/v4';
 import {
     getItem, getParent, mutateTree, moveItemOnTree,
 } from '@atlaskit/tree';
+import { ConversationOptionsContext } from '../Context';
 
 const getSourceNode = (tree, source) => tree.items[tree.items[source.parentId].children[source.index]];
 
 const getDestinationNode = (tree, destination) => tree.items[destination.parentId];
 
-const treeReducer = (tree, instruction) => {
+const convertId = ({ id, ...rest }) => ({ _id: id, ...rest });
+
+const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     const {
-        expand, collapse, move, remove, rename, toggleFocus, addGroup, addStory, activeStories, replace,
+        expand, collapse, move, remove, rename, toggleFocus, newStory, activeStories, replace,
     } = instruction;
+    const {
+        updateGroup = () => {},
+        deleteGroup = () => {},
+        updateStory = () => {},
+        addStory = () => {},
+        deleteStory = () => {},
+    } = externalMutators;
 
     if (replace) return replace;
-    if (expand) return mutateTree(tree, expand, { isExpanded: true });
-    if (collapse) return mutateTree(tree, collapse, { isExpanded: false });
+    if (expand) {
+        const { id } = tree.items[expand];
+        updateGroup(convertId({ id, isExpanded: true }));
+        return mutateTree(tree, expand, { isExpanded: true });
+    }
+    if (collapse) {
+        const { id } = tree.items[collapse];
+        updateGroup(convertId({ id, isExpanded: false }));
+        return mutateTree(tree, collapse, { isExpanded: false });
+    }
     if (remove) {
-        const { [remove]: { parentId, children }, ...items } = tree.items;
+        const {
+            [remove]: {
+                parentId, projectId, children = [], canBearChildren,
+            }, ...items
+        } = tree.items;
         children.forEach((key) => { delete items[key]; });
         items[parentId].children = items[parentId].children
             .filter(key => key !== remove);
+        (canBearChildren ? deleteGroup : deleteStory)(convertId({ id: remove, parentId, projectId }));
         return { ...tree, items };
     }
     if (rename) {
         const { items } = tree;
-        const [id, newName] = rename;
-        items[id].title = newName;
+        const [id, title] = rename;
+        items[id].title = title;
+        (items[id].canBearChildren ? updateGroup : updateStory)(convertId({ id, title }));
         return { ...tree, items };
     }
-    if (addGroup) {
+    if (newStory) {
         const { items } = tree;
-        const id = uuidv4();
-        items[tree.rootId].children = [id, ...items[tree.rootId].children];
-        items[id] = {
-            id,
-            children: [],
-            hasChildren: false,
-            isExpanded: true,
-            isChildrenLoading: false,
-            canBearChildren: true,
-            title: addGroup,
-            parentId: tree.rootId,
-        };
-        return { ...tree, items };
-    }
-    if (addStory) {
-        const { items } = tree;
-        const [parentId, storyName] = addStory;
+        const [parentId, title] = newStory;
         const id = uuidv4();
         items[parentId].children = [id, ...items[parentId].children];
         items[id] = {
@@ -57,13 +67,15 @@ const treeReducer = (tree, instruction) => {
             isExpanded: false,
             isChildrenLoading: false,
             canBearChildren: false,
-            title: storyName,
+            title,
             parentId,
         };
+        addStory(parentId, title);
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
-        const { selected } = tree.items[toggleFocus];
+        const { id, selected } = tree.items[toggleFocus];
+        updateGroup(convertId({ id, selected: !selected }));
         return mutateTree(tree, toggleFocus, { selected: !selected });
     }
     if (move) {
@@ -124,8 +136,9 @@ const treeReducer = (tree, instruction) => {
 
 export const useStoryGroupTree = (treeFromProps, activeStories) => {
     const [somethingIsDragging, setSomethingIsDragging] = useState(false);
+    const externalMutators = useContext(ConversationOptionsContext);
     
-    const [tree, setTree] = useReducer(treeReducer, treeFromProps);
+    const [tree, setTree] = useReducer(treeReducer(externalMutators), treeFromProps);
 
     useEffect(() => setTree({ replace: treeFromProps }), [treeFromProps]);
     const toggleExpansion = item => setTree({ [item.isExpanded ? 'collapse' : 'expand']: item.id });
@@ -133,15 +146,14 @@ export const useStoryGroupTree = (treeFromProps, activeStories) => {
     return {
         tree,
         somethingIsDragging,
-        onToggleFocus: toggleFocus => setTree({ toggleFocus }),
-        onToggleExpansion: toggleExpansion,
-        onExpand: expand => setTree({ expand }),
-        onCollapse: collapse => setTree({ collapse }),
-        onDragEnd: (...move) => { setSomethingIsDragging(false); setTree({ move, activeStories }); },
-        onDragStart: () => setSomethingIsDragging(true),
-        onRemoveItem: remove => setTree({ remove }),
-        onRenameItem: (...rename) => setTree({ rename }),
-        onAddGroup: addGroup => setTree({ addGroup }),
-        onAddStory: (...addStory) => setTree({ addStory }),
+        handleToggleFocus: toggleFocus => setTree({ toggleFocus }),
+        handleToggleExpansion: toggleExpansion,
+        handleExpand: expand => setTree({ expand }),
+        handleCollapse: collapse => setTree({ collapse }),
+        handleDragEnd: (...move) => { setSomethingIsDragging(false); setTree({ move, activeStories }); },
+        handleDragStart: () => setSomethingIsDragging(true),
+        handleRemoveItem: remove => setTree({ remove }),
+        handleRenameItem: (...rename) => setTree({ rename }),
+        handleAddStory: (...newStory) => setTree({ newStory }),
     };
 };

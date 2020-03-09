@@ -1,15 +1,15 @@
 import {
-    Menu, Icon, Input, Button, Popup,
+    Icon, Input, Button, Popup,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
+import { setStoryMode } from '../../store/actions/actions';
 import { Slots } from '../../../api/slots/slots.collection';
-import StoryGroupItem from './StoryGroupItem';
 import { ConversationOptionsContext } from './Context';
 
-class StoryGroupBrowser extends React.Component {
+class StoryGroupNavigation extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -22,10 +22,6 @@ class StoryGroupBrowser extends React.Component {
 
     handleChangeNewItemName = (_, data) => {
         this.setState({ newItemName: data.value });
-    };
-
-    handleChangeOldName = (_, data) => {
-        this.setState({ itemName: data.value });
     };
 
     handleKeyDownInput = (event, element) => {
@@ -55,19 +51,12 @@ class StoryGroupBrowser extends React.Component {
             return;
         }
         if (editing !== -1 && !!itemName) {
-            changeName({ ...element, name: itemName });
+            changeName({ ...element, title: itemName });
             this.setState({ editing: -1 });
             return;
         }
         this.resetRenameItem();
         this.resetAddItem();
-    };
-
-    handleClickMenuItem = (index) => {
-        const { index: indexProp, onChange } = this.props;
-        if (index !== indexProp) {
-            onChange(index);
-        }
     };
 
     resetAddItem = () => {
@@ -78,48 +67,9 @@ class StoryGroupBrowser extends React.Component {
         this.setState({ editing: -1 });
     };
 
-    handleToggle = (event, element) => {
-        event.stopPropagation();
-        const { toggleSelect } = this.props;
-        toggleSelect(element);
-    };
-
     tooltipWrapper = (trigger, tooltip) => (
         <Popup size='mini' inverted content={tooltip} trigger={trigger} />
     );
-
-    getItems = (slice, options = {}) => {
-        const {
-            data,
-            index: indexProp,
-            nameAccessor,
-            selectAccessor,
-            allowEdit,
-            saving,
-            changeName,
-            stories,
-        } = this.props;
-        const {
-            isIntroStory,
-        } = options;
-        return data.slice(...slice)
-            .map((item, index) => (
-                <StoryGroupItem
-                    key={index + slice[0]}
-                    index={index + slice[0]}
-                    item={item}
-                    indexProp={indexProp}
-                    nameAccessor={nameAccessor}
-                    handleClickMenuItem={() => this.handleClickMenuItem(index + slice[0])}
-                    selectAccessor={selectAccessor}
-                    allowEdit={allowEdit && !isIntroStory}
-                    handleToggle={e => this.handleToggle(e, item)}
-                    saving={saving}
-                    changeName={changeName}
-                    stories={stories}
-                />
-            ));
-    };
 
     renderNavigation = () => {
         const { modals, storyMode, onSwitchStoryMode } = this.props;
@@ -174,82 +124,59 @@ class StoryGroupBrowser extends React.Component {
 
     render() {
         const {
-            data,
             allowAddition,
             placeholderAddItem,
         } = this.props;
         const { addMode, newItemName } = this.state;
 
         return (
-            <div className='storygroup-browser'>
-                {allowAddition
-                    && (!addMode
-                        ? this.renderNavigation()
-                        : (
-                            <Input
-                                placeholder={placeholderAddItem}
-                                onChange={this.handleChangeNewItemName}
-                                value={newItemName}
-                                onKeyDown={this.handleKeyDownInput}
-                                autoFocus
-                                onBlur={() => this.submitTitleInput()}
-                                fluid
-                                data-cy='add-item-input'
-                            />
-                        ))}
-                {data.length && (
-                    <Menu vertical fluid>
-                        {this.getItems([0, 1], { isIntroStory: true })}
-                    </Menu>
-                )}
-                {data.length > 1 && (
-                    <Menu vertical fluid>
-                        {this.getItems([1])}
-                    </Menu>
-                )}
+            <div className='storygroup-navigation'>
+                {allowAddition && !addMode
+                    ? this.renderNavigation()
+                    : (
+                        <Input
+                            placeholder={placeholderAddItem}
+                            onChange={this.handleChangeNewItemName}
+                            value={newItemName}
+                            onKeyDown={this.handleKeyDownInput}
+                            autoFocus
+                            onBlur={() => this.submitTitleInput()}
+                            fluid
+                            data-cy='add-item-input'
+                        />
+                    )}
             </div>
         );
     }
 }
 
-StoryGroupBrowser.propTypes = {
-    data: PropTypes.array.isRequired,
-    onChange: PropTypes.func,
-    index: PropTypes.number,
+StoryGroupNavigation.propTypes = {
     allowAddition: PropTypes.bool,
     onAdd: PropTypes.func,
-    nameAccessor: PropTypes.string,
-    saving: PropTypes.bool,
-    selectAccessor: PropTypes.string,
-    toggleSelect: PropTypes.func,
     changeName: PropTypes.func,
-    allowEdit: PropTypes.bool,
     placeholderAddItem: PropTypes.string,
-    stories: PropTypes.array.isRequired,
     modals: PropTypes.object.isRequired,
     onSwitchStoryMode: PropTypes.func.isRequired,
     storyMode: PropTypes.string.isRequired,
 };
 
-StoryGroupBrowser.defaultProps = {
-    onChange: () => {},
-    index: 0,
+StoryGroupNavigation.defaultProps = {
     allowAddition: false,
     onAdd: () => {},
-    toggleSelect: () => {},
     changeName: () => {},
-    nameAccessor: 'title',
-    saving: false,
-    selectAccessor: 'selected',
-    allowEdit: false,
     placeholderAddItem: '',
 };
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    storyMode: state.stories.get('storyMode'),
 });
 
-const BrowserWithState = connect(mapStateToProps)(StoryGroupBrowser);
+const mapDispatchToProps = {
+    onSwitchStoryMode: setStoryMode,
+};
+
+const BrowserWithState = connect(mapStateToProps, mapDispatchToProps)(StoryGroupNavigation);
 
 export default withTracker(props => ({
     ...props,
