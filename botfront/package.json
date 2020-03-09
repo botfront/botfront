@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "0.19.3-ee.5",
+  "version": "0.20.2",
   "repository": "https://github.com/botfront/botfront",
   "license": "AGPL-3.0-only",
   "scripts": {

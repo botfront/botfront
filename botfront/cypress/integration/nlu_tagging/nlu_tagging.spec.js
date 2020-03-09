@@ -2,7 +2,7 @@
 
 const utterance = 'whatever this is a testing utterance';
 const intentName = 'KPI';
-const secondEntity = 'ENT2';
+const secondEntity = 'name';
 const newEntity = 'myNewEntity';
 
 describe('nlu tagging in training data', function() {
@@ -59,7 +59,7 @@ describe('nlu tagging in training data', function() {
         cy.get('[data-cy=entity-dropdown]').click();
         cy.get('[data-cy=entity-dropdown]')
             .contains(secondEntity)
-            .click();
+            .click({ force: true });
 
         cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
 

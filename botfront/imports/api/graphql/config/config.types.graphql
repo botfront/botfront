@@ -4,10 +4,13 @@ type Query {
         output: String,
         environment: String,
     ): Config
+
+    healthCheck: Boolean!
 }
+
+
 
 type Config {
     credentials: Any,
     endpoints: Any,
 }
-

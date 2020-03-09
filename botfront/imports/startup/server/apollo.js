@@ -3,6 +3,7 @@ import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import { WebApp } from 'meteor/webapp';
 import { getUser } from 'meteor/apollo';
 import { Accounts } from 'meteor/accounts-base';
+import axios from 'axios';
 import { typeDefs, resolvers, schemaDirectives } from '../../api/graphql/index';
 
 const MONGO_URL = process.env.MONGO_URL || `mongodb://localhost:${(process.env.METEOR_PORT || 3000) + 1}/meteor`;
@@ -47,6 +48,24 @@ export const runAppolloServer = () => {
         if (req.method === 'GET') {
             res.end();
         }
+    });
+
+    WebApp.connectHandlers.use('/health', (req, res) => {
+        axios.get('http://localhost:3000/graphql?query=query%20%7BhealthCheck%7D').then((response) => {
+            // handle success
+            if (response.data) {
+                if (response.data && response.data.data && response.data.data.healthCheck) {
+                    res.statusCode = 200;
+                    res.end();
+                }
+            } else {
+                res.statusCode = 503;
+                res.end();
+            }
+        }).catch(function (error) {
+            res.statusCode = 500;
+            res.end();
+        });
     });
 };
 

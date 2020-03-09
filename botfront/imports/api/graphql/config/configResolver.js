@@ -1,4 +1,5 @@
 import yaml from 'js-yaml';
+import mongoose from 'mongoose';
 import { Credentials, Endpoints } from './config.models.js';
 import { getWebchatProps } from './webchatProps';
 
@@ -36,5 +37,6 @@ export default {
 
             return { endpoints, credentials };
         },
+        healthCheck: async () => (mongoose.connection.readyState === 1),
     },
 };
