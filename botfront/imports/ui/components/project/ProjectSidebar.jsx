@@ -5,7 +5,6 @@ import DocumentTitle from 'react-document-title';
 import { Menu, Divider } from 'semantic-ui-react';
 import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Can } from '../../../lib/scopes';
 import { Projects } from '../../../api/project/project.collection';
 import ProjectsDropdown from './ProjectsDropdown';
 import { can, Can } from '../../../lib/scopes';
