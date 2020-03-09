@@ -229,8 +229,12 @@ const ConversationsBrowserContainer = (props) => {
         confidenceFilter: { compare: -1, xThan: 'lessThan' },
         actionFilters: [],
         intentFilters: [],
-        startDate: moment().subtract(7, 'd'),
-        endDate: moment(),
+        startDate: moment().subtract(7, 'd').set({
+            hour: 0, minute: 0, second: 0,
+        }),
+        endDate: moment().set({
+            hour: 23, minute: 59, second: 59,
+        }),
         operatorActionsFilters: 'or',
         operatorIntentsFilters: 'or',
         userId: null,
@@ -242,6 +246,7 @@ const ConversationsBrowserContainer = (props) => {
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
 
     function changeFilters(vals = defaults) {
+        console.log('hey');
         setActiveFilters({
             ...vals,
             startDate: vals.startDate
