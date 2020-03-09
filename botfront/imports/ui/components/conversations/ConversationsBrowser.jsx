@@ -246,7 +246,6 @@ const ConversationsBrowserContainer = (props) => {
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
 
     function changeFilters(vals = defaults) {
-        console.log('hey');
         setActiveFilters({
             ...vals,
             startDate: vals.startDate
