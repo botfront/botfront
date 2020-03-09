@@ -5,10 +5,12 @@ import DocumentTitle from 'react-document-title';
 import { Menu, Divider } from 'semantic-ui-react';
 import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
-
+import { Can } from '../../../lib/scopes';
 import { Projects } from '../../../api/project/project.collection';
 import ProjectsDropdown from './ProjectsDropdown';
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
+
+const packageJson = require('/package.json');
 
 class ProjectSidebar extends React.Component {
     render() {
@@ -48,7 +50,9 @@ class ProjectSidebar extends React.Component {
                     <Link to='/login'>
                         <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
                     </Link>
-                    <Divider inverted />
+                    <Can I='global-settings:r' projectId={{ anyScope: true }}>
+                        <Menu.Item className='force-bottom'> {packageJson.version} </Menu.Item>
+                    </Can>
                 </Menu>
             </DocumentTitle>
         );
