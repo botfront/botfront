@@ -1,4 +1,4 @@
-import { Modal } from 'semantic-ui-react';
+import { Modal, Container } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
     useState, useContext, useMemo,
@@ -124,11 +124,11 @@ function Stories(props) {
                     maxSize={400}
                     primary='first'
                     allowResize
-                    className={resizing ? '' : 'width-transition'}
+                    className={`no-margin ${resizing ? '' : 'width-transition'}`}
                     onDragStarted={() => setResizing(true)}
                     onDragFinished={() => setResizing(false)}
                 >
-                    <div>
+                    <div className='storygroup-browser'>
                         <StoryGroupNavigation
                             allowAddition
                             onAdd={handleAddStoryGroup}
@@ -144,10 +144,12 @@ function Stories(props) {
                             isStoryDeletable={isStoryDeletable}
                         />
                     </div>
-                    <StoryEditors
-                        projectId={projectId}
-                        selectedIds={activeStories.map(({ id }) => id)}
-                    />
+                    <Container style={{ marginTop: '1rem' }}>
+                        <StoryEditors
+                            projectId={projectId}
+                            selectedIds={activeStories.map(({ id }) => id)}
+                        />
+                    </Container>
                 </SplitPane>
             </ConversationOptionsContext.Provider>
         </Loading>

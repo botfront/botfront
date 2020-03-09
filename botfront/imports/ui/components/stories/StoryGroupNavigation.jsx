@@ -89,7 +89,6 @@ class StoryGroupNavigation extends React.Component {
                     )}
                     {this.tooltipWrapper(
                         <Button
-                            className='border-left'
                             content='Slots'
                             onClick={() => modals.setSlotsModal(true)}
                             data-cy='slots-modal'
@@ -98,26 +97,23 @@ class StoryGroupNavigation extends React.Component {
                     )}
                     {this.tooltipWrapper(
                         <Button
-                            className='border-left'
                             content='Policies'
                             onClick={() => modals.setPoliciesModal(true)}
                             data-cy='policies-modal'
                         />,
                         'Edit Policies',
                     )}
+                    {this.tooltipWrapper(
+                        <Button
+                            data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
+                            icon
+                            onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'markdown' : 'visual')}
+                        >
+                            <Icon name={storyMode === 'visual' ? 'code' : 'commenting'} />
+                        </Button>,
+                        storyMode === 'visual' ? 'Switch to Markdown edit mode' : 'Switch to visual edit mode',
+                    )}
                 </Button.Group>
-                {this.tooltipWrapper(
-                    <Button
-                        data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
-                        icon
-                        style={{ width: '36px' }}
-                        floated='right'
-                        onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'markdown' : 'visual')}
-                    >
-                        <Icon name={storyMode === 'visual' ? 'code' : 'commenting'} />
-                    </Button>,
-                    storyMode === 'visual' ? 'Switch to Markdown edit mode' : 'Switch to visual edit mode',
-                )}
             </div>
         );
     };
@@ -129,24 +125,20 @@ class StoryGroupNavigation extends React.Component {
         } = this.props;
         const { addMode, newItemName } = this.state;
 
-        return (
-            <div className='storygroup-navigation'>
-                {allowAddition && !addMode
-                    ? this.renderNavigation()
-                    : (
-                        <Input
-                            placeholder={placeholderAddItem}
-                            onChange={this.handleChangeNewItemName}
-                            value={newItemName}
-                            onKeyDown={this.handleKeyDownInput}
-                            autoFocus
-                            onBlur={() => this.submitTitleInput()}
-                            fluid
-                            data-cy='add-item-input'
-                        />
-                    )}
-            </div>
-        );
+        return allowAddition && !addMode
+            ? this.renderNavigation()
+            : (
+                <Input
+                    placeholder={placeholderAddItem}
+                    onChange={this.handleChangeNewItemName}
+                    value={newItemName}
+                    onKeyDown={this.handleKeyDownInput}
+                    autoFocus
+                    onBlur={() => this.submitTitleInput()}
+                    fluid
+                    data-cy='add-item-input'
+                />
+            );
     }
 }
 

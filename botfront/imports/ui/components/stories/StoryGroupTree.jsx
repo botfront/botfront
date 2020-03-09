@@ -213,7 +213,7 @@ export default function StoryGroupTree(props) {
     const [deletionIsPossible, deletionModalMessage] = useMemo(() => isStoryDeletable(deletionModalVisible, stories, tree), [!!deletionModalVisible]);
 
     return (
-        <div className='storygroup-browser' ref={menuRef}>
+        <div id='storygroup-tree' ref={menuRef}>
             <Confirm
                 open={!!deletionModalVisible}
                 className='warning'
@@ -249,7 +249,7 @@ export default function StoryGroupTree(props) {
             </Popup> */}
             <Menu pointing secondary vertical className={somethingIsDragging ? 'dragging' : ''}>
                 <EmbeddedTree
-                    className='storygroup-browser'
+                    id='storygroup-tree'
                     tree={tree}
                     renderItem={renderItem}
                     onExpand={handleExpand}
