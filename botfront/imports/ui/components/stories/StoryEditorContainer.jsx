@@ -42,17 +42,11 @@ function getDefaultPath(story) {
 const StoryEditorContainer = ({
     story,
     disabled,
-    onDelete,
-    onClone,
-    onMove,
-    groupNames,
-    onRename: onRenameStory,
     storyMode,
     branchPath,
     changeStoryPath,
     collapsed,
     projectId,
-    collapseAllStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
@@ -62,7 +56,7 @@ const StoryEditorContainer = ({
     // so we have to use this workaround
     const [editors, setEditors] = useState({});
     const [exceptions, setExceptions] = useState({});
-    const [destinationStory, setDestinationStory] = useState({});
+    const [destinationStory, setDestinationStory] = useState(null);
     const [destinationStories, setDestinationStories] = useState([]);
     const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
     const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
@@ -185,19 +179,12 @@ const StoryEditorContainer = ({
         <StoryTopMenu
             title={story.title}
             storyId={story._id}
-            onDelete={onDelete}
-            onMove={onMove}
             disabled={disabled}
-            onRename={onRenameStory}
-            onClone={onClone}
-            groupNames={groupNames}
             errors={GetExceptionsLengthByType('errors')}
             warnings={GetExceptionsLengthByType('warnings')}
             isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
-            isLinked={destinationStories.length > 0}
             originStories={story.checkpoints}
             initPayload={getInitIntent()}
-            collapseAllStories={collapseAllStories}
         />
     );
 
@@ -477,17 +464,11 @@ const StoryEditorContainer = ({
 StoryEditorContainer.propTypes = {
     story: PropTypes.object,
     disabled: PropTypes.bool,
-    onDelete: PropTypes.func.isRequired,
-    onClone: PropTypes.func.isRequired,
-    onMove: PropTypes.func.isRequired,
-    groupNames: PropTypes.array.isRequired,
-    onRename: PropTypes.func.isRequired,
     storyMode: PropTypes.string,
     branchPath: PropTypes.array,
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
-    collapseAllStories: PropTypes.func.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {

@@ -18,7 +18,7 @@ export const createIntroStoryGroup = (projectId) => {
                 Meteor.call('stories.insert', {
                     story: '* get_started\n    - utter_get_started',
                     title: 'Get started',
-                    storyGroupId: groupId,
+                    parentId: groupId,
                     projectId,
                     events: ['utter_get_started'],
                 });
@@ -43,14 +43,14 @@ export const createDefaultStoryGroup = (projectId) => {
                 Meteor.call('stories.insert', {
                     story: '* chitchat.greet\n    - utter_hi',
                     title: 'Greetings',
-                    storyGroupId: groupId,
+                    parentId: groupId,
                     projectId,
                     events: ['utter_hi'],
                 });
                 Meteor.call('stories.insert', {
                     story: '* chitchat.bye\n    - utter_bye',
                     title: 'Farewells',
-                    storyGroupId: groupId,
+                    parentId: groupId,
                     projectId,
                     events: ['utter_bye'],
                 });
@@ -72,19 +72,29 @@ function handleError(e) {
 Meteor.methods({
     async 'storyGroups.delete'(storyGroup) {
         check(storyGroup, Object);
-        let eventstoRemove = [];
-        Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
+        const eventstoRemove = Stories.find({ parentId: storyGroup._id }, { fields: { events: true } })
             .fetch()
-            .forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-        const result = await StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id });
+            .reduce((acc, { events = [] }) => [...acc, ...events], []);
+        StoryGroups.update(
+            { _id: storyGroup.projectId },
+            { $pull: { children: storyGroup._id } },
+        );
+        StoryGroups.remove(storyGroup);
+        const result = Stories.remove({ parentId: storyGroup._id });
         deleteResponsesRemovedFromStories(eventstoRemove, storyGroup.projectId);
         return result;
     },
 
     'storyGroups.insert'(storyGroup) {
         check(storyGroup, Object);
+        const { projectId } = storyGroup;
         try {
-            return StoryGroups.insert(storyGroup);
+            const id = StoryGroups.insert({ ...storyGroup, parentId: projectId });
+            StoryGroups.update(
+                { _id: projectId },
+                { $push: { children: id } },
+            );
+            return id;
         } catch (e) {
             return handleError(e);
         }
@@ -93,9 +103,9 @@ Meteor.methods({
     'storyGroups.update'(storyGroup) {
         check(storyGroup, Object);
         try {
+            const { _id, ...rest } = storyGroup;
             return StoryGroups.update(
-                { _id: storyGroup._id },
-                { $set: storyGroup },
+                { _id }, { $set: rest },
             );
         } catch (e) {
             return handleError(e);

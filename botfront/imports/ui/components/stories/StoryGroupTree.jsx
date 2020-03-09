@@ -30,16 +30,15 @@ export default function StoryGroupTree(props) {
     const {
         tree,
         somethingIsDragging,
-        onToggleFocus,
-        onToggleExpansion,
-        onExpand,
-        onCollapse,
-        onDragEnd,
-        onDragStart,
-        onRemoveItem,
-        onRenameItem,
-        onAddGroup,
-        onAddStory,
+        handleToggleFocus,
+        handleToggleExpansion,
+        handleExpand,
+        handleCollapse,
+        handleDragEnd,
+        handleDragStart,
+        handleRemoveItem,
+        handleRenameItem,
+        handleAddStory,
     } = useStoryGroupTree(treeFromProps, activeStories);
     const renamerRef = useRef();
     const menuRef = useRef();
@@ -66,7 +65,7 @@ export default function StoryGroupTree(props) {
             ? (
                 <Icon
                     name={`caret ${item.isExpanded ? 'down' : 'right'}`}
-                    onClick={() => onToggleExpansion(item)}
+                    onClick={() => handleToggleExpansion(item)}
                     className='cursor pointer'
                 />
             )
@@ -74,7 +73,7 @@ export default function StoryGroupTree(props) {
     );
 
     const submitNameChange = () => {
-        if (newTitle.trim()) onRenameItem(renamingModalPosition.id, newTitle.trim());
+        if (newTitle.trim()) handleRenameItem(renamingModalPosition.id, newTitle.trim());
         setRenamingModalPosition(null);
     };
 
@@ -156,7 +155,7 @@ export default function StoryGroupTree(props) {
                             className={`drag-handle ${isDragging ? 'dragging' : ''}`}
                             {...provided.dragHandleProps}
                             {...(item.isExpanded
-                                ? { onMouseDown: (...args) => { onCollapse(item.id); provided.dragHandleProps.onMouseDown(...args); } }
+                                ? { onMouseDown: (...args) => { handleCollapse(item.id); provided.dragHandleProps.onMouseDown(...args); } }
                                 : {}
                             )}
                         />
@@ -190,12 +189,12 @@ export default function StoryGroupTree(props) {
                                     <Icon
                                         className={`cursor pointer ${isFocused ? 'focused' : ''}`}
                                         name='eye'
-                                        onClick={(e) => { e.stopPropagation(); onToggleFocus(item.id); }}
+                                        onClick={(e) => { e.stopPropagation(); handleToggleFocus(item.id); }}
                                     />
                                     <Icon
                                         className='cursor pointer'
                                         name='plus'
-                                        onClick={() => onAddStory(item.id, `${item.title}-s${item.children.length}`)}
+                                        onClick={() => handleAddStory(item.id, `${item.title}-s${item.children.length}`)}
                                     />
                                 </>
                             )}
@@ -226,7 +225,7 @@ export default function StoryGroupTree(props) {
                         } will be deleted. This action cannot be undone.`
                 }
                 onCancel={() => setDeletionModalVisible(false)}
-                onConfirm={() => { onRemoveItem(deletionModalVisible.id); setDeletionModalVisible(false); }}
+                onConfirm={() => { handleRemoveItem(deletionModalVisible.id); setDeletionModalVisible(false); }}
             />
             {/* <Popup
                 open={typeof newTitle === 'string'}
@@ -247,12 +246,13 @@ export default function StoryGroupTree(props) {
             </Popup> */}
             <Menu pointing secondary vertical className={somethingIsDragging ? 'dragging' : ''}>
                 <EmbeddedTree
+                    className='storygroup-browser'
                     tree={tree}
                     renderItem={renderItem}
-                    onExpand={onExpand}
-                    onCollapse={onCollapse}
-                    onDragEnd={onDragEnd}
-                    onDragStart={onDragStart}
+                    onExpand={handleExpand}
+                    onCollapse={handleCollapse}
+                    onDragEnd={handleDragEnd}
+                    onDragStart={handleDragStart}
                     offsetPerLevel={0}
                     isDragEnabled
                     isNestingEnabled
@@ -263,7 +263,6 @@ export default function StoryGroupTree(props) {
 }
 
 StoryGroupTree.propTypes = {
-    tree: PropTypes.object.isRequired,
     storyGroups: PropTypes.array.isRequired,
     stories: PropTypes.array.isRequired,
     onChangeActiveStories: PropTypes.func.isRequired,

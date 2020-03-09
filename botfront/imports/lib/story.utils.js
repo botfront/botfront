@@ -323,7 +323,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
     appMethodLogger.debug('Fetching and formatting stories');
     selectedStoryGroups.forEach(({ _id, name }) => {
         const stories = Stories.find(
-            { projectId, storyGroupId: _id },
+            { projectId, parentId: _id },
             {
                 fields: {
                     story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,

@@ -5,8 +5,9 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd-next';
 export default class EmbeddedTree extends Tree {
     // https://github.com/atlassian/react-beautiful-dnd/issues/1237#issuecomment-527778465
     handleOnDragStart = () => {
+        const { className } = this.props;
         // https://github.com/atlassian/react-beautiful-dnd/issues/131#issuecomment-589536751
-        const modal = document.getElementsByClassName('storygroup-browser')[0];
+        const modal = document.getElementsByClassName(className)[0];
         if (!modal) return;
         const draggables = [...modal.querySelectorAll('[data-react-beautiful-dnd-draggable]')];
         const draggedItem = draggables.find(elem => elem.style.position === 'fixed');
