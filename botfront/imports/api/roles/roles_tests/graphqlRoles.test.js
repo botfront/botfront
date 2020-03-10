@@ -240,6 +240,13 @@ if (Meteor.isServer) {
             acceptedRoles: writers.roles,
             acceptWrongProjectScope: true,
         },
+        {
+            name: 'delete roles data',
+            query: rolesDataResolver.Mutation.deleteRolesData,
+            args: {},
+            acceptedRoles: writers.roles,
+            acceptWrongProjectScope: true,
+        },
     ];
 
     if (Meteor.isServer) {
@@ -291,6 +298,7 @@ if (Meteor.isServer) {
                 const result = testfunc({}, args, { user: { _id: 'testuserid' } });
                 return result;
             } catch (e) {
+                // eslint-disable-next-line no-console
                 if (!e || e.error !== '403') console.log(e);
                 return e;
             }

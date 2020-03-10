@@ -62,7 +62,8 @@ export default {
             // eslint-disable-next-line consistent-return
             return upsertRolesData(updatedRoleData);
         },
-        deleteRolesData: async (_parent, args) => {
+        deleteRolesData: async (_parent, args, context) => {
+            checkIfCan('roles:w', { anyScope: true }, context.user._id);
             const oldRole = args.name;
             const fallbackRole = args.fallback;
             const oldRoleAssignements = await Meteor.roleAssignment.find({ 'role._id': oldRole }).fetch();
