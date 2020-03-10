@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Icon, Menu, Input, Confirm, Popup,
+    Icon, Menu, Input, Confirm, Portal,
 } from 'semantic-ui-react';
 import EmbeddedTree from '../common/EmbeddedTree';
 import { useStoryGroupTree } from './hooks/useStoryGroupTree';
@@ -298,23 +298,14 @@ export default function StoryGroupTree(props) {
                     : {})}
                 {...(deletionIsPossible ? {} : { confirmButton: null })}
             />
-            {/* <Popup
-                open={typeof newTitle === 'string'}
-                tabIndex={0}
-                wide
-                on='click'
-                context={renamerRef.current}
-                onClose={() => setRenamingModalPosition(null)}
-            >
-                <Input
-                    onChange={(_, { value }) => setNewTitle(value)}
-                    value={newTitle}
-                    onKeyDown={handleKeyDownInput}
-                    autoFocus
-                    onBlur={submitNameChange}
-                    data-cy='edit-name'
-                />
-            </Popup> */}
+            {somethingIsDragging && activeStories.length > 1 && (
+                <Portal
+                    open
+                    mountNode={document.getElementsByClassName('drag-handle dragging')[0]}
+                >
+                    <div className='count-tooltip'>{activeStories.length}</div>
+                </Portal>
+            )}
             <Menu
                 pointing
                 secondary

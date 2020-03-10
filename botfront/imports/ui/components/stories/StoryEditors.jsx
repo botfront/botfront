@@ -33,7 +33,7 @@ function StoryEditors(props) {
                     else setLastUpdate(lastDate);
                 });
         } else setLastUpdate(lastDate);
-    }, 250), [stories, workingLanguage]);
+    }, 250), [stories.length, workingLanguage]);
 
     const editors = stories.map(story => (
         <StoryEditorContainer
