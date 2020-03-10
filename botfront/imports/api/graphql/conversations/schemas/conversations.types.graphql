@@ -32,7 +32,7 @@ type Query {
         operatorActionsFilters: String,
         """ SString (default ‘or’, possible other value ‘and') type of filtering for intent filters """
         operatorIntentsFilters: String,
-        """ filter conversation containing the listed intents  goes with operatorIntentsFilters """
+        """ filter conversation containing the listed intents goes with operatorIntentsFilters """
         intentFilters: [String]
     ): Pagination
     conversation(projectId: String!, id: String!): ConversationContainer!
