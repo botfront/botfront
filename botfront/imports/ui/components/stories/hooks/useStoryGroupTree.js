@@ -2,9 +2,7 @@ import {
     useReducer, useState, useEffect, useContext,
 } from 'react';
 import uuidv4 from 'uuid/v4';
-import {
-    getItem, getParent, mutateTree, moveItemOnTree,
-} from '@atlaskit/tree';
+import { mutateTree, moveItemOnTree } from '@atlaskit/tree';
 import { ConversationOptionsContext } from '../Context';
 
 const getSourceNode = (tree, source) => tree.items[tree.items[source.parentId].children[source.index]];
@@ -15,7 +13,15 @@ const convertId = ({ id, ...rest }) => ({ _id: id, ...rest });
 
 const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     const {
-        expand, collapse, move, remove, rename, toggleFocus, newStory, activeStories, replace,
+        expand,
+        collapse,
+        move,
+        remove,
+        rename,
+        toggleFocus,
+        newStory,
+        activeStories,
+        replace,
     } = instruction;
     const {
         updateGroup = () => {},
@@ -40,12 +46,18 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         const {
             [remove]: {
                 parentId, projectId, children = [], canBearChildren,
-            }, ...items
+            },
+            ...items
         } = tree.items;
-        children.forEach((key) => { delete items[key]; });
-        items[parentId].children = items[parentId].children
-            .filter(key => key !== remove);
-        (canBearChildren ? deleteGroup : deleteStory)(convertId({ id: remove, parentId, projectId }));
+        children.forEach((key) => {
+            delete items[key];
+        });
+        items[parentId].children = items[parentId].children.filter(
+            key => key !== remove,
+        );
+        (canBearChildren ? deleteGroup : deleteStory)(
+            convertId({ id: remove, parentId, projectId }),
+        );
         return { ...tree, items };
     }
     if (rename) {
@@ -84,12 +96,10 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         if (!destination) return tree; // no destination found
 
         const sourceNode = getSourceNode(tree, source);
-        
-        const sourceNodes = (
-            sourceNode.canBearChildren
-            || !(activeStories && activeStories.length)
-        ) // move all activeNodes if source is a leaf
-            ? [getSourceNode(tree, source)] : activeStories;
+
+        const sourceNodes = sourceNode.canBearChildren || !(activeStories && activeStories.length)
+            ? [getSourceNode(tree, source)]
+            : activeStories; // move all activeNodes if source is a leaf
 
         // safety check; does selection span across
         let destinationNode = getDestinationNode(tree, destination);
@@ -101,7 +111,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         while (!acceptanceCriterion(destinationNode)) {
             const parentParentId = destinationNode.parentId;
             const parentParentNode = tree.items[parentParentId];
-            const index = parentParentNode.children.findIndex(identityCheck(destinationNode));
+            const index = parentParentNode.children.findIndex(
+                identityCheck(destinationNode),
+            );
             destination = { index, parentId: parentParentId };
             destinationNode = getDestinationNode(tree, destination);
         }
@@ -109,19 +121,36 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         if (destinationNode.id === tree.rootId && !sourceNodes[0].canBearChildren) {
             // leaf moved to root
             if (!destination.index || destination.index < 1) return tree;
-            const { id: parentId } = tree.items[tree.items[tree.rootId].children[destination.index - 1]];
+            const { id: parentId } = tree.items[
+                tree.items[tree.rootId].children[destination.index - 1]
+            ];
             destination = { parentId };
         }
 
         // was node dragged from 0th selected item or from somewhere else?
-        const indexOfFirstActiveNode = tree.items[source.parentId].children.findIndex(id => id === sourceNodes[0].id);
+        const indexOfFirstActiveNode = tree.items[source.parentId].children.findIndex(
+            id => id === sourceNodes[0].id,
+        );
         const offset = source.index - indexOfFirstActiveNode; // assumes first active node is lowest indexed
+
+        if ( // dropped within selection
+            destination.parentId === sourceNode.parentId
+            && destination.index
+            && destination.index >= indexOfFirstActiveNode
+            && destination.index <= indexOfFirstActiveNode + sourceNodes.length - 1
+        ) return tree;
 
         let movedTree = tree;
         sourceNodes.forEach((n, i) => {
             const polarizedOffset = i <= source.index + 1 ? -offset : 0;
-            const adjustedSource = { ...source, ...(source.index ? { index: source.index + polarizedOffset } : {}) };
-            const adjustedDestination = { ...destination, ...(destination.index ? { index: destination.index + i } : {}) };
+            const adjustedSource = {
+                ...source,
+                ...(source.index ? { index: source.index + polarizedOffset } : {}),
+            };
+            const adjustedDestination = {
+                ...destination,
+                ...(destination.index ? { index: destination.index + i } : {}),
+            };
             movedTree = mutateTree(
                 moveItemOnTree(movedTree, adjustedSource, adjustedDestination),
                 n.id,
@@ -129,7 +158,29 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             );
         });
 
-        return mutateTree(movedTree, destination.parentId, { isExpanded: true }); // make sure destination is open
+        const newDestination = movedTree.items[destination.parentId];
+        const newSource = movedTree.items[sourceNode.parentId];
+        if (newDestination.id !== newSource.id) { // mother changed
+            updateGroup(
+                convertId({
+                    id: newSource.id,
+                    children: newSource.children,
+                    hasChildren: newSource.hasChildren,
+                }),
+            );
+            updateStory(
+                sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id })),
+            );
+        }
+        updateGroup(
+            convertId({
+                id: newDestination.id,
+                children: newDestination.children,
+                hasChildren: newDestination.hasChildren,
+                isExpanded: true,
+            }),
+        );
+        return mutateTree(movedTree, newDestination.id, { isExpanded: true }); // make sure destination is open
     }
     return tree;
 };
@@ -137,7 +188,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
 export const useStoryGroupTree = (treeFromProps, activeStories) => {
     const [somethingIsDragging, setSomethingIsDragging] = useState(false);
     const externalMutators = useContext(ConversationOptionsContext);
-    
+
     const [tree, setTree] = useReducer(treeReducer(externalMutators), treeFromProps);
 
     useEffect(() => setTree({ replace: treeFromProps }), [treeFromProps]);
@@ -150,7 +201,10 @@ export const useStoryGroupTree = (treeFromProps, activeStories) => {
         handleToggleExpansion: toggleExpansion,
         handleExpand: expand => setTree({ expand }),
         handleCollapse: collapse => setTree({ collapse }),
-        handleDragEnd: (...move) => { setSomethingIsDragging(false); setTree({ move, activeStories }); },
+        handleDragEnd: (...move) => {
+            setSomethingIsDragging(false);
+            setTree({ move, activeStories });
+        },
         handleDragStart: () => setSomethingIsDragging(true),
         handleRemoveItem: remove => setTree({ remove }),
         handleRenameItem: (...rename) => setTree({ rename }),
