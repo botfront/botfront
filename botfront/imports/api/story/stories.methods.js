@@ -40,7 +40,7 @@ Meteor.methods({
         const {
             _id, path, ...rest
         } = story;
-        
+
         if (!path) return Stories.update({ _id }, { $set: { ...rest } });
         const originStory = Stories.findOne({ _id });
 
@@ -77,7 +77,7 @@ Meteor.methods({
     },
 
     async 'stories.delete'(story, projectId) {
-        checkIfCan('stories:w', story.projectId, undefined);
+        checkIfCan('stories:w', story.projectId);
         check(story, Object);
         check(projectId, String);
         const result = await Stories.remove(story);
@@ -98,7 +98,7 @@ Meteor.methods({
         check(destinationStory, String);
         check(branchPath, Array);
         check(projectId, String);
-       
+
         const storyBefore = Stories.findOne({ _id: destinationStory });
         const checkpointsBefore = storyBefore.checkpoints || [];
         auditLogIfOnServer('Story add checkpoint', {
@@ -133,7 +133,7 @@ Meteor.methods({
             operation: 'stories.updated',
             after: { story: storyAfter },
             before: { story: storyBefore },
-            
+
         });
         return result;
     },

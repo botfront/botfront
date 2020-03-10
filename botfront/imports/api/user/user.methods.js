@@ -147,7 +147,10 @@ if (Meteor.isServer) {
                     }],
                 });
                 const result = Meteor.users.remove({
-                   
+                    emails: [{
+                        address: email,
+                        verified: false,
+                    }],
                 });
                 const userAfter = Meteor.users.findOne({
                     emails: [{
@@ -162,9 +165,8 @@ if (Meteor.isServer) {
                     operation: 'user-deleted',
                     before: { user: userBefore },
                     after: { user: userAfter },
-
                 });
-                return;
+                return result;
             } catch (e) {
                 throw e;
             }

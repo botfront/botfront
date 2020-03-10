@@ -94,7 +94,7 @@ Meteor.methods({
     },
 
     'storyGroups.insert'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId, undefined);
+        checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         try {
             auditLogIfOnServer('Create a story group', {
@@ -112,7 +112,7 @@ Meteor.methods({
     },
 
     'storyGroups.update'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId, undefined);
+        checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         try {
             const storyGroupBefore = StoryGroups.findOne({ _id: storyGroup._id });
@@ -134,7 +134,7 @@ Meteor.methods({
         }
     },
     'storyGroups.removeFocus'(projectId) {
-        checkIfCan('stories:w', projectId, undefined);
+        checkIfCan('stories:w', projectId);
         check(projectId, String);
         const storyGroupBefore = StoryGroups.find(
             { projectId }, { fields: { selected: 1, _id: 1 } },
@@ -155,7 +155,7 @@ Meteor.methods({
             after: { storyGroup: storyGroupAfter },
             before: { storyGroup: storyGroupBefore },
         });
-        
+
         return result;
     },
 });
@@ -163,7 +163,7 @@ Meteor.methods({
 if (Meteor.isServer) {
     Meteor.methods({
         async 'storyGroups.deleteChildStories'(storyGroupId, projectId) {
-            checkIfCan('stories:w', projectId, undefined);
+            checkIfCan('stories:w', projectId);
             check(storyGroupId, String);
             check(projectId, String);
             let eventstoRemove = [];
