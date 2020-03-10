@@ -127,6 +127,9 @@ function Stories(props) {
                     className={`no-margin ${resizing ? '' : 'width-transition'}`}
                     onDragStarted={() => setResizing(true)}
                     onDragFinished={() => setResizing(false)}
+                    style={{ height: 'calc(100% - 49px)' }}
+                    pane1Style={{ overflow: 'hidden' }}
+                    pane2Style={{ marginTop: '1rem', overflowY: 'auto' }}
                 >
                     <div className='storygroup-browser'>
                         <StoryGroupNavigation
@@ -144,7 +147,7 @@ function Stories(props) {
                             isStoryDeletable={isStoryDeletable}
                         />
                     </div>
-                    <Container style={{ marginTop: '1rem' }}>
+                    <Container>
                         <StoryEditors
                             projectId={projectId}
                             selectedIds={activeStories.map(({ id }) => id)}

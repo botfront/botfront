@@ -101,16 +101,27 @@ export default function StoryGroupTree(props) {
         return onChangeActiveStories(newActiveStoryIds.map(id => tree.items[id]));
     };
 
-    const handleKeyDownInMenu = useCallback(({ target, key, shiftKey }) => {
+    const getTreeContainer = () => document.getElementById('storygroup-tree');
+
+    const handleKeyDownInMenu = useCallback((e) => {
+        const { target, key, shiftKey } = e;
         if (!menuRef.current.contains(target)) return null;
         if (!activeStories.length) return null;
         const { previousElementSibling, nextElementSibling } = document.activeElement;
 
         if (key === 'ArrowUp') {
-            if (previousElementSibling) previousElementSibling.focus();
+            if (e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+            if (target.offsetTop - getTreeContainer().scrollTop < 20) {
+                getTreeContainer().scrollTop -= 100;
+            }
+            if (previousElementSibling) previousElementSibling.focus({ preventScroll: true });
             else return null;
         } else if (key === 'ArrowDown') {
-            if (nextElementSibling) nextElementSibling.focus();
+            if (e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
+            if (menuRef.current.clientHeight + getTreeContainer().scrollTop - target.offsetTop < 100) {
+                getTreeContainer().scrollTop += 100;
+            }
+            if (nextElementSibling) nextElementSibling.focus({ preventScroll: true });
             else return null;
         } else return null;
         const item = tree.items[getItemDataFromDOMNode(document.activeElement)];
