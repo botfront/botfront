@@ -160,19 +160,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
 
         const newDestination = movedTree.items[destination.parentId];
         const newSource = movedTree.items[sourceNode.parentId];
-        if (newDestination.id !== newSource.id) { // mother changed
-            updateGroup(
-                convertId({
-                    id: newSource.id,
-                    children: newSource.children,
-                    hasChildren: newSource.hasChildren,
-                }),
-            );
-            updateStory(
-                sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id })),
-            );
-        }
-        updateGroup(
+        const updateDestination = () => updateGroup(
             convertId({
                 id: newDestination.id,
                 children: newDestination.children,
@@ -180,6 +168,19 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                 isExpanded: true,
             }),
         );
+        if (newDestination.id !== newSource.id) { // mother changed
+            updateGroup(
+                convertId({
+                    id: newSource.id,
+                    children: newSource.children,
+                    hasChildren: newSource.hasChildren,
+                }),
+                () => updateStory(
+                    sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id })),
+                    updateDestination,
+                ),
+            );
+        } else updateDestination();
         return mutateTree(movedTree, newDestination.id, { isExpanded: true }); // make sure destination is open
     }
     return tree;

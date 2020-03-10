@@ -89,7 +89,9 @@ Meteor.methods({
         check(storyGroup, Object);
         const { projectId } = storyGroup;
         try {
-            const id = StoryGroups.insert({ ...storyGroup, parentId: projectId });
+            const id = StoryGroups.insert({
+                ...storyGroup, parentId: projectId, canBearChildren: true, children: [],
+            });
             StoryGroups.update(
                 { _id: projectId },
                 { $push: { children: id } },

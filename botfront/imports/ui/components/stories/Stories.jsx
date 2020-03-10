@@ -79,22 +79,22 @@ function Stories(props) {
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
-    const handleAddStoryGroup = async title => Meteor.call('storyGroups.insert', { title, projectId }, wrapMeteorCallback);
+    const handleAddStoryGroup = async (title, f) => Meteor.call('storyGroups.insert', { title, projectId }, wrapMeteorCallback(f));
 
-    const handleDeleteGroup = storyGroup => Meteor.call('storyGroups.delete', storyGroup);
+    const handleDeleteGroup = (storyGroup, f) => Meteor.call('storyGroups.delete', storyGroup, wrapMeteorCallback(f));
 
-    const handleNewStory = (parentId, title) => Meteor.call(
+    const handleStoryGroupUpdate = (storyGroup, f) => Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback(f));
+
+    const handleNewStory = (parentId, title, f) => Meteor.call(
         'stories.insert', {
             story: '', title, projectId, parentId, branches: [],
         },
-        wrapMeteorCallback(),
+        wrapMeteorCallback(f),
     );
 
-    const handleStoryDeletion = story => Meteor.call('stories.delete', story, projectId, wrapMeteorCallback);
+    const handleStoryDeletion = (story, f) => Meteor.call('stories.delete', story, projectId, wrapMeteorCallback(f));
 
-    const handleStoryUpdate = story => Meteor.call('stories.update', story, projectId, wrapMeteorCallback);
-
-    const handleNameChange = storyGroup => Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback);
+    const handleStoryUpdate = (story, f) => Meteor.call('stories.update', story, projectId, wrapMeteorCallback(f));
 
     return (
         <Loading loading={!ready}>
@@ -105,7 +105,7 @@ function Stories(props) {
                     storyGroups,
                     addGroup: handleAddStoryGroup,
                     deleteGroup: handleDeleteGroup,
-                    updateGroup: handleNameChange,
+                    updateGroup: handleStoryGroupUpdate,
                     addStory: handleNewStory,
                     deleteStory: handleStoryDeletion,
                     updateStory: handleStoryUpdate,
@@ -135,7 +135,7 @@ function Stories(props) {
                         <StoryGroupNavigation
                             allowAddition
                             onAdd={handleAddStoryGroup}
-                            changeName={handleNameChange}
+                            changeName={handleStoryGroupUpdate}
                             placeholderAddItem='Choose a group name'
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />

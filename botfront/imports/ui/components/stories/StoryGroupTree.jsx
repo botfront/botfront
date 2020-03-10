@@ -23,7 +23,7 @@ export default function StoryGroupTree(props) {
         stories,
         isStoryDeletable,
     } = props;
-    const [newTitle, setNewTitle] = useState(null);
+    const [newTitle, setNewTitle] = useState('');
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const {
@@ -36,7 +36,7 @@ export default function StoryGroupTree(props) {
             newTree.items = { ...newTree.items, [_id]: { id: _id, ...n } };
         });
         return newTree;
-    }, [storyGroups, stories]);
+    }, [storyGroups.length]);
 
     const {
         tree,
@@ -63,7 +63,7 @@ export default function StoryGroupTree(props) {
     };
 
     useEffect(() => {
-        if (!renamingModalPosition) setNewTitle(null);
+        if (!renamingModalPosition) setNewTitle('');
         if (!!renamingModalPosition) setNewTitle(renamingModalPosition.title);
     }, [!!renamingModalPosition]);
 

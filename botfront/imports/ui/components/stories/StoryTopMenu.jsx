@@ -126,7 +126,7 @@ const StoryTopMenu = ({
                         onChange={event => setNewTitle(event.target.value.replace('_', ''))}
                         onKeyDown={handleInputKeyDown}
                         onBlur={submitTitleInput}
-                        disabled={disabled}
+                        disabled // don't allow name change here, so we don't have to update left-hand tree
                     />
                 </Menu.Item>
                 <Menu.Item position='right'>
