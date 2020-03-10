@@ -17,6 +17,7 @@ import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
 import restartRasa from './restartRasa';
+import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 class Endpoints extends React.Component {
     constructor(props) {
@@ -36,7 +37,7 @@ class Endpoints extends React.Component {
     onSave = (endpoints) => {
         const newEndpoints = endpoints;
         const { selectedEnvironment } = this.state;
-        const { projectId } = this.props;
+        const { projectId, webhook } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
         if (!endpoints._id) {
@@ -56,8 +57,8 @@ class Endpoints extends React.Component {
                 }
             }),
         );
-        if (selectedEnvironment === 'development') {
-            restartRasa(projectId);
+        if (selectedEnvironment === 'development' && webhook && webhook.url) {
+            restartRasa(projectId, webhook);
         }
     };
 
@@ -174,17 +175,28 @@ Endpoints.propTypes = {
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
     projectSettings: PropTypes.object,
+    webhook: PropTypes.object,
 };
 
 Endpoints.defaultProps = {
     endpoints: {},
     orchestrator: '',
     projectSettings: {},
+    webhook: {},
 };
 
 
 const EndpointsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('endpoints', projectId);
+    const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
+    const {
+        settings: {
+            private: {
+                webhooks: { restartRasaWebhook },
+            },
+        },
+    } = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
+
     const projectSettings = ProjectsCollection.findOne(
         { _id: projectId },
         {
@@ -202,10 +214,13 @@ const EndpointsContainer = withTracker(({ projectId }) => {
         .forEach((endpoint) => {
             endpoints[endpoint.environment ? endpoint.environment : 'development'] = endpoint;
         });
+    const ready = handler.ready() && restartRasaHandler.ready();
+
     return {
-        ready: handler.ready(),
+        ready,
         endpoints,
         projectSettings,
+        webhook: restartRasaWebhook,
     };
 })(Endpoints);
 

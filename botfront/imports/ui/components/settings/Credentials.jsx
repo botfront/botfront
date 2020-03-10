@@ -17,6 +17,7 @@ import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
 import restartRasa from './restartRasa';
+import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 class Credentials extends React.Component {
     constructor(props) {
@@ -36,7 +37,7 @@ class Credentials extends React.Component {
     onSave = (credentials) => {
         const newCredentials = credentials;
         const { selectedEnvironment } = this.state;
-        const { projectId } = this.props;
+        const { projectId, webhook } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
         if (!credentials._id) {
@@ -56,9 +57,9 @@ class Credentials extends React.Component {
                 this.setState({ saving: false, showConfirmation: true });
             }),
         );
-       
-        if (selectedEnvironment === 'development') {
-            restartRasa(projectId);
+
+        if (selectedEnvironment === 'development' && webhook && webhook.url) {
+            restartRasa(projectId, webhook);
         }
     }
 
@@ -99,7 +100,7 @@ class Credentials extends React.Component {
                         )}
                     />
                 )}
-                {hasWritePermission && <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('projects:w', projectId)} /> }
+                {hasWritePermission && <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('projects:w', projectId)} />}
             </AutoForm>
         );
     };
@@ -172,6 +173,7 @@ Credentials.propTypes = {
     projectSettings: PropTypes.object,
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
+    webhook: PropTypes.object,
 
 };
 
@@ -179,11 +181,16 @@ Credentials.defaultProps = {
     projectSettings: {},
     orchestrator: '',
     credentials: {},
+    webhook: {},
 };
 
 const CredentialsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('credentials', projectId);
     const handlerproj = Meteor.subscribe('projects', projectId);
+
+    const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
+
+
     const credentials = {};
     CredentialsCollection.find({ projectId })
         .fetch()
@@ -201,10 +208,21 @@ const CredentialsContainer = withTracker(({ projectId }) => {
             },
         },
     );
+
+    const {
+        settings: {
+            private: {
+                webhooks: { restartRasaWebhook },
+            },
+        },
+    } = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
+
+
     return {
-        ready: (handler.ready() && handlerproj.ready()),
+        ready: (handler.ready() && handlerproj.ready() && restartRasaHandler.ready()),
         credentials,
         projectSettings,
+        webhook: restartRasaWebhook,
     };
 })(Credentials);
 

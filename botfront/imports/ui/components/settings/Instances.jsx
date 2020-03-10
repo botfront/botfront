@@ -14,6 +14,8 @@ import { Instances as InstancesCollection } from '../../../api/instances/instanc
 import { wrapMeteorCallback } from '../utils/Errors';
 import { can } from '../../../lib/scopes';
 import restartRasa from './restartRasa';
+import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
+
 
 class Instances extends React.Component {
     onValidate = (model, error, callback) => {
@@ -29,7 +31,7 @@ class Instances extends React.Component {
 
     render() {
         const {
-            ready, instance, projectId,
+            ready, instance, projectId, webhook,
         } = this.props;
         const hasWritePermission = can('projects:w', projectId);
         if (!instance.type) instance.type = 'server';
@@ -54,7 +56,10 @@ class Instances extends React.Component {
                                 data-cy='save-instance'
                             />
                         )}
-                        { hasWritePermission && <Button content='Restart rasa' onClick={(e) => { e.preventDefault(); restartRasa(projectId); }} />}
+                        {hasWritePermission
+                            && webhook
+                            && webhook.url
+                            && <Button content='Restart rasa' onClick={(e) => { e.preventDefault(); restartRasa(projectId, webhook); }} />}
                     </AutoForm>
                 )}
             </>
@@ -66,20 +71,31 @@ Instances.propTypes = {
     instance: PropTypes.object,
     projectId: PropTypes.string.isRequired,
     ready: PropTypes.bool.isRequired,
+    webhook: PropTypes.object,
 };
 
 Instances.defaultProps = {
     instance: {},
+    webhook: {},
 };
 
 
 const InstancesContainer = withTracker((props) => {
     const { projectId } = props;
     const handler = Meteor.subscribe('nlu_instances', projectId);
+    const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
     const instance = InstancesCollection.findOne({ projectId });
+    const {
+        settings: {
+            private: {
+                webhooks: { restartRasaWebhook },
+            },
+        },
+    } = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
     return {
-        ready: handler.ready(),
+        ready: handler.ready() && restartRasaHandler.ready(),
         instance,
+        webhook: restartRasaWebhook,
     };
 })(Instances);
 

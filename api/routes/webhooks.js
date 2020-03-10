@@ -1,20 +1,21 @@
 const { body, validationResult } = require('express-validator/check');
 const https = require('https');
 const axios = require('axios');
+const { Projects } = require('../models/models');
 
 
 const { K8S_API_TOKEN, K8S_BASE_URL } = process.env;
 
 
 exports.restartRasaValidator = [
-    body('namespace', 'namespace should be a string').isString(),
+    body('projectId', 'projectId should be a string').isString(),
 ];
 
 exports.restartRasa = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ error: errors.array() });
-    const { namespace } = req.body;
-
+    const { projectId } = req.body;
+    const { namespace } = await Projects.findOne({ _id: projectId }).select({ namespace: 1 }).lean()
     const axiosRestartRasa = axios.create({
         baseURL: K8S_BASE_URL,
         headers: {
