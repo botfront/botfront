@@ -16,6 +16,7 @@
 // ***********************************************************
 
 import './chat.commands';
+import gql from 'graphql-tag';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -25,6 +26,30 @@ Cypress.on('uncaught:exception', () => false);
 Cypress.Screenshot.defaults({
     screenshotOnRunFailure: !!JSON.parse(String(Cypress.env('SCREENSHOTS')).toLowerCase()),
 });
+
+const ADMIN_EMAIL = 'test@test.com';
+const SPECIAL_USER_EMAIL = 'test@test.test';
+
+const UPSERT_ROLES_DATA = gql`
+    mutation upsertRolesData($roleData: RoleDataInput!) {
+        upsertRolesData(roleData: $roleData) {
+            name
+        }
+    }
+`;
+
+const DELETE_ROLE_DATA = gql`
+    mutation deleteRolesData($name: String!, $fallback: String!) {
+        deleteRolesData(name: $name, fallback: $fallback)
+    }
+`;
+
+const CREATE_AND_OVERWRITE_RESPONSES = gql`
+mutation createAndOverwriteResponses($projectId: String!, $responses: [BotResponseInput]) {
+    createAndOverwriteResponses(projectId: $projectId, responses: $responses){
+        key
+    }
+}`;
 
 switch (Cypress.env('abort_strategy')) {
 case 'run':
@@ -53,7 +78,10 @@ case 'spec':
 default:
 }
 
-Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
+Cypress.Commands.add('login', ({
+    visit = true, email, password = 'Aaaaaaaa00', admin = true,
+} = {}) => {
+    const withEmail = email || admin ? ADMIN_EMAIL : SPECIAL_USER_EMAIL;
     if (visit) cy.visit('/');
     cy.window().then(
         ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
@@ -66,7 +94,7 @@ Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password =
         }),
     ).then(
         ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            Meteor.loginWithPassword(withEmail, password, loginError => (loginError ? reject(loginError) : resolve()));
         }),
     );
 
@@ -160,52 +188,11 @@ Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.get('.ui.page.modals .primary').click();
 });
 
-Cypress.Commands.add('deleteNLUModelProgramatically', (modelId, projectId, language) => {
-    if (!language) {
-        cy.MeteorCall('nlu.remove', [
-            `${modelId}`,
-            `${projectId}`,
-        ]);
-    } else {
-        cy.MeteorCall('nlu.removelanguage', [
-            `${projectId}`,
-            language,
-        ]);
-    }
-});
-
 Cypress.Commands.add('setTimezoneOffset', () => {
     const offset = new Date().getTimezoneOffset() / -60;
     cy.visit('/project/bf/settings');
     cy.get('[data-cy=change-timezone-offset] input').click().type(`{backspace}{backspace}{backspace}{backspace}${offset}`);
     cy.get('[data-cy=save-changes]').click();
-});
-
-Cypress.Commands.add('createResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates/add`);
-    cy.get('[data-cy=response-name] input').type(responseName);
-    cy.get('.response-message-next.sequence-add-message').click();
-    cy.get('.response-message-next.sequence-add-message')
-        .contains('Text')
-        .click();
-    cy.get('.response-save-button').click();
-});
-
-
-Cypress.Commands.add('openResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates`);
-    // Type bot response name in filter
-    cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
-    cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);
-    cy.get('[data-cy=edit-response-0]').click();
-});
-
-Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates`);
-    // Type bot response name in filter
-    cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
-    cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);
-    cy.get('[data-cy=remove-response-0]').click();
 });
 
 Cypress.Commands.add('deleteProject', projectId => cy.visit('/')
@@ -286,7 +273,7 @@ Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
             }),
         )
         .then(
-            ({ Meteor, result }) => new Cypress.Promise((resolve) => {
+            ({ Meteor, result }) => new Cypress.Promise((resolve, reject) => {
                 Meteor.call('user.changePassword', result, 'Aaaaaaaa00', (err) => {
                     if (err) {
                         reject(err);
@@ -298,14 +285,14 @@ Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
 });
 
 Cypress.Commands.add('deleteUser', (email) => {
-    cy.login();
     cy.visit('/');
+    cy.login();
     cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve) => {
+        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
             try {
                 Meteor.call('user.removeByEmail', email, (err, result) => {
                     if (err) {
-                        throw err;
+                        reject(err);
                     }
                     resolve(result);
                 });
@@ -316,49 +303,66 @@ Cypress.Commands.add('deleteUser', (email) => {
     );
 });
 
-Cypress.Commands.add('loginTestUser', (email = 'testuser@test.com', password = 'Aaaaaaaa00') => {
-    // cy.visit('/');
+
+Cypress.Commands.add('createRole', (name, desc, permissions) => {
+    cy.visit('/');
+    cy.login();
     cy.window()
         .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                // eslint-disable-next-line consistent-return
-                Meteor.logout((err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            }),
-        )
-        .then(
-            ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-                Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+            ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
+                mutation: UPSERT_ROLES_DATA,
+                variables: {
+                    roleData: {
+                        name,
+                        description: desc,
+                        children: permissions,
+                    },
+                },
             }),
         );
 });
 
-Cypress.Commands.add('addTestActivity', (modelId, projectId) => {
-    const futureDate = new Date().getTime() + 3600 * 1000; // this is so activity is not outdated at insertion time
-    const commandToAddActivity = `mongo meteor --host localhost:3001 --eval "db.activity.insert({ 
-        _id:'TestActivity',
-        text: 'bonjour , avez vous un f1 à lyon autour de l apardieu ?',
-        intent: 'faq.find_hotel',
-        entities:[
-        ],
-        confidence: '0.50',
-        modelId: '${modelId}',
-        createdAt: '${futureDate}',
-        updatedAt: '${futureDate}',
-        __v:{
-        '$numberInt': '0'
-        }
-    });"`;
-    cy.exec(commandToAddActivity);
-    cy.exec(`mongo meteor --host localhost:3001 --eval 'db.projects.update({ _id: "${projectId}"}, { $set: { "training.endTime": "123" } });'`);
+
+Cypress.Commands.add('deleteRole', (name, fallback) => {
+    cy.visit('/');
+    cy.login();
+    cy.window()
+        .then(
+            ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
+                mutation: DELETE_ROLE_DATA,
+                variables: {
+                    name,
+                    fallback,
+                },
+            }),
+        );
 });
 
-Cypress.Commands.add('removeTestActivity', (modelId) => {
-    cy.MeteorCallAdmin('activity.deleteExamples', [modelId, ['TestActivity']]);
+Cypress.Commands.add('createDummyRoleAndUser', ({
+    email = SPECIAL_USER_EMAIL, desc, name = 'dummy', permission, scope = 'bf',
+} = {}) => {
+    cy.createRole(name, desc || name, permission);
+    cy.createUser('test', email, 'dummy', scope);
+});
+
+
+Cypress.Commands.add('removeDummyRoleAndUser', ({ email = SPECIAL_USER_EMAIL, name = 'dummy', fallback = 'global-admin' } = {}) => {
+    cy.deleteUser(email);
+    cy.deleteRole(name, fallback);
+});
+
+Cypress.Commands.add('addResponses', (projectId, responses) => {
+    cy.visit('/');
+    cy.login();
+    cy.window()
+        .then(
+            ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
+                mutation: CREATE_AND_OVERWRITE_RESPONSES,
+                variables: {
+                    projectId, responses,
+                },
+            }),
+        );
 });
 
 Cypress.Commands.add('removeTestConversation', (id) => {
@@ -421,96 +425,12 @@ Cypress.Commands.add('addTestConversation', (projectId, { id = 'abc', env = null
         processNlu: true,
     });
 
-    let url = `http://localhost:8080/conversations/bf/environment/${env}?api-key=`;
-    if (Cypress.env('API_URL')) {
-        url = `${Cypress.env('API_URL')}/conversations/bf/environment/${env}?api-key=`;
-    }
-
     cy.request({
         method: 'POST',
-        url,
+        url: `${Cypress.env('API_URL')}/conversations/bf/environment/${env}?api-key=`,
         headers: { 'Content-Type': 'application/json' },
         body,
     });
-});
-
-Cypress.Commands.add('removeTestConversation', () => {
-    cy.MeteorCallAdmin('conversations.delete', ['6f1800deea7f469b8dafd928f092a280']);
-});
-
-Cypress.Commands.add('addTestResponse', (id) => {
-    const commandToAddResponse = `mongo meteor --host localhost:3001 --eval 'db.projects.update({
-        _id: "${id}"
-    }, {
-        $set: {
-            templates: [
-                {
-                    values:[
-                        {
-                            sequence:[
-                                {
-                                    content:"text: Test"
-                                }
-                            ],
-                            lang:"en"
-                        }
-                    ],
-                    key:"utter_greet",
-                    match:{
-                        nlu:[
-                            {
-                                intent:"chitchat.greet",
-                                entities:[
-        
-                                ]
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
-    });'`;
-    cy.exec(commandToAddResponse);
-});
-
-Cypress.Commands.add('removeTestResponse', (id) => {
-    const commandToRemoveResponse = `mongo meteor --host localhost:3001 --eval 'db.projects.update({
-        _id: "${id}"
-    }, {
-        $set: {
-            templates: [
-            ]
-        }
-    });'`;
-    cy.exec(commandToRemoveResponse);
-});
-
-Cypress.Commands.add('addStory', (projectId) => {
-    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.stories.insert({
-        storyGroupId: 'StoryGroupId',
-        projectId: '${projectId}', 
-        story: '## somestory',
-    });"`;
-    cy.exec(commandToAddStory);
-});
-
-Cypress.Commands.add('addStoryGroup', (projectId) => {
-    const commandToAddStory = `mongo meteor --host localhost:3001 --eval "db.storyGroups.insert({
-        _id: 'StoryGroupId',
-        projectId: '${projectId}', 
-        name: 'TestName',
-    });"`;
-    cy.exec(commandToAddStory);
-});
-
-Cypress.Commands.add('removeStory', () => {
-    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.stories.remove({ storyGroupId: \'StoryGroupId\'});"';
-    cy.exec(commandToRemoveStory);
-});
-
-Cypress.Commands.add('removeStoryGroup', () => {
-    const commandToRemoveStory = 'mongo meteor --host localhost:3001 --eval "db.storyGroups.remove({ _id: \'StoryGroupId\'});"';
-    cy.exec(commandToRemoveStory);
 });
 
 // Add and remove slot programatically.
@@ -553,13 +473,14 @@ Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(
         });
     }));
 
-Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', overwrite = false) => {
+Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', overwrite = false, canonicalExamples = []) => {
     cy.fixture(fixture, 'utf8').then((content) => {
         cy.MeteorCall('nlu.import', [
             content.rasa_nlu_data,
             projectId,
             lang,
             overwrite,
+            canonicalExamples,
         ]);
     });
     return cy.wait(500);

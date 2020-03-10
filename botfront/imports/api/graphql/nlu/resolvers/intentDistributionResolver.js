@@ -4,6 +4,7 @@ import { checkIfCan } from '../../../../lib/scopes';
 export default {
     Query: {
         async intentDistribution(parent, args, context, info) {
+            checkIfCan('analytics:r', args.projectId, context.user._id);
             return getIntentDistribution(args.modelId);
         },
     },

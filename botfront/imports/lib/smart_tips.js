@@ -61,7 +61,7 @@ const smartTips = (flags) => {
     };
 };
 
-const isUtteranceOutdated = ({ training: { endTime } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+const isUtteranceOutdated = ({ training: { endTime = 0 } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
 
 const getSimilarTD = (model, utterance) => {
     // const synonyms = model.training_data.entity_synonyms;

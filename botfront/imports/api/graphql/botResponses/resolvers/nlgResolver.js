@@ -41,7 +41,8 @@ const resolveTemplate = async ({
 
 export default {
     Query: {
-        getResponse: async (_root, args) => {
+        getResponse: async (_root, args, context) => {
+            // used from outside botfront. unsecured.
             const {
                 template,
                 arguments: { language: specifiedLang, projectId } = {},
@@ -49,6 +50,7 @@ export default {
                 channel: { name: channel } = {},
             } = args;
             if (!projectId) throw new Error('ProjectId missing!');
+            // adding response:r role for stories check breaks the webchat
             const language = specifiedLang && getLanguagesFromProjectId(projectId).includes(specifiedLang)
                 ? specifiedLang
                 : slots.fallback_language;

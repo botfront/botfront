@@ -63,9 +63,9 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         async 'project.insert'(item, bypassWithCI) {
+            checkIfCan('projects:w', null, null, { bypassWithCI });
             check(item, Object);
             check(bypassWithCI, Match.Optional(Boolean));
-            checkIfCan('global-admin', null, null, { bypassWithCI });
             let _id;
             try {
                 _id = createProject(item);
@@ -83,8 +83,8 @@ if (Meteor.isServer) {
         },
 
         'project.update'(item) {
+            checkIfCan('projects:w', item._id);
             check(item, Match.ObjectIncluding({ _id: String }));
-            checkIfCan('project-settings:w', item._id);
             try {
                 // eslint-disable-next-line no-param-reassign
                 delete item.createdAt;
@@ -94,10 +94,10 @@ if (Meteor.isServer) {
             }
         },
         async 'project.delete'(projectId, options = { failSilently: false, bypassWithCI: false }) {
+            checkIfCan('projects:w', null, null, options.bypassWithCI);
             check(projectId, String);
             check(options, Object);
-            const { failSilently, bypassWithCI } = options;
-            checkIfCan('global-admin', null, null, { bypassWithCI });
+            const { failSilently } = options;
             const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
 
             try {
@@ -123,9 +123,8 @@ if (Meteor.isServer) {
         },
 
         'project.markTrainingStarted'(projectId) {
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
-            checkIfCan('nlu-model:x', projectId);
-
             try {
                 return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
             } catch (e) {
@@ -134,10 +133,10 @@ if (Meteor.isServer) {
         },
 
         'project.markTrainingStopped'(projectId, status, error) {
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(status, String);
             check(error, Match.Optional(String));
-            checkIfCan('nlu-model:x', projectId);
 
             try {
                 const set = { training: { status, endTime: new Date() } };
@@ -151,9 +150,9 @@ if (Meteor.isServer) {
         },
 
         async 'project.getEntitiesAndIntents'(projectId, language) {
+            checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             check(projectId, String);
             check(language, String);
-            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
 
             try {
                 const stories = Stories.find({ projectId }).fetch();
@@ -176,14 +175,15 @@ if (Meteor.isServer) {
         },
 
         async 'project.getActions'(projectId) {
+            // could use story.events subscription here??
+            checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             check(projectId, String);
-            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
             let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
             defaultDomain = yamlLoad(defaultDomain.content);
             const templates = await getAllTemplates(projectId);
 
             try {
-                const stories = await Meteor.callWithPromise('stories.getStories', projectId);
+                const stories = Stories.find({ projectId }).fetch();
                 const slots = Slots.find({ projectId }).fetch();
                 const {
                     actions: actionsSetFromDomain = [],
@@ -202,8 +202,8 @@ if (Meteor.isServer) {
         },
 
         async 'project.getDefaultLanguage'(projectId) {
+            checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             check(projectId, String);
-            checkIfCan(['nlu-data:r', 'responses:r', 'stories:r'], projectId);
             try {
                 const { defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { defaultLanguage: 1 } });
                 return defaultLanguage;
@@ -213,6 +213,7 @@ if (Meteor.isServer) {
         },
 
         async 'project.getDeploymentEnvironments'(projectId) {
+            checkIfCan(['incoming:r', 'projects:r'], projectId);
             check(projectId, String);
             try {
                 const project = Projects.findOne({ _id: projectId }, { fields: { deploymentEnvironments: 1 } });

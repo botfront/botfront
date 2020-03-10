@@ -9,11 +9,12 @@ import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
 import ExceptionWrapper from './ExceptionWrapper';
+import { can } from '../../../../lib/scopes.js';
 
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, deletable, exceptions,
+        value, onInput, onDelete, onAbort, deletable, exceptions, projectId,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
@@ -120,7 +121,7 @@ const UtteranceContainer = (props) => {
                 ref={containerBody}
             >
                 <div className='inner'>{render()}</div>
-                {deletable && (
+                {deletable && can('stories:w', projectId) && (
                     <FloatingIconButton
                         icon='trash'
                         onClick={() => {
@@ -142,12 +143,14 @@ UtteranceContainer.propTypes = {
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
     exceptions: PropTypes.array,
+    projectId: PropTypes.string,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
     deletable: true,
     exceptions: [{ type: null }],
+    projectId: null,
 };
 
 export default UtteranceContainer;

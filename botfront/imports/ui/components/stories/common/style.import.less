@@ -28,13 +28,15 @@
 }
 
 .story-visual-editor {
+    width: 100%;
+    min-height: 80px;
     display: flex;
     flex-direction: column;
-    width: 100%;
     padding: 3px;
     padding-left: 30px;
-    min-height: 80px;
-
+    .line-spacer { // prevent crowding of story elements in read only mode
+        height: 0.5em;
+    }
     .add-story-line {
         margin: 0.8em 0;
         outline: none;

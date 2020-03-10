@@ -15,6 +15,7 @@ import BadLineLabel from '../BadLineLabel';
 import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
+import { can } from '../../../../lib/scopes';
 
 const variationIndex = 0;
 
@@ -117,9 +118,14 @@ export default class StoryVisualEditor extends React.Component {
         }
     };
 
+    getReadOnlyClass = () => {
+        const { project: { _id: projectId } } = this.context;
+        return can('stories:w', projectId) ? '' : 'read-only';
+    }
+
     renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.data.name}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+            <div className={`utterance-container ${exceptions.severity} ${this.getReadOnlyClass()}`} agent='na'>
                 <ExceptionWrapper exceptions={exceptions}>
                     <ActionLabel
                         value={l.data.name}
@@ -138,7 +144,7 @@ export default class StoryVisualEditor extends React.Component {
 
     renderSlotLine = (i, l, exceptions) => (
         <React.Fragment key={`slot${i + l.data.name}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+            <div className={`utterance-container ${exceptions.severity} ${this.getReadOnlyClass()}`} agent='na'>
                 <ExceptionWrapper exceptions={exceptions}>
                     <SlotLabel
                         value={l.data}
@@ -156,7 +162,10 @@ export default class StoryVisualEditor extends React.Component {
 
     renderAddLine = (index) => {
         const { lineInsertIndex } = this.state;
+        const { project: { _id: projectId } } = this.context;
         const { story } = this.props;
+        if (!can('stories:w', projectId)) return <div className='line-spacer' />; // prevent crowding of story elements in read only mode
+
         const options = story.getPossibleInsertions(index);
 
         if (!Object.keys(options).length) return null;
@@ -222,7 +231,7 @@ export default class StoryVisualEditor extends React.Component {
 
     renderFormLine = (index, line, exceptions) => (
         <React.Fragment key={`FormLine-${index}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+            <div className={`utterance-container ${exceptions.severity} ${this.getReadOnlyClass()}`} agent='na'>
                 <ExceptionWrapper exceptions={exceptions}>
                     <GenericLabel
                         label={line.gui.type}
@@ -251,6 +260,7 @@ export default class StoryVisualEditor extends React.Component {
         const { story } = this.props;
         const { responses } = this.context;
         const { language } = this.context;
+        const { project: { _id: projectId } } = this.context;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(
@@ -284,6 +294,7 @@ export default class StoryVisualEditor extends React.Component {
                             onInput={v => this.handleSaveUserUtterance(index, v)}
                             onDelete={() => this.handleDeleteLine(index)}
                             onAbort={() => this.handleDeleteLine(index)}
+                            projectId={projectId}
                         />
                         {this.renderAddLine(index)}
                     </React.Fragment>
@@ -306,7 +317,6 @@ export default class StoryVisualEditor extends React.Component {
 
 StoryVisualEditor.propTypes = {
     story: PropTypes.instanceOf(StoryController),
-  
 };
 
 StoryVisualEditor.defaultProps = {

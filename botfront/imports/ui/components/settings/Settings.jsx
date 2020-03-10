@@ -9,7 +9,7 @@ import { PageMenu } from '../utils/Utils';
 import Credentials from './Credentials';
 import Endpoints from './Endpoints';
 import ProjectInfo from './ProjectInfo';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 import Instances from './Instances';
 import DefaultDomain from './DefaultDomain';
 import ImportExportProject from './ImportExportProject';
@@ -36,11 +36,6 @@ class Settings extends React.Component {
         this.setState({ orchestratorMenuItems, orchestrator });
     }
 
-    handleMoreSettings = () => {
-        const { router, projectId } = this.props;
-        router.push(`/project/${projectId}/settings/global`);
-    }
-
     getSettingsPanes = () => {
         const { orchestratorMenuItems, orchestrator } = this.state;
         const { projectId } = this.props;
@@ -63,7 +58,7 @@ class Settings extends React.Component {
             },
         ];
 
-        if (can('global-admin', projectId)) {
+        if (can('projects:r', projectId)) {
             panes = [...panes,
                 {
                     menuItem: <Menu.Item data-cy='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
@@ -73,19 +68,9 @@ class Settings extends React.Component {
                     menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
                     render: () => <Tab.Pane><Instances /></Tab.Pane>,
                 },
-                {
-                    menuItem: (
-                        <Menu.Item
-                            data-cy='project-settings-more'
-                            icon='ellipsis horizontal'
-                            content='More Settings'
-                            key='More Settings'
-                            onClick={this.handleMoreSettings}
-                        />
-                    ),
-                },
             ];
         }
+        
 
         if (orchestratorMenuItems) {
             panes = panes.concat(orchestratorMenuItems);

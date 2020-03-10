@@ -13,6 +13,7 @@ import {
     upsertActivity as upsertActivityMutation,
     deleteActivity as deleteActivityMutation,
 } from '../activity/mutations';
+import { can } from '../../../../lib/scopes';
 
 import DataTable from '../../common/DataTable';
 import { clearTypenameField } from '../../../../lib/utils';
@@ -57,7 +58,7 @@ function OutOfScope(props) {
     const handleUpdate = async (newData, rest) => {
         // rest argument is to supress warnings caused by incomplete schema on optimistic response
         upsertActivity({
-            variables: { modelId, data: newData },
+            variables: { modelId, data: newData, isOoS: true },
             optimisticResponse: {
                 __typename: 'Mutation',
                 upsertActivity: newData.map(d => ({ __typename: 'Activity', ...rest, ...d })),
@@ -66,7 +67,7 @@ function OutOfScope(props) {
     };
 
     const handleDelete = async (ids) => {
-        await deleteActivity({ variables: { modelId, ids } });
+        await deleteActivity({ variables: { modelId, ids, isOoS: true } });
         refetch();
     };
 
@@ -75,7 +76,7 @@ function OutOfScope(props) {
             value={row.datum.intent || ''}
             enableReset
             allowAdditions
-            allowEditing
+            allowEditing={can('nlu-data:w', projectId)}
             onChange={intent => handleUpdate([{ _id: row.datum._id, intent, confidence: null }], row.datum)}
         />
     );
@@ -138,9 +139,11 @@ function OutOfScope(props) {
         {
             header: 'Example', key: 'text', style: { width: '100%' }, render: renderExample,
         },
-        {
-            header: 'Actions', key: 'actions', style: { width: '110px' }, render: renderActions,
-        },
+        ...(can('nlu-data:w', projectId) ? [
+            {
+                header: 'Actions', key: 'actions', style: { width: '110px' }, render: renderActions,
+            },
+        ] : []),
     ];
 
     const render = () => (
@@ -182,7 +185,6 @@ function OutOfScope(props) {
 OutOfScope.propTypes = {
     projectId: PropTypes.string.isRequired,
     model: PropTypes.object.isRequired,
-    intents: PropTypes.array.isRequired,
 };
 
 OutOfScope.defaultProps = {

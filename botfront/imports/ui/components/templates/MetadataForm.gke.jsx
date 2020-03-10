@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { GraphQLBridge } from 'uniforms-bridge-graphql';
 import { buildASTSchema, parse, extendSchema } from 'graphql';
 import {
@@ -10,6 +11,7 @@ import {
 } from 'uniforms-semantic';
 
 import { cloneDeep } from 'lodash';
+import { can } from '../../../lib/scopes';
 
 import SelectField from '../form_fields/SelectField';
 import IntentField from '../form_fields/IntentField';
@@ -23,7 +25,7 @@ import {
 } from './MetadataForm';
 
 function ResponseMetadataForm({
-    responseMetadata, onChange,
+    responseMetadata, onChange, editable, projectId,
 }) {
     const pageEventOptions = [
         {
@@ -161,12 +163,12 @@ function ResponseMetadataForm({
             ],
         },
     };
-
+    const readOnlyClass = editable ? '' : 'read-only';
     const panesAdvanced = [
         {
             menuItem: 'General',
             render: () => (
-                <> {panes[0].render()}
+                <div className={readOnlyClass}> {panes[0].render()}
                     <ToggleField name='domHighlight.enabled' className='toggle' label='Highlight element on page' />
                     <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.enabled}>
                         <>
@@ -181,13 +183,13 @@ function ResponseMetadataForm({
                             </DisplayIf>
                         </>
                     </DisplayIf>
-                </>
+                </div>
             ),
         },
         {
             menuItem: 'Observe',
             render: () => (
-                <>
+                <div className={readOnlyClass}>
                     <ToggleField name='pageChangeCallbacks.enabled' className='toggle' label='Observe page changes' />
                     <DisplayIf condition={context => context.model.pageChangeCallbacks && context.model.pageChangeCallbacks.enabled}>
                         <>
@@ -239,13 +241,13 @@ function ResponseMetadataForm({
                             </ListField>
                         </>
                     </DisplayIf>
-                </>
+                </div>
             ),
         },
         {
             menuItem: 'Message appearance',
             render: () => (
-                <>
+                <div className={readOnlyClass}>
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable custom message style' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
@@ -258,8 +260,7 @@ function ResponseMetadataForm({
                             </DisplayIf>
                         </>
                     </DisplayIf>
-                    
-                </>
+                </div>
             ),
         },
     ];
@@ -274,7 +275,7 @@ function ResponseMetadataForm({
         if (payload.match(/^\//)) return payload.slice(1);
         return payload;
     };
-   
+
     const postProcess = (model) => {
         const newModel = cloneDeep(model);
         // Remove objects if they were disabled
@@ -377,7 +378,7 @@ function ResponseMetadataForm({
             newModel.pageEventCallbacks.pageEvents = newModel.pageEventCallbacks.pageEvents.map(pageEvent => ({ ...pageEvent, payload: removeSlashIfNeeded(pageEvent.payload) }));
         }
         if (newModel.customCss && newModel.customCss.css) newModel.customCss.enabled = true;
-       
+
         return newModel;
     };
 
@@ -386,7 +387,14 @@ function ResponseMetadataForm({
 
     return (
         <div className='response-metadata-form'>
-            <AutoFormMetadata autosave autosaveDelay={250} model={displayModel} schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)} onSubmit={model => onChange(postProcess(model))}>
+            <AutoFormMetadata
+                autosave
+                autosaveDelay={250}
+                model={displayModel}
+                schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)}
+                onSubmit={model => onChange(postProcess(model))}
+                disabled={!can('responses:w', projectId)}
+            >
                 <Tab menu={{ secondary: true, pointing: true }} panes={panesAdvanced} />
                 <br />
                 <ErrorsField />
@@ -398,6 +406,8 @@ function ResponseMetadataForm({
 ResponseMetadataForm.propTypes = {
     responseMetadata: PropTypes.object,
     onChange: PropTypes.func.isRequired,
+    editable: PropTypes.bool,
+    projectId: PropTypes.string.isRequired,
 };
 ResponseMetadataForm.defaultProps = {
     responseMetadata: {
@@ -407,5 +417,10 @@ ResponseMetadataForm.defaultProps = {
         customCss: {},
         pageChangeCallbacks: null,
     },
+    editable: true,
 };
-export default ResponseMetadataForm;
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(ResponseMetadataForm);

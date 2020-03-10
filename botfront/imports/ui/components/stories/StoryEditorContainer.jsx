@@ -15,6 +15,8 @@ import {
     getSubBranchesForPath,
     accumulateExceptions,
 } from '../../../lib/story.utils';
+import { can } from '../../../lib/scopes';
+
 import { StoryController } from '../../../lib/story_controller';
 import { ConversationOptionsContext } from './Context';
 import { ProjectContext } from '../../layouts/context';
@@ -134,12 +136,12 @@ const StoryEditorContainer = ({
     function onDestinationStorySelection(event, { value }) {
         // remove the link if the value of the drop down is empty
         if (value === '') {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+            Meteor.call('stories.removeCheckpoints', projectId, destinationStory._id, branchPath);
         } else if (value && destinationStory) {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
-            Meteor.call('stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.removeCheckpoints', projectId, destinationStory._id, branchPath);
+            Meteor.call('stories.addCheckpoints', projectId, value, branchPath);
         } else {
-            Meteor.call('stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.addCheckpoints', projectId, value, branchPath);
         }
         const newDestinationStory = findDestinationStory();
         setDestinationStory(newDestinationStory);
@@ -245,7 +247,7 @@ const StoryEditorContainer = ({
         const pathAsString = path.join();
         return (
             <AceEditor
-                readOnly={disabled}
+                readOnly={disabled || !can('stories:w', projectId)}
                 theme='github'
                 width='100%'
                 name='story'
@@ -254,9 +256,9 @@ const StoryEditorContainer = ({
                 minLines={5}
                 maxLines={Infinity}
                 fontSize={14}
-                onChange={newStory => storyControllers[pathAsString].setMd(newStory)}
+                onChange={can('stories:w', projectId) ? newStory => storyControllers[pathAsString].setMd(newStory) : () => {}}
                 // noClean means it won't remove unused responses
-                onBlur={() => storyControllers[pathAsString].saveUpdate({ noClean: true })}
+                onBlur={can('stories:w', projectId) ? () => storyControllers[pathAsString].saveUpdate({ noClean: true }) : () => {}}
                 value={
                     storyControllers[pathAsString]
                         ? storyControllers[pathAsString].md
@@ -432,17 +434,20 @@ const StoryEditorContainer = ({
                                     siblings={branches}
                                     isLinked={isBranchLinked(branch._id)}
                                     isParentLinked={isBranchLinked(pathToRender[pathToRender.length - 1])}
+                                    projectId={projectId}
                                 />
                             );
                         })}
-                        <Menu.Item
-                            key={`${pathToRender.join()}-add`}
-                            className='add-tab'
-                            onClick={() => handleCreateBranch(pathToRender, branches, 1, false)}
-                            data-cy='add-branch'
-                        >
-                            <Icon name='plus' />
-                        </Menu.Item>
+                        {can('stories:w', projectId) && (
+                            <Menu.Item
+                                key={`${pathToRender.join()}-add`}
+                                className='add-tab'
+                                onClick={() => handleCreateBranch(pathToRender, branches, 1, false)}
+                                data-cy='add-branch'
+                            >
+                                <Icon name='plus' />
+                            </Menu.Item>
+                        )}
                     </Menu>
                 )}
                 {branches.length > 0

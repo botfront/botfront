@@ -12,8 +12,8 @@ import { wrapMeteorCallback } from '../../../utils/Errors';
 import ChangesSaved from '../../../utils/ChangesSaved';
 import AceField from '../../../utils/AceField';
 import SaveButton from '../../../utils/SaveButton';
-import { can } from '../../../../../lib/scopes';
- 
+import Can from '../../../roles/Can';
+
 export default class NLUPipeline extends React.Component {
     constructor(props) {
         super(props);
@@ -58,11 +58,10 @@ export default class NLUPipeline extends React.Component {
     render() {
         const { saved, showConfirmation } = this.state;
         const { projectId } = this.props;
-        const isDisabled = !(can('nlu-model:x', projectId));
         return (
             <Tab.Pane>
-                <AutoForm schema={new SimpleSchema2Bridge(new SimpleSchema(this.schema))} model={this.sparseModel()} onSubmit={this.handleSave} disabled={isDisabled}>
-                    <AceField name='config' label='NLU Pipeline' />
+                <AutoForm schema={new SimpleSchema2Bridge(new SimpleSchema(this.schema))} model={this.sparseModel()} onSubmit={this.handleSave}>
+                    <AceField name='config' label='NLU Pipeline' readOnly />
                     <ErrorsField />
                     {showConfirmation && (
                         <ChangesSaved
@@ -75,7 +74,9 @@ export default class NLUPipeline extends React.Component {
                             )}
                         />
                     )}
-                    <SaveButton saved={saved} disabled={isDisabled} />
+                    <Can I='nlu-data:x' projectId={projectId}>
+                        <SaveButton saved={saved} />
+                    </Can>
                 </AutoForm>
             </Tab.Pane>
         );

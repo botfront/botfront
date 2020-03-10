@@ -37,8 +37,8 @@ export const saveEndpoints = async (endpoints) => {
 if (Meteor.isServer) {
     Meteor.methods({
         'endpoints.save'(endpoints) {
+            checkIfCan('projects:w', endpoints.projectId);
             check(endpoints, Object);
-            checkIfCan('project-settings:w', endpoints.projectId);
             return saveEndpoints(endpoints);
         },
     });

@@ -4,6 +4,7 @@ import { Form } from 'semantic-ui-react';
 
 import NLUExampleTester from './NLUExampleTester';
 import NLUExampleEditMode from './NLUExampleEditMode';
+import { can } from '../../../lib/scopes';
 import { ExampleTextEditor } from './ExampleTextEditor';
 
 export default class NLUPlayground extends React.Component {
@@ -24,6 +25,8 @@ export default class NLUPlayground extends React.Component {
     };
 
     handleExampleTested = (example) => {
+        const { projectId } = this.props;
+        if (!can('nlu-data:w', projectId)) return;
         this.setState({ example, editMode: true });
     };
 

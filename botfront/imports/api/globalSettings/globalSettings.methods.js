@@ -8,8 +8,8 @@ import { checkIfCan } from '../../lib/scopes';
 if (Meteor.isServer) {
     Meteor.methods({
         'settings.save'(settings) {
+            checkIfCan('global-settings:w');
             check(settings, Object);
-            checkIfCan('global-admin');
             try {
                 return GlobalSettings.update({ _id: 'SETTINGS' }, { $set: settings });
             } catch (e) {

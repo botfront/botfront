@@ -348,7 +348,6 @@ class Project extends React.Component {
                                     intents,
                                     entities,
                                     slots,
-                                    webhooks: settings.settings.private.webhooks,
                                     language: workingLanguage,
                                     triggerChatPane: this.triggerChatPane,
                                     upsertResponse: this.upsertResponse,
@@ -424,7 +423,7 @@ const ProjectContainer = withTracker((props) => {
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const settingsHandler = Meteor.subscribe('settings');
     const settings = GlobalSettings.findOne({}, {
-        fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1, 'settings.private.webhooks': 1 },
+        fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1 },
     });
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);

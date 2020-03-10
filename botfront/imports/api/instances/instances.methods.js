@@ -9,14 +9,14 @@ import { promisify } from 'util';
 import path from 'path';
 
 import {
-    getAxiosError, getModelIdsFromProjectId, uploadFileToGcs, getProjectModelLocalFolder, getProjectModelFileName,
+    getAxiosError, getModelIdsFromProjectId, uploadFileToGcs, getProjectModelLocalFolder, getProjectModelFileName, getProjectIdFromModelId,
 } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
-import { checkIfCan } from '../roles/roles';
+import { checkIfCan } from '../../lib/scopes';
 import { Projects } from '../project/project.collection';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
@@ -61,6 +61,7 @@ const getConfig = (model) => {
 };
 
 export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
+    checkIfCan('nlu-data:r', getProjectIdFromModelId(model._id));
     if (!model.training_data) {
         throw Error('Property training_data of model argument is required');
     }
@@ -100,6 +101,7 @@ if (Meteor.isServer) {
     const trainingAppLogger = getAppLoggerForFile(__filename);
 
     export const parseNlu = async (instance, examples) => {
+        checkIfCan('nlu-data:r', instance.projectId);
         check(instance, Object);
         check(examples, Array);
         const appMethodLogger = getAppLoggerForMethod(
@@ -154,6 +156,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'rasa.parse'(instance, params) {
+            checkIfCan('nlu-data:r', instance.projectId);
             check(instance, Object);
             check(params, Array);
             this.unblock();
@@ -161,8 +164,8 @@ if (Meteor.isServer) {
         },
 
         async 'rasa.convertToJson'(file, language, outputFormat, host) {
-            check(file, String);
             check(language, String);
+            check(file, String);
             check(outputFormat, String);
             check(host, String);
             const appMethodLogger = getAppLoggerForMethod(
@@ -190,10 +193,10 @@ if (Meteor.isServer) {
             return data;
         },
         async 'rasa.getTrainingPayload'(projectId, instance, { language = '', joinStoryFiles = true } = {}) {
+            checkIfCan(['nlu-data:x', 'projects:r'], projectId);
             check(projectId, String);
             check(language, String);
             check(instance, Object);
-            checkIfCan('nlu-model:x', projectId);
             const modelIds = await getModelIdsFromProjectId(projectId);
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
@@ -264,6 +267,7 @@ if (Meteor.isServer) {
         },
 
         async 'rasa.train'(projectId, instance) {
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(instance, Object);
             const appMethodLogger = getAppLoggerForMethod(
@@ -323,6 +327,7 @@ if (Meteor.isServer) {
         },
 
         'rasa.evaluate.nlu'(modelId, projectId, testData) {
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));

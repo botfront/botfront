@@ -3,10 +3,14 @@ import {
     upsertActivity,
     deleteActivity,
 } from '../mongo/activity';
+import { checkIfCan } from '../../../../lib/scopes';
+import { getProjectIdFromModelId } from '../../../../lib/utils';
 
 export default {
     Query: {
-        getActivity: async (_root, args) => {
+        getActivity: async (_root, args, context) => {
+            if (args.ooS) checkIfCan('nlu-data:r', getProjectIdFromModelId(args.modelId), context.user._id);
+            else checkIfCan('incoming:r', getProjectIdFromModelId(args.modelId), context.user._id);
             const { cursor, pageSize } = args;
             const data = await getActivity(args);
             const cursorIndex = !cursor
@@ -27,8 +31,16 @@ export default {
     },
 
     Mutation: {
-        upsertActivity: async (_root, args) => upsertActivity(args),
-        deleteActivity: async (_root, args) => deleteActivity(args),
+        upsertActivity: async (_root, args, context) => {
+            if (args.isOoS) checkIfCan('nlu-data:w', getProjectIdFromModelId(args.modelId), context.user._id);
+            else checkIfCan('incoming:w', getProjectIdFromModelId(args.modelId), context.user._id);
+            return upsertActivity(args);
+        },
+        deleteActivity: async (_root, args, context) => {
+            if (args.isOoS) checkIfCan('nlu-data:w', getProjectIdFromModelId(args.modelId), context.user._id);
+            else checkIfCan('incoming:w', getProjectIdFromModelId(args.modelId), context.user._id);
+            return deleteActivity(args);
+        },
     },
 
     Activity: {

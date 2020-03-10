@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import { checkIfCan, can } from '../../lib/scopes';
+import { checkIfCan } from '../../lib/scopes';
 import { InstanceSchema } from './instances.schema';
 
 export const Instances = new Mongo.Collection('nlu_instances');
@@ -21,15 +21,15 @@ Instances.deny({
 if (Meteor.isServer) {
     Instances._ensureIndex({ projectId: 1 });
     Meteor.publish('nlu_instances', function(projectId) {
+        checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
         check(projectId, String);
-        if (can(['nlu-data:r', 'project-settings:r'], projectId, this.userId)) return Instances.find({ projectId });
-        return this.ready();
+        return Instances.find({ projectId });
     });
 
     Meteor.methods({
         'instance.update'(item) {
+            checkIfCan('projects:w', item.projectId);
             check(item, Object);
-            checkIfCan('project-settings:w', item.projectId);
             return Instances.update({ _id: item._id }, { $set: item });
         },
     });

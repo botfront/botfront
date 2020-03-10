@@ -12,6 +12,8 @@ import { getModelField } from '../../../../lib/autoForm.utils';
 import OptionalField from '../../form_fields/OptionalField';
 import SelectField from '../../form_fields/SelectField';
 import ToggleField from '../../common/ToggleField';
+import { can } from '../../../../api/roles/roles';
+
 
 class RulesForm extends AutoForm {
     resetOptionalArray = (keyArray, fieldName) => {
@@ -114,7 +116,7 @@ class RulesForm extends AutoForm {
 }
 
 function StoryRulesForm({
-    rules, onSave, deleteTriggers,
+    rules, onSave, deleteTriggers, projectId,
 }) {
     const [enabledErrors, setEnabledErrors] = useState({});
 
@@ -343,7 +345,7 @@ function StoryRulesForm({
 
     return (
         <div className='story-trigger-form-container' data-cy='story-rules-editor'>
-            <RulesForm model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={onSave} onValidate={handleValidate}>
+            <RulesForm disabled={!can('triggers:w', projectId)} model={activeModel} schema={new SimpleSchema2Bridge(rootSchema)} onSubmit={onSave} onValidate={handleValidate}>
                 <ListAddField name='rules.$' className='add-trigger-field' />
                 <ListField name='rules' label=''>
                     <ListItemField name='$'>
@@ -479,10 +481,12 @@ function StoryRulesForm({
                 <br />
                 <ErrorsField />
                 <br />
-                <div className='submit-rules-buttons' data-cy='submit-rules-buttons'>
-                    <Button onClick={handleDeleteClick} basic color='red' floated='right' data-cy='delete-triggers'>Delete</Button>
-                    <SubmitField value='Save and exit' className='right floated blue' data-cy='submit-triggers' />
-                </div>
+                {can('triggers:w', projectId) && (
+                    <div className='submit-rules-buttons' data-cy='submit-rules-buttons'>
+                        <Button onClick={handleDeleteClick} basic color='red' floated='right' data-cy='delete-triggers'>Delete</Button>
+                        <SubmitField value='Save and exit' className='right floated blue' data-cy='submit-triggers' />
+                    </div>
+                )}
             </RulesForm>
         </div>
     );
@@ -492,6 +496,7 @@ StoryRulesForm.propTypes = {
     rules: PropTypes.object,
     onSave: PropTypes.func.isRequired,
     deleteTriggers: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryRulesForm.defaultProps = {

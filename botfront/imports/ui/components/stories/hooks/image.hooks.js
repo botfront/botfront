@@ -1,13 +1,12 @@
 /* eslint-disable no-console */
 
 import { useContext } from 'react';
-import Alert from 'react-s-alert';
 import { Meteor } from 'meteor/meteor';
+import { wrapMeteorCallback } from '../../utils/Errors';
 import { ProjectContext } from '../../../layouts/context';
 
 export function useUpload(templateKey) {
-    const { language, project: { _id: projectId }, webhooks } = useContext(ProjectContext);
-    const { uploadImageWebhook: { url, method } } = webhooks;
+    const { language, project: { _id: projectId } } = useContext(ProjectContext);
     const reader = new FileReader();
 
     const uploadImage = async ({
@@ -20,22 +19,17 @@ export function useUpload(templateKey) {
                 const data = {
                     projectId, data: fileData, mimeType: file.type, language, responseId: `${templateKey}_${new Date().getTime()}`,
                 };
-                Meteor.call('axios.requestWithJsonBody', url, method, data, (err, response) => {
-                    if (err || response.status !== 200) {
-                        Alert.error(`Error ${err || response.status} while trying to upload image : ${response.data || ''} `, {
-                            position: 'top-right',
-                            timeout: 2000,
-                        });
-                    }
-                    if (response.status === 200) setImage(response.data.uri);
+                Meteor.call('upload.image', projectId, data, wrapMeteorCallback((err, response = {}) => {
+                    if (!err) setImage(response.data.uri);
                     resetUploadStatus();
-                });
+                }));
             };
         } catch (e) {
             console.log('error while uploading the image, check botfront logs');
             resetUploadStatus();
         }
     };
-    if (templateKey && webhooks && language && projectId && reader) return [uploadImage];
-    return [() => {}];
+    if (templateKey && language && projectId && reader) return [uploadImage];
+    // will not initialize if any of those missing
+    return [null];
 }

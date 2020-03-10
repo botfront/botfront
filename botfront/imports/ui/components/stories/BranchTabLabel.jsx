@@ -2,7 +2,7 @@
 import { Menu, Icon, Popup } from 'semantic-ui-react';
 import propTypes from 'prop-types';
 import React from 'react';
-
+import { can } from '../../../lib/scopes';
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
 
@@ -127,10 +127,15 @@ class BranchTabLabel extends React.Component {
     };
 
     renderDeleteButton = () => {
-        const { isLinked, siblings, isParentLinked } = this.props;
-        return (
-            <Icon name='trash' disabled={isLinked || (siblings.length < 3 && isParentLinked === true)} size='small' data-cy='delete-branch' />
-        );
+        const {
+            isLinked, siblings, isParentLinked, projectId,
+        } = this.props;
+        if (can('stories:w', projectId)) {
+            return (
+                <Icon name='trash' disabled={isLinked || (siblings.length < 3 && isParentLinked === true)} size='small' data-cy='delete-branch' />
+            );
+        }
+        return (<></>);
     };
 
     handleOnClick = () => {
@@ -147,9 +152,10 @@ class BranchTabLabel extends React.Component {
 
     renderTitlePlain = () => {
         const { title } = this.state;
+        const { projectId } = this.props;
         return (
             <>
-                <span role='textbox' onClick={this.handleFocusTitleInput} tabIndex={0}>
+                <span role='textbox' onClick={can('stories:w', projectId) && this.handleFocusTitleInput} tabIndex={0}>
                     {title}
                 </span>
                 {this.renderDeleteButton()}
@@ -266,11 +272,11 @@ class BranchTabLabel extends React.Component {
 
     renderTitle = () => {
         const { titleHovered, titleInputFocused, blockEditOptions } = this.state;
-        const { active } = this.props;
+        const { active, projectId } = this.props;
         if (titleInputFocused) {
             return this.renderTitleInput();
         }
-        if (active && titleHovered && !blockEditOptions) {
+        if (active && can('stories:w', projectId) && titleHovered && !blockEditOptions) {
             return this.renderTitleDecorated();
         }
         return this.renderTitlePlain();
@@ -282,12 +288,12 @@ class BranchTabLabel extends React.Component {
             <Menu.Item
                 active={active}
                 onClick={this.handleOnClick}
-                content={
+                content={(
                     <>
                         {this.renderAlertIcons()}
                         {this.renderTitle()}
                     </>
-                }
+                )}
                 onMouseEnter={this.handleTitleMouseEnter}
                 onMouseLeave={this.handleTitleMouseLeave}
                 role='textbox'
@@ -307,6 +313,7 @@ BranchTabLabel.propTypes = {
     siblings: propTypes.array.isRequired,
     isLinked: propTypes.bool,
     isParentLinked: propTypes.bool.isRequired,
+    projectId: propTypes.string.isRequired,
 };
 
 BranchTabLabel.defaultProps = {

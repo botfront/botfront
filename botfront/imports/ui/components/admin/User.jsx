@@ -1,3 +1,4 @@
+import { Roles } from 'meteor/alanning:roles';
 import { Meteor } from 'meteor/meteor';
 
 import { withTracker } from 'meteor/react-meteor-data';
@@ -19,15 +20,15 @@ import {
 import { browserHistory } from 'react-router';
 
 import { UserEditSchema, UserCreateSchema } from '../../../api/user/user.schema';
-import { can } from '../../../lib/scopes';
+import { can, getUserScopes } from '../../../lib/scopes';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangePassword from './ChangePassword';
 import { PageMenu } from '../utils/Utils';
 
-//ee
+// ee
 import { Projects } from '../../../api/project/project.collection';
 import SelectField from '../form_fields/SelectField';
-//ee
+// ee
 
 class User extends React.Component {
     constructor(props) {
@@ -64,7 +65,7 @@ class User extends React.Component {
     renderRoles = () => {
         const { projectOptions } = this.props;
         return (
-            <ListField name='roles'>
+            <ListField name='roles' data-cy='user-roles-field'>
                 <ListItemField name='$'>
                     <NestField>
                         <Grid columns='equal'>
@@ -90,11 +91,12 @@ class User extends React.Component {
     getPanes = () => {
         const { confirmOpen } = this.state;
         const { user } = this.props;
+        const hasWritePermission = can('users:w', { anyScope: true });
         const panes = [
             {
                 menuItem: 'General information',
                 render: () => (
-                    <Segment>
+                    <Segment className={hasWritePermission}>
                         <AutoForm
                             schema={UserEditSchema}
                             onSubmit={usr => this.saveUser(usr)}
@@ -106,6 +108,7 @@ class User extends React.Component {
                                 }
                                 return usr;
                             }}
+                            disabled={!hasWritePermission}
                         >
                             <AutoField name='emails.0.address' />
                             <AutoField name='emails.0.verified' />
@@ -113,22 +116,25 @@ class User extends React.Component {
                             <AutoField name='profile.lastName' />
                             {this.renderRoles()}
                             <ErrorsField />
-                            <SubmitField />
+                            {hasWritePermission && <SubmitField data-cy='save-user' />}
                         </AutoForm>
                     </Segment>
                 ),
             },
-            {
-                menuItem: 'Password change',
-                render: () => (
-                    <Segment>
-                        <ChangePassword userId={user._id} />
-                    </Segment>
-                ),
-            },
+            ...(hasWritePermission
+                ? [{
+                    menuItem: 'Password change',
+                    render: () => (
+                        <Segment>
+                            <ChangePassword userId={user._id} />
+                        </Segment>
+                    ),
+                }]
+                : []
+            ),
         ];
 
-        if (can('global-admin')) {
+        if (hasWritePermission) {
             panes.push({
                 menuItem: 'User deletion',
                 render: () => (
@@ -207,18 +213,17 @@ User.propTypes = {
 // TODO test
 function prepareRoles(user) {
     if (!user) return null;
+    const userRoles = Roles.getRolesForUser(user._id, { anyScope: true, fullObjects: true, onlyAssigned: true });
     const roles = reduce(
-        user.roles,
+        userRoles,
         function(result, value) {
-            if (!value.assigned) return result;
-            
             let rbac = find(result, { project: value.scope });
             
             if (!rbac) {
                 rbac = { project: value.scope ? value.scope : 'GLOBAL', roles: [] };
                 result.push(rbac);
             }
-            if (value.assigned) rbac.roles.push(value._id);
+            rbac.roles.push(value.role._id);
             return result;
         },
         [],
@@ -232,11 +237,13 @@ const UserContainer = withTracker(({ params }) => {
     const rolesHandler = Meteor.subscribe('roles');
     const ready = [userDataHandler, projectsHandler, rolesHandler].every(h => h.ready());
     const user = prepareRoles(Meteor.users.findOne({ _id: params.user_id }));
-    const projectOptions = Projects.find({}, { fields: { _id: 1, name: 1 } })
+    const editUsersScopes = getUserScopes(Meteor.userId(), 'users:r');
+    const projectOptions = Projects.find({ _id: { $in: editUsersScopes } }, { fields: { _id: 1, name: 1 } })
         .fetch()
         .map(p => ({ text: p.name, value: p._id }));
-
-    projectOptions.push({ text: 'GLOBAL', value: 'GLOBAL' }); // global role
+    if (can('users:r')) {
+        projectOptions.push({ text: 'GLOBAL', value: 'GLOBAL' }); // global role
+    }
 
     return {
         ready,

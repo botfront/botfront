@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React, {
-    useState, useEffect, useRef, useContext,
+    useState, useEffect, useRef,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -11,13 +11,11 @@ import { useDrop } from 'react-dnd-cjs';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
 import FloatingIconButton from '../../common/FloatingIconButton';
-import { ProjectContext } from '../../../layouts/context';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag, hasMetadata, metadata,
+        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag, hasMetadata, metadata, editable,
     } = props;
-    const { webhooks } = useContext(ProjectContext);
 
     const [input, setInput] = useState();
     const [shiftPressed, setshiftPressed] = useState(false);
@@ -146,7 +144,7 @@ const BotResponseContainer = (props) => {
         <div
             ref={drop}
         >
-            {webhooks && webhooks.uploadImageWebhook && webhooks.uploadImageWebhook.url && (
+            {uploadImage && (
                 <>
                     <div className='align-center'>
                         <Icon name='image' size='huge' color='grey' />
@@ -221,7 +219,7 @@ const BotResponseContainer = (props) => {
 
     return (
         <div
-            className={`utterance-container bot-response ${extraClass} ${metadataClass}`}
+            className={`utterance-container bot-response ${extraClass} ${metadataClass} ${editable ? '' : 'read-only'}`}
             agent='bot'
             data-cy='bot-response-input'
             {...getCustomStyle()}
@@ -250,6 +248,7 @@ BotResponseContainer.propTypes = {
     uploadImage: PropTypes.func,
     hasMetadata: PropTypes.bool,
     metadata: PropTypes.object,
+    editable: PropTypes.bool,
 };
 
 BotResponseContainer.defaultProps = {
@@ -260,6 +259,7 @@ BotResponseContainer.defaultProps = {
     uploadImage: () => {},
     hasMetadata: false,
     metadata: {},
+    editable: true,
 };
 
 export default BotResponseContainer;

@@ -62,10 +62,11 @@ class Credentials extends React.Component {
     renderCredentials = (saving, credentials, projectId, environment) => {
         const { saved, showConfirmation, selectedEnvironment } = this.state;
         const { orchestrator } = this.props;
+        const hasWritePermission = can('projects:w', projectId);
         return (
             <AutoForm
                 key={selectedEnvironment}
-                disabled={!!saving || !can('project-settings:w', projectId)}
+                disabled={!!saving || !hasWritePermission}
                 schema={new SimpleSchema2Bridge(CredentialsSchema)}
                 model={credentials}
                 onSubmit={this.onSave}
@@ -95,7 +96,7 @@ class Credentials extends React.Component {
                         )}
                     />
                 )}
-                <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('project-settings:w', projectId)} />
+                {hasWritePermission && <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('projects:w', projectId)} /> }
             </AutoForm>
         );
     };

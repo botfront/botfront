@@ -10,8 +10,8 @@ export const checkStoryNotEmpty = story => story.story && !!story.story.replace(
 
 Meteor.methods({
     'stories.insert'(story) {
-        check(story, Match.OneOf(Object, [Object]));
         checkIfCan('stories:w', Array.isArray(story) ? story[0].projectId : story.projectId);
+        check(story, Match.OneOf(Object, [Object]));
         if (Array.isArray(story)) {
             return Stories.rawCollection().insertMany(story
                 .map(s => ({
@@ -24,9 +24,9 @@ Meteor.methods({
     },
 
     async 'stories.update'(story, projectId, options = {}) {
+        checkIfCan('stories:w', story.projectId);
         check(story, Object);
         check(projectId, String);
-        checkIfCan('stories:w', story.projectId);
         check(options, Object);
         const { noClean } = options;
         const {
@@ -60,37 +60,37 @@ Meteor.methods({
     },
 
     async 'stories.delete'(story, projectId) {
+        checkIfCan('stories:w', story.projectId);
         check(story, Object);
         check(projectId, String);
-        checkIfCan('stories:w', story.projectId);
         const result = await Stories.remove(story);
         deleteResponsesRemovedFromStories(story.events, projectId);
         return result;
     },
 
-    'stories.getStories'(projectId) {
-        check(projectId, String);
-        checkIfCan('stories:r', projectId);
-        return Stories.find({ projectId }).fetch();
-    },
-
-    'stories.addCheckpoints'(destinationStory, branchPath) {
+    'stories.addCheckpoints'(projectId, destinationStory, branchPath) {
+        checkIfCan('stories:w', projectId);
         check(destinationStory, String);
         check(branchPath, Array);
+        check(projectId, String);
         return Stories.update(
             { _id: destinationStory },
             { $addToSet: { checkpoints: branchPath } },
         );
     },
-    'stories.removeCheckpoints'(destinationStory, branchPath) {
+    'stories.removeCheckpoints'(projectId, destinationStory, branchPath) {
+        // -permission- add a projectId
+        checkIfCan('stories:w', projectId);
         check(destinationStory, String);
         check(branchPath, Array);
+        check(projectId, String);
         return Stories.update(
             { _id: destinationStory },
             { $pullAll: { checkpoints: [branchPath] } },
         );
     },
     async 'stories.updateRules'(projectId, storyId, story) {
+        checkIfCan('triggers:w', projectId);
         check(projectId, String);
         check(storyId, String);
         check(story, Object);
@@ -105,6 +105,7 @@ Meteor.methods({
         );
     },
     async 'stories.deleteRules'(projectId, storyId) {
+        checkIfCan('triggers:w', projectId);
         check(projectId, String);
         check(storyId, String);
         Stories.update(

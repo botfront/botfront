@@ -6,29 +6,36 @@ import {
     deleteConversation,
     getIntents,
 } from '../mongo/conversations';
+import { checkIfCan } from '../../../../lib/scopes';
 
 export default {
     Query: {
-        async conversationsPage(_, args, __) {
+        async conversationsPage(_, args, context) {
+            checkIfCan('incoming:r', args.projectId, context.user._id);
             return getConversations({ ...args });
         },
-        async conversation(_, args, __) {
+        async conversation(_, args, context) {
+            checkIfCan('incoming:r', args.projectId, context.user._id);
             return getConversation(args.projectId, args.id);
         },
-        async intentsInConversations(_, args, __) {
+        async intentsInConversations(_, args, context) {
+            checkIfCan('incoming:r', args.projectId, context.user._id);
             return getIntents(args.projectId);
         },
     },
     Mutation: {
-        async markAsRead(_, args, __) {
+        async markAsRead(_, args, context) {
+            checkIfCan('incoming:r', args.projectId, context.user._id);
             const response = await updateConversationStatus(args.id, 'read');
             return { success: response.ok === 1 };
         },
-        async updateStatus(_, args, __) {
+        async updateStatus(_, args, context) {
+            checkIfCan('incoming:w', args.projectId, context.user._id);
             const response = await updateConversationStatus(args.id, args.status);
             return { success: response.ok === 1 };
         },
-        async delete(_, args, __) {
+        async delete(_, args, context) {
+            checkIfCan('incoming:w', args.projectId, context.user._id);
             const response = await deleteConversation(args.id);
             return { success: response.ok === 1 };
         },

@@ -7,8 +7,10 @@ import {
     Menu,
     Dropdown,
 } from 'semantic-ui-react';
+import { connect } from 'react-redux';
 import StoryPathPopup from './StoryPathPopup.jsx';
 import { ConversationOptionsContext } from './Context';
+import { can } from '../../../lib/scopes';
 
 class StoryFooter extends React.Component {
     constructor(props) {
@@ -110,6 +112,7 @@ class StoryFooter extends React.Component {
     }
 
     renderBranchMenu = (destinationStory, canBranch) => {
+        const { projectId } = this.props;
         if (destinationStory) {
             return <></>;
         }
@@ -160,7 +163,7 @@ class StoryFooter extends React.Component {
                 onChange={onDestinationStorySelection}
             />
         </Menu.Item>
-    );
+    )
 
 
     positionStoryLinker = destinationStory => (destinationStory === null ? 'right' : 'left');
@@ -172,13 +175,14 @@ class StoryFooter extends React.Component {
             currentStoryId,
             destinationStory,
             onDestinationStorySelection,
+            projectId,
         } = this.props;
         return (
             <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
-                    <>{this.renderBranchMenu(destinationStory, canBranch)}</>
-                    <>{canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
+                    <>{can('stories:w', projectId) && this.renderBranchMenu(destinationStory, canBranch)}</>
+                    <>{can('stories:w', projectId) && canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
                     <>{this.renderContinue()}</>
                 </Menu>
             </Segment>
@@ -197,6 +201,7 @@ StoryFooter.propTypes = {
     disableContinue: PropTypes.bool,
     stories: PropTypes.array.isRequired,
     destinationStory: PropTypes.object,
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryFooter.defaultProps = {
@@ -207,10 +212,16 @@ StoryFooter.defaultProps = {
     destinationStory: null,
 };
 
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+const ConnectedStoryFooter = connect(mapStateToProps)(StoryFooter);
+
 export default props => (
     <ConversationOptionsContext.Consumer>
         {value => (
-            <StoryFooter
+            <ConnectedStoryFooter
                 {...props}
                 stories={value.stories}
             />

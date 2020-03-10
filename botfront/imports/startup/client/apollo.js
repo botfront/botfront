@@ -72,10 +72,17 @@ const link = split(
     httpLink,
 );
 
+// this will activate the dev tools when we are testing the application
+// So cypress can acces __APOLLO_CLIENT__
+let devTools = {};
+if (window.Cypress) {
+    devTools = { connectToDevTools: true };
+}
 
 const client = new ApolloClient({
     link: ApolloLink.from([errorLink, requestLink, link]),
     cache: new InMemoryCache({ fragmentMatcher }),
+    ...devTools,
 });
 
 export default client;

@@ -8,7 +8,7 @@ import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
-import { Can } from '../../../lib/scopes';
+import Can from '../roles/Can';
 
 
 class TrainButton extends React.Component {
@@ -71,7 +71,7 @@ class TrainButton extends React.Component {
             ready,
         } = this.props;
         return ready && (
-            <Can I='nlu-model:x'>
+            <Can I='nlu-data:x'>
                 {this.renderButton(project, instance, popupContent)}
             </Can>
         );

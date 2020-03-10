@@ -7,6 +7,7 @@ import {
     AutoForm, AutoField, SubmitField,
 } from 'uniforms-semantic';
 import SelectField from '../../form_fields/SelectField';
+import { can } from '../../../../lib/scopes';
 
 function WebHooksForm(props) {
     const { onSave, webhooks } = props;
@@ -53,12 +54,13 @@ function WebHooksForm(props) {
                 model={webhooks[k]}
                 schema={new GraphQLBridge(schema, validator, schemaData)}
                 onSubmit={data => handleSave(k, data)}
+                disabled={!can('global-settings:w', { anyScope: true })}
             >
                 <h3>{webhooks[k].name}</h3>
                 <AutoField name='url' />
                 <SelectField name='method' />
                 <div className='side-by-side left'>
-                    <SubmitField value='Save' className='primary' />
+                    {can('global-settings:w', { anyScope: true }) && <SubmitField data-cy='save-global-settings' value='Save' className='primary' />}
                 </div>
             </AutoForm>
         </Tab.Pane>

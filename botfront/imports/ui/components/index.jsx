@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { getScopesForUser, areScopeReady } from '../../lib/scopes';
-import { can } from '../../api/roles/roles';
+import { getScopesForUser, areScopeReady, can } from '../../lib/scopes';
+
 
 class Index extends React.Component {
     componentDidMount() {
@@ -18,6 +18,18 @@ class Index extends React.Component {
     }
 
     roleRouting = (pId) => {
+        if (can('projects:r')) {
+            return '/admin/projects';
+        }
+        if (can('users:r', { anyScope: true })) {
+            return '/admin/users';
+        }
+        if (can('roles:r', { anyScope: true })) {
+            return '/admin/roles';
+        }
+        if (can('global-settings:r', { anyScope: true })) {
+            return '/admin/settings';
+        }
         if (can('stories:r', pId)) {
             return `/project/${pId}/stories`;
         }
@@ -27,12 +39,6 @@ class Index extends React.Component {
         if (can('responses:r', pId)) {
             return `/project/${pId}/dialogue/templates`;
         }
-        if (can('conversations:r', pId)) {
-            return `/project/${pId}/dialogue/conversations/env/development/p/1`;
-        }
-        if (can('project-settings:r', pId)) {
-            return `/project/${pId}/settings`;
-        }
         return ('/404');
     };
 
@@ -41,15 +47,8 @@ class Index extends React.Component {
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    if (can('global-admin', undefined, Meteor.userId())) router.push('/admin/projects');
-                    else {
-                        const projects = getScopesForUser(Meteor.userId(), '');
-                        if (projects.length === 0) {
-                            router.push('/404');
-                        } else {
-                            router.push(this.roleRouting(projects[0]));
-                        }
-                    }
+                    const projects = getScopesForUser(Meteor.userId(), '');
+                    router.push(this.roleRouting(projects[0]));
                 }
             });
         } else {

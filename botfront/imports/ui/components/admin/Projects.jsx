@@ -11,6 +11,7 @@ import React from 'react';
 
 import { Projects } from '../../../api/project/project.collection';
 import { PageMenu } from '../utils/Utils';
+import { can } from '../../../lib/scopes';
 
 class ProjectsList extends React.Component {
     filterItem = (filter, rows, filterKey) => {
@@ -36,19 +37,21 @@ class ProjectsList extends React.Component {
             filterMethod: (filter, rows) => (this.filterItem(filter, rows, 'id')),
             Header: 'ID',
         },
-        {
-            id: 'edit',
-            accessor: '_id',
-            width: 55,
-            Header: 'Edit',
-            Cell: props => (
-                <div className='center'>
-                    <Link to={`/admin/project/${props.value}`}>
-                        <Icon name='edit' color='grey' link size='small' />
-                    </Link>
-                </div>
-            ),
-        },
+        ...(can('projects:w')
+            ? [{
+                id: 'edit',
+                accessor: '_id',
+                width: 55,
+                Header: 'Edit',
+                Cell: props => (
+                    <div className='center'>
+                        <Link to={`/admin/project/${props.value}`}>
+                            <Icon name='edit' color='grey' link size='small' data-cy='edit-projects' />
+                        </Link>
+                    </div>
+                ),
+            }]
+            : []),
     ];
 
     render() {
@@ -57,19 +60,22 @@ class ProjectsList extends React.Component {
             <div>
                 <PageMenu icon='sitemap' title='Projects'>
                     <Menu.Menu position='right'>
-                        <Menu.Item>
-                            <Button
-                                data-cy='new-project'
-                                onClick={() => {
-                                    browserHistory.push('/admin/project/add');
-                                }}
-                                primary
-                                disabled={loading}
-                                icon='add'
-                                content='Add project'
-                                labelPosition='left'
-                            />
-                        </Menu.Item>
+                        {can('projects:w') && (
+                            <Menu.Item>
+                                <Button
+                                    data-cy='new-project'
+                                    onClick={() => {
+                                        browserHistory.push('/admin/project/add');
+                                    }}
+                                    primary
+                                    disabled={loading}
+                                    icon='add'
+                                    content='Add project'
+                                    labelPosition='left'
+                                />
+                            </Menu.Item>
+                        )
+                        }
                     </Menu.Menu>
                 </PageMenu>
                 <Container>

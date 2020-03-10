@@ -4,7 +4,7 @@ import {
     Confirm, Dropdown, Button, Icon,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import { can } from '../../../../api/roles/roles';
+import { can } from '../../../../lib/scopes';
 
 const confirmations = {
     ADD_TO_TRAINING: 'The selected utterances will be added to the training data',

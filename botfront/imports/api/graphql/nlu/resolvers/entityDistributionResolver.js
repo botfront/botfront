@@ -4,6 +4,7 @@ import { checkIfCan } from '../../../../lib/scopes';
 export default {
     Query: {
         async entityDistribution(parent, args, context, info) {
+            checkIfCan('analytics:r', args.projectId, context.user.id);
             return getEntityDistribution(args.modelId);
         },
     },

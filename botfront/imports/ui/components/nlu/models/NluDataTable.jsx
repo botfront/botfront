@@ -107,9 +107,8 @@ export default class NluDataTable extends React.Component {
         const expanderColumn = [{
             expander: true,
             Expander: (row) => {
-                if (row.row.example.canonical) {
-                    return null;
-                }
+                if (row.row.example.canonical) return null;
+                if (!can('nlu-data:w', projectId)) return null;
                 return (
                     <div>
                         {row.isExpanded
@@ -152,67 +151,71 @@ export default class NluDataTable extends React.Component {
 
         firstColumns = expanderColumn.concat(intentColumns.concat(firstColumns.concat(extraColumns || [])));
 
-        if (can('nlu-data:w', projectId)) {
-            firstColumns.push({
-                accessor: '_id',
-                filterable: false,
-                Cell: (props) => {
-                    if (waiting.has(props.row.example._id)) {
-                        return (<Loader className='loader-canonical' active inline size='mini' data-cy='canonical-spinner' />);
-                    }
-                    const canonical = props.row.example.canonical ? props.row.example.canonical : false;
-                    let toolTip = (<div>Mark as canonical</div>);
-                    if (canonical) {
-                        toolTip = (
-                            <>
-                                <Popup.Header>Canonical Example</Popup.Header>
-                                <Popup.Content className='popup-canonical'>
+        firstColumns.push({
+            accessor: '_id',
+            filterable: false,
+            Cell: (props) => {
+                if (waiting.has(props.row.example._id)) {
+                    return (<Loader className='loader-canonical' active inline size='mini' data-cy='canonical-spinner' />);
+                }
+                const canonical = props.row.example.canonical ? props.row.example.canonical : false;
+                let toolTip = (<div>Mark as canonical</div>);
+
+                if (!canonical && !can('nlu-data:w', projectId)) return null; // don't show anything
+
+                if (canonical) {
+                    toolTip = (
+                        <>
+                            <Popup.Header>Canonical Example</Popup.Header>
+                            <Popup.Content className='popup-canonical'>
                                 This example is canonical for the intent
-                                    <span className='intent-name'> {props.row.example.intent}</span>
+                                <span className='intent-name'> {props.row.example.intent}</span>
 
-                                    {props.row.example.entities && props.row.example.entities.length > 0
-                                        ? (
-                                            <>
+                                {props.row.example.entities && props.row.example.entities.length > 0
+                                    ? (
+                                        <>
                                             and for the following entity - entity value combinations: <br />
-                                                {props.row.example.entities.map(entity => (
-                                                    <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>
-                                                ))}
-                                            </>
-                                        )
-                                        : ''}
-                                </Popup.Content>
-                            </>
-                        );
-                    }
+                                            {props.row.example.entities.map(entity => (
+                                                <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>
+                                            ))}
+                                        </>
+                                    )
+                                    : ''}
+                            </Popup.Content>
+                        </>
+                    );
+                }
 
-                    return (
-                        <FloatingIconButton
-                            toolTip={toolTip}
-                            toolTipInverted={!canonical}
-                            icon='gem'
-                            color={canonical ? 'black' : undefined}
-                            onClick={async () => {
-                                // need to recreate a set since state do not detect update through mutations
-                                this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
-                                const result = await onSwitchCanonical(props.row.example);
-                                if (result.change) {
-                                    Alert.warning(`The previous canonical example with the same intent 
+                return (
+                    <FloatingIconButton
+                        disabled={!can('nlu-data:w', projectId)}
+                        toolTip={toolTip}
+                        toolTipInverted={!canonical}
+                        icon='gem'
+                        color={canonical ? 'black' : undefined}
+                        onClick={async () => {
+                            // need to recreate a set since state do not detect update through mutations
+                            this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
+                            const result = await onSwitchCanonical(props.row.example);
+                            if (result.change) {
+                                Alert.warning(`The previous canonical example with the same intent 
                                     and entity - entity value combination 
                                     (if applicable) with this example has been unmarked canonical`, {
-                                        position: 'top-right',
-                                        timeout: 5000,
-                                    });
-                                }
-                                waiting.delete(props.row.example._id);
-                                this.setState({ waiting: new Set(waiting) });
-                            }}
-                            iconClass={canonical ? '' : undefined} // remove the on hover class if canonical
-                        />
-                    );
-                },
-                Header: '',
-                width: 30,
-            });
+                                    position: 'top-right',
+                                    timeout: 5000,
+                                });
+                            }
+                            waiting.delete(props.row.example._id);
+                            this.setState({ waiting: new Set(waiting) });
+                        }}
+                        iconClass={canonical ? '' : undefined} // remove the on hover class if canonical
+                    />
+                );
+            },
+            Header: '',
+            width: 30,
+        });
+        if (can('nlu-data:w', projectId)) {
             firstColumns.push({
                 accessor: '_id',
                 filterable: false,
@@ -238,7 +241,8 @@ export default class NluDataTable extends React.Component {
     }
 
     canonicalTooltip = (jsx, canonical) => {
-        if (!canonical) return jsx;
+        const { projectId } = this.props;
+        if (!canonical || !can('nlu-data:w', projectId)) return jsx;
         return (
             <Popup
                 trigger={<div>{jsx}</div>}
@@ -263,21 +267,18 @@ export default class NluDataTable extends React.Component {
 
     renderSubComponent(row) {
         const { projectId, entities } = this.props;
-        if (can('nlu-data:w', projectId)) {
-            return (
-                <NLUExampleEditMode
-                    floated='right'
-                    example={row.original}
-                    entities={entities}
-                    intents={this.getIntentForDropdown(false)}
-                    onSave={this.onEditExample}
-                    onCancel={() => this.setState({ expanded: {} })}
-                    postSaveAction='close'
-                    projectId={projectId}
-                />
-            );
-        }
-        return null;
+        return (
+            <NLUExampleEditMode
+                floated='right'
+                example={row.original}
+                entities={entities}
+                intents={this.getIntentForDropdown(false)}
+                onSave={this.onEditExample}
+                onCancel={() => this.setState({ expanded: {} })}
+                postSaveAction='close'
+                projectId={projectId}
+            />
+        );
     }
 
     render() {
@@ -370,22 +371,21 @@ export default class NluDataTable extends React.Component {
                             },
                         })}
                         className=''
-                        SubComponent={can('nlu-data:w', projectId)
-                            ? (row) => {
-                                if (row.row.example.canonical) return undefined;
-                                return (
-                                    <NLUExampleEditMode
-                                        floated='right'
-                                        example={row.original}
-                                        entities={entities}
-                                        intents={this.getIntentForDropdown(false)}
-                                        onSave={this.onEditExample}
-                                        onCancel={() => this.setState({ expanded: {} })}
-                                        postSaveAction='close'
-                                    />
-                                );
-                            } : null
-                        }
+                        SubComponent={(row) => {
+                            if (!can('nlu-data:w', projectId)) return undefined;
+                            if (row.row.example.canonical) return undefined;
+                            return (
+                                <NLUExampleEditMode
+                                    floated='right'
+                                    example={row.original}
+                                    entities={entities}
+                                    intents={this.getIntentForDropdown(false)}
+                                    onSave={this.onEditExample}
+                                    onCancel={() => this.setState({ expanded: {} })}
+                                    postSaveAction='close'
+                                />
+                            );
+                        }}
                     />
                 </div>
             </Tab.Pane>

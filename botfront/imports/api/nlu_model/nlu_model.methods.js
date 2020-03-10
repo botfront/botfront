@@ -31,10 +31,10 @@ const gazetteDefaults = {
 
 Meteor.methods({
     async 'nlu.insertExamplesWithLanguage'(projectId, language, items) {
+        checkIfCan(['nlu-data:w', 'stories:w'], projectId);
         check(projectId, String);
         check(language, String);
         check(items, Array);
-        checkIfCan(['nlu-data:w', 'stories:w'], projectId);
         try {
             const modelIds = getModelIdsFromProjectId(projectId);
             const modelId = NLUModels.findOne(
@@ -48,9 +48,9 @@ Meteor.methods({
     },
 
     async 'nlu.insertExamples'(modelId, items) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(items, Array);
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         if (items.length === 0) {
             return 0;
@@ -71,9 +71,9 @@ Meteor.methods({
     },
 
     'nlu.updateExample'(modelId, item) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         const cleanItem = ExampleUtils.stripBare(item);
         try {
@@ -84,9 +84,9 @@ Meteor.methods({
     },
 
     async 'nlu.switchCanonical'(modelId, item) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         if (!item.canonical) {
             /* try to match a canonical item with the same characteristics (intent, entity, entity value)
             to check if the selected item can be used as canonical
@@ -128,17 +128,17 @@ Meteor.methods({
     },
 
     'nlu.deleteExample'(modelId, itemId) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: itemId } } });
     },
 
     'nlu.upsertEntitySynonym'(modelId, item) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         if (item._id) {
             return NLUModels.update({ _id: modelId, 'training_data.entity_synonyms._id': item._id }, { $set: { 'training_data.entity_synonyms.$': item } });
@@ -148,17 +148,17 @@ Meteor.methods({
     },
 
     'nlu.deleteEntitySynonym'(modelId, itemId) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.entity_synonyms': { _id: itemId } } });
     },
 
     'nlu.upsertEntityGazette'(modelId, item) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         if (item._id) {
             return NLUModels.update({ _id: modelId, 'training_data.fuzzy_gazette._id': item._id }, { $set: { 'training_data.fuzzy_gazette.$': item } });
@@ -170,9 +170,9 @@ Meteor.methods({
     },
 
     'nlu.deleteEntityGazette'(modelId, itemId) {
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(itemId, String);
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
     },
@@ -180,6 +180,7 @@ Meteor.methods({
 
 if (Meteor.isServer) {
     const getChitChatProjectid = () => {
+        // no permission needed
         const { settings: { public: { chitChatProjectId = null } = {} } = {} } = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
         return chitChatProjectId;
     };
@@ -199,9 +200,9 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'nlu.insert'(item, projectId) {
+            checkIfCan('nlu-data:w', projectId);
             check(item, Object);
             check(projectId, String);
-            checkIfCan('nlu-model:w', projectId);
 
             // Check if the model with the langauge already exists in project
             // eslint-disable-next-line no-param-reassign
@@ -222,18 +223,18 @@ if (Meteor.isServer) {
         },
 
         'nlu.update'(modelId, item) {
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(item, Object);
             check(modelId, String);
-            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
 
             NLUModels.update({ _id: modelId }, { $set: item });
             return modelId;
         },
 
         'nlu.update.general'(modelId, item) {
+            checkIfCan('nlu-data:x', getProjectIdFromModelId(modelId));
             check(item, Object);
             check(modelId, String);
-            checkIfCan('nlu-model:x', getProjectIdFromModelId(modelId));
 
             const newItem = {};
             newItem.config = item.config;
@@ -248,9 +249,9 @@ if (Meteor.isServer) {
         },
 
         'nlu.remove'(modelId, projectId) {
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(projectId, String);
-            checkIfCan('nlu-model:w', getProjectIdFromModelId(modelId));
             // check the default language of project and the language of model
             const modelLanguage = NLUModels.findOne({ _id: modelId });
             const projectDefaultLanguage = Projects.findOne({ _id: projectId });
@@ -265,8 +266,11 @@ if (Meteor.isServer) {
             throw new Meteor.Error('409', 'The default language cannot be deleted');
         },
 
-        'nlu.getChitChatIntents'(language) {
+        'nlu.getChitChatIntents'(modelId, language) {
+            // -pemission- should require chitchat projectId?
+            checkIfCan('nlu-data:r', getProjectIdFromModelId(modelId));
             check(language, String);
+            check(modelId, String);
             const chitChatProjectId = getChitChatProjectid();
             if (!chitChatProjectId) {
                 throw ReferenceError('Chitchat project not set in global settings');
@@ -277,10 +281,10 @@ if (Meteor.isServer) {
         },
 
         'nlu.addChitChatToTrainingData'(modelId, language, intents) {
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(language, String);
             check(intents, [String]);
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
             const chitChatProjectId = getChitChatProjectid();
             if (!chitChatProjectId) {
@@ -295,9 +299,9 @@ if (Meteor.isServer) {
         },
 
         'nlu.updateChitChatIntents'(modelId, intents) {
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(intents, Array);
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             return NLUModels.update({ _id: modelId }, { $set: { chitchat_intents: intents } });
         },
 
@@ -364,11 +368,11 @@ if (Meteor.isServer) {
         },
 
         'nlu.renameIntent'(modelId, oldIntent, newIntent, renameBotResponses = false) {
+            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
             check(modelId, String);
             check(oldIntent, String);
             check(newIntent, String);
             check(renameBotResponses, Boolean);
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
 
             try {
                 const rawCollection = NLUModels.rawCollection();
@@ -392,8 +396,8 @@ if (Meteor.isServer) {
         },
 
         'nlu.removeExamplesByIntent'(modelId, arg) {
-            check(modelId, String);
             checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
+            check(modelId, String);
             check(arg, Match.OneOf(String, [String]));
             const intents = typeof arg === 'string' ? [arg] : arg;
 
@@ -405,10 +409,10 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.getUtteranceFromPayload'(projectId, payload, lang = 'en') {
+            checkIfCan('nlu-data:r', projectId);
             check(projectId, String);
             check(lang, String);
             check(payload, Object);
-            checkIfCan(['nlu-data:r', 'stories:r', 'responses:r'], projectId);
             if (!payload.intent) throw new Meteor.Error('400', 'Intent missing from payload');
             const { nlu_models: nluModelIds } = Projects.findOne(
                 { _id: projectId },
@@ -470,7 +474,7 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.chitChatSetup'() {
-            checkIfCan('global-admin');
+            checkIfCan('projects:w');
             try {
                 const data = {
                     fr: JSON.parse(Assets.getText('nlu/nlu-chitchat-fr.json')),

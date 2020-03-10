@@ -6,6 +6,8 @@ import Alert from 'react-s-alert';
 
 import StoryRulesForm from './StoryRulesForm';
 
+import { can } from '../../../../lib/scopes';
+
 const StoryRulesEditor = (props) => {
     const [localOpen, setLocalOpen] = useState(false);
 
@@ -35,7 +37,7 @@ const StoryRulesEditor = (props) => {
                 if (!trigger.props.onClick) return undefined;
                 return trigger.props.onClick(...args);
             },
-            disabled: trigger.props.disabled || isDestinationStory,
+            disabled: trigger.props.disabled || isDestinationStory || !can('triggers:r', projectId),
         },
     };
 
@@ -97,12 +99,13 @@ const StoryRulesEditor = (props) => {
                             Triggers
                             <Icon name='close' onClick={handleCancelChanges} className='close-rules-editor' link />
                         </Modal.Header>
-                        <Modal.Content>
+                        <Modal.Content className={can('triggers:w', projectId) ? '' : 'read-only'}>
                             <StoryRulesForm
                                 onChange={handleChangeRules}
                                 rules={rules}
                                 onSave={handleOnSave}
                                 deleteTriggers={deleteTriggers}
+                                projectId={projectId}
                             />
                         </Modal.Content>
                     </Modal>

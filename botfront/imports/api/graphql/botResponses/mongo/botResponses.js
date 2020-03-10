@@ -51,16 +51,14 @@ const getImageUrls = response => response.values.reduce(
     [],
 );
 
-const getImageDeletionWebook = () => {
+export const getImageWebhooks = () => {
     const {
         settings: {
             private: { webhooks },
         },
     } = GlobalSettings.findOne({}, { fields: { 'settings.private.webhooks': 1 } });
-    const {
-        deleteImageWebhook: { url, method },
-    } = webhooks;
-    return { url, method };
+    const { deleteImageWebhook, uploadImageWebhook } = webhooks;
+    return { deleteImageWebhook, uploadImageWebhook };
 };
 
 const deleteImages = async (imgUrls, projectId, url, method) => {
@@ -79,7 +77,7 @@ const deleteImages = async (imgUrls, projectId, url, method) => {
 export const deleteResponse = async (projectId, key) => {
     const response = await BotResponses.findOne({ projectId, key }).lean();
     if (!response) return;
-    const { url, method } = getImageDeletionWebook();
+    const { deleteImageWebhook: { url, method } } = getImageWebhooks();
     if (url && method) deleteImages(getImageUrls(response), projectId, url, method);
     return BotResponses.findOneAndDelete({ _id: response._id }); // eslint-disable-line consistent-return
 };

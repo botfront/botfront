@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Placeholder } from 'semantic-ui-react';
 
+import { connect } from 'react-redux';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
@@ -10,6 +11,7 @@ import ExceptionWrapper from './ExceptionWrapper';
 import { useUpload } from '../hooks/image.hooks';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
+import { can } from '../../../../lib/scopes';
 
 const BotResponsesContainer = (props) => {
     const {
@@ -21,12 +23,15 @@ const BotResponsesContainer = (props) => {
         exceptions,
         enableEditPopup,
         tag,
+        projectId,
     } = props;
     const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
     const [uploadImage] = useUpload(name);
+
+    const editable = can('responses:w', projectId);
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
@@ -111,6 +116,7 @@ const BotResponsesContainer = (props) => {
                     uploadImage={uploadImage}
                     hasMetadata={template && checkMetadataSet(template.metadata)}
                     metadata={(template || {}).metadata}
+                    editable={editable}
                 />
                 {index === sequenceArray.length - 1 && name && (
                     <div className='response-name'>{name}</div>
@@ -147,7 +153,7 @@ const BotResponsesContainer = (props) => {
                             renameable={false}
                         />
                     )}
-                    { deletable && onDeleteAllResponses && (
+                    { deletable && can('stories:w', projectId) && onDeleteAllResponses && (
                         <IconButton onClick={onDeleteAllResponses} icon='trash' />
                     )}
                 </div>
@@ -165,6 +171,7 @@ BotResponsesContainer.propTypes = {
     exceptions: PropTypes.array,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
+    projectId: PropTypes.string.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -178,4 +185,8 @@ BotResponsesContainer.defaultProps = {
     tag: null,
 };
 
-export default BotResponsesContainer;
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(BotResponsesContainer);

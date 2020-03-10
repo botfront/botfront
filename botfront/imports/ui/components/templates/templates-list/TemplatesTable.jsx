@@ -49,7 +49,7 @@ class TemplatesTable extends React.Component {
             },
         ];
 
-        if (can('responses:w', projectId)) {
+        if (can('responses:r', projectId)) {
             columns.push({
                 id: 'edit',
                 accessor: 'key',
@@ -69,8 +69,10 @@ class TemplatesTable extends React.Component {
                     );
                 },
                 width: 25,
-            },
-            {
+            });
+        }
+        if (can('responses:w', projectId)) {
+            columns.push({
                 id: 'delete',
                 accessor: 'key',
                 className: 'center',
@@ -89,7 +91,7 @@ class TemplatesTable extends React.Component {
                                     color='grey'
                                     size='small'
                                     onClick={() => this.deleteTemplate(key)}
-                                    disabled={isInStory}
+                                    disabled={isInStory || !can('responses:w', projectId)}
                                 />
                             )}
                             content='This response cannot be deleted because it is used in a story'

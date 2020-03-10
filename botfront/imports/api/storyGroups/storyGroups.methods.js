@@ -7,6 +7,7 @@ import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo
 
 export const createIntroStoryGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
+    checkIfCan('projects:w');
     Meteor.call(
         'storyGroups.insert',
         {
@@ -33,6 +34,7 @@ export const createIntroStoryGroup = (projectId) => {
 
 export const createDefaultStoryGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
+    checkIfCan('projects:w');
     Meteor.call(
         'storyGroups.insert',
         {
@@ -72,20 +74,20 @@ function handleError(e) {
 
 Meteor.methods({
     async 'storyGroups.delete'(storyGroup) {
-        check(storyGroup, Object);
         checkIfCan('stories:w', storyGroup.projectId);
+        check(storyGroup, Object);
         let eventstoRemove = [];
-        Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
-            .fetch()
-            .forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-        const result = await StoryGroups.remove(storyGroup) && Stories.remove({ storyGroupId: storyGroup._id });
-        deleteResponsesRemovedFromStories(eventstoRemove, storyGroup.projectId);
+        const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
+            .fetch();
+        childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
+
+        const result = await StoryGroups.remove(storyGroup) && await Meteor.callWithPromise('storyGroups.deleteChildStories', storyGroup._id, storyGroup.projectId);
         return result;
     },
 
     'storyGroups.insert'(storyGroup) {
-        check(storyGroup, Object);
         checkIfCan('stories:w', storyGroup.projectId);
+        check(storyGroup, Object);
         try {
             return StoryGroups.insert(storyGroup);
         } catch (e) {
@@ -94,8 +96,8 @@ Meteor.methods({
     },
 
     'storyGroups.update'(storyGroup) {
-        check(storyGroup, Object);
         checkIfCan('stories:w', storyGroup.projectId);
+        check(storyGroup, Object);
         try {
             return StoryGroups.update(
                 { _id: storyGroup._id },
@@ -106,8 +108,8 @@ Meteor.methods({
         }
     },
     'storyGroups.removeFocus'(projectId) {
-        check(projectId, String);
         checkIfCan('stories:w', projectId);
+        check(projectId, String);
         return StoryGroups.update(
             { projectId },
             { $set: { selected: false } },
@@ -115,3 +117,21 @@ Meteor.methods({
         );
     },
 });
+
+if (Meteor.isServer) {
+    Meteor.methods({
+        async 'storyGroups.deleteChildStories'(storyGroupId, projectId) {
+            checkIfCan('stories:w', projectId);
+            check(storyGroupId, String);
+            check(projectId, String);
+            let eventstoRemove = [];
+            const childStories = Stories.find({ storyGroupId }, { fields: { events: true } })
+                .fetch();
+            childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
+
+            const result = await Stories.remove({ storyGroupId });
+            deleteResponsesRemovedFromStories(eventstoRemove, projectId);
+            return result;
+        },
+    });
+}

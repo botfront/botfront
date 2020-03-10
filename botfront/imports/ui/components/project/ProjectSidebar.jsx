@@ -7,7 +7,9 @@ import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Projects } from '../../../api/project/project.collection';
 import ProjectsDropdown from './ProjectsDropdown';
-import { can, Can } from '../../../lib/scopes';
+import { can, isUserPermissionGlobal } from '../../../lib/scopes';
+import Can from '../roles/Can';
+
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 const packageJson = require('/package.json');
@@ -36,7 +38,7 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='NLU' icon='grid layout' data-cy='nlu-sidebar-link' />
                         </Link>
                     </Can>
-                    <Can I='nlu-data:r' projectId={projectId}>
+                    <Can I='incoming:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/incoming`}>
                             <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-page' />
                         </Link>
@@ -46,14 +48,14 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='Responses' icon='comment' />
                         </Link>
                     </Can>
-                    <Can I='conversations:r' projectId={projectId}>
+                    <Can I='analytics:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/analytics`}>
                             <Menu.Item name='Analytics' icon='chart line' />
                         </Link>
                     </Can>
-                    <Can I='project-settings:r' projectId={projectId}>
+                    <Can I='projects:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/settings`}>
-                            <Menu.Item name='Settings' icon='setting' />
+                            <Menu.Item name='Settings' icon='setting' data-cy='settings-sidebar-link' />
                         </Link>
                     </Can>
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
@@ -65,7 +67,11 @@ class ProjectSidebar extends React.Component {
                         </span>
                     )}
                     <Divider inverted />
-                    {can('global-admin') && (
+                    {(can('roles:r', { anyScope: true })
+                    || can('users:r', { anyScope: true })
+                    || can('global-settings:r', { anyScope: true })
+                    // we need to check if there is not scope for this 'projects:r, because without scope it can create/edit projects
+                    || isUserPermissionGlobal(Meteor.userId(), 'projects:r')) && (
                         <Link to='/admin/'>
                             <Menu.Item name='Admin' icon='key' />
                         </Link>

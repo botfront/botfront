@@ -4,7 +4,6 @@ import connectField from 'uniforms/connectField';
 import filterDOMProps from 'uniforms/filterDOMProps';
 import AceEditor from 'react-ace';
 import yaml from 'js-yaml';
-import brace from 'brace';
 import 'brace/mode/yaml';
 import 'brace/theme/xcode';
 import 'brace/ext/language_tools';
@@ -26,6 +25,7 @@ function getValue(value, convertYaml = false, onChange = () => {}) {
 const AceField = ({
     className,
     disabled,
+    readOnly,
     error,
     errorMessage,
     id,
@@ -53,6 +53,7 @@ const AceField = ({
             mode={mode || 'yaml'}
             theme='xcode'
             name={name}
+            readOnly={readOnly}
             onChange={v => onChange(v)}
             fontSize={fontSize || 14}
             showPrintMargin={false}

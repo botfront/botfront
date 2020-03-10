@@ -8,7 +8,7 @@ describe('project writer role permissions', function() {
         cy.login();
         cy.get('@bf_project_id').then((id) => {
             // data:r and model:w permission for accessing the necessary path for the test.
-            cy.createUser('projectwriter', email, ['project-settings:w', 'nlu-data:r', 'nlu-model:w'], id);
+            cy.createUser('projectwriter', email, ['project-settings:w', 'nlu-data:r', 'nlu-data:w'], id);
         });
         cy.logout();
     });
