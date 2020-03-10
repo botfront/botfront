@@ -20,7 +20,7 @@ type Query {
         confidenceFilter: Float
         """ comparison operator for the confidenceFilter (one of greaterThan, lessThan, equals) """
         xThanConfidence: compare
-        """ filter conversations by actions, goes with  operatorActionsFilters"""
+        """ filter conversations by actions, goes with operatorActionsFilters"""
         actionFilters: [String]
         """ keep the conversations after this date using the format ISO 8601 (AAAA-MM-JJThh:mm:ssZ) """
         startDate: String
