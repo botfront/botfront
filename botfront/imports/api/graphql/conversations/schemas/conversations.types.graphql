@@ -2,9 +2,9 @@ type Query {
     conversationsPage(
         
         projectId: String!, 
-        """ Pgae requested (1 if you want all results)"""
+        """ Page requested (1 if you want all results)"""
         page: Int,
-        """ The number if conversations per page (-1 for all results in one page) """
+        """ The number of conversations per page (-1 for all results in one page) """
         pageSize: Int,
         """ filter conversations by status (default ["new", "read", "flagged"]) """
         status: [String] = ["new", "read", "flagged"]
