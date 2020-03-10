@@ -427,6 +427,16 @@ if (Meteor.isServer) {
             roles: writers.responses,
             args: [projectId],
         },
+        {
+            name: 'rasa.restart',
+            roles: writers.projects,
+            args: [projectId],
+        },
+        {
+            name: 'get.rasaRestart.webhooks',
+            roles: writers.projects,
+            args: [projectId],
+        },
     ];
 
 
