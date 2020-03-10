@@ -23,23 +23,30 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         activeStories,
         replace,
     } = instruction;
+    const { setSomethingIsMutating } = externalMutators;
+    const fallbackFunction = (...args) => {
+        const callback = args[args.length - 1];
+        if (typeof callback === 'function') callback();
+    };
     const {
-        updateGroup = () => {},
-        deleteGroup = () => {},
-        updateStory = () => {},
-        addStory = () => {},
-        deleteStory = () => {},
+        updateGroup = fallbackFunction,
+        deleteGroup = fallbackFunction,
+        updateStory = fallbackFunction,
+        addStory = fallbackFunction,
+        deleteStory = fallbackFunction,
     } = externalMutators;
 
     if (replace) return replace;
     if (expand) {
         const { id } = tree.items[expand];
-        updateGroup(convertId({ id, isExpanded: true }));
+        setSomethingIsMutating(true);
+        updateGroup(convertId({ id, isExpanded: true }), () => setSomethingIsMutating(false));
         return mutateTree(tree, expand, { isExpanded: true });
     }
     if (collapse) {
         const { id } = tree.items[collapse];
-        updateGroup(convertId({ id, isExpanded: false }));
+        setSomethingIsMutating(true);
+        updateGroup(convertId({ id, isExpanded: false }), () => setSomethingIsMutating(false));
         return mutateTree(tree, collapse, { isExpanded: false });
     }
     if (remove) {
@@ -55,8 +62,10 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         items[parentId].children = items[parentId].children.filter(
             key => key !== remove,
         );
+        setSomethingIsMutating(true);
         (canBearChildren ? deleteGroup : deleteStory)(
             convertId({ id: remove, parentId, projectId }),
+            () => setSomethingIsMutating(false),
         );
         return { ...tree, items };
     }
@@ -64,7 +73,11 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         const { items } = tree;
         const [id, title] = rename;
         items[id].title = title;
-        (items[id].canBearChildren ? updateGroup : updateStory)(convertId({ id, title }));
+        setSomethingIsMutating(true);
+        (items[id].canBearChildren ? updateGroup : updateStory)(
+            convertId({ id, title }),
+            () => setSomethingIsMutating(false),
+        );
         return { ...tree, items };
     }
     if (newStory) {
@@ -82,12 +95,14 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             title,
             parentId,
         };
-        addStory(parentId, title);
+        setSomethingIsMutating(true);
+        addStory(parentId, title, () => setSomethingIsMutating(false));
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
         const { id, selected } = tree.items[toggleFocus];
-        updateGroup(convertId({ id, selected: !selected }));
+        setSomethingIsMutating(true);
+        updateGroup(convertId({ id, selected: !selected }), () => setSomethingIsMutating(false));
         return mutateTree(tree, toggleFocus, { selected: !selected });
     }
     if (move) {
@@ -160,6 +175,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
 
         const newDestination = movedTree.items[destination.parentId];
         const newSource = movedTree.items[sourceNode.parentId];
+        setSomethingIsMutating(true);
         const updateDestination = () => updateGroup(
             convertId({
                 id: newDestination.id,
@@ -167,6 +183,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                 hasChildren: newDestination.hasChildren,
                 isExpanded: true,
             }),
+            () => setSomethingIsMutating(false),
         );
         if (newDestination.id !== newSource.id) { // mother changed
             updateGroup(
@@ -188,7 +205,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
 
 export const useStoryGroupTree = (treeFromProps, activeStories) => {
     const [somethingIsDragging, setSomethingIsDragging] = useState(false);
-    const externalMutators = useContext(ConversationOptionsContext);
+    const [somethingIsMutating, setSomethingIsMutating] = useState(false);
+
+    const externalMutators = { ...useContext(ConversationOptionsContext), setSomethingIsMutating };
 
     const [tree, setTree] = useReducer(treeReducer(externalMutators), treeFromProps);
 
@@ -198,6 +217,7 @@ export const useStoryGroupTree = (treeFromProps, activeStories) => {
     return {
         tree,
         somethingIsDragging,
+        somethingIsMutating,
         handleToggleFocus: toggleFocus => setTree({ toggleFocus }),
         handleToggleExpansion: toggleExpansion,
         handleExpand: expand => setTree({ expand }),

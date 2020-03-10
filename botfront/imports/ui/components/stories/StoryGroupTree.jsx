@@ -40,6 +40,7 @@ export default function StoryGroupTree(props) {
 
     const {
         tree,
+        somethingIsMutating,
         somethingIsDragging,
         handleToggleFocus,
         handleToggleExpansion,
