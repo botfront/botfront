@@ -7,7 +7,9 @@ if (Meteor.isServer) {
     import { Projects } from '../../project/project.collection';
     import { Conversations } from '../../conversations';
 
-    import { roles, readers, formatRoles } from './roleTestUtils';
+    import {
+        roles, readers, writers, formatRoles,
+    } from './roleTestUtils';
 
     import { CorePolicies } from '../../core_policies';
     import { Credentials } from '../../credentials';
@@ -602,6 +604,19 @@ the tests are created by iterating over subscriptions. the test params are as fo
             },
             args: [],
             acceptedRoles: readers.users,
+        },
+        {
+            name: 'restartRasaWebhook',
+            collectionName: 'admin_settings',
+            testDataInsert: async () => {
+                await GlobalSettings.insert(globalSettingsData);
+            },
+            testDataRemove: async (done) => {
+                await GlobalSettings.remove({ _id: 'SETTINGS' });
+                done();
+            },
+            args: [projectId],
+            acceptedRoles: writers.projects,
         },
     ];
 
