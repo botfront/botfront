@@ -1,5 +1,10 @@
 import React, {
-    useState, useRef, useEffect, useCallback, useMemo, useContext,
+    useState,
+    useRef,
+    useEffect,
+    useCallback,
+    useMemo,
+    useContext,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -12,12 +17,18 @@ import { ProjectContext } from '../../layouts/context';
 
 export default function StoryGroupTree(props) {
     const {
-        onChangeActiveStories, activeStories, storyGroups, stories, isStoryDeletable,
+        onChangeActiveStories,
+        activeStories,
+        storyGroups,
+        stories,
+        isStoryDeletable,
     } = props;
     const [newTitle, setNewTitle] = useState(null);
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
-    const { project: { _id: projectId } } = useContext(ProjectContext);
+    const {
+        project: { _id: projectId },
+    } = useContext(ProjectContext);
 
     const treeFromProps = useMemo(() => {
         const newTree = { rootId: projectId, items: {} };
@@ -56,21 +67,15 @@ export default function StoryGroupTree(props) {
         if (!!renamingModalPosition) setNewTitle(renamingModalPosition.title);
     }, [!!renamingModalPosition]);
 
-    const trimLong = string => (string.length > 50
-        ? `${string.substring(0, 48)}...`
-        : string);
+    const trimLong = string => (string.length > 50 ? `${string.substring(0, 48)}...` : string);
 
-    const getIcon = item => (
-        item.canBearChildren
-            ? (
-                <Icon
-                    name={`caret ${item.isExpanded ? 'down' : 'right'}`}
-                    onClick={() => handleToggleExpansion(item)}
-                    className='cursor pointer'
-                />
-            )
-            : null
-    );
+    const getIcon = item => (item.canBearChildren ? (
+        <Icon
+            name={`caret ${item.isExpanded ? 'down' : 'right'}`}
+            onClick={() => handleToggleExpansion(item)}
+            className='cursor pointer'
+        />
+    ) : null);
 
     const submitNameChange = () => {
         if (newTitle.trim()) handleRenameItem(renamingModalPosition.id, newTitle.trim());
@@ -90,12 +95,14 @@ export default function StoryGroupTree(props) {
     };
 
     const handleSelectionChange = ({ shiftKey, item }) => {
-        if (!shiftKey || !activeStories.length) return selectSingleItemAndResetFocus(item);
+        if (!shiftKey || !activeStories.length) { return selectSingleItemAndResetFocus(item); }
         const { index, siblingIds, parentId } = getSiblingsAndIndex(item, tree);
-        const { index: lastIndex, parentId: lastParentId } = getSiblingsAndIndex(lastFocusedItem.current, tree);
+        const { index: lastIndex, parentId: lastParentId } = getSiblingsAndIndex(
+            lastFocusedItem.current,
+            tree,
+        );
         if (parentId !== lastParentId) return selectSingleItemAndResetFocus(item); // no cross-group selects
-        const [min, max] = (index < lastIndex)
-            ? [index, lastIndex] : [lastIndex, index];
+        const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
         const newActiveStoryIds = siblingIds.slice(min, max + 1);
 
         return onChangeActiveStories(newActiveStoryIds.map(id => tree.items[id]));
@@ -103,32 +110,45 @@ export default function StoryGroupTree(props) {
 
     const getTreeContainer = () => document.getElementById('storygroup-tree');
 
-    const handleKeyDownInMenu = useCallback((e) => {
-        const { target, key, shiftKey } = e;
-        if (!menuRef.current.contains(target)) return null;
-        if (!activeStories.length) return null;
-        const { previousElementSibling, nextElementSibling } = document.activeElement;
+    const handleKeyDownInMenu = useCallback(
+        (e) => {
+            const { target, key, shiftKey } = e;
+            if (!menuRef.current.contains(target)) return null;
+            if (!activeStories.length) return null;
+            const { previousElementSibling, nextElementSibling } = document.activeElement;
 
-        if (key === 'ArrowUp') {
-            if (e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
-            if (target.offsetTop - getTreeContainer().scrollTop < 20) {
-                getTreeContainer().scrollTop -= 100;
-            }
-            if (previousElementSibling) previousElementSibling.focus({ preventScroll: true });
-            else return null;
-        } else if (key === 'ArrowDown') {
-            if (e.stopPropagation) { e.stopPropagation(); e.preventDefault(); }
-            if (menuRef.current.clientHeight + getTreeContainer().scrollTop - target.offsetTop < 100) {
-                getTreeContainer().scrollTop += 100;
-            }
-            if (nextElementSibling) nextElementSibling.focus({ preventScroll: true });
-            else return null;
-        } else return null;
-        const item = tree.items[getItemDataFromDOMNode(document.activeElement)];
+            if (key === 'ArrowUp') {
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+                if (target.offsetTop - getTreeContainer().scrollTop < 20) {
+                    getTreeContainer().scrollTop -= 100;
+                }
+                if (previousElementSibling) { previousElementSibling.focus({ preventScroll: true }); } else return null;
+            } else if (key === 'ArrowDown') {
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+                if (
+                    menuRef.current.clientHeight
+                        + getTreeContainer().scrollTop
+                        - target.offsetTop
+                    < 100
+                ) {
+                    getTreeContainer().scrollTop += 100;
+                }
+                if (nextElementSibling) nextElementSibling.focus({ preventScroll: true });
+                else return null;
+            } else return null;
+            const item = tree.items[getItemDataFromDOMNode(document.activeElement)];
 
-        if (item.canBearChildren) return handleKeyDownInMenu({ target, key, shiftKey }); // go to next visible leaf
-        return handleSelectionChange({ shiftKey, item });
-    }, [activeStories, tree]);
+            if (item.canBearChildren) { return handleKeyDownInMenu({ target, key, shiftKey }); } // go to next visible leaf
+            return handleSelectionChange({ shiftKey, item });
+        },
+        [activeStories, tree],
+    );
 
     const handleClickStory = ({ nativeEvent: { shiftKey } }, item) => handleSelectionChange({ shiftKey, item });
 
@@ -136,7 +156,9 @@ export default function StoryGroupTree(props) {
 
     const renderItem = (renderProps) => {
         const {
-            item, provided, snapshot: { combineTargetFor, isDragging },
+            item,
+            provided,
+            snapshot: { combineTargetFor, isDragging },
         } = renderProps;
         const isLeaf = !item.canBearChildren;
         const { selected: isFocused } = item;
@@ -166,11 +188,19 @@ export default function StoryGroupTree(props) {
                             className={`drag-handle ${isDragging ? 'dragging' : ''}`}
                             {...provided.dragHandleProps}
                             {...(item.isExpanded
-                                ? { onMouseDown: (...args) => { handleCollapse(item.id); provided.dragHandleProps.onMouseDown(...args); } }
-                                : {}
-                            )}
+                                ? {
+                                    onMouseDown: (...args) => {
+                                        handleCollapse(item.id);
+                                        provided.dragHandleProps.onMouseDown(...args);
+                                    },
+                                }
+                                : {})}
                         />
-                        <div className='side-by-side left narrow' style={style} {...(isBeingRenamed ? { ref: renamerRef } : {})}>
+                        <div
+                            className='side-by-side left narrow'
+                            style={style}
+                            {...(isBeingRenamed ? { ref: renamerRef } : {})}
+                        >
                             <div className='item-chevron'>{getIcon(item)}</div>
                             {isBeingRenamed ? (
                                 <Input
@@ -181,38 +211,56 @@ export default function StoryGroupTree(props) {
                                     onBlur={submitNameChange}
                                     data-cy='edit-name'
                                     className='item-edit-box'
-                                    {...(renamerRef.current ? { style: { width: `${renamerRef.current.clientWidth - 25}px` } } : {})}
+                                    {...(renamerRef.current
+                                        ? {
+                                            style: {
+                                                width: `${renamerRef.current
+                                                    .clientWidth - 25}px`,
+                                            },
+                                        }
+                                        : {})}
                                 />
-                            )
-                                : (
-                                    <span
-                                        className='item-name'
-                                        onDoubleClick={() => setRenamingModalPosition(item)}
-                                        {...(isBeingRenamed ? { ref: renamerRef } : {})}
-                                    >
-                                        {trimLong(item.title)}
-                                    </span>
-                                )}
+                            ) : (
+                                <span
+                                    className='item-name'
+                                    onDoubleClick={() => setRenamingModalPosition(item)}
+                                    {...(isBeingRenamed ? { ref: renamerRef } : {})}
+                                >
+                                    {trimLong(item.title)}
+                                </span>
+                            )}
                         </div>
                         <div className='item-actions'>
                             {!isLeaf && (
                                 <>
                                     <Icon
-                                        className={`cursor pointer ${isFocused ? 'focused' : ''}`}
+                                        className={`cursor pointer ${
+                                            isFocused ? 'focused' : ''
+                                        }`}
                                         name='eye'
-                                        onClick={(e) => { e.stopPropagation(); handleToggleFocus(item.id); }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleToggleFocus(item.id);
+                                        }}
                                     />
                                     <Icon
                                         className='cursor pointer'
                                         name='plus'
-                                        onClick={() => handleAddStory(item.id, `${item.title}-s${item.children.length}`)}
+                                        onClick={() => handleAddStory(
+                                            item.id,
+                                            `${item.title}-s${item.children.length}`,
+                                        )
+                                        }
                                     />
                                 </>
                             )}
                             <Icon
                                 className='cursor pointer'
                                 name='trash'
-                                onClick={(e) => { e.stopPropagation(); setDeletionModalVisible(item); }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeletionModalVisible(item);
+                                }}
                             />
                         </div>
                     </div>
@@ -221,7 +269,10 @@ export default function StoryGroupTree(props) {
         );
     };
 
-    const [deletionIsPossible, deletionModalMessage] = useMemo(() => isStoryDeletable(deletionModalVisible, stories, tree), [!!deletionModalVisible]);
+    const [deletionIsPossible, deletionModalMessage] = useMemo(
+        () => isStoryDeletable(deletionModalVisible, stories, tree),
+        [!!deletionModalVisible],
+    );
 
     return (
         <div id='storygroup-tree' ref={menuRef}>
@@ -232,13 +283,19 @@ export default function StoryGroupTree(props) {
                 confirmButton='Delete'
                 content={deletionModalMessage}
                 onCancel={() => setDeletionModalVisible(false)}
-                {...(deletionIsPossible ? {
-                    onConfirm: () => {
-                        handleRemoveItem(deletionModalVisible.id);
-                        onChangeActiveStories(activeStories.filter(s => s.id !== deletionModalVisible.id));
-                        setDeletionModalVisible(false);
-                    },
-                } : {})}
+                {...(deletionIsPossible
+                    ? {
+                        onConfirm: () => {
+                            handleRemoveItem(deletionModalVisible.id);
+                            onChangeActiveStories(
+                                activeStories.filter(
+                                    s => s.id !== deletionModalVisible.id,
+                                ),
+                            );
+                            setDeletionModalVisible(false);
+                        },
+                    }
+                    : {})}
                 {...(deletionIsPossible ? {} : { confirmButton: null })}
             />
             {/* <Popup
@@ -258,7 +315,12 @@ export default function StoryGroupTree(props) {
                     data-cy='edit-name'
                 />
             </Popup> */}
-            <Menu pointing secondary vertical className={somethingIsDragging ? 'dragging' : ''}>
+            <Menu
+                pointing
+                secondary
+                vertical
+                className={somethingIsDragging ? 'dragging' : ''}
+            >
                 <EmbeddedTree
                     id='storygroup-tree'
                     tree={tree}

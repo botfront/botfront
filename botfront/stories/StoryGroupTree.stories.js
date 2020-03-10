@@ -147,16 +147,19 @@ function StoryGroupTreeWrapped() {
             maxSize={400}
             primary='first'
             allowResize
-            className={resizing ? '' : 'w_idth-transition'}
+            className={resizing ? '' : 'width-transition'}
             onDragStarted={() => setResizing(true)}
             onDragFinished={() => setResizing(false)}
+            pane1Style={{ overflow: 'hidden' }}
         >
-            <StoryGroupTree
-                stories={stories}
-                storyGroups={storyGroups}
-                onChangeActiveStories={setActiveStories}
-                activeStories={activeStories}
-            />
+            <div className='storygroup-browser'>
+                <StoryGroupTree
+                    stories={stories}
+                    storyGroups={storyGroups}
+                    onChangeActiveStories={setActiveStories}
+                    activeStories={activeStories}
+                />
+            </div>
             <div>
                 {activeStories.map(s => <h1>{s.title}</h1>)}
             </div>
