@@ -250,7 +250,7 @@ export const addLoggingInterceptors = (axios, logger) => {
             const { config, status, data = null } = response;
             const { url } = config;
             // we don't log files or others data type that are not json
-          
+
             const loggedData = checkDataType(dataType, data);
 
             logAfterSuccessApiCall(
@@ -258,7 +258,7 @@ export const addLoggingInterceptors = (axios, logger) => {
                 `${config.method.toUpperCase()} at ${url} succeeded`,
                 { status, data: loggedData, url },
             );
-            
+
             return response;
         },
         (error) => {
