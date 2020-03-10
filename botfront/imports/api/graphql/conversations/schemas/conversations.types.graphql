@@ -2,29 +2,29 @@ type Query {
     conversationsPage(
         
         projectId: String!, 
-        """1 if you want all results"""
+        """ Pgae requested (1 if you want all results)"""
         page: Int,
-        """ -1 for all results in one page """
+        """ The number if conversations per page (-1 for all results in one page) """
         pageSize: Int,
-        """ filter only the conversation with the specified status (default ["new", "read", "flagged”], any array with the previous values e.g ["new", "read”]) """
+        """ filter conversations by status (default ["new", "read", "flagged"]) """
         status: [String] = ["new", "read", "flagged"]
-        """ (default “development”, possible other values are “production” and “staging”)"""
+        """ (default "development", possible other values are "production" and "staging")"""
         env: String
-        """ order in witch conversations appear (default updatedAt_DESC (most recent first), possible other value updatedAt_ASC(most recent last)"""
+        """ Sorting order (default updatedAt_DESC (most recent first), possible other value updatedAt_ASC(most recent last)"""
         sort: order = updatedAt_DESC #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
         """ filter by length of conversation, value for the length filter go with the comparator field xThanLength """
         lengthFilter: Int
-        """comparaison operator for the lengthFilter (one of greaterThan, lessThan, equals)"""
+        """comparison operator for the lengthFilter (one of greaterThan, lessThan, equals)"""
         xThanLength: compare
-        """filter by confidence of predicted intents in conversations (between 0 and 1)"""
+        """filter by confidence of predicted intents (between 0 and 1)"""
         confidenceFilter: Float
-        """ comparaison operator for the confidenceFilter (one of greaterThan, lessThan, equals) """
+        """ comparison operator for the confidenceFilter (one of greaterThan, lessThan, equals) """
         xThanConfidence: compare
-        """ filter conversation containing the listed actions, goes with  operatorActionsFilters"""
+        """ filter conversations by actions, goes with  operatorActionsFilters"""
         actionFilters: [String]
         """ keep the conversations after this date using the format ISO 8601 (AAAA-MM-JJThh:mm:ssZ) """
         startDate: String
-        """  keep the conversations before this date using the format ISO 8601 (AAAA-MM-JJThh:mm:ssZ) """
+        """ keep the conversations before this date using the format ISO 8601 (AAAA-MM-JJThh:mm:ssZ) """
         endDate: String
         """ unique identifier of the user"""
         userId: String
