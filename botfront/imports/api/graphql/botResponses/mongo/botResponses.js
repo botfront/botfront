@@ -1,36 +1,76 @@
 import { safeDump } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
+import { safeLoad } from 'js-yaml';
 import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage } from '../../../../lib/botResponse.utils';
 
+const indexResponseContent = ({ text = '', custom = null, buttons = [] }) => {
+    const responseContent = [];
+    if (text.length > 0) responseContent.push(text.replace(/\n/, ' '));
+    if (custom) responseContent.push(safeDump(custom).replace(/\n/, ' '));
+    buttons.forEach(({ title = '', payload = '', url = '' }) => {
+        if (title.length > 0) responseContent.push(title);
+        if (payload.length > 0) responseContent.push(payload);
+        if (url.length > 0) responseContent.push(url);
+    });
+    return responseContent;
+};
+
+const indexBotResponse = (response) => {
+    let responseContent = [];
+    responseContent.push(response.key);
+    response.values.forEach((value) => {
+        value.sequence.forEach((sequence) => {
+            responseContent = [...responseContent, ...indexResponseContent(safeLoad(sequence.content))];
+        });
+    });
+    return responseContent.join('\n');
+};
+
 export const createResponses = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
-
     // eslint-disable-next-line array-callback-return
     const answer = newResponses.map((newResponse) => {
         const properResponse = newResponse;
         properResponse.projectId = projectId;
+        properResponse.textIndex = indexBotResponse(newResponse);
         return BotResponses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
     });
 
     return Promise.all(answer);
 };
 
-export const updateResponse = async (projectId, _id, newResponse) => BotResponses
-    .updateOne({ projectId, _id }, newResponse, { runValidators: true }).exec();
+export const updateResponse = async (projectId, _id, newResponse) => {
+    const textIndex = indexBotResponse(newResponse);
+    const result = BotResponses.updateOne(
+        { projectId, _id },
+        { ...newResponse, textIndex },
+        { runValidators: true },
+    ).exec();
+    return result;
+};
 
 
-export const createResponse = async (projectId, newResponse) => BotResponses.create({
-    ...clearTypenameField(newResponse),
-    projectId,
-});
+export const createResponse = async (projectId, newResponse) => {
+    const textIndex = indexBotResponse(newResponse);
+    return BotResponses.create({
+        ...clearTypenameField(newResponse),
+        projectId,
+        textIndex,
+    });
+};
 
 export const createAndOverwriteResponses = async (projectId, responses) => Promise.all(
-    responses.map(({ key, _id, ...rest }) => BotResponses.findOneAndUpdate(
-        { projectId, key }, { projectId, key, ...rest }, { new: true, lean: true, upsert: true },
-    )),
+    responses.map(({ key, _id, ...rest }) => {
+        const textIndex = indexBotResponse({ key, _id, ...rest });
+        return BotResponses.findOneAndUpdate(
+            { projectId, key }, {
+                projectId, key, ...rest, textIndex,
+            }, { new: true, lean: true, upsert: true },
+        );
+    }),
 );
 
 export const getBotResponses = async projectId => BotResponses.find({
@@ -51,12 +91,28 @@ export const getBotResponseById = async (_id) => {
     return botResponse;
 };
 
+const mergeAndIndexBotResponse = async ({
+    projectId, language, key, newPayload, index,
+}) => {
+    const botResponse = await BotResponses.findOne({ projectId, key }).lean();
+    if (!botResponse) {
+        const textIndex = [key, ...indexResponseContent(newPayload)].join('\n');
+        return textIndex;
+    }
+    const valueIndex = botResponse.values.findIndex(({ lang }) => lang === language);
+    botResponse.values[valueIndex].sequence[index] = { content: safeDump(clearTypenameField(newPayload)) };
+    return indexBotResponse(botResponse);
+};
+
 export const upsertResponse = async ({
     projectId, language, key, newPayload, index,
 }) => {
+    const textIndex = await mergeAndIndexBotResponse({
+        projectId, language, key, newPayload, index,
+    });
     const update = index === -1
-        ? { $push: { 'values.$.sequence': { $each: [{ content: safeDump(clearTypenameField(newPayload)) }] } } }
-        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) } } };
+        ? { $push: { 'values.$.sequence': { $each: [{ content: safeDump(clearTypenameField(newPayload)) }] } }, $set: { textIndex } }
+        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) }, textIndex } };
     return BotResponses.findOneAndUpdate(
         { projectId, key, 'values.lang': language },
         update,
@@ -71,6 +127,7 @@ export const upsertResponse = async ({
                 _id: shortid.generate(),
                 projectId,
                 key,
+                textIndex,
             },
         },
         { new: true, lean: true, upsert: true },

@@ -45,4 +45,7 @@ export const StorySchema = new SimpleSchema({
     checkpoints: { type: Array, optional: true },
     'checkpoints.$': { type: Array },
     'checkpoints.$.$': { type: String },
+    textIndex: { type: Object, optional: true },
+    'textIndex.info': { type: String, optional: true },
+    'textIndex.contents': { type: String, optional: true },
 });
