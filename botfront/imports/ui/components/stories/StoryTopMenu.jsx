@@ -28,7 +28,7 @@ const StoryTopMenu = ({
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
 
-    const [newTitle, setNewTitle] = useState();
+    const [newTitle, setNewTitle] = useState(title);
     useEffect(() => setNewTitle(title), [title]);
 
     const { stories, updateStory } = useContext(ConversationOptionsContext);
@@ -123,8 +123,7 @@ const StoryTopMenu = ({
                     <input
                         data-cy='story-title'
                         value={newTitle}
-                        onChange={event => setNewTitle(event.target.value.replace('_', ''))
-                        }
+                        onChange={event => setNewTitle(event.target.value.replace('_', ''))}
                         onKeyDown={handleInputKeyDown}
                         onBlur={submitTitleInput}
                         disabled={disabled}

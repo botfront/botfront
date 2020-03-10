@@ -2,6 +2,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, {
     useContext, useState, useEffect, useMemo,
 } from 'react';
+import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Loading } from '../utils/Utils';
@@ -21,7 +22,7 @@ function StoryEditors(props) {
 
     const lastDate = useMemo(() => Date.now(), [stories.length, workingLanguage]);
 
-    useEffect(() => {
+    useEffect(debounce(() => {
         const responsesInFetchedStories = stories.reduce((acc, curr) => [...acc, ...((curr.events || []).filter(
             event => event.match(/^utter_/) && !acc.includes(event),
         ))], []);
@@ -32,7 +33,7 @@ function StoryEditors(props) {
                     else setLastUpdate(lastDate);
                 });
         } else setLastUpdate(lastDate);
-    }, [stories.length, workingLanguage]);
+    }, 250), [stories, workingLanguage]);
 
     const editors = stories.map(story => (
         <StoryEditorContainer
