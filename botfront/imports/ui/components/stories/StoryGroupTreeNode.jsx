@@ -7,6 +7,7 @@ function StoryGroupTreeNode(props) {
         item,
         provided,
         snapshot: { combineTargetFor, isDragging },
+        somethingIsMutating,
         activeStories,
         handleSelectionChange,
         setDeletionModalVisible,
@@ -55,6 +56,19 @@ function StoryGroupTreeNode(props) {
         if (!!renamingModalPosition) setNewTitle(renamingModalPosition.title);
     }, [!!renamingModalPosition]);
 
+    const handleProps = !somethingIsMutating
+        ? {
+            ...provided.dragHandleProps,
+            ...(item.isExpanded
+                ? {
+                    onMouseDown: (...args) => {
+                        handleCollapse(item.id);
+                        provided.dragHandleProps.onMouseDown(...args);
+                    },
+                } : {}),
+        }
+        : {};
+
     return (
         <div
             ref={provided.innerRef}
@@ -74,15 +88,7 @@ function StoryGroupTreeNode(props) {
                         size='small'
                         color='grey'
                         className={`drag-handle ${isDragging ? 'dragging' : ''}`}
-                        {...provided.dragHandleProps}
-                        {...(item.isExpanded
-                            ? {
-                                onMouseDown: (...args) => {
-                                    handleCollapse(item.id);
-                                    provided.dragHandleProps.onMouseDown(...args);
-                                },
-                            }
-                            : {})}
+                        {...handleProps}
                     />
                     <div
                         className='side-by-side left narrow'
@@ -111,8 +117,7 @@ function StoryGroupTreeNode(props) {
                         ) : (
                             <span
                                 className='item-name'
-                                onDoubleClick={() => setRenamingModalPosition(item)}
-                                {...(isBeingRenamed ? { ref: renamerRef } : {})}
+                                {...(!somethingIsMutating ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
                             >
                                 {trimLong(item.title)}
                             </span>
@@ -126,29 +131,34 @@ function StoryGroupTreeNode(props) {
                                         isFocused ? 'focused' : ''
                                     }`}
                                     name='eye'
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleToggleFocus(item.id);
-                                    }}
+                                    {...(!somethingIsMutating ? {
+                                        onClick: (e) => {
+                                            e.stopPropagation();
+                                            handleToggleFocus(item.id);
+                                        },
+                                    } : {})}
                                 />
                                 <Icon
                                     className='cursor pointer'
                                     name='plus'
-                                    onClick={() => handleAddStory(
-                                        item.id,
-                                        `${item.title}-s${item.children.length}`,
-                                    )
-                                    }
+                                    {...(!somethingIsMutating ? {
+                                        onClick: () => handleAddStory(
+                                            item.id,
+                                            `${item.title}-s${item.children.length}`,
+                                        ),
+                                    } : {})}
                                 />
                             </>
                         )}
                         <Icon
                             className='cursor pointer'
                             name='trash'
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setDeletionModalVisible(item);
-                            }}
+                            {...(!somethingIsMutating ? {
+                                onClick: (e) => {
+                                    e.stopPropagation();
+                                    setDeletionModalVisible(item);
+                                },
+                            } : {})}
                         />
                     </div>
                 </div>
