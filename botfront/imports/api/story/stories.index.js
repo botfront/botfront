@@ -1,37 +1,17 @@
-import { safeLoad } from 'js-yaml';
 import { Stories } from './stories.collection';
-import BotResponses from '../graphql/botResponses/botResponses.model';
-import { Projects } from '../project/project.collection';
-import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { getStoryContent } from '../../lib/story.utils';
-
-const createResponseIndex = async (responseNames) => {
-    const botResponses = await BotResponses.find({ key: { $in: responseNames } }).lean();
-    const responsesIndex = [];
-    botResponses.forEach((botResponse) => {
-        let responseText = '';
-        responseText += `"${botResponse.key}"`;
-        botResponse.values.forEach((value) => {
-            value.sequence.forEach((sequence) => {
-                responseText += `"${safeLoad(sequence.content).text.replace(/\n/, ' ')}"`;
-            });
-        });
-        responsesIndex.push(responseText);
-    });
-    return responsesIndex.join('\n');
-};
 
 export const indexStory = (storyToIndex, options = {}) => {
     /* options is an object with optional properties:
 
-        update: Object (optional), must have property _id
-                the index will be created from the merged
-                version of storyToIndex and the update
+        update: Object (optional), is combined with the
+                story or branch object using {...story/branch, ...update}
+                when update._id equals branch._id or story._id
 
-        includeEventsField: adds bot responses and actions
-                field called events in the returned object
-                used for populating the events field of the
-                story DB document.
+        includeEventsField: Bool (optional) adds a list of all
+                bot responses and actions to the object returned by
+                this function.
+                used to update the Story collection "events" field
     */
     const { includeEventsField } = options;
     const story = typeof storyToIndex === 'string'
@@ -41,7 +21,11 @@ export const indexStory = (storyToIndex, options = {}) => {
         userUtterances = [], botResponses = [], actions = [], slots = [],
     } = getStoryContent(story, options);
     const storyContentIndex = [
-        ...userUtterances.map(({ name }) => name),
+        ...userUtterances.map(({ name, entities }) => {
+            const utteranceIndex = [name];
+            entities.forEach(entity => utteranceIndex.push(entity));
+            return utteranceIndex.join(' ');
+        }),
         ...botResponses,
         ...actions,
         ...slots,
@@ -53,25 +37,4 @@ export const indexStory = (storyToIndex, options = {}) => {
         result.events = events;
     }
     return result;
-};
-
-export const searchStories = async (projectId, language, searchString) => {
-    const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-    const nluModels = project.nlu_models;
-    const searchRegex = new RegExp(searchString);
-    const model = NLUModels.findOne(
-        { _id: { $in: nluModels }, language },
-    );
-    const modelExamples = model.training_data.common_examples;
-    const intents = modelExamples.reduce((filtered, option) => {
-        if (searchRegex.test(option.text)) {
-            return [...filtered, option.intent];
-        }
-        return filtered;
-    }, []);
-    const matched = Stories.find(
-        { projectId, $text: { $search: `${searchString} ${intents.join(' ')}` } },
-        { fields: { _id: 1, title: 1 } },
-    ).fetch();
-    return matched;
 };

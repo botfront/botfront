@@ -2,13 +2,31 @@ const { Responses, Stories } = require('../models/models');
 const { safeDump } = require('js-yaml/lib/js-yaml');
 const { safeLoad } = require('js-yaml');
 
+const getEntities = (storyLine) => {
+    const entitiesString = storyLine.split('{')[1];
+    if (!entitiesString) return [];
+    const entities = entitiesString.slice(0, entitiesString.length - 1).split(',');
+    return entities.map(entity => entity.split(':')[0].replace(/"/g, ''));
+};
+
+const parsePayload = (payload) => {
+    if (payload[0] !== '/') throw new Error('a payload must start with a "/"');
+    const intent = payload.slice(1).split('{')[0];
+    const entities = getEntities(payload.slice(1));
+    return { intent, entities };
+};
+
 const indexResponseContent = ({ text = '', custom = null, buttons = [] }) => {
     const responseContent = [];
     if (text.length > 0) responseContent.push(text.replace(/\n/, ' '));
     if (custom) responseContent.push(safeDump(custom).replace(/\n/, ' '));
     buttons.forEach(({ title = '', payload = '', url = '' }) => {
         if (title.length > 0) responseContent.push(title);
-        if (payload.length > 0) responseContent.push(payload);
+        if (payload.length > 0 && payload[0] === '/') {
+            const { intent, entities } = parsePayload(payload);
+            responseContent.push(intent);
+            entities.forEach(entity => responseContent.push(entity));
+        }
         if (url.length > 0) responseContent.push(url);
     });
     return responseContent;
@@ -35,14 +53,6 @@ exports.createResponsesIndex = async (projectId, responses) => {
         return Responses.update({ projectId, key: newResponse.key }, properResponse, { upsert: true });
     });
     return Promise.all(answer);
-};
-
-
-const getEntities = (storyLine) => {
-    const entitiesString = storyLine.split('{')[1];
-    if (!entitiesString) return [];
-    const entities = entitiesString.slice(0, entitiesString.length - 1).split(',');
-    return entities.map(entity => entity.split(':')[0].replace(/"/g, ''));
 };
 
 const parseLine = (line) => {
@@ -141,7 +151,11 @@ const indexStory = (story) => {
         userUtterances = [], botResponses = [], actions = [], slots = [],
     } = getStoryContent(story,{});
     const storyContentIndex = [
-        ...userUtterances.map(({ name }) => name),
+        ...userUtterances.map(({ name, entities }) => {
+            const utteranceIndex = [name];
+            entities.forEach(entity => utteranceIndex.push(entity));
+            return utteranceIndex.join(' ');
+        }),
         ...botResponses,
         ...actions,
         ...slots,
