@@ -148,23 +148,25 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         );
         const offset = source.index - indexOfFirstActiveNode; // assumes first active node is lowest indexed
 
-        if ( // dropped within selection
-            destination.parentId === sourceNode.parentId
-            && destination.index
+        const sameMother = destination.parentId === sourceNode.parentId && Number.isInteger(destination.index);
+        if (sameMother // dropped within selection
             && destination.index >= indexOfFirstActiveNode
             && destination.index <= indexOfFirstActiveNode + sourceNodes.length - 1
         ) return tree;
 
+        const aboveUnderSameMother = sameMother && destination.index < indexOfFirstActiveNode;
+
         let movedTree = tree;
         sourceNodes.forEach((n, i) => {
-            const polarizedOffset = i <= source.index + 1 ? -offset : 0;
+            let polarizedOffset = i <= source.index + 1 ? -offset : offset - i;
+            if (aboveUnderSameMother) polarizedOffset += i;
             const adjustedSource = {
                 ...source,
-                ...(source.index ? { index: source.index + polarizedOffset } : {}),
+                ...(Number.isInteger(source.index) ? { index: source.index + polarizedOffset } : {}),
             };
             const adjustedDestination = {
                 ...destination,
-                ...(destination.index ? { index: destination.index + i } : {}),
+                ...(Number.isInteger(destination.index) ? { index: destination.index + i } : {}),
             };
             movedTree = mutateTree(
                 moveItemOnTree(movedTree, adjustedSource, adjustedDestination),
