@@ -105,10 +105,16 @@ if (Meteor.isServer) {
         checkIfCan('nlu-data:r', instance.projectId);
         check(instance, Object);
         check(examples, Array);
+        let userId;
+        try {
+            userId = Meteor.userId();
+        } catch (error) {
+            userId = 'Can not get userId here';
+        }
         const appMethodLogger = getAppLoggerForMethod(
             trainingAppLogger,
             'parseNlu',
-            Meteor.userId(),
+            userId,
             { instance, examples },
         );
         appMethodLogger.debug('Parsing nlu');
@@ -190,13 +196,6 @@ if (Meteor.isServer) {
                 data: file,
                 output_format: outputFormat,
                 language,
-            });
-            auditLog('Converting model to json', {
-                user: Meteor.user(),
-                type: 'update',
-                projectId: getProjectIdFromModelId(model._id),
-                operation: 'nlu-model-execute',
-                resId: model._id,
             });
             return data;
         },
