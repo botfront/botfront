@@ -40,6 +40,8 @@ export const ProjectsSchema = new SimpleSchema({
     'training.endTime': { type: Date, optional: true },
     'training.message': { type: String, optional: true },
     defaultDomain: { type: DefaultDomainSchema, optional: true },
+    storyGroups: { type: Array, defaultValue: [] },
+    'storyGroups.$': { type: String },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

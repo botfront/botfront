@@ -220,17 +220,12 @@ Migrations.add({
             },
         ));
 
-        // add root "story groups"
+        // add storygroup key under projects
         Array.from(projectIds).forEach((projectId) => {
-            StoryGroups.insert({
-                _id: projectId,
-                title: 'root',
-                parentId: 'root',
-                projectId,
-                children: storyGroups
-                    .filter(sg => sg.projectId === projectId)
-                    .map(sg => sg._id),
-            });
+            const storyGroupsForProject = storyGroups
+                .filter(sg => sg.projectId === projectId)
+                .map(sg => sg._id);
+            Projects.update({ _id: projectId }, { $set: { storyGroups: storyGroupsForProject } });
         });
     },
 });

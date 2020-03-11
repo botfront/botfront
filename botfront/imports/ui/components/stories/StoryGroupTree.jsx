@@ -23,16 +23,23 @@ export default function StoryGroupTree(props) {
     } = props;
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
     const {
-        project: { _id: projectId },
+        project: { _id: projectId, storyGroups: storyGroupOrder },
     } = useContext(ProjectContext);
 
     const treeFromProps = useMemo(() => {
         const newTree = { rootId: projectId, items: {} };
-        [...storyGroups, ...stories].forEach(({ _id, ...n }) => {
+        const root = {
+            children: storyGroupOrder,
+            _id: projectId,
+            title: 'root',
+            parentId: 'root',
+            projectId,
+        };
+        [root, ...storyGroups, ...stories].forEach(({ _id, ...n }) => {
             newTree.items = { ...newTree.items, [_id]: { id: _id, ...n } };
         });
         return newTree;
-    }, [storyGroups.length]);
+    }, [storyGroups.length, storyGroupOrder.length]);
 
     const {
         tree,
