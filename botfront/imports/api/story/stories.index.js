@@ -1,5 +1,5 @@
 import { Stories } from './stories.collection';
-import { getStoryContent } from '../../lib/story.utils';
+import { getStoryContent } from '../../lib/storyMd.utils';
 
 export const indexStory = (storyToIndex, options = {}) => {
     /* options is an object with optional properties:

@@ -5,7 +5,7 @@ import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage } from '../../../../lib/botResponse.utils';
-import { parsePayload } from '../../../../lib/story.utils';
+import { parsePayload } from '../../../../lib/storyMd.utils';
 
 const indexResponseContent = ({ text = '', custom = null, buttons = [] }) => {
     const responseContent = [];
