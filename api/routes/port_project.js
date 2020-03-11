@@ -18,6 +18,7 @@ const { getVerifiedProject, aggregateEvents } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
 const { sortBy } = require('lodash');
+const { createResponsesIndex } = require('./searchIndexing.utils')
 
 const collectionsWithModelId = {
     activity: Activity,
@@ -146,6 +147,12 @@ const overwriteCollection = async function(projectId, modelIds, collection, back
             ? { modelId: { $in: modelIds } }
             : { projectId };
     await model.deleteMany(filter).exec();
+    // if the first botresponse has an index, the backup is from a version with response indexing
+    // so we do not need to index it
+    if (collection === 'botResponses' &&  !backup[collection][0].textIndex) {
+        createResponsesIndex(projectId, backup[collection])
+        return
+    }
     await model.insertMany(backup[collection]);
 };
 
