@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { TextArea } from 'semantic-ui-react';
-import _, { find, sortBy } from 'lodash';
+import { find, sortBy, isNull } from 'lodash';
 
 import { examplePropType } from '../utils/ExampleUtils';
 import getColor from '../../../lib/getColors';
@@ -13,9 +13,7 @@ export class ExampleTextEditor extends React.Component {
         super(props);
         this.inputSelectionRef = null; // reference to the parent of the example text input
         this.selectionAnchorRef = null; // reference to the example text input
-
-        const { example } = props;
-        this.state = { example };
+        this.state = {};
     }
 
     componentDidMount() {
@@ -28,29 +26,37 @@ export class ExampleTextEditor extends React.Component {
 
         if (highlightEntities) {
             // CREATE ENTITY LISTENER
-            document.addEventListener('mouseup', () => {
-                const { disableNewEntities } = this.props;
-                if (disableNewEntities) return;
-                if (this.inputSelectionRef === null) return;
-                const { example: { text } = {} } = this.state;
-                const { anchorNode } = window.getSelection() || {};
-                const { selectionStart: start, selectionEnd: end } = this.inputSelectionRef.ref.current || {};
-                if (anchorNode === this.selectionAnchorRef && this.isValidEntity(start, end) && start < end) {
-                    const value = text.substring(start, end);
-                    this.insertEntity({
-                        value,
-                        start,
-                        end,
-                    });
-                }
-            }, false);
+            document.addEventListener('mouseup', this.mouseUpListener, false);
         }
     }
 
-    componentWillReceiveProps(props) {
-        const { example } = props;
-        this.setState({ example });
+    componentDidUpdate(_, prevState) {
+        const { example } = this.props;
+        if (prevState.example !== example) this.setExample(example);
     }
+
+    componentWillUnmount() {
+        document.removeEventListener('mouseup', this.mouseUpListener);
+    }
+
+    mouseUpListener = () => {
+        const { disableNewEntities } = this.props;
+        if (disableNewEntities) return;
+        if (this.inputSelectionRef === null) return;
+        const { example: { text } = {} } = this.state;
+        const { anchorNode } = window.getSelection() || {};
+        const { selectionStart: start, selectionEnd: end } = this.inputSelectionRef.ref.current || {};
+        if (anchorNode === this.selectionAnchorRef && this.isValidEntity(start, end) && start < end) {
+            const value = text.substring(start, end);
+            this.insertEntity({
+                value,
+                start,
+                end,
+            });
+        }
+    }
+
+    setExample = example => this.setState({ example });
 
     insertEntity = (fields) => {
         const { example, example: { entities } = {} } = this.state;
@@ -162,7 +168,7 @@ export class ExampleTextEditor extends React.Component {
 
             value = text.substring(start, end);
             return { ...entity, ...{ value, start, end } };
-        }).filter(e => !_.isNull(e));
+        }).filter(e => !isNull(e));
 
         // Update state
         const updatedExample = { ...example, text, entities };
