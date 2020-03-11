@@ -1,17 +1,15 @@
 import React, {
     useState,
     useRef,
-    useEffect,
     useCallback,
     useMemo,
     useContext,
 } from 'react';
 import PropTypes from 'prop-types';
-import {
-    Icon, Menu, Input, Confirm, Portal,
-} from 'semantic-ui-react';
+import { Menu, Confirm, Portal } from 'semantic-ui-react';
 import EmbeddedTree from '../common/EmbeddedTree';
 import { useStoryGroupTree } from './hooks/useStoryGroupTree';
+import StoryGroupTreeNode from './StoryGroupTreeNode';
 import { useEventListener } from '../utils/hooks';
 import { ProjectContext } from '../../layouts/context';
 
@@ -23,9 +21,7 @@ export default function StoryGroupTree(props) {
         stories,
         isStoryDeletable,
     } = props;
-    const [newTitle, setNewTitle] = useState('');
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
-    const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const {
         project: { _id: projectId },
     } = useContext(ProjectContext);
@@ -52,7 +48,6 @@ export default function StoryGroupTree(props) {
         handleRenameItem,
         handleAddStory,
     } = useStoryGroupTree(treeFromProps, activeStories);
-    const renamerRef = useRef();
     const menuRef = useRef();
     const lastFocusedItem = useRef();
 
@@ -61,31 +56,6 @@ export default function StoryGroupTree(props) {
         const siblingIds = inputTree.items[parentId].children;
         const index = siblingIds.findIndex(c => c === id);
         return { index, siblingIds, parentId };
-    };
-
-    useEffect(() => {
-        if (!renamingModalPosition) setNewTitle('');
-        if (!!renamingModalPosition) setNewTitle(renamingModalPosition.title);
-    }, [!!renamingModalPosition]);
-
-    const trimLong = string => (string.length > 50 ? `${string.substring(0, 48)}...` : string);
-
-    const getIcon = item => (item.canBearChildren ? (
-        <Icon
-            name={`caret ${item.isExpanded ? 'down' : 'right'}`}
-            onClick={() => handleToggleExpansion(item)}
-            className='cursor pointer'
-        />
-    ) : null);
-
-    const submitNameChange = () => {
-        if (newTitle.trim()) handleRenameItem(renamingModalPosition.id, newTitle.trim());
-        setRenamingModalPosition(null);
-    };
-
-    const handleKeyDownInput = (e) => {
-        if (e.key === 'Enter') submitNameChange();
-        if (e.key === 'Escape') setRenamingModalPosition(null);
     };
 
     const getItemDataFromDOMNode = node => node.attributes['item-id'].nodeValue;
@@ -151,124 +121,22 @@ export default function StoryGroupTree(props) {
         [activeStories, tree],
     );
 
-    const handleClickStory = ({ nativeEvent: { shiftKey } }, item) => handleSelectionChange({ shiftKey, item });
-
     useEventListener('keydown', handleKeyDownInMenu);
 
-    const renderItem = (renderProps) => {
-        const {
-            item,
-            provided,
-            snapshot: { combineTargetFor, isDragging },
-        } = renderProps;
-        const isLeaf = !item.canBearChildren;
-        const { selected: isFocused } = item;
-        const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
-        const isHoverTarget = combineTargetFor && !isLeaf;
-        const style = isLeaf
-            ? { width: 'calc(100% - 70px)' } // one button
-            : { width: 'calc(100% - 110px)' }; // three buttons
-        return (
-            <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
-                className='item-focus-holder'
-                item-id={item.id}
-                type={isLeaf ? 'story' : 'story-group'}
-            >
-                <Menu.Item
-                    active={activeStories.some(s => s.id === item.id) || isHoverTarget}
-                    {...(isLeaf ? { onClick: e => handleClickStory(e, item) } : {})}
-                >
-                    <div className='side-by-side narrow middle'>
-                        <Icon
-                            name='bars'
-                            size='small'
-                            color='grey'
-                            className={`drag-handle ${isDragging ? 'dragging' : ''}`}
-                            {...provided.dragHandleProps}
-                            {...(item.isExpanded
-                                ? {
-                                    onMouseDown: (...args) => {
-                                        handleCollapse(item.id);
-                                        provided.dragHandleProps.onMouseDown(...args);
-                                    },
-                                }
-                                : {})}
-                        />
-                        <div
-                            className='side-by-side left narrow'
-                            style={style}
-                            {...(isBeingRenamed ? { ref: renamerRef } : {})}
-                        >
-                            <div className='item-chevron'>{getIcon(item)}</div>
-                            {isBeingRenamed ? (
-                                <Input
-                                    onChange={(_, { value }) => setNewTitle(value)}
-                                    value={newTitle}
-                                    onKeyDown={handleKeyDownInput}
-                                    autoFocus
-                                    onBlur={submitNameChange}
-                                    data-cy='edit-name'
-                                    className='item-edit-box'
-                                    {...(renamerRef.current
-                                        ? {
-                                            style: {
-                                                width: `${renamerRef.current
-                                                    .clientWidth - 25}px`,
-                                            },
-                                        }
-                                        : {})}
-                                />
-                            ) : (
-                                <span
-                                    className='item-name'
-                                    onDoubleClick={() => setRenamingModalPosition(item)}
-                                    {...(isBeingRenamed ? { ref: renamerRef } : {})}
-                                >
-                                    {trimLong(item.title)}
-                                </span>
-                            )}
-                        </div>
-                        <div className='item-actions'>
-                            {!isLeaf && (
-                                <>
-                                    <Icon
-                                        className={`cursor pointer ${
-                                            isFocused ? 'focused' : ''
-                                        }`}
-                                        name='eye'
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleToggleFocus(item.id);
-                                        }}
-                                    />
-                                    <Icon
-                                        className='cursor pointer'
-                                        name='plus'
-                                        onClick={() => handleAddStory(
-                                            item.id,
-                                            `${item.title}-s${item.children.length}`,
-                                        )
-                                        }
-                                    />
-                                </>
-                            )}
-                            <Icon
-                                className='cursor pointer'
-                                name='trash'
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setDeletionModalVisible(item);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </Menu.Item>
-            </div>
-        );
-    };
+    const renderItem = renderProps => (
+        <StoryGroupTreeNode
+            {...renderProps}
+            somethingIsMutating={somethingIsMutating}
+            activeStories={activeStories}
+            handleSelectionChange={handleSelectionChange}
+            setDeletionModalVisible={setDeletionModalVisible}
+            handleToggleExpansion={handleToggleExpansion}
+            handleCollapse={handleCollapse}
+            handleAddStory={handleAddStory}
+            handleToggleFocus={handleToggleFocus}
+            handleRenameItem={handleRenameItem}
+        />
+    );
 
     const [deletionIsPossible, deletionModalMessage] = useMemo(
         () => isStoryDeletable(deletionModalVisible, stories, tree),
