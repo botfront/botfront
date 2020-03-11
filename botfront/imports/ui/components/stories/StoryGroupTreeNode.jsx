@@ -67,7 +67,10 @@ function StoryGroupTreeNode(props) {
                     },
                 } : {}),
         }
-        : {};
+        : {
+            // otherwise beautiful-dnd throws
+            'data-react-beautiful-dnd-drag-handle': provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
+        };
 
     return (
         <div
