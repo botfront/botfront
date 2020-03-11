@@ -170,7 +170,9 @@ if (Meteor.isServer) {
             return parseNlu(instance, params);
         },
 
-        async 'rasa.convertToJson'(file, language, outputFormat, host) {
+        async 'rasa.convertToJson'(file, language, outputFormat, host, projectId) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
             check(language, String);
             check(file, String);
             check(outputFormat, String);
@@ -196,6 +198,12 @@ if (Meteor.isServer) {
                 data: file,
                 output_format: outputFormat,
                 language,
+            });
+            auditLog('Converting model to json', {
+                user: Meteor.user(),
+                type: 'update',
+                projectId,
+                operation: 'rasa-execute',
             });
             return data;
         },

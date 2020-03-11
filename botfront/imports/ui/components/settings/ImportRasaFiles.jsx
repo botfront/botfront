@@ -225,6 +225,7 @@ const ImportRasaFiles = (props) => {
         instanceHost: instance.host,
         fallbackImportLanguage,
         projectLanguages: projectLanguages.map(l => l.value),
+        projectId,
     });
     const [dropDatasetFilesIndicators, dropDatasetFiles] = useFileDrop(datasetFileReader);
 
