@@ -63,7 +63,8 @@ StoryEditors.defaultProps = {
 const StoryEditorsTracker = withTracker((props) => {
     const { projectId, selectedIds } = props;
     const storiesHandler = Meteor.subscribe('stories.selected', projectId, selectedIds);
-    const stories = Stories.find({ projectId, _id: { $in: selectedIds } }).fetch();
+    const stories = Stories.find({ projectId, _id: { $in: selectedIds } }).fetch()
+        .sort((a, b) => selectedIds.findIndex(id => id === a._id) - selectedIds.findIndex(id => id === b._id));
 
     return {
         ready: storiesHandler.ready(),
