@@ -64,7 +64,7 @@ describe('NLU Intent warning message displays', function() {
             .first()
             .click({ force: true });
         cy.dataCy('intent-label').should('have.length', 2);
-
+        cy.wait(200); // wait for the ui to update
         // check warning message exists
         cy.contains('You need at least two distinct intents to train NLU').should('exist');
     });
