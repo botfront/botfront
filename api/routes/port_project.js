@@ -153,6 +153,12 @@ const overwriteCollection = async function(projectId, modelIds, collection, back
         createResponsesIndex(projectId, backup[collection])
         return
     }
+    // if the first botresponse has an index, the backup is from a version with stories indexing
+    // so we do not need to index it
+    if (collection === 'stories' &&  !backup[collection][0].textIndex) {
+        createStoriesIndex(projectId, backup[collection])
+        return
+    }
     await model.insertMany(backup[collection]);
 };
 

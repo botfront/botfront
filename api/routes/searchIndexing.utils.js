@@ -1,4 +1,4 @@
-const { Responses } = require('../models/models');
+const { Responses, Stories } = require('../models/models');
 const { safeDump } = require('js-yaml/lib/js-yaml');
 const { safeLoad } = require('js-yaml');
 
@@ -36,3 +36,129 @@ exports.createResponsesIndex = async (projectId, responses) => {
     });
     return Promise.all(answer);
 };
+
+
+const getEntities = (storyLine) => {
+    const entitiesString = storyLine.split('{')[1];
+    if (!entitiesString) return [];
+    const entities = entitiesString.slice(0, entitiesString.length - 1).split(',');
+    return entities.map(entity => entity.split(':')[0].replace(/"/g, ''));
+};
+
+const parseLine = (line) => {
+    const prefix = line.trim()[0];
+    const content = line.trim().slice(1).trim();
+    let type = null;
+    let entities;
+    let name = content;
+    switch (prefix) {
+    case '*':
+        type = 'user';
+        name = content.split('{')[0].replace(/"/g, '');
+        entities = getEntities(line);
+        break;
+    case '-':
+        if (/^utter_/.test(content)) {
+            type = 'bot';
+        } else if (/^slot/.test(content)) {
+            type = 'slot';
+            name = content.split('{')[1].split(':')[0].replace(/"/g, '');
+        } else if (/^action_/.test(content)) {
+            type = 'action';
+        }
+        break;
+    default:
+        type = null;
+    }
+    return { type, name, entities };
+};
+
+const parseStory = (story) => {
+    const storyContent = {
+        botResponses: [],
+        userUtterances: [],
+        slots: [],
+        actions: [],
+    };
+    const lines = story ? story.split('\n') : [];
+    lines.forEach((line) => {
+        const { type, ...rest } = parseLine(line);
+        switch (type) {
+        case null: break;
+        case 'user':
+            storyContent.userUtterances.push(rest);
+            break;
+        case 'bot':
+            storyContent.botResponses.push(rest.name);
+            break;
+        case 'action':
+            storyContent.actions.push(rest.name);
+            break;
+        case 'slot':
+            storyContent.slots.push(rest.name);
+            break;
+        default: break;
+        }
+    });
+    return storyContent;
+};
+
+const parseStoryTree = (incomingStory, options) => {
+    const { update = {} } = options;
+    const story = incomingStory._id === update._id
+        ? { ...incomingStory, ...update }
+        : incomingStory;
+    let {
+        botResponses, userUtterances, slots, actions,
+    } = parseStory(story.story);
+    let md = story.story;
+    if (story.branches && story.branches.length > 0) {
+        story.branches.forEach((childStory) => {
+            const events = parseStoryTree(childStory, options);
+            md = `${md}${story.story}`;
+            botResponses = [...botResponses, ...events.botResponses];
+            userUtterances = [...userUtterances, ...events.userUtterances];
+            slots = [...slots, ...events.slots];
+            actions = [...actions, ...events.actions];
+        });
+    }
+    return {
+        botResponses, userUtterances, slots, actions, md,
+    };
+};
+
+const getStoryContent = (story, options) => {
+    if (typeof story === 'string') {
+        return parseStoryTree(story, options);
+    } if (typeof story === 'object') {
+        return parseStoryTree(story, options);
+    }
+    return {};
+};
+
+const indexStory = (story) => {
+    const {
+        userUtterances = [], botResponses = [], actions = [], slots = [],
+    } = getStoryContent(story,{});
+    const storyContentIndex = [
+        ...userUtterances.map(({ name }) => name),
+        ...botResponses,
+        ...actions,
+        ...slots,
+    ].join(' \n ');
+    const result = {};
+    result.textIndex = { contents: storyContentIndex, info: story.title };
+    return result;
+};
+
+exports.createStoriesIndex = async (projectId, stories) => {
+    const newStories = typeof stories === 'string' ? JSON.parse(stories) : stories;
+    // eslint-disable-next-line array-callback-return
+    const answer = newStories.map((story) => {
+        story.textIndex = indexStory(story);
+        return Stories.update({ projectId, _id: story._id }, story, { upsert: true });
+    });
+    return Promise.all(answer);
+};
+
+
