@@ -5,36 +5,40 @@ import { Stories } from './stories.collection';
 import {
     projectFixture, storyFixture, enModelFixture, frModelFixture, storyId, enModelId, frModelId, projectId, botResponseFixture,
 } from './indexTestData';
-import { indexStory, searchStories } from './stories.index';
+import { indexStory } from './stories.index';
 import { Projects } from '../project/project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
-import BotResponses from '../graphql/botResponses/botResponses.model';
+import { createResponse, deleteResponse } from '../graphql/botResponses/mongo/botResponses';
+
+import './stories.methods';
 
 if (Meteor.isServer) {
     const testStoryIndexing = async (done) => {
-        await BotResponses.deleteOne({ _id: botResponseFixture._id });
-        await BotResponses.find();
+        await deleteResponse(projectId, botResponseFixture.key);
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
         await NLUModels.remove({ _id: frModelId });
         await Stories.remove({ _id: storyId });
-        await BotResponses.updateOne({ _id: botResponseFixture._id }, botResponseFixture, { upsert: true });
+        await createResponse(projectId, botResponseFixture);
         await NLUModels.insert({ ...enModelFixture });
         await NLUModels.insert(frModelFixture);
         await Projects.insert(projectFixture);
         await Stories.insert(storyFixture);
-        const newIndex = await indexStory(storyId, { updateIndex: true });
-        Stories.update({ _id: storyId }, { $set: { searchIndex: newIndex } });
+        const { textIndex } = await indexStory(storyId);
+        Stories.update({ _id: storyId }, { $set: { textIndex } });
+        expect(textIndex).to.be.deep.equal({
+            contents: 'get_started \n get_started \n utter_get_started \n utter_get_started \n action_new \n test_slot',
+            info: storyFixture.title,
+        });
         done();
     };
 
     const testStorySearch = async (query, searchInProject, language, done) => {
-        console.log(await Stories.findOne({ _id: storyId }, { fields: { searchIndex: 1 } }));
-        const result = Meteor.call('stories.search', searchInProject, language, query, (e, r) => {
-            console.log(e, r);
+        Meteor.call('stories.search', searchInProject, language, query, (e, r) => {
+            expect(r[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'Get started' });
+            expect(r.length).to.be.equal(1);
+            done();
         });
-        console.log(result);
-        done();
     };
     // ------ test suite -------
     describe.only('limit tests', () => {
@@ -42,8 +46,7 @@ if (Meteor.isServer) {
             testStoryIndexing(done);
         });
         it('get the expected results from a search string', (done) => {
-            // testStoryIndexing(done)
-            testStorySearch('bienvenue', projectId, 'fr', done);
+            testStorySearch('welcome', projectId, 'en', done);
         });
     });
 }

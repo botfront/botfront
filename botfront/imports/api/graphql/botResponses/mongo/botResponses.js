@@ -18,7 +18,7 @@ const indexResponseContent = ({ text = '', custom = null, buttons = [] }) => {
     return responseContent;
 };
 
-const indexBotResponse = (response) => {
+export const indexBotResponse = (response) => {
     let responseContent = [];
     responseContent.push(response.key);
     response.values.forEach((value) => {
@@ -27,6 +27,19 @@ const indexBotResponse = (response) => {
         });
     });
     return responseContent.join('\n');
+};
+
+const mergeAndIndexBotResponse = async ({
+    projectId, language, key, newPayload, index,
+}) => {
+    const botResponse = await BotResponses.findOne({ projectId, key }).lean();
+    if (!botResponse) {
+        const textIndex = [key, ...indexResponseContent(newPayload)].join('\n');
+        return textIndex;
+    }
+    const valueIndex = botResponse.values.findIndex(({ lang }) => lang === language);
+    botResponse.values[valueIndex].sequence[index] = { content: safeDump(clearTypenameField(newPayload)) };
+    return indexBotResponse(botResponse);
 };
 
 export const createResponses = async (projectId, responses) => {
@@ -91,18 +104,6 @@ export const getBotResponseById = async (_id) => {
     return botResponse;
 };
 
-const mergeAndIndexBotResponse = async ({
-    projectId, language, key, newPayload, index,
-}) => {
-    const botResponse = await BotResponses.findOne({ projectId, key }).lean();
-    if (!botResponse) {
-        const textIndex = [key, ...indexResponseContent(newPayload)].join('\n');
-        return textIndex;
-    }
-    const valueIndex = botResponse.values.findIndex(({ lang }) => lang === language);
-    botResponse.values[valueIndex].sequence[index] = { content: safeDump(clearTypenameField(newPayload)) };
-    return indexBotResponse(botResponse);
-};
 
 export const upsertResponse = async ({
     projectId, language, key, newPayload, index,
@@ -141,12 +142,16 @@ export const deleteVariation = async ({
     const responseMatch = await BotResponses.findOne(
         { projectId, key, 'values.lang': language },
     ).exec();
-    const sequence = responseMatch && responseMatch.values.find(({ lang }) => lang === language).sequence;
+    const sequenceIndex = responseMatch && responseMatch.values.findIndex(({ lang }) => lang === language);
+
+    const { sequence } = responseMatch.values[sequenceIndex];
     if (!sequence) return null;
     const updatedSequence = [...sequence.slice(0, index), ...sequence.slice(index + 1)];
+    responseMatch.values[sequenceIndex].sequence = updatedSequence;
+    const textIndex = indexBotResponse(responseMatch);
     return BotResponses.findOneAndUpdate(
         { projectId, key, 'values.lang': language },
-        { $set: { 'values.$.sequence': updatedSequence } },
+        { $set: { 'values.$.sequence': updatedSequence, textIndex } },
         { new: true, lean: true },
     );
 };

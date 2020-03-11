@@ -8,6 +8,7 @@ import { Stories } from './stories.collection';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Projects } from '../project/project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
+import BotResponses from '../graphql/botResponses/botResponses.model';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
@@ -127,7 +128,7 @@ Meteor.methods({
             { $pullAll: { checkpoints: [branchPath] } },
         );
     },
-    'stories.search'(projectId, language, search) {
+    async 'stories.search'(projectId, language, search) {
         check(projectId, String);
         check(language, String);
         check(search, String);
@@ -144,8 +145,12 @@ Meteor.methods({
             }
             return filtered;
         }, []);
+        const matchedResponses = await BotResponses.find(
+            { $text: { $search: search } },
+        ).lean();
+        const responseKeys = matchedResponses.map(({ key }) => key);
         const matched = Stories.find(
-            { projectId, $text: { $search: `${search} ${intents.join(' ')}` } },
+            { projectId, $text: { $search: `${search} ${intents.join(' ')} ${responseKeys.join(' ')}` } },
             { fields: { _id: 1, title: 1 } },
         ).fetch();
         return matched;
