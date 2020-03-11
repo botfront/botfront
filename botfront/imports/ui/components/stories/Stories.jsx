@@ -79,15 +79,15 @@ function Stories(props) {
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
-    const handleAddStoryGroup = async (title, f) => Meteor.call('storyGroups.insert', { title, projectId }, wrapMeteorCallback(f));
+    const handleAddStoryGroup = async (storyGroup, f) => Meteor.call('storyGroups.insert', { ...storyGroup, projectId }, wrapMeteorCallback(f));
 
     const handleDeleteGroup = (storyGroup, f) => Meteor.call('storyGroups.delete', storyGroup, wrapMeteorCallback(f));
 
     const handleStoryGroupUpdate = (storyGroup, f) => Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback(f));
 
-    const handleNewStory = (parentId, title, f) => Meteor.call(
+    const handleNewStory = (story, f) => Meteor.call(
         'stories.insert', {
-            story: '', title, projectId, parentId, branches: [],
+            story: '', projectId, branches: [], ...story,
         },
         wrapMeteorCallback(f),
     );
@@ -134,8 +134,6 @@ function Stories(props) {
                     <div className='storygroup-browser'>
                         <StoryGroupNavigation
                             allowAddition
-                            onAdd={handleAddStoryGroup}
-                            changeName={handleStoryGroupUpdate}
                             placeholderAddItem='Choose a group name'
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />
