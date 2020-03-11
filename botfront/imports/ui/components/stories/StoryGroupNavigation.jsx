@@ -44,14 +44,14 @@ class StoryGroupNavigation extends React.Component {
 
     submitTitleInput = (element) => {
         const { editing, newItemName, itemName } = this.state;
-        const { onAdd, changeName } = this.props;
+        const { addGroup, updateGroup } = this.props;
         if (editing === -1 && !!newItemName) {
-            onAdd(newItemName);
+            addGroup({ title: newItemName });
             this.resetAddItem();
             return;
         }
         if (editing !== -1 && !!itemName) {
-            changeName({ ...element, title: itemName });
+            updateGroup({ ...element, title: itemName });
             this.setState({ editing: -1 });
             return;
         }
@@ -144,18 +144,16 @@ class StoryGroupNavigation extends React.Component {
 
 StoryGroupNavigation.propTypes = {
     allowAddition: PropTypes.bool,
-    onAdd: PropTypes.func,
-    changeName: PropTypes.func,
     placeholderAddItem: PropTypes.string,
     modals: PropTypes.object.isRequired,
     onSwitchStoryMode: PropTypes.func.isRequired,
     storyMode: PropTypes.string.isRequired,
+    addGroup: PropTypes.func.isRequired,
+    updateGroup: PropTypes.func.isRequired,
 };
 
 StoryGroupNavigation.defaultProps = {
     allowAddition: false,
-    onAdd: () => {},
-    changeName: () => {},
     placeholderAddItem: '',
 };
 
@@ -175,6 +173,6 @@ export default withTracker(props => ({
     slots: Slots.find({}).fetch(),
 }))(props => (
     <ConversationOptionsContext.Consumer>
-        {value => <BrowserWithState {...props} stories={value.stories} />}
+        {value => <BrowserWithState {...props} {...value} />}
     </ConversationOptionsContext.Consumer>
 ));

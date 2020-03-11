@@ -96,7 +96,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             parentId,
         };
         setSomethingIsMutating(true);
-        addStory(parentId, title, () => setSomethingIsMutating(false));
+        addStory(convertId({ id, parentId, title }), () => setSomethingIsMutating(false));
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
