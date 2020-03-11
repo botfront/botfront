@@ -5,19 +5,27 @@ export const frModelId = 'TEST_MODEL_FR';
 
 export const storyFixture = {
     _id: storyId,
-    story: '* get_started\n    - utter_get_started\n  - slot{"test_slot":true}\n  - action_new\n* get_started{"projectName": "bf"}\n  - utter_get_started',
-    title: 'Get started',
+    story: '* get_started\n    - utter_get_started\n  - slot{"test_slot":true}\n  - action_testAction\n* get_started{"timeOfDay": "morning"}\n    - utter_TEST\n    - utter_image\n    - utter_quick\n    - utter_custom',
+    title: 'story fixture',
     storyGroupId: 'TEST_STORY_GROUP',
     projectId: 'bf',
     events: ['utter_get_started', 'utter_h_0GF2S1'],
     branches: [],
 };
 
+// morning
+// matin
+// timeOfDay
+// 123
+// button_intent
+// buttonEntity
+// second
+// http://google.com
+// Canada
+// country
+// test_slot
+// action_testAction
 
-// story index
-// responses index
-// nlu index
-// general index
 
 export const frModelFixture = {
     _id: frModelId,
@@ -169,7 +177,7 @@ export const botResponseFixture = {
         {
             lang: 'en',
             sequence: [
-                { content: 'text: enjoy viewing our website\nmetadata: null\n' },
+                { content: 'text: test\nmetadata: null\n' },
                 { content: 'text: Hi\n' },
             ],
         },
@@ -177,7 +185,7 @@ export const botResponseFixture = {
             lang: 'fr',
             sequence: [
                 { content: 'text: bonjour\nmetadata: null\n' },
-                { content: 'text: bienvenue a notre site web\n' },
+                { content: 'text: merci de visiter notre site web\n' },
                 { content: 'text: salut!\n' },
             ],
         },
@@ -186,45 +194,32 @@ export const botResponseFixture = {
 
 export const botResponsesFixture = [
     {
-        _id: '2joKUJnI',
-        key: 'utter_fdMvjLbo',
+        _id: 'E0TEcRTw',
+        key: 'utter_get_started',
         projectId: 'bf',
-        values: [{ lang: 'en', sequence: [{ content: 'text: hello!\n' }] }],
-        textIndex: 'utter_fdMvjLbo\nhello!',
-    },
-    {
-        _id: '5e6805edc1198ff7c7a93cdf',
-        key: 'utter_TEST',
-        values: [{ lang: 'en', sequence: [{ content: 'text: test q\n' }] }],
-        projectId: 'bf',
-        textIndex: 'utter_TEST\ntest q',
-    },
-    {
-        _id: '5e68ed605120af02a552306c',
-        key: 'utter_a',
-        values: [
-            {
-                lang: 'en',
-                sequence: [{ content: '__typename: TextPayload\ntext: a\n' }],
-            },
-        ],
-        projectId: 'bf',
-        textIndex: 'utter_a\na',
-    },
-    {
-        _id: '5e68ee926adc1f03dfe94a4e',
-        key: 'utter_b',
         values: [
             {
                 lang: 'en',
                 sequence: [
-                    { content: 'text: b\nmetadata: null\n' },
-                    { content: '__typename: TextPayload\ntext: bb\n' },
+                    { content: 'text: test\nmetadata: null\n' },
+                    { content: 'text: Hi\n' },
+                ],
+            },
+            {
+                lang: 'fr',
+                sequence: [
+                    { content: 'text: bonjour\nmetadata: null\n' },
+                    { content: 'text: merci de visiter notre site web\n' },
+                    { content: 'text: salut!\n' },
                 ],
             },
         ],
+    },
+    {
+        _id: '5e6805edc1198ff7c7a93cdf',
+        key: 'utter_TEST',
+        values: [{ lang: 'en', sequence: [{ content: 'text: test 123\n' }] }],
         projectId: 'bf',
-        textIndex: 'utter_b\nb\nbb',
     },
     {
         _id: '5e68ef296adc1f03dfe94a4f',
@@ -235,15 +230,13 @@ export const botResponsesFixture = [
                 sequence: [
                     {
                         content:
-                                   'text: quick\nbuttons:\n  - title: title\n    type: postback\n    payload: \'/button_intent{"entity":"entitvyvalue"}\'\n  - title: second\n    type: postback\n    payload: /get_started\n  - title: go to google\n    type: web_url\n    url: \'http://google.com\'\nmetadata: null\n',
+                                   'text: quick\nbuttons:\n  - title: title\n    type: postback\n    payload: \'/button_intent{"buttonEntity":"entitvyvalue"}\'\n  - title: second\n    type: postback\n    payload: /get_started\n  - title: go to google\n    type: web_url\n    url: \'http://google.com\'\nmetadata: null\n',
                     },
                 ],
             },
         ],
         projectId: 'bf',
         metadata: null,
-        textIndex:
-                   'utter_quick\nquick\ntitle\nbutton_intent\nentity\nsecond\nget_started\ngo to google\nhttp://google.com',
     },
     {
         _id: '5e68ef416adc1f03dfe94a51',
@@ -260,7 +253,6 @@ export const botResponsesFixture = [
             },
         ],
         projectId: 'bf',
-        textIndex: 'utter_image',
     },
     {
         _id: '5e68ef6e6adc1f03dfe94a52',
@@ -268,11 +260,10 @@ export const botResponsesFixture = [
         values: [
             {
                 lang: 'en',
-                sequence: [{ content: 'custom:\n  key: value\nmetadata: null\n' }],
+                sequence: [{ content: 'custom:\n  country: "Canada"\nmetadata: null\n' }],
             },
         ],
         projectId: 'bf',
-        textIndex: 'utter_custom\nkey: value ',
     },
 ];
 
@@ -280,5 +271,5 @@ export const slotFixture = {
     _id: 'oAhPBpeQpyabz7Q5i',
     type: 'bool',
     projectId: 'bf',
-    name: 'test',
+    name: 'testSlot',
 };

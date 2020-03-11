@@ -453,6 +453,13 @@ const getEntities = (storyLine) => {
     return entities.map(entity => entity.split(':')[0].replace(/"/g, ''));
 };
 
+export const parsePayload = (payload) => {
+    if (payload[0] !== '/') throw new Error('a payload must start with a "/"');
+    const intent = payload.slice(1).split('{')[0];
+    const entities = getEntities(payload.slice(1));
+    return { intent, entities };
+};
+
 const parseLine = (line) => {
     const prefix = line.trim()[0];
     const content = line.trim().slice(1).trim();

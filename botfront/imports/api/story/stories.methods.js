@@ -66,7 +66,8 @@ Meteor.methods({
         if (!path) {
             if (story.story || story.branches) {
                 rest.textIndex = indexStory(story);
-            } else if (story.title) {
+            }
+            if (story.title) {
                 rest.textIndex.title = story.title;
             }
             return Stories.update({ _id }, { $set: { ...rest } });

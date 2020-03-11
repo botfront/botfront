@@ -5,6 +5,7 @@ import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage } from '../../../../lib/botResponse.utils';
+import { parsePayload } from '../../../../lib/story.utils';
 
 const indexResponseContent = ({ text = '', custom = null, buttons = [] }) => {
     const responseContent = [];
@@ -12,7 +13,11 @@ const indexResponseContent = ({ text = '', custom = null, buttons = [] }) => {
     if (custom) responseContent.push(safeDump(custom).replace(/\n/, ' '));
     buttons.forEach(({ title = '', payload = '', url = '' }) => {
         if (title.length > 0) responseContent.push(title);
-        if (payload.length > 0) responseContent.push(payload);
+        if (payload.length > 0 && payload[0] === '/') {
+            const { intent, entities } = parsePayload(payload);
+            responseContent.push(intent);
+            entities.forEach(entity => responseContent.push(entity));
+        }
         if (url.length > 0) responseContent.push(url);
     });
     return responseContent;

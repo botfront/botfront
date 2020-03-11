@@ -1,52 +1,83 @@
-import { Meteor } from 'meteor/meteor';
+
 import { expect } from 'chai';
-import { Stories } from './stories.collection';
-// test imports
-import {
-    projectFixture, storyFixture, enModelFixture, frModelFixture, storyId, enModelId, frModelId, projectId, botResponseFixture,
-} from './indexTestData';
 import { indexStory } from './stories.index';
-import { Projects } from '../project/project.collection';
-import { NLUModels } from '../nlu_model/nlu_model.collection';
-import { createResponse, deleteResponse } from '../graphql/botResponses/mongo/botResponses';
 
-import './stories.methods';
+const storyFixture = {
+    _id: 'vRTJCXF5dmohJ53Kz',
+    title: 'Welcome Story',
+    storyGroupId: 'pYAvAsYw256uy8bGF',
+    projectId: 'bf',
+    events: [
+        'utter_hello',
+        'utter_tXd-Pm66',
+        'utter_Xywmv8uc',
+        'utter_hwZIDQ5P',
+        'utter_0H5XEC9h',
+        'action_help',
+    ],
+    branches: [
+        {
+            title: 'New Branch 1',
+            branches: [],
+            _id: 'wBzDjbDu',
+            story: '* helpOptions\n  - action_help\n  - utter_tXd-Pm66',
+        },
+        {
+            title: 'New Branch 2',
+            branches: [],
+            _id: 'vQMx0FvVC',
+            story:
+                '* how_are_you\n  - utter_Xywmv8uc\n* mood{"positive": "good"}\n  - utter_hwZIDQ5P\n  - utter_0H5XEC9h\n  - slot{"mood":"set"}',
+        },
+    ],
+    story: '* hello\n - utter_hello',
+};
 
-if (Meteor.isServer) {
-    const testStoryIndexing = async (done) => {
-        await deleteResponse(projectId, botResponseFixture.key);
-        await Projects.remove({ _id: projectId });
-        await NLUModels.remove({ _id: enModelId });
-        await NLUModels.remove({ _id: frModelId });
-        await Stories.remove({ _id: storyId });
-        await createResponse(projectId, botResponseFixture);
-        await NLUModels.insert({ ...enModelFixture });
-        await NLUModels.insert(frModelFixture);
-        await Projects.insert(projectFixture);
-        await Stories.insert(storyFixture);
-        const { textIndex } = await indexStory(storyId);
-        Stories.update({ _id: storyId }, { $set: { textIndex } });
-        expect(textIndex).to.be.deep.equal({
-            contents: 'get_started \n get_started \n utter_get_started \n utter_get_started \n action_new \n test_slot',
-            info: storyFixture.title,
-        });
-        done();
-    };
+const updateFixture = {
+    _id: 'vRTJCXF5dmohJ53Kz',
+    path: ['vRTJCXF5dmohJ53Kz'],
+    story: '* hello\n  - utter_new_response',
+};
 
-    const testStorySearch = async (query, searchInProject, language, done) => {
-        Meteor.call('stories.search', searchInProject, language, query, (e, r) => {
-            expect(r[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'Get started' });
-            expect(r.length).to.be.equal(1);
-            done();
-        });
-    };
-    // ------ test suite -------
-    describe.only('limit tests', () => {
-        it('should index the story', (done) => {
-            testStoryIndexing(done);
-        });
-        it('get the expected results from a search string', (done) => {
-            testStorySearch('welcome', projectId, 'en', done);
+// ------ test suite -------
+describe('old tests', () => {
+    it('should index the story and get a list of events', () => {
+        const result = indexStory(storyFixture, { includeEventsField: true });
+        expect(result).to.be.deep.equal({
+            textIndex: {
+                contents: 'hello \n helpOptions \n how_are_you \n mood positive \n utter_hello \n utter_tXd-Pm66 \n utter_Xywmv8uc \n utter_hwZIDQ5P \n utter_0H5XEC9h \n action_help \n mood',
+                info: 'Welcome Story',
+            },
+            events: [
+                'utter_hello',
+                'utter_tXd-Pm66',
+                'utter_Xywmv8uc',
+                'utter_hwZIDQ5P',
+                'utter_0H5XEC9h',
+                'action_help',
+            ],
         });
     });
-}
+    it('should index the story and get a list of events', () => {
+        const result = indexStory(storyFixture, {
+            includeEventsField: true,
+            update: {
+                _id: 'vRTJCXF5dmohJ53Kz', story: updateFixture.story,
+            },
+        });
+        expect(result).to.be.deep.equal({
+            textIndex: {
+                contents: 'hello \n helpOptions \n how_are_you \n mood positive \n utter_new_response \n utter_tXd-Pm66 \n utter_Xywmv8uc \n utter_hwZIDQ5P \n utter_0H5XEC9h \n action_help \n mood',
+                info: 'Welcome Story',
+            },
+            events: [
+                'utter_new_response',
+                'utter_tXd-Pm66',
+                'utter_Xywmv8uc',
+                'utter_hwZIDQ5P',
+                'utter_0H5XEC9h',
+                'action_help',
+            ],
+        });
+    });
+});

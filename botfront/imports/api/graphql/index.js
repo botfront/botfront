@@ -11,6 +11,8 @@ import configResolver from './config/configResolver';
 import configTypes from './config/config.types.graphql';
 import nluResolvers from './nlu/resolvers';
 import nluTypes from './nlu/schemas';
+import storiesTypes from './story/schemas/stories.types.graphql';
+import storiesResolver from './story/resolvers/storiesResolver';
 
 export const resolvers = [
     conversationsResolver,
@@ -19,6 +21,7 @@ export const resolvers = [
     activityResolver,
     commonResolver,
     configResolver,
+    storiesResolver,
 ];
 
 export const typeDefs = mergeTypes([
@@ -28,6 +31,7 @@ export const typeDefs = mergeTypes([
     ...nluTypes,
     commonTypes,
     configTypes,
+    storiesTypes,
 ], { all: true });
 
 export const schemaDirectives = {
