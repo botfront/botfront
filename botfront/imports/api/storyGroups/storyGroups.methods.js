@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 
 import { StoryGroups } from './storyGroups.collection';
+import { Projects } from '../project/project.collection';
 import { Stories } from '../story/stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
@@ -75,9 +76,9 @@ Meteor.methods({
         const eventstoRemove = Stories.find({ parentId: storyGroup._id }, { fields: { events: true } })
             .fetch()
             .reduce((acc, { events = [] }) => [...acc, ...events], []);
-        StoryGroups.update(
+        Projects.update(
             { _id: storyGroup.projectId },
-            { $pull: { children: storyGroup._id } },
+            { $pull: { storyGroups: storyGroup._id } },
         );
         StoryGroups.remove(storyGroup);
         const result = Stories.remove({ parentId: storyGroup._id });
@@ -92,9 +93,9 @@ Meteor.methods({
             const id = StoryGroups.insert({
                 ...storyGroup, parentId: projectId, canBearChildren: true, children: [],
             });
-            StoryGroups.update(
+            Projects.update(
                 { _id: projectId },
-                { $push: { children: id } },
+                { $push: { storyGroups: { $each: [id], $position: 0 } } },
             );
             return id;
         } catch (e) {
@@ -112,13 +113,5 @@ Meteor.methods({
         } catch (e) {
             return handleError(e);
         }
-    },
-    'storyGroups.removeFocus'(projectId) {
-        check(projectId, String);
-        return StoryGroups.update(
-            { projectId },
-            { $set: { selected: false } },
-            { multi: true },
-        );
     },
 });
