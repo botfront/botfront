@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.2](https://github.com/botfront/botfront/compare/v0.20.1...v0.20.2) (2020-03-11)
+
+
+### Features
+
+* block non ascii chars in entities ([92dfda1](https://github.com/botfront/botfront/commit/92dfda1))
+* display version number at the bottom of the sidebar ([5cb2fee](https://github.com/botfront/botfront/commit/5cb2fee))
+
+
+
 ### [0.20.2](https://github.com/botfront/botfront/compare/v0.20.1...v0.20.2) (2020-03-09)
 
 
