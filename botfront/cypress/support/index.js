@@ -16,6 +16,7 @@
 // ***********************************************************
 
 import './chat.commands';
+import './story.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -181,7 +182,11 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
 });
 
-Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
+Cypress.Commands.add('dataCy', (dataCySelector, content = null) => {
+    if (!content) return cy.get(`[data-cy=${dataCySelector}]`);
+    return cy.get(`[data-cy=${dataCySelector}]`).contains(content)
+        .parents(`[data-cy=${dataCySelector}]`).first();
+});
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
 

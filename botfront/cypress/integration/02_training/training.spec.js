@@ -1,26 +1,13 @@
 /* global cy Cypress:true */
 describe('Training', function() {
-    function clickStoryGroup(group) {
-        const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
-        positions.map(p => cy.contains(group).click(p, { force: true }));
-    }
-
     function createStories() {
-        cy.visit('/project/bf/stories');
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
         cy.dataCy('toggle-md').click({ force: true });
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('Group{enter}');
-        clickStoryGroup('Group');
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
-            .type('{selectAll}{backSpace}{backSpace}{backSpace}{backSpace}', { force: true });
-        cy.dataCy('story-editor')
-            .get('textarea')
-            .focus()
-            .type('{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true });
+            .type('{selectAll}{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true });
     }
 
     before(function() {
