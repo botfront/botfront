@@ -28,6 +28,7 @@ function StoryGroupTreeNode(props) {
             name={`caret ${item.isExpanded ? 'down' : 'right'}`}
             onClick={() => handleToggleExpansion(item)}
             className='cursor pointer'
+            data-cy='toggle-expansion-story-group'
         />
     ) : null;
 
@@ -80,6 +81,7 @@ function StoryGroupTreeNode(props) {
             className='item-focus-holder'
             item-id={item.id}
             type={isLeaf ? 'story' : 'story-group'}
+            data-cy='story-group-menu-item'
         >
             <Menu.Item
                 active={activeStories.some(s => s.id === item.id) || isHoverTarget}
@@ -133,6 +135,7 @@ function StoryGroupTreeNode(props) {
                                     className={`cursor pointer ${
                                         isFocused ? 'focused' : ''
                                     }`}
+                                    data-cy='focus-story-group'
                                     name='eye'
                                     {...(!somethingIsMutating ? {
                                         onClick: (e) => {
@@ -143,11 +146,12 @@ function StoryGroupTreeNode(props) {
                                 />
                                 <Icon
                                     className='cursor pointer'
+                                    data-cy='add-story-in-story-group'
                                     name='plus'
                                     {...(!somethingIsMutating ? {
                                         onClick: () => handleAddStory(
                                             item.id,
-                                            `${item.title}-s${item.children.length}`,
+                                            `${item.title} (${item.children.length + 1})`,
                                         ),
                                     } : {})}
                                 />
@@ -155,6 +159,7 @@ function StoryGroupTreeNode(props) {
                         )}
                         <Icon
                             className='cursor pointer'
+                            data-cy='delete-story-group'
                             name='trash'
                             {...(!somethingIsMutating ? {
                                 onClick: (e) => {

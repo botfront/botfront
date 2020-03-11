@@ -156,11 +156,8 @@ describe('Bot responses', function() {
     });
 
     it('should disable response name input if the response is used in a story', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
         cy.wait(250);
         cy.dataCy('toggle-md').click();
         cy.get('.ace_content').click({ force: true });
