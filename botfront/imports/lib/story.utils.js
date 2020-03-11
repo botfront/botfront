@@ -453,19 +453,7 @@ const getEntities = (storyLine) => {
     return entities.map(entity => entity.split(':')[0].replace(/"/g, ''));
 };
 
-const parseLine = (line, options = {}) => {
-    const {
-        user = true,
-        bot = true,
-        action = true,
-        slot = true,
-    } = options;
-    const types = {
-        user: user ? 'user' : 'invalid',
-        bot: bot ? 'bot' : 'invalid',
-        action: action ? 'action' : 'invalid',
-        slot: slot ? 'slot' : 'invalid',
-    };
+const parseLine = (line) => {
     const prefix = line.trim()[0];
     const content = line.trim().slice(1).trim();
     let type = null;
@@ -473,18 +461,18 @@ const parseLine = (line, options = {}) => {
     let name = content;
     switch (prefix) {
     case '*':
-        type = types.user;
+        type = 'user';
         name = content.split('{')[0].replace(/"/g, '');
         entities = getEntities(line);
         break;
     case '-':
         if (/^utter_/.test(content)) {
-            type = types.bot;
+            type = 'bot';
         } else if (/^slot/.test(content)) {
-            type = types.slot;
+            type = 'slot';
             name = content.split('{')[1].split(':')[0].replace(/"/g, '');
         } else if (/^action_/.test(content)) {
-            type = types.action;
+            type = 'action';
         }
         break;
     default:
@@ -493,7 +481,7 @@ const parseLine = (line, options = {}) => {
     return { type, name, entities };
 };
 
-const parseStory = (story, options) => {
+const parseStory = (story) => {
     const storyContent = {
         botResponses: [],
         userUtterances: [],
@@ -502,7 +490,7 @@ const parseStory = (story, options) => {
     };
     const lines = story ? story.split('\n') : [];
     lines.forEach((line) => {
-        const { type, ...rest } = parseLine(line, options);
+        const { type, ...rest } = parseLine(line);
         switch (type) {
         case null: break;
         case 'user':
@@ -528,13 +516,9 @@ const parseStoryTree = (incomingStory, options) => {
     const story = incomingStory._id === update._id
         ? { ...incomingStory, ...update }
         : incomingStory;
-    console.log('combined update: ', incomingStory._id === update._id);
-    console.log('* * *');
-    console.log(story);
-    console.log('* * *');
     let {
         botResponses, userUtterances, slots, actions,
-    } = parseStory(story.story, options);
+    } = parseStory(story.story);
     let md = story.story;
     if (story.branches && story.branches.length > 0) {
         story.branches.forEach((childStory) => {
