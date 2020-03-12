@@ -1,9 +1,11 @@
 import {
     useReducer, useState, useEffect, useContext,
 } from 'react';
+import { useMemoOne } from 'use-memo-one';
 import uuidv4 from 'uuid/v4';
 import { mutateTree, moveItemOnTree } from '@atlaskit/tree';
 import { ConversationOptionsContext } from '../Context';
+import { ProjectContext } from '../../../layouts/context';
 
 const getSourceNode = (tree, source) => tree.items[tree.items[source.parentId].children[source.index]];
 
@@ -206,10 +208,12 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
 export const useStoryGroupTree = (treeFromProps, activeStories) => {
     const [somethingIsDragging, setSomethingIsDragging] = useState(false);
     const [somethingIsMutating, setSomethingIsMutating] = useState(false);
+    const { project: { _id: projectId } } = useContext(ProjectContext);
 
     const externalMutators = { ...useContext(ConversationOptionsContext), setSomethingIsMutating };
+    const reducer = useMemoOne(() => treeReducer(externalMutators), [projectId]);
 
-    const [tree, setTree] = useReducer(treeReducer(externalMutators), treeFromProps);
+    const [tree, setTree] = useReducer(reducer, treeFromProps);
 
     useEffect(() => setTree({ replace: treeFromProps }), [treeFromProps]);
     const toggleExpansion = item => setTree({ [item.isExpanded ? 'collapse' : 'expand']: item.id });
