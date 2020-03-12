@@ -12,11 +12,6 @@ describe('stories state persisting', function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
 
-    // function clickStoryGroup(group) {
-    //     const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
-    //     positions.map(p => cy.contains(group).click(p, { force: true }));
-    // }
-
     it('should remember the selected story group when a story group is selected by creating a story group', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('add-item').click({ force: true });
