@@ -152,7 +152,7 @@ Meteor.startup(() => {
                                 <Route path='*' component={NotFound} />
                             </Route>
                             <Route exact path='/admin' component={AdminLayout} onEnter={authenticateAdminPage()}>
-                                <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticate('projects:r', { scope: 'GLOBAL' })} />
+                                <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticate('projects:r', { scope: 'anyScope' })} />
                                 <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
                                 <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
                                 <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticate('users:r', { scope: 'anyScope' })} />

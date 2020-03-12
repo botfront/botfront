@@ -5,8 +5,6 @@ import { Link } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 import { can } from '../../../lib/scopes';
 
-import Can from '../roles/Can';
-
 class AdminSidebar extends React.Component {
     render() {
         const style = {
@@ -24,11 +22,11 @@ class AdminSidebar extends React.Component {
                     <Menu.Header as='h2' name='nlu'>
                         Admin
                     </Menu.Header>
-                    <Can I='projects:r' projectId={null}>
+                    {can('projects:r', { anyScope: true }) && (
                         <Link to='/admin/projects'>
                             <Menu.Item name='Projects' data-cy='projects-link'> Projects</Menu.Item>
                         </Link>
-                    </Can>
+                    )}
                     {can('users:r', { anyScope: true }) && (
                         <Link to='/admin/users' data-cy='users-link'>
                             <Menu.Item name='Users'> Users</Menu.Item>
