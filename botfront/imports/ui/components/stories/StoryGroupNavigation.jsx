@@ -46,12 +46,12 @@ class StoryGroupNavigation extends React.Component {
         const { editing, newItemName, itemName } = this.state;
         const { addGroup, updateGroup } = this.props;
         if (editing === -1 && !!newItemName) {
-            addGroup({ title: newItemName });
+            addGroup({ name: newItemName });
             this.resetAddItem();
             return;
         }
         if (editing !== -1 && !!itemName) {
-            updateGroup({ ...element, title: itemName });
+            updateGroup({ ...element, name: itemName });
             this.setState({ editing: -1 });
             return;
         }

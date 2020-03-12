@@ -16,10 +16,10 @@ const validateStories = (storyFiles) => {
     return storyFiles.map(sf => ({
         ...sf,
         parsedStories: parsedStories.filter(
-            ({ parentId }) => parentId === sf._id,
+            ({ storyGroupId }) => storyGroupId === sf._id,
         ),
         warnings: warnings
-            .filter(({ parentId }) => parentId === sf._id)
+            .filter(({ storyGroupId }) => storyGroupId === sf._id)
             .map(w => w.message),
     }));
 };
