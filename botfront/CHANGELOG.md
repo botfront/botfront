@@ -2,20 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.20.2-ee.1](https://github.com/botfront/botfront/compare/v0.20.2-ee.0...v0.20.2-ee.1) (2020-03-10)
-
-
-### Features
-
-* add rule to define min time bw 2 triggers ([072caa2](https://github.com/botfront/botfront/commit/072caa2a866677658060ba923def5f87b010cd59))
-* admin roles list ([a820ce4](https://github.com/botfront/botfront/commit/a820ce440666f3096ab2c51eb1eaf36a2db30604))
-* edit roles ([2a267b8](https://github.com/botfront/botfront/commit/2a267b8774f3740793368f6616b86be263dc5fd2))
-* edit roles children ([3683440](https://github.com/botfront/botfront/commit/36834408a55f8944a67d819cb838296abcec74de))
-* improved get RolesData query ([b39b689](https://github.com/botfront/botfront/commit/b39b689269e9d4f64dee5503069b897eb9427da1))
-* role edit ([3e2f26a](https://github.com/botfront/botfront/commit/3e2f26a59cac90713e27c1d95086d90b8971f0c3))
-* role page ([99e3c25](https://github.com/botfront/botfront/commit/99e3c25d6440be2da9082aa8f8317a48eee23446))
-* show stack trace on permission errors ([0da938e](https://github.com/botfront/botfront/commit/0da938efddc1999e5c6af11843726f3f0d3cc546))
-* update roles description ([8be735c](https://github.com/botfront/botfront/commit/8be735c90f429f2a271859629092e68de38b0e68))
 
 
 ### Bug Fixes
