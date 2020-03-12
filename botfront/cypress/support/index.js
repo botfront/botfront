@@ -190,6 +190,8 @@ Cypress.Commands.add('dataCy', (dataCySelector, content = null) => {
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
 
+Cypress.Commands.add('escapeModal', () => cy.get('.modals.dimmer').click('topRight'));
+
 Cypress.Commands.add(
     'upload',
     {

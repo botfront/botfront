@@ -223,25 +223,6 @@ describe('stories', function() {
         cy.dataCy('confirm-yes').click({ force: true });
     });
 
-    it('should be able to delete and add stories in intro stories', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('toggle-md').click({ force: true });
-        cy.dataCy('browser-item').eq(0).click({ force: true });
-        cy.dataCy('story-editor').get('textarea');
-        cy.dataCy('add-story').click({ force: true });
-        cy.dataCy('story-editor').should('have.lengthOf', 2);
-        cy.dataCy('delete-story')
-            .first()
-            .click({ force: true });
-        cy.dataCy('confirm-yes').click({ force: true });
-        cy.dataCy('story-editor').should('have.lengthOf', 1);
-        cy.dataCy('delete-story').click({ force: true });
-        cy.dataCy('confirm-yes').click({ force: true });
-        cy.dataCy('browser-item').should('have.lengthOf', 2);
-        cy.dataCy('add-story').click({ force: true });
-        cy.dataCy('story-editor').should('have.lengthOf', 1);
-    });
-
     it('should be able to collapse stories and to persist that across application state', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
@@ -445,23 +426,5 @@ describe('stories', function() {
             .dataCy('branch-label')
             .last()
             .find('.trash.small.disabled');
-    });
-
-    it('should disable the delete button in the story top menu for linked destination stories', function () {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('toggle-md').click({ force: true });
-        cy.dataCy('stories-linker').click({ force: true });
-        cy.dataCy('stories-linker')
-            .find('div')
-            .children()
-            .first()
-            .click();
-        cy.dataCy('browser-item')
-            .contains('Default stories')
-            .click();
-        cy.dataCy('connected-to').should('exist');
-        cy.dataCy('story-top-menu')
-            .find('.trash.disabled.icon')
-            .should('exist');
     });
 });

@@ -18,9 +18,9 @@ import { Loading } from '../utils/Utils';
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
 
-const isStoryDeletable = (story, storyList, tree) => {
-    const isDestination = s => (s.checkpoints || []).length;
-    const isOrigin = s1 => storyList.some(s2 => (s2.checkpoints || []).some(c => c[0] === s1.id));
+const isStoryDeletable = (story, stories, tree) => {
+    const isDestination = s1 => ((stories.find(s2 => s2._id === s1.id) || {}).checkpoints || []).length;
+    const isOrigin = s1 => stories.some(s2 => (s2.checkpoints || []).some(c => c[0] === s1.id));
     const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
     if (!story) return [false, null];
     const deletable = !story.canBearChildren

@@ -1,21 +1,6 @@
-/* global cy expect:true */
-
-const qrGold = new RegExp(`
-buttons:
-  - title: postback option
-    type: postback
-    payload: /get_started
-  - title: web_url option
-    type: web_url
-    payload: 'https://myurl.com/'
-`.replace(/\n/g, ''));
+/* global cy:true */
 
 const IMAGE_URL = 'https://lh3.googleusercontent.com/8zYxviiazPFUXLQvhEvq906503rRmYIoWhpjtVSPYTgIGxN1DvHEs7nPNY87pRWkps3VXU3XqusrnLXI9U-0GDGDHWpauUpylc4mtaOt';
-
-function clickStoryGroup(group) {
-    const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
-    positions.map(p => cy.contains(group).click(p, { force: true }));
-}
 
 describe('story visual editor', function () {
     afterEach(function () {
@@ -27,17 +12,15 @@ describe('story visual editor', function () {
             () => cy.createNLUModelProgramatically('bf', '', 'de'),
         );
         cy.login();
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
     });
 
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.train();
         cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        clickStoryGroup('myTest');
+        cy.browseToStory('Groupo (1)');
 
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').click({ force: true });
@@ -140,13 +123,6 @@ describe('story visual editor', function () {
     });
 
     it('should be able to add an image bot response', function () {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        clickStoryGroup('myTest');
-
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-image-template').click({ force: true });
         cy.dataCy('image-url-input')
@@ -158,8 +134,8 @@ describe('story visual editor', function () {
 
     it('should rerender on language change', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
-        cy.visit('/project/bf/stories');
 
+        cy.browseToStory('Get started');
         cy.dataCy('bot-response-input')
             .find('textarea')
             .type('I agree let\'s do it!!')
@@ -203,9 +179,7 @@ describe('story visual editor', function () {
             },
         ]]);
         cy.visit('/project/bf/stories');
-        cy.dataCy('browser-item')
-            .contains('Default stories')
-            .click({ force: true });
+        cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
     });
 
@@ -226,9 +200,7 @@ describe('story visual editor', function () {
             },
         ]]);
         cy.visit('/project/bf/stories');
-        cy.dataCy('browser-item')
-            .contains('Default stories')
-            .click({ force: true });
+        cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
     });
 });
