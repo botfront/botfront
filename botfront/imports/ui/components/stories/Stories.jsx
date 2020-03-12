@@ -1,7 +1,7 @@
 import { Modal, Container } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
-    useState, useContext, useMemo,
+    useState, useContext, useMemo, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
@@ -79,22 +79,22 @@ function Stories(props) {
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
-    const handleAddStoryGroup = async (storyGroup, f) => Meteor.call('storyGroups.insert', { ...storyGroup, projectId }, wrapMeteorCallback(f));
+    const handleAddStoryGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.insert', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
-    const handleDeleteGroup = (storyGroup, f) => Meteor.call('storyGroups.delete', storyGroup, wrapMeteorCallback(f));
+    const handleDeleteGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.delete', storyGroup, wrapMeteorCallback(f)), [projectId]);
 
-    const handleStoryGroupUpdate = (storyGroup, f) => Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback(f));
+    const handleStoryGroupUpdate = useCallback((storyGroup, f) => Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback(f)), [projectId]);
 
-    const handleNewStory = (story, f) => Meteor.call(
+    const handleNewStory = useCallback((story, f) => Meteor.call(
         'stories.insert', {
             story: '', projectId, branches: [], ...story,
         },
         wrapMeteorCallback(f),
-    );
+    ), [projectId]);
 
-    const handleStoryDeletion = (story, f) => Meteor.call('stories.delete', story, projectId, wrapMeteorCallback(f));
+    const handleStoryDeletion = useCallback((story, f) => Meteor.call('stories.delete', story, projectId, wrapMeteorCallback(f)), [projectId]);
 
-    const handleStoryUpdate = (story, f) => Meteor.call('stories.update', story, projectId, wrapMeteorCallback(f));
+    const handleStoryUpdate = useCallback((story, f) => Meteor.call('stories.update', story, projectId, wrapMeteorCallback(f)), [projectId]);
 
     return (
         <Loading loading={!ready}>
