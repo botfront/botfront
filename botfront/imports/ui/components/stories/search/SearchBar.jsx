@@ -29,10 +29,11 @@ const SearchBar = (props) => {
     const results = data ? data.stories : [];
 
     const linkToStory = (e, { result }) => {
-        const { _id, title } = result;
+        const { _id, title, storyGroupId } = result;
         // Link to the new story here
         console.log(_id);
         console.log(title);
+        console.log(storyGroupId);
     };
 
     return (
