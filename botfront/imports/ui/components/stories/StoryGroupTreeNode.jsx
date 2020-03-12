@@ -149,10 +149,13 @@ function StoryGroupTreeNode(props) {
                                     data-cy='add-story-in-story-group'
                                     name='plus'
                                     {...(!somethingIsMutating ? {
-                                        onClick: () => handleAddStory(
-                                            item.id,
-                                            `${item.title} (${item.children.length + 1})`,
-                                        ),
+                                        onClick: (e) => {
+                                            e.stopPropagation();
+                                            handleAddStory(
+                                                item.id,
+                                                `${item.title} (${item.children.length + 1})`,
+                                            );
+                                        },
                                     } : {})}
                                 />
                             </>

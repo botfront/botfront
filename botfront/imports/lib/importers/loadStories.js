@@ -59,14 +59,14 @@ const checkFooter = (footer, fullTitle) => {
     return { hasDescendents, linkTo };
 };
 
-const parseStory = (parentId, fullTitle, lines) => {
+const parseStory = (storyGroupId, fullTitle, lines) => {
     const title = (fullTitle.match(/.*__(.*)/) || [null, fullTitle])[1];
     try {
         const { header, body, footer } = splitBody(lines);
         const { ancestorOf, linkFrom } = checkHeader(header, fullTitle);
         const { hasDescendents, linkTo } = checkFooter(footer, fullTitle);
         return {
-            parentId,
+            storyGroupId,
             title,
             fullTitle,
             ancestorOf,
@@ -77,7 +77,7 @@ const parseStory = (parentId, fullTitle, lines) => {
         };
     } catch (error) {
         return {
-            parentId,
+            storyGroupId,
             title,
             fullTitle,
             rawText: lines.join('\n'),
@@ -86,14 +86,14 @@ const parseStory = (parentId, fullTitle, lines) => {
     }
 };
 
-export const parseStoryGroup = (parentId, rawText) => {
+export const parseStoryGroup = (storyGroupId, rawText) => {
     const blocks = `\n${rawText}`.split('\n## ');
     if (blocks.length < 2) return [];
     return blocks
         .filter(s => s.trim())
         .map((s) => {
             const [fullTitle, ...lines] = s.replace(/ *<!--([\s\S]*?)-->/, '').split('\n');
-            return parseStory(parentId, fullTitle, lines);
+            return parseStory(storyGroupId, fullTitle, lines);
         });
 };
 
@@ -137,7 +137,7 @@ export const generateStories = (parsedStories) => {
             const {
                 body,
                 title,
-                parentId,
+                storyGroupId,
                 hasDescendents,
                 ancestorOf,
                 linkTo,
@@ -155,7 +155,7 @@ export const generateStories = (parsedStories) => {
             if (hasDescendents && !output[currentPath]) {
                 warnings.push({
                     message: `Story '${title}' refers to branches, but branches were not found.`,
-                    parentId,
+                    storyGroupId,
                 });
             }
 
@@ -164,7 +164,7 @@ export const generateStories = (parsedStories) => {
                 _id,
                 story: body,
                 title,
-                ...(!ancestorOf.length ? { parentId } : {}),
+                ...(!ancestorOf.length ? { storyGroupId } : {}),
                 branches: hasDescendents && output[currentPath] ? output[currentPath] : [],
                 ...(linkFrom.length ? { checkpoints: linkFrom } : {}),
             });
@@ -174,14 +174,14 @@ export const generateStories = (parsedStories) => {
             });
         });
     output = output['']; // only output root stories (with their now embedded children)
-    output.forEach(({ checkpoints = [], title, parentId }, index) => {
+    output.forEach(({ checkpoints = [], title, storyGroupId }, index) => {
         const resolvedCheckpoints = [];
         checkpoints.forEach((c) => {
             const link = links.find(l => l.name === c) || {};
             if (!link.value) {
                 warnings.push({
                     message: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
-                    parentId,
+                    storyGroupId,
                 });
             } else resolvedCheckpoints.push(link.value);
         });

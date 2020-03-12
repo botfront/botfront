@@ -17,7 +17,7 @@ Meteor.methods({
         if (Array.isArray(story)) {
             const stories = story.map((s) => {
                 const id = s._id ? {} : { _id: uuidv4() };
-                storyGroups[s.parentId] = [...(storyGroups[s.parentId] || []), id];
+                storyGroups[s.storyGroupId] = [...(storyGroups[s.storyGroupId] || []), id];
                 return {
                     ...s,
                     ...id,
@@ -27,7 +27,7 @@ Meteor.methods({
             result = Stories.rawCollection().insertMany(stories).insertedIds;
         } else {
             result = [Stories.insert({ ...story, events: aggregateEvents(story) })];
-            storyGroups[story.parentId] = result;
+            storyGroups[story.storyGroupId] = result;
         }
         return Object.keys(storyGroups).map((_id) => {
             const storyIds = storyGroups[_id].filter(id => result.includes(id));
@@ -35,7 +35,7 @@ Meteor.methods({
                 { _id },
                 {
                     $push: { children: { $each: storyIds, $position: 0 } },
-                    $set: { hasChildren: true, isExpanded: true },
+                    $set: { isExpanded: true },
                 },
             );
         });
@@ -89,7 +89,7 @@ Meteor.methods({
         check(story, Object);
         check(projectId, String);
         const result = StoryGroups.update(
-            { _id: story.parentId },
+            { _id: story.storyGroupId },
             { $pull: { children: story._id } },
         );
         Stories.remove(story);

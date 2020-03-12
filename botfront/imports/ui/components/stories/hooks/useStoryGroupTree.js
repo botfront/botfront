@@ -9,7 +9,14 @@ const getSourceNode = (tree, source) => tree.items[tree.items[source.parentId].c
 
 const getDestinationNode = (tree, destination) => tree.items[destination.parentId];
 
-const convertId = ({ id, ...rest }) => ({ _id: id, ...rest });
+const convertId = ({
+    id, parentId, title, ...rest
+}, canBearChildren) => ({
+    _id: id,
+    ...(parentId ? (canBearChildren ? { parentId } : { storyGroupId: parentId }) : {}),
+    ...(title ? (canBearChildren ? { name: title } : { title }) : {}),
+    ...rest,
+});
 
 const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     const {
@@ -64,7 +71,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         );
         setSomethingIsMutating(true);
         (canBearChildren ? deleteGroup : deleteStory)(
-            convertId({ id: remove, parentId, projectId }),
+            convertId({ id: remove, parentId, projectId }, canBearChildren),
             () => setSomethingIsMutating(false),
         );
         return { ...tree, items };
@@ -75,7 +82,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         items[id].title = title;
         setSomethingIsMutating(true);
         (items[id].canBearChildren ? updateGroup : updateStory)(
-            convertId({ id, title }),
+            convertId({ id, title }, items[id].canBearChildren),
             () => setSomethingIsMutating(false),
         );
         return { ...tree, items };
@@ -86,17 +93,10 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         const id = uuidv4();
         items[parentId].children = [id, ...items[parentId].children];
         items[id] = {
-            id,
-            children: [],
-            hasChildren: false,
-            isExpanded: false,
-            isChildrenLoading: false,
-            canBearChildren: false,
-            title,
-            parentId,
+            id, title, parentId,
         };
         setSomethingIsMutating(true);
-        addStory(convertId({ id, parentId, title }), () => setSomethingIsMutating(false));
+        addStory(convertId({ id, parentId, title }, false), () => setSomethingIsMutating(false));
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
@@ -108,7 +108,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     if (move) {
         const [source, requestedDestination] = move;
         let destination = requestedDestination;
-        if (!destination) return tree; // no destination found
+        if (!destination || !destination.parentId) return tree; // no destination found
 
         const sourceNode = getSourceNode(tree, source);
 
@@ -182,7 +182,6 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             convertId({
                 id: newDestination.id,
                 children: newDestination.children,
-                hasChildren: newDestination.hasChildren,
                 isExpanded: true,
             }),
             () => setSomethingIsMutating(false),
@@ -192,10 +191,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                 convertId({
                     id: newSource.id,
                     children: newSource.children,
-                    hasChildren: newSource.hasChildren,
                 }),
                 () => updateStory(
-                    sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id })),
+                    sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id }, false)),
                     updateDestination,
                 ),
             );

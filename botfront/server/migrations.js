@@ -189,8 +189,6 @@ Migrations.add({
     version: 7,
     // Touch up on story and storygroup schema
     up: async () => {
-        StoryGroups._dropIndex('projectId_1_name_1'); // eslint-disable-line no-underscore-dangle
-
         const stories = Stories.find().fetch();
         const storyGroups = StoryGroups.find().fetch();
         storyGroups.sort((a, b) => b.introStory - a.introStory);
@@ -198,8 +196,6 @@ Migrations.add({
         const projectIds = new Set();
 
         stories.forEach((s) => {
-            // storyGroupId => parentId
-            Stories.update({ _id: s._id }, { $set: { parentId: s.storyGroupId }, $unset: { storyGroupId: '' } });
             // add to list of children
             children[s.storyGroupId] = [...(children[s.storyGroupId] || []), s._id];
             projectIds.add(s.projectId);
@@ -209,14 +205,9 @@ Migrations.add({
             { _id: sg._id },
             {
                 $set: {
-                    title: sg.name, // name => title
-                    canBearChildren: true,
-                    hasChildren: true,
-                    parentId: sg.projectId,
                     isExpanded: !!sg.introStory,
                     children: children[sg._id],
                 },
-                $unset: { name: '' },
             },
         ));
 
