@@ -32,7 +32,7 @@ const indexResponseContent = ({ text = '', custom = null, buttons = [] }) => {
     return responseContent;
 };
 
-export const indexBotResponse = (response) => {
+const indexBotResponse = (response) => {
     let responseContent = [];
     responseContent.push(response.key);
     response.values.forEach((value) => {
@@ -43,7 +43,7 @@ export const indexBotResponse = (response) => {
     return responseContent.join('\n');
 };
 
-exports.createResponsesIndex = async (projectId, responses) => {
+const createResponsesIndex = async (projectId, responses) => {
     const newResponses = typeof responses === 'string' ? JSON.parse(responses) : responses;
     // eslint-disable-next-line array-callback-return
     const answer = newResponses.map((newResponse) => {
@@ -146,7 +146,7 @@ const getStoryContent = (story, options) => {
     return {};
 };
 
-export const indexStory = (story) => {
+const indexStory = (story) => {
     const {
         userUtterances = [], botResponses = [], actions = [], slots = [],
     } = getStoryContent(story,{});
@@ -165,7 +165,7 @@ export const indexStory = (story) => {
     return result;
 };
 
-exports.createStoriesIndex = async (projectId, stories) => {
+const createStoriesIndex = async (projectId, stories) => {
     const newStories = typeof stories === 'string' ? JSON.parse(stories) : stories;
     // eslint-disable-next-line array-callback-return
     const answer = newStories.map((story) => {
@@ -175,4 +175,7 @@ exports.createStoriesIndex = async (projectId, stories) => {
     return Promise.all(answer);
 };
 
-
+exports.createStoriesIndex = createStoriesIndex;
+exports.indexStory = indexStory;
+exports.createResponsesIndex = createResponsesIndex;
+exports.indexBotResponse = indexBotResponse;
