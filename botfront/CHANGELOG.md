@@ -2,14 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.3-ee.0](https://github.com/botfront/botfront/compare/v0.20.2-ee.1...v0.20.3-ee.0) (2020-03-12)
 
 
 ### Bug Fixes
 
-* export for rasa: subscribe to nlu_models ([fa13923](https://github.com/botfront/botfront/commit/fa139231eab780d3ddf5bffbc7e56e33ca118f6d))
-* remove roles for users ([a90305e](https://github.com/botfront/botfront/commit/a90305e094da81c4a300c296241ae4e23890acc5))
-* roles tests ([5cca178](https://github.com/botfront/botfront/commit/5cca178a5e8afbd98983653b7d583deafef7ebe3))
-* trigger stopwatch icon is not alligned ([532d809](https://github.com/botfront/botfront/commit/532d809eeb9456ee12548f438444ae4fe3c03c26))
+* fix bug with linking ([46aa227](https://github.com/botfront/botfront/commit/46aa22736fb9f90d5cbb3a7f4c3d1b4b26d02baf))
 
 ### [0.20.2-ee.0](https://github.com/botfront/botfront/compare/v0.19.3-ee.5...v0.20.2-ee.0) (2020-03-09)
 

@@ -2,28 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.20.2-ee.1](https://github.com/botfront/botfront/compare/v0.20.2-ee.0...v0.20.2-ee.1) (2020-03-10)
-
-
-### Features
-
-* add rule to define min time bw 2 triggers ([072caa2](https://github.com/botfront/botfront/commit/072caa2a866677658060ba923def5f87b010cd59))
-* admin roles list ([a820ce4](https://github.com/botfront/botfront/commit/a820ce440666f3096ab2c51eb1eaf36a2db30604))
-* edit roles ([2a267b8](https://github.com/botfront/botfront/commit/2a267b8774f3740793368f6616b86be263dc5fd2))
-* edit roles children ([3683440](https://github.com/botfront/botfront/commit/36834408a55f8944a67d819cb838296abcec74de))
-* improved get RolesData query ([b39b689](https://github.com/botfront/botfront/commit/b39b689269e9d4f64dee5503069b897eb9427da1))
-* role edit ([3e2f26a](https://github.com/botfront/botfront/commit/3e2f26a59cac90713e27c1d95086d90b8971f0c3))
-* role page ([99e3c25](https://github.com/botfront/botfront/commit/99e3c25d6440be2da9082aa8f8317a48eee23446))
-* show stack trace on permission errors ([0da938e](https://github.com/botfront/botfront/commit/0da938efddc1999e5c6af11843726f3f0d3cc546))
-* update roles description ([8be735c](https://github.com/botfront/botfront/commit/8be735c90f429f2a271859629092e68de38b0e68))
+### [0.20.3-ee.0](https://github.com/botfront/botfront/compare/v0.20.2-ee.1...v0.20.3-ee.0) (2020-03-12)
 
 
 ### Bug Fixes
 
-* export for rasa: subscribe to nlu_models ([fa13923](https://github.com/botfront/botfront/commit/fa139231eab780d3ddf5bffbc7e56e33ca118f6d))
-* remove roles for users ([a90305e](https://github.com/botfront/botfront/commit/a90305e094da81c4a300c296241ae4e23890acc5))
-* roles tests ([5cca178](https://github.com/botfront/botfront/commit/5cca178a5e8afbd98983653b7d583deafef7ebe3))
-* trigger stopwatch icon is not alligned ([532d809](https://github.com/botfront/botfront/commit/532d809eeb9456ee12548f438444ae4fe3c03c26))
+* fix bug with linking ([46aa227](https://github.com/botfront/botfront/commit/46aa22736fb9f90d5cbb3a7f4c3d1b4b26d02baf))
 
 ### [0.20.2-ee.0](https://github.com/botfront/botfront/compare/v0.19.3-ee.5...v0.20.2-ee.0) (2020-03-09)
 
