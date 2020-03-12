@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.3-ee.1](https://github.com/botfront/botfront/compare/v0.20.3-ee.0...v0.20.3-ee.1) (2020-03-12)
+
+
+### Bug Fixes
+
+* project-admin access to projects list ([b8f49f7](https://github.com/botfront/botfront/commit/b8f49f7b4fe4efbc364d4c14845e33f510fac886))
+
 ### [0.20.3-ee.0](https://github.com/botfront/botfront/compare/v0.20.2-ee.1...v0.20.3-ee.0) (2020-03-12)
 
 
