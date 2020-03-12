@@ -23,7 +23,7 @@ export const searchStories = async (projectId, language, search) => {
     const responseKeys = matchedResponses.map(({ key }) => key);
     const matched = Stories.find(
         { projectId, $text: { $search: `${search} ${intents.join(' ')} ${responseKeys.join(' ')}` } },
-        { fields: { _id: 1, title: 1 } },
+        { fields: { _id: 1, title: 1, storyGroupId: 1 } },
     ).fetch();
     return matched;
 };

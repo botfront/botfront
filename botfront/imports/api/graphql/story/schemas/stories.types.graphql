@@ -1,3 +1,26 @@
 type Query {
-    stories(projectId: String! language: String! queryString: String!): [Any]
+    stories(projectId: String! language: String! queryString: String!): [Story]
+}
+
+type Story {
+    _id: String
+    story: String
+    title: String
+    storyGroupId: String
+    projectId: String
+    events: [String]
+    branches: [Branch]
+    textIndex: textIndex
+}
+
+type Branch {
+    _id: String
+    title: String
+    branches: [Branch]
+    story: String
+}
+
+type textIndex{
+    info: String
+    contents: String
 }
