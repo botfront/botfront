@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.3](https://github.com/botfront/botfront/compare/v0.20.2...v0.20.3) (2020-03-12)
+
+
+### Bug Fixes
+
+* fix bug with linking ([46aa227](https://github.com/botfront/botfront/commit/46aa227))
+
+
+
 ### [0.20.2](https://github.com/botfront/botfront/compare/v0.20.1...v0.20.2) (2020-03-11)
 
 
