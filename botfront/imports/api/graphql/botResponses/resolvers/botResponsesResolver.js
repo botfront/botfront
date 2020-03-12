@@ -12,6 +12,7 @@ import {
     upsertResponse,
 } from '../mongo/botResponses';
 import { checkIfCan } from '../../../../lib/scopes';
+import { auditLog } from '../../../../../server/logger';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -61,6 +62,14 @@ export default {
         async deleteResponse(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
             const botResponseDeleted = await deleteResponse(args.projectId, args.key);
+            auditLog('Deleting response', {
+                user: auth.user,
+                type: 'delete',
+                projectId: args.projectId,
+                operation: 'response-deleted',
+                resId: args.key,
+                before: { response: botResponseDeleted },
+            });
             pubsub.publish(RESPONSE_DELETED, {
                 projectId: args.projectId,
                 botResponseDeleted,
@@ -69,11 +78,22 @@ export default {
         },
         async updateResponse(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
+            const responseBefore = await getBotResponse(args.projectId, args.response.key);
             const response = await updateResponse(
                 args.projectId,
                 args._id,
                 args.response,
             );
+           
+            auditLog('Updating response', {
+                user: auth.user,
+                type: 'update',
+                operation: 'response-updated',
+                projectId: args.projectId,
+                resId: args._id,
+                before: { response: responseBefore },
+                after: { response: args.response },
+            });
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
                 botResponsesModified: args.response,
@@ -90,8 +110,19 @@ export default {
         },
         upsertResponse: async (_, args, auth) => {
             checkIfCan('responses:w', args.projectId, auth.user._id);
+            const responseBefore = getBotResponse(args.projectId, args.key);
             const response = await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
+
+            auditLog('Upserting response', {
+                user: auth.user,
+                type: 'update',
+                projectId: args.projectId,
+                operation: 'response-updated',
+                resId: args.key,
+                before: { botResponse: responseBefore },
+                after: { botResponse: response },
+            });
             pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
         },
@@ -102,16 +133,42 @@ export default {
                 projectId: args.projectId,
                 botResponsesModified: response,
             });
+            auditLog('Creating response', {
+                user: auth.user,
+                type: 'update',
+                projectId: args.projectId,
+                operation: 'response-created',
+                resId: args.response.key,
+                after: { response },
+            });
             return { success: !!response.id };
         },
         async createResponses(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
+            auditLog('Creating responses', {
+                user: auth.user,
+                type: 'update',
+                projectId: args.projectId,
+                operation: 'response-created',
+                resId: args.responses.map(resp => resp.key),
+                after: { responses: args.responses },
+            });
             const response = await createResponses(args.projectId, args.responses);
             return { success: !!response.id };
         },
         async deleteVariation(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
+            const responseBefore = await getBotResponse(args.projectId, args.key);
             const response = await deleteVariation(args);
+            auditLog('Deleting response variation', {
+                user: auth.user,
+                type: 'update',
+                projectId: args.projectId,
+                operation: 'response-updated',
+                resId: args.key,
+                after: { response },
+                before: { response: responseBefore },
+            });
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
                 botResponsesModified: response,

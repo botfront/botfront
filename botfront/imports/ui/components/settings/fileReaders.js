@@ -169,7 +169,7 @@ export const useDomainFileReader = ({
 };
 
 export const useDatasetFileReader = ({
-    instanceHost, fallbackImportLanguage, projectLanguages,
+    instanceHost, fallbackImportLanguage, projectLanguages, projectId,
 }) => {
     const reducer = (fileList, instruction) => {
         // eslint-disable-next-line no-use-before-define
@@ -217,7 +217,7 @@ export const useDatasetFileReader = ({
                     }
                     const canonical = getCanonical(reader.result);
                     
-                    Meteor.call('rasa.convertToJson', reader.result, language, 'json', instanceHost, (err, res) => {
+                    Meteor.call('rasa.convertToJson', reader.result, language, 'json', instanceHost, projectId, (err, res) => {
                         if (err || !res.data || !res.data.rasa_nlu_data) {
                             return update(setFileList, f, { errors: [`File could not be parsed by Rasa at ${instanceHost}.`] });
                         }

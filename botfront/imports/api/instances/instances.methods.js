@@ -94,6 +94,7 @@ if (Meteor.isServer) {
         getAppLoggerForFile,
         getAppLoggerForMethod,
         addLoggingInterceptors,
+        auditLog,
     } from '../../../server/logger';
     // eslint-disable-next-line import/order
     import { performance } from 'perf_hooks';
@@ -104,10 +105,16 @@ if (Meteor.isServer) {
         checkIfCan('nlu-data:r', instance.projectId);
         check(instance, Object);
         check(examples, Array);
+        let userId;
+        try {
+            userId = Meteor.userId();
+        } catch (error) {
+            userId = 'Can not get userId here';
+        }
         const appMethodLogger = getAppLoggerForMethod(
             trainingAppLogger,
             'parseNlu',
-            Meteor.userId(),
+            userId,
             { instance, examples },
         );
         appMethodLogger.debug('Parsing nlu');
@@ -163,7 +170,9 @@ if (Meteor.isServer) {
             return parseNlu(instance, params);
         },
 
-        async 'rasa.convertToJson'(file, language, outputFormat, host) {
+        async 'rasa.convertToJson'(file, language, outputFormat, host, projectId) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
             check(language, String);
             check(file, String);
             check(outputFormat, String);
@@ -189,6 +198,12 @@ if (Meteor.isServer) {
                 data: file,
                 output_format: outputFormat,
                 language,
+            });
+            auditLog('Converting model to json', {
+                user: Meteor.user(),
+                type: 'update',
+                projectId,
+                operation: 'rasa-execute',
             });
             return data;
         },
@@ -257,6 +272,13 @@ if (Meteor.isServer) {
                 };
                 const t1 = performance.now();
                 appMethodLogger.debug(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
+                auditLog('Retreiveing training payload for project', {
+                    user: Meteor.user(),
+                    type: 'execute',
+                    projectId,
+                    operation: 'nlu-model-execute',
+                    resId: projectId,
+                });
                 return payload;
             } catch (e) {
                 const t1 = performance.now();
@@ -270,6 +292,9 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(instance, Object);
+            auditLog('Train project', {
+                user: Meteor.user(), projectId, type: 'execute', operation: 'nlu-model-trained', resId: projectId,
+            });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.train',
@@ -331,7 +356,13 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));
-            
+            auditLog('Evaluate nlu data', {
+                user: Meteor.user(),
+                projectId,
+                type: 'execute',
+                operation: 'nlu-model-evaluate',
+                resId: projectId,
+            });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.evaluate.nlu',

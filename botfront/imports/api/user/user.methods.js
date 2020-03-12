@@ -14,7 +14,9 @@ export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W]
 
 
 if (Meteor.isServer) {
-    import { getAppLoggerForMethod, getAppLoggerForFile, addLoggingInterceptors } from '../../../server/logger';
+    import {
+        getAppLoggerForMethod, getAppLoggerForFile, addLoggingInterceptors, auditLog,
+    } from '../../../server/logger';
 
     const userAppLogger = getAppLoggerForFile(__filename);
 
@@ -28,7 +30,7 @@ if (Meteor.isServer) {
         }
     };
 
-    Meteor.publish('userData', function() {
+    Meteor.publish('userData', function () {
         if (can('users:r')) {
             return Meteor.users.find({}, { fields: { emails: 1, profile: 1, roles: 1 } });
         }
@@ -67,6 +69,13 @@ if (Meteor.isServer) {
                 this.unblock();
                 if (sendInviteEmail) Accounts.sendEnrollmentEmail(userId);
                 setScopes(user, userId);
+                auditLog('Create an user', {
+                    user: Meteor.user(),
+                    type: 'creae',
+                    operation: 'user-created',
+                    after: { user },
+                    resId: userId,
+                });
                 return userId;
             } catch (e) {
                 console.log(e);
@@ -81,6 +90,15 @@ if (Meteor.isServer) {
                 checkIfCan('users:w', project === 'GLOBAL' ? null : project);
             });
             try {
+                const userBefore = Meteor.users.findOne({ _id: user._id });
+                auditLog('Update an user', {
+                    user: Meteor.user(),
+                    type: 'update',
+                    resId: user._id,
+                    operation: 'user-updated',
+                    after: { user },
+                    before: { user: userBefore },
+                });
                 Meteor.users.update(
                     { _id: user._id },
                     {
@@ -104,6 +122,14 @@ if (Meteor.isServer) {
             check(options, Object);
             const { failSilently } = options;
             try {
+                const userBefore = Meteor.users.findOne({ _id: userId });
+                auditLog('Delete an user', {
+                    user: Meteor.user(),
+                    type: 'delete',
+                    resId: userId,
+                    operation: 'user-deleted',
+                    before: { user: userBefore },
+                });
                 Meteor.users.remove({ _id: userId });
             } catch (e) {
                 if (!failSilently) throw e;
@@ -114,12 +140,33 @@ if (Meteor.isServer) {
             checkIfCan('users:w');
             check(email, String);
             try {
-                return Meteor.users.remove({
+                const userBefore = Meteor.users.findOne({
                     emails: [{
                         address: email,
                         verified: false,
                     }],
                 });
+                const result = Meteor.users.remove({
+                    emails: [{
+                        address: email,
+                        verified: false,
+                    }],
+                });
+                const userAfter = Meteor.users.findOne({
+                    emails: [{
+                        address: email,
+                        verified: false,
+                    }],
+                });
+
+                auditLog('Delete an user by email matching', {
+                    user: Meteor.user(),
+                    type: 'delete',
+                    operation: 'user-deleted',
+                    before: { user: userBefore },
+                    after: { user: userAfter },
+                });
+                return result;
             } catch (e) {
                 throw e;
             }
@@ -131,7 +178,18 @@ if (Meteor.isServer) {
             check(newPassword, String);
 
             try {
-                return Promise.await(Accounts.setPassword(userId, newPassword));
+                const userBefore = Meteor.users.findOne({ _id: userId });
+                const result = Promise.await(Accounts.setPassword(userId, newPassword));
+                const userAfter = Meteor.users.findOne({ _id: userId });
+                auditLog('Change user password', {
+                    user: Meteor.user(),
+                    type: 'update',
+                    operation: 'user-updated',
+                    resId: userId,
+                    before: { user: userBefore },
+                    after: { user: userAfter },
+                });
+                return result;
             } catch (e) {
                 throw e;
             }
@@ -150,7 +208,7 @@ if (Meteor.isServer) {
             const appMethodLogger = getAppLoggerForMethod(
                 userAppLogger,
                 'user.verifyReCaptcha',
-                Meteor.userId(),
+                Meteor.user(),
                 { response },
             );
 

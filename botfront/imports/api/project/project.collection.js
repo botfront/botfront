@@ -5,7 +5,7 @@ import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import {
     can, getScopesForUser, checkIfCan, getUserScopes, checkIfScope,
 } from '../../lib/scopes';
-
+import { auditLogIfOnServer } from '../../lib/utils';
 
 export const Projects = new Mongo.Collection('projects');
 
@@ -26,6 +26,13 @@ const getDefaultDefaultDomain = () => {
 
 export const createProject = (item) => {
     checkIfCan('projects:w');
+    auditLogIfOnServer('Creating project', {
+        user: Meteor.user(),
+        after: { item },
+        type: 'create',
+        operation: 'project-created',
+        after: { project: item },
+    });
     return Projects.insert({ ...item, defaultDomain: { content: getDefaultDefaultDomain() } });
 };
 

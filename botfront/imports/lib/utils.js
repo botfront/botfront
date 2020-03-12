@@ -152,6 +152,7 @@ if (Meteor.isServer) {
         getAppLoggerForMethod,
         getAppLoggerForFile,
         addLoggingInterceptors,
+    // eslint-disable-next-line import/no-duplicates
     } from '../../server/logger';
 
     Meteor.methods({
@@ -250,4 +251,16 @@ export function clearTypenameField(object) {
     const omitTypename = (key, value) => (key === '__typename' ? undefined : value);
     const cleanedObject = JSON.parse(JSON.stringify(object), omitTypename);
     return cleanedObject;
+}
+
+
+export function auditLogIfOnServer(message, meta) {
+    if (Meteor.isServer) {
+        import {
+            auditLog,
+        // eslint-disable-next-line import/no-duplicates
+        } from '../../server/logger';
+
+        auditLog(message, meta);
+    }
 }

@@ -71,6 +71,8 @@ Meteor.startup(() => {
 
 Credentials.attachSchema(CredentialsSchema);
 if (Meteor.isServer) {
+    import { auditLog } from '../../server/logger';
+
     Meteor.publish('credentials', function(projectId) {
         try {
             checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
@@ -86,6 +88,16 @@ if (Meteor.isServer) {
             checkIfCan('projects:w', credentials.projectId);
             check(credentials, Object);
             try {
+                const credentialsBefore = Credentials.findOne({ projectId: credentials.projectId, _id: credentials._id });
+                auditLog('Saving credentials', {
+                    user: Meteor.user(),
+                    projectId: credentials.projectId,
+                    type: 'update',
+                    operation: 'credentials-updated',
+                    resId: credentials._id,
+                    after: { credentials },
+                    before: { credentials: credentialsBefore },
+                });
                 return Credentials.upsert(
                     { projectId: credentials.projectId, _id: credentials._id },
                     {
