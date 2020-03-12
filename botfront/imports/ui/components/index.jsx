@@ -21,6 +21,9 @@ class Index extends React.Component {
         if (can('projects:r')) {
             return '/admin/projects';
         }
+        if (can('stories:r', pId)) {
+            return `/project/${pId}/stories`;
+        }
         if (can('users:r', { anyScope: true })) {
             return '/admin/users';
         }
@@ -29,9 +32,6 @@ class Index extends React.Component {
         }
         if (can('global-settings:r', { anyScope: true })) {
             return '/admin/settings';
-        }
-        if (can('stories:r', pId)) {
-            return `/project/${pId}/stories`;
         }
         if (can('nlu-data:r', pId)) {
             return `/project/${pId}/nlu/models`;

@@ -36,6 +36,14 @@ describe('should not get 404s for default routes', () => {
         cy.get('.header').contains('Projects').should('exist');
         cy.url().should('include', '/admin/projects');
     });
+    it('projects:r/w scoped default', () => {
+        cy.createDummyRoleAndUser({ permission: ['projects:r'], scope: 'bf' });
+        cy.login({ admin: false });
+        cy.visit('/');
+        cy.get('.ui.top-menu').should('exist');
+        cy.get('.header').contains('Stories').should('exist');
+        cy.url().should('include', '/project/bf/stories');
+    });
     it('global-settings:r/w global default', () => {
         cy.createDummyRoleAndUser({ permission: ['global-settings:r'] });
         cy.login({ admin: false });
