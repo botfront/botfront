@@ -318,34 +318,46 @@ export const getStoriesAndDomain = async (projectId, language) => {
     selectedStoryGroups = selectedStoryGroups.length
         ? selectedStoryGroups
         : storyGroups;
-    const storiesByStoryGroup = []; let storiesForDomainExtraction = [];
-
-    appMethodLogger.debug('Fetching and formatting stories');
-    selectedStoryGroups.forEach(({ _id, name }) => {
-        const stories = Stories.find(
-            { projectId, storyGroupId: _id },
-            {
-                fields: {
-                    story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1,
-                },
+    
+    appMethodLogger.debug('Fetching stories');
+    const allStories = Stories.find(
+        { projectId, storyGroupId: { $in: selectedStoryGroups.map(({ _id }) => _id) } },
+        {
+            fields: {
+                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, storyGroupId: 1,
             },
-        ).fetch();
-        storiesForDomainExtraction = storiesForDomainExtraction.concat(stories
-            .reduce((acc, story) => [...acc, ...flattenStory(story)], []));
-        const storiesForThisSG = addlinkCheckpoints(stories) // addlinkCheckpoints modified original story objects
+        },
+    ).fetch();
+
+    appMethodLogger.debug('Generating domain');
+    const templates = await getAllTemplates(projectId, language);
+    const slots = Slots.find({ projectId }).fetch();
+    const domain = extractDomain(
+        allStories.reduce((acc, story) => [...acc, ...flattenStory(story)], []),
+        slots,
+        templates,
+        defaultDomain,
+    );
+
+    appMethodLogger.debug('Formatting stories');
+    const storiesBySG = addlinkCheckpoints(allStories).reduce((acc, curr) => ({
+        ...acc,
+        [curr.storyGroupId]: [...(acc[curr.storyGroupId] || []), curr],
+    }), {});
+
+    const stories = [];
+    selectedStoryGroups.forEach(({ _id, name }) => {
+        const storiesForThisSG = storiesBySG[_id]
             .map(story => appendBranchCheckpoints(story))
             .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
             .map(story => `## ${story.title}\n${story.story}`)
             .join('\n');
-        storiesByStoryGroup.push(`# ${name}\n\n${storiesForThisSG}`);
+        stories.push(`# ${name}\n\n${storiesForThisSG}`);
     });
 
-    appMethodLogger.debug('Fetching templates');
-    const templates = await getAllTemplates(projectId, language);
-    const slots = Slots.find({ projectId }).fetch();
     return {
-        stories: storiesByStoryGroup,
-        domain: extractDomain(storiesForDomainExtraction, slots, templates, defaultDomain),
+        stories,
+        domain,
     };
 };
 
