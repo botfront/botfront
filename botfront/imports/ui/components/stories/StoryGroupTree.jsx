@@ -80,7 +80,7 @@ export default function StoryGroupTree(props) {
 
     const selectSingleItemAndResetFocus = (item) => {
         lastFocusedItem.current = item;
-        return onChangeActiveStories([item]);
+        return onChangeActiveStories([item.id]);
     };
 
     const handleSelectionChange = ({ shiftKey, item }) => {
@@ -94,7 +94,7 @@ export default function StoryGroupTree(props) {
         const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
         const newActiveStoryIds = siblingIds.slice(min, max + 1);
 
-        return onChangeActiveStories(newActiveStoryIds.map(id => tree.items[id]));
+        return onChangeActiveStories(newActiveStoryIds);
     };
 
     const getTreeContainer = () => document.getElementById('storygroup-tree');
@@ -176,7 +176,7 @@ export default function StoryGroupTree(props) {
                             handleRemoveItem(deletionModalVisible.id);
                             onChangeActiveStories(
                                 activeStories.filter(
-                                    s => s.id !== deletionModalVisible.id,
+                                    id => id !== deletionModalVisible.id,
                                 ),
                             );
                             setDeletionModalVisible(false);

@@ -1,8 +1,9 @@
 import { Modal, Container } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
-    useState, useContext, useMemo, useCallback,
+    useState, useContext, useMemo, useCallback, useReducer, useEffect,
 } from 'react';
+import { withRouter } from 'react-router';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
@@ -46,6 +47,7 @@ function Stories(props) {
         storyGroups,
         stories,
         ready,
+        router,
     } = props;
 
     const { slots } = useContext(ProjectContext);
@@ -53,7 +55,25 @@ function Stories(props) {
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
-    const [activeStories, setActiveStories] = useState([]);
+
+    const getQueryParams = () => {
+        const { location: { query } } = router;
+        let queriedIds = query['ids[]'] || [];
+        queriedIds = Array.isArray(queriedIds) ? queriedIds : [queriedIds];
+        
+        return queriedIds;
+    };
+
+    const [activeStories, setActiveStories] = useReducer((_, newActiveStories) => {
+        if (!getQueryParams().every(id => newActiveStories.includes(id))
+        || !newActiveStories.every(id => getQueryParams().includes(id))) {
+            const { location: { pathname } } = router;
+            router.replace({ pathname, query: { 'ids[]': newActiveStories } });
+        }
+        return newActiveStories;
+    }, []);
+
+    useEffect(() => setActiveStories(getQueryParams()), []);
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -148,7 +168,7 @@ function Stories(props) {
                     <Container>
                         <StoryEditors
                             projectId={projectId}
-                            selectedIds={activeStories.map(({ id }) => id)}
+                            selectedIds={activeStories}
                         />
                     </Container>
                 </SplitPane>
@@ -162,12 +182,13 @@ Stories.propTypes = {
     ready: PropTypes.bool.isRequired,
     storyGroups: PropTypes.array.isRequired,
     stories: PropTypes.array.isRequired,
+    router: PropTypes.object.isRequired,
 };
 
 Stories.defaultProps = {
 };
 
-const StoriesWithTracker = withTracker((props) => {
+const StoriesWithTracker = withRouter(withTracker((props) => {
     const { projectId } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
@@ -182,6 +203,6 @@ const StoriesWithTracker = withTracker((props) => {
         storyGroups,
         stories,
     };
-})(Stories);
+})(Stories));
 
 export default StoriesWithTracker;

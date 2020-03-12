@@ -84,7 +84,7 @@ function StoryGroupTreeNode(props) {
             data-cy='story-group-menu-item'
         >
             <Menu.Item
-                active={activeStories.some(s => s.id === item.id) || isHoverTarget}
+                active={activeStories.some(id => id === item.id) || isHoverTarget}
                 {...(isLeaf ? { onClick: handleClickStory } : {})}
             >
                 <div className='side-by-side narrow middle'>
