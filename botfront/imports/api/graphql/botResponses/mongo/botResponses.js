@@ -39,6 +39,8 @@ const mergeAndIndexBotResponse = async ({
 }) => {
     const botResponse = await BotResponses.findOne({ projectId, key }).lean();
     if (!botResponse) {
+        console.log('no bot response, creating index');
+        console.log(newPayload);
         const textIndex = [key, ...indexResponseContent(newPayload)].join('\n');
         return textIndex;
     }
@@ -113,6 +115,7 @@ export const getBotResponseById = async (_id) => {
 export const upsertResponse = async ({
     projectId, language, key, newPayload, index,
 }) => {
+    console.log(newPayload);
     const textIndex = await mergeAndIndexBotResponse({
         projectId, language, key, newPayload, index,
     });

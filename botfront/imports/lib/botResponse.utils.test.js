@@ -150,8 +150,3 @@ describe('Empty bot responses', () => {
         expect(checkResponseEmpty(customWithContent)).to.equal(false);
     });
 });
-describe('limit tests', () => {
-    it('should stop other tests from running', () => {
-        expect(true).to.be.equal(true);
-    });
-});
