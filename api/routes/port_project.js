@@ -18,7 +18,7 @@ const { getVerifiedProject, aggregateEvents } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
 const { sortBy } = require('lodash');
-const { createResponsesIndex, createStoriesIndex  } = require('./searchIndexing.utils')
+const { createResponsesIndex, createStoriesIndex  } = require('../server/searchIndex/searchIndexing.utils')
 
 const collectionsWithModelId = {
     activity: Activity,

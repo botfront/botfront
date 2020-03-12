@@ -1,4 +1,4 @@
-const { Responses, Stories } = require('../models/models');
+const { Responses, Stories } = require('../../models/models');
 const { safeDump } = require('js-yaml/lib/js-yaml');
 const { safeLoad } = require('js-yaml');
 
@@ -32,7 +32,7 @@ const indexResponseContent = ({ text = '', custom = null, buttons = [] }) => {
     return responseContent;
 };
 
-const indexBotResponse = (response) => {
+export const indexBotResponse = (response) => {
     let responseContent = [];
     responseContent.push(response.key);
     response.values.forEach((value) => {
@@ -146,7 +146,7 @@ const getStoryContent = (story, options) => {
     return {};
 };
 
-const indexStory = (story) => {
+export const indexStory = (story) => {
     const {
         userUtterances = [], botResponses = [], actions = [], slots = [],
     } = getStoryContent(story,{});
