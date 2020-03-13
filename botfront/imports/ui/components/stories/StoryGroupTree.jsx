@@ -55,7 +55,6 @@ export default function StoryGroupTree(props) {
     const {
         tree,
         somethingIsMutating,
-        somethingIsDragging,
         handleToggleFocus,
         handleToggleExpansion,
         handleExpand,
@@ -68,6 +67,7 @@ export default function StoryGroupTree(props) {
     } = useStoryGroupTree(treeFromProps, activeStories);
     const menuRef = useRef();
     const lastFocusedItem = useRef();
+    const draggingHandle = { current: document.getElementsByClassName('drag-handle dragging')[0] };
 
     const getSiblingsAndIndex = (story, inputTree) => {
         const { id, parentId } = story;
@@ -185,10 +185,10 @@ export default function StoryGroupTree(props) {
                     : {})}
                 {...(deletionIsPossible ? {} : { confirmButton: null })}
             />
-            {somethingIsDragging && activeStories.length > 1 && (
+            {draggingHandle.current && draggingHandle.current.parentNode.parentNode.className.includes('active') && activeStories.length > 1 && (
                 <Portal
                     open
-                    mountNode={document.getElementsByClassName('drag-handle dragging')[0]}
+                    mountNode={draggingHandle.current}
                 >
                     <div className='count-tooltip'>{activeStories.length}</div>
                 </Portal>
@@ -197,7 +197,7 @@ export default function StoryGroupTree(props) {
                 pointing
                 secondary
                 vertical
-                className={somethingIsDragging ? 'dragging' : ''}
+                className={draggingHandle.current ? 'dragging' : ''}
             >
                 <EmbeddedTree
                     id='storygroup-tree'
