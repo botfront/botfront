@@ -75,7 +75,7 @@ if (Meteor.isServer) {
             check(senderId, String);
             check(status, String);
             const conversationStatusBefore = Conversations.findOne({ _id: senderId }, { fields: { status: 1 } });
-            auditLog('Changing conversation status', {
+            auditLog('Changed conversation status', {
                 user: Meteor.user(),
                 projectId: findConversationProject(senderId),
                 type: 'update',
@@ -91,7 +91,7 @@ if (Meteor.isServer) {
             checkIfCan('incoming:w', findConversationProject(senderId));
             check(senderId, String);
             const conversationBefore = Conversations.find({ _id: senderId });
-            auditLog('Deleting conversation', {
+            auditLog('Deleted conversation', {
                 user: Meteor.user(),
                 projectId: findConversationProject(senderId),
                 type: 'delete',

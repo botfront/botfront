@@ -62,7 +62,7 @@ export default {
         async deleteResponse(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
             const botResponseDeleted = await deleteResponse(args.projectId, args.key);
-            auditLog('Deleting response', {
+            auditLog('Deleted response', {
                 user: auth.user,
                 type: 'delete',
                 projectId: args.projectId,

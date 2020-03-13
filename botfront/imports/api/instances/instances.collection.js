@@ -33,7 +33,7 @@ if (Meteor.isServer) {
             checkIfCan('projects:w', item.projectId);
             check(item, Object);
             const instanceBefore = Instances.findOne({ _id: item._id });
-            auditLog('Updating instance', {
+            auditLog('Updated instance', {
                 user: Meteor.user(),
                 type: 'update',
                 projectId: item.projectId,

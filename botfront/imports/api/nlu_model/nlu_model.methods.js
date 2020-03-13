@@ -41,7 +41,7 @@ Meteor.methods({
                 { _id: { $in: modelIds }, language },
                 { fields: { _id: 1 } },
             )._id;
-            auditLogIfOnServer('Insert Example in language', {
+            auditLogIfOnServer('Inserted Example in language', {
                 user: Meteor.user(),
                 projectId,
                 resId: modelId,
@@ -72,7 +72,7 @@ Meteor.methods({
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
             const pullItemsText = intersectionBy(examples, canonicalizedItems, 'text').map(({ text }) => text);
             NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItemsText } } } });
-            auditLogIfOnServer('Insert Example', {
+            auditLogIfOnServer('Inserted Example', {
                 user: Meteor.user(),
                 resId: modelId,
                 projectId: getProjectIdFromModelId(modelId),
@@ -95,7 +95,7 @@ Meteor.methods({
         try {
             const exampleBefore = NLUModels.findOne({ _id: modelId, 'training_data.common_examples._id': cleanItem._id }, { fields: { 'training_data.common_examples.$': 1 } });
             const properExample = get(exampleBefore, 'training_data.common_examples[0]');
-            auditLogIfOnServer('Update Example', {
+            auditLogIfOnServer('Updated Example', {
                 user: Meteor.user(),
                 resId: modelId,
                 projectId: getProjectIdFromModelId(modelId),
@@ -148,7 +148,7 @@ Meteor.methods({
             if (results !== undefined) {
                 await Meteor.callWithPromise('nlu.updateExample', modelId, { ...results.training_data.common_examples[0], canonical: false });
             }
-            auditLogIfOnServer('Mark example as canonical', {
+            auditLogIfOnServer('Marked example as canonical', {
                 user: Meteor.user(),
                 projectId: getProjectIdFromModelId(modelId),
                 resId: modelId,
@@ -162,7 +162,7 @@ Meteor.methods({
             return { change: results !== undefined };
         }
         await Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: false });
-        auditLogIfOnServer('Mark example as canonical', {
+        auditLogIfOnServer('Marked example as canonical', {
             user: Meteor.user(),
             projectId: getProjectIdFromModelId(modelId),
             resId: modelId,
@@ -181,7 +181,7 @@ Meteor.methods({
         const exampleBefore = NLUModels.findOne({ _id: modelId, 'training_data.common_examples._id': itemId }, { fields: { 'training_data.common_examples.$': 1 } });
         const properExample = get(exampleBefore, 'training_data.common_examples[0]');
         
-        auditLogIfOnServer('Delete nlu example ', {
+        auditLogIfOnServer('Deleted nlu example ', {
             user: Meteor.user(), resId: modelId, projectId: getProjectIdFromModelId(modelId), type: 'delete', operation: 'nlu-data-deleted', before: { example: properExample },
         });
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: itemId } } });
@@ -195,7 +195,7 @@ Meteor.methods({
         if (item._id) {
             const synonymBefore = NLUModels.findOne({ _id: modelId, 'training_data.entity_synonyms._id': item._id }, { fields: { 'training_data.entity_synonyms.$': 1 } });
             const properSynonym = get(synonymBefore, 'training_data.entity_synonyms[0]');
-            auditLogIfOnServer('Update entity synonym ', {
+            auditLogIfOnServer('Updated entity synonym ', {
                 user: Meteor.user(),
                 resId: item._id,
                 projectId: getProjectIdFromModelId(modelId),
@@ -207,7 +207,7 @@ Meteor.methods({
             return NLUModels.update({ _id: modelId, 'training_data.entity_synonyms._id': item._id }, { $set: { 'training_data.entity_synonyms.$': item } });
         }
 
-        auditLogIfOnServer('Create entity synonym', {
+        auditLogIfOnServer('Created entity synonym', {
             user: Meteor.user(), resId: item._id, projectId: getProjectIdFromModelId(modelId), type: 'create', operation: 'nlu-data-created', after: { entitySynonym: item },
         });
         return NLUModels.update({ _id: modelId }, { $push: { 'training_data.entity_synonyms': { _id: uuidv4(), ...item } } });
@@ -219,7 +219,7 @@ Meteor.methods({
         check(itemId, String);
         const synonymBefore = NLUModels.findOne({ _id: modelId, 'training_data.entity_synonyms._id': itemId }, { fields: { 'training_data.entity_synonyms.$': 1 } });
         const properSynonym = get(synonymBefore, 'training_data.entity_synonyms[0]');
-        auditLogIfOnServer('Delete entity synonym', {
+        auditLogIfOnServer('Deleted entity synonym', {
             user: Meteor.user(), resId: itemId, projectId: getProjectIdFromModelId(modelId), type: 'delete', operation: 'nlu-data-deleted', before: { entitySynonym: properSynonym },
         });
         return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.entity_synonyms': { _id: itemId } } });
@@ -233,7 +233,7 @@ Meteor.methods({
         if (item._id) {
             const gazetteBefore = NLUModels.findOne({ _id: modelId, 'training_data.fuzzy_gazette._id': item._id }, { fields: { 'training_data.fuzzy_gazette.$': 1 } });
             const properGazette = get(gazetteBefore, 'training_data.fuzzy_gazette[0]');
-            auditLogIfOnServer('Update entity gazette', {
+            auditLogIfOnServer('Updated entity gazette', {
                 user: Meteor.user(),
                 resId: modelId,
                 projectId: getProjectIdFromModelId(modelId),
@@ -248,7 +248,7 @@ Meteor.methods({
        
 
         const gazette = { _id: uuidv4(), ...gazetteDefaults, ...item };
-        auditLogIfOnServer('Create entity gazette', {
+        auditLogIfOnServer('Created entity gazette', {
             user: Meteor.user(), resId: modelId, projectId: getProjectIdFromModelId(modelId), type: 'create', operation: 'nlu-data-created', after: { gazette },
         });
         return NLUModels.update({ _id: modelId }, { $push: { 'training_data.fuzzy_gazette': gazette } });
@@ -260,7 +260,7 @@ Meteor.methods({
         check(itemId, String);
         const gazetteBefore = NLUModels.findOne({ _id: modelId, 'training_data.fuzzy_gazette._id': itemId }, { fields: { 'training_data.fuzzy_gazette.$': 1 } });
         const properGazette = get(gazetteBefore, 'training_data.fuzzy_gazette[0]');
-        auditLogIfOnServer('Delete entity gazette', {
+        auditLogIfOnServer('Deleted entity gazette', {
             user: Meteor.user(),
             resId: modelId,
             projectId: getProjectIdFromModelId(modelId),
@@ -315,7 +315,7 @@ if (Meteor.isServer) {
             const defaultModel = { ...item, config: defaultNLUConfig };
             const modelId = NLUModels.insert(defaultModel);
             Projects.update({ _id: projectId }, { $addToSet: { nlu_models: modelId } });
-            auditLog('Nlu insert', {
+            auditLog('Nlu inserted', {
                 user: Meteor.user(), resId: modelId, projectId, type: 'create', operation: 'nlu-model-created', after: { item },
             });
             return modelId;
@@ -330,7 +330,7 @@ if (Meteor.isServer) {
                     evaluations: 0, intents: 0, chitchat_intents: 0, training_data: 0,
                 },
             });
-            auditLog('Nlu update', {
+            auditLog('Nlu updated', {
                 user: Meteor.user(),
                 resId: modelId,
                 projectId: getProjectIdFromModelId(modelId),
@@ -359,7 +359,7 @@ if (Meteor.isServer) {
                     evaluations: 0, intents: 0, chitchat_intents: 0, training_data: 0,
                 },
             });
-            auditLog('Nlu update general', {
+            auditLog('Nlu updated general', {
                 user: Meteor.user(),
                 projectId: getProjectIdFromModelId(modelId),
                 resId: modelId,
@@ -387,7 +387,7 @@ if (Meteor.isServer) {
             if (modelLanguage.language !== projectDefaultLanguage.defaultLanguage) {
                 try {
                     NLUModels.remove({ _id: modelId });
-                    auditLog('Nlu remove model', {
+                    auditLog('Nlu removed model', {
                         user: Meteor.user(),
                         resId: modelId,
                         projectId: getProjectIdFromModelId(modelId),
@@ -432,7 +432,7 @@ if (Meteor.isServer) {
             const model = getModelWithTrainingData(chitChatProjectId, language);
             // eslint-disable-next-line camelcase
             const { training_data: { common_examples = [] } = {} } = model || {};
-            auditLog('Nlu model add chitchat intents to training data', {
+            auditLog('Nlu moded added chitchat intents to training data', {
                 user: Meteor.user(),
                 projectId: getProjectIdFromModelId(modelId),
                 resId: modelId,
@@ -449,7 +449,7 @@ if (Meteor.isServer) {
             check(intents, Array);
             const chitchatBefore = NLUModels.findOne({ _id: modelId }, { fields: { chitchat_intents: 1 } });
             const properIntents = get(chitchatBefore, 'chitchat_intents');
-            auditLog('Nlu model update chitchat', {
+            auditLog('Nlu model updated chitchat', {
                 user: Meteor.user(),
                 resId: modelId,
                 type: 'update',
@@ -516,7 +516,7 @@ if (Meteor.isServer) {
                     ? { $set: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } }
                     : { $push: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } };
                 const safeTrainingData = get(currentModel, 'training_data');
-                auditLog('Nlu data import', {
+                auditLog('Nlu data imported', {
                     user: Meteor.user(),
                     resId: currentModel._id,
                     type: 'update',
@@ -553,7 +553,7 @@ if (Meteor.isServer) {
 
                     Projects.update({ nlu_models: modelId }, { $set: { templates: newTemplates } });
                 }
-                auditLog('Nlu rename intent', {
+                auditLog('Nlu renamed intent', {
                     user: Meteor.user(),
                     resId: modelId,
                     projectId: getProjectIdFromModelId(modelId),
@@ -580,7 +580,7 @@ if (Meteor.isServer) {
             } catch (e) {
                 throw formatError(e);
             }
-            auditLog('Nlu data removes example by intent', {
+            auditLog('Nlu data removed example by intent', {
                 userId: Meteor.user(),
                 resId: modelId,
                 type: 'update',

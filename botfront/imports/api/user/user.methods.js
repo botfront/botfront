@@ -69,7 +69,7 @@ if (Meteor.isServer) {
                 this.unblock();
                 if (sendInviteEmail) Accounts.sendEnrollmentEmail(userId);
                 setScopes(user, userId);
-                auditLog('Create an user', {
+                auditLog('Created an user', {
                     user: Meteor.user(),
                     type: 'creae',
                     operation: 'user-created',
@@ -91,7 +91,7 @@ if (Meteor.isServer) {
             });
             try {
                 const userBefore = Meteor.users.findOne({ _id: user._id });
-                auditLog('Update an user', {
+                auditLog('Updated an user', {
                     user: Meteor.user(),
                     type: 'update',
                     resId: user._id,
@@ -123,7 +123,7 @@ if (Meteor.isServer) {
             const { failSilently } = options;
             try {
                 const userBefore = Meteor.users.findOne({ _id: userId });
-                auditLog('Delete an user', {
+                auditLog('Deleted an user', {
                     user: Meteor.user(),
                     type: 'delete',
                     resId: userId,
@@ -159,7 +159,7 @@ if (Meteor.isServer) {
                     }],
                 });
 
-                auditLog('Delete an user by email matching', {
+                auditLog('Deleted an user by email matching', {
                     user: Meteor.user(),
                     type: 'delete',
                     operation: 'user-deleted',
@@ -181,7 +181,7 @@ if (Meteor.isServer) {
                 const userBefore = Meteor.users.findOne({ _id: userId });
                 const result = Promise.await(Accounts.setPassword(userId, newPassword));
                 const userAfter = Meteor.users.findOne({ _id: userId });
-                auditLog('Change user password', {
+                auditLog('Changed user password', {
                     user: Meteor.user(),
                     type: 'update',
                     operation: 'user-updated',

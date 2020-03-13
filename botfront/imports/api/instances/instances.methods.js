@@ -199,7 +199,7 @@ if (Meteor.isServer) {
                 output_format: outputFormat,
                 language,
             });
-            auditLog('Converting model to json', {
+            auditLog('Converted model to json', {
                 user: Meteor.user(),
                 type: 'update',
                 projectId,
@@ -272,7 +272,7 @@ if (Meteor.isServer) {
                 };
                 const t1 = performance.now();
                 appMethodLogger.debug(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
-                auditLog('Retreiveing training payload for project', {
+                auditLog('Retreived training payload for project', {
                     user: Meteor.user(),
                     type: 'execute',
                     projectId,
@@ -356,7 +356,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));
-            auditLog('Evaluate nlu data', {
+            auditLog('Evaluated nlu data', {
                 user: Meteor.user(),
                 projectId,
                 type: 'execute',

@@ -28,7 +28,7 @@ Meteor.methods({
         check(projectId, String);
         validateSchema(slot);
         try {
-            auditLogIfOnServer('Insert slot', {
+            auditLogIfOnServer('Inserted slot', {
                 resId: projectId,
                 user: Meteor.user(),
                 projectId,
@@ -50,7 +50,7 @@ Meteor.methods({
         const slots = Array.isArray(slot)
             ? slot : [slot];
         const slotsBefore = Slots.find({ name: { $in: slots.map(aSlot => aSlot.name) }, projectId }).fetch();
-        auditLogIfOnServer('Upsert slot(s)', {
+        auditLogIfOnServer('Upserted slot(s)', {
             resId: slot._id,
             user: Meteor.user(),
             type: 'update',
@@ -75,7 +75,7 @@ Meteor.methods({
         validateSchema(slot);
         try {
             const slotBefore = Slots.findOne({ _id: slot._id });
-            auditLogIfOnServer('Update slot', {
+            auditLogIfOnServer('Updated slot', {
                 resId: slot._id,
                 user: Meteor.user(),
                 type: 'update',
@@ -95,7 +95,7 @@ Meteor.methods({
         check(slot, Object);
         check(projectId, String);
         validateSchema(slot);
-        auditLogIfOnServer('Delete slot', {
+        auditLogIfOnServer('Deleted slot', {
             resId: projectId,
             user: Meteor.user(),
             projectId,

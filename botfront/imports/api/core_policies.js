@@ -67,7 +67,7 @@ if (Meteor.isServer) {
             check(policies, Object);
             try {
                 const policyBefore = CorePolicies.findOne({ projectId: policies.projectId });
-                auditLog('Saving policies', {
+                auditLog('Saved policies', {
                     user: Meteor.user(),
                     type: 'update',
                     projectId: policies.projectId,

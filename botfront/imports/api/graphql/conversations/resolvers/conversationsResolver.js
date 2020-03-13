@@ -35,7 +35,7 @@ export default {
             const conversationBefore = await getConversation(args.projectId, args.id);
             const response = await updateConversationStatus(args.id, args.status);
             const conversationAfter = await getConversation(args.projectId, args.id);
-            auditLog('Update conversation status', {
+            auditLog('Updated conversation status', {
                 userId: context.user,
                 type: 'update',
                 projectId: args.projectId,

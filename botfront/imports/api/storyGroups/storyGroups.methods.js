@@ -81,7 +81,7 @@ Meteor.methods({
         const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
             .fetch();
         childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-        auditLogIfOnServer('Story group delete', {
+        auditLogIfOnServer('Story group deleted', {
             resId: storyGroup._id,
             user: Meteor.user(),
             projectId: storyGroup.projectId,
@@ -97,7 +97,7 @@ Meteor.methods({
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         try {
-            auditLogIfOnServer('Create a story group', {
+            auditLogIfOnServer('Created a story group', {
                 resId: storyGroup._id,
                 user: Meteor.user(),
                 projectId: storyGroup.projectId,
@@ -116,7 +116,7 @@ Meteor.methods({
         check(storyGroup, Object);
         try {
             const storyGroupBefore = StoryGroups.findOne({ _id: storyGroup._id });
-            auditLogIfOnServer('Update a story group', {
+            auditLogIfOnServer('Updated a story group', {
                 resId: storyGroup._id,
                 user: Meteor.user(),
                 type: 'update',
@@ -147,7 +147,7 @@ Meteor.methods({
         const storyGroupAfter = StoryGroups.find(
             { projectId }, { fields: { selected: 1, _id: 1 } },
         ).fetch().lean();
-        auditLogIfOnServer('remove focus on all story group', {
+        auditLogIfOnServer('removed focus on all story group', {
             user: Meteor.user(),
             type: 'update',
             projectId,
@@ -174,7 +174,7 @@ if (Meteor.isServer) {
             const result = await Stories.remove({ storyGroupId });
             deleteResponsesRemovedFromStories(eventstoRemove, projectId);
 
-            auditLogIfOnServer('Delete child stories of a story group', {
+            auditLogIfOnServer('Deleted child stories of a story group', {
                 user: Meteor.user(),
                 type: 'delete',
                 projectId,
