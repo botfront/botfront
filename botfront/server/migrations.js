@@ -245,6 +245,29 @@ Migrations.add({
     },
 });
 
+Migrations.add({
+    version: 10,
+    up: () => {
+        Roles.deleteRole('conversations-editor');
+        Roles.deleteRole('conversations-viewer');
+        Roles.deleteRole('conversations:r');
+        Roles.deleteRole('conversations:w');
+        Roles.deleteRole('copy-editor');
+        Roles.deleteRole('copy-viewer');
+        Roles.deleteRole('nlu-model:r');
+        Roles.deleteRole('nlu-model:w');
+        Roles.deleteRole('nlu-model:x');
+        Roles.deleteRole('nlu-viewer');
+        Roles.deleteRole('owner');
+        Roles.deleteRole('project-settings:r');
+        Roles.deleteRole('project-settings:w');
+        Roles.deleteRole('project-viewer');
+    },
+    down: () => {
+
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });
