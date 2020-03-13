@@ -81,7 +81,7 @@ if (Meteor.isServer) {
                 auditLog('Created project', {
                     user: Meteor.user(),
                     resId: _id,
-                    type: 'create',
+                    type: 'created',
                     operation: 'project-created',
                     after: { project: item },
                     resType: 'project',
@@ -103,7 +103,7 @@ if (Meteor.isServer) {
                 auditLog('Updated project', {
                     user: Meteor.user(),
                     resId: item._id,
-                    type: 'update',
+                    type: 'updated',
                     projectId: item._id,
                     operation: 'project-updated',
                     before: { project: projectBefore },
@@ -142,7 +142,7 @@ if (Meteor.isServer) {
                 auditLog('Deleted project, all related data has been deleted', {
                     user: Meteor.user(),
                     resId: projectId,
-                    type: 'delete',
+                    type: 'deleted',
                     operation: 'project-deleted',
                     before: { projectBefore },
                     resType: 'project',
@@ -164,7 +164,7 @@ if (Meteor.isServer) {
                     user: Meteor.user(),
                     resId: projectId,
                     projectId,
-                    type: 'update',
+                    type: 'updated',
                     operation: 'project-updated',
                     before: { project: projectBefore },
                     after: { project: projectAfter },
@@ -193,7 +193,7 @@ if (Meteor.isServer) {
                 auditLog('Marked trainning as stopped', {
                     user: Meteor.user(),
                     resId: projectId,
-                    type: 'update',
+                    type: 'updated',
                     projectId,
                     operation: 'project-updated',
                     before: { projectBefore },

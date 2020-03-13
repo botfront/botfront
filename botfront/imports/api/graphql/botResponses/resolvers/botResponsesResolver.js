@@ -64,7 +64,7 @@ export default {
             const botResponseDeleted = await deleteResponse(args.projectId, args.key);
             auditLog('Deleted response', {
                 user: auth.user,
-                type: 'delete',
+                type: 'deleted',
                 projectId: args.projectId,
                 operation: 'response-deleted',
                 resId: args.key,
@@ -88,7 +88,7 @@ export default {
            
             auditLog('Updated response', {
                 user: auth.user,
-                type: 'update',
+                type: 'updated',
                 operation: 'response-updated',
                 projectId: args.projectId,
                 resId: args._id,
@@ -118,7 +118,7 @@ export default {
 
             auditLog('Upserted response', {
                 user: auth.user,
-                type: 'update',
+                type: 'updated',
                 projectId: args.projectId,
                 operation: 'response-updated',
                 resId: args.key,
@@ -138,7 +138,7 @@ export default {
             });
             auditLog('Created response', {
                 user: auth.user,
-                type: 'update',
+                type: 'updated',
                 projectId: args.projectId,
                 operation: 'response-created',
                 resId: args.response.key,
@@ -151,7 +151,7 @@ export default {
             checkIfCan('responses:w', args.projectId, auth.user._id);
             auditLog('Created responses', {
                 user: auth.user,
-                type: 'update',
+                type: 'updated',
                 projectId: args.projectId,
                 operation: 'response-created',
                 resId: args.responses.map(resp => resp.key),
@@ -167,7 +167,7 @@ export default {
             const response = await deleteVariation(args);
             auditLog('Deleted response variation', {
                 user: auth.user,
-                type: 'update',
+                type: 'updated',
                 projectId: args.projectId,
                 operation: 'response-updated',
                 resId: args.key,

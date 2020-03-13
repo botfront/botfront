@@ -201,7 +201,7 @@ if (Meteor.isServer) {
             });
             auditLog('Converted model to json', {
                 user: Meteor.user(),
-                type: 'update',
+                type: 'updated',
                 projectId,
                 operation: 'rasa-execute',
                 resType: 'rasa',

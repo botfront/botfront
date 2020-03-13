@@ -92,7 +92,7 @@ if (Meteor.isServer) {
                 auditLog('Saved credentials', {
                     user: Meteor.user(),
                     projectId: credentials.projectId,
-                    type: 'update',
+                    type: 'updated',
                     operation: 'project-updated',
                     resId: credentials._id,
                     after: { credentials },

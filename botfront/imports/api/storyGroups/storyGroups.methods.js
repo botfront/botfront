@@ -85,7 +85,7 @@ Meteor.methods({
             resId: storyGroup._id,
             user: Meteor.user(),
             projectId: storyGroup.projectId,
-            type: 'delete',
+            type: 'deleted',
             operation: 'story-group-deleted',
             before: { storyGroup },
             resType: 'story-group',
@@ -102,7 +102,7 @@ Meteor.methods({
                 resId: storyGroup._id,
                 user: Meteor.user(),
                 projectId: storyGroup.projectId,
-                type: 'create',
+                type: 'created',
                 operation: 'story-group-created',
                 after: { storyGroup },
                 resType: 'story-group',
@@ -121,7 +121,7 @@ Meteor.methods({
             auditLogIfOnServer('Updated a story group', {
                 resId: storyGroup._id,
                 user: Meteor.user(),
-                type: 'update',
+                type: 'updated',
                 projectId: storyGroup.projectId,
                 operation: 'story-group-updated',
                 after: { storyGroup },
@@ -152,7 +152,7 @@ Meteor.methods({
         ).fetch().lean();
         auditLogIfOnServer('removed focus on all story group', {
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             projectId,
             operation: 'story-group-updated',
             after: { storyGroup: storyGroupAfter },
@@ -180,7 +180,7 @@ if (Meteor.isServer) {
 
             auditLogIfOnServer('Deleted child stories of a story group', {
                 user: Meteor.user(),
-                type: 'delete',
+                type: 'deleted',
                 projectId,
                 operation: 'stories-delete',
                 resId: storyGroupId,

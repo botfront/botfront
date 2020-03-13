@@ -78,7 +78,7 @@ if (Meteor.isServer) {
             auditLog('Changed conversation status', {
                 user: Meteor.user(),
                 projectId: findConversationProject(senderId),
-                type: 'update',
+                type: 'updated',
                 operation: 'conversation-updated',
                 resId: senderId,
                 before: { status: conversationStatusBefore.status },
@@ -95,7 +95,7 @@ if (Meteor.isServer) {
             auditLog('Deleted conversation', {
                 user: Meteor.user(),
                 projectId: findConversationProject(senderId),
-                type: 'delete',
+                type: 'deleted',
                 operation: 'conversation-deleted',
                 resId: senderId,
                 before: { conversationBefore },

@@ -94,7 +94,7 @@ if (Meteor.isServer) {
                 const userBefore = Meteor.users.findOne({ _id: user._id });
                 auditLog('Updated an user', {
                     user: Meteor.user(),
-                    type: 'update',
+                    type: 'updated',
                     resId: user._id,
                     operation: 'user-updated',
                     after: { user },
@@ -127,7 +127,7 @@ if (Meteor.isServer) {
                 const userBefore = Meteor.users.findOne({ _id: userId });
                 auditLog('Deleted an user', {
                     user: Meteor.user(),
-                    type: 'delete',
+                    type: 'deleted',
                     resId: userId,
                     operation: 'user-deleted',
                     before: { user: userBefore },
@@ -164,7 +164,7 @@ if (Meteor.isServer) {
 
                 auditLog('Deleted an user by email matching', {
                     user: Meteor.user(),
-                    type: 'delete',
+                    type: 'deleted',
                     operation: 'user-deleted',
                     before: { user: userBefore },
                     after: { user: userAfter },
@@ -187,7 +187,7 @@ if (Meteor.isServer) {
                 const userAfter = Meteor.users.findOne({ _id: userId });
                 auditLog('Changed user password', {
                     user: Meteor.user(),
-                    type: 'update',
+                    type: 'updated',
                     operation: 'user-updated',
                     resId: userId,
                     before: { user: userBefore },

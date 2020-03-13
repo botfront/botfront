@@ -40,7 +40,7 @@ if (Meteor.isServer) {
                 ));
             auditLog('Imported project', {
                 user: Meteor.user(),
-                type: 'create',
+                type: 'created',
                 projectId,
                 operation: 'project-created',
                 resId: projectId,

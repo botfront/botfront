@@ -35,7 +35,7 @@ if (Meteor.isServer) {
             const instanceBefore = Instances.findOne({ _id: item._id });
             auditLog('Updated instance', {
                 user: Meteor.user(),
-                type: 'update',
+                type: 'updated',
                 projectId: item.projectId,
                 operation: 'project-settings-updated',
                 resId: item.projectId,

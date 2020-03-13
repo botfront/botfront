@@ -23,7 +23,8 @@ Meteor.methods({
         }
         auditLogIfOnServer('Story created', {
             user: Meteor.user(),
-            type: 'create',
+            type: 'created',
+            resId: story.id,
             projectId: story.projectId,
             operation: 'stories.created',
             after: { story },
@@ -68,7 +69,7 @@ Meteor.methods({
         auditLogIfOnServer('Story updated', {
             resId: story._id,
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             projectId,
             operation: 'stories.updated',
             after: { story },
@@ -87,7 +88,7 @@ Meteor.methods({
         auditLogIfOnServer('Story deleted', {
             resId: story._id,
             user: Meteor.user(),
-            type: 'delete',
+            type: 'deleted',
             operation: 'stories.deleted',
             projectId,
             before: { story },
@@ -107,7 +108,7 @@ Meteor.methods({
         auditLogIfOnServer('Story added checkpoint', {
             resId: destinationStory,
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             operation: 'stories.updated',
             before: { story: storyBefore },
             after: { story: { ...storyBefore, checkpoints: [...checkpointsBefore, branchPath] } },
@@ -133,7 +134,7 @@ Meteor.methods({
         auditLogIfOnServer('Story removed checkpoint', {
             resId: destinationStory,
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             operation: 'stories.updated',
             after: { story: storyAfter },
             before: { story: storyBefore },
@@ -155,7 +156,7 @@ Meteor.methods({
             resId: storyId,
             user: Meteor.user(),
             projectId,
-            type: 'update',
+            type: 'updated',
             operation: 'stories.updated',
             after: { story },
             before: { story: storyBefore },
@@ -174,7 +175,7 @@ Meteor.methods({
         auditLogIfOnServer('Story deleted trigger rules', {
             resId: storyId,
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             projectId,
             operation: 'stories.updated',
             before: { story: storyBefore },

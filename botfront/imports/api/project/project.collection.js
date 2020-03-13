@@ -28,7 +28,7 @@ export const createProject = (item) => {
     checkIfCan('projects:w');
     auditLogIfOnServer('Created project', {
         user: Meteor.user(),
-        type: 'create',
+        type: 'created',
         operation: 'project-created',
         after: { project: item },
         resType: 'project',

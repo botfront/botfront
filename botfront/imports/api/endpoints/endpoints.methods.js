@@ -45,7 +45,7 @@ if (Meteor.isServer) {
             auditLog('Saved endpoints', {
                 user: Meteor.user(),
                 projectId: endpoints.projectId,
-                type: 'update',
+                type: 'updated',
                 operation: 'project-updated',
                 resId: endpoints.projectId,
                 after: { endpoints },

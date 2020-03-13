@@ -53,7 +53,7 @@ export default {
                 correspondingMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
                 auditLog('Created a new role', {
                     user: context.user,
-                    type: 'create',
+                    type: 'created',
                     operation: 'role-created',
                     resId: correspondingMeteorRole.id,
                     after: { role: correspondingMeteorRole },
@@ -73,7 +73,7 @@ export default {
             // eslint-disable-next-line consistent-return
             auditLog('Updated role', {
                 user: context.user,
-                type: 'update',
+                type: 'updated',
                 operation: 'role-update',
                 resId: correspondingMeteorRole.id,
                 after: { role: updatedMeteorRole },
@@ -100,7 +100,7 @@ export default {
             });
             auditLog('Removed a role', {
                 user: context.user,
-                type: 'delete',
+                type: 'deleted',
                 operation: 'role-deleted',
                 resId: args.name,
                 before: { role: oldRole },
