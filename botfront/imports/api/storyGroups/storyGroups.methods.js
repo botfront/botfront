@@ -78,8 +78,7 @@ Meteor.methods({
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         let eventstoRemove = [];
-        const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
-            .fetch();
+        const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } }).fetch();
         childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
         auditLogIfOnServer('Story group deleted', {
             resId: storyGroup._id,
@@ -176,7 +175,7 @@ if (Meteor.isServer) {
             const childStories = Stories.find({ storyGroupId }, { fields: { events: true } })
                 .fetch();
             childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-            const storiesBefore = await Stories.find({ storyGroupId }).fetch().lean();
+            const storiesBefore = await Stories.find({ storyGroupId }).fetch();
             const result = await Stories.remove({ storyGroupId });
             deleteResponsesRemovedFromStories(eventstoRemove, projectId);
 
