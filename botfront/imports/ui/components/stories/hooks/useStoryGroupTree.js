@@ -114,8 +114,8 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
 
         const sourceNode = getSourceNode(tree, source);
 
-        const sourceNodes = sourceNode.canBearChildren || !(activeStories && activeStories.length)
-            ? [getSourceNode(tree, source)]
+        const sourceNodes = (sourceNode.canBearChildren || !activeStories || !activeStories.includes(sourceNode.id))
+            ? [sourceNode]
             : activeStories.map(id => tree.items[id]); // move all activeNodes if source is a leaf
 
         // safety check; does selection span across
