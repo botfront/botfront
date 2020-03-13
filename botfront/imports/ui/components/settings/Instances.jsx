@@ -29,6 +29,7 @@ class Instances extends React.Component {
     render() {
         const { ready, instance, projectId } = this.props;
         const hasWritePermission = can('projects:w', projectId);
+        if (!instance.type) instance.type = 'server';
         return (
             <>
                 {ready && (
