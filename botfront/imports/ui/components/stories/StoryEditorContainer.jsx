@@ -123,16 +123,16 @@ const StoryEditorContainer = ({
 
     function onDestinationStorySelection(event, { value }) {
         // remove the link if the value of the drop down is empty
+        const callback = () => setDestinationStory(stories.find(({ _id }) => _id === value));
         if (value === '') {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath, callback);
         } else if (value && destinationStory) {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
-            Meteor.call('stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath, () => Meteor.call(
+                'stories.addCheckpoints', value, branchPath, callback,
+            ));
         } else {
-            Meteor.call('stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.addCheckpoints', value, branchPath, callback);
         }
-        const newDestinationStory = findDestinationStory();
-        setDestinationStory(newDestinationStory);
     }
 
     // This is to make sure that all opened branches have corresponding storyController objects

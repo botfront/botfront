@@ -32,8 +32,8 @@ Cypress.Commands.add('linkStory', (storyName, linkTo) => {
     cy.dataCy('stories-linker')
         .first().click();
     cy.dataCy('stories-linker')
-        .find('div.item').contains(linkTo)
-        .click();
+        .find(`div.item:contains(${linkTo})`)
+        .click({ force: true });
     cy.dataCy('story-footer').should('have.class', 'linked');
 });
 
