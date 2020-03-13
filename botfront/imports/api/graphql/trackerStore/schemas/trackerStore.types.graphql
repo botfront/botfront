@@ -1,0 +1,19 @@
+type Query {
+    trackerStore(
+        senderId: String!
+        projectId: String!
+        after: Int
+        maxEvents: Int
+    ): Any
+  
+}
+
+type Mutation {
+    insertEvent(id: String!, projectId: String!, event: Any): updateResponse!
+    updateEvent(id: String!,  projectId: String!, event: Any): updateResponse!
+}
+
+type updateResponse {
+    success: Boolean!
+}
+
