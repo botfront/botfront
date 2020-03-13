@@ -1,7 +1,7 @@
 import { safeDump } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
-import { clearTypenameField } from '../../../../lib/utils';
+import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage } from '../../../../lib/botResponse.utils';
 

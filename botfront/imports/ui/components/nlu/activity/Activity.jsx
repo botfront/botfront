@@ -11,7 +11,7 @@ import { populateActivity } from './ActivityInsertions';
 import DataTable from '../../common/DataTable';
 import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
-import { clearTypenameField } from '../../../../lib/utils';
+import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';

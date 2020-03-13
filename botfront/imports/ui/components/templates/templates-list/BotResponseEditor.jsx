@@ -23,6 +23,7 @@ import {
     getDefaultTemplateFromSequence,
     addContentType,
 } from '../../../../lib/botResponse.utils';
+import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Loading } from '../../utils/Utils';
 
 
@@ -81,7 +82,7 @@ const BotResponseEditor = (props) => {
         createBotResponse({
             variables: {
                 projectId,
-                response: newResponse,
+                response: clearTypenameField(newResponse),
             },
         }).then(
             (result) => { callback(undefined, result); },
@@ -92,7 +93,7 @@ const BotResponseEditor = (props) => {
     const updateResponse = (updatedResponse, callback) => {
         updateBotResponse({
             variables: {
-                projectId, _id: updatedResponse._id, response: updatedResponse,
+                projectId, _id: updatedResponse._id, response: clearTypenameField(updatedResponse),
             },
         }).then(
             (result) => {
