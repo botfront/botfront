@@ -21,16 +21,18 @@ Meteor.methods({
                     events: aggregateEvents(s),
                 })));
         }
+        const result = Stories.insert({ ...story, events: aggregateEvents(story) });
+        const after = Stories.findOne({ name: story.name });
         auditLogIfOnServer('Story created', {
             user: Meteor.user(),
             type: 'created',
-            resId: story.id,
+            resId: after._id,
             projectId: story.projectId,
             operation: 'stories.created',
             after: { story },
             resType: 'story',
         });
-        return Stories.insert({ ...story, events: aggregateEvents(story) });
+        return result;
     },
 
     async 'stories.update'(story, projectId, options = {}) {

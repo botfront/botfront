@@ -98,8 +98,10 @@ Meteor.methods({
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         try {
+            const result = StoryGroups.insert(storyGroup);
+            const after = StoryGroups.findOne({ name: storyGroup.name });
             auditLogIfOnServer('Created a story group', {
-                resId: storyGroup._id,
+                resId: after._id,
                 user: Meteor.user(),
                 projectId: storyGroup.projectId,
                 type: 'created',
@@ -107,7 +109,7 @@ Meteor.methods({
                 after: { storyGroup },
                 resType: 'story-group',
             });
-            return StoryGroups.insert(storyGroup);
+            return result;
         } catch (e) {
             return handleError(e);
         }
