@@ -68,7 +68,7 @@ Meteor.methods({
                 rest.textIndex = indexStory(story);
             }
             if (story.title) {
-                rest.textIndex.title = story.title;
+                rest.textIndex.info = story.title;
             }
             return Stories.update({ _id }, { $set: { ...rest } });
         }
@@ -127,32 +127,5 @@ Meteor.methods({
             { _id: destinationStory },
             { $pullAll: { checkpoints: [branchPath] } },
         );
-    },
-    async 'stories.search'(projectId, language, search) {
-        check(projectId, String);
-        check(language, String);
-        check(search, String);
-        const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-        const nluModels = project.nlu_models;
-        const searchRegex = new RegExp(search);
-        const model = NLUModels.findOne(
-            { _id: { $in: nluModels }, language },
-        );
-        const modelExamples = model.training_data.common_examples;
-        const intents = modelExamples.reduce((filtered, option) => {
-            if (searchRegex.test(option.text)) {
-                return [...filtered, option.intent];
-            }
-            return filtered;
-        }, []);
-        const matchedResponses = await BotResponses.find(
-            { $text: { $search: search } },
-        ).lean();
-        const responseKeys = matchedResponses.map(({ key }) => key);
-        const matched = Stories.find(
-            { projectId, $text: { $search: `${search} ${intents.join(' ')} ${responseKeys.join(' ')}` } },
-            { fields: { _id: 1, title: 1 } },
-        ).fetch();
-        return matched;
     },
 });

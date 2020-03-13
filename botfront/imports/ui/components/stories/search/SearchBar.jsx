@@ -39,6 +39,7 @@ const SearchBar = (props) => {
     return (
         <>
             <Search
+                className={`story-search-bar ${queryString.length > 0 && 'has-text'}`}
                 loading={loading}
                 onSearchChange={(_, { value }) => {
                     setQueryString(value);
