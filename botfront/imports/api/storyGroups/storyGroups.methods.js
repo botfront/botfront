@@ -78,16 +78,16 @@ Meteor.methods({
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         let eventstoRemove = [];
-        const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
-            .fetch();
+        const childStories = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } }).fetch();
         childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-        auditLogIfOnServer('Story group delete', {
+        auditLogIfOnServer('Story group deleted', {
             resId: storyGroup._id,
             user: Meteor.user(),
             projectId: storyGroup.projectId,
-            type: 'delete',
+            type: 'deleted',
             operation: 'story-group-deleted',
             before: { storyGroup },
+            resType: 'story-group',
         });
         const result = await StoryGroups.remove(storyGroup) && await Meteor.callWithPromise('storyGroups.deleteChildStories', storyGroup._id, storyGroup.projectId);
         return result;
@@ -97,15 +97,18 @@ Meteor.methods({
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         try {
-            auditLogIfOnServer('Create a story group', {
-                resId: storyGroup._id,
+            const result = StoryGroups.insert(storyGroup);
+            const after = StoryGroups.findOne({ name: storyGroup.name });
+            auditLogIfOnServer('Created a story group', {
+                resId: after._id,
                 user: Meteor.user(),
                 projectId: storyGroup.projectId,
-                type: 'create',
+                type: 'created',
                 operation: 'story-group-created',
                 after: { storyGroup },
+                resType: 'story-group',
             });
-            return StoryGroups.insert(storyGroup);
+            return result;
         } catch (e) {
             return handleError(e);
         }
@@ -116,14 +119,15 @@ Meteor.methods({
         check(storyGroup, Object);
         try {
             const storyGroupBefore = StoryGroups.findOne({ _id: storyGroup._id });
-            auditLogIfOnServer('Update a story group', {
+            auditLogIfOnServer('Updated a story group', {
                 resId: storyGroup._id,
                 user: Meteor.user(),
-                type: 'update',
+                type: 'updated',
                 projectId: storyGroup.projectId,
                 operation: 'story-group-updated',
                 after: { storyGroup },
                 before: { storyGroup: storyGroupBefore },
+                resType: 'story-group',
             });
             return StoryGroups.update(
                 { _id: storyGroup._id },
@@ -147,13 +151,14 @@ Meteor.methods({
         const storyGroupAfter = StoryGroups.find(
             { projectId }, { fields: { selected: 1, _id: 1 } },
         ).fetch().lean();
-        auditLogIfOnServer('remove focus on all story group', {
+        auditLogIfOnServer('removed focus on all story group', {
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             projectId,
             operation: 'story-group-updated',
             after: { storyGroup: storyGroupAfter },
             before: { storyGroup: storyGroupBefore },
+            resType: 'story-group',
         });
 
         return result;
@@ -170,17 +175,18 @@ if (Meteor.isServer) {
             const childStories = Stories.find({ storyGroupId }, { fields: { events: true } })
                 .fetch();
             childStories.forEach(({ events = [] }) => { eventstoRemove = [...eventstoRemove, ...events]; });
-            const storiesBefore = await Stories.find({ storyGroupId }).fetch().lean();
+            const storiesBefore = await Stories.find({ storyGroupId }).fetch();
             const result = await Stories.remove({ storyGroupId });
             deleteResponsesRemovedFromStories(eventstoRemove, projectId);
 
-            auditLogIfOnServer('Delete child stories of a story group', {
+            auditLogIfOnServer('Deleted child stories of a story group', {
                 user: Meteor.user(),
-                type: 'delete',
+                type: 'deleted',
                 projectId,
                 operation: 'stories-delete',
                 resId: storyGroupId,
                 before: { stories: storiesBefore },
+                resType: 'story-group',
             });
             return result;
         },

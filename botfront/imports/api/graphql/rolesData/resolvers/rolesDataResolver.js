@@ -2,6 +2,7 @@ import { Roles } from 'meteor/alanning:roles';
 
 import { upsertRolesData, getRolesData, deleteRolesData } from '../mongo/rolesData';
 import { checkIfCan } from '../../../../lib/scopes';
+import { auditLog } from '../../../../../server/logger';
 
 const getCorrespondingMeteorRole = (roleData, meteorRoles) => {
     const roles = meteorRoles ? [...meteorRoles] : Meteor.roles.find({}).fetch();
@@ -46,11 +47,18 @@ export default {
             }
 
             let correspondingMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
-
             // That means it's a brand new role!
             if (!correspondingMeteorRole) {
                 Roles.createRole(updatedRoleData.name, { unessExists: true });
                 correspondingMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
+                auditLog('Created a new role', {
+                    user: context.user,
+                    type: 'created',
+                    operation: 'role-created',
+                    resId: correspondingMeteorRole.id,
+                    after: { role: correspondingMeteorRole },
+                    resType: 'role',
+                });
             }
 
             const childrenBeforeUpdate = flattenRoleChildren(correspondingMeteorRole);
@@ -58,9 +66,22 @@ export default {
             Roles.removeRolesFromParent(childrenBeforeUpdate, updatedRoleData.name);
 
             Roles.addRolesToParent(updatedRoleData.children, updatedRoleData.name);
+            
+            const result = upsertRolesData(updatedRoleData);
 
+            const updatedMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
             // eslint-disable-next-line consistent-return
-            return upsertRolesData(updatedRoleData);
+            auditLog('Updated role', {
+                user: context.user,
+                type: 'updated',
+                operation: 'role-update',
+                resId: correspondingMeteorRole.id,
+                after: { role: updatedMeteorRole },
+                before: { role: correspondingMeteorRole },
+                resType: 'role',
+            });
+            getCorrespondingMeteorRole(updatedRoleData);
+            return result;
         },
         deleteRolesData: async (_parent, args, context) => {
             checkIfCan('roles:w', { anyScope: true }, context.user._id);
@@ -77,7 +98,14 @@ export default {
                     Roles.addUsersToRoles(userId, fallbackRole);
                 }
             });
-            
+            auditLog('Removed a role', {
+                user: context.user,
+                type: 'deleted',
+                operation: 'role-deleted',
+                resId: args.name,
+                before: { role: oldRole },
+                resType: 'role',
+            });
             Roles.deleteRole(oldRole);
             deleteRolesData({ name: oldRole });
         },

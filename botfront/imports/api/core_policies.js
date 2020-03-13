@@ -67,14 +67,15 @@ if (Meteor.isServer) {
             check(policies, Object);
             try {
                 const policyBefore = CorePolicies.findOne({ projectId: policies.projectId });
-                auditLog('Saving policies', {
+                auditLog('Saved policies', {
                     user: Meteor.user(),
-                    type: 'update',
+                    type: 'updated',
                     projectId: policies.projectId,
                     operation: 'policies-updated',
                     resId: policies.projectId,
                     before: { policies: policyBefore.policies },
                     after: { policies: policies.policies },
+                    resType: 'policies',
                 });
                 return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });
             } catch (e) {

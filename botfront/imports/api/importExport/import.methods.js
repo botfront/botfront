@@ -38,12 +38,13 @@ if (Meteor.isServer) {
                 .catch(err => (
                     { error: { header: 'Import Failed', text: generateErrorText(err) } }
                 ));
-            auditLog('Import project', {
+            auditLog('Imported project', {
                 user: Meteor.user(),
-                type: 'create',
+                type: 'created',
                 projectId,
                 operation: 'project-created',
                 resId: projectId,
+                resType: 'project',
             });
             return importRequest;
         },

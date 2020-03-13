@@ -199,11 +199,12 @@ if (Meteor.isServer) {
                 output_format: outputFormat,
                 language,
             });
-            auditLog('Converting model to json', {
+            auditLog('Converted model to json', {
                 user: Meteor.user(),
-                type: 'update',
+                type: 'updated',
                 projectId,
                 operation: 'rasa-execute',
+                resType: 'rasa',
             });
             return data;
         },
@@ -272,12 +273,13 @@ if (Meteor.isServer) {
                 };
                 const t1 = performance.now();
                 appMethodLogger.debug(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
-                auditLog('Retreiveing training payload for project', {
+                auditLog('Retreived training payload for project', {
                     user: Meteor.user(),
                     type: 'execute',
                     projectId,
                     operation: 'nlu-model-execute',
                     resId: projectId,
+                    resType: 'nlu-model',
                 });
                 return payload;
             } catch (e) {
@@ -292,8 +294,13 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(instance, Object);
-            auditLog('Train project', {
-                user: Meteor.user(), projectId, type: 'execute', operation: 'nlu-model-trained', resId: projectId,
+            auditLog('Trained project', {
+                user: Meteor.user(),
+                projectId,
+                type: 'execute',
+                operation: 'nlu-model-trained',
+                resId: projectId,
+                resType: 'nlu-model',
             });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
@@ -356,12 +363,13 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));
-            auditLog('Evaluate nlu data', {
+            auditLog('Evaluated nlu data', {
                 user: Meteor.user(),
                 projectId,
                 type: 'execute',
                 operation: 'nlu-model-evaluate',
                 resId: projectId,
+                resType: 'nlu-model',
             });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,

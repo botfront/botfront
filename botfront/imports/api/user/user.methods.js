@@ -69,12 +69,13 @@ if (Meteor.isServer) {
                 this.unblock();
                 if (sendInviteEmail) Accounts.sendEnrollmentEmail(userId);
                 setScopes(user, userId);
-                auditLog('Create an user', {
+                auditLog('Created an user', {
                     user: Meteor.user(),
                     type: 'creae',
                     operation: 'user-created',
                     after: { user },
                     resId: userId,
+                    resType: 'user',
                 });
                 return userId;
             } catch (e) {
@@ -91,13 +92,14 @@ if (Meteor.isServer) {
             });
             try {
                 const userBefore = Meteor.users.findOne({ _id: user._id });
-                auditLog('Update an user', {
+                auditLog('Updated an user', {
                     user: Meteor.user(),
-                    type: 'update',
+                    type: 'updated',
                     resId: user._id,
                     operation: 'user-updated',
                     after: { user },
                     before: { user: userBefore },
+                    resType: 'user',
                 });
                 Meteor.users.update(
                     { _id: user._id },
@@ -123,12 +125,13 @@ if (Meteor.isServer) {
             const { failSilently } = options;
             try {
                 const userBefore = Meteor.users.findOne({ _id: userId });
-                auditLog('Delete an user', {
+                auditLog('Deleted an user', {
                     user: Meteor.user(),
-                    type: 'delete',
+                    type: 'deleted',
                     resId: userId,
                     operation: 'user-deleted',
                     before: { user: userBefore },
+                    resType: 'user',
                 });
                 Meteor.users.remove({ _id: userId });
             } catch (e) {
@@ -159,12 +162,13 @@ if (Meteor.isServer) {
                     }],
                 });
 
-                auditLog('Delete an user by email matching', {
+                auditLog('Deleted an user by email matching', {
                     user: Meteor.user(),
-                    type: 'delete',
+                    type: 'deleted',
                     operation: 'user-deleted',
                     before: { user: userBefore },
                     after: { user: userAfter },
+                    resType: 'user',
                 });
                 return result;
             } catch (e) {
@@ -181,13 +185,14 @@ if (Meteor.isServer) {
                 const userBefore = Meteor.users.findOne({ _id: userId });
                 const result = Promise.await(Accounts.setPassword(userId, newPassword));
                 const userAfter = Meteor.users.findOne({ _id: userId });
-                auditLog('Change user password', {
+                auditLog('Changed user password', {
                     user: Meteor.user(),
-                    type: 'update',
+                    type: 'updated',
                     operation: 'user-updated',
                     resId: userId,
                     before: { user: userBefore },
                     after: { user: userAfter },
+                    resType: 'user',
                 });
                 return result;
             } catch (e) {

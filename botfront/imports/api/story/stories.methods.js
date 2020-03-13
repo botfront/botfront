@@ -21,14 +21,18 @@ Meteor.methods({
                     events: aggregateEvents(s),
                 })));
         }
-        auditLogIfOnServer('Story create', {
+        const result = Stories.insert({ ...story, events: aggregateEvents(story) });
+        const after = Stories.findOne({ name: story.name });
+        auditLogIfOnServer('Story created', {
             user: Meteor.user(),
-            type: 'create',
+            type: 'created',
+            resId: after._id,
             projectId: story.projectId,
             operation: 'stories.created',
             after: { story },
+            resType: 'story',
         });
-        return Stories.insert({ ...story, events: aggregateEvents(story) });
+        return result;
     },
 
     async 'stories.update'(story, projectId, options = {}) {
@@ -64,14 +68,15 @@ Meteor.methods({
             const removedEvents = (oldEvents || []).filter(event => event.match(/^utter_/) && !newEvents.includes(event));
             deleteResponsesRemovedFromStories(removedEvents, projectId);
         }
-        auditLogIfOnServer('Story update', {
+        auditLogIfOnServer('Story updated', {
             resId: story._id,
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             projectId,
             operation: 'stories.updated',
             after: { story },
             before: { story: originStory },
+            resType: 'story',
         });
         return result;
     },
@@ -82,13 +87,14 @@ Meteor.methods({
         check(projectId, String);
         const result = await Stories.remove(story);
         deleteResponsesRemovedFromStories(story.events, projectId);
-        auditLogIfOnServer('Story delete', {
+        auditLogIfOnServer('Story deleted', {
             resId: story._id,
             user: Meteor.user(),
-            type: 'delete',
+            type: 'deleted',
             operation: 'stories.deleted',
             projectId,
             before: { story },
+            resType: 'story',
         });
         return result;
     },
@@ -101,13 +107,14 @@ Meteor.methods({
 
         const storyBefore = Stories.findOne({ _id: destinationStory });
         const checkpointsBefore = storyBefore.checkpoints || [];
-        auditLogIfOnServer('Story add checkpoint', {
+        auditLogIfOnServer('Story added checkpoint', {
             resId: destinationStory,
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             operation: 'stories.updated',
             before: { story: storyBefore },
             after: { story: { ...storyBefore, checkpoints: [...checkpointsBefore, branchPath] } },
+            resType: 'story',
         });
         return Stories.update(
             { _id: destinationStory },
@@ -126,14 +133,14 @@ Meteor.methods({
             { $pullAll: { checkpoints: [branchPath] } },
         );
         const storyAfter = Stories.findOne({ _id: destinationStory });
-        auditLogIfOnServer('Story remove checkpoint', {
+        auditLogIfOnServer('Story removed checkpoint', {
             resId: destinationStory,
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             operation: 'stories.updated',
             after: { story: storyAfter },
             before: { story: storyBefore },
-
+            resType: 'story',
         });
         return result;
     },
@@ -147,15 +154,15 @@ Meteor.methods({
         update.rules = story.rules.map(rule => (
             { ...rule, payload: `/trigger_${storyId}` }
         ));
-        auditLogIfOnServer('Story update trigger rules', {
+        auditLogIfOnServer('Story updated trigger rules', {
             resId: storyId,
             user: Meteor.user(),
             projectId,
-            type: 'update',
+            type: 'updated',
             operation: 'stories.updated',
             after: { story },
             before: { story: storyBefore },
-
+            resType: 'story',
         });
         Stories.update(
             { projectId, _id: storyId },
@@ -167,14 +174,15 @@ Meteor.methods({
         check(projectId, String);
         check(storyId, String);
         const storyBefore = Stories.findOne({ projectId, _id: storyId });
-        auditLogIfOnServer('Story delete trigger rules', {
+        auditLogIfOnServer('Story deleted trigger rules', {
             resId: storyId,
             user: Meteor.user(),
-            type: 'update',
+            type: 'updated',
             projectId,
             operation: 'stories.updated',
             before: { story: storyBefore },
             after: { story: { ...storyBefore, rules: [] } },
+            resType: 'story',
         });
         Stories.update(
             { projectId, _id: storyId },

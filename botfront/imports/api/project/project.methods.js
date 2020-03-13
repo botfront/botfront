@@ -78,13 +78,13 @@ if (Meteor.isServer) {
                 createIntroStoryGroup(_id);
                 createDefaultStoryGroup(_id);
                 await createInstance({ _id, ...item });
-                auditLog('Create project', {
+                auditLog('Created project', {
                     user: Meteor.user(),
-                    after: { item },
                     resId: _id,
-                    type: 'create',
+                    type: 'created',
                     operation: 'project-created',
                     after: { project: item },
+                    resType: 'project',
                 });
                 return _id;
             } catch (e) {
@@ -100,14 +100,15 @@ if (Meteor.isServer) {
                 // eslint-disable-next-line no-param-reassign
                 const projectBefore = Projects.findOne({ _id: item._id });
                 delete item.createdAt;
-                auditLog('Update project', {
+                auditLog('Updated project', {
                     user: Meteor.user(),
                     resId: item._id,
-                    type: 'update',
+                    type: 'updated',
                     projectId: item._id,
                     operation: 'project-updated',
                     before: { project: projectBefore },
                     after: { project: item },
+                    resType: 'project',
                 });
                 return Projects.update({ _id: item._id }, { $set: item });
             } catch (e) {
@@ -138,12 +139,13 @@ if (Meteor.isServer) {
                 // Delete project related permissions for users (note: the role package does not provide
                 const projectUsers = Meteor.users.find({ [`roles.${project._id}`]: { $exists: true } }, { fields: { roles: 1 } }).fetch();
                 projectUsers.forEach(u => Meteor.users.update({ _id: u._id }, { $unset: { [`roles.${project._id}`]: '' } })); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
-                auditLog('Delete project, all related data has been deleted', {
+                auditLog('Deleted project, all related data has been deleted', {
                     user: Meteor.user(),
                     resId: projectId,
-                    type: 'delete',
+                    type: 'deleted',
                     operation: 'project-deleted',
                     before: { projectBefore },
+                    resType: 'project',
                 });
                 await BotResponses.remove({ projectId });
             } catch (e) {
@@ -158,14 +160,15 @@ if (Meteor.isServer) {
                 const projectBefore = Projects.findOne({ _id: projectId });
                 const result = Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
                 const projectAfter = Projects.findOne({ _id: projectId });
-                auditLog('Mark trainning as started', {
+                auditLog('Marked trainning as started', {
                     user: Meteor.user(),
                     resId: projectId,
                     projectId,
-                    type: 'update',
+                    type: 'updated',
                     operation: 'project-updated',
                     before: { project: projectBefore },
                     after: { project: projectAfter },
+                    resType: 'project',
                 });
                 return result;
             } catch (e) {
@@ -187,14 +190,15 @@ if (Meteor.isServer) {
                 const projectBefore = Projects.findOne({ _id: projectId });
                 const result = Projects.update({ _id: projectId }, { $set: set });
                 const projectAfter = Projects.findOne({ _id: projectId });
-                auditLog('Mark trainning as stopped', {
+                auditLog('Marked trainning as stopped', {
                     user: Meteor.user(),
                     resId: projectId,
-                    type: 'update',
+                    type: 'updated',
                     projectId,
                     operation: 'project-updated',
                     before: { projectBefore },
                     after: { projectAfter },
+                    resType: 'project',
                 });
                 return result;
             } catch (e) {
