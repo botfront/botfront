@@ -13,9 +13,10 @@ export default class EmbeddedTree extends Tree {
         const draggables = [...treeContainer.querySelectorAll('[data-react-beautiful-dnd-draggable]')];
         const draggedItem = draggables.find(elem => elem.style.position === 'fixed');
         if (!draggedItem) return;
-        const { top: modalTop, left: modalLeft } = treeContainer.getBoundingClientRect();
-        draggedItem.style.top = `${parseInt(draggedItem.style.top, 10) - modalTop}px`;
-        draggedItem.style.left = `${parseInt(draggedItem.style.left, 10) - modalLeft}px`;
+        const { top, left: offsetLeft } = treeContainer.getBoundingClientRect();
+        const offsetTop = top - treeContainer.scrollTop;
+        draggedItem.style.top = `${parseInt(draggedItem.style.top, 10) - offsetTop}px`;
+        draggedItem.style.left = `${parseInt(draggedItem.style.left, 10) - offsetLeft}px`;
     };
 
     render() {
