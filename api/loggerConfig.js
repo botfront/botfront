@@ -32,10 +32,10 @@ const customFormat = winston.format.printf((arg) => {
     const {timestamp, level, message, meta} = arg
     const cleanedMeta = meta
     if (checkBodyLength(cleanedMeta, 'res')){
-        cleanedMeta.res.body = 'Body is too large.'
+        cleanedMeta.res.body = 'Body is too large to display in logs.'
     }
     if (checkBodyLength(cleanedMeta, 'req')){
-        cleanedMeta.req.body = 'Body is too large.'
+        cleanedMeta.req.body = 'Body is too large to display in logs.'
     }
     return `${timestamp} [${level}]: ${message}  res: ${JSON.stringify(cleanedMeta.res)}  req: ${JSON.stringify(cleanedMeta.req)} `
 });
