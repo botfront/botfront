@@ -184,8 +184,7 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
 
 Cypress.Commands.add('dataCy', (dataCySelector, content = null) => {
     if (!content) return cy.get(`[data-cy=${dataCySelector}]`);
-    return cy.get(`[data-cy=${dataCySelector}]`).contains(content)
-        .parents(`[data-cy=${dataCySelector}]`).first();
+    return cy.contains(content).parents(`[data-cy=${dataCySelector}]`).first();
 });
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
