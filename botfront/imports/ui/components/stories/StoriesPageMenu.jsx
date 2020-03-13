@@ -11,6 +11,7 @@ import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import TrainButton from '../utils/TrainButton';
 import { PageMenu } from '../utils/Utils';
 import LanguageDropdown from '../common/LanguageDropdown';
+import SearchBar from './search/SearchBar';
 
 import { ProjectContext } from '../../layouts/context';
 
@@ -83,6 +84,9 @@ export default function StoriesPageMenu() {
                             )}
                         />
                     )}
+                </Menu.Item>
+                <Menu.Item>
+                    <SearchBar />
                 </Menu.Item>
                 <Menu.Item>
                     <TrainButton project={project} instance={instance} projectId={projectId} />

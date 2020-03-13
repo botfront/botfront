@@ -1,0 +1,23 @@
+.ui.search.story-search-bar {
+    input.prompt {
+        border-radius: .28571429rem;
+        border-style: none;
+        visibility: hidden;
+        &:focus {
+            border-style: solid;
+            visibility: visible;
+        }
+    }
+    &:hover {
+        input.prompt {
+            border-style: solid;
+            visibility: visible;
+        }
+    }
+    &.has-text{
+        input.prompt {
+            border-style: solid;
+            visibility: visible;
+        }
+    }
+}

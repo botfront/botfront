@@ -24,7 +24,7 @@ export const indexStory = (storyToIndex, options = {}) => {
         ...userUtterances.map(({ name, entities }) => {
             const utteranceIndex = [name];
             entities.forEach(entity => utteranceIndex.push(entity));
-            return utteranceIndex.join(' ');
+            return utteranceIndex;
         }),
         ...botResponses,
         ...actions,
