@@ -20,7 +20,7 @@ describe('NLU Intent warning message displays', function() {
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('nlu-menu-training-data').click();
         // check warning message exists
-        cy.wait(200); // wait for the ui to update
+        cy.wait(300); // wait for the ui to update
         cy.contains('You need at least two distinct intents to train NLU').should('exist');
 
         // create first intent
@@ -44,11 +44,12 @@ describe('NLU Intent warning message displays', function() {
 
         // returns to the example tab
         cy.contains('Examples').click();
-        cy.wait(200); // wait for the ui to update
+        cy.wait(300); // wait for the ui to update
         cy.contains('You need at least two distinct intents to train NLU').should('not.exist');
         
         // delete example
         cy.dataCy('icon-gem').first().click(); // unmark canonical on the first example so it can be deleted
+        cy.wait(300); // wait for the ui to update
         cy.get('.black.gem').should('have.length', 1);
         cy.dataCy('canonical-spinner').should('not.exist', 1);
         cy.contains('hello')
@@ -65,7 +66,7 @@ describe('NLU Intent warning message displays', function() {
             .first()
             .click({ force: true });
         cy.dataCy('intent-label').should('have.length', 2);
-        cy.wait(200); // wait for the ui to update
+        cy.wait(300); // wait for the ui to update
         // check warning message exists
         cy.contains('You need at least two distinct intents to train NLU').should('exist');
     });
