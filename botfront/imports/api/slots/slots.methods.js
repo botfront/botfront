@@ -35,6 +35,7 @@ Meteor.methods({
                 type: 'create',
                 operation: 'slots.created',
                 after: { slot },
+                resType: 'slots',
             });
             return Slots.insert(slot);
         } catch (e) {
@@ -54,10 +55,11 @@ Meteor.methods({
             resId: slot._id,
             user: Meteor.user(),
             type: 'update',
-            operation: 'slot.updated',
+            operation: 'slots.updated',
             projectId,
             after: { slots },
             before: { slots: slotsBefore },
+            resType: 'slots',
         });
         slots.forEach(({ name, ...rest }) => {
             try {
@@ -79,10 +81,11 @@ Meteor.methods({
                 resId: slot._id,
                 user: Meteor.user(),
                 type: 'update',
-                operation: 'slot.updated',
+                operation: 'slots.updated',
                 projectId,
                 after: { slot },
                 before: { slot: slotBefore },
+                resType: 'slots',
             });
             return Slots.update({ _id: slot._id }, { $set: slot });
         } catch (e) {
@@ -100,8 +103,9 @@ Meteor.methods({
             user: Meteor.user(),
             projectId,
             type: 'update',
-            operation: 'stories.updated',
+            operation: 'slots.updated',
             before: { slot },
+            resType: 'slots',
         });
         return Slots.remove(slot);
     },

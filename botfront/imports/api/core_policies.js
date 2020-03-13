@@ -75,6 +75,7 @@ if (Meteor.isServer) {
                     resId: policies.projectId,
                     before: { policies: policyBefore.policies },
                     after: { policies: policies.policies },
+                    resType: 'policies',
                 });
                 return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });
             } catch (e) {

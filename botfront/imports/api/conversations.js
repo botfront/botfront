@@ -83,6 +83,7 @@ if (Meteor.isServer) {
                 resId: senderId,
                 before: { status: conversationStatusBefore.status },
                 after: { status },
+                resType: 'conversation',
             });
             return Conversations.update({ _id: senderId }, { $set: { status } });
         },
@@ -98,6 +99,7 @@ if (Meteor.isServer) {
                 operation: 'conversation-deleted',
                 resId: senderId,
                 before: { conversationBefore },
+                resType: 'conversation',
             });
             return Conversations.remove({ _id: senderId });
         },

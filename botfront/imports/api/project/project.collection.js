@@ -31,6 +31,7 @@ export const createProject = (item) => {
         type: 'create',
         operation: 'project-created',
         after: { project: item },
+        resType: 'project',
     });
     return Projects.insert({ ...item, defaultDomain: { content: getDefaultDefaultDomain() } });
 };

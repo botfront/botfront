@@ -27,6 +27,7 @@ Meteor.methods({
             projectId: story.projectId,
             operation: 'stories.created',
             after: { story },
+            resType: 'story',
         });
         return Stories.insert({ ...story, events: aggregateEvents(story) });
     },
@@ -72,6 +73,7 @@ Meteor.methods({
             operation: 'stories.updated',
             after: { story },
             before: { story: originStory },
+            resType: 'story',
         });
         return result;
     },
@@ -89,6 +91,7 @@ Meteor.methods({
             operation: 'stories.deleted',
             projectId,
             before: { story },
+            resType: 'story',
         });
         return result;
     },
@@ -108,6 +111,7 @@ Meteor.methods({
             operation: 'stories.updated',
             before: { story: storyBefore },
             after: { story: { ...storyBefore, checkpoints: [...checkpointsBefore, branchPath] } },
+            resType: 'story',
         });
         return Stories.update(
             { _id: destinationStory },
@@ -133,7 +137,7 @@ Meteor.methods({
             operation: 'stories.updated',
             after: { story: storyAfter },
             before: { story: storyBefore },
-
+            resType: 'story',
         });
         return result;
     },
@@ -155,7 +159,7 @@ Meteor.methods({
             operation: 'stories.updated',
             after: { story },
             before: { story: storyBefore },
-
+            resType: 'story',
         });
         Stories.update(
             { projectId, _id: storyId },
@@ -175,6 +179,7 @@ Meteor.methods({
             operation: 'stories.updated',
             before: { story: storyBefore },
             after: { story: { ...storyBefore, rules: [] } },
+            resType: 'story',
         });
         Stories.update(
             { projectId, _id: storyId },

@@ -43,6 +43,7 @@ export default {
                 resId: args.id,
                 after: { conversation: conversationAfter },
                 before: { conversation: conversationBefore },
+                resType: 'conversation',
             });
             return { success: response.ok === 1 };
         },
@@ -50,13 +51,14 @@ export default {
             checkIfCan('incoming:w', args.projectId, context.user._id);
             const conversationBefore = await getConversation(args.projectId, args.id);
             const response = await deleteConversation(args.id);
-            auditLog('delete conversation ', {
+            auditLog('Deleted conversation ', {
                 userId: context.user,
                 type: 'delete',
                 operation: 'conversation-deleted',
                 projectId: args.projectId,
                 resId: args.id,
                 before: { conversation: conversationBefore },
+                resType: 'conversation',
             });
             return { success: response.ok === 1 };
         },

@@ -204,6 +204,7 @@ if (Meteor.isServer) {
                 type: 'update',
                 projectId,
                 operation: 'rasa-execute',
+                resType: 'rasa',
             });
             return data;
         },
@@ -278,6 +279,7 @@ if (Meteor.isServer) {
                     projectId,
                     operation: 'nlu-model-execute',
                     resId: projectId,
+                    resType: 'nlu-model',
                 });
                 return payload;
             } catch (e) {
@@ -292,8 +294,13 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(instance, Object);
-            auditLog('Train project', {
-                user: Meteor.user(), projectId, type: 'execute', operation: 'nlu-model-trained', resId: projectId,
+            auditLog('Trained project', {
+                user: Meteor.user(),
+                projectId,
+                type: 'execute',
+                operation: 'nlu-model-trained',
+                resId: projectId,
+                resType: 'nlu-model',
             });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
@@ -362,6 +369,7 @@ if (Meteor.isServer) {
                 type: 'execute',
                 operation: 'nlu-model-evaluate',
                 resId: projectId,
+                resType: 'nlu-model',
             });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,

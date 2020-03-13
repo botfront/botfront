@@ -88,6 +88,7 @@ Meteor.methods({
             type: 'delete',
             operation: 'story-group-deleted',
             before: { storyGroup },
+            resType: 'story-group',
         });
         const result = await StoryGroups.remove(storyGroup) && await Meteor.callWithPromise('storyGroups.deleteChildStories', storyGroup._id, storyGroup.projectId);
         return result;
@@ -104,6 +105,7 @@ Meteor.methods({
                 type: 'create',
                 operation: 'story-group-created',
                 after: { storyGroup },
+                resType: 'story-group',
             });
             return StoryGroups.insert(storyGroup);
         } catch (e) {
@@ -124,6 +126,7 @@ Meteor.methods({
                 operation: 'story-group-updated',
                 after: { storyGroup },
                 before: { storyGroup: storyGroupBefore },
+                resType: 'story-group',
             });
             return StoryGroups.update(
                 { _id: storyGroup._id },
@@ -154,6 +157,7 @@ Meteor.methods({
             operation: 'story-group-updated',
             after: { storyGroup: storyGroupAfter },
             before: { storyGroup: storyGroupBefore },
+            resType: 'story-group',
         });
 
         return result;
@@ -181,6 +185,7 @@ if (Meteor.isServer) {
                 operation: 'stories-delete',
                 resId: storyGroupId,
                 before: { stories: storiesBefore },
+                resType: 'story-group',
             });
             return result;
         },

@@ -93,10 +93,11 @@ if (Meteor.isServer) {
                     user: Meteor.user(),
                     projectId: credentials.projectId,
                     type: 'update',
-                    operation: 'credentials-updated',
+                    operation: 'project-updated',
                     resId: credentials._id,
                     after: { credentials },
                     before: { credentials: credentialsBefore },
+                    resType: 'project',
                 });
                 return Credentials.upsert(
                     { projectId: credentials.projectId, _id: credentials._id },

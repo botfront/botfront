@@ -41,6 +41,7 @@ if (Meteor.isServer) {
                 resId: item.projectId,
                 before: { instance: instanceBefore },
                 after: { instance: item },
+                resType: 'project-settings',
             });
             return Instances.update({ _id: item._id }, { $set: item });
         },

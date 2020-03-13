@@ -84,6 +84,7 @@ if (Meteor.isServer) {
                     type: 'create',
                     operation: 'project-created',
                     after: { project: item },
+                    resType: 'project',
                 });
                 return _id;
             } catch (e) {
@@ -107,6 +108,7 @@ if (Meteor.isServer) {
                     operation: 'project-updated',
                     before: { project: projectBefore },
                     after: { project: item },
+                    resType: 'project',
                 });
                 return Projects.update({ _id: item._id }, { $set: item });
             } catch (e) {
@@ -143,6 +145,7 @@ if (Meteor.isServer) {
                     type: 'delete',
                     operation: 'project-deleted',
                     before: { projectBefore },
+                    resType: 'project',
                 });
                 await BotResponses.remove({ projectId });
             } catch (e) {
@@ -165,6 +168,7 @@ if (Meteor.isServer) {
                     operation: 'project-updated',
                     before: { project: projectBefore },
                     after: { project: projectAfter },
+                    resType: 'project',
                 });
                 return result;
             } catch (e) {
@@ -194,6 +198,7 @@ if (Meteor.isServer) {
                     operation: 'project-updated',
                     before: { projectBefore },
                     after: { projectAfter },
+                    resType: 'project',
                 });
                 return result;
             } catch (e) {

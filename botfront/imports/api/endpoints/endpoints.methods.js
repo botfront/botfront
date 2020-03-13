@@ -50,6 +50,7 @@ if (Meteor.isServer) {
                 resId: endpoints.projectId,
                 after: { endpoints },
                 before: { endpoints: endpointsBefore },
+                resType: 'project',
             });
             return saveEndpoints(endpoints);
         },

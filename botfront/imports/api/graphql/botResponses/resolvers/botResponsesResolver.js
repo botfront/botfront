@@ -69,6 +69,7 @@ export default {
                 operation: 'response-deleted',
                 resId: args.key,
                 before: { response: botResponseDeleted },
+                resType: 'response',
             });
             pubsub.publish(RESPONSE_DELETED, {
                 projectId: args.projectId,
@@ -85,7 +86,7 @@ export default {
                 args.response,
             );
            
-            auditLog('Updating response', {
+            auditLog('Updated response', {
                 user: auth.user,
                 type: 'update',
                 operation: 'response-updated',
@@ -93,6 +94,7 @@ export default {
                 resId: args._id,
                 before: { response: responseBefore },
                 after: { response: args.response },
+                resType: 'response',
             });
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
@@ -114,7 +116,7 @@ export default {
             const response = await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
 
-            auditLog('Upserting response', {
+            auditLog('Upserted response', {
                 user: auth.user,
                 type: 'update',
                 projectId: args.projectId,
@@ -122,6 +124,7 @@ export default {
                 resId: args.key,
                 before: { botResponse: responseBefore },
                 after: { botResponse: response },
+                resType: 'response',
             });
             pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
@@ -133,25 +136,27 @@ export default {
                 projectId: args.projectId,
                 botResponsesModified: response,
             });
-            auditLog('Creating response', {
+            auditLog('Created response', {
                 user: auth.user,
                 type: 'update',
                 projectId: args.projectId,
                 operation: 'response-created',
                 resId: args.response.key,
                 after: { response },
+                resType: 'response',
             });
             return { success: !!response.id };
         },
         async createResponses(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
-            auditLog('Creating responses', {
+            auditLog('Created responses', {
                 user: auth.user,
                 type: 'update',
                 projectId: args.projectId,
                 operation: 'response-created',
                 resId: args.responses.map(resp => resp.key),
                 after: { responses: args.responses },
+                resType: 'response',
             });
             const response = await createResponses(args.projectId, args.responses);
             return { success: !!response.id };
@@ -160,7 +165,7 @@ export default {
             checkIfCan('responses:w', args.projectId, auth.user._id);
             const responseBefore = await getBotResponse(args.projectId, args.key);
             const response = await deleteVariation(args);
-            auditLog('Deleting response variation', {
+            auditLog('Deleted response variation', {
                 user: auth.user,
                 type: 'update',
                 projectId: args.projectId,
@@ -168,6 +173,7 @@ export default {
                 resId: args.key,
                 after: { response },
                 before: { response: responseBefore },
+                resType: 'response',
             });
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,

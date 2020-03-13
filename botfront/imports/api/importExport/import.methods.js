@@ -44,6 +44,7 @@ if (Meteor.isServer) {
                 projectId,
                 operation: 'project-created',
                 resId: projectId,
+                resType: 'project',
             });
             return importRequest;
         },

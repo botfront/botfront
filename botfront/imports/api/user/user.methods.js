@@ -75,6 +75,7 @@ if (Meteor.isServer) {
                     operation: 'user-created',
                     after: { user },
                     resId: userId,
+                    resType: 'user',
                 });
                 return userId;
             } catch (e) {
@@ -98,6 +99,7 @@ if (Meteor.isServer) {
                     operation: 'user-updated',
                     after: { user },
                     before: { user: userBefore },
+                    resType: 'user',
                 });
                 Meteor.users.update(
                     { _id: user._id },
@@ -129,6 +131,7 @@ if (Meteor.isServer) {
                     resId: userId,
                     operation: 'user-deleted',
                     before: { user: userBefore },
+                    resType: 'user',
                 });
                 Meteor.users.remove({ _id: userId });
             } catch (e) {
@@ -165,6 +168,7 @@ if (Meteor.isServer) {
                     operation: 'user-deleted',
                     before: { user: userBefore },
                     after: { user: userAfter },
+                    resType: 'user',
                 });
                 return result;
             } catch (e) {
@@ -188,6 +192,7 @@ if (Meteor.isServer) {
                     resId: userId,
                     before: { user: userBefore },
                     after: { user: userAfter },
+                    resType: 'user',
                 });
                 return result;
             } catch (e) {
