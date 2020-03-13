@@ -56,7 +56,7 @@ const nativizeProject = function(projectId, projectName, backup) {
     if ('models' in nativizedBackup) {
         const modelMapping = {};
         nativizedBackup.models.forEach((m) =>
-            Object.assign(modelMapping, { [m._id]: uuidv4() })
+            Object.assign(modelMapping, { [m._id]: uuidv4() }),
         ); // generate mapping from old to new id
         nlu_models = nlu_models // apply mapping to nlu_models property of project
             .filter((id) => !Object.keys(modelMapping).includes(id))
@@ -82,14 +82,19 @@ const nativizeProject = function(projectId, projectName, backup) {
         const storyGroupMapping = {};
         const storyMapping = {};
         nativizedBackup.storyGroups.forEach((m) =>
-            Object.assign(storyGroupMapping, { [m._id]: uuidv4() })
+            Object.assign(storyGroupMapping, { [m._id]: uuidv4() }),
         );
         nativizedBackup.stories.forEach((m) =>
-            Object.assign(storyMapping, { [m._id]: uuidv4() })
+            Object.assign(storyMapping, { [m._id]: uuidv4() }),
         );
         nativizedBackup.storyGroups = nativizedBackup.storyGroups.map((sg) => ({
             ...sg,
             _id: storyGroupMapping[sg._id],
+            isExpanded: sg.isExpanded || !!sg.introStory,
+            children: sg.children
+                ? sg.children.map(id => storyMapping[id])
+                : nativizedBackup.stories.filter(s => s.storyGroupId === sg._id)
+                    .map(s => storyMapping[s._id]),
         })); // apply to storygroups
         nativizedBackup.stories = nativizedBackup.stories.map((s) => ({
             ...s,
@@ -102,15 +107,21 @@ const nativizeProject = function(projectId, projectName, backup) {
                 ]),
             }),
         })); // apply to stories
-    }
 
-    if ('stories' in nativizedBackup) {
         // At the top level of the story object, create an array of events in a story and its branches
         nativizedBackup.stories = nativizedBackup.stories.map(aggregateEvents);
+        
+        nativizedBackup.project = {
+            ...project,
+            storyGroups: project.storyGroups
+                ? project.storyGroups.map(sg => storyGroupMapping[sg])
+                : nativizedBackup.storyGroups.sort((a, b) => b.introStory - a.introStory)
+                    .map(({ _id }) => _id),
+        };
     }
 
     nativizedBackup.project = {
-        ...project,
+        ...nativizedBackup.project,
         _id: projectId,
         name: projectName,
         ...(nlu_models ? { nlu_models } : {}),

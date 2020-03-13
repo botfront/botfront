@@ -182,9 +182,12 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
 });
 
-Cypress.Commands.add('dataCy', (dataCySelector, content = null) => {
-    if (!content) return cy.get(`[data-cy=${dataCySelector}]`);
-    return cy.contains(content).parents(`[data-cy=${dataCySelector}]`).first();
+Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) => {
+    let result;
+    if (!content) result = cy.get(`[data-cy=${dataCySelector}]`);
+    else result = cy.get(`[data-cy=${dataCySelector}]:contains(${content})`);
+    if (!filter) return result;
+    return result.filter(filter);
 });
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));

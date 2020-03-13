@@ -1,16 +1,16 @@
 /* global cy Cypress:true */
-import { expect } from 'chai';
 
 const findGroupAndOpenIfClosed = (groupName, saveToAlias = 'alias') => {
     cy.dataCy('story-group-menu-item', groupName).should('exist')
         .findCy('toggle-expansion-story-group').as(saveToAlias)
         .then((item) => {
-            if (item.hasClass('right')) item.click({ force: true }).then(clicked => expect(clicked).to.have.class('down'));
-        });
+            if (item.hasClass('right')) cy.wrap(item).click({ force: true });
+        })
+        .should('have.class', 'down');
 };
 
 const findStoryAndSelect = (storyName, saveToAlias = 'alias') => {
-    cy.dataCy('story-group-menu-item', storyName).should('exist')
+    cy.dataCy('story-group-menu-item', storyName, '[type="story"]')
         .first().as(saveToAlias)
         .click();
 };

@@ -75,10 +75,7 @@ describe('Bot responses', function() {
     });
     it('should add a custom response in the visual story editor', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
+        cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
 
         cy.dataCy('single-story-editor').trigger('mouseover');
