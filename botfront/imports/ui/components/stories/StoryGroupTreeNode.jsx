@@ -9,7 +9,8 @@ function StoryGroupTreeNode(props) {
         snapshot: { combineTargetFor, isDragging },
         somethingIsMutating,
         activeStories,
-        handleSelectionChange,
+        handleMouseDownInMenu,
+        handleMouseEnterInMenu,
         setDeletionModalVisible,
         handleToggleExpansion,
         handleCollapse,
@@ -42,8 +43,6 @@ function StoryGroupTreeNode(props) {
         if (e.key === 'Escape') setRenamingModalPosition(null);
     };
 
-    const handleClickStory = ({ nativeEvent: { shiftKey } }) => handleSelectionChange({ shiftKey, item });
-
     const isLeaf = !item.canBearChildren;
     const { selected: isFocused } = item;
     const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
@@ -60,13 +59,11 @@ function StoryGroupTreeNode(props) {
     const handleProps = !somethingIsMutating
         ? {
             ...provided.dragHandleProps,
-            ...(item.isExpanded
-                ? {
-                    onMouseDown: (...args) => {
-                        handleCollapse(item.id);
-                        provided.dragHandleProps.onMouseDown(...args);
-                    },
-                } : {}),
+            onMouseDown: (e, ...args) => {
+                e.preventDefault(); e.stopPropagation();
+                if (item.isExpanded) handleCollapse(item.id);
+                provided.dragHandleProps.onMouseDown(e, ...args);
+            },
         }
         : {
             // otherwise beautiful-dnd throws
@@ -85,7 +82,10 @@ function StoryGroupTreeNode(props) {
         >
             <Menu.Item
                 active={activeStories.some(id => id === item.id) || isHoverTarget}
-                {...(isLeaf ? { onClick: handleClickStory } : {})}
+                {...(isLeaf ? {
+                    onMouseDown: ({ nativeEvent: { shiftKey } }) => handleMouseDownInMenu({ item, shiftKey }),
+                    onMouseEnter: () => handleMouseEnterInMenu({ item }),
+                } : {})}
             >
                 <div className='side-by-side narrow middle'>
                     <Icon
@@ -138,10 +138,8 @@ function StoryGroupTreeNode(props) {
                                     data-cy='focus-story-group'
                                     name='eye'
                                     {...(!somethingIsMutating ? {
-                                        onClick: (e) => {
-                                            e.stopPropagation();
-                                            handleToggleFocus(item.id);
-                                        },
+                                        onClick: () => handleToggleFocus(item.id),
+                                        onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
                                     } : {})}
                                 />
                                 <Icon
@@ -149,13 +147,11 @@ function StoryGroupTreeNode(props) {
                                     data-cy='add-story-in-story-group'
                                     name='plus'
                                     {...(!somethingIsMutating ? {
-                                        onClick: (e) => {
-                                            e.stopPropagation();
-                                            handleAddStory(
-                                                item.id,
-                                                `${item.title} (${item.children.length + 1})`,
-                                            );
-                                        },
+                                        onClick: () => handleAddStory(
+                                            item.id,
+                                            `${item.title} (${item.children.length + 1})`,
+                                        ),
+                                        onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
                                     } : {})}
                                 />
                             </>
@@ -165,10 +161,8 @@ function StoryGroupTreeNode(props) {
                             data-cy='delete-story-group'
                             name='trash'
                             {...(!somethingIsMutating ? {
-                                onClick: (e) => {
-                                    e.stopPropagation();
-                                    setDeletionModalVisible(item);
-                                },
+                                onClick: () => setDeletionModalVisible(item),
+                                onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
                             } : {})}
                         />
                     </div>
@@ -184,7 +178,8 @@ StoryGroupTreeNode.propTypes = {
     snapshot: PropTypes.object.isRequired,
     somethingIsMutating: PropTypes.bool.isRequired,
     activeStories: PropTypes.array.isRequired,
-    handleSelectionChange: PropTypes.func.isRequired,
+    handleMouseDownInMenu: PropTypes.func.isRequired,
+    handleMouseEnterInMenu: PropTypes.func.isRequired,
     setDeletionModalVisible: PropTypes.func.isRequired,
     handleToggleExpansion: PropTypes.func.isRequired,
     handleCollapse: PropTypes.func.isRequired,

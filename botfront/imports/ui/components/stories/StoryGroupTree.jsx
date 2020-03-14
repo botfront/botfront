@@ -22,6 +22,7 @@ export default function StoryGroupTree(props) {
         isStoryDeletable,
     } = props;
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
+    const [mouseDown, setMouseDown] = useState(false);
     const {
         project: { storyGroups: storyGroupOrder = [] },
     } = useContext(ProjectContext);
@@ -66,7 +67,7 @@ export default function StoryGroupTree(props) {
         handleAddStory,
     } = useStoryGroupTree(treeFromProps, activeStories);
     const menuRef = useRef();
-    const lastFocusedItem = useRef();
+    const lastFocusedItem = useRef(tree.items[activeStories[0]] || null);
     const draggingHandle = { current: document.getElementsByClassName('drag-handle dragging')[0] };
 
     const getSiblingsAndIndex = (story, inputTree) => {
@@ -98,6 +99,17 @@ export default function StoryGroupTree(props) {
     };
 
     const getTreeContainer = () => document.getElementById('storygroup-tree');
+
+    const handleMouseDownInMenu = ({ shiftKey, item }) => {
+        handleSelectionChange({ shiftKey, item });
+        if (shiftKey) return;
+        setMouseDown(true);
+    };
+
+    const handleMouseEnterInMenu = ({ item }) => {
+        if (!mouseDown) return;
+        handleSelectionChange({ shiftKey: true, item });
+    };
 
     const handleKeyDownInMenu = useCallback(
         (e) => {
@@ -140,13 +152,15 @@ export default function StoryGroupTree(props) {
     );
 
     useEventListener('keydown', handleKeyDownInMenu);
+    useEventListener('mouseup', () => setMouseDown(false));
 
     const renderItem = renderProps => (
         <StoryGroupTreeNode
             {...renderProps}
             somethingIsMutating={somethingIsMutating}
             activeStories={activeStories}
-            handleSelectionChange={handleSelectionChange}
+            handleMouseDownInMenu={handleMouseDownInMenu}
+            handleMouseEnterInMenu={handleMouseEnterInMenu}
             setDeletionModalVisible={setDeletionModalVisible}
             handleToggleExpansion={handleToggleExpansion}
             handleCollapse={handleCollapse}
