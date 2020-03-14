@@ -137,6 +137,7 @@ class StoryGroupNavigation extends React.Component {
                     onBlur={() => this.submitTitleInput()}
                     fluid
                     data-cy='add-item-input'
+                    className='navigation'
                 />
             );
     }
