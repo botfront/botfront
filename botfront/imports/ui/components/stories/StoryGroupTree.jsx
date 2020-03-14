@@ -50,7 +50,7 @@ export default function StoryGroupTree(props) {
             };
         });
         return newTree;
-    }, [storyGroups.length, storyGroupOrder.length]);
+    }, [storyGroups, stories, storyGroupOrder]);
 
     const {
         tree,
