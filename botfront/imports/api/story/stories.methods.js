@@ -10,21 +10,22 @@ import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
 Meteor.methods({
-    'stories.insert'(story) {
+    async 'stories.insert'(story) {
         check(story, Match.OneOf(Object, [Object]));
         let result;
         const storyGroups = {};
         if (Array.isArray(story)) {
             const stories = story.map((s) => {
-                const id = s._id ? {} : { _id: uuidv4() };
-                storyGroups[s.storyGroupId] = [...(storyGroups[s.storyGroupId] || []), id];
+                const _id = s._id || uuidv4();
+                storyGroups[s.storyGroupId] = [...(storyGroups[s.storyGroupId] || []), _id];
                 return {
+                    _id,
                     ...s,
-                    ...id,
                     events: aggregateEvents(s),
                 };
             });
-            result = Stories.rawCollection().insertMany(stories).insertedIds;
+            result = await Stories.rawCollection().insertMany(stories);
+            result = Object.values(result.insertedIds);
         } else {
             result = [Stories.insert({ ...story, events: aggregateEvents(story) })];
             storyGroups[story.storyGroupId] = result;
