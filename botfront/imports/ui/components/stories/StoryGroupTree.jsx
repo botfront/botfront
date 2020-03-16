@@ -70,11 +70,7 @@ export default function StoryGroupTree(props) {
     } = useStoryGroupTree(treeFromProps, activeStories);
     const menuRef = useRef();
     const lastFocusedItem = useRef(tree.items[activeStories[0]] || null);
-    const draggingHandle = { current: null };
-
-    useEffect(() => {
-        draggingHandle.current = document.getElementsByClassName('drag-handle dragging')[0] || null;
-    }, [somethingIsDragging]);
+    const draggingHandle = { current: document.getElementsByClassName('drag-handle dragging')[0] || null };
 
     const getSiblingsAndIndex = (story, inputTree) => {
         const { id, parentId } = story;
@@ -205,7 +201,7 @@ export default function StoryGroupTree(props) {
                     : {})}
                 {...(deletionIsPossible ? {} : { confirmButton: null })}
             />
-            {draggingHandle.current && draggingHandle.current.parentNode.parentNode.className.includes('active') && activeStories.length > 1 && (
+            {somethingIsDragging && draggingHandle.current.parentNode.parentNode.className.includes('active') && activeStories.length > 1 && (
                 <Portal
                     open
                     mountNode={draggingHandle.current}
@@ -217,7 +213,7 @@ export default function StoryGroupTree(props) {
                 pointing
                 secondary
                 vertical
-                className={draggingHandle.current ? 'dragging' : ''}
+                className={somethingIsDragging ? 'dragging' : ''}
             >
                 <EmbeddedTree
                     id='storygroup-tree'
