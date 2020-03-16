@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.3-ee.3](https://github.com/botfront/botfront/compare/v0.20.3-ee.2...v0.20.3-ee.3) (2020-03-16)
+
+
+### Bug Fixes
+
+* instance saving ([53ac9bf](https://github.com/botfront/botfront/commit/53ac9bf9d288d33ecf678b6e34a2811277accde5))
+* not global admins cant add global admins ([2800dec](https://github.com/botfront/botfront/commit/2800dec20c267326a5a09a132d08804cf1d2c96b))
+
 ### [0.20.3-ee.2](https://github.com/botfront/botfront/compare/v0.20.3-ee.1...v0.20.3-ee.2) (2020-03-12)
 
 ### [0.20.3-ee.1](https://github.com/botfront/botfront/compare/v0.20.3-ee.0...v0.20.3-ee.1) (2020-03-12)
