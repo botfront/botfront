@@ -194,6 +194,7 @@ describe('stories', function() {
         cy.browseToStory('Get started');
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('branch-label').should('have.length', 4);
         cy.linkStory('Get started', 'Farewells');
         cy.dataCy('branch-label')
             .find('.trash.small.disabled');
