@@ -1,11 +1,13 @@
 import { Modal, Container } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
-    useState, useContext, useMemo, useCallback, useReducer, useEffect,
+    useState, useContext, useMemo, useCallback, useEffect,
 } from 'react';
 import { withRouter } from 'react-router';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
+import { setStoriesCurrent } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
 import { ProjectContext } from '../../layouts/context';
@@ -48,6 +50,8 @@ function Stories(props) {
         stories,
         ready,
         router,
+        activeStories,
+        setActiveStories: doSetActiveStories,
     } = props;
 
     const { slots } = useContext(ProjectContext);
@@ -64,16 +68,16 @@ function Stories(props) {
         return queriedIds;
     };
 
-    const [activeStories, setActiveStories] = useReducer((_, newActiveStories) => {
+    const setActiveStories = (newActiveStories) => {
         if (!getQueryParams().every(id => newActiveStories.includes(id))
         || !newActiveStories.every(id => getQueryParams().includes(id))) {
             const { location: { pathname } } = router;
             router.replace({ pathname, query: { 'ids[]': newActiveStories } });
         }
-        return newActiveStories;
-    }, []);
+        doSetActiveStories(newActiveStories);
+    };
 
-    useEffect(() => setActiveStories(getQueryParams()), []);
+    useEffect(() => setActiveStories(getQueryParams().length ? getQueryParams() : activeStories), []);
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -183,6 +187,8 @@ Stories.propTypes = {
     storyGroups: PropTypes.array.isRequired,
     stories: PropTypes.array.isRequired,
     router: PropTypes.object.isRequired,
+    activeStories: PropTypes.array.isRequired,
+    setActiveStories: PropTypes.func.isRequired,
 };
 
 Stories.defaultProps = {
@@ -205,4 +211,8 @@ const StoriesWithTracker = withRouter(withTracker((props) => {
     };
 })(Stories));
 
-export default StoriesWithTracker;
+const mapStateToProps = state => ({
+    activeStories: state.stories.get('storiesCurrent').toJS(),
+});
+
+export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(StoriesWithTracker);
