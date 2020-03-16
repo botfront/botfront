@@ -338,7 +338,7 @@ const StoryEditorContainer = ({
             setLastMdType,
         );
         setExceptions(newExceptions);
-    }, [story, lastMdType]);
+    }, [story, lastMdType, slots]);
 
     // new Level is true if the new branches create a new depth level of branches.
     const handleCreateBranch = (path, branches = [], num = 1, newLevel = true) => {

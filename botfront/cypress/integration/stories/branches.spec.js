@@ -163,7 +163,6 @@ describe('branches', function() {
     });
 
     it('should save branch title on blur and Enter, discard on esc', function() {
-        cy.visit('/project/bf/stories');
         cy.dataCy('create-branch').click({ force: true });
 
         // test Enter

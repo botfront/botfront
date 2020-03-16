@@ -43,7 +43,7 @@ describe('Bot responses', function() {
         cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
 
         cy.visit('/project/bf/stories');
-        cy.deleteStoryOrGroup(STORY_NAME);
+        cy.deleteStoryOrGroup(STORY_NAME, 'story');
         
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('no-responses').should('exist');
@@ -55,7 +55,7 @@ describe('Bot responses', function() {
         cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
         
         cy.visit('/project/bf/stories');
-        cy.deleteStoryOrGroup(STORY_NAME);
+        cy.deleteStoryOrGroup(STORY_NAME, 'story');
 
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('no-responses').should('exist');

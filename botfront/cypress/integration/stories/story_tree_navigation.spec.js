@@ -13,7 +13,7 @@ describe('story tree navigation', function() {
     it('should be possible to delete a story group', function() {
         cy.visit('/project/bf/stories');
         cy.get('#storygroup-tree').should('contain.text', storyGroupOne);
-        cy.deleteStoryOrGroup(storyGroupOne);
+        cy.deleteStoryOrGroup(storyGroupOne, 'story-group');
         cy.get('#storygroup-tree').should('not.contain.text', storyGroupOne);
     });
 
@@ -21,16 +21,16 @@ describe('story tree navigation', function() {
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.linkStory('Groupo (1)', 'Greetings');
-        cy.deleteStoryOrGroup('Groupo', false); // origin group
+        cy.deleteStoryOrGroup('Groupo', 'story-group', false); // origin group
         cy.get('.modal').should('contain.text', 'contains links');
         cy.escapeModal();
-        cy.deleteStoryOrGroup('Groupo (1)', false); // origin story
+        cy.deleteStoryOrGroup('Groupo (1)', 'story', false); // origin story
         cy.get('.modal').should('contain.text', 'linked to another story');
         cy.escapeModal();
-        cy.deleteStoryOrGroup(storyGroupOne, false); // destination group
+        cy.deleteStoryOrGroup(storyGroupOne, 'story-group', false); // destination group
         cy.get('.modal').should('contain.text', 'contains links');
         cy.escapeModal();
-        cy.deleteStoryOrGroup('Greetings', false); // destination story
+        cy.deleteStoryOrGroup('Greetings', 'story', false); // destination story
         cy.get('.modal').should('contain.text', 'linked to another story');
         cy.escapeModal();
     });
@@ -56,5 +56,9 @@ describe('story tree navigation', function() {
             .click({ force: true });
         cy.dataCy('train-button').trigger('mouseover');
         cy.contains('Train NLU and stories from 1 focused story group.').should('not.exist');
+    });
+
+    it('should remember selected stories', () => {
+        
     });
 });

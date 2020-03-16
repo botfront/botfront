@@ -17,7 +17,7 @@ const findStoryAndSelect = (storyName, saveToAlias = 'alias') => {
 
 const renameStoryOrGroup = (alias, newName) => {
     cy.get(`@${alias}`).find('.item-name').dblclick({ force: true });
-    cy.get(`@${alias}`).find('input').type(`{selectAll}${newName}{enter}`);
+    cy.get(`@${alias}`).find('input').type(`{selectAll}{backSpace}{selectAll}{backSpace}${newName}{enter}`);
 };
 
 Cypress.Commands.add('browseToStory', (storyName = 'Groupo (1)', groupName) => {
@@ -60,13 +60,15 @@ Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = 
     if (storyName) renameStoryOrGroup('new-story', storyName);
 });
 
-Cypress.Commands.add('deleteStoryOrGroup', (name = 'Groupo', confirm = true) => {
-    cy.dataCy('story-group-menu-item', name).should('exist')
+Cypress.Commands.add('deleteStoryOrGroup', (name = 'Groupo', type = null, confirm = true) => {
+    const filter = type ? `[type="${type}"]` : null;
+    cy.dataCy('story-group-menu-item', name, filter).should('exist')
         .findCy('delete-story-group').click({ force: true });
     if (confirm) cy.get('.modal').find('.primary.button').click({ force: true });
 });
 
-Cypress.Commands.add('renameStoryOrGroup', (name = 'Groupo', newName = 'Groupa') => {
-    cy.dataCy('story-group-menu-item', name).should('exist').as('found-item');
+Cypress.Commands.add('renameStoryOrGroup', (name = 'Groupo', newName = 'Groupa', type = null) => {
+    const filter = type ? `[type="${type}"]` : null;
+    cy.dataCy('story-group-menu-item', name, filter).should('exist').as('found-item');
     renameStoryOrGroup('found-item', newName);
 });
