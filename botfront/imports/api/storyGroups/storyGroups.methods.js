@@ -107,6 +107,13 @@ Meteor.methods({
         check(storyGroup, Object);
         try {
             const { _id, ...rest } = storyGroup;
+            if (_id === 'root') {
+                const { projectId, children } = rest;
+                return Projects.update(
+                    { _id: projectId },
+                    { $set: { storyGroups: children } },
+                );
+            }
             return StoryGroups.update(
                 { _id }, { $set: rest },
             );

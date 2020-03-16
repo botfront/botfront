@@ -105,9 +105,9 @@ function Stories(props) {
 
     const handleAddStoryGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.insert', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
-    const handleDeleteGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.delete', storyGroup, wrapMeteorCallback(f)), [projectId]);
+    const handleDeleteGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.delete', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
-    const handleStoryGroupUpdate = useCallback((storyGroup, f) => Meteor.call('storyGroups.update', storyGroup, wrapMeteorCallback(f)), [projectId]);
+    const handleStoryGroupUpdate = useCallback((storyGroup, f) => Meteor.call('storyGroups.update', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
     const handleNewStory = useCallback((story, f) => Meteor.call(
         'stories.insert', {
