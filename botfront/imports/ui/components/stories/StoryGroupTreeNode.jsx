@@ -27,7 +27,10 @@ function StoryGroupTreeNode(props) {
     const icon = item.canBearChildren ? (
         <Icon
             name={`caret ${item.isExpanded ? 'down' : 'right'}`}
-            onClick={() => handleToggleExpansion(item)}
+            {...(!somethingIsMutating ? {
+                onClick: () => handleToggleExpansion(item),
+                onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
+            } : {})}
             className='cursor pointer'
             data-cy='toggle-expansion-story-group'
         />

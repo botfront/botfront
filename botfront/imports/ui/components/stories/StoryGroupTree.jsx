@@ -4,6 +4,7 @@ import React, {
     useCallback,
     useMemo,
     useContext,
+    useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Confirm, Portal } from 'semantic-ui-react';
@@ -56,6 +57,7 @@ export default function StoryGroupTree(props) {
     const {
         tree,
         somethingIsMutating,
+        somethingIsDragging,
         handleToggleFocus,
         handleToggleExpansion,
         handleExpand,
@@ -68,7 +70,11 @@ export default function StoryGroupTree(props) {
     } = useStoryGroupTree(treeFromProps, activeStories);
     const menuRef = useRef();
     const lastFocusedItem = useRef(tree.items[activeStories[0]] || null);
-    const draggingHandle = { current: document.getElementsByClassName('drag-handle dragging')[0] };
+    const draggingHandle = { current: null };
+
+    useEffect(() => {
+        draggingHandle.current = document.getElementsByClassName('drag-handle dragging')[0] || null;
+    }, [somethingIsDragging]);
 
     const getSiblingsAndIndex = (story, inputTree) => {
         const { id, parentId } = story;
