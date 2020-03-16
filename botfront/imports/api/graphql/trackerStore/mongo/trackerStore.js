@@ -16,14 +16,22 @@ export const getTracker = async (senderId, projectId, after, maxEvents = 100) =>
             $project: {
                 // retreive the last elements of the array from the index after
                 // index - len give us the x last element we want to fetch
-                tracker: { $slice: ['$tracker.events', { $subtract: [after + 1, { $size: '$tracker.events' }] }] },
+                'tracker.sender_id': 1,
+                'tracker.slots': 1,
+                'tracker.latest_message': 1,
+                'tracker.latest_event_time': 1,
+                'tracker.followup_action': 1,
+                'tracker.latest_input_channel': 1,
+                'tracker.active_form': 1,
+                'tracker.latest_action_name': 1,
+                'tracker.events': { $slice: ['$tracker.events', { $subtract: [after + 1, { $size: '$tracker.events' }] }] },
                 trackerLen: { $size: '$tracker.events' },
                 lastTimeStamp: { $slice: ['$tracker.events', -1] },
             },
         },
         {
             $project: {
-                tracker: { $slice: ['$tracker', -maxEvents] }, // take the last <maxevent> elements from the array, not doable in the previous step
+                tracker: { $slice: ['$tracker.events', -maxEvents] }, // take the last <maxevent> elements from the array, not doable in the previous step
                 trackerLen: 1,
                 lastTimeStamp: { $arrayElemAt: ['$lastTimeStamp.timestamp', 0] },
             },
