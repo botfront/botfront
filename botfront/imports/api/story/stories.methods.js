@@ -6,9 +6,6 @@ import { indexStory } from './stories.index';
 
 import { Stories } from './stories.collection';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
-import { Projects } from '../project/project.collection';
-import { NLUModels } from '../nlu_model/nlu_model.collection';
-import BotResponses from '../graphql/botResponses/botResponses.model';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;

@@ -39,12 +39,12 @@ if (Meteor.isServer) {
                 queryString,
             });
             if (!reject) {
-                expect(searchResult[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture' });
+                expect(searchResult[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
             } else {
                 expect(searchResult[0]).to.be.equal(undefined);
             }
         } catch (e) {
-            throw new Error(`seaching stories for "${queryString}" ${reject ? 'found unexpected matches' : 'did not find any matches'}\n${e.message}`);
+            throw new Error(`seaching stories for "${queryString}" did not return the expected results\n${e}`);
         }
     };
 
