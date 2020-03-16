@@ -4,7 +4,6 @@ import React, {
     useCallback,
     useMemo,
     useContext,
-    useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Confirm, Portal } from 'semantic-ui-react';
@@ -28,13 +27,15 @@ export default function StoryGroupTree(props) {
         project: { storyGroups: storyGroupOrder = [] },
     } = useContext(ProjectContext);
 
-    const treeFromProps = useMemo(() => { // build tree
+    const treeFromProps = useMemo(() => {
+        // build tree
         const newTree = {
             rootId: 'root',
             items: {
                 root: {
                     children: storyGroupOrder.length
-                        ? storyGroupOrder : storyGroups.map(({ _id }) => _id),
+                        ? storyGroupOrder
+                        : storyGroups.map(({ _id }) => _id),
                     id: 'root',
                     title: 'root',
                     canBearChildren: true,
@@ -43,12 +44,18 @@ export default function StoryGroupTree(props) {
         };
         stories.forEach(({ _id, storyGroupId, ...n }) => {
             newTree.items[_id] = {
-                ...n, id: _id, parentId: storyGroupId,
+                ...n,
+                id: _id,
+                parentId: storyGroupId,
             };
         });
         storyGroups.forEach(({ _id, name, ...n }) => {
             newTree.items[_id] = {
-                ...n, id: _id, parentId: 'root', title: name, canBearChildren: true,
+                ...n,
+                id: _id,
+                parentId: 'root',
+                title: name,
+                canBearChildren: true,
             };
         });
         return newTree;
@@ -70,7 +77,26 @@ export default function StoryGroupTree(props) {
     } = useStoryGroupTree(treeFromProps, activeStories);
     const menuRef = useRef();
     const lastFocusedItem = useRef(tree.items[activeStories[0]] || null);
-    const draggingHandle = { current: document.getElementsByClassName('drag-handle dragging')[0] || null };
+    const draggingHandle = {
+        current: document.getElementsByClassName('drag-handle dragging')[0] || null,
+    };
+    const selectionIsNonContiguous = useMemo(
+        () => (activeStories || []).some((s, i, a) => {
+            const differentMother = tree.items[s].parentId
+                    !== tree.items[a[Math.min(i + 1, a.length - 1)]].parentId;
+            if (differentMother) return true;
+            const { children } = tree.items[tree.items[a[0]].parentId];
+            return (
+                Math.abs(
+                    children.findIndex(id => id === s)
+                            - children.findIndex(
+                                id => id === a[Math.min(i + 1, a.length - 1)],
+                            ),
+                ) > 1
+            );
+        }),
+        [tree, activeStories],
+    );
 
     const getSiblingsAndIndex = (story, inputTree) => {
         const { id, parentId } = story;
@@ -87,7 +113,9 @@ export default function StoryGroupTree(props) {
     };
 
     const handleSelectionChange = ({ shiftKey, item }) => {
-        if (!shiftKey || !activeStories.length) { return selectSingleItemAndResetFocus(item); }
+        if (!shiftKey || !activeStories.length) {
+            return selectSingleItemAndResetFocus(item);
+        }
         const { index, siblingIds, parentId } = getSiblingsAndIndex(item, tree);
         const { index: lastIndex, parentId: lastParentId } = getSiblingsAndIndex(
             lastFocusedItem.current,
@@ -128,7 +156,9 @@ export default function StoryGroupTree(props) {
                 if (target.offsetTop - getTreeContainer().scrollTop < 20) {
                     getTreeContainer().scrollTop -= 100;
                 }
-                if (previousElementSibling) { previousElementSibling.focus({ preventScroll: true }); } else return null;
+                if (previousElementSibling) {
+                    previousElementSibling.focus({ preventScroll: true });
+                } else return null;
             } else if (key === 'ArrowDown') {
                 if (e.stopPropagation) {
                     e.stopPropagation();
@@ -147,7 +177,9 @@ export default function StoryGroupTree(props) {
             } else return null;
             const item = tree.items[getItemDataFromDOMNode(document.activeElement)];
 
-            if (item.canBearChildren) { return handleKeyDownInMenu({ target, key, shiftKey }); } // go to next visible leaf
+            if (item.canBearChildren) {
+                return handleKeyDownInMenu({ target, key, shiftKey });
+            } // go to next visible leaf
             return handleSelectionChange({ shiftKey, item });
         },
         [activeStories, tree],
@@ -169,6 +201,7 @@ export default function StoryGroupTree(props) {
             handleAddStory={handleAddStory}
             handleToggleFocus={handleToggleFocus}
             handleRenameItem={handleRenameItem}
+            selectionIsNonContiguous={selectionIsNonContiguous}
         />
     );
 
@@ -201,11 +234,12 @@ export default function StoryGroupTree(props) {
                     : {})}
                 {...(deletionIsPossible ? {} : { confirmButton: null })}
             />
-            {somethingIsDragging && draggingHandle.current.parentNode.parentNode.className.includes('active') && activeStories.length > 1 && (
-                <Portal
-                    open
-                    mountNode={draggingHandle.current}
-                >
+            {somethingIsDragging
+                && draggingHandle.current.parentNode.parentNode.className.includes(
+                    'active',
+                )
+                && activeStories.length > 1 && (
+                <Portal open mountNode={draggingHandle.current}>
                     <div className='count-tooltip'>{activeStories.length}</div>
                 </Portal>
             )}

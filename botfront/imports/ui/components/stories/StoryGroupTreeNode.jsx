@@ -17,12 +17,15 @@ function StoryGroupTreeNode(props) {
         handleAddStory,
         handleToggleFocus,
         handleRenameItem,
+        selectionIsNonContiguous,
     } = props;
     const [newTitle, setNewTitle] = useState('');
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const renamerRef = useRef();
 
     const trimLong = string => (string.length > 50 ? `${string.substring(0, 48)}...` : string);
+    const isInSelection = activeStories.includes(item.id);
+    const disableDrag = selectionIsNonContiguous && activeStories.includes(item.id);
 
     const icon = item.canBearChildren ? (
         <Icon
@@ -59,7 +62,7 @@ function StoryGroupTreeNode(props) {
         if (!!renamingModalPosition) setNewTitle(renamingModalPosition.title);
     }, [!!renamingModalPosition]);
 
-    const handleProps = !somethingIsMutating
+    const handleProps = (!somethingIsMutating && !disableDrag)
         ? {
             ...provided.dragHandleProps,
             onMouseDown: (e, ...args) => {
@@ -84,7 +87,7 @@ function StoryGroupTreeNode(props) {
             data-cy='story-group-menu-item'
         >
             <Menu.Item
-                active={activeStories.some(id => id === item.id) || isHoverTarget}
+                active={isInSelection || isHoverTarget}
                 {...(isLeaf ? {
                     onMouseDown: ({ nativeEvent: { shiftKey } }) => handleMouseDownInMenu({ item, shiftKey }),
                     onMouseEnter: () => handleMouseEnterInMenu({ item }),
@@ -189,6 +192,7 @@ StoryGroupTreeNode.propTypes = {
     handleAddStory: PropTypes.func.isRequired,
     handleToggleFocus: PropTypes.func.isRequired,
     handleRenameItem: PropTypes.func.isRequired,
+    selectionIsNonContiguous: PropTypes.bool.isRequired,
 };
 
 StoryGroupTreeNode.defaultProps = {};
