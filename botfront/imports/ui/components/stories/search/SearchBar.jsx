@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { StoryGroups } from '../../../../api/storyGroups/storyGroups.collection';
 import apolloClient from '../../../../startup/client/apollo';
+import { setStoriesCurrent } from '../../../store/actions/actions';
 
 
 import { SEARCH_STORIES } from './queries';
@@ -22,6 +23,8 @@ const SearchBar = (props) => {
         router,
         storyGroups,
         ready,
+        setActiveStories,
+        activeStories,
     } = props;
     const [queryString, setQueryString] = useState('');
     const [open, setOpen] = useState(false);
@@ -32,7 +35,6 @@ const SearchBar = (props) => {
             - add the _id of the target result to the list of active stories
             - close the searchbar
     */
-    const [multiSelectMode, setMultiSelectMode] = useState(false);
     const searchStories = debounce(async () => {
         const { data } = await apolloClient.query({
             query: SEARCH_STORIES,
@@ -43,16 +45,16 @@ const SearchBar = (props) => {
             },
         });
         setSearching(false);
-        setResults(data.stories);
+        setResults(data.stories.map(story => ({
+            title: story.title, _id: story._id, description: story.storyGroupId,
+        })));
     }, 500);
-    const activeStories = router.getCurrentLocation().query['ids[]'] || [];
 
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', () => {
         setOpen(false);
     });
     const pushActiveStory = (_id) => {
         const { location: { pathname } } = router;
-        setMultiSelectMode(true);
         const nextActiveStories = new Set();
         nextActiveStories.add(_id);
         if (typeof activeStories === 'string') {
@@ -64,6 +66,7 @@ const SearchBar = (props) => {
             pathname,
             query: { 'ids[]': Array.from(nextActiveStories) },
         });
+        setActiveStories(nextActiveStories);
         setOpen(false);
     };
 
@@ -74,18 +77,14 @@ const SearchBar = (props) => {
             pushActiveStory(_id);
             return;
         }
-        if (multiSelectMode) {
-            pushActiveStory(_id);
-            setOpen(false);
-            return;
-        }
-        
         router.replace({ pathname, query: { 'ids[]': _id } });
+
+        setActiveStories([_id]);
         setOpen(false);
     };
 
     const renderSearchItem = (resultProps) => {
-        const { title, _id, storyGroupId } = resultProps;
+        const { title, _id, description: storyGroupId } = resultProps;
         const storyGroup = storyGroups.find(({ _id: gid }) => gid === storyGroupId);
         return (
             <Menu.Item
@@ -142,6 +141,8 @@ SearchBar.propTypes = {
     router: PropTypes.object.isRequired,
     storyGroups: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
+    setActiveStories: PropTypes.func.isRequired,
+    activeStories: PropTypes.array.isRequired,
 };
 
 const SearchBarWithTracker = withRouter(withTracker((props) => {
@@ -157,6 +158,7 @@ const SearchBarWithTracker = withRouter(withTracker((props) => {
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
     language: state.settings.get('workingLanguage'),
+    activeStories: state.stories.get('storiesCurrent').toJS(),
 });
 
-export default connect(mapStateToProps)(SearchBarWithTracker);
+export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(SearchBarWithTracker);
