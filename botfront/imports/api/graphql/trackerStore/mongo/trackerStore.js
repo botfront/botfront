@@ -1,6 +1,5 @@
 import Conversations from '../../conversations/conversations.model';
 
-
 export const getTracker = async (senderId, projectId, after, maxEvents = 100) => {
     const aggregation = [
         {
@@ -15,17 +14,19 @@ export const getTracker = async (senderId, projectId, after, maxEvents = 100) =>
                 // index - len give us the x last element we want to fetch
                 tracker: { $slice: ['$tracker.events', { $subtract: [after + 1, { $size: '$tracker.events' }] }] },
                 trackerLen: { $size: '$tracker.events' },
+                lastTimeStamp: { $slice: ['$tracker.events', -1] },
             },
         },
         {
             $project: {
-                tracker: { $slice: ['$tracker', -maxEvents] }, // take the last maxevent from the array, not doable in the previous step
+                tracker: { $slice: ['$tracker', -maxEvents] }, // take the last <maxevent> elements from the array, not doable in the previous step
                 trackerLen: 1,
+                lastTimeStamp: { $arrayElemAt: ['$lastTimeStamp.timestamp', 0] },
             },
         },
     ];
     const results = await Conversations.aggregate(aggregation).allowDiskUse(true);
-    return results;
+    return results[0];
 };
 
 export const insertEvents = async (senderId, projectId, events) => (
