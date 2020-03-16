@@ -282,12 +282,12 @@ class BranchTabLabel extends React.Component {
             <Menu.Item
                 active={active}
                 onClick={this.handleOnClick}
-                content={
+                content={(
                     <>
                         {this.renderAlertIcons()}
                         {this.renderTitle()}
                     </>
-                }
+                )}
                 onMouseEnter={this.handleTitleMouseEnter}
                 onMouseLeave={this.handleTitleMouseLeave}
                 role='textbox'

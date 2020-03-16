@@ -46,6 +46,15 @@ describe('story tree navigation', function() {
         cy.dataCy('story-title').should('exist').should('have.value', 'BYE');
     });
 
+    it('should be able to add and delete stories', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 3);
+        cy.createStoryInGroup({ groupName: 'Default stories' });
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 4);
+        cy.deleteStoryOrGroup('Greetings');
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 3);
+    });
+
     it('train button should have the same text on both the NLU and stories page', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('story-group-menu-item', 'Intro stories').findCy('focus-story-group')

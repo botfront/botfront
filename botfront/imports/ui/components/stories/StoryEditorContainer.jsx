@@ -96,42 +96,30 @@ const StoryEditorContainer = ({
 
     const isBranchLinked = branchId => (
         destinationStories
-            .some(aStory => (aStory.checkpoints
+            .some(aStory => ((aStory.checkpoints || [])
                 .some(checkpointPath => (checkpointPath
                     .includes(branchId)
                 )))));
 
-    const findDestinationStories = () => stories.filter(aStory => branchPath.some((storyId) => {
-        if (aStory.checkpoints === undefined) return false;
-        return aStory.checkpoints.some(checkpointPath => checkpointPath.includes(storyId));
-    }));
-
-    function findDestinationStory() {
-        return stories.find((aStory) => {
-            if (aStory.checkpoints !== undefined) {
-                return aStory.checkpoints.some(checkpoint => checkpoint[checkpoint.length - 1] === branchPath[branchPath.length - 1]);
-            }
-            return false;
-        });
-    }
     useEffect(() => {
-        const newDestinationStory = findDestinationStory();
-        const newDestinationStories = findDestinationStories();
-        setDestinationStory(newDestinationStory);
+        const newDestinationStories = stories.filter(aStory => branchPath.some(
+            storyId => (aStory.checkpoints || []).some(checkpointPath => checkpointPath.includes(storyId)),
+        ));
+        const newDestinationStory = newDestinationStories.find(aStory => (aStory.checkpoints || [])
+            .some(checkpoint => checkpoint[checkpoint.length - 1] === branchPath[branchPath.length - 1]));
         setDestinationStories(newDestinationStories);
-    }, [branchPath]);
+        setDestinationStory(newDestinationStory);
+    }, [branchPath, stories]);
 
     function onDestinationStorySelection(event, { value }) {
-        // remove the link if the value of the drop down is empty
-        const callback = () => setDestinationStory(stories.find(({ _id }) => _id === value));
         if (value === '') {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath, callback);
+            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
         } else if (value && destinationStory) {
             Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath, () => Meteor.call(
-                'stories.addCheckpoints', value, branchPath, callback,
+                'stories.addCheckpoints', value, branchPath,
             ));
         } else {
-            Meteor.call('stories.addCheckpoints', value, branchPath, callback);
+            Meteor.call('stories.addCheckpoints', value, branchPath);
         }
     }
 
