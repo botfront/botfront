@@ -40,7 +40,7 @@ const updateFixture = {
 };
 
 // ------ test suite -------
-describe('old tests', () => {
+describe('story indexing and events tests', () => {
     it('should index the story and get a list of events', () => {
         const result = indexStory(storyFixture, { includeEventsField: true });
         expect(result).to.be.deep.equal({
