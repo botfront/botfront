@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import {
     getTracker,
-    insertEvent,
-    updateEvent,
+    insertTrackerStore,
+    updateTrackerStore,
 } from '../mongo/trackerStore';
 
 export default {
@@ -12,13 +12,18 @@ export default {
         },
     },
     Mutation: {
-        async insertEvent(_, args, __) {
-            const response = await insertEvent(args.senderId, args.projectId, args.event);
+        async insertTrackerStore(_, args, __) {
+            const response = await insertTrackerStore(args.senderId, args.projectId, args.tracker);
             return { success: response.ok === 1 };
         },
-        async updateEvent(_, args, __) {
-            const response = await updateEvent(args.senderId, args.projectId, args.event);
+        async updateTrackerStore(_, args, __) {
+            const response = await updateTrackerStore(args.senderId, args.projectId, args.tracker);
             return { success: response.ok === 1 };
         },
+    },
+    trackerStoreInfo: {
+        tracker: (parent, _, __) => parent.tracker,
+        lastIndex: (parent, _, __) => parent.trackerLen,
+        lastTimestamp: (parent, _, __) => parent.lastTimeStamp,
     },
 };

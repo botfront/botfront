@@ -4,16 +4,20 @@ type Query {
         projectId: String!
         after: Int
         maxEvents: Int
-    ): Any
-  
+    ): trackerStoreInfo
 }
 
 type Mutation {
-    insertEvent(id: String!, projectId: String!, event: Any): updateResponse!
-    updateEvent(id: String!,  projectId: String!, event: Any): updateResponse!
+    insertTrackerStore(id: String!, projectId: String!, event: Any): updateResponse!
+    updateTrackerStore(id: String!,  projectId: String!, event: Any): updateResponse!
 }
 
 type updateResponse {
     success: Boolean!
 }
 
+type trackerStoreInfo{
+    tracker: [Any],
+    lastIndex: Int,
+    lastTimestamp: Float
+}
