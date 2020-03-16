@@ -29,9 +29,10 @@
         overflow-y: auto;
     }
 
-    .drag-handle {
+    .side-by-side .drag-handle {
         visibility: hidden;
         padding-right: 20px;
+        margin-right: 0 !important;
 
         &.dragging {
             visibility: visible;
@@ -93,11 +94,11 @@
                 }
             }
             .item-chevron {
-                width: 20px;
+                width: 16px;
                 border: 1px solid transparent;
                 color: @botfront-blue;
                 i {
-                    padding: 4px 12px;
+                    padding: 4px 0 4px 8px;
                 }
             }
             .item-name,

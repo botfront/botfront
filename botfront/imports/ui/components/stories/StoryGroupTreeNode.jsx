@@ -54,8 +54,8 @@ function StoryGroupTreeNode(props) {
     const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
     const isHoverTarget = combineTargetFor && !isLeaf;
     const style = isLeaf
-        ? { width: 'calc(100% - 70px)' } // one button
-        : { width: 'calc(100% - 110px)' }; // three buttons
+        ? { width: 'calc(100% - 60px)', left: '-10px', position: 'relative' } // one button
+        : { width: 'calc(100% - 100px)', left: '-10px', position: 'relative' }; // three buttons
 
     useEffect(() => {
         if (!renamingModalPosition) setNewTitle('');
