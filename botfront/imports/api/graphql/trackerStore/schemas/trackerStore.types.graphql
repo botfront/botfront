@@ -8,13 +8,10 @@ type Query {
 }
 
 type Mutation {
-    insertTrackerStore(id: String!, projectId: String!, event: Any): updateResponse!
-    updateTrackerStore(id: String!,  projectId: String!, event: Any): updateResponse!
+    insertTrackerStore(senderId: String!, projectId: String!, tracker: Any): Any!
+    updateTrackerStore(senderId: String!, projectId: String!, tracker: Any): Any!
 }
 
-type updateResponse {
-    success: Boolean!
-}
 
 type trackerStoreInfo{
     tracker: [Any],
