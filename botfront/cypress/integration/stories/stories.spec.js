@@ -197,6 +197,7 @@ describe('stories', function() {
         cy.dataCy('branch-label').should('have.length', 4);
         cy.dataCy('single-story-editor').should('have.length', 3);
         cy.dataCy('story-footer').should('contain.text', 'Get started>New Branch 1>New Branch 1');
+        cy.wait(1000); // out of options
         cy.linkStory('Get started', 'Farewells');
         cy.dataCy('branch-label')
             .find('.trash.small.disabled');
