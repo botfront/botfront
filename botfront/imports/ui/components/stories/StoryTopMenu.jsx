@@ -15,7 +15,6 @@ import { ConversationOptionsContext } from './Context';
 const StoryTopMenu = ({
     storyId,
     title,
-    disabled,
     collapsed,
     collapseStory,
     warnings: warningDetails,
@@ -168,7 +167,6 @@ const StoryTopMenu = ({
 StoryTopMenu.propTypes = {
     title: PropTypes.string.isRequired,
     storyId: PropTypes.string.isRequired,
-    disabled: PropTypes.bool.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
     warnings: PropTypes.array.isRequired,
