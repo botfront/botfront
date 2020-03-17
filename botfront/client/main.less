@@ -46,9 +46,18 @@
     font-family: monospace;
 }
 
+.cursor {
+    &.pointer { cursor: pointer; }
+    &.text { cursor: text; }
+}
+
 .ui.top-menu {
     height: @top-menu-height;
     border-radius: 0 !important;
+    margin-bottom: 0 !important;
+    & + :not(.no-margin) {
+        margin-top: 1rem;
+    }
 }
 
 html {
@@ -66,6 +75,9 @@ body {
 
 .Pane.vertical.Pane1 {
     background-color: #f4f4f5;
+    & > .storygroup-browser {
+        background-color:#fff;
+    }
 }
 
 h3 {
@@ -83,6 +95,14 @@ span {
 
 .ui {
     font-family: inherit !important;
+    &.input input {
+        font-family: inherit !important;
+        line-height: inherit !important;
+    }
+    &.form textarea {
+        font-family: inherit !important;
+        line-height: inherit !important;
+    }
 }
 
 i.ui.icon {

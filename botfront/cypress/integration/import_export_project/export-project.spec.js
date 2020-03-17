@@ -1,6 +1,6 @@
 /* global cy Cypress:true */
 
-export const changeAPIUrl = (url) => {
+const changeAPIUrl = (url) => {
     cy.visit('/project/test_project/settings');
     cy.dataCy('project-settings-more')
         .click();

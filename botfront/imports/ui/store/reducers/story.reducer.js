@@ -3,15 +3,15 @@ import * as types from '../actions/types';
 
 const initialState = IMap({
     storyMode: 'visual',
-    storyGroupCurrent: 0,
+    storiesCurrent: IList(),
     savedStoryPaths: IMap(),
     storiesCollapsed: IMap(),
 });
 
 export default function reducer(state = initialState, action) {
     switch (action.type) {
-    case types.SET_STORY_GROUP:
-        return state.set('storyGroupCurrent', action.groupIndex);
+    case types.SET_STORIES_CURRENT:
+        return state.set('storiesCurrent', IList(action.storyIds));
     case types.SET_STORY_MODE:
         return state.set('storyMode', action.mode);
     case types.SET_STORY_PATH:

@@ -14,7 +14,9 @@ export const StoryGroupSchema = new SimpleSchema(
             autoValue: () => new Date(),
         },
         selected: { type: Boolean, defaultValue: false },
-        introStory: { type: Boolean, optional: true },
+        children: { type: Array, defaultValue: [] },
+        'children.$': String,
+        isExpanded: { type: Boolean, defaultValue: true },
     },
     { tracker: Tracker },
 );

@@ -23,7 +23,7 @@ import {
     getDefaultTemplateFromSequence,
     addContentType,
 } from '../../../../lib/botResponse.utils';
-import { clearTypenameField } from '../../../../lib/utils';
+import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Loading } from '../../utils/Utils';
 
 

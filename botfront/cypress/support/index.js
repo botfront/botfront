@@ -16,6 +16,7 @@
 // ***********************************************************
 
 import './chat.commands';
+import './story.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -181,9 +182,17 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
 });
 
-Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
+Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) => {
+    let result;
+    if (!content) result = cy.get(`[data-cy=${dataCySelector}]`);
+    else result = cy.get(`[data-cy=${dataCySelector}]:contains(${content})`);
+    if (!filter) return result;
+    return result.filter(filter);
+});
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
+
+Cypress.Commands.add('escapeModal', () => cy.get('.modals.dimmer').click('topRight'));
 
 Cypress.Commands.add(
     'upload',

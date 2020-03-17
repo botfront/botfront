@@ -1,9 +1,4 @@
-/* eslint-disable no-undef */
-
-function clickStoryGroup(group) {
-    const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
-    positions.map(p => cy.contains(group).click(p, { force: true }));
-}
+/* global cy:true */
 
 const getBranchContainer = (depth) => {
     /*
@@ -47,6 +42,8 @@ const addBlock = (depth) => {
 describe('story visual editor', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
     });
     afterEach(function() {
         cy.logout();
@@ -54,13 +51,6 @@ describe('story visual editor', function() {
     });
 
     it('should append the contents of the last branch when the second last branch is deleted', function () {
-        cy.visit('/project/bf/stories');
-        // add a story group
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        clickStoryGroup('myTest');
         // create 2 levels of branches
         cy.dataCy('create-branch')
             .click();

@@ -42,17 +42,11 @@ function getDefaultPath(story) {
 const StoryEditorContainer = ({
     story,
     disabled,
-    onDelete,
-    onClone,
-    onMove,
-    groupNames,
-    onRename: onRenameStory,
     storyMode,
     branchPath,
     changeStoryPath,
     collapsed,
     projectId,
-    collapseAllStories,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
@@ -62,7 +56,7 @@ const StoryEditorContainer = ({
     // so we have to use this workaround
     const [editors, setEditors] = useState({});
     const [exceptions, setExceptions] = useState({});
-    const [destinationStory, setDestinationStory] = useState({});
+    const [destinationStory, setDestinationStory] = useState(null);
     const [destinationStories, setDestinationStories] = useState([]);
     const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
     const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
@@ -102,43 +96,31 @@ const StoryEditorContainer = ({
 
     const isBranchLinked = branchId => (
         destinationStories
-            .some(aStory => (aStory.checkpoints
+            .some(aStory => ((aStory.checkpoints || [])
                 .some(checkpointPath => (checkpointPath
                     .includes(branchId)
                 )))));
 
-    const findDestinationStories = () => stories.filter(aStory => branchPath.some((storyId) => {
-        if (aStory.checkpoints === undefined) return false;
-        return aStory.checkpoints.some(checkpointPath => checkpointPath.includes(storyId));
-    }));
-
-    function findDestinationStory() {
-        return stories.find((aStory) => {
-            if (aStory.checkpoints !== undefined) {
-                return aStory.checkpoints.some(checkpoint => checkpoint[checkpoint.length - 1] === branchPath[branchPath.length - 1]);
-            }
-            return false;
-        });
-    }
     useEffect(() => {
-        const newDestinationStory = findDestinationStory();
-        const newDestinationStories = findDestinationStories();
-        setDestinationStory(newDestinationStory);
+        const newDestinationStories = stories.filter(aStory => branchPath.some(
+            storyId => (aStory.checkpoints || []).some(checkpointPath => checkpointPath.includes(storyId)),
+        ));
+        const newDestinationStory = newDestinationStories.find(aStory => (aStory.checkpoints || [])
+            .some(checkpoint => checkpoint[checkpoint.length - 1] === branchPath[branchPath.length - 1]));
         setDestinationStories(newDestinationStories);
-    }, [branchPath]);
+        setDestinationStory(newDestinationStory);
+    }, [branchPath, stories]);
 
     function onDestinationStorySelection(event, { value }) {
-        // remove the link if the value of the drop down is empty
         if (value === '') {
             Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
         } else if (value && destinationStory) {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
-            Meteor.call('stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath, () => Meteor.call(
+                'stories.addCheckpoints', value, branchPath,
+            ));
         } else {
             Meteor.call('stories.addCheckpoints', value, branchPath);
         }
-        const newDestinationStory = findDestinationStory();
-        setDestinationStory(newDestinationStory);
     }
 
     // This is to make sure that all opened branches have corresponding storyController objects
@@ -185,19 +167,12 @@ const StoryEditorContainer = ({
         <StoryTopMenu
             title={story.title}
             storyId={story._id}
-            onDelete={onDelete}
-            onMove={onMove}
             disabled={disabled}
-            onRename={onRenameStory}
-            onClone={onClone}
-            groupNames={groupNames}
             errors={GetExceptionsLengthByType('errors')}
             warnings={GetExceptionsLengthByType('warnings')}
             isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
-            isLinked={destinationStories.length > 0}
             originStories={story.checkpoints}
             initPayload={getInitIntent()}
-            collapseAllStories={collapseAllStories}
         />
     );
 
@@ -351,7 +326,7 @@ const StoryEditorContainer = ({
             setLastMdType,
         );
         setExceptions(newExceptions);
-    }, [story, lastMdType]);
+    }, [story, lastMdType, slots]);
 
     // new Level is true if the new branches create a new depth level of branches.
     const handleCreateBranch = (path, branches = [], num = 1, newLevel = true) => {
@@ -477,17 +452,11 @@ const StoryEditorContainer = ({
 StoryEditorContainer.propTypes = {
     story: PropTypes.object,
     disabled: PropTypes.bool,
-    onDelete: PropTypes.func.isRequired,
-    onClone: PropTypes.func.isRequired,
-    onMove: PropTypes.func.isRequired,
-    groupNames: PropTypes.array.isRequired,
-    onRename: PropTypes.func.isRequired,
     storyMode: PropTypes.string,
     branchPath: PropTypes.array,
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
-    collapseAllStories: PropTypes.func.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {

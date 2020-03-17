@@ -13,7 +13,8 @@
             "training": {
                 "status": "one",
                 "endTime": "2019-09-10T18:10:08.431Z"
-            }
+            },
+            "storyGroups": ["one"]
         },
         {
             "_id": "two",
@@ -28,7 +29,8 @@
             "training": {
                 "status": "two",
                 "endTime": "2019-09-10T18:10:08.432Z"
-            }
+            },
+            "storyGroups": ["two"]
         }
     ],
     "models": [
@@ -240,7 +242,9 @@
             "projectId": "one",
             "introStory": false,
             "updatedAt": "2019-09-10T18:10:08.431Z",
-            "selected": false
+            "selected": false,
+            "isExpanded": false,
+            "children": ["one-a", "one-b"]
         },
         {
             "_id": "two",
@@ -248,7 +252,9 @@
             "projectId": "two",
             "introStory": false,
             "updatedAt": "2019-09-10T18:10:08.432Z",
-            "selected": false
+            "selected": false,
+            "isExpanded": false,
+            "children": ["two-a", "two-b"]
         }
     ],
     "stories": [
