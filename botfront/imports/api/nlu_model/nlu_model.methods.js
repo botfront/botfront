@@ -219,16 +219,17 @@ Meteor.methods({
             return NLUModels.update({ _id: modelId, 'training_data.entity_synonyms._id': item._id }, { $set: { 'training_data.entity_synonyms.$': item } });
         }
 
+        const newId = uuidv4();
         auditLogIfOnServer('Created entity synonym', {
             user: Meteor.user(),
-            resId: item._id,
+            resId: newId,
             projectId: getProjectIdFromModelId(modelId),
             type: 'created',
             operation: 'nlu-data-created',
             after: { entitySynonym: item },
             resType: 'nlu-data',
         });
-        return NLUModels.update({ _id: modelId }, { $push: { 'training_data.entity_synonyms': { _id: uuidv4(), ...item } } });
+        return NLUModels.update({ _id: modelId }, { $push: { 'training_data.entity_synonyms': { _id: newId, ...item } } });
     },
 
     'nlu.deleteEntitySynonym'(modelId, itemId) {
@@ -275,7 +276,7 @@ Meteor.methods({
         const gazette = { _id: uuidv4(), ...gazetteDefaults, ...item };
         auditLogIfOnServer('Created entity gazette', {
             user: Meteor.user(),
-            resId: modelId,
+            resId: gazette._id,
             projectId: getProjectIdFromModelId(modelId),
             type: 'created',
             operation: 'nlu-data-created',
