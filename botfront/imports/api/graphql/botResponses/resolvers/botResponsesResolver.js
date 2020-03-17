@@ -138,7 +138,7 @@ export default {
             });
             auditLog('Created response', {
                 user: auth.user,
-                type: 'updated',
+                type: 'created',
                 projectId: args.projectId,
                 operation: 'response-created',
                 resId: args.response.key,
