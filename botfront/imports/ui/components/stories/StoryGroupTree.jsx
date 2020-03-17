@@ -125,7 +125,7 @@ export default function StoryGroupTree(props) {
     useEffect(() => {
         if (!shouldScrollToActive) return;
         const activeElement = document.getElementById(`story-menu-item-${activeStories[0]}`);
-        activeElement.scrollIntoView();
+        if (activeElement) activeElement.scrollIntoView();
         setShouldScrollToActive(false);
     }, [shouldScrollToActive]);
 
