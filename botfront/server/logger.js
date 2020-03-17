@@ -57,18 +57,13 @@ const auditFormat = printf((arg) => {
         }
     });
     const {
-        user, type, resId, resType, operation, timestamp, projectId, after, before,
+        message, user, type, resId, resType, operation, timestamp, projectId, after, before,
     } = arg;
 
-    let {
-        message,
-    } = arg;
-
-    message = `${message}, User ${user.emails[0].address} ${type} ${resType} ${resId} in project ${projectId}`;
     let additionalInfo = '';
     if (before) additionalInfo = `before: ${JSON.stringify(before)} - `;
     if (after) additionalInfo = additionalInfo.concat(` after: ${JSON.stringify(after)}`);
-    return `${timestamp} [${type}]: ${message} ${user ? `user: ${formatUser(user)}` : ''
+    return `${timestamp} [${type}]: ${message} ${user ? `- user: ${formatUser(user)}` : ''
     }${projectId ? ` - projectId: ${projectId}` : ''
     } - ressource id: ${resId} - ressource type: ${resType} - operation: ${operation} - ${spaceBeforeIfExist(additionalInfo)} `;
 });
@@ -189,7 +184,12 @@ const auditLogger = winston.createLogger({
 export const getAppLoggerForFile = filename => appLogger.child({ file: filename });
 
 export const auditLog = (message, metadata) => {
-    auditLogger.info(message, {
+    const {
+        user, type, resId, resType, projectId,
+    } = metadata;
+
+    const newMessage = `${message}, User ${user.emails[0].address} ${type} ${resType} ${resId} in project ${projectId}`;
+    auditLogger.info(newMessage, {
         ...metadata,
     });
 };
