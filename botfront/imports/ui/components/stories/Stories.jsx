@@ -1,41 +1,83 @@
-import {
-    Container, Grid, Message, Modal,
-} from 'semantic-ui-react';
+import { Modal, Container } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
-    useState, useEffect, useContext, useMemo,
+    useState, useContext, useMemo, useCallback, useEffect,
 } from 'react';
-import PropTypes from 'prop-types';
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { setStoryGroup, setStoryMode } from '../../store/actions/actions';
+import PropTypes from 'prop-types';
+import SplitPane from 'react-split-pane';
+import { setStoriesCurrent } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
 import { ProjectContext } from '../../layouts/context';
 import { ConversationOptionsContext } from './Context';
-import StoryGroupBrowser from './StoryGroupBrowser';
+import StoryGroupNavigation from './StoryGroupNavigation';
+import StoryGroupTree from './StoryGroupTree';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
+import { Loading } from '../utils/Utils';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
+
+const isStoryDeletable = (story, stories, tree) => {
+    const isDestination = s1 => ((stories.find(s2 => s2._id === s1.id) || {}).checkpoints || []).length;
+    const isOrigin = s1 => stories.some(s2 => (s2.checkpoints || []).some(c => c[0] === s1.id));
+    const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
+    if (!story) return [false, null];
+    const deletable = !story.canBearChildren
+        ? !isDestinationOrOrigin(story)
+        : !(story.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
+    const message = deletable
+        ? story.canBearChildren
+            ? `The story group ${story.title
+            } and all its stories in it will be deleted. This action cannot be undone.`
+            : `The story ${story.title
+            } will be deleted. This action cannot be undone.`
+        : story.canBearChildren
+            ? `The story group ${story.title
+            } cannot be deleted as it contains links.`
+            : `The story ${story.title
+            } cannot be deleted as it is linked to another story.`;
+    return [deletable, message];
+};
 
 function Stories(props) {
     const {
         projectId,
         storyGroups,
         stories,
-        storyGroupCurrent,
-        storyMode,
-        changeStoryGroup,
-        changeStoryMode,
         ready,
+        router,
+        activeStories,
+        setActiveStories: doSetActiveStories,
     } = props;
 
     const { slots } = useContext(ProjectContext);
 
-    const [switchToGroupByIdNext, setSwitchToGroupByIdNext] = useState('');
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
+    const [resizing, setResizing] = useState(false);
+
+    const getQueryParams = () => {
+        const { location: { query } } = router;
+        let queriedIds = query['ids[]'] || [];
+        queriedIds = Array.isArray(queriedIds) ? queriedIds : [queriedIds];
+        
+        return queriedIds;
+    };
+
+    const setActiveStories = (newActiveStories) => {
+        if (!getQueryParams().every(id => newActiveStories.includes(id))
+        || !newActiveStories.every(id => getQueryParams().includes(id))) {
+            const { location: { pathname } } = router;
+            router.replace({ pathname, query: { 'ids[]': newActiveStories } });
+        }
+        doSetActiveStories(newActiveStories);
+    };
+
+    useEffect(() => setActiveStories(getQueryParams().length ? getQueryParams() : activeStories), []);
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -51,8 +93,6 @@ function Stories(props) {
         </Modal>
     );
 
-    const switchToGroupById = groupId => changeStoryGroup(storyGroups.findIndex(sg => sg._id === groupId));
-
     const reshapeStories = () => stories
         .map(story => ({ ...story, text: story.title, value: story._id }))
         .sort((storyA, storyB) => {
@@ -63,222 +103,116 @@ function Stories(props) {
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
-    useEffect(() => {
-        if (switchToGroupByIdNext) {
-            switchToGroupById(switchToGroupByIdNext);
-            setSwitchToGroupByIdNext('');
-        }
-    }, [switchToGroupByIdNext]);
+    const handleAddStoryGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.insert', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
-    const handleAddStoryGroup = async (name) => {
-        Meteor.call(
-            'storyGroups.insert',
-            { name, projectId },
-            wrapMeteorCallback((err, groupId) => {
-                if (!err) {
-                    Meteor.call(
-                        'stories.insert',
-                        {
-                            story: '',
-                            title: name,
-                            storyGroupId: groupId,
-                            projectId,
-                        },
-                        wrapMeteorCallback((error) => {
-                            if (!error) setSwitchToGroupByIdNext(groupId);
-                        }),
-                    );
-                }
-            }),
-        );
-    };
+    const handleDeleteGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.delete', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
-    const handleDeleteGroup = (storyGroup) => {
-        if (!storyGroup.introStory) {
-            Meteor.call('storyGroups.delete', storyGroup, () => {
-                /* if the story group was the last story group, change the
-                selected index to be the new last story group */
-                const deletedStoryIndex = storyGroups.findIndex(({ _id }) => _id === storyGroup._id);
-                if (storyGroupCurrent > deletedStoryIndex || storyGroupCurrent === storyGroups.length - 1) {
-                    changeStoryGroup(storyGroupCurrent - 1);
-                    return;
-                }
-                changeStoryGroup(storyGroupCurrent);
-            });
-        }
-    };
-    const handleStoryGroupSelect = storyGroup => Meteor.call('storyGroups.update', {
-        ...storyGroup,
-        selected: !storyGroup.selected,
-    });
-    const removeAllSelection = () => Meteor.call('storyGroups.removeFocus', projectId);
+    const handleStoryGroupUpdate = useCallback((storyGroup, f) => Meteor.call('storyGroups.update', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
-    const handleNameChange = (storyGroup) => {
-        Meteor.call(
-            'storyGroups.update',
-            storyGroup,
-            wrapMeteorCallback((err) => {
-                if (!err) setSwitchToGroupByIdNext(storyGroup._id);
-            }),
-        );
-    };
+    const handleNewStory = useCallback((story, f) => Meteor.call(
+        'stories.insert', {
+            story: '', projectId, branches: [], ...story,
+        },
+        wrapMeteorCallback(f),
+    ), [projectId]);
 
-    const renderMessages = () => {
-        const numberOfSelectedStoryGroups = storyGroups.filter(
-            storyGroup => storyGroup.selected,
-        ).length;
-        const link = (
-            <span
-                id='remove-focus'
-                tabIndex='0'
-                onClick={removeAllSelection}
-                onKeyDown={() => { }}
-                role='button'
+    const handleStoryDeletion = useCallback((story, f) => Meteor.call('stories.delete', story, projectId, wrapMeteorCallback(f)), [projectId]);
+
+    const handleStoryUpdate = useCallback((story, f) => Meteor.call('stories.update', story, projectId, wrapMeteorCallback(f)), [projectId]);
+
+    return (
+        <Loading loading={!ready}>
+            <ConversationOptionsContext.Provider
+                value={{
+                    browseToSlots: () => setSlotsModal(true),
+                    stories: storiesReshaped,
+                    storyGroups,
+                    addGroup: handleAddStoryGroup,
+                    deleteGroup: handleDeleteGroup,
+                    updateGroup: handleStoryGroupUpdate,
+                    addStory: handleNewStory,
+                    deleteStory: handleStoryDeletion,
+                    updateStory: handleStoryUpdate,
+                }}
             >
-                Remove focus
-            </span>
-        );
-        const plural = numberOfSelectedStoryGroups > 1;
-        return (
-            numberOfSelectedStoryGroups >= 1 && (
-                <Message warning>
-                    You’re currently focusing on {numberOfSelectedStoryGroups} story group
-                    {plural && 's'} and only {plural ? 'those' : 'that'} story group
-                    {plural && 's'} will be trained. {link}
-                </Message>
-            )
-        );
-    };
-    const renderStoriesContainer = () => (
-        <ConversationOptionsContext.Provider
-            value={{
-                browseToSlots: () => setSlotsModal(true),
-                stories: storiesReshaped,
-                storyGroups,
-                deleteStoryGroup: handleDeleteGroup,
-            }}
-        >
-            {modalWrapper(
-                slotsModal,
-                'Slots',
-                <SlotsEditor slots={slots} projectId={projectId} />,
-            )}
-            {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
-            <Container>
-                <Grid className='stories-container'>
-                    <Grid.Row columns={2}>
-                        <Grid.Column width={4}>
-                            {renderMessages()}
-                            <StoryGroupBrowser
-                                data={storyGroups}
-                                allowAddition
-                                allowEdit
-                                index={storyGroupCurrent}
-                                onAdd={handleAddStoryGroup}
-                                onChange={changeStoryGroup}
-                                onSwitchStoryMode={changeStoryMode}
-                                storyMode={storyMode}
-                                nameAccessor='name'
-                                selectAccessor='selected'
-                                toggleSelect={handleStoryGroupSelect}
-                                changeName={handleNameChange}
-                                placeholderAddItem='Choose a group name'
-                                modals={{ setSlotsModal, setPoliciesModal }}
-                            />
-                        </Grid.Column>
-
-                        <Grid.Column width={12}>
-                            <StoryEditors
-                                onDeleteGroup={handleDeleteGroup}
-                                projectId={projectId}
-                                storyGroups={storyGroups}
-                                storyGroup={storyGroups[storyGroupCurrent]}
-                            />
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-            </Container>
-        </ConversationOptionsContext.Provider>
+                {modalWrapper(
+                    slotsModal,
+                    'Slots',
+                    <SlotsEditor slots={slots} projectId={projectId} />,
+                )}
+                {modalWrapper(policiesModal, 'Policies', <PoliciesEditor />, false)}
+                <SplitPane
+                    split='vertical'
+                    minSize={200}
+                    defaultSize={300}
+                    maxSize={400}
+                    primary='first'
+                    allowResize
+                    className={`no-margin ${resizing ? '' : 'width-transition'}`}
+                    onDragStarted={() => setResizing(true)}
+                    onDragFinished={() => setResizing(false)}
+                    style={{ height: 'calc(100% - 49px)' }}
+                    pane1Style={{ overflow: 'hidden' }}
+                    pane2Style={{ marginTop: '1rem', overflowY: 'auto' }}
+                >
+                    <div className='storygroup-browser'>
+                        <StoryGroupNavigation
+                            allowAddition
+                            placeholderAddItem='Choose a group name'
+                            modals={{ setSlotsModal, setPoliciesModal }}
+                        />
+                        <StoryGroupTree
+                            storyGroups={storyGroups}
+                            stories={stories}
+                            onChangeActiveStories={setActiveStories}
+                            activeStories={activeStories}
+                            isStoryDeletable={isStoryDeletable}
+                        />
+                    </div>
+                    <Container>
+                        <StoryEditors
+                            projectId={projectId}
+                            selectedIds={activeStories}
+                        />
+                    </Container>
+                </SplitPane>
+            </ConversationOptionsContext.Provider>
+        </Loading>
     );
-
-    if (ready) return renderStoriesContainer();
-    return null;
 }
 
 Stories.propTypes = {
     projectId: PropTypes.string.isRequired,
     ready: PropTypes.bool.isRequired,
     storyGroups: PropTypes.array.isRequired,
-    changeStoryGroup: PropTypes.func.isRequired,
-    changeStoryMode: PropTypes.func.isRequired,
-    storyGroupCurrent: PropTypes.number,
-    storyMode: PropTypes.string,
+    stories: PropTypes.array.isRequired,
+    router: PropTypes.object.isRequired,
+    activeStories: PropTypes.array.isRequired,
+    setActiveStories: PropTypes.func.isRequired,
 };
 
 Stories.defaultProps = {
-    storyGroupCurrent: 0,
-    storyMode: 'visual',
 };
 
-
-const StoriesWithTracker = withTracker((props) => {
-    const { projectId, storyGroupCurrent, changeStoryGroup } = props;
+const StoriesWithTracker = withRouter(withTracker((props) => {
+    const { projectId } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
-    // fetch and sort story groups
-    const unsortedStoryGroups = StoryGroups.find({}, { sort: [['introStory', 'desc']] }).fetch();
-    const sortedStoryGroups = unsortedStoryGroups // sorted on the frontend
-        .slice(1)
-        .sort((storyGroupA, storyGroupB) => {
-            const nameA = storyGroupA.name.toUpperCase();
-            const nameB = storyGroupB.name.toUpperCase();
-            if (nameA < nameB) {
-                return -1;
-            }
-            if (nameA > nameB) {
-                return 1;
-            }
-            return 0;
-        });
-    // unsortedStoryGroups[0] is the intro story group
-    const smartStoryGroup = {
-        _id: 'SMART_STORY_GROUP',
-        name: 'Smart stories',
-        projectId,
-        query: { 'rules.0.payload': { $exists: true } },
-    };
-    const storyGroups = [unsortedStoryGroups[0], smartStoryGroup, ...sortedStoryGroups];
-
-    let sgIndex = storyGroupCurrent;
-    if (!storyGroups[sgIndex]) {
-        if (storyGroups[sgIndex + 1]) sgIndex += 1;
-        else if (storyGroups[sgIndex - 1]) sgIndex -= 1;
-        else sgIndex = 0;
-        changeStoryGroup(sgIndex);
-    }
+    const storyGroups = StoryGroups.find().fetch();
+    const stories = StoriesCollection.find().fetch();
 
     return {
         ready:
             storyGroupsHandler.ready()
             && storiesHandler.ready(),
         storyGroups,
-        stories: StoriesCollection.find({}).fetch(),
-        storyGroupCurrent: sgIndex,
+        stories,
     };
-})(Stories);
+})(Stories));
 
 const mapStateToProps = state => ({
-    storyGroupCurrent: state.stories.get('storyGroupCurrent'),
-    storyMode: state.stories.get('storyMode'),
+    activeStories: state.stories.get('storiesCurrent').toJS(),
 });
 
-const mapDispatchToProps = {
-    changeStoryGroup: setStoryGroup,
-    changeStoryMode: setStoryMode,
-};
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(StoriesWithTracker);
+export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(StoriesWithTracker);

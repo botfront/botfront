@@ -73,12 +73,8 @@ describe('Bot responses', function() {
         cy.dataCy('response-text').find('div').contains('edited deleted').should('not.exist');
     });
     it('should show the first variation in the visual editor', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        cy.dataCy('story-title').should('have.value', 'myTest');
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
 
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.dataCy('add-bot-line').click({ force: true });

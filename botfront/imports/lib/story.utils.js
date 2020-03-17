@@ -394,7 +394,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
 
     const stories = [];
     selectedStoryGroups.forEach(({ _id, name }) => {
-        const storiesForThisSG = storiesBySG[_id]
+        const storiesForThisSG = (storiesBySG[_id] || [])
             .map(story => appendBranchCheckpoints(story))
             .map(story => insertSmartPayloads(story))
             .reduce((acc, story) => [...acc, ...flattenStory((story))], [])

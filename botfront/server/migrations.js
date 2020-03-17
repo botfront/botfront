@@ -7,6 +7,7 @@ import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
 import { Stories } from '../imports/api/story/stories.collection';
+import { StoryGroups } from '../imports/api/storyGroups/storyGroups.collection';
 import { aggregateEvents } from '../imports/lib/story.utils';
 import Activity from '../imports/api/graphql/activity/activity.model';
 
@@ -267,6 +268,43 @@ Migrations.add({
 
     },
 });
+
+Migrations.add({
+    version: 11, // CE version 7
+    // Touch up on story and storygroup schema
+    up: async () => {
+        const stories = Stories.find().fetch();
+        const storyGroups = StoryGroups.find().fetch();
+        storyGroups.sort((a, b) => b.introStory - a.introStory);
+        const children = {};
+        const projectIds = new Set();
+
+        stories.forEach((s) => {
+            // add to list of children
+            children[s.storyGroupId] = [...(children[s.storyGroupId] || []), s._id];
+            projectIds.add(s.projectId);
+        });
+
+        storyGroups.forEach(sg => StoryGroups.update(
+            { _id: sg._id },
+            {
+                $set: {
+                    isExpanded: !!sg.introStory,
+                    children: children[sg._id],
+                },
+            },
+        ));
+
+        // add storygroup key under projects
+        Array.from(projectIds).forEach((projectId) => {
+            const storyGroupsForProject = storyGroups
+                .filter(sg => sg.projectId === projectId)
+                .map(sg => sg._id);
+            Projects.update({ _id: projectId }, { $set: { storyGroups: storyGroupsForProject } });
+        });
+    },
+});
+
 
 Meteor.startup(() => {
     Migrations.migrateTo('latest');

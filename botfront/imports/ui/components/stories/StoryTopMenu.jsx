@@ -1,39 +1,29 @@
 import {
-    Popup, Icon, Menu, Dropdown, Label, Message, Header,
+    Popup, Icon, Menu, Label, Message,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
-
-import ConfirmPopup from '../common/ConfirmPopup';
-import ToolTipPopup from '../common/ToolTipPopup';
-import StoryRulesEditor from './rules/StoryRulesEditor';
-import { setStoryCollapsed } from '../../store/actions/actions';
 import StoryPlayButton from './StoryPlayButton';
-
+import {
+    setStoryCollapsed, setStoriesCollapsed,
+} from '../../store/actions/actions';
 import { ConversationOptionsContext } from './Context';
+import StoryRulesEditor from './rules/StoryRulesEditor';
 import { can } from '../../../lib/scopes';
 
 const StoryTopMenu = ({
-    onDelete,
-    onMove,
     storyId,
     title,
-    onRename,
-    disabled,
-    // onClone, the story duplication is deactivated for now, it may cause issues with response edition
-    groupNames,
     collapsed,
     collapseStory,
     warnings: warningDetails,
     errors: errorDetails,
     isDestinationStory,
     originStories,
-    isLinked,
     rules,
-    isInSmartStories,
     initPayload,
     collapseAllStories,
     projectId,
@@ -42,22 +32,15 @@ const StoryTopMenu = ({
     const warnings = warningDetails.length;
 
     const [newTitle, setNewTitle] = useState(title);
-    const [deletePopupOpened, openDeletePopup] = useState(false);
-    const [movePopupOpened, openMovePopup] = useState(false);
-    const [moveDestination, setMoveDestination] = useState(null);
     const [triggerEditorOpen, setTriggerEditorOpen] = useState(false);
+    useEffect(() => setNewTitle(title), [title]);
 
-    const { stories, storyGroups } = useContext(ConversationOptionsContext);
+    const { stories, updateStory } = useContext(ConversationOptionsContext);
 
     const submitTitleInput = () => {
-        if (title === newTitle) {
-            return;
-        }
-        if (!newTitle.replace(/\s/g, '').length) {
-            setNewTitle(title);
-            return;
-        }
-        onRename(newTitle);
+        if (title === newTitle) return null;
+        if (!newTitle.replace(/\s/g, '').length) return setNewTitle(title);
+        return updateStory({ _id: storyId, title: newTitle });
     };
 
     const handleInputKeyDown = (event) => {
@@ -71,8 +54,14 @@ const StoryTopMenu = ({
             event.stopPropagation();
             setNewTitle(title);
             event.target.blur();
-            onRename(title);
+            updateStory({ _id: storyId, title });
         }
+    };
+
+    const handleCollapseAllStories = () => {
+        const storiesCollapsed = {};
+        stories.forEach(({ _id }) => { storiesCollapsed[_id] = !collapsed; });
+        collapseAllStories(storiesCollapsed);
     };
 
     const renderWarnings = () => {
@@ -106,105 +95,12 @@ const StoryTopMenu = ({
     };
 
     const renderConnectedStories = () => {
-        const storyGroupIdDictionary = {};
-
-        storyGroups.forEach((storyGroup) => {
-            storyGroupIdDictionary[storyGroup._id] = storyGroup.name;
-        });
-
-        const storyIdDictionary = {};
-        stories.forEach((story) => {
-            storyIdDictionary[story._id] = {
-                storyGroupId: story.storyGroupId,
-                title: story.title,
-            };
-        });
-        const connectedStories = {};
-        originStories.forEach((path, index) => {
-            if (!Array.isArray(path) || storyIdDictionary[path[0]] === undefined) {
-                return;
-            }
-            const story = storyIdDictionary[path[0]];
-            if (connectedStories[story.storyGroupId] === undefined) {
-                connectedStories[story.storyGroupId] = [];
-            }
-            connectedStories[story.storyGroupId] = [
-                ...connectedStories[story.storyGroupId],
-                <p key={index} className='title-list-elem'>
-                    <span className='story-title-prefix'>##</span>
-                    {story.title}
-                </p>,
-            ];
-        });
-        return Object.keys(connectedStories).map(key => (
-            <React.Fragment key={storyGroupIdDictionary[key]}>
-                <Header>
-                    {storyGroupIdDictionary[key]}
-                </Header>
-                {connectedStories[key]}
-            </React.Fragment>
+        const connectedStories = stories.filter(({ _id }) => originStories.some(originId => _id === originId[0]));
+        return connectedStories.map(({ _id, title: connectedTitle }) => (
+            <p key={_id} className='title-list-elem'>
+                <span className='story-title-prefix'>##</span>{connectedTitle}
+            </p>
         ));
-    };
-
-    const renderDeletePopup = () => {
-        let toolTipText = [];
-        if (isDestinationStory) {
-            toolTipText = [
-                ...toolTipText,
-                'A story that is the destination of a link in another story cannot be deleted.',
-            ];
-        }
-        if (isLinked) {
-            toolTipText = [
-                ...toolTipText,
-                'A story that is linked to another story cannot be deleted.',
-            ];
-        }
-        if (isInSmartStories) {
-            toolTipText = [
-                'To delete this story, open it in it\'s original group.',
-            ];
-        }
-        return isLinked || isDestinationStory || isInSmartStories ? (
-            <ToolTipPopup
-                trigger={(
-                    <Icon
-                        disabled={isDestinationStory || isLinked || isInSmartStories}
-                        name='trash'
-                        data-cy='delete-story'
-                        className='top-menu-clickable'
-                    />
-                )}
-                toolTipText={toolTipText}
-                header='This story cannot be deleted'
-            />
-        ) : (
-            <Popup
-                trigger={(
-                    <Icon
-                        disabled={isDestinationStory || isLinked}
-                        name='trash'
-                        data-cy='delete-story'
-                        className='top-menu-clickable'
-                    />
-                )}
-                disabled={isDestinationStory || isLinked}
-                content={(
-                    <ConfirmPopup
-                        title='Delete story ?'
-                        onYes={() => {
-                            openDeletePopup(false);
-                            onDelete();
-                        }}
-                        onNo={() => openDeletePopup(false)}
-                    />
-                )}
-                on='click'
-                open={deletePopupOpened}
-                onOpen={() => openDeletePopup(true)}
-                onClose={() => openDeletePopup(false)}
-            />
-        );
     };
 
     return (
@@ -219,12 +115,8 @@ const StoryTopMenu = ({
                         name='triangle right'
                         className={`${collapsed ? '' : 'opened'}`}
                         link
-                        onClick={() => {
-                            collapseStory(storyId, !collapsed);
-                        }}
-                        onDoubleClick={() => {
-                            collapseAllStories(!collapsed);
-                        }}
+                        onClick={() => collapseStory(storyId, !collapsed)}
+                        onDoubleClick={() => handleCollapseAllStories()}
                         data-cy='collapse-story-button'
                     />
                     {isDestinationStory ? (
@@ -235,11 +127,10 @@ const StoryTopMenu = ({
                     <input
                         data-cy='story-title'
                         value={newTitle}
-                        onChange={event => setNewTitle(event.target.value.replace('_', ''))
-                        }
+                        onChange={event => setNewTitle(event.target.value.replace('_', ''))}
                         onKeyDown={handleInputKeyDown}
                         onBlur={submitTitleInput}
-                        disabled={disabled || !can('stories:w', projectId)}
+                        disabled // don't allow name change here, so we don't have to update left-hand tree
                     />
                 </Menu.Item>
                 <Menu.Item position='right'>
@@ -270,68 +161,6 @@ const StoryTopMenu = ({
                         initPayload={initPayload}
                         className='top-menu-clickable'
                     />
-                    {can('stories:w', projectId) && (
-                        <Popup
-                            trigger={(
-                                <div>
-                                    <Popup
-                                        disabled={!isInSmartStories}
-                                        trigger={(
-                                            <div>
-                                                <Icon name='dolly' data-cy='move-story' disabled={isInSmartStories} className='move-icon' />
-                                            </div>
-                                        )}
-                                        header='This story cannot be moved'
-                                        content={'To move this story, open it in it\'s original group.'}
-                                    />
-                                </div>
-                            )}
-                            content={(
-                                <ConfirmPopup
-                                    title='Move story to :'
-                                    content={(
-                                        <Dropdown
-                                            button
-                                            openOnFocus
-                                            search
-                                            basic
-                                            placeholder='Select a group'
-                                            fluid
-                                            selection
-                                            value={moveDestination}
-                                            options={groupNames}
-                                            onChange={(e, data) => {
-                                                setMoveDestination(data.value);
-                                            }}
-                                            data-cy='move-story-dropdown'
-                                        />
-                                    )}
-                                    onYes={() => {
-                                        if (moveDestination) {
-                                            openMovePopup(false);
-                                            onMove(moveDestination);
-                                        }
-                                    }}
-                                    onNo={() => openMovePopup(false)}
-                                />
-                            )}
-                            disabled={isInSmartStories}
-                            on='click'
-                            open={movePopupOpened}
-                            onOpen={() => openMovePopup(true)}
-                            onClose={() => openMovePopup(false)}
-                        />
-                    )}
-                    { /*
-                        the story duplication is deactivated for now, it may cause issues with response edition
-                        <Icon
-                        name='clone'
-                        color='grey'
-                        link
-                        data-cy='duplicate-story'
-                        onClick={onClone}
-                    /> */}
-                    {can('stories:w', projectId) && renderDeletePopup()}
                 </Menu.Item>
             </Menu>
             {isDestinationStory && (
@@ -376,21 +205,13 @@ const StoryTopMenu = ({
 StoryTopMenu.propTypes = {
     title: PropTypes.string.isRequired,
     storyId: PropTypes.string.isRequired,
-    onDelete: PropTypes.func.isRequired,
-    onMove: PropTypes.func.isRequired,
-    disabled: PropTypes.bool.isRequired,
-    onRename: PropTypes.func.isRequired,
-    onClone: PropTypes.func.isRequired,
-    groupNames: PropTypes.array.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
     warnings: PropTypes.array.isRequired,
     errors: PropTypes.array.isRequired,
-    isDestinationStory: PropTypes.bool.isRequired,
-    originStories: PropTypes.array.isRequired,
-    isLinked: PropTypes.bool,
     rules: PropTypes.array,
-    isInSmartStories: PropTypes.bool,
+    isDestinationStory: PropTypes.bool,
+    originStories: PropTypes.array,
     initPayload: PropTypes.string,
     collapseAllStories: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
@@ -398,10 +219,8 @@ StoryTopMenu.propTypes = {
 
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
-    isLinked: false,
     originStories: [],
     rules: [],
-    isInSmartStories: false,
     initPayload: null,
 };
 
@@ -412,6 +231,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = {
     collapseStory: setStoryCollapsed,
+    collapseAllStories: setStoriesCollapsed,
 };
 
 export default connect(

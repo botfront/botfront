@@ -1,24 +1,13 @@
 /* global cy Cypress:true */
 describe('Training', function() {
-    function clickStoryGroup(group) {
-        const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
-        positions.map(p => cy.contains(group).click(p, { force: true }));
-    }
-
     function createStories() {
-        // cy.visit('/project/bf/stories');
-        // cy.dataCy('toggle-md').click({ force: true });
-        // cy.dataCy('add-item').click({ force: true });
-        // cy.dataCy('add-item-input')
-        //     .find('input')
-        //     .type('Test Group{enter}');
-        // cy.dataCy('browser-item').contains('Test Group').click();
-        // cy.dataCy('story-title').should('have.value', 'Test Group');
-        // cy.dataCy('single-story-editor')
-        //     .click()
-        //     .find('textarea')
-        //     .type('{selectAll}{del}* chitchat.greet\n  - utter_hi', { force: true })
-        //     .blur();
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
+        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('story-editor')
+            .get('textarea')
+            .focus()
+            .type('{selectAll}{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true });
     }
 
     before(function() {

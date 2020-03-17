@@ -33,14 +33,4 @@ describe('chat side panel handling', function() {
             .contains('en')
             .click();
     });
-
-    it('should display the chat without any initial payload', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('delete-story')
-            .click();
-        cy.dataCy('confirm-yes').click();
-        cy.get('[data-cy=open-chat]').click();
-        cy.get('[data-cy=chat-pane]');
-        cy.get('.widget-embedded');
-    });
 });

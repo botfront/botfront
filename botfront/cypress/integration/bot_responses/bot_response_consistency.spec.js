@@ -1,13 +1,25 @@
 /* eslint-disable no-undef */
 
-function clickStoryGroup(group) {
-    const positions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
-    positions.map(p => cy.contains(group).click(p, { force: true }));
-}
+const RESPONSE_TEXT = 'test delete';
+const STORY_NAME = 'myStory';
+const GROUP_NAME = 'myGroup';
+
+const createResponse = () => {
+    cy.dataCy('from-text-template').click({ force: true });
+    cy.dataCy('bot-response-input')
+        .find('textarea').should('be.empty');
+    cy.dataCy('bot-response-input')
+        .find('textarea')
+        .clear()
+        .type(RESPONSE_TEXT)
+        .blur();
+};
 
 describe('Bot responses', function() {
     beforeEach(function() {
         cy.createProject('bf').then(() => cy.login());
+        cy.createStoryGroup({ groupName: GROUP_NAME });
+        cy.createStoryInGroup({ groupName: GROUP_NAME, storyName: STORY_NAME });
     });
 
     afterEach(function() {
@@ -15,20 +27,7 @@ describe('Bot responses', function() {
     });
 
     it('Should delete an existing response from the project when it is deleted in a story', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        clickStoryGroup('myTest');
-
-        cy.dataCy('from-text-template').click({ force: true });
-        cy.dataCy('bot-response-input')
-            .find('textarea').should('be.empty');
-        cy.dataCy('bot-response-input')
-            .find('textarea')
-            .clear()
-            .type('test delete response default');
+        createResponse();
         cy.wait(500);
         cy.dataCy('story-title')
             .click({ force: true });
@@ -41,76 +40,32 @@ describe('Bot responses', function() {
     });
 
     it('Should delete a response in a story from the project when the story is deleted', function() {
+        createResponse();
+        cy.visit('/project/bf/dialogue/templates');
+        cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
+
         cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        clickStoryGroup('myTest');
-
-        cy.dataCy('from-text-template').click({ force: true });
-        cy.dataCy('bot-response-input')
-            .find('textarea').should('be.empty');
-        cy.dataCy('bot-response-input')
-            .find('textarea')
-            .clear()
-            .type('test delete response delete story');
-        
-        // add a story so that the story group is not deleted
-        // ensuring that this test only tests deleting responses when a story is deleted
-        cy.dataCy('add-story').click();
-        cy.dataCy('single-story-editor').should('have.length', 2);
-
-        cy.dataCy('delete-story').first().click();
-        cy.dataCy('confirm-yes').click({ force: true });
+        cy.deleteStoryOrGroup(STORY_NAME, 'story');
+        cy.wait(500);
         
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('no-responses').should('exist');
     });
 
     it('Should delete an existing response from the project when the story group is deleted', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        clickStoryGroup('myTest');
-
-        cy.dataCy('from-text-template').click({ force: true });
-        cy.dataCy('bot-response-input')
-            .find('textarea').should('be.empty');
-        cy.dataCy('bot-response-input')
-            .find('textarea')
-            .clear()
-            .type('delete storyGroup test response');
+        createResponse();
+        cy.visit('/project/bf/dialogue/templates');
+        cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
         
-        cy.dataCy('browser-item')
-            .contains('myTest')
-            .parents('[data-cy=browser-item]')
-            .findCy('ellipsis-menu')
-            .click({ force: true })
-            .findCy('delete-menu')
-            .click({ force: true });
-        cy.get('.ui.primary.button').contains('Delete').click();
+        cy.visit('/project/bf/stories');
+        cy.deleteStoryOrGroup(STORY_NAME, 'story');
+        cy.wait(500);
 
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        clickStoryGroup('myTest');
-     
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('no-responses').should('exist');
     });
     
     it('Should delete a response in a branch when the branch is deleted', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click({ force: true });
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        clickStoryGroup('myTest');
-
         cy.dataCy('create-branch').click();
         cy.dataCy('add-branch').click();
         cy.dataCy('branch-menu')
@@ -168,6 +123,7 @@ describe('Bot responses', function() {
             .click({ force: true })
             .dataCy('confirm-yes')
             .click({ force: true });
+        cy.wait(500);
         // check the correct bot responses were deleted from the project
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('response-text').contains('first response should not exist').should('not.exist');

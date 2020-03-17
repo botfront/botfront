@@ -363,11 +363,6 @@ if (Meteor.isServer) {
             args: [projectId],
         },
         {
-            name: 'storyGroups.deleteChildStories',
-            roles: writers.stories,
-            args: [null, projectId],
-        },
-        {
             name: 'user.create',
             roles: writers.users,
             args: [{ roles: [{ project: 'bf' }] }],

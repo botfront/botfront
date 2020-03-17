@@ -87,9 +87,7 @@ export const StorySchema = new SimpleSchema({
     'events.$': { type: String },
     branches: { type: Array, defaultValue: [] },
     'branches.$': { type: intermediateSchemas[intermediateSchemas.length - 1][1] },
-    storyGroupId: {
-        type: String,
-    },
+    storyGroupId: String,
     projectId: { type: String },
     selected: { type: true, optional: true },
     checkpoints: { type: Array, optional: true },
