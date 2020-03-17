@@ -14,7 +14,7 @@
       "Building conversations",
       "Conversation flows",
       "Disambiguating user input",
-      "Optimization and other features"
+      "Advanced features"
     ]
   },
   {
@@ -31,13 +31,23 @@
     ]
   },
   {
-    "name": "Development",
-    "menu": ["Custom Actions", "Extending Rasa", "Contributing to Botfront"]
-  },
-  { "name": "Deployment", "menu": ["Server installation"] },
-  {
     "name": "Channels",
     "menu": ["Overview", "Chat widget on your website", "Facebook Messenger"]
+  },
+  { "name": "Installation & Deployment",
+    "menu": [
+      "Server Installation",
+      "Configuration"
+    ]
+  },
+  {
+    "name": "Developers",
+    "menu": ["Custom Actions", "Extending Rasa", "Contributing to Botfront"]
+  },
+  { "name": "Administration",
+    "menu": [
+      "Users and Roles"
+    ]
   },
   { "name": "Misc", "menu": ["Migration guide"] }
 ]

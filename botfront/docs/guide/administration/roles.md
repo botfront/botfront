@@ -1,16 +1,66 @@
-# Users
+---
+name: Users and Roles
+route: /docs/administration/users-and-roles/
+menu: Administration
+meta:
+  - name: description
+    content: "Configure your Botfront installation"
+  - name: keywords
+    content: botfront installation deployment
+---
+
+Available in: <Premium plan="Enterprise Edition" />
+
+# Users & Roles
+
+The Enterprise Edition allows you to create multiple projects and users.
+Additionnally you can assign roles to users.
 
 ## Roles and permissions
 
 Botfront uses a hierarchical persmissions system. Internally there is no difference between a role and a persmission as the system is based on inheritance.
 
-The difference resides in the naming convention. A permission has a `[resource]:[action]` syntax (e.g `nlu-data:x`), while the role has no constraint. 
+The difference resides in the naming convention. A permission has a `[resource]:[action]` syntax (e.g `nlu-data:x`), while the role has no constraint.
 
 While you can create arbitrary roles and permissions in the UI, you can only assign roles to users.
 
 
 
-### Built-in permissions
+
+
+## Built-in roles
+
+| Role            | Description                                                                                             | constraint    |
+|-----------------|---------------------------------------------------------------------------------------------------------|---------------|
+| `project-admin` | Can access and edit all resources of a project. Extends `projects:w`,`users:w`                          | `[projectId]` |
+| `global-admin`  | Can access and edit all resources of all projects and edit global settigs. Extends All permissions      |               |
+
+
+## Creating new roles
+
+To create a new role, Go to **Admin -> Roles**, and click the **Create role** button.
+
+![](../../images/users-roles/roles1.png)
+
+The give your role a **name**, **description**, and select the child roles.
+Here, we're creating a role that has access to all project resources, but cannot edit project settings, name, etc.
+
+![](../../images/users-roles/roles2.png)
+
+## Assign roles to users
+
+In the user page:
+1. Click the **+** to create an assignment.
+2. Select the project (left dropdown) and role (right dropdown). Note that you can give one user access to several projects with different roles
+
+![](../../images/users-roles/roles3.png)
+
+To give someone the **global-admin** role, you must select **GLOBAL** in the projects dropdown:
+
+![](../../images/users-roles/roles4.png)
+
+
+## Built-in permissions
 
 | Permission          | Description                                                                                                                                                                           | Constraint    |
 |---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
@@ -37,16 +87,3 @@ While you can create arbitrary roles and permissions in the UI, you can only ass
 
 
 > If no `projectId` constraint is specified the permission applies to al projects.
-
-
-### Built-in roles
-
-| Role            | Description                                                                                             | constraint    |
-|-----------------|---------------------------------------------------------------------------------------------------------|---------------|
-| `project-admin` | Can access and edit all resources of a project. Extends `projects:w`,`users:w`                          | `[projectId]` |
-| `global-admin`  | Can access and edit all resources of all projects and edit global settigs. Extends All permissions      |               |
-
-
-### Creating new roles
-
-TODO
