@@ -131,6 +131,8 @@ Meteor.methods({
         check(storyGroup, Object);
         try {
             const { _id, ...rest } = storyGroup;
+            const fields = Object.keys(rest).reduce((acc, curr) => ({ ...acc, [curr]: 1 }), {});
+            const storyGroupBefore = StoryGroups.findOne({ _id }, { fields });
             if (_id === 'root') {
                 const { projectId, children } = rest;
                 return Projects.update(
