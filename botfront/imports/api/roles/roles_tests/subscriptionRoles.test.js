@@ -507,20 +507,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             acceptedRoles: readers.stories,
         },
         {
-            name: 'smartStories',
-            collectionName: 'stories',
-            testDataInsert: async () => {
-                await Stories.insert(storyData);
-            },
-            testDataRemove: async (done) => {
-                await Stories.remove({ _id: 'testStory' });
-                done();
-            },
-            args: [projectId, { 'rules.0.payload': { $exists: true } }],
-            acceptedRoles: readers.stories,
-        },
-        {
-            name: 'stories.inGroup',
+            name: 'stories.selected',
             collectionName: 'stories',
             testDataInsert: async () => {
                 await Stories.insert(storyData);
