@@ -44,6 +44,7 @@ describe('Bot responses', function() {
 
         cy.visit('/project/bf/stories');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
+        cy.wait(500);
         
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('no-responses').should('exist');
@@ -56,6 +57,7 @@ describe('Bot responses', function() {
         
         cy.visit('/project/bf/stories');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
+        cy.wait(500);
 
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('no-responses').should('exist');
@@ -119,6 +121,7 @@ describe('Bot responses', function() {
             .click({ force: true })
             .dataCy('confirm-yes')
             .click({ force: true });
+        cy.wait(500);
         // check the correct bot responses were deleted from the project
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('response-text').contains('first response should not exist').should('not.exist');

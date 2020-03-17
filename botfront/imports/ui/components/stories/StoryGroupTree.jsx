@@ -82,6 +82,7 @@ export default function StoryGroupTree(props) {
     };
     const selectionIsNonContiguous = useMemo(
         () => (activeStories || []).some((s, i, a) => {
+            if (!(s in tree.items)) return false;
             const differentMother = tree.items[s].parentId
                     !== tree.items[a[Math.min(i + 1, a.length - 1)]].parentId;
             if (differentMother) return true;
