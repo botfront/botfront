@@ -48,29 +48,30 @@ Meteor.methods({
         check(projectId, String);
         check(options, Object);
         const { noClean } = options;
-
         if (Array.isArray(story)) {
+            const originStories = Stories.find({ _id: { $in: story.map(({ _id }) => _id) } }).fetch();
             return story.map(({ _id, ...rest }) => Stories.update(
                 { _id },
                 {
                     $set: {
                         ...rest,
-                        ...indexStory(rest, { includeEventsField: true }),
+                        ...indexStory(originStories.find(({ sid }) => sid === _id) || {}, { includeEventsField: true, update: { ...rest, _id } }),
                     },
                 },
             ));
         }
         const { _id, path, ...rest } = story;
-        if (!path) {
-            if (story.story || story.branches) {
-                rest.textIndex = indexStory(story);
-            }
-            if (story.title) {
-                rest.textIndex.info = story.title;
-            }
-            return Stories.update({ _id }, { $set: { ...rest } });
-        }
         const originStory = Stories.findOne({ _id });
+
+        if (!path) {
+            return Stories.update({ _id }, {
+                $set: {
+                    ...rest,
+                    ...indexStory(originStory, { includeEventsField: true, update: { ...rest, _id } }),
+                },
+            });
+        }
+
         const { textIndex, events: newEvents } = indexStory(originStory, {
             update: { ...rest, _id: path[path.length - 1] },
             includeEventsField: true,

@@ -2,6 +2,8 @@ import {
     Search,
     Menu,
     Icon,
+    Item,
+    Button,
 } from 'semantic-ui-react';
 import { debounce } from 'lodash';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -26,15 +28,12 @@ const SearchBar = (props) => {
         setActiveStories,
         activeStories,
     } = props;
+
     const [queryString, setQueryString] = useState('');
     const [open, setOpen] = useState(false);
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
-    /*
-        if mutliSelectMode: true, result item clicks (with shift not held) will:
-            - add the _id of the target result to the list of active stories
-            - close the searchbar
-    */
+
     const searchStories = debounce(async () => {
         const { data } = await apolloClient.query({
             query: SEARCH_STORIES,
@@ -50,9 +49,11 @@ const SearchBar = (props) => {
         })));
     }, 500);
 
+    // close the search results dropdown on outside clicks
     document.addEventListener('click', () => {
         setOpen(false);
     });
+    
     const pushActiveStory = (_id) => {
         const { location: { pathname } } = router;
         const nextActiveStories = new Set();
@@ -67,7 +68,6 @@ const SearchBar = (props) => {
             query: { 'ids[]': Array.from(nextActiveStories) },
         });
         setActiveStories(nextActiveStories);
-        setOpen(false);
     };
 
     const linkToStory = (event, { result }) => {
@@ -78,7 +78,6 @@ const SearchBar = (props) => {
             return;
         }
         router.replace({ pathname, query: { 'ids[]': _id } });
-
         setActiveStories([_id]);
         setOpen(false);
     };
@@ -86,22 +85,23 @@ const SearchBar = (props) => {
     const renderSearchItem = (resultProps) => {
         const { title, _id, description: storyGroupId } = resultProps;
         const storyGroup = storyGroups.find(({ _id: gid }) => gid === storyGroupId);
+        const isOpen = activeStories === _id || (Array.isArray(activeStories) && activeStories.includes(_id));
         return (
             <Menu.Item
                 className='stories-search-result'
+                data-cy='stories-search-item'
                 fitted
             >
-                <span>{title}</span>
+                <span className='story-name'>{title}</span>
                 <span className='story-group-name'>
                     {storyGroup && storyGroup.name}
                 </span>
                 <Icon
-                    disabled={!(activeStories === _id || (Array.isArray(activeStories) && activeStories.includes(_id)))}
-                    className='push-story-icon'
+                    className={`push-story-icon ${isOpen ? 'story-open' : 'story-closed'}`}
                     floating='right'
                     name='eye'
                     id='push-story-icon'
-                    onClick={() => pushActiveStory(_id)}
+                    data-cy='add-search-result-to-open'
                 />
             </Menu.Item>
         );
@@ -111,25 +111,29 @@ const SearchBar = (props) => {
         <>
             <Search
                 className={`story-search-bar ${queryString.length > 0 && 'has-text'}`}
+                results={results}
+                value={queryString}
+                resultRenderer={renderSearchItem}
+                icon={{ name: 'search', 'data-cy': 'stories-search-icon' }}
                 onSearchChange={(e, a) => {
                     const { value } = a;
                     if (value.length > 0) setOpen(true);
-                    if (value.length === 0) setOpen(false);
+                    if (value.length === 0) {
+                        setResults([]);
+                        setOpen(false);
+                    }
                     setQueryString(value);
                     setSearching(true);
                     searchStories(value);
                 }}
-                closeOnEscape
                 onResultSelect={linkToStory}
-                resultRenderer={renderSearchItem}
-                open={open}
-                value={queryString}
-                results={results}
-                loading={!ready || searching}
-                showNoResults={!searching}
                 onKeyDown={(e) => {
                     if (e.key === 'Escape') setOpen(false);
                 }}
+                loading={!ready || searching}
+                showNoResults={!searching}
+                open={open}
+                data-cy='stories-search-bar'
             />
         </>
     );

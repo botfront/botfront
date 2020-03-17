@@ -13,7 +13,7 @@ export const indexStory = (storyToIndex, options = {}) => {
                 this function.
                 used to update the Story collection "events" field
     */
-    const { includeEventsField } = options;
+    const { includeEventsField, update = {} } = options;
     const story = typeof storyToIndex === 'string'
         ? Stories.findOne({ _id: storyToIndex })
         : storyToIndex;
@@ -31,7 +31,7 @@ export const indexStory = (storyToIndex, options = {}) => {
         ...slots,
     ].join(' \n ');
     const result = {};
-    result.textIndex = { contents: storyContentIndex, info: story.title };
+    result.textIndex = { contents: storyContentIndex, info: update.title || story.title };
     if (includeEventsField) {
         const events = Array.from(new Set([...botResponses, ...actions]));
         result.events = events;

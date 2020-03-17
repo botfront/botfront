@@ -72,3 +72,8 @@ Cypress.Commands.add('renameStoryOrGroup', (name = 'Groupo', newName = 'Groupa',
     cy.dataCy('story-group-menu-item', name, filter).should('exist').as('found-item');
     renameStoryOrGroup('found-item', newName);
 });
+
+Cypress.Commands.add('toggleStoryGroupCollapsed', ({ groupName = 'Groupo' }) => {
+    const filter = '[type="story-group"]';
+    cy.dataCy('story-group-menu-item', groupName, filter).find('[data-cy=toggle-expansion-story-group]').click({ force: true });
+});
