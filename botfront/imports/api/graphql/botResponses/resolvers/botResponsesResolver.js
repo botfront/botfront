@@ -112,7 +112,7 @@ export default {
         },
         upsertResponse: async (_, args, auth) => {
             checkIfCan('responses:w', args.projectId, auth.user._id);
-            const responseBefore = getBotResponse(args.projectId, args.key);
+            const responseBefore = await getBotResponse(args.projectId, args.key);
             const response = await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
 
@@ -142,10 +142,12 @@ export default {
                 projectId: args.projectId,
                 operation: 'response-created',
                 resId: args.response.key,
-                after: { response },
+                // eslint-disable-next-line no-underscore-dangle
+                after: { response: response._doc },
                 resType: 'response',
             });
-            return { success: !!response.id };
+            
+            return { success: !!response._id };
         },
         async createResponses(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
