@@ -111,6 +111,8 @@ function Stories(props) {
 
     const handleStoryGroupUpdate = useCallback((storyGroup, f) => Meteor.call('storyGroups.update', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
+    const handleStoryGroupSetExpansion = useCallback((storyGroup, f) => Meteor.call('storyGroups.setExpansion', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
+
     const handleNewStory = useCallback((story, f) => Meteor.call(
         'stories.insert', {
             story: '', projectId, branches: [], ...story,
@@ -132,6 +134,7 @@ function Stories(props) {
                     addGroup: handleAddStoryGroup,
                     deleteGroup: handleDeleteGroup,
                     updateGroup: handleStoryGroupUpdate,
+                    setExpansionOnGroup: handleStoryGroupSetExpansion,
                     addStory: handleNewStory,
                     deleteStory: handleStoryDeletion,
                     updateStory: handleStoryUpdate,

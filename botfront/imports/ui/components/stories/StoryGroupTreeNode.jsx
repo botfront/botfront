@@ -18,6 +18,7 @@ function StoryGroupTreeNode(props) {
         handleToggleFocus,
         handleRenameItem,
         selectionIsNonContiguous,
+        disabled,
     } = props;
     const [newTitle, setNewTitle] = useState('');
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
@@ -27,7 +28,8 @@ function StoryGroupTreeNode(props) {
 
     const trimLong = string => (string.length > 50 ? `${string.substring(0, 48)}...` : string);
     const isInSelection = activeStories.includes(item.id);
-    const disableDrag = isSmartNode || (selectionIsNonContiguous && activeStories.includes(item.id));
+    const disableEdit = disabled || isSmartNode || item.smartGroup;
+    const disableDrag = disabled || isSmartNode || (selectionIsNonContiguous && activeStories.includes(item.id));
 
     const icon = item.canBearChildren ? (
         <Icon
@@ -79,7 +81,7 @@ function StoryGroupTreeNode(props) {
         };
 
     const renderItemActions = () => (
-        <div className={`item-actions ${(isSmartNode || item.smartGroup) ? 'hidden' : ''}`}>
+        <div className={`item-actions ${disableEdit ? 'hidden' : ''}`}>
             {!isLeaf && (
                 <>
                     <Icon
@@ -170,8 +172,8 @@ function StoryGroupTreeNode(props) {
                             />
                         ) : (
                             <span
-                                className={`item-name ${(somethingIsMutating || isSmartNode || item.smartGroup) ? 'uneditable' : ''}`}
-                                {...(!(somethingIsMutating || isSmartNode || item.smartGroup) ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
+                                className={`item-name ${(somethingIsMutating || disableEdit) ? 'uneditable' : ''}`}
+                                {...(!(somethingIsMutating || disableEdit) ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
                             >
                                 {trimLong(item.title)}
                             </span>
@@ -199,9 +201,12 @@ StoryGroupTreeNode.propTypes = {
     handleToggleFocus: PropTypes.func.isRequired,
     handleRenameItem: PropTypes.func.isRequired,
     selectionIsNonContiguous: PropTypes.bool.isRequired,
+    disabled: PropTypes.bool,
 };
 
-StoryGroupTreeNode.defaultProps = {};
+StoryGroupTreeNode.defaultProps = {
+    disabled: false,
+};
 
 const StoryGroupTreeNodeWrapped = props => <StoryGroupTreeNode {...props} />;
 

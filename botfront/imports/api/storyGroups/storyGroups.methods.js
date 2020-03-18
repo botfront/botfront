@@ -157,4 +157,17 @@ Meteor.methods({
             return handleError(e);
         }
     },
+
+    'storyGroups.setExpansion'(storyGroup) {
+        checkIfCan('stories:r', storyGroup.projectId);
+        check(storyGroup, Object);
+        try {
+            const { _id, isExpanded } = storyGroup;
+            return StoryGroups.update(
+                { _id }, { $set: { isExpanded } },
+            );
+        } catch (e) {
+            return handleError(e);
+        }
+    },
 });
