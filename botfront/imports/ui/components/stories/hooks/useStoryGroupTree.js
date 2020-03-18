@@ -41,6 +41,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     };
     const {
         updateGroup = fallbackFunction,
+        setExpansionOnGroup = fallbackFunction,
         deleteGroup = fallbackFunction,
         updateStory = fallbackFunction,
         addStory = fallbackFunction,
@@ -51,13 +52,13 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     if (expand) {
         const { id } = tree.items[expand];
         setSomethingIsMutating(true);
-        updateGroup(convertId({ id, isExpanded: true }), () => setSomethingIsMutating(false));
+        setExpansionOnGroup(convertId({ id, isExpanded: true }), () => setSomethingIsMutating(false));
         return mutateTree(tree, expand, { isExpanded: true });
     }
     if (collapse) {
         const { id } = tree.items[collapse];
         setSomethingIsMutating(true);
-        updateGroup(convertId({ id, isExpanded: false }), () => setSomethingIsMutating(false));
+        setExpansionOnGroup(convertId({ id, isExpanded: false }), () => setSomethingIsMutating(false));
         return mutateTree(tree, collapse, { isExpanded: false });
     }
     if (remove) {

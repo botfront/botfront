@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+import { checkIfCan } from '../../lib/scopes';
 
 import { StoryGroups } from './storyGroups.collection';
 import { Projects } from '../project/project.collection';
@@ -116,6 +117,19 @@ Meteor.methods({
             }
             return StoryGroups.update(
                 { _id }, { $set: rest },
+            );
+        } catch (e) {
+            return handleError(e);
+        }
+    },
+
+    'storyGroups.setExpansion'(storyGroup) {
+        checkIfCan('stories:r', storyGroup.projectId);
+        check(storyGroup, Object);
+        try {
+            const { _id, isExpanded } = storyGroup;
+            return StoryGroups.update(
+                { _id }, { $set: { isExpanded } },
             );
         } catch (e) {
             return handleError(e);
