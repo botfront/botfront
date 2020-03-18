@@ -13,6 +13,7 @@ import { useStoryGroupTree } from './hooks/useStoryGroupTree';
 import StoryGroupTreeNode from './StoryGroupTreeNode';
 import { useEventListener } from '../utils/hooks';
 import { ProjectContext } from '../../layouts/context';
+import { can } from '../../../lib/scopes';
 
 export default function StoryGroupTree(props) {
     const {
@@ -29,12 +30,15 @@ export default function StoryGroupTree(props) {
     const [selectedNewItem, setSelectedNewItem] = useState(false);
     const [shouldScrollToActive, setShouldScrollToActive] = useState(false);
     const {
-        project: { storyGroups: storyGroupOrder = [] },
+        project: { _id: projectId, storyGroups: storyGroupOrder = [] },
     } = useContext(ProjectContext);
     const noScrollChangeActiveStories = (...args) => {
         setSelectedNewItem(true);
         onChangeActiveStories(...args);
     };
+
+    const disableEdit = useMemo(() => !can('stories:w', projectId), [projectId]);
+
     const treeFromProps = useMemo(() => {
         // build tree
         const newTree = {
@@ -233,6 +237,7 @@ export default function StoryGroupTree(props) {
             handleToggleFocus={handleToggleFocus}
             handleRenameItem={handleRenameItem}
             selectionIsNonContiguous={selectionIsNonContiguous}
+            disabled={disableEdit}
         />
     );
 
