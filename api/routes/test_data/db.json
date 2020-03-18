@@ -311,6 +311,12 @@
             ],
             "events": ["utter_test", "action_test", "utter_bot_A", "utter_bot_B", "action_test_A"],
             "story": "  - utter_test\n  - action_test\n  - utter_test",
+            "textIndex": {
+                   "textIndex": {
+                     "contents": "B \n b1 \n C \n c1 \n utter_test \n utter_test \n utter_bot_A \n utter_bot_B \n utter_bot_A \n action_test \n action_test_A",
+                     "info": "two-a"
+                   }
+                 },
             "checkpoints": [["two-a"]]
         },
         {
@@ -603,6 +609,7 @@
         {
             "_id": "5de93136f5ae1b474dfd6331",
             "key": "utter_get_stoped",
+            "textIndex": "utter_get_stoped\nutter_get_started",
             "values": [
                 { "sequence": [{ "content": "text: utter_get_started\n" }], "lang": "en" }
             ],

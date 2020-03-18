@@ -9,6 +9,8 @@ import { Projects } from '../imports/api/project/project.collection';
 import { Stories } from '../imports/api/story/stories.collection';
 import { StoryGroups } from '../imports/api/storyGroups/storyGroups.collection';
 import { aggregateEvents } from '../imports/lib/story.utils';
+import { indexBotResponse } from '../imports/api/graphql/botResponses/mongo/botResponses';
+import { indexStory } from '../imports/api/story/stories.index';
 import Activity from '../imports/api/graphql/activity/activity.model';
 
 /* globals Migrations */
@@ -315,6 +317,24 @@ Migrations.add({
 });
 
 
+Migrations.add({
+    version: 8,
+    up: () => {
+        BotResponses.find()
+            .lean()
+            .then((botResponses) => {
+                botResponses.forEach((botResponse) => {
+                    const textIndex = indexBotResponse(botResponse);
+                    BotResponses.updateOne({ _id: botResponse._id }, { textIndex }).exec();
+                });
+            });
+        const allStories = Stories.find().fetch();
+        allStories.forEach((story) => {
+            const { textIndex } = indexStory(story);
+            Stories.update({ _id: story._id }, { $set: { textIndex } });
+        });
+    },
+});
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

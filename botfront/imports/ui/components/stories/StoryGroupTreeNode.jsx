@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Menu, Input } from 'semantic-ui-react';
 
-function StoryGroupTreeNode(props) {
+const StoryGroupTreeNode = (props) => {
     const {
         item,
         provided,
@@ -184,7 +184,7 @@ function StoryGroupTreeNode(props) {
             </Menu.Item>
         </div>
     );
-}
+};
 
 StoryGroupTreeNode.propTypes = {
     item: PropTypes.object.isRequired,
