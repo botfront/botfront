@@ -72,7 +72,9 @@ class StoryGroupNavigation extends React.Component {
     );
 
     renderNavigation = () => {
-        const { modals, storyMode, onSwitchStoryMode } = this.props;
+        const {
+            modals, storyMode, onSwitchStoryMode, allowAddition,
+        } = this.props;
         return (
             <div className='navigation'>
                 <Button.Group fluid>
@@ -82,6 +84,7 @@ class StoryGroupNavigation extends React.Component {
                             onClick={() => this.setState({ addMode: true })}
                             data-cy='add-item'
                             icon
+                            disabled={!allowAddition}
                             content={<Icon name='add' />}
                             style={{ width: 0 }}
                         />,
@@ -125,7 +128,7 @@ class StoryGroupNavigation extends React.Component {
         } = this.props;
         const { addMode, newItemName } = this.state;
 
-        return allowAddition && !addMode
+        return !allowAddition || !addMode
             ? this.renderNavigation()
             : (
                 <Input

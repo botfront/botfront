@@ -75,7 +75,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'policies.save',
-            roles: writers.projects,
+            roles: writers.stories,
             args: [{ projectId }],
         },
         {
@@ -355,6 +355,11 @@ if (Meteor.isServer) {
         {
             name: 'storyGroups.update',
             roles: writers.stories,
+            args: [{ projectId }],
+        },
+        {
+            name: 'storyGroups.setExpansion',
+            roles: readers.stories,
             args: [{ projectId }],
         },
         {

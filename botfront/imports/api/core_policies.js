@@ -56,14 +56,14 @@ if (Meteor.isServer) {
     import { auditLog } from '../../server/logger';
 
     Meteor.publish('policies', function (projectId) {
-        checkIfCan('projects:r', projectId);
+        checkIfCan('stories:r', projectId);
         check(projectId, String);
         return CorePolicies.find({ projectId });
     });
 
     Meteor.methods({
         'policies.save'(policies) {
-            checkIfCan('projects:w', policies.projectId);
+            checkIfCan('stories:w', policies.projectId);
             check(policies, Object);
             try {
                 const policyBefore = CorePolicies.findOne({ projectId: policies.projectId });

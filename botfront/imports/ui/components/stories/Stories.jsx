@@ -17,6 +17,7 @@ import StoryGroupTree from './StoryGroupTree';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
 import { Loading } from '../utils/Utils';
+import { can } from '../../../lib/scopes';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
@@ -162,7 +163,7 @@ function Stories(props) {
                 >
                     <div className='storygroup-browser'>
                         <StoryGroupNavigation
-                            allowAddition
+                            allowAddition={can('stories:w', projectId)}
                             placeholderAddItem='Choose a group name'
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />

@@ -282,7 +282,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 done();
             },
             args: [projectId],
-            acceptedRoles: readers.projects,
+            acceptedRoles: readers.stories,
         },
         {
             name: 'credentials',
