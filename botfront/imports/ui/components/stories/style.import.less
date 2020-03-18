@@ -107,18 +107,18 @@
                 height: 100%;
                 text-overflow: ellipsis;
                 overflow: hidden;
-                cursor: text;
                 padding: 4px;
                 background-color: transparent;
                 border: 1px solid transparent;
                 border-radius: 4px;
 
-                &:hover,
-                &:focus {
+                &:hover:not(.uneditable),
+                &:focus:not(.uneditable) {
                     background-color: #fff;
                     border-color: #ccc;
                     font-weight: normal;
                     color: #000;
+                    cursor: text;
                 }
             }
             .item-actions {

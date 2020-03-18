@@ -68,11 +68,13 @@ function Stories(props) {
         return queriedIds;
     };
 
+    const cleanId = id => id.replace(/^.*_SMART_/, '');
+
     const setActiveStories = (newActiveStories) => {
         if (!getQueryParams().every(id => newActiveStories.includes(id))
         || !newActiveStories.every(id => getQueryParams().includes(id))) {
             const { location: { pathname } } = router;
-            router.replace({ pathname, query: { 'ids[]': newActiveStories } });
+            router.replace({ pathname, query: { 'ids[]': newActiveStories.map(cleanId) } });
         }
         doSetActiveStories(newActiveStories);
     };
@@ -172,7 +174,7 @@ function Stories(props) {
                     <Container>
                         <StoryEditors
                             projectId={projectId}
-                            selectedIds={activeStories}
+                            selectedIds={activeStories.map(cleanId)}
                         />
                     </Container>
                 </SplitPane>
