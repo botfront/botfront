@@ -14,7 +14,7 @@ type Mutation {
 
 
 type trackerStoreInfo{
-    tracker: [Any],
+    tracker: Any,
     lastIndex: Int,
     lastTimestamp: Float
 }
