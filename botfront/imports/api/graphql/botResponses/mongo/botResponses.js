@@ -39,13 +39,15 @@ const mergeAndIndexBotResponse = async ({
 }) => {
     const botResponse = await BotResponses.findOne({ projectId, key }).lean();
     if (!botResponse) {
-        console.log('no bot response, creating index');
-        console.log(newPayload);
         const textIndex = [key, ...indexResponseContent(newPayload)].join('\n');
         return textIndex;
     }
     const valueIndex = botResponse.values.findIndex(({ lang }) => lang === language);
-    botResponse.values[valueIndex].sequence[index] = { content: safeDump(clearTypenameField(newPayload)) };
+    if (valueIndex > -1) { // add to existing language
+        botResponse.values[valueIndex].sequence[index] = { content: safeDump(clearTypenameField(newPayload)) };
+    } else { // add a new language
+        botResponse.values = [...botResponse.values, { lang: language, sequence: [{ content: safeDump(clearTypenameField(newPayload)) }] }];
+    }
     return indexBotResponse(botResponse);
 };
 
@@ -115,7 +117,6 @@ export const getBotResponseById = async (_id) => {
 export const upsertResponse = async ({
     projectId, language, key, newPayload, index,
 }) => {
-    console.log(newPayload);
     const textIndex = await mergeAndIndexBotResponse({
         projectId, language, key, newPayload, index,
     });

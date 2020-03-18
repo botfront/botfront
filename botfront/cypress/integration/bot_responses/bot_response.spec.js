@@ -77,7 +77,7 @@ describe('Bot responses', function() {
         cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('dimmer').should('not.exist');
-        cy.wait(100);
+        cy.wait(1000);
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('response-text').contains('new response').should('exist');
         // verify original language has not changed
