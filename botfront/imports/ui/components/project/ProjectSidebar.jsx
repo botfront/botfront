@@ -40,7 +40,7 @@ class ProjectSidebar extends React.Component {
                     </Can>
                     <Can I='incoming:r' projectId={projectId}>
                         <Link to={`/project/${projectId}/incoming`}>
-                            <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-page' />
+                            <Menu.Item name='Incoming' icon='inbox' data-cy='incoming-sidebar-link' />
                         </Link>
                     </Can>
                     <Can I='responses:r' projectId={projectId}>

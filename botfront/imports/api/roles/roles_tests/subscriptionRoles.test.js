@@ -516,7 +516,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 await Stories.remove({ _id: 'testStory' });
                 done();
             },
-            args: [projectId, 'testStoryGroup'],
+            args: [projectId, ['testStory']],
             acceptedRoles: readers.stories,
         },
         {
@@ -532,7 +532,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             args: [projectId, 'testStoryGroup'],
             acceptedRoles: readers.stories,
             allowed: (result, done) => {
-                expect(['title', 'checkpoints', 'storyGroupId', '_id']).to.include.members(Object.keys(result.stories[0]));
+                expect(['title', 'checkpoints', 'storyGroupId', '_id', 'rules']).to.include.members(Object.keys(result.stories[0]));
                 expect(result.stories).to.have.length(1);
                 done();
             },

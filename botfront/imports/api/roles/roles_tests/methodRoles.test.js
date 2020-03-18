@@ -363,11 +363,6 @@ if (Meteor.isServer) {
             args: [{ projectId }],
         },
         {
-            name: 'storyGroups.removeFocus',
-            roles: writers.stories,
-            args: [projectId],
-        },
-        {
             name: 'user.create',
             roles: writers.users,
             args: [{ roles: [{ project: 'bf' }] }],
