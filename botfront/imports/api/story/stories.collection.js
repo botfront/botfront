@@ -6,6 +6,7 @@ import { StorySchema } from './stories.schema';
 
 export const Stories = new Mongo.Collection('stories');
 
+
 // Deny all client-side updates on the Projects collection
 Stories.deny({
     insert() {
@@ -17,6 +18,12 @@ Stories.deny({
     remove() {
         return true;
     },
+});
+
+Meteor.startup(() => {
+    if (Meteor.isServer) {
+        Stories._ensureIndex({ 'textIndex.contents': 'text', 'textIndex.info': 'text' });
+    }
 });
 
 if (Meteor.isServer) {

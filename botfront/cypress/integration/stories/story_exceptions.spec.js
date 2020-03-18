@@ -19,8 +19,8 @@ describe('story exceptions', function() {
         cy.dataCy('single-story-editor').eq(n).find('textarea').focus()
             .type(`{selectAll}{backSpace}{selectAll}{backSpace}{selectAll}{backSpace}${text}`, { force: true });
     };
-    const typeError = (n = 0) => type('* hi{enter}  - uu', n);
-    const typeWarning = (n = 0) => type('  - utter_hey', n);
+    const typeError = (n = 0) => type('{selectAll}{del}* hi{enter}  - uu', n);
+    const typeWarning = (n = 0) => type('{selectAll}{del}  - utter_hey', n);
 
     it('should display errors and warnings in the story top menu', function() {
         typeError();

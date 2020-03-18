@@ -59,9 +59,13 @@ if (Meteor.isServer) {
         metadata: {
             type: Schema.Types.Mixed,
         },
+        textIndex: {
+            type: String,
+        },
     }, { versionKey: false });
     
     botResponses.index({ key: 1, projectId: 1 }, { unique: true });
+    botResponses.index({ textIndex: 'text' });
     
     module.exports = mongoose.model('BotResponses', botResponses, 'botResponses');
     

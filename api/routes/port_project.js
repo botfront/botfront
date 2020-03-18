@@ -18,6 +18,7 @@ const { getVerifiedProject, aggregateEvents } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
 const { sortBy } = require('lodash');
+const { createResponsesIndex, createStoriesIndex  } = require('../server/searchIndex/searchIndexing.utils')
 
 const collectionsWithModelId = {
     activity: Activity,
@@ -39,7 +40,7 @@ const collections = { ...collectionsWithModelId, ...collectionsWithProjectId };
 const allCollections = { ...collections, models: NLUModels };
 exports.allCollections = allCollections;
 
-const nativizeProject = function(projectId, projectName, backup) {
+const nativizeProject = function (projectId, projectName, backup) {
     /*
         given a projectId and a backup, change all IDs of backup so as to avoid potential
         conflicts when importing to database.
@@ -146,7 +147,7 @@ const nativizeProject = function(projectId, projectName, backup) {
     return nativizedBackup;
 };
 
-const overwriteCollection = async function(projectId, modelIds, collection, backup) {
+const overwriteCollection = async function (projectId, modelIds, collection, backup) {
     if (!(collection in backup)) return;
     const model =
         collection in collectionsWithModelId
@@ -157,6 +158,18 @@ const overwriteCollection = async function(projectId, modelIds, collection, back
             ? { modelId: { $in: modelIds } }
             : { projectId };
     await model.deleteMany(filter).exec();
+    // if the first botresponse has an index, the backup is from a version with response indexing
+    // so we do not need to index it
+    if (collection === 'botResponses' &&  !backup[collection][0].textIndex) {
+        createResponsesIndex(projectId, backup[collection])
+        return
+    }
+    // if the first botresponse has an index, the backup is from a version with stories indexing
+    // so we do not need to index it
+    if (collection === 'stories' &&  !backup[collection][0].textIndex) {
+        createStoriesIndex(projectId, backup[collection])
+        return
+    }
     await model.insertMany(backup[collection]);
 };
 
@@ -207,7 +220,7 @@ const returnResponse = async (res, response, filename) => {
 
 exports.exportProjectValidator = [];
 
-exports.exportProject = async function(req, res) {
+exports.exportProject = async function (req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
@@ -310,7 +323,9 @@ const createResponsesFromOldFormat = (oldTemplates, projectId) => {
     return botResponses;
 };
 
-exports.importProject = async function(req, res) {
+
+
+exports.importProject = async function (req, res) {
     const { project_id: projectId } = req.params;
     const body = req.body instanceof Buffer ? await unzipFile(req.body) : req.body;
     try {

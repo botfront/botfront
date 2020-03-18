@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
-import { traverseStory, aggregateEvents } from '../../lib/story.utils';
+import { traverseStory } from '../../lib/story.utils';
+import { indexStory } from './stories.index';
 
 import { Stories } from './stories.collection';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
@@ -21,13 +22,13 @@ Meteor.methods({
                 return {
                     _id,
                     ...s,
-                    events: aggregateEvents(s),
+                    ...indexStory(s, { includeEventsField: true }),
                 };
             });
             result = await Stories.rawCollection().insertMany(stories);
             result = Object.values(result.insertedIds);
         } else {
-            result = [Stories.insert({ ...story, events: aggregateEvents(story) })];
+            result = [Stories.insert({ ...story, ...indexStory(story, { includeEventsField: true }) })];
             storyGroups[story.storyGroupId] = result;
         }
         return Object.keys(storyGroups).map((_id) => {
@@ -47,19 +48,34 @@ Meteor.methods({
         check(projectId, String);
         check(options, Object);
         const { noClean } = options;
-
         if (Array.isArray(story)) {
-            return story.map(({ _id, ...rest }) => Stories.update({ _id }, { $set: { ...rest } }));
+            const originStories = Stories.find({ _id: { $in: story.map(({ _id }) => _id) } }).fetch();
+            return story.map(({ _id, ...rest }) => Stories.update(
+                { _id },
+                {
+                    $set: {
+                        ...rest,
+                        ...indexStory(originStories.find(({ sid }) => sid === _id) || {}, { includeEventsField: true, update: { ...rest, _id } }),
+                    },
+                },
+            ));
         }
         const { _id, path, ...rest } = story;
-        if (!path) return Stories.update({ _id }, { $set: { ...rest } });
         const originStory = Stories.findOne({ _id });
 
-        // passing story.story and path[(last index)] AKA storyBranchId to aggregate events allows it to aggregate events with the updated story md
-        const newEvents = aggregateEvents(originStory, {
-            ...rest,
-            _id: path[path.length - 1],
-        }); // path[(last index)] is the id of the updated branch
+        if (!path) {
+            return Stories.update({ _id }, {
+                $set: {
+                    ...rest,
+                    ...indexStory(originStory, { includeEventsField: true, update: { ...rest, _id } }),
+                },
+            });
+        }
+
+        const { textIndex, events: newEvents } = indexStory(originStory, {
+            update: { ...rest, _id: path[path.length - 1] },
+            includeEventsField: true,
+        });
 
         const { indices } = traverseStory(originStory, path);
         const update = indices.length
@@ -70,10 +86,7 @@ Meteor.methods({
                 })),
             )
             : rest;
-        const result = await Stories.update(
-            { _id },
-            { $set: { ...update, events: newEvents } },
-        );
+        const result = await Stories.update({ _id }, { $set: { ...update, events: newEvents, textIndex } });
 
         if (!noClean) {
             // check if a response was removed
