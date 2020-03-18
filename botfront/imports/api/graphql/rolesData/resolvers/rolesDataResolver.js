@@ -36,7 +36,7 @@ export default {
         upsertRolesData: async (_parent, args, context) => {
             checkIfCan('roles:w', { anyScope: true }, context.user._id);
             const updatedRoleData = { ...args.roleData };
-            const roleInDb = await getRolesData(updatedRoleData.name);
+            const roleInDb = await getRolesData(updatedRoleData._id ? { _id: updatedRoleData._id } : { name: updatedRoleData.name });
             // We have to overwrite the deletable property to be sure no one tempers with it
             updatedRoleData.deletable = roleInDb.deletable;
 
@@ -46,6 +46,9 @@ export default {
                 return;
             }
 
+            if (roleInDb && roleInDb[0] && roleInDb[0].name && roleInDb[0].name !== updatedRoleData.name) {
+                Roles.deleteRole(roleInDb[0].name);
+            }
             let correspondingMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
             // That means it's a brand new role!
             if (!correspondingMeteorRole) {

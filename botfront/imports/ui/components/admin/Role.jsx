@@ -82,6 +82,7 @@ const Role = (props) => {
         upsertRolesData({
             variables: {
                 roleData: {
+                    _id: role._id,
                     name: role.name,
                     description: role.description,
                     children: role.children,
@@ -107,7 +108,7 @@ const Role = (props) => {
     };
 
     const disabled = roleData && roleData.deletable === false;
-
+    
     return (
         <>
             <PageMenu icon='shield alternate' title={roleName || 'New Role'} />

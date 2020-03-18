@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 export const GET_ROLES_DATA = gql`
     {
         getRolesData {
+            _id
             name
             description
             children

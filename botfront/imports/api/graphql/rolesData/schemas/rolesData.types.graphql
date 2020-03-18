@@ -1,4 +1,5 @@
 type RolesData {
+    _id: String
     name: String
     description: String
     deletable: Boolean
@@ -6,6 +7,7 @@ type RolesData {
 }
 
 input RoleDataInput {
+    _id: String
     name: String
     description: String
     deletable: Boolean
