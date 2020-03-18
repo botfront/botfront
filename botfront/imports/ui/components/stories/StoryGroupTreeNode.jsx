@@ -23,9 +23,11 @@ const StoryGroupTreeNode = (props) => {
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const renamerRef = useRef();
 
+    const isSmartNode = !!item.id.match(/^.*_SMART_/);
+
     const trimLong = string => (string.length > 50 ? `${string.substring(0, 48)}...` : string);
     const isInSelection = activeStories.includes(item.id);
-    const disableDrag = selectionIsNonContiguous && activeStories.includes(item.id);
+    const disableDrag = isSmartNode || (selectionIsNonContiguous && activeStories.includes(item.id));
 
     const icon = item.canBearChildren ? (
         <Icon
@@ -76,6 +78,47 @@ const StoryGroupTreeNode = (props) => {
             'data-react-beautiful-dnd-drag-handle': provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
         };
 
+    const renderItemActions = () => (
+        <div className={`item-actions ${(isSmartNode || item.smartGroup) ? 'hidden' : ''}`}>
+            {!isLeaf && (
+                <>
+                    <Icon
+                        className={`cursor pointer ${
+                            isFocused ? 'focused' : ''
+                        }`}
+                        data-cy='focus-story-group'
+                        name='eye'
+                        {...(!somethingIsMutating ? {
+                            onClick: () => handleToggleFocus(item.id),
+                            onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
+                        } : {})}
+                    />
+                    <Icon
+                        className='cursor pointer'
+                        data-cy='add-story-in-story-group'
+                        name='plus'
+                        {...(!somethingIsMutating ? {
+                            onClick: () => handleAddStory(
+                                item.id,
+                                `${item.title} (${item.children.length + 1})`,
+                            ),
+                            onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
+                        } : {})}
+                    />
+                </>
+            )}
+            <Icon
+                className='cursor pointer'
+                data-cy='delete-story-group'
+                name='trash'
+                {...(!somethingIsMutating ? {
+                    onClick: () => setDeletionModalVisible(item),
+                    onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
+                } : {})}
+            />
+        </div>
+    );
+
     return (
         <div
             ref={provided.innerRef}
@@ -98,7 +141,7 @@ const StoryGroupTreeNode = (props) => {
                         name='bars'
                         size='small'
                         color='grey'
-                        className={`drag-handle ${isDragging ? 'dragging' : ''}`}
+                        className={`drag-handle ${isDragging ? 'dragging' : ''} ${disableDrag ? 'hidden' : ''}`}
                         {...handleProps}
                     />
                     <div
@@ -127,51 +170,14 @@ const StoryGroupTreeNode = (props) => {
                             />
                         ) : (
                             <span
-                                className='item-name'
-                                {...(!somethingIsMutating ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
+                                className={`item-name ${(somethingIsMutating || isSmartNode || item.smartGroup) ? 'uneditable' : ''}`}
+                                {...(!(somethingIsMutating || isSmartNode || item.smartGroup) ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
                             >
                                 {trimLong(item.title)}
                             </span>
                         )}
                     </div>
-                    <div className='item-actions'>
-                        {!isLeaf && (
-                            <>
-                                <Icon
-                                    className={`cursor pointer ${
-                                        isFocused ? 'focused' : ''
-                                    }`}
-                                    data-cy='focus-story-group'
-                                    name='eye'
-                                    {...(!somethingIsMutating ? {
-                                        onClick: () => handleToggleFocus(item.id),
-                                        onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                                    } : {})}
-                                />
-                                <Icon
-                                    className='cursor pointer'
-                                    data-cy='add-story-in-story-group'
-                                    name='plus'
-                                    {...(!somethingIsMutating ? {
-                                        onClick: () => handleAddStory(
-                                            item.id,
-                                            `${item.title} (${item.children.length + 1})`,
-                                        ),
-                                        onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                                    } : {})}
-                                />
-                            </>
-                        )}
-                        <Icon
-                            className='cursor pointer'
-                            data-cy='delete-story-group'
-                            name='trash'
-                            {...(!somethingIsMutating ? {
-                                onClick: () => setDeletionModalVisible(item),
-                                onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                            } : {})}
-                        />
-                    </div>
+                    {renderItemActions()}
                 </div>
             </Menu.Item>
         </div>
