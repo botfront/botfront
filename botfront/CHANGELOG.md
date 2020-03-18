@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.21.0](https://github.com/botfront/botfront/compare/v0.20.3...v0.21.0) (2020-03-18)
+
+
+### Bug Fixes
+
+* duplicate story insertion bug ([83a063e](https://github.com/botfront/botfront/commit/83a063e))
+* training with empty story groups ([120056b](https://github.com/botfront/botfront/commit/120056b))
+
+
+### Features
+
+* seach stories by title and content ([45be252](https://github.com/botfront/botfront/commit/45be252))
+* **dnd tree:** better behavior ([b44ae15](https://github.com/botfront/botfront/commit/b44ae15))
+* **dnd tree:** extract logic to hook ([5e25eca](https://github.com/botfront/botfront/commit/5e25eca))
+* **dnd tree:** inline name editing ([e187633](https://github.com/botfront/botfront/commit/e187633))
+* **dnd tree:** no ellipsis menu ([9295f85](https://github.com/botfront/botfront/commit/9295f85))
+* **permalinks:** initial commit ([a307bf2](https://github.com/botfront/botfront/commit/a307bf2))
+* dnd tree poc wip initial commit ([123ad0a](https://github.com/botfront/botfront/commit/123ad0a))
+
+
+### Tests
+
+* bot response indexing ([e968c49](https://github.com/botfront/botfront/commit/e968c49))
+
+
+
 ### [0.20.3](https://github.com/botfront/botfront/compare/v0.20.2...v0.20.3) (2020-03-12)
 
 
