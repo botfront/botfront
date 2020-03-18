@@ -4,7 +4,6 @@ import React, {
     useCallback,
     useMemo,
     useContext,
-    useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Confirm, Portal } from 'semantic-ui-react';
@@ -27,15 +26,9 @@ export default function StoryGroupTree(props) {
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
     const [mouseDown, setMouseDown] = useState(false);
 
-    const [selectedNewItem, setSelectedNewItem] = useState(false);
-    const [shouldScrollToActive, setShouldScrollToActive] = useState(false);
     const {
         project: { _id: projectId, storyGroups: storyGroupOrder = [] },
     } = useContext(ProjectContext);
-    const noScrollChangeActiveStories = (...args) => {
-        setSelectedNewItem(true);
-        onChangeActiveStories(...args);
-    };
 
     const disableEdit = useMemo(() => !can('stories:w', projectId), [projectId]);
 
@@ -111,28 +104,6 @@ export default function StoryGroupTree(props) {
         [tree, activeStories],
     );
 
-    useEffect(() => {
-        if (selectedNewItem === true) {
-            setSelectedNewItem(false);
-            return;
-        }
-        const activeElement = document.getElementById(`story-menu-item-${activeStories[0]}`);
-        if (!activeElement) {
-            const group = Object.values(tree.items).find(({ children }) => children && children.includes(activeStories[0]));
-            if (!group) return;
-            handleExpand(group.id);
-            setShouldScrollToActive(true);
-            return;
-        }
-        activeElement.scrollIntoView();
-    }, [activeStories]);
-    useEffect(() => {
-        if (!shouldScrollToActive) return;
-        const activeElement = document.getElementById(`story-menu-item-${activeStories[0]}`);
-        if (activeElement) activeElement.scrollIntoView();
-        setShouldScrollToActive(false);
-    }, [shouldScrollToActive]);
-
     const getSiblingsAndIndex = (story, inputTree) => {
         const { id, parentId } = story;
         const siblingIds = inputTree.items[parentId].children;
@@ -144,7 +115,7 @@ export default function StoryGroupTree(props) {
 
     const selectSingleItemAndResetFocus = (item) => {
         lastFocusedItem.current = item;
-        return noScrollChangeActiveStories([item.id]);
+        return onChangeActiveStories([item.id]);
     };
 
     const handleSelectionChange = ({ shiftKey, item }) => {
@@ -160,7 +131,7 @@ export default function StoryGroupTree(props) {
         const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
         const newActiveStoryIds = siblingIds.slice(min, max + 1);
 
-        return noScrollChangeActiveStories(newActiveStoryIds);
+        return onChangeActiveStories(newActiveStoryIds);
     };
 
     const getTreeContainer = () => document.getElementById('storygroup-tree');
@@ -259,7 +230,7 @@ export default function StoryGroupTree(props) {
                     ? {
                         onConfirm: () => {
                             handleRemoveItem(deletionModalVisible.id);
-                            noScrollChangeActiveStories(
+                            onChangeActiveStories(
                                 activeStories.filter(
                                     id => id !== deletionModalVisible.id,
                                 ),
