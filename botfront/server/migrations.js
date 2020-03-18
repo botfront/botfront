@@ -282,6 +282,14 @@ Migrations.add({
             children[s.storyGroupId] = [...(children[s.storyGroupId] || []), s._id];
             projectIds.add(s.projectId);
         });
+        Array.from(projectIds).forEach((projectId) => {
+            StoryGroups.insert({
+                name: 'Stories with triggers',
+                projectId,
+                smartGroup: { prefix: 'withTriggers', query: '{ "rules.0.payload": { "$exists": true } }' },
+                isExpanded: true,
+            });
+        });
 
         const storyGroups = StoryGroups.find().fetch();
         storyGroups.sort((a, b) => b.introStory - a.introStory);

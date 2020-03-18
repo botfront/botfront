@@ -7,6 +7,20 @@ import { Projects } from '../project/project.collection';
 import { Stories } from '../story/stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
+export const createStoriesWithTriggersGroup = (projectId) => {
+    if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
+    checkIfCan('projects:w');
+    Meteor.call(
+        'storyGroups.insert',
+        {
+            name: 'Stories with triggers',
+            projectId,
+            smartGroup: { prefix: 'withTriggers', query: '{ "rules.0.payload": { "$exists": true } }' },
+            isExpanded: true,
+        },
+    );
+};
+
 export const createIntroStoryGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
     checkIfCan('projects:w');

@@ -34,7 +34,11 @@ if (Meteor.isServer) {
             checkIfScope(projectId, ['nlu-data:r', 'response:r', 'nlu-data:x'], this.userId);
             return Stories.find({ projectId }, { fields: { _id: 1 } });
         }
-        return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
+        return Stories.find({ projectId }, {
+            fields: {
+                title: true, checkpoints: true, storyGroupId: true, rules: true,
+            },
+        });
     });
     Meteor.publish('stories.events', function(projectId) {
         checkIfCan('responses:r', projectId);

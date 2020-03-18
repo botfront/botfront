@@ -204,9 +204,25 @@ const StoriesWithTracker = withRouter(withTracker((props) => {
     const { projectId } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
     const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
+    
+    const regularStoryGroups = StoryGroups.find({ smartGroup: { $exists: false } }).fetch();
+    const regularStories = StoriesCollection.find().fetch();
 
-    const storyGroups = StoryGroups.find().fetch();
-    const stories = StoriesCollection.find().fetch();
+    let smartStories = [];
+    const smartStoryGroups = StoryGroups.find({ smartGroup: { $exists: true } }).fetch()
+        .map((sg) => {
+            if (!sg.smartGroup.query) return sg;
+            const results = StoriesCollection.find(JSON.parse(sg.smartGroup.query)).fetch()
+                .map(story => ({
+                    ...story,
+                    _id: `${sg.smartGroup.prefix}_SMART_${story._id}`,
+                    storyGroupId: sg._id,
+                }));
+            smartStories = smartStories.concat(results);
+            return { ...sg, children: results.map(({ _id }) => _id) };
+        });
+    const storyGroups = [...smartStoryGroups, ...regularStoryGroups];
+    const stories = [...regularStories, ...smartStories];
 
     return {
         ready:
