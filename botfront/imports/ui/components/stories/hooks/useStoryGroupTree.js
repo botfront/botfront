@@ -7,6 +7,8 @@ import { mutateTree, moveItemOnTree } from '@atlaskit/tree';
 import { ConversationOptionsContext } from '../Context';
 import { ProjectContext } from '../../../layouts/context';
 
+const isSmartNode = id => !!id.match(/^.*_SMART_/);
+
 const getSourceNode = (tree, source) => tree.items[tree.items[source.parentId].children[source.index]];
 
 const getDestinationNode = (tree, destination) => tree.items[destination.parentId];
@@ -39,6 +41,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     };
     const {
         updateGroup = fallbackFunction,
+        setExpansionOnGroup = fallbackFunction,
         deleteGroup = fallbackFunction,
         updateStory = fallbackFunction,
         addStory = fallbackFunction,
@@ -49,22 +52,23 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     if (expand) {
         const { id } = tree.items[expand];
         setSomethingIsMutating(true);
-        updateGroup(convertId({ id, isExpanded: true }), () => setSomethingIsMutating(false));
+        setExpansionOnGroup(convertId({ id, isExpanded: true }), () => setSomethingIsMutating(false));
         return mutateTree(tree, expand, { isExpanded: true });
     }
     if (collapse) {
         const { id } = tree.items[collapse];
         setSomethingIsMutating(true);
-        updateGroup(convertId({ id, isExpanded: false }), () => setSomethingIsMutating(false));
+        setExpansionOnGroup(convertId({ id, isExpanded: false }), () => setSomethingIsMutating(false));
         return mutateTree(tree, collapse, { isExpanded: false });
     }
     if (remove) {
         const {
             [remove]: {
-                parentId, projectId, children = [], canBearChildren,
+                parentId, projectId, children = [], canBearChildren, smartGroup,
             },
             ...items
         } = tree.items;
+        if (smartGroup || isSmartNode(remove)) return tree;
         children.forEach((key) => {
             delete items[key];
         });
@@ -81,6 +85,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     if (rename) {
         const { items } = tree;
         const [id, title] = rename;
+        if (items[id].smartGroup || isSmartNode(id)) return tree;
         items[id].title = title;
         setSomethingIsMutating(true);
         (items[id].canBearChildren ? updateGroup : updateStory)(
@@ -93,6 +98,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         const { items } = tree;
         const [parentId, title] = newStory;
         const id = uuidv4();
+        if (items[parentId].smartGroup) return tree;
         items[parentId].children = [id, ...items[parentId].children];
         items[id] = {
             id, title, parentId,
@@ -102,7 +108,8 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
-        const { id, selected } = tree.items[toggleFocus];
+        const { id, selected, smartGroup } = tree.items[toggleFocus];
+        if (smartGroup) return tree;
         setSomethingIsMutating(true);
         updateGroup(convertId({ id, selected: !selected }), () => setSomethingIsMutating(false));
         return mutateTree(tree, toggleFocus, { selected: !selected });
@@ -114,13 +121,15 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
 
         const sourceNode = getSourceNode(tree, source);
 
+        if (isSmartNode(sourceNode.id)) return tree; // don't move out of a smartGroup
+
         const sourceNodes = (sourceNode.canBearChildren || !activeStories || !activeStories.includes(sourceNode.id))
             ? [sourceNode]
-            : activeStories.map(id => tree.items[id]); // move all activeNodes if source is a leaf
+            : activeStories // move all activeNodes if source is a leaf
+                .filter(id => !isSmartNode(id)) // no smart group child
+                .map(id => tree.items[id]);
 
-        // safety check; does selection span across
         let destinationNode = getDestinationNode(tree, destination);
-
         const acceptanceCriterion = sourceNodes[0].canBearChildren
             ? candidateNode => candidateNode.id === tree.rootId // only move bearers to root
             : candidateNode => candidateNode.canBearChildren; // move leaves to first bearer
@@ -142,7 +151,10 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                 tree.items[tree.rootId].children[destination.index - 1]
             ];
             destination = { parentId };
+            destinationNode = getDestinationNode(tree, destination);
         }
+
+        if (destinationNode.smartGroup) return tree; // don't move into a smartGroup
 
         // was node dragged from 0th selected item or from somewhere else?
         const indexOfFirstActiveNode = tree.items[source.parentId].children.findIndex(

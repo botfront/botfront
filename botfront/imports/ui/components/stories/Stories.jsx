@@ -17,6 +17,7 @@ import StoryGroupTree from './StoryGroupTree';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
 import { Loading } from '../utils/Utils';
+import { can } from '../../../lib/scopes';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
@@ -68,11 +69,13 @@ function Stories(props) {
         return queriedIds;
     };
 
+    const cleanId = id => id.replace(/^.*_SMART_/, '');
+
     const setActiveStories = (newActiveStories) => {
         if (!getQueryParams().every(id => newActiveStories.includes(id))
         || !newActiveStories.every(id => getQueryParams().includes(id))) {
             const { location: { pathname } } = router;
-            router.replace({ pathname, query: { 'ids[]': newActiveStories } });
+            router.replace({ pathname, query: { 'ids[]': newActiveStories.map(cleanId) } });
         }
         doSetActiveStories(newActiveStories);
     };
@@ -109,6 +112,8 @@ function Stories(props) {
 
     const handleStoryGroupUpdate = useCallback((storyGroup, f) => Meteor.call('storyGroups.update', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
+    const handleStoryGroupSetExpansion = useCallback((storyGroup, f) => Meteor.call('storyGroups.setExpansion', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
+
     const handleNewStory = useCallback((story, f) => Meteor.call(
         'stories.insert', {
             story: '', projectId, branches: [], ...story,
@@ -130,6 +135,7 @@ function Stories(props) {
                     addGroup: handleAddStoryGroup,
                     deleteGroup: handleDeleteGroup,
                     updateGroup: handleStoryGroupUpdate,
+                    setExpansionOnGroup: handleStoryGroupSetExpansion,
                     addStory: handleNewStory,
                     deleteStory: handleStoryDeletion,
                     updateStory: handleStoryUpdate,
@@ -157,7 +163,7 @@ function Stories(props) {
                 >
                     <div className='storygroup-browser'>
                         <StoryGroupNavigation
-                            allowAddition
+                            allowAddition={can('stories:w', projectId)}
                             placeholderAddItem='Choose a group name'
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />
@@ -172,7 +178,7 @@ function Stories(props) {
                     <Container>
                         <StoryEditors
                             projectId={projectId}
-                            selectedIds={activeStories}
+                            selectedIds={activeStories.map(cleanId)}
                         />
                     </Container>
                 </SplitPane>

@@ -176,11 +176,12 @@ class NLUModel extends React.Component {
             model,
             projectDefaultLanguage,
             nluModelLanguages,
+            projectId,
         } = this.props;
         const languageName = nluModelLanguages.find(language => (language.value === model.language));
         const cannotDelete = model.language !== projectDefaultLanguage;
         return [
-            { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} /> },
+            { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={this.onUpdateModel} projectId={projectId} /> },
             { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={this.onDeleteModel} cannotDelete={cannotDelete} language={languageName.text} /> },
         ];
     };

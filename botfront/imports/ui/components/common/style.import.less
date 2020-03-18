@@ -1,5 +1,14 @@
 .hidden {
-    visibility: hidden;
+    visibility: hidden !important;
+    &:hover {
+        visibility: hidden !important;
+    }
+    * {
+        visibility: hidden !important;
+        &:hover {
+            visibility: hidden !important;
+        }
+    }
 }
 
 .floated {

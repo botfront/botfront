@@ -192,8 +192,6 @@ Migrations.add({
     // Touch up on story and storygroup schema
     up: async () => {
         const stories = Stories.find().fetch();
-        const storyGroups = StoryGroups.find().fetch();
-        storyGroups.sort((a, b) => b.introStory - a.introStory);
         const children = {};
         const projectIds = new Set();
 
@@ -202,6 +200,9 @@ Migrations.add({
             children[s.storyGroupId] = [...(children[s.storyGroupId] || []), s._id];
             projectIds.add(s.projectId);
         });
+
+        const storyGroups = StoryGroups.find().fetch();
+        storyGroups.sort((a, b) => b.introStory - a.introStory);
 
         storyGroups.forEach(sg => StoryGroups.update(
             { _id: sg._id },

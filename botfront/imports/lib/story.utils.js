@@ -311,7 +311,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
     };
     appMethodLogger.debug('Selecting story groups');
     const storyGroups = StoryGroups.find(
-        { projectId }, { fields: { _id: 1, name: 1 } },
+        { projectId, smartGroup: { $exists: false } }, { fields: { _id: 1, name: 1 } },
     ).fetch();
 
     let selectedStoryGroups = storyGroups.filter(sg => sg.selected);
