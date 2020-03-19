@@ -2,8 +2,6 @@ import {
     Search,
     Menu,
     Icon,
-    Item,
-    Button,
 } from 'semantic-ui-react';
 import { debounce } from 'lodash';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -14,6 +12,7 @@ import { withRouter } from 'react-router';
 import { StoryGroups } from '../../../../api/storyGroups/storyGroups.collection';
 import apolloClient from '../../../../startup/client/apollo';
 import { setStoriesCurrent } from '../../../store/actions/actions';
+import { wrapMeteorCallback } from '../../utils/Errors';
 
 
 import { SEARCH_STORIES } from './queries';
@@ -53,6 +52,51 @@ const SearchBar = (props) => {
     document.addEventListener('click', () => {
         setOpen(false);
     });
+
+    const findPos = (originalElement) => {
+        let element = originalElement;
+        let position = 0;
+        if (element.offsetParent) {
+            do {
+                position += element.offsetTop;
+                element = element.offsetParent;
+            } while (
+                // the root element of this scrollbox is storygroup-tree
+                // once we reach it we have the correct scroll height
+                element.offsetParent && element.id !== 'storygroup-tree'
+            );
+            return [position];
+        }
+        return [0];
+    };
+
+    const doScroll = (storyId) => {
+        const activeElement = document.getElementById(`story-menu-item-${storyId}`);
+        if (!activeElement) return false;
+        /*
+                element.scroll is used instead of scrollIntoView
+            because scrollIntoView acts on the immediate parent.
+                In this case the parent element is not the element
+            with the scrollbar and it causes bugs
+        */
+        activeElement.parentElement.parentElement.parentElement.scroll(0, findPos(activeElement));
+        return true;
+    };
+
+    const scrollToStoryItem = (storyId, storyGroupId) => {
+        const result = doScroll(storyId);
+        if (result === true) return;
+        Meteor.call('storyGroups.setExpansion', { _id: storyGroupId, projectId, isExpanded: true }, wrapMeteorCallback(() => {
+            const secondAttemptResult = doScroll(storyId);
+            if (secondAttemptResult === true) return;
+            // retry scroll to active story until the story group is opened and the element exists
+            const scrollToInterval = setInterval(() => {
+                const intervalResult = doScroll(storyId);
+                if (intervalResult || storyId !== activeStories[0]) clearTimeout(scrollToInterval);
+            }, 100);
+            setTimeout(() => clearTimeout(scrollToInterval), 2500);
+        }));
+    };
     
     const pushActiveStory = (_id) => {
         const { location: { pathname } } = router;
@@ -71,8 +115,9 @@ const SearchBar = (props) => {
     };
 
     const linkToStory = (event, { result }) => {
-        const { _id } = result;
+        const { _id, description: storyGroupId } = result;
         const { location: { pathname } } = router;
+        scrollToStoryItem(_id, storyGroupId);
         if (event.shiftKey || event.target.id === 'push-story-icon') {
             pushActiveStory(_id);
             return;

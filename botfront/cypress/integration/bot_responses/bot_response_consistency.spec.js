@@ -26,6 +26,14 @@ describe('Bot responses', function() {
         cy.deleteProject('bf');
     });
 
+    const retryResponsePageCheck = (assert) => {
+        cy.visit('/project/bf/dialogue/templates');
+        cy.dataCy('responses-screen').should(() => {
+            cy.visit('/project/bf/dialogue/templates');
+            assert();
+        });
+    };
+
     it('Should delete an existing response from the project when it is deleted in a story', function() {
         createResponse();
         cy.wait(500);
@@ -33,39 +41,48 @@ describe('Bot responses', function() {
             .click({ force: true });
         cy.wait(500);
         cy.dataCy('bot-response-input').should('not.exist');
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('no-responses').should('exist');
+        retryResponsePageCheck(() => {
+            cy.dataCy('no-responses').should('exist');
+        });
     });
 
     it('Should delete a response in a story from the project when the story is deleted', function() {
         createResponse();
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
+        retryResponsePageCheck(() => {
+            cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
+        });
 
         cy.visit('/project/bf/stories');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
         cy.wait(500);
         
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('no-responses').should('exist');
+        retryResponsePageCheck(() => {
+            cy.dataCy('no-responses').should('exist');
+        });
     });
 
     it('Should delete an existing response from the project when the story group is deleted', function() {
         createResponse();
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
+        retryResponsePageCheck(() => {
+            cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
+        });
+        
         
         cy.visit('/project/bf/stories');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
         cy.wait(500);
-
         cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('no-responses').should('exist');
+        // to properly retry the visit must be done again
+        retryResponsePageCheck(() => {
+            cy.dataCy('no-responses').should('exist');
+        });
     });
     
     it('Should delete a response in a branch when the branch is deleted', function() {
         cy.dataCy('create-branch').click();
         cy.dataCy('add-branch').click();
+        cy.dataCy('branch-label').should('have.length', 3);
         cy.dataCy('branch-menu')
             .first()
             .findCy('branch-label')
@@ -123,9 +140,10 @@ describe('Bot responses', function() {
             .click({ force: true });
         cy.wait(500);
         // check the correct bot responses were deleted from the project
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('response-text').contains('first response should not exist').should('not.exist');
-        cy.dataCy('response-text').contains('second response should not exist').should('not.exist');
-        cy.dataCy('response-text').contains('third response should exist').should('exist');
+        retryResponsePageCheck(() => {
+            cy.dataCy('response-text').contains('first response should not exist').should('not.exist');
+            cy.dataCy('response-text').contains('second response should not exist').should('not.exist');
+            cy.dataCy('response-text').contains('third response should exist').should('exist');
+        });
     });
 });
