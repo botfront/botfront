@@ -296,9 +296,6 @@ Migrations.add({
         const storyGroups = StoryGroups.find().fetch();
         storyGroups.sort((a, b) => b.introStory - a.introStory);
 
-        const storyGroups = StoryGroups.find().fetch();
-        storyGroups.sort((a, b) => b.introStory - a.introStory);
-
         storyGroups.forEach(sg => StoryGroups.update(
             { _id: sg._id },
             {
@@ -321,7 +318,7 @@ Migrations.add({
 
 
 Migrations.add({
-    version: 8,
+    version: 12,
     up: () => {
         BotResponses.find()
             .lean()
