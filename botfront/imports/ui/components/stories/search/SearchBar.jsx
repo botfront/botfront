@@ -86,7 +86,7 @@ const SearchBar = (props) => {
     const scrollToStoryItem = (storyId, storyGroupId) => {
         const result = doScroll(storyId);
         if (result === true) return;
-        Meteor.call('storyGroups.update', { _id: storyGroupId, projectId, isExpanded: true }, wrapMeteorCallback(() => {
+        Meteor.call('storyGroups.setExpansion', { _id: storyGroupId, projectId, isExpanded: true }, wrapMeteorCallback(() => {
             const secondAttemptResult = doScroll(storyId);
             if (secondAttemptResult === true) return;
             // retry scroll to active story until the story group is opened and the element exists
