@@ -127,7 +127,6 @@ const StoryGroupTreeNode = (props) => {
             {...provided.draggableProps}
             tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
             className='item-focus-holder'
-            item-id={item.id}
             id={`story-menu-item-${item.id}`}
             type={isLeaf ? 'story' : 'story-group'}
             data-cy='story-group-menu-item'
