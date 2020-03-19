@@ -1,4 +1,4 @@
-/* global cy:true */
+/* global cy */
 const storyGroupOne = 'Default stories';
 
 describe('story tree navigation', function() {
@@ -53,6 +53,103 @@ describe('story tree navigation', function() {
         cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 4);
         cy.deleteStoryOrGroup('Greetings');
         cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 3);
+    });
+
+    it('should be able to select multiple stories and show them in the right order', function() {
+        cy.visit('/project/bf/stories');
+        cy.createStoryInGroup({ groupName: 'Default stories' });
+        cy.createStoryInGroup({ groupName: 'Default stories' });
+        cy.selectStories('Default stories (3)', 2);
+        cy.dataCy('story-title').should('have.length', 2);
+        cy.dataCy('story-title').eq(0).should('have.value', 'Default stories (3)');
+        cy.dataCy('story-title').eq(1).should('have.value', 'Farewells');
+        cy.selectStories('Greetings', 3, 'up');
+        cy.dataCy('story-title').should('have.length', 3);
+        cy.dataCy('story-title').eq(0).should('have.value', 'Default stories (3)');
+        cy.dataCy('story-title').eq(1).should('have.value', 'Farewells');
+        cy.dataCy('story-title').eq(2).should('have.value', 'Greetings');
+    });
+
+    it('should not be able to select stories from different groups', function() {
+        cy.visit('/project/bf/stories');
+        cy.selectStories('Greetings', 2);
+        cy.dataCy('story-title').should('have.length', 1);
+        cy.dataCy('story-title').eq(0).should('have.value', 'Get started');
+    });
+
+    it('should be able to move a single story to another group', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Get started');
+        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Default stories' });
+        cy.dataCy('story-group-menu-item').eq(3).should('have.text', 'Get started');
+        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Intro stories');
+    });
+
+    it('should be able to move 2 stories to another group by moving whichever of 2', function() {
+        cy.visit('/project/bf/stories');
+        cy.createStoryInGroup({ groupName: 'Default stories' });
+        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Default stories (3)');
+        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Farewells');
+        cy.selectStories('Default stories (3)', 2);
+        cy.moveStoryOrGroup({ name: 'Default stories (3)' }, { name: 'Intro stories' }); // grab first selected item
+        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Greetings');
+        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Intro stories');
+        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Default stories (3)');
+        cy.dataCy('story-group-menu-item').eq(5).should('have.text', 'Farewells');
+    
+        cy.moveStoryOrGroup({ name: 'Farewells' }, { name: 'Default stories' }); // grab second selected item and move em back
+        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Greetings');
+        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Default stories (3)');
+        cy.dataCy('story-group-menu-item').eq(3).should('have.text', 'Farewells');
+        cy.dataCy('story-group-menu-item').eq(5).should('have.text', 'Get started');
+    });
+
+    it('should be able to move stories above or below others', function() {
+        cy.visit('/project/bf/stories');
+        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Farewells');
+        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Get started');
+        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Farewells' });
+        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Get started');
+    
+        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Farewells' });
+        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Farewells');
+        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Get started');
+    
+        cy.selectStories('Get started', 2);
+        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Farewells' });
+        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Get started');
+        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Greetings');
+    
+        cy.selectStories('Get started', 2);
+        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Farewells' });
+        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Farewells');
+        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Get started');
+        cy.dataCy('story-group-menu-item').eq(3).should('have.text', 'Greetings');
+    });
+
+    it('should be able to move a story or group and not lose current selection', function() {
+        cy.visit('/project/bf/stories');
+        cy.selectStories('Farewells', 2);
+        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Default stories' });
+        cy.moveStoryOrGroup({ name: 'Intro stories' }, { name: 'Default stories' });
+        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Get started');
+        cy.dataCy('story-group-menu-item').eq(0).should('have.text', 'Intro stories');
+        cy.dataCy('story-title').should('have.length', 2);
+        cy.dataCy('story-title').eq(0).should('have.value', 'Farewells');
+        cy.dataCy('story-title').eq(1).should('have.value', 'Greetings');
+    });
+
+    it('should not be able to move a sg into a sg or a story to the root', function() {
+        cy.visit('/project/bf/stories');
+        cy.moveStoryOrGroup({ name: 'Intro stories' }, { name: 'Farewells' });
+        cy.dataCy('story-group-menu-item').eq(0).should('have.text', 'Intro stories'); // move above group instead
+        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Greetings');
+        cy.moveStoryOrGroup({ name: 'Greetings' }); // attempt moving to root
+        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Greetings'); // don't move at all
+        cy.moveStoryOrGroup({ name: 'Greetings' }, { index: 1 }); // attempt moving to root between two groups
+        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Greetings'); // moved into group above
+        cy.moveStoryOrGroup({ name: 'Greetings' }, { index: 2 }); // attempt moving to last position in root
+        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Greetings'); // moved into group above
     });
 
     it('train button should have the same text on both the NLU and stories page', function() {

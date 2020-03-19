@@ -471,6 +471,19 @@ Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Pro
     }
 }));
 
+Cypress.Commands.add('getWindowMethod', (methodName) => {
+    cy.window().then(window => new Cypress.Promise((resolve, reject) => {
+        let i = 0;
+        const checkIfExists = () => {
+            if (i > 200) return reject();
+            if (window[methodName]) return resolve(window[methodName]);
+            i += 1;
+            return setTimeout(checkIfExists, 50);
+        };
+        checkIfExists();
+    }));
+});
+
 Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(fixture, 'utf8')
     .then((data) => {
         const url = `${Cypress.env('API_URL')}/project/${projectId}/import`;
