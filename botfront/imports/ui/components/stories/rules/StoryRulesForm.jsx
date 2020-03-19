@@ -370,7 +370,7 @@ function StoryRulesForm({
                                 </OptionalField>
                                 <OptionalField
                                     name='timeLimit'
-                                    label='Minumum time between story activations by this trigger'
+                                    label='Minimum time between story activations by this trigger'
                                     getError={getEnabledError}
                                 >
                                     <AutoField
