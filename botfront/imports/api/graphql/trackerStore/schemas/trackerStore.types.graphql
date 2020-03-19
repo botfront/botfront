@@ -8,8 +8,8 @@ type Query {
 }
 
 type Mutation {
-    insertTrackerStore(senderId: String!, projectId: String!, tracker: Any): Any!
-    updateTrackerStore(senderId: String!, projectId: String!, tracker: Any): Any!
+    insertTrackerStore(senderId: String!, projectId: String!, tracker: Any): trackerStoreInfo!
+    updateTrackerStore(senderId: String!, projectId: String!, tracker: Any): trackerStoreInfo!
 }
 
 

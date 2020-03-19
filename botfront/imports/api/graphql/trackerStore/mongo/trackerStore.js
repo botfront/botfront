@@ -26,7 +26,6 @@ export const getTracker = async (senderId, projectId, after, maxEvents = 100) =>
                 'tracker.latest_action_name': 1,
                 'tracker.events': { $slice: ['$tracker.events', { $subtract: [after, { $size: '$tracker.events' }] }] },
                 trackerLen: { $size: '$tracker.events' },
-                lastTimeStamp: { $slice: ['$tracker.events', -1] },
             },
         },
         {
@@ -41,7 +40,7 @@ export const getTracker = async (senderId, projectId, after, maxEvents = 100) =>
                 'tracker.latest_action_name': 1,
                 'tracker.events': { $slice: ['$tracker.events', -maxEvents] }, // take the last <maxevent> elements from the array, not doable in the previous step
                 trackerLen: 1,
-                lastTimeStamp: { $arrayElemAt: ['$lastTimeStamp.timestamp', 0] },
+                lastTimeStamp: '$tracker.latest_event_time',
             },
         },
     ];
@@ -49,16 +48,35 @@ export const getTracker = async (senderId, projectId, after, maxEvents = 100) =>
     return results[0];
 };
 
-export const insertTrackerStore = async (senderId, projectId, tracker) => (
-    Conversations.create({
+const getNewTrackerInfo = async (senderId, projectId) => {
+    const aggregation = [
+        {
+            $match: {
+                _id: senderId,
+                projectId,
+            },
+        },
+        {
+            $project: {
+                trackerLen: { $size: '$tracker.events' },
+                lastTimeStamp: '$tracker.latest_event_time',
+            },
+        }];
+    const results = await Conversations.aggregate(aggregation).allowDiskUse(true);
+    return results[0];
+};
+
+export const insertTrackerStore = async (senderId, projectId, tracker) => {
+    await Conversations.create({
         _id: senderId,
         tracker,
         status: 'new',
         projectId,
         createdAt: new Date(),
         updatedAt: new Date(),
-    })
-);
+    });
+    return getNewTrackerInfo(senderId, projectId);
+};
 
 const extractMetadataFromTracker = (tracker) => {
     if (!tracker || !tracker.events) return null;
@@ -142,7 +160,7 @@ export const updateTrackerStore = async (senderId, projectId, tracker) => {
 
     const exist = Conversations.findOne({ _id: senderId });
     if (exist) {
-        return Conversations.updateOne(
+        await Conversations.updateOne(
             { _id: senderId },
             {
                 $push: {
@@ -160,6 +178,8 @@ export const updateTrackerStore = async (senderId, projectId, tracker) => {
                 },
             },
         );
+    } else {
+        await insertTrackerStore(senderId, projectId, tracker);
     }
-    return insertTrackerStore(senderId, projectId, tracker);
+    return getNewTrackerInfo(senderId, projectId);
 };
