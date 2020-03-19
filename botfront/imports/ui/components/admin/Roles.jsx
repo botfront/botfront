@@ -15,7 +15,7 @@ const columns = [
         accessor: 'name',
         Header: 'Name',
         // eslint-disable-next-line react/prop-types
-        Cell: props => <Link to={`/admin/role/${props.value}`}>{props.value}</Link>,
+        Cell: props => <Link to={`/admin/role/${props.value}`} data-cy='role-link'>{props.value}</Link>,
     },
     { id: 'description', accessor: 'description', Header: 'Description' },
 ];
