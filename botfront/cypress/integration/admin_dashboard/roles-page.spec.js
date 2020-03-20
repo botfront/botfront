@@ -5,7 +5,6 @@ const editedRoleName = 'NewRole';
 
 describe('can create, edit, and delete a role', () => {
     beforeEach(() => {
-        cy.deleteUser('roleTestUser@test.test');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });

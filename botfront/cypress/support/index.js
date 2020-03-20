@@ -306,7 +306,7 @@ Cypress.Commands.add('deleteUser', (email) => {
                     resolve(result);
                 });
             } catch (e) {
-                throw e;
+                reject(e);
             }
         }),
     );
