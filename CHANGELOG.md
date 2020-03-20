@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.3](https://github.com/botfront/botfront/compare/v0.21.2...v0.21.3) (2020-03-20)
+
+
+### Bug Fixes
+
+* mongo credentials are overwritten on update ([#520](https://github.com/botfront/botfront/issues/520)) ([84570e3](https://github.com/botfront/botfront/commit/84570e3))
+
+
+
 ### [0.21.2](https://github.com/botfront/botfront/compare/v0.21.1...v0.21.2) (2020-03-19)
 
 
