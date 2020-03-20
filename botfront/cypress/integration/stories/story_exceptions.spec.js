@@ -16,8 +16,9 @@ describe('story exceptions', function() {
         init();
     });
     const type = (text, n = 0) => {
+        cy.wait(200);
         cy.dataCy('single-story-editor').eq(n).find('textarea').focus()
-            .type(`{selectAll}{del}${text}`, { force: true });
+            .type(`{selectAll}{del}{selectAll}{del}${text}`, { force: true });
     };
     const typeError = (n = 0) => type('* hi{enter}  - uu', n);
     const typeWarning = (n = 0) => type('  - utter_hey', n);
