@@ -12,6 +12,8 @@ describe('can create, edit, and delete a role', () => {
     afterEach(function() {
         cy.logout();
         cy.deleteUser('roleTestUser@test.test');
+        cy.deleteRole('NewRole', 'global-admin');
+        cy.deleteRole('TestRole', 'global-admin');
         cy.deleteProject('bf');
     });
     const createRole = () => {
