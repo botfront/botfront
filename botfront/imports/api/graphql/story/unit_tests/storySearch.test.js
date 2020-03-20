@@ -8,14 +8,22 @@ import {
 import { indexStory } from '../../../story/stories.index';
 import { Projects } from '../../../project/project.collection';
 import { NLUModels } from '../../../nlu_model/nlu_model.collection';
-import { createResponse, deleteResponse, createResponses } from '../../botResponses/mongo/botResponses';
+import { createResponse, createResponses } from '../../botResponses/mongo/botResponses';
 import BotResponses from '../../botResponses/botResponses.model';
 
 import StoryResolver from '../resolvers/storiesResolver';
+import { createTestUser, removeTestUser } from '../../../testUtils';
 
 if (Meteor.isServer) {
+    import { setUpRoles } from '../../../roles/roles';
+
+    setUpRoles();
+
+    const userId = 'storiesSearchTest';
+    let userData;
+
     const insertDataAndIndex = async (done) => {
-        await deleteResponse(projectId, botResponseFixture.key);
+        userData = await createTestUser(userId);
         await BotResponses.deleteMany(({ projectId }));
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
@@ -31,13 +39,19 @@ if (Meteor.isServer) {
         Stories.update({ _id: storyId }, { $set: { textIndex } });
         done();
     };
+
+    const removeTestData = async (done) => {
+        await removeTestUser(userId);
+        done();
+    };
+    
     const searchStories = async (language, queryString, reject) => {
         try {
             const searchResult = await StoryResolver.Query.stories(null, {
                 projectId: 'bf',
                 language,
                 queryString,
-            });
+            }, { user: userData });
             if (!reject) {
                 expect(searchResult[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
             } else {
@@ -72,6 +86,9 @@ if (Meteor.isServer) {
     describe('test searching stories by their index', () => {
         before((done) => {
             insertDataAndIndex(done);
+        });
+        after((done) => {
+            removeTestData(done);
         });
         it('should get the expected results from a search string', (done) => {
             testStorySearch(done);
