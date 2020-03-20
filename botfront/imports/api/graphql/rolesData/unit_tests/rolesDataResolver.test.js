@@ -6,8 +6,9 @@ import { createTestUser } from '../../../testUtils';
 
 if (Meteor.isServer) {
     import { setUpRoles } from '../../../roles/roles';
-    import roleResolver from '../resolvers/rolesDataResolver';
     import RolesData from '../rolesData.model';
+    import roleResolver from '../resolvers/rolesDataResolver';
+    
 
     setUpRoles();
     const userId = 'testuserid';
