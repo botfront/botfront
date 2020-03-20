@@ -264,6 +264,7 @@ export const extractDomain = (
             actions: new Set([...d1.actions, ...d2.actions]),
             forms: new Set([...d1.forms, ...d2.forms]),
             slots: { ...d1.slots, ...d2.slots },
+            responses: d1.responses,
         }),
         initialDomain,
     );

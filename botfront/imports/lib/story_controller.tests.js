@@ -101,7 +101,6 @@ actions:
 - utter_react_positive
 - utter_react_negative
 - action_greet_user
-- action_deactivate_form
 - action_chitchat
 forms:
 - sales_form
