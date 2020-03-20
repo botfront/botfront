@@ -93,6 +93,10 @@ export function getProjectVersion() {
     return getProjectConfig(fixDir(null)).version;
 }
 
+export function getMongoPassword() {
+    return getProjectConfig(fixDir(null)).env.mongo_initdb_root_password;
+}
+
 export function isMinorUpdateWithVersion(projectVersion, botfrontVersion){
     const projectMajorVersion = projectVersion.split('.')[1];
     const projectMinorVersion = projectVersion.split('.')[2];
@@ -159,7 +163,7 @@ export async function displayProjectUpdateMessage() {
 /*
 Augment the botfront.yml file with version and project specific values
 */
-export async function updateProjectFile(projectAbsPath, images, mongoAuth = true) {
+export async function updateProjectFile(projectAbsPath, images, mongoAuth = true, mongoPassword = randomString()) {
     const config = getProjectConfig(projectAbsPath);
     if (!config.version) {
         config.version = getBotfrontVersion();
@@ -171,11 +175,10 @@ export async function updateProjectFile(projectAbsPath, images, mongoAuth = true
     });
 
     if (mongoAuth){
-        const password = randomString();
         Object.assign(config.env, {
-            mongo_url: `mongodb://root:${password}@mongo:27017/bf?authSource=admin`,
+            mongo_url: `mongodb://root:${mongoPassword}@mongo:27017/bf?authSource=admin`,
             mongo_initdb_root_username: 'root',
-            mongo_initdb_root_password: password,
+            mongo_initdb_root_password: mongoPassword,
         })
     } else {
         Object.assign(config.env, {
