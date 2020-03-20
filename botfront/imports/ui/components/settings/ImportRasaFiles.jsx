@@ -259,8 +259,8 @@ const ImportRasaFiles = (props) => {
             tooltip: (
                 <>
                     <p>
-                        Import slots and bot response templates. Existing slots and
-                        templates are completely overwritten. Slots in your current
+                        Import slots and bot response responses. Existing slots and
+                        responses are completely overwritten. Slots in your current
                         default domain are not imported.
                     </p>
 
@@ -308,7 +308,7 @@ const ImportRasaFiles = (props) => {
         const numbers = {
             story: countAcrossFiles(storyFileReader, 'parsedStories'),
             slot: countAcrossFiles(domainFileReader, 'slots'),
-            response: countAcrossFiles(domainFileReader, 'templates'),
+            response: countAcrossFiles(domainFileReader, 'responses'),
         };
         projectLanguages.forEach((l) => {
             numbers[`${l.text} example`] = countAcrossFiles(

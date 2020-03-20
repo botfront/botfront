@@ -255,7 +255,6 @@ export class StoryController {
             actions: new Set(),
             slots: this.domain.slots,
             forms: new Set(),
-            templates: {},
         };
         this.prefix = null;
         this.content = null;

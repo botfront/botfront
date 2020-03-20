@@ -10,29 +10,30 @@ export const loadDomain = ({
     let domain;
     try {
         domain = safeLoad(rawText);
-        if (!['templates', 'slots'].some(k => k in domain)) throw new Error();
+        if (!['templates', 'responses', 'slots'].some(k => k in domain)) throw new Error();
     } catch (e) {
         return { errors: ['Domain could not be parsed from YAML.'] };
     }
-    const { slots: slotsFromFile = {}, templates: templatesFromFile = {} } = domain;
-    const { slots: defaultSlots = {}, templates: defaultTemplates = {} } = defaultDomain;
-    // do not import slots or templates that are in current default domain
+    const { slots: slotsFromFile = {}, templates: legacyResponsesFromFile = {}, responses: modernResponsesFromFile = {} } = domain;
+    const { slots: defaultSlots = {}, responses: defaultResponses = {} } = defaultDomain;
+    const responsesFromFile = { ...legacyResponsesFromFile, ...modernResponsesFromFile };
+    // do not import slots or responses that are in current default domain
     Object.keys(defaultSlots).forEach((k) => {
         delete slotsFromFile[k];
     });
-    Object.keys(defaultTemplates).forEach((k) => {
-        delete templatesFromFile[k];
+    Object.keys(defaultResponses).forEach((k) => {
+        delete responsesFromFile[k];
     });
 
     const warnings = [];
-    const templates = [];
+    const responses = [];
     const slots = [];
 
-    Object.keys(templatesFromFile).forEach((key) => {
-        const template = templatesFromFile[key];
+    Object.keys(responsesFromFile).forEach((key) => {
+        const response = responsesFromFile[key];
         const values = [];
         let firstMetadataFound;
-        template.forEach((item) => {
+        response.forEach((item) => {
             const { language, metadata, ...rest } = item;
             const content = typeof item === 'string'
                 ? safeDump({ text: item })
@@ -41,12 +42,12 @@ export const loadDomain = ({
             if (!firstMetadataFound && metadata) firstMetadataFound = metadata;
             if (firstMetadataFound && !isEqual(firstMetadataFound, metadata)) {
                 warnings.push(
-                    `Different metadata found for single template '${key}', but Botfront does not support it.`,
+                    `Different metadata found for single response '${key}', but Botfront does not support it.`,
                 );
             }
             if (!projectLanguages.includes(lang)) {
                 warnings.push(
-                    `Template '${key}' defined for '${lang}', but no such language used by project.`,
+                    `Response '${key}' defined for '${lang}', but no such language used by project.`,
                 );
             } else {
                 const valueIndex = values.findIndex(v => v.lang === lang);
@@ -60,7 +61,7 @@ export const loadDomain = ({
                 }
             }
         });
-        templates.push({
+        responses.push({
             ...(firstMetadataFound ? { metadata: firstMetadataFound } : {}),
             values,
             key,
@@ -82,6 +83,6 @@ export const loadDomain = ({
     });
 
     return {
-        rawText, warnings, slots, templates,
+        rawText, warnings, slots, responses,
     };
 };
